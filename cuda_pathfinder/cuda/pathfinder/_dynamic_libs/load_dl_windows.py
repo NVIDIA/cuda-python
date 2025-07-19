@@ -120,12 +120,11 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
     return None
 
 
-def load_with_system_search(libname: str, _soname: str) -> Optional[LoadedDL]:
+def load_with_system_search(libname: str) -> Optional[LoadedDL]:
     """Try to load a DLL using system search paths.
 
     Args:
         libname: The name of the library to load
-        soname: Unused parameter (kept for interface consistency)
 
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
