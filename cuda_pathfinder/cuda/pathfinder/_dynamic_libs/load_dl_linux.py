@@ -7,6 +7,7 @@ import os
 from typing import Optional
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
+from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import SUPPORTED_LINUX_SONAMES
 
 CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 
@@ -82,12 +83,11 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
     return None
 
 
-def load_with_system_search(libname: str, soname: str) -> Optional[LoadedDL]:
+def load_with_system_search(libname: str) -> Optional[LoadedDL]:
     """Try to load a library using system search paths.
 
     Args:
         libname: The name of the library to load
-        soname: The soname to search for
 
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
@@ -95,14 +95,18 @@ def load_with_system_search(libname: str, soname: str) -> Optional[LoadedDL]:
     Raises:
         RuntimeError: If the library is loaded but no expected symbol is found
     """
-    try:
-        handle = ctypes.CDLL(soname, CDLL_MODE)
-        abs_path = abs_path_for_dynamic_library(libname, handle)
-        if abs_path is None:
-            raise RuntimeError(f"No expected symbol for {libname=!r}")
-        return LoadedDL(abs_path, False, handle._handle)
-    except OSError:
-        return None
+    candidate_sonames = list(SUPPORTED_LINUX_SONAMES.get(libname, ()))
+    candidate_sonames.append(f"{libname}.so")
+    for soname in candidate_sonames:
+        try:
+            handle = ctypes.CDLL(soname, CDLL_MODE)
+            abs_path = abs_path_for_dynamic_library(libname, handle)
+            if abs_path is None:
+                raise RuntimeError(f"No expected symbol for {libname=!r}")
+            return LoadedDL(abs_path, False, handle._handle)
+        except OSError:
+            pass
+    return None
 
 
 def load_with_abs_path(_libname: str, found_path: str) -> LoadedDL:

@@ -37,7 +37,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
     # Find the library path
     found = _FindNvidiaDynamicLib(libname)
     if found.abs_path is None:
-        loaded = load_with_system_search(libname, found.lib_searched_for)
+        loaded = load_with_system_search(libname)
         if loaded is not None:
             return loaded
         found.retry_with_cuda_home_priority_last()
