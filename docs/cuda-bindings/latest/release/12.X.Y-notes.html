@@ -387,6 +387,8 @@ Supported on Linux only.</p>
 <li><p>Currently using this module requires NumPy to be present. Any recent NumPy 1.x or 2.x should work.</p></li>
 </ul>
 </li>
+<li><p>Python bindings in every module, including <code class="docutils literal notranslate"><span class="pre">driver</span></code>, <code class="docutils literal notranslate"><span class="pre">runtime</span></code>, and <code class="docutils literal notranslate"><span class="pre">nvrtc</span></code>, now have the GIL
+released before calling the underlying C APIs.</p></li>
 </ul>
 </section>
 <section id="bug-fixes">
