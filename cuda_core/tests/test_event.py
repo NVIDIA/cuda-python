@@ -14,6 +14,7 @@ from conftest import skipif_need_cuda_headers
 import cuda.core.experimental
 from cuda.core.experimental import (
     Device,
+    Event,
     EventOptions,
     LaunchConfig,
     LegacyPinnedMemoryResource,
@@ -191,3 +192,13 @@ def test_event_context(init_cuda):
     event = Device().create_event(options=EventOptions())
     context = event.context
     assert context is not None
+
+
+def test_event_subclassing():
+    class MyEvent(Event):
+        pass
+
+    dev = Device()
+    dev.set_current()
+    event = MyEvent._init(dev.device_id, dev.context)
+    assert isinstance(event, MyEvent)
