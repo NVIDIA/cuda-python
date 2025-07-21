@@ -24762,7 +24762,7 @@ def cuCtxCreate_v3(paramsArray : Optional[Tuple[CUexecAffinityParam] | List[CUex
     with nogil:
         err = cydriver.cuCtxCreate_v3(<cydriver.CUcontext*>pctx._pvt_ptr, cyparamsArray, numParams, flags, cydev)
 
-    if cyparamsArray is not NULL:
+    if len(paramsArray) > 1 and cyparamsArray is not NULL:
         free(cyparamsArray)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -31189,11 +31189,11 @@ def cuMemcpyBatchAsync(dsts : Optional[Tuple[CUdeviceptr] | List[CUdeviceptr]], 
     with nogil:
         err = cydriver.cuMemcpyBatchAsync(cydsts, cysrcs, cysizes.data(), count, cyattrs, cyattrsIdxs.data(), numAttrs, &failIdx, cyhStream)
 
-    if cydsts is not NULL:
+    if len(dsts) > 1 and cydsts is not NULL:
         free(cydsts)
-    if cysrcs is not NULL:
+    if len(srcs) > 1 and cysrcs is not NULL:
         free(cysrcs)
-    if cyattrs is not NULL:
+    if len(attrs) > 1 and cyattrs is not NULL:
         free(cyattrs)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -31336,7 +31336,7 @@ def cuMemcpy3DBatchAsync(size_t numOps, opList : Optional[Tuple[CUDA_MEMCPY3D_BA
     with nogil:
         err = cydriver.cuMemcpy3DBatchAsync(numOps, cyopList, &failIdx, flags, cyhStream)
 
-    if cyopList is not NULL:
+    if len(opList) > 1 and cyopList is not NULL:
         free(cyopList)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -33420,7 +33420,7 @@ def cuMemMapArrayAsync(mapInfoList : Optional[Tuple[CUarrayMapInfo] | List[CUarr
     with nogil:
         err = cydriver.cuMemMapArrayAsync(cymapInfoList, count, cyhStream)
 
-    if cymapInfoList is not NULL:
+    if len(mapInfoList) > 1 and cymapInfoList is not NULL:
         free(cymapInfoList)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -33543,7 +33543,7 @@ def cuMemSetAccess(ptr, size_t size, desc : Optional[Tuple[CUmemAccessDesc] | Li
     with nogil:
         err = cydriver.cuMemSetAccess(cyptr, size, cydesc, count)
 
-    if cydesc is not NULL:
+    if len(desc) > 1 and cydesc is not NULL:
         free(cydesc)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -34189,7 +34189,7 @@ def cuMemPoolSetAccess(pool, map : Optional[Tuple[CUmemAccessDesc] | List[CUmemA
     with nogil:
         err = cydriver.cuMemPoolSetAccess(cypool, cymap, count)
 
-    if cymap is not NULL:
+    if len(map) > 1 and cymap is not NULL:
         free(cymap)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -37027,9 +37027,9 @@ def cuStreamBeginCaptureToGraph(hStream, hGraph, dependencies : Optional[Tuple[C
     with nogil:
         err = cydriver.cuStreamBeginCaptureToGraph(cyhStream, cyhGraph, cydependencies, cydependencyData, numDependencies, cymode)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
-    if cydependencyData is not NULL:
+    if len(dependencyData) > 1 and cydependencyData is not NULL:
         free(cydependencyData)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -37480,7 +37480,7 @@ def cuStreamUpdateCaptureDependencies(hStream, dependencies : Optional[Tuple[CUg
     with nogil:
         err = cydriver.cuStreamUpdateCaptureDependencies(cyhStream, cydependencies, numDependencies, flags)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -37566,9 +37566,9 @@ def cuStreamUpdateCaptureDependencies_v2(hStream, dependencies : Optional[Tuple[
     with nogil:
         err = cydriver.cuStreamUpdateCaptureDependencies_v2(cyhStream, cydependencies, cydependencyData, numDependencies, flags)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
-    if cydependencyData is not NULL:
+    if len(dependencyData) > 1 and cydependencyData is not NULL:
         free(cydependencyData)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -39039,9 +39039,9 @@ def cuSignalExternalSemaphoresAsync(extSemArray : Optional[Tuple[CUexternalSemap
     with nogil:
         err = cydriver.cuSignalExternalSemaphoresAsync(cyextSemArray, cyparamsArray, numExtSems, cystream)
 
-    if cyextSemArray is not NULL:
+    if len(extSemArray) > 1 and cyextSemArray is not NULL:
         free(cyextSemArray)
-    if cyparamsArray is not NULL:
+    if len(paramsArray) > 1 and cyparamsArray is not NULL:
         free(cyparamsArray)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -39170,9 +39170,9 @@ def cuWaitExternalSemaphoresAsync(extSemArray : Optional[Tuple[CUexternalSemapho
     with nogil:
         err = cydriver.cuWaitExternalSemaphoresAsync(cyextSemArray, cyparamsArray, numExtSems, cystream)
 
-    if cyextSemArray is not NULL:
+    if len(extSemArray) > 1 and cyextSemArray is not NULL:
         free(cyextSemArray)
-    if cyparamsArray is not NULL:
+    if len(paramsArray) > 1 and cyparamsArray is not NULL:
         free(cyparamsArray)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -39560,7 +39560,7 @@ def cuStreamBatchMemOp(stream, unsigned int count, paramArray : Optional[Tuple[C
     with nogil:
         err = cydriver.cuStreamBatchMemOp(cystream, count, cyparamArray, flags)
 
-    if cyparamArray is not NULL:
+    if len(paramArray) > 1 and cyparamArray is not NULL:
         free(cyparamArray)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -40746,7 +40746,7 @@ def cuLaunchCooperativeKernelMultiDevice(launchParamsList : Optional[Tuple[CUDA_
     with nogil:
         err = cydriver.cuLaunchCooperativeKernelMultiDevice(cylaunchParamsList, numDevices, flags)
 
-    if cylaunchParamsList is not NULL:
+    if len(launchParamsList) > 1 and cylaunchParamsList is not NULL:
         free(cylaunchParamsList)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -41580,7 +41580,7 @@ def cuGraphAddKernelNode(hGraph, dependencies : Optional[Tuple[CUgraphNode] | Li
     with nogil:
         err = cydriver.cuGraphAddKernelNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -41761,7 +41761,7 @@ def cuGraphAddMemcpyNode(hGraph, dependencies : Optional[Tuple[CUgraphNode] | Li
     with nogil:
         err = cydriver.cuGraphAddMemcpyNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cycopyParams_ptr, cyctx)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -41923,7 +41923,7 @@ def cuGraphAddMemsetNode(hGraph, dependencies : Optional[Tuple[CUgraphNode] | Li
     with nogil:
         err = cydriver.cuGraphAddMemsetNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cymemsetParams_ptr, cyctx)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -42075,7 +42075,7 @@ def cuGraphAddHostNode(hGraph, dependencies : Optional[Tuple[CUgraphNode] | List
     with nogil:
         err = cydriver.cuGraphAddHostNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -42237,7 +42237,7 @@ def cuGraphAddChildGraphNode(hGraph, dependencies : Optional[Tuple[CUgraphNode] 
     with nogil:
         err = cydriver.cuGraphAddChildGraphNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cychildGraph)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -42355,7 +42355,7 @@ def cuGraphAddEmptyNode(hGraph, dependencies : Optional[Tuple[CUgraphNode] | Lis
     with nogil:
         err = cydriver.cuGraphAddEmptyNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -42434,7 +42434,7 @@ def cuGraphAddEventRecordNode(hGraph, dependencies : Optional[Tuple[CUgraphNode]
     with nogil:
         err = cydriver.cuGraphAddEventRecordNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cyevent)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -42602,7 +42602,7 @@ def cuGraphAddEventWaitNode(hGraph, dependencies : Optional[Tuple[CUgraphNode] |
     with nogil:
         err = cydriver.cuGraphAddEventWaitNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cyevent)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -42762,7 +42762,7 @@ def cuGraphAddExternalSemaphoresSignalNode(hGraph, dependencies : Optional[Tuple
     with nogil:
         err = cydriver.cuGraphAddExternalSemaphoresSignalNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -42922,7 +42922,7 @@ def cuGraphAddExternalSemaphoresWaitNode(hGraph, dependencies : Optional[Tuple[C
     with nogil:
         err = cydriver.cuGraphAddExternalSemaphoresWaitNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -43085,7 +43085,7 @@ def cuGraphAddBatchMemOpNode(hGraph, dependencies : Optional[Tuple[CUgraphNode] 
     with nogil:
         err = cydriver.cuGraphAddBatchMemOpNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -43358,7 +43358,7 @@ def cuGraphAddMemAllocNode(hGraph, dependencies : Optional[Tuple[CUgraphNode] | 
     with nogil:
         err = cydriver.cuGraphAddMemAllocNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -43499,7 +43499,7 @@ def cuGraphAddMemFreeNode(hGraph, dependencies : Optional[Tuple[CUgraphNode] | L
     with nogil:
         err = cydriver.cuGraphAddMemFreeNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cydptr)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -44479,9 +44479,9 @@ def cuGraphAddDependencies(hGraph, from_ : Optional[Tuple[CUgraphNode] | List[CU
     with nogil:
         err = cydriver.cuGraphAddDependencies(cyhGraph, cyfrom_, cyto, numDependencies)
 
-    if cyfrom_ is not NULL:
+    if len(from_) > 1 and cyfrom_ is not NULL:
         free(cyfrom_)
-    if cyto is not NULL:
+    if len(to) > 1 and cyto is not NULL:
         free(cyto)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -44571,11 +44571,11 @@ def cuGraphAddDependencies_v2(hGraph, from_ : Optional[Tuple[CUgraphNode] | List
     with nogil:
         err = cydriver.cuGraphAddDependencies_v2(cyhGraph, cyfrom_, cyto, cyedgeData, numDependencies)
 
-    if cyfrom_ is not NULL:
+    if len(from_) > 1 and cyfrom_ is not NULL:
         free(cyfrom_)
-    if cyto is not NULL:
+    if len(to) > 1 and cyto is not NULL:
         free(cyto)
-    if cyedgeData is not NULL:
+    if len(edgeData) > 1 and cyedgeData is not NULL:
         free(cyedgeData)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -44654,9 +44654,9 @@ def cuGraphRemoveDependencies(hGraph, from_ : Optional[Tuple[CUgraphNode] | List
     with nogil:
         err = cydriver.cuGraphRemoveDependencies(cyhGraph, cyfrom_, cyto, numDependencies)
 
-    if cyfrom_ is not NULL:
+    if len(from_) > 1 and cyfrom_ is not NULL:
         free(cyfrom_)
-    if cyto is not NULL:
+    if len(to) > 1 and cyto is not NULL:
         free(cyto)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -44752,11 +44752,11 @@ def cuGraphRemoveDependencies_v2(hGraph, from_ : Optional[Tuple[CUgraphNode] | L
     with nogil:
         err = cydriver.cuGraphRemoveDependencies_v2(cyhGraph, cyfrom_, cyto, cyedgeData, numDependencies)
 
-    if cyfrom_ is not NULL:
+    if len(from_) > 1 and cyfrom_ is not NULL:
         free(cyfrom_)
-    if cyto is not NULL:
+    if len(to) > 1 and cyto is not NULL:
         free(cyto)
-    if cyedgeData is not NULL:
+    if len(edgeData) > 1 and cyedgeData is not NULL:
         free(cyedgeData)
     return (_dict_CUresult[err],)
 {{endif}}
@@ -46718,7 +46718,7 @@ def cuGraphAddNode(hGraph, dependencies : Optional[Tuple[CUgraphNode] | List[CUg
     with nogil:
         err = cydriver.cuGraphAddNode(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, numDependencies, cynodeParams_ptr)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -46815,9 +46815,9 @@ def cuGraphAddNode_v2(hGraph, dependencies : Optional[Tuple[CUgraphNode] | List[
     with nogil:
         err = cydriver.cuGraphAddNode_v2(<cydriver.CUgraphNode*>phGraphNode._pvt_ptr, cyhGraph, cydependencies, cydependencyData, numDependencies, cynodeParams_ptr)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
-    if cydependencyData is not NULL:
+    if len(dependencyData) > 1 and cydependencyData is not NULL:
         free(cydependencyData)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -49714,13 +49714,13 @@ def cuTensorMapEncodeTiled(tensorDataType not None : CUtensorMapDataType, tensor
     with nogil:
         err = cydriver.cuTensorMapEncodeTiled(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress_ptr, cyglobalDim, cyglobalStrides, cyboxDim, cyelementStrides, cyinterleave, cyswizzle, cyl2Promotion, cyoobFill)
 
-    if cyglobalDim is not NULL:
+    if len(globalDim) > 1 and cyglobalDim is not NULL:
         free(cyglobalDim)
-    if cyglobalStrides is not NULL:
+    if len(globalStrides) > 1 and cyglobalStrides is not NULL:
         free(cyglobalStrides)
-    if cyboxDim is not NULL:
+    if len(boxDim) > 1 and cyboxDim is not NULL:
         free(cyboxDim)
-    if cyelementStrides is not NULL:
+    if len(elementStrides) > 1 and cyelementStrides is not NULL:
         free(cyelementStrides)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -50064,11 +50064,11 @@ def cuTensorMapEncodeIm2col(tensorDataType not None : CUtensorMapDataType, tenso
     with nogil:
         err = cydriver.cuTensorMapEncodeIm2col(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress_ptr, cyglobalDim, cyglobalStrides, cypixelBoxLowerCorner.data(), cypixelBoxUpperCorner.data(), cychannelsPerPixel, cypixelsPerColumn, cyelementStrides, cyinterleave, cyswizzle, cyl2Promotion, cyoobFill)
 
-    if cyglobalDim is not NULL:
+    if len(globalDim) > 1 and cyglobalDim is not NULL:
         free(cyglobalDim)
-    if cyglobalStrides is not NULL:
+    if len(globalStrides) > 1 and cyglobalStrides is not NULL:
         free(cyglobalStrides)
-    if cyelementStrides is not NULL:
+    if len(elementStrides) > 1 and cyelementStrides is not NULL:
         free(cyelementStrides)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -50392,11 +50392,11 @@ def cuTensorMapEncodeIm2colWide(tensorDataType not None : CUtensorMapDataType, t
     with nogil:
         err = cydriver.cuTensorMapEncodeIm2colWide(<cydriver.CUtensorMap*>tensorMap._pvt_ptr, cytensorDataType, cytensorRank, cyglobalAddress_ptr, cyglobalDim, cyglobalStrides, pixelBoxLowerCornerWidth, pixelBoxUpperCornerWidth, cychannelsPerPixel, cypixelsPerColumn, cyelementStrides, cyinterleave, cymode, cyswizzle, cyl2Promotion, cyoobFill)
 
-    if cyglobalDim is not NULL:
+    if len(globalDim) > 1 and cyglobalDim is not NULL:
         free(cyglobalDim)
-    if cyglobalStrides is not NULL:
+    if len(globalStrides) > 1 and cyglobalStrides is not NULL:
         free(cyglobalStrides)
-    if cyelementStrides is not NULL:
+    if len(elementStrides) > 1 and cyelementStrides is not NULL:
         free(cyelementStrides)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
@@ -52171,7 +52171,7 @@ def cuDevResourceGenerateDesc(resources : Optional[Tuple[CUdevResource] | List[C
     with nogil:
         err = cydriver.cuDevResourceGenerateDesc(<cydriver.CUdevResourceDesc*>phDesc._pvt_ptr, cyresources, nbResources)
 
-    if cyresources is not NULL:
+    if len(resources) > 1 and cyresources is not NULL:
         free(cyresources)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)

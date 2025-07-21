@@ -21478,9 +21478,9 @@ def cudaStreamBeginCaptureToGraph(stream, graph, dependencies : Optional[Tuple[c
     with nogil:
         err = cyruntime.cudaStreamBeginCaptureToGraph(cystream, cygraph, cydependencies, cydependencyData, numDependencies, cymode)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
-    if cydependencyData is not NULL:
+    if len(dependencyData) > 1 and cydependencyData is not NULL:
         free(cydependencyData)
     return (_dict_cudaError_t[err],)
 {{endif}}
@@ -21930,7 +21930,7 @@ def cudaStreamUpdateCaptureDependencies(stream, dependencies : Optional[Tuple[cu
     with nogil:
         err = cyruntime.cudaStreamUpdateCaptureDependencies(cystream, cydependencies, numDependencies, flags)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
     return (_dict_cudaError_t[err],)
 {{endif}}
@@ -22016,9 +22016,9 @@ def cudaStreamUpdateCaptureDependencies_v2(stream, dependencies : Optional[Tuple
     with nogil:
         err = cyruntime.cudaStreamUpdateCaptureDependencies_v2(cystream, cydependencies, cydependencyData, numDependencies, flags)
 
-    if cydependencies is not NULL:
+    if len(dependencies) > 1 and cydependencies is not NULL:
         free(cydependencies)
-    if cydependencyData is not NULL:
+    if len(dependencyData) > 1 and cydependencyData is not NULL:
         free(cydependencyData)
     return (_dict_cudaError_t[err],)
 {{endif}}
@@ -23131,9 +23131,9 @@ def cudaSignalExternalSemaphoresAsync(extSemArray : Optional[Tuple[cudaExternalS
     with nogil:
         err = cyruntime.cudaSignalExternalSemaphoresAsync(cyextSemArray, cyparamsArray, numExtSems, cystream)
 
-    if cyextSemArray is not NULL:
+    if len(extSemArray) > 1 and cyextSemArray is not NULL:
         free(cyextSemArray)
-    if cyparamsArray is not NULL:
+    if len(paramsArray) > 1 and cyparamsArray is not NULL:
         free(cyparamsArray)
     return (_dict_cudaError_t[err],)
 {{endif}}
@@ -23261,9 +23261,9 @@ def cudaWaitExternalSemaphoresAsync(extSemArray : Optional[Tuple[cudaExternalSem
     with nogil:
         err = cyruntime.cudaWaitExternalSemaphoresAsync(cyextSemArray, cyparamsArray, numExtSems, cystream)
 
-    if cyextSemArray is not NULL:
+    if len(extSemArray) > 1 and cyextSemArray is not NULL:
         free(cyextSemArray)
-    if cyparamsArray is not NULL:
+    if len(paramsArray) > 1 and cyparamsArray is not NULL:
         free(cyparamsArray)
     return (_dict_cudaError_t[err],)
 {{endif}}
@@ -26322,7 +26322,7 @@ def cudaMemcpyBatchAsync(dsts : Optional[Tuple[Any] | List[Any]], srcs : Optiona
     with nogil:
         err = cyruntime.cudaMemcpyBatchAsync(cydsts_ptr, cysrcs_ptr, cysizes.data(), count, cyattrs, cyattrsIdxs.data(), numAttrs, &failIdx, cystream)
 
-    if cyattrs is not NULL:
+    if len(attrs) > 1 and cyattrs is not NULL:
         free(cyattrs)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -26464,7 +26464,7 @@ def cudaMemcpy3DBatchAsync(size_t numOps, opList : Optional[Tuple[cudaMemcpy3DBa
     with nogil:
         err = cyruntime.cudaMemcpy3DBatchAsync(numOps, cyopList, &failIdx, flags, cystream)
 
-    if cyopList is not NULL:
+    if len(opList) > 1 and cyopList is not NULL:
         free(cyopList)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -28580,7 +28580,7 @@ def cudaMemPoolSetAccess(memPool, descList : Optional[Tuple[cudaMemAccessDesc] |
     with nogil:
         err = cyruntime.cudaMemPoolSetAccess(cymemPool, cydescList, count)
 
-    if cydescList is not NULL:
+    if len(descList) > 1 and cydescList is not NULL:
         free(cydescList)
     return (_dict_cudaError_t[err],)
 {{endif}}
@@ -30417,7 +30417,7 @@ def cudaGraphAddKernelNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t
     with nogil:
         err = cyruntime.cudaGraphAddKernelNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cypNodeParams_ptr)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -30719,7 +30719,7 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t
     with nogil:
         err = cyruntime.cudaGraphAddMemcpyNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cypCopyParams_ptr)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -30815,7 +30815,7 @@ def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[Tuple[cudaGraphNode
     with nogil:
         err = cyruntime.cudaGraphAddMemcpyNode1D(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cydst_ptr, cysrc_ptr, count, cykind)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -31029,7 +31029,7 @@ def cudaGraphAddMemsetNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t
     with nogil:
         err = cyruntime.cudaGraphAddMemsetNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cypMemsetParams_ptr)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -31181,7 +31181,7 @@ def cudaGraphAddHostNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] 
     with nogil:
         err = cyruntime.cudaGraphAddHostNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cypNodeParams_ptr)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -31343,7 +31343,7 @@ def cudaGraphAddChildGraphNode(graph, pDependencies : Optional[Tuple[cudaGraphNo
     with nogil:
         err = cyruntime.cudaGraphAddChildGraphNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cychildGraph)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -31461,7 +31461,7 @@ def cudaGraphAddEmptyNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t]
     with nogil:
         err = cyruntime.cudaGraphAddEmptyNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -31542,7 +31542,7 @@ def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[Tuple[cudaGraphN
     with nogil:
         err = cyruntime.cudaGraphAddEventRecordNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cyevent)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -31713,7 +31713,7 @@ def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[Tuple[cudaGraphNod
     with nogil:
         err = cyruntime.cudaGraphAddEventWaitNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cyevent)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -31873,7 +31873,7 @@ def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[Tup
     with nogil:
         err = cyruntime.cudaGraphAddExternalSemaphoresSignalNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cynodeParams_ptr)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -32033,7 +32033,7 @@ def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[Tuple
     with nogil:
         err = cyruntime.cudaGraphAddExternalSemaphoresWaitNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cynodeParams_ptr)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -32232,7 +32232,7 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[Tuple[cudaGraphNode
     with nogil:
         err = cyruntime.cudaGraphAddMemAllocNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cynodeParams_ptr)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -32367,7 +32367,7 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_
     with nogil:
         err = cyruntime.cudaGraphAddMemFreeNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cydptr_ptr)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -33326,9 +33326,9 @@ def cudaGraphAddDependencies(graph, from_ : Optional[Tuple[cudaGraphNode_t] | Li
     with nogil:
         err = cyruntime.cudaGraphAddDependencies(cygraph, cyfrom_, cyto, numDependencies)
 
-    if cyfrom_ is not NULL:
+    if len(from_) > 1 and cyfrom_ is not NULL:
         free(cyfrom_)
-    if cyto is not NULL:
+    if len(to) > 1 and cyto is not NULL:
         free(cyto)
     return (_dict_cudaError_t[err],)
 {{endif}}
@@ -33418,11 +33418,11 @@ def cudaGraphAddDependencies_v2(graph, from_ : Optional[Tuple[cudaGraphNode_t] |
     with nogil:
         err = cyruntime.cudaGraphAddDependencies_v2(cygraph, cyfrom_, cyto, cyedgeData, numDependencies)
 
-    if cyfrom_ is not NULL:
+    if len(from_) > 1 and cyfrom_ is not NULL:
         free(cyfrom_)
-    if cyto is not NULL:
+    if len(to) > 1 and cyto is not NULL:
         free(cyto)
-    if cyedgeData is not NULL:
+    if len(edgeData) > 1 and cyedgeData is not NULL:
         free(cyedgeData)
     return (_dict_cudaError_t[err],)
 {{endif}}
@@ -33500,9 +33500,9 @@ def cudaGraphRemoveDependencies(graph, from_ : Optional[Tuple[cudaGraphNode_t] |
     with nogil:
         err = cyruntime.cudaGraphRemoveDependencies(cygraph, cyfrom_, cyto, numDependencies)
 
-    if cyfrom_ is not NULL:
+    if len(from_) > 1 and cyfrom_ is not NULL:
         free(cyfrom_)
-    if cyto is not NULL:
+    if len(to) > 1 and cyto is not NULL:
         free(cyto)
     return (_dict_cudaError_t[err],)
 {{endif}}
@@ -33595,11 +33595,11 @@ def cudaGraphRemoveDependencies_v2(graph, from_ : Optional[Tuple[cudaGraphNode_t
     with nogil:
         err = cyruntime.cudaGraphRemoveDependencies_v2(cygraph, cyfrom_, cyto, cyedgeData, numDependencies)
 
-    if cyfrom_ is not NULL:
+    if len(from_) > 1 and cyfrom_ is not NULL:
         free(cyfrom_)
-    if cyto is not NULL:
+    if len(to) > 1 and cyto is not NULL:
         free(cyto)
-    if cyedgeData is not NULL:
+    if len(edgeData) > 1 and cyedgeData is not NULL:
         free(cyedgeData)
     return (_dict_cudaError_t[err],)
 {{endif}}
@@ -35573,7 +35573,7 @@ def cudaGraphAddNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | Li
     with nogil:
         err = cyruntime.cudaGraphAddNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cynodeParams_ptr)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
@@ -35670,9 +35670,9 @@ def cudaGraphAddNode_v2(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] |
     with nogil:
         err = cyruntime.cudaGraphAddNode_v2(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, cydependencyData, numDependencies, cynodeParams_ptr)
 
-    if cypDependencies is not NULL:
+    if len(pDependencies) > 1 and cypDependencies is not NULL:
         free(cypDependencies)
-    if cydependencyData is not NULL:
+    if len(dependencyData) > 1 and cydependencyData is not NULL:
         free(cydependencyData)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
