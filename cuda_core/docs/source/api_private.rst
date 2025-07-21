@@ -1,3 +1,4 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 :orphan:
@@ -15,22 +16,20 @@ CUDA runtime
 .. autosummary::
    :toctree: generated/
 
-   _memory.Buffer
-   _stream.Stream
-   _event.Event
+   _memory.PyCapsule
+   _memory.DevicePointerT
    _device.DeviceProperties
-   _launch_config.LaunchConfig
    _module.KernelAttributes
    _module.KernelOccupancy
    _module.ParamInfo
    _module.MaxPotentialBlockSizeOccupancyResult
 
 
-CUDA compilation toolchain
---------------------------
+CUDA protocols
+--------------
 
 .. autosummary::
    :toctree: generated/
+   :template: protocol.rst
 
-   _module.Kernel
-   _module.ObjectCode
+   _stream.IsStreamT

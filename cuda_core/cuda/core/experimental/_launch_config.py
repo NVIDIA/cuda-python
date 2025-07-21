@@ -1,4 +1,4 @@
-# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -50,7 +50,8 @@ class LaunchConfig:
     shmem_size : int, optional
         Dynamic shared-memory size per thread block in bytes.
         (Default to size 0)
-
+    cooperative_launch : bool, optional
+        Whether this config can be used to launch a cooperative kernel.
     """
 
     # TODO: expand LaunchConfig to include other attributes

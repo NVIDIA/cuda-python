@@ -1,4 +1,4 @@
-# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
@@ -71,6 +71,19 @@ cpdef destroy_program(intptr_t prog):
     with nogil:
         status = nvvmDestroyProgram(&p)
     check_status(status)
+
+
+cpdef str get_error_string(int result):
+    """Get the message string for the given ``nvvmResult`` code.
+
+    Args:
+        result (Result): NVVM API result code.
+
+    .. seealso:: `nvvmGetErrorString`
+    """
+    cdef bytes _output_
+    _output_ = nvvmGetErrorString(<_Result>result)
+    return _output_.decode()
 
 
 cpdef tuple version():

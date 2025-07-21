@@ -1,0 +1,113 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+[project]
+name = "cuda-pathfinder"
+description = "Pathfinder for CUDA components"
+authors = [{ name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com" }]
+license = "Apache-2.0"
+requires-python = ">=3.9"
+dynamic = ["version"]
+dependencies = []
+
+[project.optional-dependencies]
+test = [
+    "pytest>=6.2.4",
+]
+nvidia_wheels_cu12 = [
+    "nvidia-cublas-cu12",
+    "nvidia-cuda-nvcc-cu12",
+    "nvidia-cuda-nvrtc-cu12",
+    "nvidia-cuda-runtime-cu12",
+    "nvidia-cufft-cu12",
+    "nvidia-cufile-cu12; sys_platform != 'win32'",
+    "nvidia-curand-cu12",
+    "nvidia-cusolver-cu12",
+    "nvidia-cusparse-cu12",
+    "nvidia-npp-cu12",
+    "nvidia-nvfatbin-cu12",
+    "nvidia-nvjitlink-cu12",
+    "nvidia-nvjpeg-cu12",
+]
+
+[project.urls]
+Repository = "https://github.com/NVIDIA/cuda-python"
+Documentation = "https://nvidia.github.io/cuda-python/"
+
+[tool.setuptools]
+packages = { find = { include = ["cuda*"] } }
+
+[tool.setuptools.dynamic]
+version = { attr = "cuda.pathfinder._version.__version__" }
+readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
+
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 120
+preview = true
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle Error
+    "F",     # Pyflakes
+    "W",     # pycodestyle Warning
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "SIM",   # flake8-simplify
+    "I",     # isort
+    "ARG",   # flake8-unused-arguments
+    "Q",     # flake8-quotes
+    "N",     # pep8-naming
+    "C4",    # flake8-comprehensions
+    "PIE",   # flake8-pie
+    "T20",   # flake8-print
+    "RUF",   # Ruff-specific rules
+    "PT",    # flake8-pytest-style
+    "DTZ",   # flake8-datetimez
+]
+extend-select = ["B9"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "double"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*" = ["S101"]
+
+[tool.mypy]
+# Basic settings
+python_version = "3.9"
+explicit_package_bases = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+# Start strict, but allow some flexibility
+check_untyped_defs = true
+disallow_any_generics = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+# Allow some common patterns to keep it simple
+allow_redefinition = true
+implicit_reexport = true
+
+# Ignore missing imports for now (you can tighten this later)
+ignore_missing_imports = true
+
+# Only check your package
+[[tool.mypy.overrides]]
+module = "cuda.pathfinder.*"
+disallow_untyped_defs = true
+
+# Be more lenient with test files
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+ignore_errors = true

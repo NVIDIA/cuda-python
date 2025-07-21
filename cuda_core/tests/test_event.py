@@ -1,17 +1,30 @@
-# Copyright 2024 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import os
 import pathlib
+import platform
 import time
 
+import helpers
 import numpy as np
 import pytest
-from conftest import skipif_need_cuda_headers, skipif_testing_with_compute_sanitizer
+from conftest import skipif_need_cuda_headers
 
 import cuda.core.experimental
-from cuda.core.experimental import Device, EventOptions, LaunchConfig, Program, ProgramOptions, launch
-from cuda.core.experimental._memory import _DefaultPinnedMemorySource
+from cuda.core.experimental import (
+    Device,
+    EventOptions,
+    LaunchConfig,
+    LegacyPinnedMemoryResource,
+    Program,
+    ProgramOptions,
+    launch,
+)
+
+
+def platform_is_wsl():
+    return platform.system() == "Linux" and "microsoft" in pathlib.Path("/proc/version").read_text().lower()
 
 
 def test_event_init_disabled():
@@ -33,7 +46,7 @@ def test_timing_success(init_cuda):
     # We only want to exercise the __sub__ method, this test is not meant
     # to stress-test the CUDA driver or time.sleep().
     delay_ms = delay_seconds * 1000
-    if os.name == "nt":  # noqa: SIM108
+    if os.name == "nt" or platform_is_wsl():  # noqa: SIM108
         # For Python <=3.10, the Windows timer resolution is typically limited to 15.6 ms by default.
         generous_tolerance = 100
     else:
@@ -71,7 +84,6 @@ def test_is_done(init_cuda):
     assert event.is_done in (True, False)
 
 
-@skipif_testing_with_compute_sanitizer
 def test_error_timing_disabled():
     device = Device()
     device.set_current()
@@ -94,7 +106,6 @@ def test_error_timing_disabled():
         event2 - event1
 
 
-@skipif_testing_with_compute_sanitizer
 def test_error_timing_recorded():
     device = Device()
     device.set_current()
@@ -114,7 +125,6 @@ def test_error_timing_recorded():
         event3 - event2
 
 
-@skipif_testing_with_compute_sanitizer
 @skipif_need_cuda_headers  # libcu++
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_error_timing_incomplete():
@@ -140,13 +150,13 @@ __global__ void wait(int* val) {
     program_options = ProgramOptions(
         std="c++17",
         arch=f"sm_{arch}",
-        include_path=str(pathlib.Path(os.environ["CUDA_PATH"]) / pathlib.Path("include")),
+        include_path=helpers.CCCL_INCLUDE_PATHS,
     )
     prog = Program(code, code_type="c++", options=program_options)
     mod = prog.compile(target_type="cubin")
     ker = mod.get_kernel("wait")
 
-    mr = _DefaultPinnedMemorySource()
+    mr = LegacyPinnedMemoryResource()
     b = mr.allocate(4)
     arr = np.from_dlpack(b).view(np.int32)
     arr[0] = 0
@@ -168,6 +178,7 @@ __global__ void wait(int* val) {
     arr[0] = 1
     event3.sync()
     event3 - event1  # this should work
+    b.close()
 
 
 def test_event_device(init_cuda):

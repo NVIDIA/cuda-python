@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -16,6 +16,7 @@ import ctypes
 import numpy
 
 from cuda.core.experimental._memory import Buffer
+from cuda.core.experimental._utils.cuda_utils import driver
 
 
 ctypedef cpp_complex.complex[float] cpp_single_complex
@@ -211,7 +212,13 @@ cdef class ParamHolder:
         for i, arg in enumerate(kernel_args):
             if isinstance(arg, Buffer):
                 # we need the address of where the actual buffer address is stored
-                self.data_addresses[i] = <void*><intptr_t>(arg.handle.getPtr())
+                if isinstance(arg.handle, int):
+                    # see note below on handling int arguments
+                    prepare_arg[intptr_t](self.data, self.data_addresses, arg.handle, i)
+                    continue              
+                else:
+                    # it's a CUdeviceptr:
+                    self.data_addresses[i] = <void*><intptr_t>(arg.handle.getPtr())
                 continue
             elif isinstance(arg, int):
                 # Here's the dilemma: We want to have a fast path to pass in Python
@@ -235,6 +242,10 @@ cdef class ParamHolder:
             if not_prepared:
                 not_prepared = prepare_ctypes_arg(self.data, self.data_addresses, arg, i)
             if not_prepared:
+                # TODO: revisit this treatment if we decide to cythonize cuda.core
+                if isinstance(arg, driver.CUgraphConditionalHandle):
+                    prepare_arg[intptr_t](self.data, self.data_addresses, <intptr_t>int(arg), i)
+                    continue
                 # TODO: support ctypes/numpy struct
                 raise TypeError("the argument is of unsupported type: " + str(type(arg)))
 

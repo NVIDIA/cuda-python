@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -121,6 +121,12 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: ./ci/tools/env-vars test
 
+      - name: Download cuda-pathfinder build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        with:
+          name: cuda-pathfinder-wheel
+          path: ./cuda_pathfinder
+
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
@@ -184,7 +190,7 @@ jobs:
           New-Item -Path "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}" -ItemType Directory -Force
           Move-Item -Path "$OLD_BASENAME/*.whl" -Destination "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
           Remove-Item -Path $OLD_BASENAME -Force
-      
+
           gh run download $LATEST_PRIOR_RUN_ID -p cuda-python-wheel -R NVIDIA/cuda-python
           Get-ChildItem -Path cuda-python-wheel
           Move-Item -Path "cuda-python-wheel/*.whl" -Destination .
@@ -250,6 +256,12 @@ jobs:
           host-platform: ${{ inputs.host-platform }}
           cuda-version: ${{ matrix.CUDA_VER }}
 
+      - name: Run cuda.pathfinder tests with see_what_works
+        env:
+          CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests pathfinder
+
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         env:
@@ -272,3 +284,19 @@ jobs:
           } else {
             pip install "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
           }
+
+      - name: Install cuda.pathfinder nvidia_wheels_cu12
+        if: startsWith(matrix.CUDA_VER, '12.')
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          pushd cuda_pathfinder
+          pip install -v .[nvidia_wheels_cu12]
+          pip freeze
+          popd
+
+      - name: Run cuda.pathfinder tests with all_must_work
+        if: startsWith(matrix.CUDA_VER, '12.')
+        env:
+          CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: run-tests pathfinder

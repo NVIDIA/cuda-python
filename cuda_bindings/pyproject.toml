@@ -1,4 +1,4 @@
-# Copyright 2023-2024 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2023-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 [build-system]
@@ -27,6 +27,7 @@ dynamic = [
     "readme",
 ]
 dependencies = [
+  "cuda-pathfinder ~= 1.0",
   "pywin32; sys_platform == 'win32'",
 ]
 
@@ -35,6 +36,7 @@ all = [
     "nvidia-cuda-nvcc-cu12",
     "nvidia-cuda-nvrtc-cu12",
     "nvidia-nvjitlink-cu12>=12.3",
+    "nvidia-cufile-cu12; sys_platform == 'linux'",
 ]
 
 test = [

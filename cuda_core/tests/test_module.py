@@ -1,4 +1,4 @@
-# Copyright 2024 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
@@ -6,7 +6,6 @@ import pickle  # nosec B403, B301
 import warnings
 
 import pytest
-from conftest import skipif_testing_with_compute_sanitizer
 
 import cuda.core.experimental
 from cuda.core.experimental import Device, ObjectCode, Program, ProgramOptions, system
@@ -33,12 +32,12 @@ __global__ void saxpy(const T a,
 
 
 @pytest.fixture(scope="module")
-def cuda12_prerequisite_check():
+def cuda12_4_prerequisite_check():
     # binding availability depends on cuda-python version
     # and version of underlying CUDA toolkit
     _py_major_ver, _ = get_binding_version()
     _driver_ver = handle_return(driver.cuDriverGetVersion())
-    return _py_major_ver >= 12 and _driver_ver >= 12000
+    return _py_major_ver >= 12 and _driver_ver >= 12040
 
 
 def test_kernel_attributes_init_disabled():
@@ -181,13 +180,15 @@ def test_object_code_handle(get_saxpy_object_code):
     assert mod.handle is not None
 
 
-@skipif_testing_with_compute_sanitizer
-def test_saxpy_arguments(get_saxpy_kernel, cuda12_prerequisite_check):
-    if not cuda12_prerequisite_check:
-        pytest.skip("Test requires CUDA 12")
+def test_saxpy_arguments(get_saxpy_kernel, cuda12_4_prerequisite_check):
     krn, _ = get_saxpy_kernel
 
-    assert krn.num_arguments == 5
+    if cuda12_4_prerequisite_check:
+        assert krn.num_arguments == 5
+    else:
+        with pytest.raises(NotImplementedError):
+            _ = krn.num_arguments
+        return
 
     assert "ParamInfo" in str(type(krn).arguments_info.fget.__annotations__)
     arg_info = krn.arguments_info
@@ -212,11 +213,10 @@ def test_saxpy_arguments(get_saxpy_kernel, cuda12_prerequisite_check):
     assert all(actual == expected for actual, expected in zip(sizes, expected_sizes))
 
 
-@skipif_testing_with_compute_sanitizer
 @pytest.mark.parametrize("nargs", [0, 1, 2, 3, 16])
 @pytest.mark.parametrize("c_type_name,c_type", [("int", ctypes.c_int), ("short", ctypes.c_short)], ids=["int", "short"])
-def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_prerequisite_check):
-    if not cuda12_prerequisite_check:
+def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_4_prerequisite_check):
+    if not cuda12_4_prerequisite_check:
         pytest.skip("Test requires CUDA 12")
     args_str = ", ".join([f"{c_type_name} p_{i}" for i in range(nargs)])
     src = f"__global__ void foo{nargs}({args_str}) {{ }}"
@@ -238,9 +238,8 @@ def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_prerequisit
     assert all([actual.size == expected.size for actual, expected in zip(arg_info, members)])
 
 
-@skipif_testing_with_compute_sanitizer
-def test_num_args_error_handling(deinit_all_contexts_function, cuda12_prerequisite_check):
-    if not cuda12_prerequisite_check:
+def test_num_args_error_handling(deinit_all_contexts_function, cuda12_4_prerequisite_check):
+    if not cuda12_4_prerequisite_check:
         pytest.skip("Test requires CUDA 12")
     src = "__global__ void foo(int a) { }"
     prog = Program(src, code_type="c++")
@@ -345,7 +344,7 @@ def test_occupancy_available_dynamic_shared_memory_per_block(get_saxpy_kernel, n
 def test_occupancy_max_active_clusters(get_saxpy_kernel, cluster):
     kernel, _ = get_saxpy_kernel
     dev = Device()
-    if (cluster) and (dev.compute_capability < (9, 0)):
+    if dev.compute_capability < (9, 0):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
     launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64, cluster=cluster)
     query_fn = kernel.occupancy.max_active_clusters
@@ -360,6 +359,8 @@ def test_occupancy_max_active_clusters(get_saxpy_kernel, cluster):
 def test_occupancy_max_potential_cluster_size(get_saxpy_kernel):
     kernel, _ = get_saxpy_kernel
     dev = Device()
+    if dev.compute_capability < (9, 0):
+        pytest.skip("Device with compute capability 90 or higher is required for cluster support")
     launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64)
     query_fn = kernel.occupancy.max_potential_cluster_size
     max_potential_cluster_size = query_fn(launch_config)

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -9,15 +9,33 @@
 set -euo pipefail
 
 # Check if the script was called with exactly 1 argument
-if [[ ${#} -ne 1 && ( "${1}" == "bindings" || "${1}" == "core" ) ]]; then
-  echo "Error: This script requires exactly 1 argument (what is tested). You provided ${#}"
-  echo "Usage: ${0} test_module[bindings or core]"
+if [[ ${#} -ne 1 ]]; then
+  echo "Error: This script requires exactly 1 argument. You provided ${#}"
+  exit 1
+fi
+if [[ "${1}" != "bindings" && "${1}" != "core" && "${1}" != "pathfinder" ]]; then
+  echo "Error: Invalid test module '${1}'. Must be 'bindings', 'core', or 'pathfinder'"
   exit 1
 fi
 
 test_module=${1}
 
-if [[ "${test_module}" == "bindings" ]]; then
+# Unconditionally install pathfinder wheel
+# (it is a direct dependency of bindings, and a transitive dependency of core)
+pushd ./cuda_pathfinder
+echo "Installing pathfinder wheel"
+pwd
+ls
+pip install $(ls *.whl)[test]
+popd
+
+if [[ "${test_module}" == "pathfinder" ]]; then
+  pushd ./cuda_pathfinder
+  echo "Running pathfinder tests with ${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS}"
+  pwd
+  pytest -ra -s -v tests/
+  popd
+elif [[ "${test_module}" == "bindings" ]]; then
   pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
   echo "Installing bindings wheel"
   pwd
@@ -57,7 +75,13 @@ elif [[ "${test_module}" == "core" ]]; then
   echo "Installing core wheel"
   pwd
   ls
-  pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}","test-cu${TEST_CUDA_MAJOR}"]
+  if [[ "${LOCAL_CTK}" == 1 ]]; then
+    # We already installed cuda-bindings, and all CTK components exist locally,
+    # so just install the test dependencies.
+    pip install $(ls *.whl)["test-cu${TEST_CUDA_MAJOR}"]
+  else
+    pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}","test-cu${TEST_CUDA_MAJOR}"]
+  fi
   popd
   pushd ./cuda_core
   echo "Running core tests"

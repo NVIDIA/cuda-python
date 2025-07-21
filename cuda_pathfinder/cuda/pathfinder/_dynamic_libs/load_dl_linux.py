@@ -1,12 +1,12 @@
-# Copyright 2025 NVIDIA Corporation.  All rights reserved.
-# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 import ctypes
 import ctypes.util
 import os
 from typing import Optional
 
-from cuda.bindings._path_finder.load_dl_common import LoadedDL
+from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 
 CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 
@@ -16,15 +16,15 @@ LIBDL.dladdr.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 LIBDL.dladdr.restype = ctypes.c_int
 
 
-class Dl_info(ctypes.Structure):
+class DlInfo(ctypes.Structure):
     """Structure used by dladdr to return information about a loaded symbol."""
 
-    _fields_ = [
+    _fields_ = (
         ("dli_fname", ctypes.c_char_p),  # path to .so
         ("dli_fbase", ctypes.c_void_p),
         ("dli_sname", ctypes.c_char_p),
         ("dli_saddr", ctypes.c_void_p),
-    ]
+    )
 
 
 def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> Optional[str]:
@@ -40,7 +40,7 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> Optional[
     Raises:
         OSError: If dladdr fails to get information about the symbol
     """
-    from cuda.bindings._path_finder.supported_libs import EXPECTED_LIB_SYMBOLS
+    from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import EXPECTED_LIB_SYMBOLS
 
     for symbol_name in EXPECTED_LIB_SYMBOLS[libname]:
         symbol = getattr(handle, symbol_name, None)
@@ -50,10 +50,10 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> Optional[
         return None
 
     addr = ctypes.cast(symbol, ctypes.c_void_p)
-    info = Dl_info()
+    info = DlInfo()
     if LIBDL.dladdr(addr, ctypes.byref(info)) == 0:
         raise OSError(f"dladdr failed for {libname=!r}")
-    return info.dli_fname.decode()
+    return info.dli_fname.decode()  # type: ignore[no-any-return]
 
 
 def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
@@ -70,7 +70,7 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
         >>> if loaded is not None:
         ...     print(f"Library already loaded from {loaded.abs_path}")
     """
-    from cuda.bindings._path_finder.supported_libs import SUPPORTED_LINUX_SONAMES
+    from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import SUPPORTED_LINUX_SONAMES
 
     for soname in SUPPORTED_LINUX_SONAMES.get(libname, ()):
         try:
@@ -78,7 +78,7 @@ def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
         except OSError:
             continue
         else:
-            return LoadedDL(handle._handle, abs_path_for_dynamic_library(libname, handle), True)
+            return LoadedDL(abs_path_for_dynamic_library(libname, handle), True, handle._handle)
     return None
 
 
@@ -100,12 +100,12 @@ def load_with_system_search(libname: str, soname: str) -> Optional[LoadedDL]:
         abs_path = abs_path_for_dynamic_library(libname, handle)
         if abs_path is None:
             raise RuntimeError(f"No expected symbol for {libname=!r}")
-        return LoadedDL(handle._handle, abs_path, False)
+        return LoadedDL(abs_path, False, handle._handle)
     except OSError:
         return None
 
 
-def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
+def load_with_abs_path(_libname: str, found_path: str) -> LoadedDL:
     """Load a dynamic library from the given path.
 
     Args:
@@ -122,4 +122,4 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
         handle = ctypes.CDLL(found_path, CDLL_MODE)
     except OSError as e:
         raise RuntimeError(f"Failed to dlopen {found_path}: {e}") from e
-    return LoadedDL(handle._handle, found_path, False)
+    return LoadedDL(found_path, False, handle._handle)

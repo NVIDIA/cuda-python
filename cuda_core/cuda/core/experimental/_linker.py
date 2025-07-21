@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -8,7 +8,7 @@ import ctypes
 import weakref
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Tuple, Union
 from warnings import warn
 
 if TYPE_CHECKING:
@@ -163,27 +163,27 @@ class LinkerOptions:
         Default: False.
     """
 
-    name: Optional[str] = "<default linker>"
-    arch: Optional[str] = None
-    max_register_count: Optional[int] = None
-    time: Optional[bool] = None
-    verbose: Optional[bool] = None
-    link_time_optimization: Optional[bool] = None
-    ptx: Optional[bool] = None
-    optimization_level: Optional[int] = None
-    debug: Optional[bool] = None
-    lineinfo: Optional[bool] = None
-    ftz: Optional[bool] = None
-    prec_div: Optional[bool] = None
-    prec_sqrt: Optional[bool] = None
-    fma: Optional[bool] = None
-    kernels_used: Optional[Union[str, Tuple[str], List[str]]] = None
-    variables_used: Optional[Union[str, Tuple[str], List[str]]] = None
-    optimize_unused_variables: Optional[bool] = None
-    ptxas_options: Optional[Union[str, Tuple[str], List[str]]] = None
-    split_compile: Optional[int] = None
-    split_compile_extended: Optional[int] = None
-    no_cache: Optional[bool] = None
+    name: str | None = "<default linker>"
+    arch: str | None = None
+    max_register_count: int | None = None
+    time: bool | None = None
+    verbose: bool | None = None
+    link_time_optimization: bool | None = None
+    ptx: bool | None = None
+    optimization_level: int | None = None
+    debug: bool | None = None
+    lineinfo: bool | None = None
+    ftz: bool | None = None
+    prec_div: bool | None = None
+    prec_sqrt: bool | None = None
+    fma: bool | None = None
+    kernels_used: Union[str, Tuple[str], List[str]] | None = None
+    variables_used: Union[str, Tuple[str], List[str]] | None = None
+    optimize_unused_variables: bool | None = None
+    ptxas_options: Union[str, Tuple[str], List[str]] | None = None
+    split_compile: int | None = None
+    split_compile_extended: int | None = None
+    no_cache: bool | None = None
 
     def __post_init__(self):
         _lazy_init()

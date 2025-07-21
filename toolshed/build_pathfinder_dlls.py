@@ -1,30 +1,32 @@
 #!/usr/bin/env python3
 
-# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 # Input for this script: .txt files generated with:
 # for exe in *.exe; do 7z l $exe > "${exe%.exe}.txt"; done
 
-# The output of this script
-# requires obvious manual edits to remove duplicates and unwanted dlls.
+# The output of this script is expected to be usable as-is.
 
+import collections
 import sys
 
-LIBNAMES_IN_SCOPE_OF_CUDA_BINDINGS_PATH_FINDER = (
+# ATTENTION: Ambiguous shorter names need to appear after matching longer names
+#            (e.g. "cufft" after "cufftw")
+LIBNAMES_IN_SCOPE_OF_CUDA_PATHFINDER = (
     "nvJitLink",
     "nvrtc",
     "nvvm",
     "cudart",
     "nvfatbin",
-    "cublas",
     "cublasLt",
-    "cufft",
+    "cublas",
     "cufftw",
+    "cufft",
     "curand",
-    "cusolver",
     "cusolverMg",
+    "cusolver",
     "cusparse",
     "nppc",
     "nppial",
@@ -38,10 +40,23 @@ LIBNAMES_IN_SCOPE_OF_CUDA_BINDINGS_PATH_FINDER = (
     "nppitc",
     "npps",
     "nvblas",
-    "cufile",
-    "cufile_rdma",
     "nvjpeg",
 )
+
+
+def is_suppressed_dll(libname, dll):
+    if libname == "cudart":
+        if dll.startswith("cudart32_"):
+            return True
+    elif libname == "nvrtc":
+        if dll.endswith(".alt.dll"):
+            return True
+        if dll.startswith("nvrtc-builtins"):
+            return True
+    elif libname == "nvvm":
+        if dll == "nvvm32.dll":
+            return True
+    return False
 
 
 def run(args):
@@ -65,16 +80,30 @@ def run(args):
         else:
             raise RuntimeError("------------------- NOT FOUND")
 
-    print("DLLs in scope of cuda.bindings.path_finder")
-    print("==========================================")
+    print("DLLs in scope of cuda.pathfinder")
+    print("================================")
     dlls_in_scope = set()
-    for libname in sorted(LIBNAMES_IN_SCOPE_OF_CUDA_BINDINGS_PATH_FINDER):
-        print(f'"{libname}": (')
+    dlls_by_libname = collections.defaultdict(list)
+    suppressed_dlls = set()
+    for libname in LIBNAMES_IN_SCOPE_OF_CUDA_PATHFINDER:
         for dll in sorted(dlls_from_files):
-            if dll.startswith(libname):
+            if dll not in dlls_in_scope and dll.startswith(libname):
+                if is_suppressed_dll(libname, dll):
+                    suppressed_dlls.add(dll)
+                else:
+                    dlls_by_libname[libname].append(dll)
                 dlls_in_scope.add(dll)
-                print(f'    "{dll}",')
+    for libname, dlls in sorted(dlls_by_libname.items()):
+        print(f'"{libname}": (')
+        for dll in dlls:
+            print(f'    "{dll}",')
         print("),")
+    print()
+
+    print("Suppressed DLLs")
+    print("===============")
+    for dll in sorted(suppressed_dlls):
+        print(dll)
     print()
 
     print("DLLs out of scope")

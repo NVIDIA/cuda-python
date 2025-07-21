@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # Configuration file for the Sphinx documentation builder.
@@ -40,6 +40,7 @@ extensions = [
     "myst_nb",
     "enum_tools.autoenum",
     "sphinx_copybutton",
+    "sphinx_toolbox.more_autodoc.autoprotocol",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

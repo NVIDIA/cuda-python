@@ -1,16 +1,28 @@
-# Copyright 2024-2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
-import os
-import pathlib
 
+import helpers
+
+try:
+    import cupy as cp
+except ImportError:
+    cp = None
 import numpy as np
 import pytest
 from conftest import skipif_need_cuda_headers
 
-from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
-from cuda.core.experimental._memory import _DefaultPinnedMemorySource
+from cuda.core.experimental import (
+    Device,
+    DeviceMemoryResource,
+    LaunchConfig,
+    LegacyPinnedMemoryResource,
+    Program,
+    ProgramOptions,
+    launch,
+)
+from cuda.core.experimental._memory import _SynchronousMemoryResource
 
 
 def test_launch_config_init(init_cuda):
@@ -95,7 +107,7 @@ PARAMS = (
     (ctypes.c_float, "float", 3.14),
     (ctypes.c_double, "double", 2.718),
 )
-if os.environ.get("CUDA_PATH"):
+if helpers.CCCL_INCLUDE_PATHS is not None:
     PARAMS += (
         (np.float16, "half", 0.78),
         (np.complex64, "cuda::std::complex<float>", 1 + 2j),
@@ -111,7 +123,7 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
     dev.set_current()
 
     # Prepare pinned host array
-    mr = _DefaultPinnedMemorySource()
+    mr = LegacyPinnedMemoryResource()
     b = mr.allocate(np.dtype(python_type).itemsize)
     arr = np.from_dlpack(b).view(python_type)
     arr[:] = 0
@@ -129,8 +141,7 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
 
     # Compile and force instantiation for this type
     arch = "".join(f"{i}" for i in dev.compute_capability)
-    if os.environ.get("CUDA_PATH"):
-        include_path = str(pathlib.Path(os.environ["CUDA_PATH"]) / pathlib.Path("include"))
+    if helpers.CCCL_INCLUDE_PATHS is not None:
         code = (
             r"""
         #include <cuda_fp16.h>
@@ -138,9 +149,7 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
         """
             + code
         )
-    else:
-        include_path = None
-    pro_opts = ProgramOptions(std="c++11", arch=f"sm_{arch}", include_path=include_path)
+    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CCCL_INCLUDE_PATHS)
     prog = Program(code, code_type="c++", options=pro_opts)
     ker_name = f"write_scalar<{cpp_type}>"
     mod = prog.compile("cubin", name_expressions=(ker_name,))
@@ -174,8 +183,7 @@ def test_cooperative_launch():
 
     # Compile and force instantiation for this type
     arch = "".join(f"{i}" for i in dev.compute_capability)
-    include_path = str(pathlib.Path(os.environ["CUDA_PATH"]) / pathlib.Path("include"))
-    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=include_path)
+    pro_opts = ProgramOptions(std="c++17", arch=f"sm_{arch}", include_path=helpers.CCCL_INCLUDE_PATHS)
     prog = Program(code, code_type="c++", options=pro_opts)
     ker = prog.compile("cubin").get_kernel("test_grid_sync")
 
@@ -198,3 +206,103 @@ def test_cooperative_launch():
     config = LaunchConfig(grid=1, block=1, cooperative_launch=True)
     launch(s, config, ker)
     s.sync()
+
+
+@pytest.mark.skipif(cp is None, reason="cupy not installed")
+@pytest.mark.parametrize(
+    "memory_resource_class",
+    [
+        "device_memory_resource",  # kludgy, but can go away after #726 is resolved
+        pytest.param(
+            LegacyPinnedMemoryResource,
+            marks=pytest.mark.skipif(
+                tuple(int(i) for i in np.__version__.split(".")[:3]) < (2, 2, 5),
+                reason="need numpy 2.2.5+, numpy GH #28632",
+            ),
+        ),
+    ],
+)
+def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_resource_class):
+    """Test that kernels can access memory allocated by memory resources."""
+    dev = Device()
+    dev.set_current()
+    stream = dev.create_stream()
+    # tell CuPy to use our stream as the current stream:
+    cp.cuda.ExternalStream(int(stream.handle)).use()
+
+    # Kernel that operates on memory
+    code = """
+    extern "C"
+    __global__ void memory_ops(float* data, size_t N) {
+        const unsigned int tid = threadIdx.x + blockIdx.x * blockDim.x;
+        if (tid < N) {
+            // Access memory (device or pinned)
+            data[tid] = data[tid] * 3.0f;
+        }
+    }
+    """
+
+    # Compile kernel
+    arch = "".join(f"{i}" for i in dev.compute_capability)
+    program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
+    prog = Program(code, code_type="c++", options=program_options)
+    mod = prog.compile("cubin")
+    kernel = mod.get_kernel("memory_ops")
+
+    # Create memory resource
+    if memory_resource_class == "device_memory_resource":
+        if dev.properties.memory_pools_supported:
+            mr = DeviceMemoryResource(dev.device_id)
+        else:
+            mr = _SynchronousMemoryResource(dev.device_id)
+    else:
+        mr = memory_resource_class()
+
+    # Allocate memory
+    size = 1024
+    dtype = np.float32
+    element_size = dtype().itemsize
+    total_size = size * element_size
+
+    buffer = mr.allocate(total_size, stream=stream)
+
+    # Create array view based on memory type
+    if mr.is_host_accessible:
+        # For pinned memory, use numpy
+        array = np.from_dlpack(buffer).view(dtype=dtype)
+    else:
+        array = cp.from_dlpack(buffer).view(dtype=dtype)
+
+    # Initialize data with random values
+    if mr.is_host_accessible:
+        rng = np.random.default_rng()
+        array[:] = rng.random(size, dtype=dtype)
+    else:
+        rng = cp.random.default_rng()
+        array[:] = rng.random(size, dtype=dtype)
+
+    # Store original values for verification
+    original = array.copy()
+
+    # Sync before kernel launch
+    stream.sync()
+
+    # Launch kernel
+    block = 256
+    grid = (size + block - 1) // block
+    config = LaunchConfig(grid=grid, block=block)
+
+    launch(stream, config, kernel, buffer, np.uint64(size))
+    stream.sync()
+
+    # Verify kernel operations
+    assert cp.allclose(array, original * 3.0), f"{memory_resource_class.__name__} operation failed"
+
+    # Clean up
+    buffer.close(stream)
+    stream.close()
+
+    cp.cuda.Stream.null.use()  # reset CuPy's current stream to the null stream
+
+    # Verify buffer is properly closed
+    assert buffer.handle == 0, f"{memory_resource_class.__name__} buffer should be closed"
