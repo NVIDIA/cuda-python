@@ -298,6 +298,11 @@
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.cuFileError.html">cuda.bindings.cufile.cuFileError</a></li>
 </ul>
 </li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="module/utils.html">Utils module</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Utils module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver.html">cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.utils.get_ptx_ver.html">cuda.bindings.utils.get_ptx_ver</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tips_and_tricks.html">Tips and Tricks</a></li>
@@ -2855,10 +2860,24 @@
         <li><a href="module/driver.html#cuda.bindings.driver.cuCtxWaitEvent">cuCtxWaitEvent() (in module cuda.bindings.driver)</a>
 </li>
         <li>
+    cuda.bindings
+
+        <ul>
+          <li><a href="release/12.X.Y-notes.html#module-cuda.bindings">module</a>
+</li>
+        </ul></li>
+        <li>
     cuda.bindings.cufile
 
         <ul>
           <li><a href="module/cufile.html#module-cuda.bindings.cufile">module</a>
+</li>
+        </ul></li>
+        <li>
+    cuda.bindings.utils
+
+        <ul>
+          <li><a href="module/utils.html#module-cuda.bindings.utils">module</a>
 </li>
         </ul></li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_ARRAY3D_2DARRAY">CUDA_ARRAY3D_2DARRAY (cuda.bindings.driver attribute)</a>
@@ -3945,12 +3964,12 @@
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12CRBC">cudaEglColorFormatBayer12CRBC (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12GBRG">cudaEglColorFormatBayer12GBRG (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12GRBG">cudaEglColorFormatBayer12GRBG (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12RCCB">cudaEglColorFormatBayer12RCCB (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat.cudaEglColorFormatBayer12RGGB">cudaEglColorFormatBayer12RGGB (cuda.bindings.runtime.cudaEglColorFormat attribute)</a>
@@ -8213,6 +8232,8 @@
 </li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_linked_ptx_size">get_linked_ptx_size() (in module cuda.bindings.nvjitlink)</a>
 </li>
+        <li><a href="module/generated/cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver.html#cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver">get_minimal_required_cuda_ver_from_ptx_ver() (in module cuda.bindings.utils)</a>
+</li>
         <li><a href="module/generated/cuda.bindings.cufile.get_parameter_bool.html#cuda.bindings.cufile.get_parameter_bool">get_parameter_bool() (in module cuda.bindings.cufile)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.cufile.get_parameter_size_t.html#cuda.bindings.cufile.get_parameter_size_t">get_parameter_size_t() (in module cuda.bindings.cufile)</a>
@@ -8222,6 +8243,8 @@
         <li><a href="module/nvvm.html#cuda.bindings.nvvm.get_program_log">get_program_log() (in module cuda.bindings.nvvm)</a>
 </li>
         <li><a href="module/nvvm.html#cuda.bindings.nvvm.get_program_log_size">get_program_log_size() (in module cuda.bindings.nvvm)</a>
+</li>
+        <li><a href="module/generated/cuda.bindings.utils.get_ptx_ver.html#cuda.bindings.utils.get_ptx_ver">get_ptx_ver() (in module cuda.bindings.utils)</a>
 </li>
         <li><a href="module/generated/cuda.bindings.cufile.get_version.html#cuda.bindings.cufile.get_version">get_version() (in module cuda.bindings.cufile)</a>
 </li>
@@ -9627,14 +9650,14 @@
           <li><a href="module/driver.html#cuda.bindings.driver.CUarrayMapInfo_v1.memHandleType">(cuda.bindings.driver.CUarrayMapInfo_v1 attribute)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeParams.memOp">memOp (cuda.bindings.driver.CUgraphNodeParams attribute)</a>
 
         <ul>
           <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeParams_st.memOp">(cuda.bindings.driver.CUgraphNodeParams_st attribute)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUarrayMapInfo.memOperationType">memOperationType (cuda.bindings.driver.CUarrayMapInfo attribute)</a>
 
         <ul>
@@ -9779,7 +9802,11 @@
     module
 
         <ul>
+          <li><a href="release/12.X.Y-notes.html#module-cuda.bindings">cuda.bindings</a>
+</li>
           <li><a href="module/cufile.html#module-cuda.bindings.cufile">cuda.bindings.cufile</a>
+</li>
+          <li><a href="module/utils.html#module-cuda.bindings.utils">cuda.bindings.utils</a>
 </li>
         </ul></li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.multiGpuBoardGroupID">multiGpuBoardGroupID (cuda.bindings.runtime.cudaDeviceProp attribute)</a>
