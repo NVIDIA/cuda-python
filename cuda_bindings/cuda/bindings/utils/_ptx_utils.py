@@ -3,7 +3,6 @@
 
 import re
 
-
 # Mapping based on the official PTX ISA <-> CUDA Release table
 # https://docs.nvidia.com/cuda/parallel-thread-execution/#release-notes-ptx-release-history
 _ptx_to_cuda = {
@@ -83,12 +82,12 @@ def get_minimal_required_cuda_ver_from_ptx_ver(ptx_version: str) -> int:
         major, minor = _ptx_to_cuda[ptx_version]
         return 1000 * major + 10 * minor
     except KeyError:
-        raise ValueError(f"Unknown or unsupported PTX ISA version: {ptx_version}")
+        raise ValueError(f"Unknown or unsupported PTX ISA version: {ptx_version}") from None
 
 
 # Regex pattern to match .version directive and capture the version number
 # TODO: if import speed is a concern, consider lazy-initializing it.
-_ptx_ver_pattern = re.compile(r'\.version\s+([0-9]+\.[0-9]+)')
+_ptx_ver_pattern = re.compile(r"\.version\s+([0-9]+\.[0-9]+)")
 
 
 def get_ptx_ver(ptx: str) -> str:
