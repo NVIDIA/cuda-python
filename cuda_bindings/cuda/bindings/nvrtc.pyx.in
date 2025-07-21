@@ -109,6 +109,10 @@ cdef class nvrtcProgram:
         return '<nvrtcProgram ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, nvrtcProgram):
+            return False
+        return self._pvt_ptr[0] == (<nvrtcProgram>other)._pvt_ptr[0]
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
