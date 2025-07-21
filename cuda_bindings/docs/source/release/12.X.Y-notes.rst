@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+.. module:: cuda.bindings
+
 ``cuda-bindings`` 12.X.Y Release notes
 ======================================
 
@@ -23,6 +25,8 @@ Bug fixes
 
 Miscellaneous
 -------------
+
+* Added PTX utilities including :func:`~utils.get_minimal_required_cuda_ver_from_ptx_ver` and :func:`~utils.get_ptx_ver`.
 
 
 Known issues
