@@ -26298,10 +26298,10 @@ def cudaMemcpyBatchAsync(dsts : Optional[Tuple[Any] | List[Any]], srcs : Optiona
     dsts = [] if dsts is None else dsts
     pylist = [utils.HelperInputVoidPtr(pydsts) for pydsts in dsts]
     cdef utils.InputVoidPtrPtrHelper voidStarHelperdsts = utils.InputVoidPtrPtrHelper(pylist)
-    cdef const void** cydsts_ptr = <const void**><void_ptr>voidStarHelperdsts.cptr
+    cdef void** cydsts_ptr = <void**><void_ptr>voidStarHelperdsts.cptr
     pylist = [utils.HelperInputVoidPtr(pysrcs) for pysrcs in srcs]
     cdef utils.InputVoidPtrPtrHelper voidStarHelpersrcs = utils.InputVoidPtrPtrHelper(pylist)
-    cdef const void** cysrcs_ptr = <const void**><void_ptr>voidStarHelpersrcs.cptr
+    cdef void** cysrcs_ptr = <void**><void_ptr>voidStarHelpersrcs.cptr
     cdef vector[size_t] cysizes = sizes
     if count > <size_t>len(dsts): raise RuntimeError("List is too small: " + str(len(dsts)) + " < " + str(count))
     if count > <size_t>len(srcs): raise RuntimeError("List is too small: " + str(len(srcs)) + " < " + str(count))
