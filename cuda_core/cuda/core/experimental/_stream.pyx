@@ -122,7 +122,7 @@ cdef class Stream:
 
     @classmethod
     def _legacy_default(cls):
-        cdef Stream self = Stream.__new__(Stream)
+        cdef Stream self = Stream.__new__(cls)
         self._handle = driver.CUstream(driver.CU_STREAM_LEGACY)
         self._owner = None
         self._builtin = True
@@ -134,7 +134,7 @@ cdef class Stream:
 
     @classmethod
     def _per_thread_default(cls):
-        cdef Stream self = Stream.__new__(Stream)
+        cdef Stream self = Stream.__new__(cls)
         self._handle = driver.CUstream(driver.CU_STREAM_PER_THREAD)
         self._owner = None
         self._builtin = True
@@ -146,7 +146,7 @@ cdef class Stream:
 
     @classmethod
     def _init(cls, obj: Optional[IsStreamT] = None, options=None, device_id: int = None):
-        cdef Stream self = Stream.__new__(Stream)
+        cdef Stream self = Stream.__new__(cls)
         self._handle = None
         self._owner = None
         self._builtin = False
