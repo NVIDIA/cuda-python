@@ -10,6 +10,7 @@ import pytest
 
 import cuda.cuda as cuda
 import cuda.cudart as cudart
+from cuda.bindings import driver
 
 
 def driverVersionLessThan(target):
@@ -1008,3 +1009,27 @@ def test_private_function_pointer_inspector():
     from cuda.bindings._bindings.cydriver import _inspect_function_pointer
 
     assert _inspect_function_pointer("__cuGetErrorString") != 0
+
+
+@pytest.mark.parametrize(
+    "target",
+    (
+        driver.CUcontext,
+        driver.CUstream,
+        driver.CUevent,
+        driver.CUmodule,
+        driver.CUlibrary,
+        driver.CUfunction,
+        driver.CUkernel,
+        driver.CUgraph,
+        driver.CUgraphNode,
+        driver.CUgraphExec,
+        driver.CUmemoryPool,
+    ),
+)
+def test_struct_pointer_comparison(target):
+    a = target(123)
+    b = target(123)
+    assert a == b
+    c = target(456)
+    assert a != c
