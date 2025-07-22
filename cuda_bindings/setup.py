@@ -288,6 +288,7 @@ def prep_extensions(sources, libraries):
 
 # new path for the bindings from cybind
 def rename_architecture_specific_files():
+    path = os.path.join("cuda", "bindings", "_internal")
     if sys.platform == "linux":
         src_files = glob.glob(os.path.join(path, "*_linux.pyx"))
     elif sys.platform == "win32":
