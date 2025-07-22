@@ -221,6 +221,7 @@ path_list = [
     os.path.join("cuda", "bindings", "_lib"),
     os.path.join("cuda", "bindings", "_lib", "cyruntime"),
     os.path.join("cuda", "bindings", "_internal"),
+    os.path.join("cuda", "bindings", "utils"),
 ]
 input_files = []
 for path in path_list:
@@ -341,6 +342,7 @@ sources_list = [
     (["cuda/bindings/_lib/utils.pyx", "cuda/bindings/_lib/param_packer.cpp"], None),
     (["cuda/bindings/_lib/cyruntime/cyruntime.pyx"], None),
     (["cuda/bindings/_lib/cyruntime/utils.pyx"], None),
+    (["cuda/bindings/utils/*.pyx"], None),
     # public
     *(([f], None) for f in cuda_bindings_files),
     # public (deprecated, to be removed)

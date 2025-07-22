@@ -48,6 +48,7 @@ cuda_bindings/cuda/bindings/runtime.pxd
 cuda_bindings/cuda/bindings/runtime.pyx
 cuda_bindings/cuda/bindings/nvrtc.pxd
 cuda_bindings/cuda/bindings/nvrtc.pyx
+cuda_bindings/cuda/bindings/utils/_get_handle.pyx
 
 # Distribution / packaging
 .Python
