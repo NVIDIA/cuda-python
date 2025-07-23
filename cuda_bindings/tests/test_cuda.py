@@ -10,6 +10,7 @@ import pytest
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
+from cuda.bindings import driver
 
 
 def driverVersionLessThan(target):

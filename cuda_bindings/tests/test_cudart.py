@@ -9,6 +9,7 @@ import pytest
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
+from cuda.bindings import runtime
 
 
 def isSuccess(err):
