@@ -221,6 +221,7 @@ path_list = [
     os.path.join("cuda", "bindings", "_lib"),
     os.path.join("cuda", "bindings", "_lib", "cyruntime"),
     os.path.join("cuda", "bindings", "_internal"),
+    os.path.join("cuda", "bindings", "utils"),
 ]
 input_files = []
 for path in path_list:
@@ -287,6 +288,7 @@ def prep_extensions(sources, libraries):
 
 # new path for the bindings from cybind
 def rename_architecture_specific_files():
+    path = os.path.join("cuda", "bindings", "_internal")
     if sys.platform == "linux":
         src_files = glob.glob(os.path.join(path, "*_linux.pyx"))
     elif sys.platform == "win32":
@@ -341,6 +343,7 @@ sources_list = [
     (["cuda/bindings/_lib/utils.pyx", "cuda/bindings/_lib/param_packer.cpp"], None),
     (["cuda/bindings/_lib/cyruntime/cyruntime.pyx"], None),
     (["cuda/bindings/_lib/cyruntime/utils.pyx"], None),
+    (["cuda/bindings/utils/*.pyx"], None),
     # public
     *(([f], None) for f in cuda_bindings_files),
     # public (deprecated, to be removed)

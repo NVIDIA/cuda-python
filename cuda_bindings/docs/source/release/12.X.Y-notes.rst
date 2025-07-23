@@ -12,6 +12,12 @@ Released on MM DD, 2025
 Highlights
 ----------
 
+* A utility module :mod:`cuda.bindings.utils` is added
+
+  * Using ``int(cuda_obj)`` to retrieve the underlying address of a CUDA object is deprecated and
+    subject to future removal. Please switch to use :func:`~cuda.bindings.utils.get_cuda_native_handle`
+    instead.
+
 * The ``cuda.bindings.cufile`` Python module was added, wrapping the
   `cuFile C APIs <https://docs.nvidia.com/gpudirect-storage/api-reference-guide/index.html>`_.
   Supported on Linux only.
