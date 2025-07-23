@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 -----
@@ -243,7 +243,7 @@ Enable device code optimization. When specified along with ``-G``\ , enables lim
 
   - ``--Ofast-compile={0|min|mid|max}``\  (``-Ofc``\ )
 
-Specify level to prefer device code compilation speed, where 'max' focuses only on the fastest compilation speed, 'mid' balances compile time and runtime, 'min' has a more minimal impact on both, and 0 (default) is normal compilation
+Specify the fast-compile level for device code, which controls the tradeoff between compilation speed and runtime performance by disabling certain optimizations at varying levels.
 
 
 
