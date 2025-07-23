@@ -75,10 +75,15 @@ def test_get_handle(target):
     assert handle == ptr
 
 
-def test_get_handle_error():
-    obj = (1, 2, 3, 4)
+@pytest.mark.parametrize(
+    "target",
+    (
+        (1, 2, 3, 4),
+        [5, 6],
+        {},
+        None,
+    )
+)
+def test_get_handle_error(target):
     with pytest.raises(TypeError) as e:
-        handle = get_cuda_native_handle(obj)
-    obj = 1234
-    with pytest.raises(TypeError) as e:
-        handle = get_cuda_native_handle(obj)
+        handle = get_cuda_native_handle(target)
