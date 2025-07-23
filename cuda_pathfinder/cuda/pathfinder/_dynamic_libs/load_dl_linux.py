@@ -96,7 +96,7 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
         RuntimeError: If the library is loaded but no expected symbol is found
     """
     candidate_sonames = list(SUPPORTED_LINUX_SONAMES.get(libname, ()))
-    candidate_sonames.append(f"{libname}.so")
+    candidate_sonames.append(f"lib{libname}.so")
     for soname in candidate_sonames:
         try:
             handle = ctypes.CDLL(soname, CDLL_MODE)
