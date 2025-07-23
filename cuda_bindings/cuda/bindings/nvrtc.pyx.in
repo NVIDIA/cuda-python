@@ -8,7 +8,7 @@ import cython
 import ctypes
 from libc.stdlib cimport calloc, malloc, free
 from libc cimport string
-from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t
+from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t, uintptr_t
 from libc.stddef cimport wchar_t
 from libc.limits cimport CHAR_MIN
 from libcpp.vector cimport vector
@@ -109,6 +109,12 @@ cdef class nvrtcProgram:
         return '<nvrtcProgram ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, nvrtcProgram):
+            return False
+        return self._pvt_ptr[0] == (<nvrtcProgram>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
