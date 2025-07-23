@@ -15,3 +15,4 @@ CUDA Python API Reference
    module/nvjitlink
    module/nvvm
    module/cufile
+   module/utils
