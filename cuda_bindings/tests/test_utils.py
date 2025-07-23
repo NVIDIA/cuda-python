@@ -82,7 +82,7 @@ def test_get_handle(target):
         [5, 6],
         {},
         None,
-    )
+    ),
 )
 def test_get_handle_error(target):
     with pytest.raises(TypeError) as e:
