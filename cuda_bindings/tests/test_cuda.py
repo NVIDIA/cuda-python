@@ -1031,5 +1031,7 @@ def test_struct_pointer_comparison(target):
     a = target(123)
     b = target(123)
     assert a == b
+    assert hash(a) == hash(b)
     c = target(456)
     assert a != c
+    assert hash(a) != hash(c)
