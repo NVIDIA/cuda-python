@@ -16,9 +16,9 @@ import cuda.bindings.driver as cuda
 
 # Configure logging to show INFO level and above
 logging.basicConfig(
-    level=logging.INFO, 
-    format='%(levelname)s: %(message)s',
-    force=True  # Override any existing logging configuration
+    level=logging.INFO,
+    format="%(levelname)s: %(message)s",
+    force=True,  # Override any existing logging configuration
 )
 
 try:
@@ -42,24 +42,24 @@ if platform_is_wsl():
 @pytest.fixture
 def cufile_env_json():
     """Set CUFILE_ENV_PATH_JSON environment variable for async tests."""
-    original_value = os.environ.get('CUFILE_ENV_PATH_JSON')
-    
+    original_value = os.environ.get("CUFILE_ENV_PATH_JSON")
+
     # Use /etc/cufile.json if it exists, otherwise fallback to cufile.json in tests directory
-    if os.path.exists('/etc/cufile.json'):
-        config_path = '/etc/cufile.json'
+    if os.path.exists("/etc/cufile.json"):
+        config_path = "/etc/cufile.json"
     else:
         # Get absolute path to cufile.json in the same directory as this test file
         test_dir = os.path.dirname(os.path.abspath(__file__))
-        config_path = os.path.join(test_dir, 'cufile.json')
-    
+        config_path = os.path.join(test_dir, "cufile.json")
+
     logging.info(f"Using cuFile config: {config_path}")
-    os.environ['CUFILE_ENV_PATH_JSON'] = config_path
+    os.environ["CUFILE_ENV_PATH_JSON"] = config_path
     yield
     # Restore original value or remove if it wasn't set
     if original_value is not None:
-        os.environ['CUFILE_ENV_PATH_JSON'] = original_value
+        os.environ["CUFILE_ENV_PATH_JSON"] = original_value
     else:
-        os.environ.pop('CUFILE_ENV_PATH_JSON', None)
+        os.environ.pop("CUFILE_ENV_PATH_JSON", None)
 
 
 def cufileLibraryAvailable():
@@ -1315,6 +1315,7 @@ def test_batch_io_basic():
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
 
+
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_batch_io_cancel():
     """Test batch IO cancellation."""
@@ -1654,7 +1655,9 @@ def test_set_get_parameter_size_t():
         # Test max device pinned memory size (in KB)
         max_pinned_kb = 2048  # 2MB max pinned memory
         cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB, max_pinned_kb)
-        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB)
+        retrieved_value = cufile.get_parameter_size_t(
+            cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB
+        )
         assert retrieved_value == max_pinned_kb, (
             f"Max pinned memory size mismatch: set {max_pinned_kb}, got {retrieved_value}"
         )
@@ -1824,7 +1827,7 @@ def test_set_get_parameter_string():
             )
             retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.LOGGING_LEVEL, 256)
             # Use safe_decode_string to handle null terminators and padding
-            retrieved_value = safe_decode_string(retrieved_value_raw.encode('utf-8'))
+            retrieved_value = safe_decode_string(retrieved_value_raw.encode("utf-8"))
             logging.info(f"Logging level test: set {logging_level}, got {retrieved_value}")
             # The retrieved value should be a string, so we can compare directly
             assert retrieved_value == logging_level, (
@@ -1846,7 +1849,7 @@ def test_set_get_parameter_string():
             )
             retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.ENV_LOGFILE_PATH, 256)
             # Use safe_decode_string to handle null terminators and padding
-            retrieved_value = safe_decode_string(retrieved_value_raw.encode('utf-8'))
+            retrieved_value = safe_decode_string(retrieved_value_raw.encode("utf-8"))
             logging.info(f"Log file path test: set {logfile_path}, got {retrieved_value}")
             # The retrieved value should be a string, so we can compare directly
             assert retrieved_value == logfile_path, f"Log file path mismatch: set {logfile_path}, got {retrieved_value}"
@@ -1864,7 +1867,7 @@ def test_set_get_parameter_string():
             cufile.set_parameter_string(cufile.StringConfigParameter.LOG_DIR, int(ctypes.addressof(log_dir_buffer)))
             retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.LOG_DIR, 256)
             # Use safe_decode_string to handle null terminators and padding
-            retrieved_value = safe_decode_string(retrieved_value_raw.encode('utf-8'))
+            retrieved_value = safe_decode_string(retrieved_value_raw.encode("utf-8"))
             logging.info(f"Log directory test: set {log_dir}, got {retrieved_value}")
             # The retrieved value should be a string, so we can compare directly
             assert retrieved_value == log_dir, f"Log directory mismatch: set {log_dir}, got {retrieved_value}"
