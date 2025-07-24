@@ -3,6 +3,7 @@
 
 import ctypes
 import errno
+import logging
 import os
 import pathlib
 import platform
@@ -12,6 +13,13 @@ from contextlib import suppress
 import pytest
 
 import cuda.bindings.driver as cuda
+
+# Configure logging to show INFO level and above
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(levelname)s: %(message)s',
+    force=True  # Override any existing logging configuration
+)
 
 try:
     from cuda.bindings import cufile
@@ -44,7 +52,7 @@ def cufile_env_json():
         test_dir = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(test_dir, 'cufile.json')
     
-    print(f"Using cuFile config: {config_path}")
+    logging.info(f"Using cuFile config: {config_path}")
     os.environ['CUFILE_ENV_PATH_JSON'] = config_path
     yield
     # Restore original value or remove if it wasn't set
@@ -59,10 +67,10 @@ def cufileLibraryAvailable():
     try:
         # Try to get cuFile library version - this will fail if library is not available
         version = cufile.get_version()
-        print(f"cuFile library available, version: {version}")
+        logging.info(f"cuFile library available, version: {version}")
         return True
     except Exception as e:
-        print(f"cuFile library not available: {e}")
+        logging.warning(f"cuFile library not available: {e}")
         return False
 
 
@@ -71,14 +79,14 @@ def cufileVersionLessThan(target):
     try:
         # Get cuFile library version
         version = cufile.get_version()
-        print(f"cuFile library version: {version}")
+        logging.info(f"cuFile library version: {version}")
         # Check if version is less than target
         if version < target:
-            print(f"cuFile library version {version} is less than required {target}")
+            logging.warning(f"cuFile library version {version} is less than required {target}")
             return True
         return False
     except Exception as e:
-        print(f"Error checking cuFile version: {e}")
+        logging.error(f"Error checking cuFile version: {e}")
         return True  # Assume old version if any error occurs
 
 
@@ -97,14 +105,14 @@ def isSupportedFilesystem():
                     current_dir = os.path.abspath(".")
                     if current_dir.startswith(mount_point):
                         fs_type_lower = fs_type.lower()
-                        print(f"Current filesystem type: {fs_type_lower}")
+                        logging.info(f"Current filesystem type: {fs_type_lower}")
                         return fs_type_lower in ["ext4", "xfs"]
 
         # If we get here, we couldn't determine the filesystem type
-        print("Could not determine filesystem type from /proc/mounts")
+        logging.warning("Could not determine filesystem type from /proc/mounts")
         return False
     except Exception as e:
-        print(f"Error checking filesystem type: {e}")
+        logging.error(f"Error checking filesystem type: {e}")
         return False
 
 
@@ -1817,13 +1825,13 @@ def test_set_get_parameter_string():
             retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.LOGGING_LEVEL, 256)
             # Use safe_decode_string to handle null terminators and padding
             retrieved_value = safe_decode_string(retrieved_value_raw.encode('utf-8'))
-            print(f"Logging level test: set {logging_level}, got {retrieved_value}")
+            logging.info(f"Logging level test: set {logging_level}, got {retrieved_value}")
             # The retrieved value should be a string, so we can compare directly
             assert retrieved_value == logging_level, (
                 f"Logging level mismatch: set {logging_level}, got {retrieved_value}"
             )
         except Exception as e:
-            print(f"Logging level test failed: {e}")
+            logging.error(f"Logging level test failed: {e}")
             # Re-raise the exception to make the test fail
             raise
 
@@ -1839,11 +1847,11 @@ def test_set_get_parameter_string():
             retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.ENV_LOGFILE_PATH, 256)
             # Use safe_decode_string to handle null terminators and padding
             retrieved_value = safe_decode_string(retrieved_value_raw.encode('utf-8'))
-            print(f"Log file path test: set {logfile_path}, got {retrieved_value}")
+            logging.info(f"Log file path test: set {logfile_path}, got {retrieved_value}")
             # The retrieved value should be a string, so we can compare directly
             assert retrieved_value == logfile_path, f"Log file path mismatch: set {logfile_path}, got {retrieved_value}"
         except Exception as e:
-            print(f"Log file path test failed: {e}")
+            logging.error(f"Log file path test failed: {e}")
             # Re-raise the exception to make the test fail
             raise
 
@@ -1857,11 +1865,11 @@ def test_set_get_parameter_string():
             retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.LOG_DIR, 256)
             # Use safe_decode_string to handle null terminators and padding
             retrieved_value = safe_decode_string(retrieved_value_raw.encode('utf-8'))
-            print(f"Log directory test: set {log_dir}, got {retrieved_value}")
+            logging.info(f"Log directory test: set {log_dir}, got {retrieved_value}")
             # The retrieved value should be a string, so we can compare directly
             assert retrieved_value == log_dir, f"Log directory mismatch: set {log_dir}, got {retrieved_value}"
         except Exception as e:
-            print(f"Log directory test failed: {e}")
+            logging.error(f"Log directory test failed: {e}")
             # Re-raise the exception to make the test fail
             raise
 
