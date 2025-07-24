@@ -9,6 +9,7 @@ import pathlib
 import platform
 import tempfile
 from contextlib import suppress
+from functools import cache
 
 import pytest
 
@@ -39,7 +40,7 @@ if platform_is_wsl():
     pytest.skip("skipping cuFile tests on WSL", allow_module_level=True)
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def cufile_env_json():
     """Set CUFILE_ENV_PATH_JSON environment variable for async tests."""
     original_value = os.environ.get("CUFILE_ENV_PATH_JSON")
@@ -62,6 +63,7 @@ def cufile_env_json():
         os.environ.pop("CUFILE_ENV_PATH_JSON", None)
 
 
+@cache
 def cufileLibraryAvailable():
     """Check if cuFile library is available on the system."""
     try:
@@ -74,6 +76,7 @@ def cufileLibraryAvailable():
         return False
 
 
+@cache
 def cufileVersionLessThan(target):
     """Check if cuFile library version is less than target version."""
     try:
@@ -90,6 +93,7 @@ def cufileVersionLessThan(target):
         return True  # Assume old version if any error occurs
 
 
+@cache
 def isSupportedFilesystem():
     """Check if the current filesystem is supported (ext4 or xfs)."""
     try:
