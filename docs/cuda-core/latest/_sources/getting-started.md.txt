@@ -8,7 +8,7 @@ including:
 - Compiling and launching CUDA kernels
 - Asynchronous concurrent execution with CUDA graphs, streams and events
 - Coordinating work across multiple CUDA devices
-- Allocating, transfering, and managing device memory
+- Allocating, transferring, and managing device memory
 - Runtime linking of device code with Link-Time Optimization (LTO)
 - and much more!
 
@@ -94,7 +94,7 @@ s.sync()
 ```
 
 This example demonstrates one of the core workflows enabled by `cuda.core`: compiling and launching CUDA code.
-Note the clean, Pythonic interface, and absense of any direct calls to the CUDA runtime/driver APIs.
+Note the clean, Pythonic interface, and absence of any direct calls to the CUDA runtime/driver APIs.
 
 ## Examples and Recipes
 
