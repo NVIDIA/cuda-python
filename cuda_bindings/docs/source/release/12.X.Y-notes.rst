@@ -36,6 +36,7 @@ Miscellaneous
 -------------
 
 * Added PTX utilities including :func:`~utils.get_minimal_required_cuda_ver_from_ptx_ver` and :func:`~utils.get_ptx_ver`.
+* Common CUDA objects such as :class:`~runtime.cudaStream_t` now compare equal if the underlying address is the same.
 
 
 Known issues

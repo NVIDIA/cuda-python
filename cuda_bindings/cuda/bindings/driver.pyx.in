@@ -8,7 +8,7 @@ import cython
 import ctypes
 from libc.stdlib cimport calloc, malloc, free
 from libc cimport string
-from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t
+from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t, uintptr_t
 from libc.stddef cimport wchar_t
 from libc.limits cimport CHAR_MIN
 from libcpp.vector cimport vector
@@ -6525,6 +6525,12 @@ cdef class CUcontext:
         return '<CUcontext ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUcontext):
+            return False
+        return self._pvt_ptr[0] == (<CUcontext>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6556,6 +6562,12 @@ cdef class CUmodule:
         return '<CUmodule ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUmodule):
+            return False
+        return self._pvt_ptr[0] == (<CUmodule>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6587,6 +6599,12 @@ cdef class CUfunction:
         return '<CUfunction ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUfunction):
+            return False
+        return self._pvt_ptr[0] == (<CUfunction>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6618,6 +6636,12 @@ cdef class CUlibrary:
         return '<CUlibrary ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUlibrary):
+            return False
+        return self._pvt_ptr[0] == (<CUlibrary>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6649,6 +6673,12 @@ cdef class CUkernel:
         return '<CUkernel ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUkernel):
+            return False
+        return self._pvt_ptr[0] == (<CUkernel>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6680,6 +6710,12 @@ cdef class CUarray:
         return '<CUarray ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUarray):
+            return False
+        return self._pvt_ptr[0] == (<CUarray>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6711,6 +6747,12 @@ cdef class CUmipmappedArray:
         return '<CUmipmappedArray ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUmipmappedArray):
+            return False
+        return self._pvt_ptr[0] == (<CUmipmappedArray>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6742,6 +6784,12 @@ cdef class CUtexref:
         return '<CUtexref ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUtexref):
+            return False
+        return self._pvt_ptr[0] == (<CUtexref>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6773,6 +6821,12 @@ cdef class CUsurfref:
         return '<CUsurfref ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUsurfref):
+            return False
+        return self._pvt_ptr[0] == (<CUsurfref>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6804,6 +6858,12 @@ cdef class CUevent:
         return '<CUevent ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUevent):
+            return False
+        return self._pvt_ptr[0] == (<CUevent>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6835,6 +6895,12 @@ cdef class CUstream:
         return '<CUstream ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUstream):
+            return False
+        return self._pvt_ptr[0] == (<CUstream>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6866,6 +6932,12 @@ cdef class CUgraphicsResource:
         return '<CUgraphicsResource ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUgraphicsResource):
+            return False
+        return self._pvt_ptr[0] == (<CUgraphicsResource>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6897,6 +6969,12 @@ cdef class CUexternalMemory:
         return '<CUexternalMemory ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUexternalMemory):
+            return False
+        return self._pvt_ptr[0] == (<CUexternalMemory>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6928,6 +7006,12 @@ cdef class CUexternalSemaphore:
         return '<CUexternalSemaphore ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUexternalSemaphore):
+            return False
+        return self._pvt_ptr[0] == (<CUexternalSemaphore>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6959,6 +7043,12 @@ cdef class CUgraph:
         return '<CUgraph ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUgraph):
+            return False
+        return self._pvt_ptr[0] == (<CUgraph>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -6990,6 +7080,12 @@ cdef class CUgraphNode:
         return '<CUgraphNode ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUgraphNode):
+            return False
+        return self._pvt_ptr[0] == (<CUgraphNode>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -7021,6 +7117,12 @@ cdef class CUgraphExec:
         return '<CUgraphExec ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUgraphExec):
+            return False
+        return self._pvt_ptr[0] == (<CUgraphExec>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -7052,6 +7154,12 @@ cdef class CUmemoryPool:
         return '<CUmemoryPool ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUmemoryPool):
+            return False
+        return self._pvt_ptr[0] == (<CUmemoryPool>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -7083,6 +7191,12 @@ cdef class CUuserObject:
         return '<CUuserObject ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUuserObject):
+            return False
+        return self._pvt_ptr[0] == (<CUuserObject>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -7114,6 +7228,12 @@ cdef class CUgraphDeviceNode:
         return '<CUgraphDeviceNode ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUgraphDeviceNode):
+            return False
+        return self._pvt_ptr[0] == (<CUgraphDeviceNode>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -7145,6 +7265,12 @@ cdef class CUasyncCallbackHandle:
         return '<CUasyncCallbackHandle ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUasyncCallbackHandle):
+            return False
+        return self._pvt_ptr[0] == (<CUasyncCallbackHandle>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -7176,6 +7302,12 @@ cdef class CUgreenCtx:
         return '<CUgreenCtx ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUgreenCtx):
+            return False
+        return self._pvt_ptr[0] == (<CUgreenCtx>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -7205,6 +7337,12 @@ cdef class CUlinkState:
         return '<CUlinkState ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUlinkState):
+            return False
+        return self._pvt_ptr[0] == (<CUlinkState>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -7236,6 +7374,12 @@ cdef class CUdevResourceDesc:
         return '<CUdevResourceDesc ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUdevResourceDesc):
+            return False
+        return self._pvt_ptr[0] == (<CUdevResourceDesc>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -7265,6 +7409,12 @@ cdef class CUlogsCallbackHandle:
         return '<CUlogsCallbackHandle ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUlogsCallbackHandle):
+            return False
+        return self._pvt_ptr[0] == (<CUlogsCallbackHandle>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -7296,6 +7446,12 @@ cdef class CUeglStreamConnection:
         return '<CUeglStreamConnection ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, CUeglStreamConnection):
+            return False
+        return self._pvt_ptr[0] == (<CUeglStreamConnection>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -7325,6 +7481,12 @@ cdef class EGLImageKHR:
         return '<EGLImageKHR ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, EGLImageKHR):
+            return False
+        return self._pvt_ptr[0] == (<EGLImageKHR>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -7354,6 +7516,12 @@ cdef class EGLStreamKHR:
         return '<EGLStreamKHR ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, EGLStreamKHR):
+            return False
+        return self._pvt_ptr[0] == (<EGLStreamKHR>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
@@ -7383,6 +7551,12 @@ cdef class EGLSyncKHR:
         return '<EGLSyncKHR ' + str(hex(self.__int__())) + '>'
     def __index__(self):
         return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, EGLSyncKHR):
+            return False
+        return self._pvt_ptr[0] == (<EGLSyncKHR>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
     def __int__(self):
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):

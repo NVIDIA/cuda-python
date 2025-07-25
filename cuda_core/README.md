@@ -1,4 +1,4 @@
-# `cuda.core`: (experimental) pythonic CUDA module
+# `cuda.core`: (experimental) Pythonic CUDA module
 
 Currently under active development; see [the documentation](https://nvidia.github.io/cuda-python/cuda-core/latest/) for more details.
 
@@ -13,16 +13,16 @@ This subpackage adheres to the developing practices described in the parent meta
 ## Testing
 
 To run these tests:
-* `python -m pytest tests/` against editable installations
-* `pytest tests/` against installed packages
+* `python -m pytest tests/` with editable installations
+* `pytest tests/` with installed packages
 
 ### Cython Unit Tests
 
 Cython tests are located in `tests/cython` and need to be built. These builds have the same CUDA Toolkit header requirements as [those of cuda.bindings](https://nvidia.github.io/cuda-python/cuda-bindings/latest/install.html#requirements) where the major.minor version must match `cuda.bindings`. To build them:
 
-1. Setup environment variable `CUDA_HOME` with the path to the CUDA Toolkit installation.
-2. Run `build_tests` script located in `test/cython` appropriate to your platform. This will both cythonize the tests and build them.
+1. Set up environment variable `CUDA_HOME` with the path to the CUDA Toolkit installation.
+2. Run `build_tests` script located in `tests/cython` appropriate to your platform. This will both cythonize the tests and build them.
 
 To run these tests:
-* `python -m pytest tests/cython/` against editable installations
-* `pytest tests/cython/` against installed packages
+* `python -m pytest tests/cython/` with editable installations
+* `pytest tests/cython/` with installed packages
