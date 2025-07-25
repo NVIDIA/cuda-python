@@ -241,6 +241,8 @@ library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib"
 
 extra_compile_args = []
 extra_cythonize_kwargs = {}
+if sys.version_info.minor == 13:  # PY313
+    extra_compile_args.append("-DCYTHON_USE_SYS_MONITORING=0")
 if sys.platform != "win32":
     extra_compile_args += [
         "-std=c++14",
