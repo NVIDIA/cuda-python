@@ -1198,20 +1198,9 @@ class Device:
             if int(prev_ctx) != 0:
                 return Context._from_ctx(prev_ctx, self._id)
         else:
-            ctx = handle_return(driver.cuCtxGetCurrent())
-            if int(ctx) == 0:
-                # use primary ctx
-                ctx = self._get_primary_context()
-                handle_return(driver.cuCtxSetCurrent(ctx))
-            else:
-                ctx_id = handle_return(driver.cuCtxGetDevice())
-                if ctx_id != self._id:
-                    # use primary ctx
-                    ctx = self._get_primary_context()
-                    handle_return(driver.cuCtxSetCurrent(ctx))
-                else:
-                    # no-op, a valid context already exists and is set current
-                    pass
+            # use primary ctx
+            ctx = self._get_primary_context()
+            handle_return(driver.cuCtxSetCurrent(ctx))
             self._has_inited = True
 
     def create_context(self, options: ContextOptions = None) -> Context:
