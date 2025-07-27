@@ -40,7 +40,7 @@ if platform_is_wsl():
     pytest.skip("skipping cuFile tests on WSL", allow_module_level=True)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def cufile_env_json():
     """Set CUFILE_ENV_PATH_JSON environment variable for async tests."""
     original_value = os.environ.get("CUFILE_ENV_PATH_JSON")
