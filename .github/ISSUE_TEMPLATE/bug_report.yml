@@ -38,6 +38,7 @@ body:
       description: Which cuda-python component does this apply to?
       multiple: false
       options:
+        - cuda.pathfinder
         - cuda.bindings
         - cuda.core
         - General cuda-python

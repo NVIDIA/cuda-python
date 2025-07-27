@@ -9,6 +9,7 @@ import pytest
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
+from cuda.bindings import runtime
 
 
 def isSuccess(err):
@@ -1378,3 +1379,24 @@ def test_cudart_conditional():
 
     assert len(params.conditional.phGraph_out) == 1
     assert int(params.conditional.phGraph_out[0]) != 0
+
+
+@pytest.mark.parametrize(
+    "target",
+    (
+        runtime.cudaStream_t,
+        runtime.cudaEvent_t,
+        runtime.cudaGraph_t,
+        runtime.cudaGraphNode_t,
+        runtime.cudaGraphExec_t,
+        runtime.cudaMemPool_t,
+    ),
+)
+def test_struct_pointer_comparison(target):
+    a = target(123)
+    b = target(123)
+    assert a == b
+    assert hash(a) == hash(b)
+    c = target(456)
+    assert a != c
+    assert hash(a) != hash(c)

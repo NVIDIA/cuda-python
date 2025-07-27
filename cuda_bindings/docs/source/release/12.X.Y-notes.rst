@@ -12,6 +12,12 @@ Released on MM DD, 2025
 Highlights
 ----------
 
+* A utility module :mod:`cuda.bindings.utils` is added
+
+  * Using ``int(cuda_obj)`` to retrieve the underlying address of a CUDA object is deprecated and
+    subject to future removal. Please switch to use :func:`~cuda.bindings.utils.get_cuda_native_handle`
+    instead.
+
 * The ``cuda.bindings.cufile`` Python module was added, wrapping the
   `cuFile C APIs <https://docs.nvidia.com/gpudirect-storage/api-reference-guide/index.html>`_.
   Supported on Linux only.
@@ -30,6 +36,7 @@ Miscellaneous
 -------------
 
 * Added PTX utilities including :func:`~utils.get_minimal_required_cuda_ver_from_ptx_ver` and :func:`~utils.get_ptx_ver`.
+* Common CUDA objects such as :class:`~runtime.cudaStream_t` now compare equal if the underlying address is the same.
 
 
 Known issues
