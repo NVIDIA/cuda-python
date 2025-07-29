@@ -107,7 +107,7 @@ jobs:
           if-no-files-found: error
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@95d2f3a92fbf80abe066b09418bbf128a8923df2  # v3.0.1
+        uses: pypa/cibuildwheel@e6de07ed3921b51089aae6981989889cf1eddd0c  # v3.1.1
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_ARCHS_LINUX: "native"
@@ -149,7 +149,7 @@ jobs:
           cuda-version: ${{ inputs.cuda-version }}
 
       - name: Build cuda.bindings wheel
-        uses: pypa/cibuildwheel@95d2f3a92fbf80abe066b09418bbf128a8923df2  # v3.0.1
+        uses: pypa/cibuildwheel@e6de07ed3921b51089aae6981989889cf1eddd0c  # v3.1.1
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_ARCHS_LINUX: "native"
