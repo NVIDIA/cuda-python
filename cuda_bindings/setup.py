@@ -323,7 +323,7 @@ def do_cythonize(extensions):
     return cythonize(
         extensions,
         nthreads=nthreads,
-        compiler_directives=dict(profile=True, language_level=3, embedsignature=True, binding=True),
+        compiler_directives=dict(language_level=3, embedsignature=True, binding=True),
         **extra_cythonize_kwargs,
     )
 
