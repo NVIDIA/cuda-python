@@ -40,7 +40,7 @@ if platform_is_wsl():
     pytest.skip("skipping cuFile tests on WSL", allow_module_level=True)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def cufile_env_json():
     """Set CUFILE_ENV_PATH_JSON environment variable for async tests."""
     original_value = os.environ.get("CUFILE_ENV_PATH_JSON")
@@ -1573,7 +1573,14 @@ def test_batch_io_large_operations():
             repetitions = buf_size // test_string_len
             expected_data = (test_string * repetitions)[:buf_size]
 
-            assert read_data == expected_data, f"Read data doesn't match written data for operation {i}"
+            if read_data != expected_data:
+                n = 100  # Show first n bytes
+                raise RuntimeError(
+                    f"Read data doesn't match written data for operation {i}: "
+                    f"{len(read_data)=}, {len(expected_data)=}, "
+                    f"first {n} bytes: read {read_data[:n]!r}, "
+                    f"expected {expected_data[:n]!r}"
+                )
 
         # Clean up batch IO
         cufile.batch_io_destroy(batch_handle)
