@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.batch\_io\_set\_up
-=======================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: batch_io_set_up
