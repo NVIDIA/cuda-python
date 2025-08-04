@@ -36,11 +36,6 @@ runs:
         if [[ "${{ inputs.host-platform }}" == win-* ]]; then
           CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//libcufile/}"
         fi
-        # Conditionally strip out libcufile for CUDA versions < 12.2.0 + aarch64 (redist not available)
-        CUDA_MINOR_VER="$(cut -d '.' -f 2 <<< ${{ inputs.cuda-version }})"
-        if [[ ("$CUDA_MAJOR_VER" -lt 12 || "$CUDA_MINOR_VER" -lt 2) && "${{ inputs.host-platform }}" == "linux-aarch64" ]]; then
-          CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//libcufile/}"
-        fi
         # Cleanup stray commas after removing components
         CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//,,/,}"
 
