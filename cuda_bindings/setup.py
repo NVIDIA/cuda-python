@@ -346,8 +346,6 @@ sources_list = [
     (["cuda/bindings/utils/*.pyx"], None),
     # public
     *(([f], None) for f in cuda_bindings_files),
-    # public (deprecated, to be removed)
-    (["cuda/*.pyx"], None),
     # internal files used by generated bindings
     (["cuda/bindings/_internal/utils.pyx"], None),
     *(([f], None) for f in dst_files if f.endswith(".pyx")),
