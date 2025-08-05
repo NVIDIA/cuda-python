@@ -60,7 +60,7 @@ elif [[ "${1}" == "test" ]]; then
   # We only test compute-sanitizer on python 3.12 arbitrarily; we don't need to use sanitizer on the entire matrix
   # Only local ctk installs have compute-sanitizer; there is no wheel for it
   if [[ "${PY_VER}" == "3.12" && "${CUDA_VER}" != "11.8.0" && "${LOCAL_CTK}" == 1 && "${HOST_PLATFORM}" == linux* ]]; then
-    echo "LATEST_CUDA_VERSION=$(bash .github/workflows/guess_latest.sh)" >> $GITHUB_ENV
+    echo "LATEST_CUDA_VERSION=$(bash .github/workflows/guess_latest.sh $TEST_CUDA_MAJOR)" >> $GITHUB_ENV
     SETUP_SANITIZER=1
   else
     SETUP_SANITIZER=0
