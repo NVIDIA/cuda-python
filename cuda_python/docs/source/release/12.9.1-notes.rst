@@ -1,7 +1,7 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-CUDA Python 12.X.Y Release notes
+CUDA Python 12.9.1 Release notes
 ================================
 
 Released on MM DD, 2025.
@@ -10,9 +10,13 @@ Released on MM DD, 2025.
 Included components
 -------------------
 
+* `cuda.bindings 12.9.1 <https://nvidia.github.io/cuda-python/cuda-bindings/12.9.1/release/12.9.1-notes.html>`_
+
 
 Highlights
 ----------
+
+* Add bindings for cuFile
 
 
 Known issues
