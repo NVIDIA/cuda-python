@@ -9,19 +9,13 @@ description: Get the PR number without relying on the pull_request* event trigge
 runs:
   using: composite
   steps:
-    - name: Load branch name
-      id: get-branch
-      run: |
-        OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
-        echo "OLD_BRANCH=${OLD_BRANCH}" >> $GITHUB_ENV
-
-    - name: Get PR info (PR branch)
-      if: ${{ github.ref_name != 'main' && github.ref_name != env.OLD_BRANCH }}
+    - name: Get PR info (non-main branch)
+      if: ${{ github.ref_name != 'main' }}
       uses: nv-gha-runners/get-pr-info@main
       id: get-pr-info
 
-    - name: Extract PR number (PR branch)
-      if: ${{ github.ref_name != 'main' && github.ref_name != env.OLD_BRANCH }}
+    - name: Extract PR number (non-main branch)
+      if: ${{ github.ref_name != 'main' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         trap 'echo "Error at line $LINENO"; exit 1' ERR
@@ -33,8 +27,8 @@ runs:
         echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
         echo "BUILD_PREVIEW=1" >> $GITHUB_ENV
 
-    - name: Get PR data (main/backport branch)
-      if: ${{ github.ref_name == 'main' || github.ref_name == env.OLD_BRANCH }}
+    - name: Get PR data (main branch)
+      if: ${{ github.ref_name == 'main' }}
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1
       id: get-pr-data
       with:
@@ -45,19 +39,19 @@ runs:
             repo: context.repo.repo,
           });
           if (!prs.data.length) {
-            core.setFailed("No PR associated with this commit on ${{ github.ref_name }}.");
+            core.setFailed("No PR associated with this commit on 'main'.");
           } else {
             return prs.data[0];
           }
 
-    - name: Extract PR number (main/backport branch)
-      if: ${{ github.ref_name == 'main' || github.ref_name == env.OLD_BRANCH }}
+    - name: Extract PR number (main branch)
+      if: ${{ github.ref_name == 'main' }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         trap 'echo "Error at line $LINENO"; exit 1' ERR
         PR_NUMBER="${{ fromJSON(steps.get-pr-data.outputs.result).number }}"
         if [[ -z "$PR_NUMBER" ]]; then
-          echo "No associated PR found for the commit in ${{ github.ref_name }}."
+          echo "No associated PR found for the commit in 'main'."
           exit 1
         fi
         echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
