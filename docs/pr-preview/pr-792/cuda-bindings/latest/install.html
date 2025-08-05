@@ -212,7 +212,8 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/12.X.Y-notes.html">12.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.1-notes.html">12.9.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.0-notes.html">12.9.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.8.0-notes.html">12.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.2-notes.html">12.6.2</a></li>
@@ -383,8 +384,8 @@
 <ul class="simple">
 <li><p>Linux (x86-64, arm64) and Windows (x86-64)</p></li>
 <li><p>Python 3.9 - 3.13</p></li>
-<li><p>Driver: Linux (450.80.02 or later) Windows (456.38 or later)</p></li>
-<li><p>Optionally, NVRTC, nvJitLink, and NVVM from CUDA Toolkit 12.x</p></li>
+<li><p>Driver: Linux (580.65.06 or later) Windows (580.88 or later)</p></li>
+<li><p>Optionally, NVRTC, nvJitLink, NVVM, and cuFile from CUDA Toolkit 13.x</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -403,9 +404,10 @@
 </div>
 <p>Where the optional dependencies are:</p>
 <ul class="simple">
-<li><p>nvidia-cuda-nvrtc-cu12 (Provides NVRTC shared library)</p></li>
-<li><p>nvidia-nvjitlink-cu12&gt;=12.3 (Provides nvJitLink shared library)</p></li>
-<li><p>nvidia-cuda-nvcc-cu12 (Provides NVVM shared library)</p></li>
+<li><p>nvidia-cuda-nvrtc (Provides NVRTC shared library)</p></li>
+<li><p>nvidia-nvjitlink (Provides nvJitLink shared library)</p></li>
+<li><p>nvidia-cuda-nvcc (Provides NVVM shared library)</p></li>
+<li><p>nvidia-cufile (Provides cuFile shared library)</p></li>
 </ul>
 </section>
 <section id="installing-from-conda">
