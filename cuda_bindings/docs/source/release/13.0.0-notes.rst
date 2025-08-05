@@ -3,7 +3,7 @@
 
 .. module:: cuda.bindings
 
-``cuda-bindings`` 12.X.Y Release notes
+``cuda-bindings`` 13.0.0 Release notes
 ======================================
 
 Released on MM DD, 2025
@@ -11,6 +11,8 @@ Released on MM DD, 2025
 
 Highlights
 ----------
+
+* Support CUDA 13.0
 
 * A utility module :mod:`cuda.bindings.utils` is added
 
