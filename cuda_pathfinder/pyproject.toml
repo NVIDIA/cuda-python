@@ -14,20 +14,21 @@ dependencies = []
 test = [
     "pytest>=6.2.4",
 ]
-nvidia_wheels_cu12 = [
-    "nvidia-cublas-cu12",
-    "nvidia-cuda-nvcc-cu12",
-    "nvidia-cuda-nvrtc-cu12",
-    "nvidia-cuda-runtime-cu12",
-    "nvidia-cufft-cu12",
-    "nvidia-cufile-cu12; sys_platform != 'win32'",
-    "nvidia-curand-cu12",
-    "nvidia-cusolver-cu12",
-    "nvidia-cusparse-cu12",
-    "nvidia-npp-cu12",
-    "nvidia-nvfatbin-cu12",
-    "nvidia-nvjitlink-cu12",
-    "nvidia-nvjpeg-cu12",
+nvidia_wheels_cu13 = [
+    "nvidia-cublas",
+    "nvidia-cuda-nvcc",
+    "nvidia-cuda-nvrtc",
+    "nvidia-cuda-runtime",
+    "nvidia-cufft",
+    "nvidia-cufile; sys_platform != 'win32'",
+    "nvidia-curand",
+    "nvidia-cusolver",
+    "nvidia-cusparse",
+    "nvidia-npp",
+    "nvidia-nvfatbin",
+    "nvidia-nvjitlink",
+    "nvidia-nvjpeg",
+    "nvidia-nvvm",
 ]
 
 [project.urls]
