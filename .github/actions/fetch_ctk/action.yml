@@ -32,6 +32,12 @@ runs:
         if [[ "$CUDA_MAJOR_VER" -lt 12 ]]; then
           CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//libnvjitlink/}"
         fi
+        # Conditionally strip out cuda_crt and libnvvm for CUDA versions < 13
+        CUDA_MAJOR_VER="$(cut -d '.' -f 1 <<< ${{ inputs.cuda-version }})"
+        if [[ "$CUDA_MAJOR_VER" -lt 13 ]]; then
+          CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//cuda_crt/}"
+          CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//libnvvm/}"
+        fi
         # Conditionally strip out libcufile since it does not support Windows
         if [[ "${{ inputs.host-platform }}" == win-* ]]; then
           CTK_CACHE_COMPONENTS="${CTK_CACHE_COMPONENTS//libcufile/}"
