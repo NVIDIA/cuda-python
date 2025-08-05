@@ -47,10 +47,10 @@ jobs:
           #
           export MATRICES="
             pull-request:
-              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '11.8.0', LOCAL_CTK: '0' }
-              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '11.8.0', LOCAL_CTK: '1' }
               - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.9.0', LOCAL_CTK: '0' }
               - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.9.0', LOCAL_CTK: '1' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13',  CUDA_VER: '13.0.0', LOCAL_CTK: '0' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13',  CUDA_VER: '13.0.0', LOCAL_CTK: '1' }
             nightly:
               - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '11.8.0', LOCAL_CTK: '0' }
               - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '11.8.0', LOCAL_CTK: '1' }

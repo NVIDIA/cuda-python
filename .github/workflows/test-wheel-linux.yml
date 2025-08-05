@@ -51,7 +51,7 @@ jobs:
           # Add a special entry for the H100 runner on amd64.
           special_runner=""
           if [[ "${ARCH}" == "amd64" ]]; then
-            special_runner="- { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: 'H100', DRIVER: 'latest' }"
+            special_runner="- { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '13.0.0', LOCAL_CTK: '1', GPU: 'H100', DRIVER: 'latest' }"
           fi
 
           # Please keep the matrices sorted in ascending order by the following:
@@ -62,18 +62,16 @@ jobs:
           #
           export MATRICES="
             pull-request:
-              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '13.0.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '13.0.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '13.0.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '13.0.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '13.0.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               ${special_runner}
             nightly:
               - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
