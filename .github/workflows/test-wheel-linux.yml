@@ -62,7 +62,7 @@ jobs:
           #
           export MATRICES="
             pull-request:
-              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '13.0.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '13.0.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
@@ -70,7 +70,7 @@ jobs:
               - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '13.0.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '13.0.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '13.0.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               ${special_runner}
             nightly:
