@@ -186,6 +186,7 @@ jobs:
           $LATEST_PRIOR_RUN_ID = $runData[0].databaseId
 
           gh run download $LATEST_PRIOR_RUN_ID -p $OLD_BASENAME -R NVIDIA/cuda-python
+          Remove-Item -Recurse -Force "${OLD_BASENAME}-tests"  # exclude cython test artifacts
           Get-ChildItem -Path $OLD_BASENAME
           New-Item -Path "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}" -ItemType Directory -Force
           Move-Item -Path "$OLD_BASENAME/*.whl" -Destination "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
