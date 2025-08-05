@@ -198,7 +198,7 @@ jobs:
 
           OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "build-and-test.yml" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
+          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "ci.yml" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
           if [[ "$LATEST_PRIOR_RUN_ID" == "" ]]; then
             echo "LATEST_PRIOR_RUN_ID not found!"
             exit 1
