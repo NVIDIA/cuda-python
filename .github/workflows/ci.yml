@@ -14,7 +14,7 @@ on:
   push:
     branches:
       - "pull-request/[0-9]+"
-      - "main"
+      - "12.9.x"
 
 jobs:
   ci-vars:
