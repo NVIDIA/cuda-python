@@ -9,7 +9,7 @@ import win32api
 cimport cuda.bindings._lib.dlfcn as dlfcn
 from libc.stdint cimport uintptr_t
 {{endif}}
-from cuda.bindings import path_finder
+from cuda.pathfinder import load_nvidia_dynamic_lib
 from libc.stdint cimport intptr_t
 
 cdef bint __cuPythonInit = False
@@ -47,10 +47,10 @@ cdef int cuPythonInit() except -1 nogil:
     # Load library
     {{if 'Windows' == platform.system()}}
     with gil:
-        handle = path_finder._load_nvidia_dynamic_library("nvrtc").handle
+        handle = load_nvidia_dynamic_lib("nvrtc")._handle
     {{else}}
     with gil:
-        handle = <void*><uintptr_t>path_finder._load_nvidia_dynamic_library("nvrtc").handle
+        handle = <void*><uintptr_t>load_nvidia_dynamic_lib("nvrtc")._handle
     {{endif}}
 
 

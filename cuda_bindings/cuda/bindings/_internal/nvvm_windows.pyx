@@ -8,7 +8,7 @@ from libc.stdint cimport intptr_t
 
 from .utils import FunctionNotFoundError, NotSupportedError
 
-from cuda.bindings import path_finder
+from cuda.pathfinder import load_nvidia_dynamic_lib
 
 import win32api
 
@@ -60,7 +60,7 @@ cdef int _check_or_init_nvvm() except -1 nogil:
             raise RuntimeError('something went wrong')
 
         # Load library
-        handle = path_finder._load_nvidia_dynamic_library("nvvm").handle
+        handle = load_nvidia_dynamic_lib("nvvm")._handle
 
         # Load function
         global __nvvmGetErrorString
