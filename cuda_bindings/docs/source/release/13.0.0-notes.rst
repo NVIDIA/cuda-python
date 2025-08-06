@@ -44,6 +44,7 @@ Miscellaneous
 * Common CUDA objects such as :class:`~runtime.cudaStream_t` now compare equal if the underlying address is the same.
 * Add a binding to ``nvvmGetErrorString()``.
 * Build the bindings with Cython profile hooks disabled.
+* The internal pathfinder module is now isolated to a standalone package ``cuda-pathfinder`` and made as a required dependency.
 
 
 Known issues
