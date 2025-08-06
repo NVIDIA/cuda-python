@@ -1,10 +1,6 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
-#
-# Please refer to the NVIDIA end user license agreement (EULA) associated
-# with this source code for terms and conditions that govern your use of
-# this software. Any use, reproduction, disclosure, or distribution of
-# this software and related documentation outside the terms of the EULA
-# is strictly prohibited.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 import ctypes
 import random as rnd
 
@@ -13,7 +9,8 @@ import pytest
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
 
-from cuda import cuda, cudart
+from cuda.bindings import driver as cuda
+from cuda.bindings import runtime as cudart
 
 THREADS_PER_BLOCK = 512
 GRAPH_LAUNCH_ITERATIONS = 3
