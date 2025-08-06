@@ -30,6 +30,13 @@ Highlights
   released before calling the underlying C APIs.
 
 
+Breaking changes
+----------------
+
+* For breaking changes in the CUDA APIs, please see the `CUDA 13.0 release notes <https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/contents.html>`_.
+* The trampoline modules ``cuda.{cuda,cudart,nvrtc}`` are now removed. Users should switch to use ``cuda.bindings.{driver,runtime,nvrtc}`` instead.
+
+
 Bug fixes
 ---------
 
