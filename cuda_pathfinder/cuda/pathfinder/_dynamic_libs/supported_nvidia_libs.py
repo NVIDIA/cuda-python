@@ -101,29 +101,35 @@ DIRECT_DEPENDENCIES = {
 #   cuda_12.4.1_550.54.15_linux.run
 #   cuda_12.5.1_555.42.06_linux.run
 #   cuda_12.6.2_560.35.03_linux.run
-#   cuda_12.8.0_570.86.10_linux.run
-#   cuda_12.9.0_575.51.03_linux.run
+#   cuda_12.8.1_570.124.06_linux.run
+#   cuda_12.9.1_575.57.08_linux.run
+#   cuda_13.0.0_580.65.06_linux.run
 # Generated with toolshed/build_pathfinder_sonames.py
 SUPPORTED_LINUX_SONAMES = {
     "cublas": (
         "libcublas.so.11",
         "libcublas.so.12",
+        "libcublas.so.13",
     ),
     "cublasLt": (
         "libcublasLt.so.11",
         "libcublasLt.so.12",
+        "libcublasLt.so.13",
     ),
     "cudart": (
         "libcudart.so.11.0",
         "libcudart.so.12",
+        "libcudart.so.13",
     ),
     "cufft": (
         "libcufft.so.10",
         "libcufft.so.11",
+        "libcufft.so.12",
     ),
     "cufftw": (
         "libcufftw.so.10",
         "libcufftw.so.11",
+        "libcufftw.so.12",
     ),
     "cufile": ("libcufile.so.0",),
     # "cufile_rdma": ("libcufile_rdma.so.1",),
@@ -131,10 +137,12 @@ SUPPORTED_LINUX_SONAMES = {
     "cusolver": (
         "libcusolver.so.10",
         "libcusolver.so.11",
+        "libcusolver.so.12",
     ),
     "cusolverMg": (
         "libcusolverMg.so.10",
         "libcusolverMg.so.11",
+        "libcusolverMg.so.12",
     ),
     "cusparse": (
         "libcusparse.so.11",
@@ -143,62 +151,82 @@ SUPPORTED_LINUX_SONAMES = {
     "nppc": (
         "libnppc.so.11",
         "libnppc.so.12",
+        "libnppc.so.13",
     ),
     "nppial": (
         "libnppial.so.11",
         "libnppial.so.12",
+        "libnppial.so.13",
     ),
     "nppicc": (
         "libnppicc.so.11",
         "libnppicc.so.12",
+        "libnppicc.so.13",
     ),
     "nppidei": (
         "libnppidei.so.11",
         "libnppidei.so.12",
+        "libnppidei.so.13",
     ),
     "nppif": (
         "libnppif.so.11",
         "libnppif.so.12",
+        "libnppif.so.13",
     ),
     "nppig": (
         "libnppig.so.11",
         "libnppig.so.12",
+        "libnppig.so.13",
     ),
     "nppim": (
         "libnppim.so.11",
         "libnppim.so.12",
+        "libnppim.so.13",
     ),
     "nppist": (
         "libnppist.so.11",
         "libnppist.so.12",
+        "libnppist.so.13",
     ),
     "nppisu": (
         "libnppisu.so.11",
         "libnppisu.so.12",
+        "libnppisu.so.13",
     ),
     "nppitc": (
         "libnppitc.so.11",
         "libnppitc.so.12",
+        "libnppitc.so.13",
     ),
     "npps": (
         "libnpps.so.11",
         "libnpps.so.12",
+        "libnpps.so.13",
     ),
-    "nvJitLink": ("libnvJitLink.so.12",),
+    "nvJitLink": (
+        "libnvJitLink.so.12",
+        "libnvJitLink.so.13",
+    ),
     "nvblas": (
         "libnvblas.so.11",
         "libnvblas.so.12",
+        "libnvblas.so.13",
     ),
-    "nvfatbin": ("libnvfatbin.so.12",),
+    "nvfatbin": (
+        "libnvfatbin.so.12",
+        "libnvfatbin.so.13",
+    ),
     "nvjpeg": (
         "libnvjpeg.so.11",
         "libnvjpeg.so.12",
+        "libnvjpeg.so.13",
     ),
     "nvrtc": (
         "libnvrtc.so.11.0",
         "libnvrtc.so.11.1",
         "libnvrtc.so.11.2",
         "libnvrtc.so.12",
+        "libnvrtc.so.13",
     ),
     "nvvm": (
         "libnvvm.so.3",
@@ -224,39 +252,47 @@ SUPPORTED_LINUX_SONAMES = {
 #   cuda_12.5.1_555.85_windows.exe
 #   cuda_12.6.2_560.94_windows.exe
 #   cuda_12.8.1_572.61_windows.exe
-#   cuda_12.9.0_576.02_windows.txt
-# Generated with toolshed/build_pathfinder_dlls.py (WITH MANUAL EDITS)
+#   cuda_12.9.1_576.57_windows.exe
+#   cuda_13.0.0_windows.exe
+# Generated with toolshed/build_pathfinder_dlls.py
 SUPPORTED_WINDOWS_DLLS = {
     "cublas": (
         "cublas64_11.dll",
         "cublas64_12.dll",
+        "cublas64_13.dll",
     ),
     "cublasLt": (
         "cublasLt64_11.dll",
         "cublasLt64_12.dll",
+        "cublasLt64_13.dll",
     ),
     "cudart": (
         "cudart64_101.dll",
         "cudart64_110.dll",
         "cudart64_12.dll",
+        "cudart64_13.dll",
         "cudart64_65.dll",
     ),
     "cufft": (
         "cufft64_10.dll",
         "cufft64_11.dll",
+        "cufft64_12.dll",
     ),
     "cufftw": (
         "cufftw64_10.dll",
         "cufftw64_11.dll",
+        "cufftw64_12.dll",
     ),
     "curand": ("curand64_10.dll",),
     "cusolver": (
         "cusolver64_10.dll",
         "cusolver64_11.dll",
+        "cusolver64_12.dll",
     ),
     "cusolverMg": (
         "cusolverMg64_10.dll",
         "cusolverMg64_11.dll",
+        "cusolverMg64_12.dll",
     ),
     "cusparse": (
         "cusparse64_11.dll",
@@ -265,62 +301,82 @@ SUPPORTED_WINDOWS_DLLS = {
     "nppc": (
         "nppc64_11.dll",
         "nppc64_12.dll",
+        "nppc64_13.dll",
     ),
     "nppial": (
         "nppial64_11.dll",
         "nppial64_12.dll",
+        "nppial64_13.dll",
     ),
     "nppicc": (
         "nppicc64_11.dll",
         "nppicc64_12.dll",
+        "nppicc64_13.dll",
     ),
     "nppidei": (
         "nppidei64_11.dll",
         "nppidei64_12.dll",
+        "nppidei64_13.dll",
     ),
     "nppif": (
         "nppif64_11.dll",
         "nppif64_12.dll",
+        "nppif64_13.dll",
     ),
     "nppig": (
         "nppig64_11.dll",
         "nppig64_12.dll",
+        "nppig64_13.dll",
     ),
     "nppim": (
         "nppim64_11.dll",
         "nppim64_12.dll",
+        "nppim64_13.dll",
     ),
     "nppist": (
         "nppist64_11.dll",
         "nppist64_12.dll",
+        "nppist64_13.dll",
     ),
     "nppisu": (
         "nppisu64_11.dll",
         "nppisu64_12.dll",
+        "nppisu64_13.dll",
     ),
     "nppitc": (
         "nppitc64_11.dll",
         "nppitc64_12.dll",
+        "nppitc64_13.dll",
     ),
     "npps": (
         "npps64_11.dll",
         "npps64_12.dll",
+        "npps64_13.dll",
     ),
-    "nvJitLink": ("nvJitLink_120_0.dll",),
+    "nvJitLink": (
+        "nvJitLink_120_0.dll",
+        "nvJitLink_130_0.dll",
+    ),
     "nvblas": (
         "nvblas64_11.dll",
         "nvblas64_12.dll",
+        "nvblas64_13.dll",
     ),
-    "nvfatbin": ("nvfatbin_120_0.dll",),
+    "nvfatbin": (
+        "nvfatbin_120_0.dll",
+        "nvfatbin_130_0.dll",
+    ),
     "nvjpeg": (
         "nvjpeg64_11.dll",
         "nvjpeg64_12.dll",
+        "nvjpeg64_13.dll",
     ),
     "nvrtc": (
         "nvrtc64_110_0.dll",
         "nvrtc64_111_0.dll",
         "nvrtc64_112_0.dll",
         "nvrtc64_120_0.dll",
+        "nvrtc64_130_0.dll",
     ),
     "nvvm": (
         "nvvm64.dll",
@@ -347,10 +403,10 @@ def is_suppressed_dll_file(path_basename: str) -> bool:
     return path_basename.startswith(("cudart32_", "nvvm32"))
 
 
-# Based on nm output for Linux x86_64 /usr/local/cuda (12.8.1)
+# Based on `nm -D --defined-only` output for Linux x86_64 distributions.
 EXPECTED_LIB_SYMBOLS = {
     "nvJitLink": (
-        "__nvJitLinkCreate_12_0",  # 12.0 through 12.8 (at least)
+        "__nvJitLinkCreate_12_0",  # 12.0 through 12.9
         "nvJitLinkVersion",  # 12.3 and up
     ),
     "nvrtc": ("nvrtcVersion",),
@@ -366,16 +422,16 @@ EXPECTED_LIB_SYMBOLS = {
     "cusolverMg": ("cusolverMgCreate",),
     "cusparse": ("cusparseGetVersion",),
     "nppc": ("nppGetLibVersion",),
-    "nppial": ("nppiAdd_32f_C1R",),
-    "nppicc": ("nppiColorToGray_8u_C3C1R",),
-    "nppidei": ("nppiCopy_8u_C1R",),
-    "nppif": ("nppiFilterSobelHorizBorder_8u_C1R",),
-    "nppig": ("nppiResize_8u_C1R",),
-    "nppim": ("nppiErode_8u_C1R",),
-    "nppist": ("nppiMean_8u_C1R",),
+    "nppial": ("nppiAdd_32f_C1R_Ctx",),
+    "nppicc": ("nppiColorToGray_8u_C3C1R_Ctx",),
+    "nppidei": ("nppiCopy_8u_C1R_Ctx",),
+    "nppif": ("nppiFilterSobelHorizBorder_8u_C1R_Ctx",),
+    "nppig": ("nppiResize_8u_C1R_Ctx",),
+    "nppim": ("nppiErode_8u_C1R_Ctx",),
+    "nppist": ("nppiMean_8u_C1R_Ctx",),
     "nppisu": ("nppiFree",),
-    "nppitc": ("nppiThreshold_8u_C1R",),
-    "npps": ("nppsAdd_32f",),
+    "nppitc": ("nppiThreshold_8u_C1R_Ctx",),
+    "npps": ("nppsAdd_32f_Ctx",),
     "nvblas": ("dgemm",),
     "cufile": ("cuFileGetVersion",),
     # "cufile_rdma": ("rdma_buffer_reg",),

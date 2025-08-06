@@ -7,7 +7,7 @@ import pytest
 from conftest import ASSERT_DRV
 from kernels import kernel_string
 
-from cuda import cuda
+from cuda.bindings import driver as cuda
 
 
 def launch(kernel, stream, args=(), arg_types=()):

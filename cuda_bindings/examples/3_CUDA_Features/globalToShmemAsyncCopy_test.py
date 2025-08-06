@@ -1,10 +1,6 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
-#
-# Please refer to the NVIDIA end user license agreement (EULA) associated
-# with this source code for terms and conditions that govern your use of
-# this software. Any use, reproduction, disclosure, or distribution of
-# this software and related documentation outside the terms of the EULA
-# is strictly prohibited.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 import ctypes
 import math
 import platform
@@ -12,12 +8,12 @@ import sys
 from enum import Enum
 
 import numpy as np
-import pytest
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
 from common.helper_string import checkCmdLineFlag, getCmdLineArgumentInt
 
-from cuda import cuda, cudart
+from cuda.bindings import driver as cuda
+from cuda.bindings import runtime as cudart
 
 blockSize = 16
 
@@ -1118,28 +1114,10 @@ def MatrixMultiply(dimsA, dimsB, kernel_number):
     return -1
 
 
-def checkKernelCompiles():
-    kernel_headers = """\
-    #line __LINE__
-    #if __CUDA_ARCH__ >= 700
-    #include <cuda/barrier>
-    #endif
-    #include <cooperative_groups.h>
-    #include <cooperative_groups/reduce.h>
-    #include <cuda/pipeline>
-    """
-    try:
-        common.KernelHelper(kernel_headers, findCudaDevice())
-    except:
-        # Filters out test from automation for two reasons
-        # 1. Headers are not found
-        # 2. Incompatible device
-        return False
-    return True
-
-
-@pytest.mark.skipif(not checkKernelCompiles(), reason="Automation filter against incompatible kernel")
 def main():
+    common.pytest_skipif_cuda_include_not_found()
+    common.pytest_skipif_compute_capability_too_low(findCudaDevice(), (7, 0))
+
     print("[globalToShmemAsyncCopy] - Starting...")
 
     if platform.machine() == "qnx":

@@ -45,17 +45,14 @@ def cufile_env_json():
     """Set CUFILE_ENV_PATH_JSON environment variable for async tests."""
     original_value = os.environ.get("CUFILE_ENV_PATH_JSON")
 
-    # Use /etc/cufile.json if it exists, otherwise fallback to cufile.json in tests directory
-    if os.path.exists("/etc/cufile.json"):
-        config_path = "/etc/cufile.json"
-    else:
-        # Get absolute path to cufile.json in the same directory as this test file
-        test_dir = os.path.dirname(os.path.abspath(__file__))
-        config_path = os.path.join(test_dir, "cufile.json")
-
+    # Get absolute path to cufile.json in the same directory as this test file
+    test_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(test_dir, "cufile.json")
     logging.info(f"Using cuFile config: {config_path}")
+    assert os.path.isfile(config_path)
     os.environ["CUFILE_ENV_PATH_JSON"] = config_path
     yield
+
     # Restore original value or remove if it wasn't set
     if original_value is not None:
         os.environ["CUFILE_ENV_PATH_JSON"] = original_value

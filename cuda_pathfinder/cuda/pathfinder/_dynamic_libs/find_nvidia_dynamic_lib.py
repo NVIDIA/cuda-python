@@ -12,7 +12,7 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     IS_WINDOWS,
     is_suppressed_dll_file,
 )
-from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs, find_sub_dirs_all_sitepackages
 
 
 def _no_such_file_in_sub_dirs(
@@ -28,18 +28,21 @@ def _no_such_file_in_sub_dirs(
 def _find_so_using_nvidia_lib_dirs(
     libname: str, so_basename: str, error_messages: list[str], attachments: list[str]
 ) -> Optional[str]:
-    nvidia_sub_dirs = ("nvidia", "*", "nvvm", "lib64") if libname == "nvvm" else ("nvidia", "*", "lib")
     file_wild = so_basename + "*"
-    for lib_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
-        # First look for an exact match
-        so_name = os.path.join(lib_dir, so_basename)
-        if os.path.isfile(so_name):
-            return so_name
-        # Look for a versioned library
-        # Using sort here mainly to make the result deterministic.
-        for so_name in sorted(glob.glob(os.path.join(lib_dir, file_wild))):
+    nvidia_sub_dirs_list: list[tuple[str, ...]] = [("nvidia", "*", "lib")]  # works also for CTK 13 nvvm
+    if libname == "nvvm":
+        nvidia_sub_dirs_list.append(("nvidia", "*", "nvvm", "lib64"))  # CTK 12
+    for nvidia_sub_dirs in nvidia_sub_dirs_list:
+        for lib_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
+            # First look for an exact match
+            so_name = os.path.join(lib_dir, so_basename)
             if os.path.isfile(so_name):
                 return so_name
+            # Look for a versioned library
+            # Using sort here mainly to make the result deterministic.
+            for so_name in sorted(glob.glob(os.path.join(lib_dir, file_wild))):
+                if os.path.isfile(so_name):
+                    return so_name
     _no_such_file_in_sub_dirs(nvidia_sub_dirs, file_wild, error_messages, attachments)
     return None
 
@@ -56,11 +59,17 @@ def _find_dll_under_dir(dirpath: str, file_wild: str) -> Optional[str]:
 def _find_dll_using_nvidia_bin_dirs(
     libname: str, lib_searched_for: str, error_messages: list[str], attachments: list[str]
 ) -> Optional[str]:
-    nvidia_sub_dirs = ("nvidia", "*", "nvvm", "bin") if libname == "nvvm" else ("nvidia", "*", "bin")
-    for bin_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
-        dll_name = _find_dll_under_dir(bin_dir, lib_searched_for)
-        if dll_name is not None:
-            return dll_name
+    nvidia_sub_dirs_list: list[tuple[str, ...]] = [
+        ("nvidia", "*", "bin"),  # CTK 12
+        ("nvidia", "*", "bin", "*"),  # CTK 13, e.g. site-packages\nvidia\cu13\bin\x86_64\
+    ]
+    if libname == "nvvm":
+        nvidia_sub_dirs_list.append(("nvidia", "*", "nvvm", "bin"))  # Only for CTK 12
+    for nvidia_sub_dirs in nvidia_sub_dirs_list:
+        for bin_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
+            dll_name = _find_dll_under_dir(bin_dir, lib_searched_for)
+            if dll_name is not None:
+                return dll_name
     _no_such_file_in_sub_dirs(nvidia_sub_dirs, lib_searched_for, error_messages, attachments)
     return None
 
@@ -76,21 +85,29 @@ def _find_lib_dir_using_cuda_home(libname: str) -> Optional[str]:
     cuda_home = _get_cuda_home()
     if cuda_home is None:
         return None
-    subdirs: tuple[str, ...]
+    subdirs_list: tuple[tuple[str, ...], ...]
     if IS_WINDOWS:
-        subdirs = (os.path.join("nvvm", "bin"),) if libname == "nvvm" else ("bin",)
-    else:
-        subdirs = (
-            (os.path.join("nvvm", "lib64"),)
-            if libname == "nvvm"
-            else (
-                "lib64",  # CTK
-                "lib",  # Conda
+        if libname == "nvvm":  # noqa: SIM108
+            subdirs_list = (
+                ("nvvm", "bin", "*"),  # CTK 13
+                ("nvvm", "bin"),  # CTK 12
             )
-        )
-    for subdir in subdirs:
-        dirname = os.path.join(cuda_home, subdir)
-        if os.path.isdir(dirname):
+        else:
+            subdirs_list = (
+                ("bin", "x64"),  # CTK 13
+                ("bin",),  # CTK 12
+            )
+    else:
+        if libname == "nvvm":  # noqa: SIM108
+            subdirs_list = (("nvvm", "lib64"),)
+        else:
+            subdirs_list = (
+                ("lib64",),  # CTK
+                ("lib",),  # Conda
+            )
+    for sub_dirs in subdirs_list:
+        dirname: str  # work around bug in mypy
+        for dirname in find_sub_dirs((cuda_home,), sub_dirs):
             return dirname
     return None
 

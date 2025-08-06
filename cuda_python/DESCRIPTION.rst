@@ -47,3 +47,4 @@ The list of available interfaces are:
 * NVRTC
 * nvJitLink
 * NVVM
+* cuFile
