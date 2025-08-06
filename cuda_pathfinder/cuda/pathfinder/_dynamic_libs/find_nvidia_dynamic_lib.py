@@ -28,18 +28,21 @@ def _no_such_file_in_sub_dirs(
 def _find_so_using_nvidia_lib_dirs(
     libname: str, so_basename: str, error_messages: list[str], attachments: list[str]
 ) -> Optional[str]:
-    nvidia_sub_dirs = ("nvidia", "*", "nvvm", "lib64") if libname == "nvvm" else ("nvidia", "*", "lib")
     file_wild = so_basename + "*"
-    for lib_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
-        # First look for an exact match
-        so_name = os.path.join(lib_dir, so_basename)
-        if os.path.isfile(so_name):
-            return so_name
-        # Look for a versioned library
-        # Using sort here mainly to make the result deterministic.
-        for so_name in sorted(glob.glob(os.path.join(lib_dir, file_wild))):
+    nvidia_sub_dirs_list: list[tuple[str, ...]] = [("nvidia", "*", "lib")]  # works also for CTK 13 nvvm
+    if libname == "nvvm":
+        nvidia_sub_dirs_list.append(("nvidia", "*", "nvvm", "lib64"))  # CTK 12
+    for nvidia_sub_dirs in nvidia_sub_dirs_list:
+        for lib_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
+            # First look for an exact match
+            so_name = os.path.join(lib_dir, so_basename)
             if os.path.isfile(so_name):
                 return so_name
+            # Look for a versioned library
+            # Using sort here mainly to make the result deterministic.
+            for so_name in sorted(glob.glob(os.path.join(lib_dir, file_wild))):
+                if os.path.isfile(so_name):
+                    return so_name
     _no_such_file_in_sub_dirs(nvidia_sub_dirs, file_wild, error_messages, attachments)
     return None
 
