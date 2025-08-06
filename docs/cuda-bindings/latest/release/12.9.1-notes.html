@@ -414,6 +414,7 @@ released before calling the underlying C APIs.</p></li>
 <li><p>Common CUDA objects such as <a class="reference internal" href="../module/runtime.html#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-class docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a> now compare equal if the underlying address is the same.</p></li>
 <li><p>Add a binding to <code class="docutils literal notranslate"><span class="pre">nvvmGetErrorString()</span></code>.</p></li>
 <li><p>Build the bindings with Cython profile hooks disabled.</p></li>
+<li><p>The internal pathfinder module is now isolated to a standalone package <code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> and made as a required dependency.</p></li>
 </ul>
 </section>
 <section id="known-issues">

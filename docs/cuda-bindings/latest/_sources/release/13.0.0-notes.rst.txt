@@ -30,6 +30,13 @@ Highlights
   released before calling the underlying C APIs.
 
 
+Breaking changes
+----------------
+
+* For breaking changes in the CUDA APIs, please see the `CUDA 13.0 release notes <https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/contents.html>`_.
+* The trampoline modules ``cuda.{cuda,cudart,nvrtc}`` are now removed. Users should switch to use ``cuda.bindings.{driver,runtime,nvrtc}`` instead.
+
+
 Bug fixes
 ---------
 
@@ -44,6 +51,7 @@ Miscellaneous
 * Common CUDA objects such as :class:`~runtime.cudaStream_t` now compare equal if the underlying address is the same.
 * Add a binding to ``nvvmGetErrorString()``.
 * Build the bindings with Cython profile hooks disabled.
+* The internal pathfinder module is now isolated to a standalone package ``cuda-pathfinder`` and made as a required dependency.
 
 
 Known issues

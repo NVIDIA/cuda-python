@@ -401,6 +401,13 @@ Supported on Linux only.</p>
 released before calling the underlying C APIs.</p></li>
 </ul>
 </section>
+<section id="breaking-changes">
+<h2>Breaking changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>For breaking changes in the CUDA APIs, please see the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/contents.html">CUDA 13.0 release notes</a>.</p></li>
+<li><p>The trampoline modules <code class="docutils literal notranslate"><span class="pre">cuda.{cuda,cudart,nvrtc}</span></code> are now removed. Users should switch to use <code class="docutils literal notranslate"><span class="pre">cuda.bindings.{driver,runtime,nvrtc}</span></code> instead.</p></li>
+</ul>
+</section>
 <section id="bug-fixes">
 <h2>Bug fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">¶</a></h2>
 <ul class="simple">
@@ -415,6 +422,7 @@ released before calling the underlying C APIs.</p></li>
 <li><p>Common CUDA objects such as <a class="reference internal" href="../module/runtime.html#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-class docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a> now compare equal if the underlying address is the same.</p></li>
 <li><p>Add a binding to <code class="docutils literal notranslate"><span class="pre">nvvmGetErrorString()</span></code>.</p></li>
 <li><p>Build the bindings with Cython profile hooks disabled.</p></li>
+<li><p>The internal pathfinder module is now isolated to a standalone package <code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> and made as a required dependency.</p></li>
 </ul>
 </section>
 <section id="known-issues">
@@ -482,6 +490,7 @@ released before calling the underlying C APIs.</p></li>
             <ul>
 <li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.0.0 Release notes</a><ul>
 <li><a class="reference internal" href="#highlights">Highlights</a></li>
+<li><a class="reference internal" href="#breaking-changes">Breaking changes</a></li>
 <li><a class="reference internal" href="#bug-fixes">Bug fixes</a></li>
 <li><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
 <li><a class="reference internal" href="#known-issues">Known issues</a></li>
