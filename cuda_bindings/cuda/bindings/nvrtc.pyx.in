@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0. Do not modify it directly.
+# This code was automatically generated with version 13.0.0. Do not modify it directly.
 from typing import List, Tuple, Any, Optional
 from enum import IntEnum
 import cython
@@ -81,6 +81,8 @@ class nvrtcResult(IntEnum):
     NVRTC_ERROR_PCH_CREATE = cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE{{endif}}
     {{if 'NVRTC_ERROR_CANCELLED' in found_values}}
     NVRTC_ERROR_CANCELLED = cynvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED{{endif}}
+    {{if 'NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED' in found_values}}
+    NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED = cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED{{endif}}
 
 _dict_nvrtcResult = dict(((int(v), v) for k, v in nvrtcResult.__members__.items()))
 {{endif}}
@@ -516,71 +518,6 @@ def nvrtcGetCUBIN(prog, char* cubin):
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
     with nogil:
         err = cynvrtc.nvrtcGetCUBIN(cyprog, cubin)
-    return (_dict_nvrtcResult[err],)
-{{endif}}
-
-{{if 'nvrtcGetNVVMSize' in found_functions}}
-
-@cython.embedsignature(True)
-def nvrtcGetNVVMSize(prog):
-    """ DEPRECATION NOTICE: This function will be removed in a future release. Please use nvrtcGetLTOIRSize (and nvrtcGetLTOIR) instead.
-
-    Parameters
-    ----------
-    prog : :py:obj:`~.nvrtcProgram`
-        None
-
-    Returns
-    -------
-    nvrtcResult
-
-    nvvmSizeRet : int
-        None
-    """
-    cdef cynvrtc.nvrtcProgram cyprog
-    if prog is None:
-        pprog = 0
-    elif isinstance(prog, (nvrtcProgram,)):
-        pprog = int(prog)
-    else:
-        pprog = int(nvrtcProgram(prog))
-    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
-    cdef size_t nvvmSizeRet = 0
-    with nogil:
-        err = cynvrtc.nvrtcGetNVVMSize(cyprog, &nvvmSizeRet)
-    if err != cynvrtc.NVRTC_SUCCESS:
-        return (_dict_nvrtcResult[err], None)
-    return (_dict_nvrtcResult[err], nvvmSizeRet)
-{{endif}}
-
-{{if 'nvrtcGetNVVM' in found_functions}}
-
-@cython.embedsignature(True)
-def nvrtcGetNVVM(prog, char* nvvm):
-    """ DEPRECATION NOTICE: This function will be removed in a future release. Please use nvrtcGetLTOIR (and nvrtcGetLTOIRSize) instead.
-
-    Parameters
-    ----------
-    prog : :py:obj:`~.nvrtcProgram`
-        None
-    nvvm : bytes
-        None
-
-    Returns
-    -------
-    nvrtcResult
-
-    """
-    cdef cynvrtc.nvrtcProgram cyprog
-    if prog is None:
-        pprog = 0
-    elif isinstance(prog, (nvrtcProgram,)):
-        pprog = int(prog)
-    else:
-        pprog = int(nvrtcProgram(prog))
-    cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
-    with nogil:
-        err = cynvrtc.nvrtcGetNVVM(cyprog, nvvm)
     return (_dict_nvrtcResult[err],)
 {{endif}}
 

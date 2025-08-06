@@ -1,27 +1,60 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
-#
-# Please refer to the NVIDIA end user license agreement (EULA) associated
-# with this source code for terms and conditions that govern your use of
-# this software. Any use, reproduction, disclosure, or distribution of
-# this software and related documentation outside the terms of the EULA
-# is strictly prohibited.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 import os
 
 import numpy as np
 from common.helper_cuda import checkCudaErrors
 
-from cuda import cuda, cudart, nvrtc
+from cuda.bindings import driver as cuda
+from cuda.bindings import nvrtc
+from cuda.bindings import runtime as cudart
+
+
+def get_cuda_home():
+    cuda_home = os.getenv("CUDA_HOME")
+    if cuda_home is None:
+        cuda_home = os.getenv("CUDA_PATH")
+    return cuda_home
+
+
+def pytest_skipif_cuda_include_not_found():
+    import pytest
+
+    cuda_home = get_cuda_home()
+    if cuda_home is None:
+        pytest.skip("CUDA_HOME/CUDA_PATH not set")
+    cuda_include = os.path.join(cuda_home, "include")
+    if not os.path.exists(cuda_include):
+        pytest.skip(f"$CUDA_HOME/include does not exist: '{cuda_include}'")
+
+
+def pytest_skipif_compute_capability_too_low(devID, required_cc_major_minor):
+    import pytest
+
+    cc_major = checkCudaErrors(
+        cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMajor, devID)
+    )
+    cc_minor = checkCudaErrors(
+        cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeCapabilityMinor, devID)
+    )
+    have_cc_major_minor = (cc_major, cc_minor)
+    if have_cc_major_minor < required_cc_major_minor:
+        pytest.skip(f"cudaDevAttrComputeCapability too low: {have_cc_major_minor=!r}, {required_cc_major_minor=!r}")
 
 
 class KernelHelper:
     def __init__(self, code, devID):
         prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(code), b"sourceCode.cu", 0, None, None))
-        CUDA_HOME = os.getenv("CUDA_HOME")
-        if CUDA_HOME is None:
-            CUDA_HOME = os.getenv("CUDA_PATH")
-        if CUDA_HOME is None:
-            raise RuntimeError("Environment variable CUDA_HOME or CUDA_PATH is not set")
-        include_dirs = os.path.join(CUDA_HOME, "include")
+
+        cuda_home = get_cuda_home()
+        assert cuda_home is not None
+        cuda_include = os.path.join(cuda_home, "include")
+        assert os.path.isdir(cuda_include)
+        include_dirs = [cuda_include]
+        cccl_include = os.path.join(cuda_include, "cccl")
+        if os.path.isdir(cccl_include):
+            include_dirs.insert(0, cccl_include)
 
         # Initialize CUDA
         checkCudaErrors(cudart.cudaFree(0))
@@ -37,14 +70,16 @@ class KernelHelper:
         prefix = "sm" if use_cubin else "compute"
         arch_arg = bytes(f"--gpu-architecture={prefix}_{major}{minor}", "ascii")
 
+        opts = [
+            b"--fmad=true",
+            arch_arg,
+            b"--std=c++17",
+            b"-default-device",
+        ]
+        for inc_dir in include_dirs:
+            opts.append(f"--include-path={inc_dir}".encode())
+
         try:
-            opts = [
-                b"--fmad=true",
-                arch_arg,
-                f"--include-path={include_dirs}".encode(),
-                b"--std=c++11",
-                b"-default-device",
-            ]
             checkCudaErrors(nvrtc.nvrtcCompileProgram(prog, len(opts), opts))
         except RuntimeError as err:
             logSize = checkCudaErrors(nvrtc.nvrtcGetProgramLogSize(prog))

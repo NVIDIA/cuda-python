@@ -51,7 +51,7 @@ jobs:
           # Add a special entry for the H100 runner on amd64.
           special_runner=""
           if [[ "${ARCH}" == "amd64" ]]; then
-            special_runner="- { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: 'H100', DRIVER: 'latest' }"
+            special_runner="- { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '13.0.0', LOCAL_CTK: '1', GPU: 'H100', DRIVER: 'latest' }"
           fi
 
           # Please keep the matrices sorted in ascending order by the following:
@@ -62,18 +62,16 @@ jobs:
           #
           export MATRICES="
             pull-request:
-              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '13.0.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '11.8.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.10', CUDA_VER: '13.0.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'earliest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.11', CUDA_VER: '13.0.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '12.9.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
-              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.0.1', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.12', CUDA_VER: '13.0.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
               - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '12.9.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'latest' }
+              - { ARCH: ${ARCH}, PY_VER: '3.13', CUDA_VER: '13.0.0', LOCAL_CTK: '1', GPU: ${gpu}, DRIVER: 'latest' }
               ${special_runner}
             nightly:
               - { ARCH: ${ARCH}, PY_VER: '3.9',  CUDA_VER: '11.8.0', LOCAL_CTK: '0', GPU: ${gpu}, DRIVER: 'earliest' }
@@ -200,13 +198,14 @@ jobs:
 
           OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "build-and-test.yml" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
+          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "ci.yml" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
           if [[ "$LATEST_PRIOR_RUN_ID" == "" ]]; then
             echo "LATEST_PRIOR_RUN_ID not found!"
             exit 1
           fi
 
           gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
+          rm -rf ${OLD_BASENAME}-tests  # exclude cython test artifacts
           ls -al $OLD_BASENAME
           mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
           mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"/
@@ -318,16 +317,16 @@ jobs:
             pip install $(ls cuda_python*.whl)[all]
           fi
 
-      - name: Install cuda.pathfinder nvidia_wheels_cu12
-        if: startsWith(matrix.CUDA_VER, '12.')
+      - name: Install cuda.pathfinder nvidia_wheels_cu13
+        if: startsWith(matrix.CUDA_VER, '13.')
         run: |
           pushd cuda_pathfinder
-          pip install -v .[nvidia_wheels_cu12]
+          pip install -v .[nvidia_wheels_cu13]
           pip freeze
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work
-        if: startsWith(matrix.CUDA_VER, '12.')
+        if: startsWith(matrix.CUDA_VER, '13.')
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
         run: run-tests pathfinder

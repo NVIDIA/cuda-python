@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0. Do not modify it directly.
+# This code was automatically generated with version 13.0.0. Do not modify it directly.
 
 from libc.stdint cimport uintptr_t
 cimport cython
@@ -219,6 +219,10 @@ def get_cuda_native_handle(obj) -> int:
         {{if 'cudaAsyncCallbackHandle_t' in found_types}}
         def cudaAsyncCallbackHandle_t_getter(runtime.cudaAsyncCallbackHandle_t x): return <uintptr_t><void*><cyruntime.cudaAsyncCallbackHandle_t>(x._pvt_ptr[0])
         _handle_getters[runtime.cudaAsyncCallbackHandle_t] = cudaAsyncCallbackHandle_t_getter
+        {{endif}}
+        {{if 'cudaLogsCallbackHandle' in found_types}}
+        def cudaLogsCallbackHandle_getter(runtime.cudaLogsCallbackHandle x): return <uintptr_t><void*><cyruntime.cudaLogsCallbackHandle>(x._pvt_ptr[0])
+        _handle_getters[runtime.cudaLogsCallbackHandle] = cudaLogsCallbackHandle_getter
         {{endif}}
         {{if True}}
         def cudaEglStreamConnection_getter(runtime.cudaEglStreamConnection x): return <uintptr_t><void*><cyruntime.cudaEglStreamConnection>(x._pvt_ptr[0])

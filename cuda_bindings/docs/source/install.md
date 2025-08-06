@@ -6,8 +6,8 @@
 
 * Linux (x86-64, arm64) and Windows (x86-64)
 * Python 3.9 - 3.13
-* Driver: Linux (450.80.02 or later) Windows (456.38 or later)
-* Optionally, NVRTC, nvJitLink, and NVVM from CUDA Toolkit 12.x
+* Driver: Linux (580.65.06 or later) Windows (580.88 or later)
+* Optionally, NVRTC, nvJitLink, NVVM, and cuFile from CUDA Toolkit 13.x
 
 ```{note}
 The optional CUDA Toolkit components can be installed via PyPI, Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit [Windows](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) and [Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html) Installation Guides).
@@ -29,9 +29,10 @@ pip install -U cuda-python[all]
 
 Where the optional dependencies are:
 
-* nvidia-cuda-nvrtc-cu12 (Provides NVRTC shared library)
-* nvidia-nvjitlink-cu12>=12.3 (Provides nvJitLink shared library)
-* nvidia-cuda-nvcc-cu12 (Provides NVVM shared library)
+* nvidia-cuda-nvrtc (Provides NVRTC shared library)
+* nvidia-nvjitlink (Provides nvJitLink shared library)
+* nvidia-cuda-nvcc (Provides NVVM shared library)
+* nvidia-cufile (Provides cuFile shared library)
 
 
 ## Installing from Conda

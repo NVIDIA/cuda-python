@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0. Do not modify it directly.
+# This code was automatically generated with version 13.0.0. Do not modify it directly.
 cdef extern from "cuda_runtime_api.h":
 
     {{if 'cudaDeviceReset' in found_functions}}
@@ -129,14 +129,19 @@ cdef extern from "cuda_runtime_api.h":
     cudaError_t cudaGetDeviceCount(int* count) nogil
 
     {{endif}}
-    {{if 'cudaGetDeviceProperties_v2' in found_functions}}
+    {{if 'cudaGetDeviceProperties' in found_functions}}
 
-    cudaError_t cudaGetDeviceProperties_v2(cudaDeviceProp* prop, int device) nogil
+    cudaError_t cudaGetDeviceProperties(cudaDeviceProp* prop, int device) nogil
 
     {{endif}}
     {{if 'cudaDeviceGetAttribute' in found_functions}}
 
     cudaError_t cudaDeviceGetAttribute(int* value, cudaDeviceAttr attr, int device) nogil
+
+    {{endif}}
+    {{if 'cudaDeviceGetHostAtomicCapabilities' in found_functions}}
+
+    cudaError_t cudaDeviceGetHostAtomicCapabilities(unsigned int* capabilities, const cudaAtomicOperation* operations, unsigned int count, int device) nogil
 
     {{endif}}
     {{if 'cudaDeviceGetDefaultMemPool' in found_functions}}
@@ -162,6 +167,11 @@ cdef extern from "cuda_runtime_api.h":
     {{if 'cudaDeviceGetP2PAttribute' in found_functions}}
 
     cudaError_t cudaDeviceGetP2PAttribute(int* value, cudaDeviceP2PAttr attr, int srcDevice, int dstDevice) nogil
+
+    {{endif}}
+    {{if 'cudaDeviceGetP2PAtomicCapabilities' in found_functions}}
+
+    cudaError_t cudaDeviceGetP2PAtomicCapabilities(unsigned int* capabilities, const cudaAtomicOperation* operations, unsigned int count, int srcDevice, int dstDevice) nogil
 
     {{endif}}
     {{if 'cudaChooseDevice' in found_functions}}
@@ -304,29 +314,14 @@ cdef extern from "cuda_runtime_api.h":
     cudaError_t cudaStreamIsCapturing(cudaStream_t stream, cudaStreamCaptureStatus* pCaptureStatus) nogil
 
     {{endif}}
-    {{if 'cudaStreamGetCaptureInfo_v2' in found_functions}}
+    {{if 'cudaStreamGetCaptureInfo' in found_functions}}
 
-    cudaError_t cudaStreamGetCaptureInfo_v2_ptsz(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long* id_out, cudaGraph_t* graph_out, const cudaGraphNode_t** dependencies_out, size_t* numDependencies_out) nogil
-
-    {{endif}}
-    {{if 'cudaStreamGetCaptureInfo_v2' in found_functions}}
-
-    cudaError_t cudaStreamGetCaptureInfo_v2(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long* id_out, cudaGraph_t* graph_out, const cudaGraphNode_t** dependencies_out, size_t* numDependencies_out) nogil
-
-    {{endif}}
-    {{if 'cudaStreamGetCaptureInfo_v3' in found_functions}}
-
-    cudaError_t cudaStreamGetCaptureInfo_v3(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long* id_out, cudaGraph_t* graph_out, const cudaGraphNode_t** dependencies_out, const cudaGraphEdgeData** edgeData_out, size_t* numDependencies_out) nogil
+    cudaError_t cudaStreamGetCaptureInfo(cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long* id_out, cudaGraph_t* graph_out, const cudaGraphNode_t** dependencies_out, const cudaGraphEdgeData** edgeData_out, size_t* numDependencies_out) nogil
 
     {{endif}}
     {{if 'cudaStreamUpdateCaptureDependencies' in found_functions}}
 
-    cudaError_t cudaStreamUpdateCaptureDependencies(cudaStream_t stream, cudaGraphNode_t* dependencies, size_t numDependencies, unsigned int flags) nogil
-
-    {{endif}}
-    {{if 'cudaStreamUpdateCaptureDependencies_v2' in found_functions}}
-
-    cudaError_t cudaStreamUpdateCaptureDependencies_v2(cudaStream_t stream, cudaGraphNode_t* dependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) nogil
+    cudaError_t cudaStreamUpdateCaptureDependencies(cudaStream_t stream, cudaGraphNode_t* dependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, unsigned int flags) nogil
 
     {{endif}}
     {{if 'cudaEventCreate' in found_functions}}
@@ -369,11 +364,6 @@ cdef extern from "cuda_runtime_api.h":
     cudaError_t cudaEventElapsedTime(float* ms, cudaEvent_t start, cudaEvent_t end) nogil
 
     {{endif}}
-    {{if 'cudaEventElapsedTime_v2' in found_functions}}
-
-    cudaError_t cudaEventElapsedTime_v2(float* ms, cudaEvent_t start, cudaEvent_t end) nogil
-
-    {{endif}}
     {{if 'cudaImportExternalMemory' in found_functions}}
 
     cudaError_t cudaImportExternalMemory(cudaExternalMemory_t* extMem_out, const cudaExternalMemoryHandleDesc* memHandleDesc) nogil
@@ -399,24 +389,14 @@ cdef extern from "cuda_runtime_api.h":
     cudaError_t cudaImportExternalSemaphore(cudaExternalSemaphore_t* extSem_out, const cudaExternalSemaphoreHandleDesc* semHandleDesc) nogil
 
     {{endif}}
-    {{if 'cudaSignalExternalSemaphoresAsync_v2' in found_functions}}
+    {{if 'cudaSignalExternalSemaphoresAsync' in found_functions}}
 
-    cudaError_t cudaSignalExternalSemaphoresAsync_v2_ptsz(const cudaExternalSemaphore_t* extSemArray, const cudaExternalSemaphoreSignalParams* paramsArray, unsigned int numExtSems, cudaStream_t stream) nogil
-
-    {{endif}}
-    {{if 'cudaSignalExternalSemaphoresAsync_v2' in found_functions}}
-
-    cudaError_t cudaSignalExternalSemaphoresAsync_v2(const cudaExternalSemaphore_t* extSemArray, const cudaExternalSemaphoreSignalParams* paramsArray, unsigned int numExtSems, cudaStream_t stream) nogil
+    cudaError_t cudaSignalExternalSemaphoresAsync(const cudaExternalSemaphore_t* extSemArray, const cudaExternalSemaphoreSignalParams* paramsArray, unsigned int numExtSems, cudaStream_t stream) nogil
 
     {{endif}}
-    {{if 'cudaWaitExternalSemaphoresAsync_v2' in found_functions}}
+    {{if 'cudaWaitExternalSemaphoresAsync' in found_functions}}
 
-    cudaError_t cudaWaitExternalSemaphoresAsync_v2_ptsz(const cudaExternalSemaphore_t* extSemArray, const cudaExternalSemaphoreWaitParams* paramsArray, unsigned int numExtSems, cudaStream_t stream) nogil
-
-    {{endif}}
-    {{if 'cudaWaitExternalSemaphoresAsync_v2' in found_functions}}
-
-    cudaError_t cudaWaitExternalSemaphoresAsync_v2(const cudaExternalSemaphore_t* extSemArray, const cudaExternalSemaphoreWaitParams* paramsArray, unsigned int numExtSems, cudaStream_t stream) nogil
+    cudaError_t cudaWaitExternalSemaphoresAsync(const cudaExternalSemaphore_t* extSemArray, const cudaExternalSemaphoreWaitParams* paramsArray, unsigned int numExtSems, cudaStream_t stream) nogil
 
     {{endif}}
     {{if 'cudaDestroyExternalSemaphore' in found_functions}}
@@ -651,12 +631,12 @@ cdef extern from "cuda_runtime_api.h":
     {{endif}}
     {{if 'cudaMemcpyBatchAsync' in found_functions}}
 
-    cudaError_t cudaMemcpyBatchAsync(void** dsts, void** srcs, size_t* sizes, size_t count, cudaMemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, size_t* failIdx, cudaStream_t stream) nogil
+    cudaError_t cudaMemcpyBatchAsync(const void** dsts, const void** srcs, const size_t* sizes, size_t count, cudaMemcpyAttributes* attrs, size_t* attrsIdxs, size_t numAttrs, cudaStream_t stream) nogil
 
     {{endif}}
     {{if 'cudaMemcpy3DBatchAsync' in found_functions}}
 
-    cudaError_t cudaMemcpy3DBatchAsync(size_t numOps, cudaMemcpy3DBatchOp* opList, size_t* failIdx, unsigned long long flags, cudaStream_t stream) nogil
+    cudaError_t cudaMemcpy3DBatchAsync(size_t numOps, cudaMemcpy3DBatchOp* opList, unsigned long long flags, cudaStream_t stream) nogil
 
     {{endif}}
     {{if 'cudaMemcpy2DAsync' in found_functions}}
@@ -706,22 +686,27 @@ cdef extern from "cuda_runtime_api.h":
     {{endif}}
     {{if 'cudaMemPrefetchAsync' in found_functions}}
 
-    cudaError_t cudaMemPrefetchAsync(const void* devPtr, size_t count, int dstDevice, cudaStream_t stream) nogil
+    cudaError_t cudaMemPrefetchAsync(const void* devPtr, size_t count, cudaMemLocation location, unsigned int flags, cudaStream_t stream) nogil
 
     {{endif}}
-    {{if 'cudaMemPrefetchAsync_v2' in found_functions}}
+    {{if 'cudaMemPrefetchBatchAsync' in found_functions}}
 
-    cudaError_t cudaMemPrefetchAsync_v2(const void* devPtr, size_t count, cudaMemLocation location, unsigned int flags, cudaStream_t stream) nogil
+    cudaError_t cudaMemPrefetchBatchAsync(void** dptrs, size_t* sizes, size_t count, cudaMemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, cudaStream_t stream) nogil
+
+    {{endif}}
+    {{if 'cudaMemDiscardBatchAsync' in found_functions}}
+
+    cudaError_t cudaMemDiscardBatchAsync(void** dptrs, size_t* sizes, size_t count, unsigned long long flags, cudaStream_t stream) nogil
+
+    {{endif}}
+    {{if 'cudaMemDiscardAndPrefetchBatchAsync' in found_functions}}
+
+    cudaError_t cudaMemDiscardAndPrefetchBatchAsync(void** dptrs, size_t* sizes, size_t count, cudaMemLocation* prefetchLocs, size_t* prefetchLocIdxs, size_t numPrefetchLocs, unsigned long long flags, cudaStream_t stream) nogil
 
     {{endif}}
     {{if 'cudaMemAdvise' in found_functions}}
 
-    cudaError_t cudaMemAdvise(const void* devPtr, size_t count, cudaMemoryAdvise advice, int device) nogil
-
-    {{endif}}
-    {{if 'cudaMemAdvise_v2' in found_functions}}
-
-    cudaError_t cudaMemAdvise_v2(const void* devPtr, size_t count, cudaMemoryAdvise advice, cudaMemLocation location) nogil
+    cudaError_t cudaMemAdvise(const void* devPtr, size_t count, cudaMemoryAdvise advice, cudaMemLocation location) nogil
 
     {{endif}}
     {{if 'cudaMemRangeGetAttribute' in found_functions}}
@@ -802,6 +787,21 @@ cdef extern from "cuda_runtime_api.h":
     {{if 'cudaMemPoolDestroy' in found_functions}}
 
     cudaError_t cudaMemPoolDestroy(cudaMemPool_t memPool) nogil
+
+    {{endif}}
+    {{if 'cudaMemGetDefaultMemPool' in found_functions}}
+
+    cudaError_t cudaMemGetDefaultMemPool(cudaMemPool_t* memPool, cudaMemLocation* location, cudaMemAllocationType typename) nogil
+
+    {{endif}}
+    {{if 'cudaMemGetMemPool' in found_functions}}
+
+    cudaError_t cudaMemGetMemPool(cudaMemPool_t* memPool, cudaMemLocation* location, cudaMemAllocationType typename) nogil
+
+    {{endif}}
+    {{if 'cudaMemSetMemPool' in found_functions}}
+
+    cudaError_t cudaMemSetMemPool(cudaMemLocation* location, cudaMemAllocationType typename, cudaMemPool_t memPool) nogil
 
     {{endif}}
     {{if 'cudaMallocFromPoolAsync' in found_functions}}
@@ -944,6 +944,31 @@ cdef extern from "cuda_runtime_api.h":
     cudaError_t cudaRuntimeGetVersion(int* runtimeVersion) nogil
 
     {{endif}}
+    {{if 'cudaLogsRegisterCallback' in found_functions}}
+
+    cudaError_t cudaLogsRegisterCallback(cudaLogsCallback_t callbackFunc, void* userData, cudaLogsCallbackHandle* callback_out) nogil
+
+    {{endif}}
+    {{if 'cudaLogsUnregisterCallback' in found_functions}}
+
+    cudaError_t cudaLogsUnregisterCallback(cudaLogsCallbackHandle callback) nogil
+
+    {{endif}}
+    {{if 'cudaLogsCurrent' in found_functions}}
+
+    cudaError_t cudaLogsCurrent(cudaLogIterator* iterator_out, unsigned int flags) nogil
+
+    {{endif}}
+    {{if 'cudaLogsDumpToFile' in found_functions}}
+
+    cudaError_t cudaLogsDumpToFile(cudaLogIterator* iterator, const char* pathToFile, unsigned int flags) nogil
+
+    {{endif}}
+    {{if 'cudaLogsDumpToMemory' in found_functions}}
+
+    cudaError_t cudaLogsDumpToMemory(cudaLogIterator* iterator, char* buffer, size_t* size, unsigned int flags) nogil
+
+    {{endif}}
     {{if 'cudaGraphCreate' in found_functions}}
 
     cudaError_t cudaGraphCreate(cudaGraph_t* pGraph, unsigned int flags) nogil
@@ -966,7 +991,7 @@ cdef extern from "cuda_runtime_api.h":
     {{endif}}
     {{if 'cudaGraphKernelNodeCopyAttributes' in found_functions}}
 
-    cudaError_t cudaGraphKernelNodeCopyAttributes(cudaGraphNode_t hSrc, cudaGraphNode_t hDst) nogil
+    cudaError_t cudaGraphKernelNodeCopyAttributes(cudaGraphNode_t hDst, cudaGraphNode_t hSrc) nogil
 
     {{endif}}
     {{if 'cudaGraphKernelNodeGetAttribute' in found_functions}}
@@ -1171,52 +1196,27 @@ cdef extern from "cuda_runtime_api.h":
     {{endif}}
     {{if 'cudaGraphGetEdges' in found_functions}}
 
-    cudaError_t cudaGraphGetEdges(cudaGraph_t graph, cudaGraphNode_t* from_, cudaGraphNode_t* to, size_t* numEdges) nogil
-
-    {{endif}}
-    {{if 'cudaGraphGetEdges_v2' in found_functions}}
-
-    cudaError_t cudaGraphGetEdges_v2(cudaGraph_t graph, cudaGraphNode_t* from_, cudaGraphNode_t* to, cudaGraphEdgeData* edgeData, size_t* numEdges) nogil
+    cudaError_t cudaGraphGetEdges(cudaGraph_t graph, cudaGraphNode_t* from_, cudaGraphNode_t* to, cudaGraphEdgeData* edgeData, size_t* numEdges) nogil
 
     {{endif}}
     {{if 'cudaGraphNodeGetDependencies' in found_functions}}
 
-    cudaError_t cudaGraphNodeGetDependencies(cudaGraphNode_t node, cudaGraphNode_t* pDependencies, size_t* pNumDependencies) nogil
-
-    {{endif}}
-    {{if 'cudaGraphNodeGetDependencies_v2' in found_functions}}
-
-    cudaError_t cudaGraphNodeGetDependencies_v2(cudaGraphNode_t node, cudaGraphNode_t* pDependencies, cudaGraphEdgeData* edgeData, size_t* pNumDependencies) nogil
+    cudaError_t cudaGraphNodeGetDependencies(cudaGraphNode_t node, cudaGraphNode_t* pDependencies, cudaGraphEdgeData* edgeData, size_t* pNumDependencies) nogil
 
     {{endif}}
     {{if 'cudaGraphNodeGetDependentNodes' in found_functions}}
 
-    cudaError_t cudaGraphNodeGetDependentNodes(cudaGraphNode_t node, cudaGraphNode_t* pDependentNodes, size_t* pNumDependentNodes) nogil
-
-    {{endif}}
-    {{if 'cudaGraphNodeGetDependentNodes_v2' in found_functions}}
-
-    cudaError_t cudaGraphNodeGetDependentNodes_v2(cudaGraphNode_t node, cudaGraphNode_t* pDependentNodes, cudaGraphEdgeData* edgeData, size_t* pNumDependentNodes) nogil
+    cudaError_t cudaGraphNodeGetDependentNodes(cudaGraphNode_t node, cudaGraphNode_t* pDependentNodes, cudaGraphEdgeData* edgeData, size_t* pNumDependentNodes) nogil
 
     {{endif}}
     {{if 'cudaGraphAddDependencies' in found_functions}}
 
-    cudaError_t cudaGraphAddDependencies(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, size_t numDependencies) nogil
-
-    {{endif}}
-    {{if 'cudaGraphAddDependencies_v2' in found_functions}}
-
-    cudaError_t cudaGraphAddDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, const cudaGraphEdgeData* edgeData, size_t numDependencies) nogil
+    cudaError_t cudaGraphAddDependencies(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, const cudaGraphEdgeData* edgeData, size_t numDependencies) nogil
 
     {{endif}}
     {{if 'cudaGraphRemoveDependencies' in found_functions}}
 
-    cudaError_t cudaGraphRemoveDependencies(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, size_t numDependencies) nogil
-
-    {{endif}}
-    {{if 'cudaGraphRemoveDependencies_v2' in found_functions}}
-
-    cudaError_t cudaGraphRemoveDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, const cudaGraphEdgeData* edgeData, size_t numDependencies) nogil
+    cudaError_t cudaGraphRemoveDependencies(cudaGraph_t graph, const cudaGraphNode_t* from_, const cudaGraphNode_t* to, const cudaGraphEdgeData* edgeData, size_t numDependencies) nogil
 
     {{endif}}
     {{if 'cudaGraphDestroyNode' in found_functions}}
@@ -1361,12 +1361,7 @@ cdef extern from "cuda_runtime_api.h":
     {{endif}}
     {{if 'cudaGraphAddNode' in found_functions}}
 
-    cudaError_t cudaGraphAddNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, size_t numDependencies, cudaGraphNodeParams* nodeParams) nogil
-
-    {{endif}}
-    {{if 'cudaGraphAddNode_v2' in found_functions}}
-
-    cudaError_t cudaGraphAddNode_v2(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, cudaGraphNodeParams* nodeParams) nogil
+    cudaError_t cudaGraphAddNode(cudaGraphNode_t* pGraphNode, cudaGraph_t graph, const cudaGraphNode_t* pDependencies, const cudaGraphEdgeData* dependencyData, size_t numDependencies, cudaGraphNodeParams* nodeParams) nogil
 
     {{endif}}
     {{if 'cudaGraphNodeSetParams' in found_functions}}

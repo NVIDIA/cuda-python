@@ -77,7 +77,7 @@ def test_pci_bus_id():
 def test_uuid():
     device = Device()
     driver_ver = handle_return(driver.cuDriverGetVersion())
-    if driver_ver >= 11040:
+    if 11040 <= driver_ver < 13000:
         uuid = handle_return(driver.cuDeviceGetUuid_v2(device.device_id))
     else:
         uuid = handle_return(driver.cuDeviceGetUuid(device.device_id))

@@ -6,8 +6,8 @@ import pytest
 from cuda.bindings import nvjitlink, nvrtc
 
 # Establish a handful of compatible architectures and PTX versions to test with
-ARCHITECTURES = ["sm_60", "sm_75", "sm_80", "sm_90"]
-PTX_VERSIONS = ["5.0", "6.4", "7.0", "8.5"]
+ARCHITECTURES = ["sm_75", "sm_80", "sm_90", "sm_100"]
+PTX_VERSIONS = ["6.4", "7.0", "8.5", "8.8"]
 
 
 PTX_HEADER = """\

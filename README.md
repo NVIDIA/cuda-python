@@ -38,3 +38,4 @@ The list of available interfaces is:
 * NVRTC
 * nvJitLink
 * NVVM
+* cuFile

@@ -62,6 +62,9 @@ NVRTC defines the following enumeration type and function for API call error han
 
     .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED
 
+
+    .. autoattribute:: cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED
+
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetErrorString
 
 General Information Query
@@ -86,8 +89,6 @@ NVRTC defines the following type and functions for actual compilation.
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetPTX
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetCUBINSize
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetCUBIN
-.. autofunction:: cuda.bindings.nvrtc.nvrtcGetNVVMSize
-.. autofunction:: cuda.bindings.nvrtc.nvrtcGetNVVM
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetLTOIRSize
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetLTOIR
 .. autofunction:: cuda.bindings.nvrtc.nvrtcGetOptiXIRSize
@@ -111,7 +112,7 @@ NVRTC defines the following function related to PCH. Also see PCH related flags 
 Supported Compile Options
 -------------------------
 
-NVRTC supports the compile options below. Option names with two preceding dashs (``--``\ ) are long option names and option names with one preceding dash (``-``\ ) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (``=``\ ) is used to separate the compile option argument from the compile option name, e.g., ``"--gpu-architecture=compute_60"``\ . Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, ``"--gpu-architecture"``\  ``"compute_60"``\ . Single-character short option names, such as ``-D``\ , ``-U``\ , and ``-I``\ , do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, ``"-D=<def>"``\ , ``"-D<def>"``\ , and ``"-D <def>"``\  are all supported.
+NVRTC supports the compile options below. Option names with two preceding dashs (``--``\ ) are long option names and option names with one preceding dash (``-``\ ) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (``=``\ ) is used to separate the compile option argument from the compile option name, e.g., ``"--gpu-architecture=compute_100"``\ . Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, ``"--gpu-architecture"``\  ``"compute_100"``\ . Single-character short option names, such as ``-D``\ , ``-U``\ , and ``-I``\ , do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, ``"-D=<def>"``\ , ``"-D<def>"``\ , and ``"-D <def>"``\  are all supported.
 
 
 
@@ -421,7 +422,7 @@ Disable the use of cache for both ptx and cubin code generation.
 
   - ``--frandom-seed``\  (``-frandom-seed``\ )
 
-The user specified random seed will be used to replace random numbers used in generating symbol names and variable names. The option can be used to generate deterministicly identical ptx and object files. If the input value is a valid number (decimal, octal, or hex), it will be used directly as the random seed. Otherwise, the CRC value of the passed string will be used instead.
+The user specified random seed will be used to replace random numbers used in generating symbol names and variable names. The option can be used to generate deterministically identical ptx and object files. If the input value is a valid number (decimal, octal, or hex), it will be used directly as the random seed. Otherwise, the CRC value of the passed string will be used instead.
 
 
 

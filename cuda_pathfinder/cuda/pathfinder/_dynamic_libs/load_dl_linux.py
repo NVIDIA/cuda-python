@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import ctypes
 import ctypes.util
 import os
@@ -109,7 +110,26 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
     return None
 
 
-def load_with_abs_path(_libname: str, found_path: str) -> LoadedDL:
+def _work_around_known_bugs(libname: str, found_path: str) -> None:
+    if libname == "nvrtc":
+        # Work around bug/oversight in
+        #   nvidia_cuda_nvrtc-13.0.48-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl
+        # Issue: libnvrtc.so.13 RUNPATH is not set.
+        # This workaround is highly specific
+        #   - for simplicity.
+        #   - to not mask bugs in future nvidia-cuda-nvrtc releases.
+        #   - because a more general workaround is complicated.
+        dirname, basename = os.path.split(found_path)
+        if basename == "libnvrtc.so.13":
+            dep_basename = "libnvrtc-builtins.so.13.0"
+            dep_path = os.path.join(dirname, dep_basename)
+            if os.path.isfile(dep_path):
+                # In case of failure, defer to primary load, which is almost certain to fail, too.
+                with contextlib.suppress(OSError):
+                    ctypes.CDLL(dep_path, CDLL_MODE)
+
+
+def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
     """Load a dynamic library from the given path.
 
     Args:
@@ -122,6 +142,7 @@ def load_with_abs_path(_libname: str, found_path: str) -> LoadedDL:
     Raises:
         RuntimeError: If the library cannot be loaded
     """
+    _work_around_known_bugs(libname, found_path)
     try:
         handle = ctypes.CDLL(found_path, CDLL_MODE)
     except OSError as e:
