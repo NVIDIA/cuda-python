@@ -252,10 +252,9 @@ SUPPORTED_LINUX_SONAMES = {
 #   cuda_12.5.1_555.85_windows.exe
 #   cuda_12.6.2_560.94_windows.exe
 #   cuda_12.8.1_572.61_windows.exe
-#   cuda_12.9.0_576.02_windows.txt
-#   036
-#   TODO: Update from posted .exe files before merging into public main.
-# Generated with toolshed/build_pathfinder_dlls.py (WITH MANUAL EDITS)
+#   cuda_12.9.1_576.57_windows.exe
+#   cuda_13.0.0_windows.exe
+# Generated with toolshed/build_pathfinder_dlls.py
 SUPPORTED_WINDOWS_DLLS = {
     "cublas": (
         "cublas64_11.dll",
