@@ -1022,6 +1022,18 @@ class Device:
                 f"Device {self._id} is not yet initialized, perhaps you forgot to call .set_current() first?"
             )
 
+    def _get_primary_context(self) -> driver.CUcontext:
+        try:
+            primary_ctxs = _tls.primary_ctxs
+        except AttributeError:
+            total = len(_tls.devices)
+            primary_ctxs = _tls.primary_ctxs = [None] * total
+        ctx = primary_ctxs[self._id]
+        if ctx is None:
+            ctx = handle_return(driver.cuDevicePrimaryCtxRetain(self._id))
+            primary_ctxs[self._id] = ctx
+        return ctx
+
     def _get_current_context(self, check_consistency=False) -> driver.CUcontext:
         err, ctx = driver.cuCtxGetCurrent()
 
@@ -1186,20 +1198,9 @@ class Device:
             if int(prev_ctx) != 0:
                 return Context._from_ctx(prev_ctx, self._id)
         else:
-            ctx = handle_return(driver.cuCtxGetCurrent())
-            if int(ctx) == 0:
-                # use primary ctx
-                ctx = handle_return(driver.cuDevicePrimaryCtxRetain(self._id))
-                handle_return(driver.cuCtxPushCurrent(ctx))
-            else:
-                ctx_id = handle_return(driver.cuCtxGetDevice())
-                if ctx_id != self._id:
-                    # use primary ctx
-                    ctx = handle_return(driver.cuDevicePrimaryCtxRetain(self._id))
-                    handle_return(driver.cuCtxPushCurrent(ctx))
-                else:
-                    # no-op, a valid context already exists and is set current
-                    pass
+            # use primary ctx
+            ctx = self._get_primary_context()
+            handle_return(driver.cuCtxSetCurrent(ctx))
             self._has_inited = True
 
     def create_context(self, options: ContextOptions = None) -> Context:
