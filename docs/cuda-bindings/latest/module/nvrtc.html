@@ -7,7 +7,7 @@
         <link rel="canonical" href="docs/module/nvrtc.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>nvrtc - cuda.bindings 12.9.0 documentation</title>
+        <title>nvrtc - cuda.bindings 13.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
@@ -173,7 +173,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">cuda.bindings 12.9.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">cuda.bindings 13.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -201,7 +201,7 @@
     <img class="sidebar-logo only-dark" src="../_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">cuda.bindings 12.9.0 documentation</span>
+  <span class="sidebar-brand-text">cuda.bindings 13.0.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -212,7 +212,8 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release/12.X.Y-notes.html">12.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.1-notes.html">12.9.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.9.0-notes.html">12.9.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.8.0-notes.html">12.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/12.6.2-notes.html">12.6.2</a></li>
@@ -468,6 +469,11 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED">
 <span class="sig-name descname"><span class="pre">NVRTC_ERROR_CANCELLED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">17</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -788,41 +794,6 @@ here.</p></li>
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetCUBINSize" title="cuda.bindings.nvrtc.nvrtcGetCUBINSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetCUBINSize</span></code></a></p>
 </div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetNVVMSize">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetNVVMSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetNVVMSize" title="Link to this definition">¶</a></dt>
-<dd><p>DEPRECATION NOTICE: This function will be removed in a future release. Please use nvrtcGetLTOIRSize (and nvrtcGetLTOIR) instead.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – None</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>nvrtcResult</em></p></li>
-<li><p><strong>nvvmSizeRet</strong> (<em>int</em>) – None</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetNVVM">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetNVVM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*nvvm</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetNVVM" title="Link to this definition">¶</a></dt>
-<dd><p>DEPRECATION NOTICE: This function will be removed in a future release. Please use nvrtcGetLTOIR (and nvrtcGetLTOIRSize) instead.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – None</p></li>
-<li><p><strong>nvvm</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – None</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -1218,7 +1189,7 @@ stored</p></li>
 </section>
 <section id="supported-compile-options">
 <h2>Supported Compile Options<a class="headerlink" href="#supported-compile-options" title="Link to this heading">¶</a></h2>
-<p>NVRTC supports the compile options below. Option names with two preceding dashs (<code class="docutils literal notranslate"><span class="pre">--</span></code>) are long option names and option names with one preceding dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (<code class="docutils literal notranslate"><span class="pre">=</span></code>) is used to separate the compile option argument from the compile option name, e.g., <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture=compute_60&quot;</span></code>. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture&quot;</span></code> <code class="docutils literal notranslate"><span class="pre">&quot;compute_60&quot;</span></code>. Single-character short option names, such as <code class="docutils literal notranslate"><span class="pre">-D</span></code>, <code class="docutils literal notranslate"><span class="pre">-U</span></code>, and <code class="docutils literal notranslate"><span class="pre">-I</span></code>, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, <code class="docutils literal notranslate"><span class="pre">&quot;-D=&lt;def&gt;&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;-D&lt;def&gt;&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;-D</span> <span class="pre">&lt;def&gt;&quot;</span></code> are all supported.</p>
+<p>NVRTC supports the compile options below. Option names with two preceding dashs (<code class="docutils literal notranslate"><span class="pre">--</span></code>) are long option names and option names with one preceding dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (<code class="docutils literal notranslate"><span class="pre">=</span></code>) is used to separate the compile option argument from the compile option name, e.g., <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture=compute_100&quot;</span></code>. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture&quot;</span></code> <code class="docutils literal notranslate"><span class="pre">&quot;compute_100&quot;</span></code>. Single-character short option names, such as <code class="docutils literal notranslate"><span class="pre">-D</span></code>, <code class="docutils literal notranslate"><span class="pre">-U</span></code>, and <code class="docutils literal notranslate"><span class="pre">-I</span></code>, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, <code class="docutils literal notranslate"><span class="pre">&quot;-D=&lt;def&gt;&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;-D&lt;def&gt;&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;-D</span> <span class="pre">&lt;def&gt;&quot;</span></code> are all supported.</p>
 <p>The valid compiler options are:</p>
 <ul class="simple">
 <li><p>Compilation targets</p>
@@ -1380,7 +1351,7 @@ stored</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--frandom-seed</span></code> (<code class="docutils literal notranslate"><span class="pre">-frandom-seed</span></code>)</p></li>
 </ul>
 </div></blockquote>
-<p>The user specified random seed will be used to replace random numbers used in generating symbol names and variable names. The option can be used to generate deterministicly identical ptx and object files. If the input value is a valid number (decimal, octal, or hex), it will be used directly as the random seed. Otherwise, the CRC value of the passed string will be used instead.</p>
+<p>The user specified random seed will be used to replace random numbers used in generating symbol names and variable names. The option can be used to generate deterministically identical ptx and object files. If the input value is a valid number (decimal, octal, or hex), it will be used directly as the random seed. Otherwise, the CRC value of the passed string will be used instead.</p>
 <ul class="simple">
 <li><p>Preprocessing</p>
 <ul>
@@ -1664,6 +1635,7 @@ stored</p></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_PCH_CREATE</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_CANCELLED</span></code></a></li>
+<li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetErrorString"><code class="docutils literal notranslate"><span class="pre">nvrtcGetErrorString()</span></code></a></li>
@@ -1687,8 +1659,6 @@ stored</p></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPTX"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPTX()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetCUBINSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetCUBINSize()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetCUBIN"><code class="docutils literal notranslate"><span class="pre">nvrtcGetCUBIN()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetNVVMSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetNVVMSize()</span></code></a></li>
-<li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetNVVM"><code class="docutils literal notranslate"><span class="pre">nvrtcGetNVVM()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetLTOIRSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetLTOIRSize()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetLTOIR"><code class="docutils literal notranslate"><span class="pre">nvrtcGetLTOIR()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetOptiXIRSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetOptiXIRSize()</span></code></a></li>
@@ -1719,7 +1689,7 @@ stored</p></li>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=5b55e43a"></script>
+</div><script src="../_static/documentation_options.js?v=efb8cf6f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
