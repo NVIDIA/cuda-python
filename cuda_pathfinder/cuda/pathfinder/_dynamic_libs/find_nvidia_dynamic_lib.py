@@ -59,7 +59,10 @@ def _find_dll_under_dir(dirpath: str, file_wild: str) -> Optional[str]:
 def _find_dll_using_nvidia_bin_dirs(
     libname: str, lib_searched_for: str, error_messages: list[str], attachments: list[str]
 ) -> Optional[str]:
-    nvidia_sub_dirs_list: list[tuple[str, ...]] = [("nvidia", "*", "bin")]
+    nvidia_sub_dirs_list: list[tuple[str, ...]] = [
+        ("nvidia", "*", "bin"),  # CTK 12
+        ("nvidia", "*", "bin", "*"),  # CTK 13, e.g. site-packages\nvidia\cu13\bin\x86_64\
+    ]
     if libname == "nvvm":
         nvidia_sub_dirs_list.append(("nvidia", "*", "nvvm", "bin"))  # Only for CTK 12
     for nvidia_sub_dirs in nvidia_sub_dirs_list:
