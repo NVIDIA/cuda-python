@@ -71,7 +71,7 @@ cdef void* __cuFileSetParameterString = NULL
 
 
 cdef void* load_library(const int driver_ver) except* with gil:
-    cdef uintptr_t handle = load_nvidia_dynamic_lib("cufile")._handle
+    cdef uintptr_t handle = load_nvidia_dynamic_lib("cufile")._handle_uint
     return <void*>handle
 
 

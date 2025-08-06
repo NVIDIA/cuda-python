@@ -61,7 +61,7 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
             raise RuntimeError('something went wrong')
 
         # Load library
-        handle = load_nvidia_dynamic_lib("nvJitLink")._handle
+        handle = load_nvidia_dynamic_lib("nvJitLink")._handle_uint
 
         # Load function
         global __nvJitLinkCreate

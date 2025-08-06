@@ -52,7 +52,7 @@ cdef void* __nvvmGetProgramLog = NULL
 
 
 cdef void* load_library(const int driver_ver) except* with gil:
-    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvvm")._handle
+    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvvm")._handle_uint
     return <void*>handle
 
 

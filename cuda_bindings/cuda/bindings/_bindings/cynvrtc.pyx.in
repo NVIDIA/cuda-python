@@ -47,10 +47,10 @@ cdef int cuPythonInit() except -1 nogil:
     # Load library
     {{if 'Windows' == platform.system()}}
     with gil:
-        handle = load_nvidia_dynamic_lib("nvrtc")._handle
+        handle = load_nvidia_dynamic_lib("nvrtc")._handle_uint
     {{else}}
     with gil:
-        handle = <void*><uintptr_t>load_nvidia_dynamic_lib("nvrtc")._handle
+        handle = <void*><uintptr_t>load_nvidia_dynamic_lib("nvrtc")._handle_uint
     {{endif}}
 
 

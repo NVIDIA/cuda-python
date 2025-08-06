@@ -60,7 +60,7 @@ cdef int _check_or_init_nvvm() except -1 nogil:
             raise RuntimeError('something went wrong')
 
         # Load library
-        handle = load_nvidia_dynamic_lib("nvvm")._handle
+        handle = load_nvidia_dynamic_lib("nvvm")._handle_uint
 
         # Load function
         global __nvvmGetErrorString
