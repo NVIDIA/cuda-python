@@ -6,7 +6,7 @@
 ``cuda-bindings`` 13.0.0 Release notes
 ======================================
 
-Released on MM DD, 2025
+Released on Aug 6, 2025
 
 
 Highlights
