@@ -49,6 +49,7 @@ and a corresponding {class}`Stream <cuda.core.experimental.Stream>`.
 Don't forget to use {meth}`Device.set_current() <cuda.core.experimental.Device.set_current>`!
 
 ```python
+import cupy as cp
 from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
 
 dev = Device()
@@ -76,6 +77,7 @@ ker = mod.get_kernel("vector_add<float>")
 
 # Prepare input/output arrays (using CuPy)
 size = 50000
+rng = cp.random.default_rng()
 a = rng.random(size, dtype=cp.float32)
 b = rng.random(size, dtype=cp.float32)
 c = cp.empty_like(a)

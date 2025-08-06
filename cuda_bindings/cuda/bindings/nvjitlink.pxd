@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 12.9.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.0.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uint32_t
 
