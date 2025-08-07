@@ -96,7 +96,7 @@ CUDA_PYTHON_DOMAIN = os.environ.get("CUDA_PYTHON_DOMAIN", "https://nvidia.github
 rst_epilog = f"""
 .. _cuda.core: {CUDA_PYTHON_DOMAIN}/cuda-core/latest
 .. _cuda.bindings: {CUDA_PYTHON_DOMAIN}/cuda-bindings/latest
-.. _cuda.cccl.cooperative: https://nvidia.github.io/cccl/cuda_cooperative/
-.. _cuda.cccl.parallel: https://nvidia.github.io/cccl/cuda_parallel/
+.. _cuda.cccl.cooperative: https://nvidia.github.io/cccl/python/cooperative
+.. _cuda.cccl.parallel: https://nvidia.github.io/cccl/python/parallel
 .. _numba.cuda: https://nvidia.github.io/numba-cuda/
 """

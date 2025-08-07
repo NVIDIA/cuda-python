@@ -4,8 +4,8 @@ CUDA Python is the home for accessing NVIDIA’s CUDA platform from Python. It c
 
 * [cuda.core](https://nvidia.github.io/cuda-python/cuda-core/latest): Pythonic access to CUDA Runtime and other core functionalities
 * [cuda.bindings](https://nvidia.github.io/cuda-python/cuda-bindings/latest): Low-level Python bindings to CUDA C APIs
-* [cuda.cccl.cooperative](https://nvidia.github.io/cccl/cuda_cooperative/): A Python module providing CCCL's reusable block-wide and warp-wide *device* primitives for use within Numba CUDA kernels
-* [cuda.cccl.parallel](https://nvidia.github.io/cccl/cuda_parallel/): A Python module for easy access to CCCL's highly efficient and customizable parallel algorithms, like `sort`, `scan`, `reduce`, `transform`, etc. that are callable on the *host*
+* [cuda.cccl.cooperative](https://nvidia.github.io/cccl/python/cooperative): A Python module providing CCCL's reusable block-wide and warp-wide *device* primitives for use within Numba CUDA kernels
+* [cuda.cccl.parallel](https://nvidia.github.io/cccl/python/parallel): A Python module for easy access to CCCL's highly efficient and customizable parallel algorithms, like `sort`, `scan`, `reduce`, `transform`, etc. that are callable on the *host*
 * [numba.cuda](https://nvidia.github.io/numba-cuda/): Numba's target for CUDA GPU programming by directly compiling a restricted subset of Python code into CUDA kernels and device functions following the CUDA execution model.
 * [nvmath-python](https://docs.nvidia.com/cuda/nvmath-python/latest): Pythonic access to NVIDIA CPU & GPU Math Libraries, with both [*host*](https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#host-apis) and [*device* (nvmath.device)](https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#device-apis) APIs. It also provides low-level Python bindings to host C APIs ([nvmath.bindings](https://docs.nvidia.com/cuda/nvmath-python/latest/bindings/index.html)).
 
