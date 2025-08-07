@@ -120,6 +120,8 @@ jobs:
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
+          run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
 
       - name: Display structure of downloaded cuda-pathfinder artifacts
         run: |
