@@ -33,7 +33,7 @@ be available, please refer to the `cuda.bindings`_ documentation for installatio
    release.md
    cuda.core <https://nvidia.github.io/cuda-python/cuda-core/latest>
    cuda.bindings <https://nvidia.github.io/cuda-python/cuda-bindings/latest>
-   cuda.cccl.cooperative <https://nvidia.github.io/cccl/cuda_cooperative>
-   cuda.cccl.parallel <https://nvidia.github.io/cccl/cuda_parallel>
+   cuda.cccl.cooperative <https://nvidia.github.io/cccl/python/cooperative>
+   cuda.cccl.parallel <https://nvidia.github.io/cccl/python/parallel>
    numba.cuda <https://nvidia.github.io/numba-cuda/>
    nvmath-python <https://docs.nvidia.com/cuda/nvmath-python/>
