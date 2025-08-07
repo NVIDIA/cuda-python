@@ -8,7 +8,7 @@ from libc.stdint cimport intptr_t, uintptr_t
 
 from .utils import FunctionNotFoundError, NotSupportedError
 
-from cuda.bindings import path_finder
+from cuda.pathfinder import load_nvidia_dynamic_lib
 
 import cython
 
@@ -71,7 +71,7 @@ cdef void* __cuFileSetParameterString = NULL
 
 
 cdef void* load_library(const int driver_ver) except* with gil:
-    cdef uintptr_t handle = path_finder._load_nvidia_dynamic_library("cufile").handle
+    cdef uintptr_t handle = load_nvidia_dynamic_lib("cufile")._handle_uint
     return <void*>handle
 
 
