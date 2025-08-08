@@ -50,9 +50,9 @@ elif [[ "${test_module}" == "bindings" ]]; then
   pushd ./cuda_bindings
   echo "Running bindinds tests"
   pwd
-  ${SANITIZER_CMD} pytest -rxXs -v tests/
+  ${SANITIZER_CMD} pytest -ra -s -v tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v tests/cython
+    ${SANITIZER_CMD} pytest -ra -s -v tests/cython
   fi
   popd
 elif [[ "${test_module}" == "core" ]]; then
@@ -86,11 +86,11 @@ elif [[ "${test_module}" == "core" ]]; then
   pushd ./cuda_core
   echo "Running core tests"
   pwd
-  ${SANITIZER_CMD} pytest -rxXs -v tests/
+  ${SANITIZER_CMD} pytest -ra -s -v tests/
   # Currently our CI always installs the latest bindings (from either major version).
   # This is not compatible with the test requirements.
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v tests/cython
+    ${SANITIZER_CMD} pytest -ra -s -v tests/cython
   fi
   popd
 fi
