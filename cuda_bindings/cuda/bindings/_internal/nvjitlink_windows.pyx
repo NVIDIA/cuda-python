@@ -11,6 +11,7 @@ from .utils import FunctionNotFoundError, NotSupportedError
 from cuda.pathfinder import load_nvidia_dynamic_lib
 
 import win32api
+import struct
 
 
 ###############################################################################
@@ -62,6 +63,13 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
 
         # Load library
         handle = load_nvidia_dynamic_lib("nvJitLink")._handle_uint
+        ###
+        POINTER_ADDRESS_SPACE = 2 ** (struct.calcsize("P") * 8)
+        handle_uint = handle
+        handle_int = handle_uint - POINTER_ADDRESS_SPACE if handle_uint >= POINTER_ADDRESS_SPACE // 2 else handle_uint
+        print(f"\nLOOOK nvjitlink {handle_uint=}", flush=True)
+        print(f"\nLOOOK nvjitlink  {handle_int=}", flush=True)
+        ###
 
         # Load function
         global __nvJitLinkCreate
