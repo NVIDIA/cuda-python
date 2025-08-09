@@ -34,13 +34,13 @@ class Buffer:
     """
 
     class _MembersNeededForFinalize:
-        __slots__ = ("ptr", "size", "mr")
+        __slots__ = ("ptr", "size", "mr", "finalizer")
 
         def __init__(self, buffer_obj, ptr, size, mr):
             self.ptr = ptr
             self.size = size
             self.mr = mr
-            weakref.finalize(buffer_obj, self.close)
+            self.finalizer = weakref.finalize(buffer_obj, self.close)
 
         def close(self, stream=None):
             if self.ptr and self.mr is not None:
@@ -73,6 +73,15 @@ class Buffer:
             the behavior depends on the underlying memory resource.
         """
         self._mnff.close(stream)
+
+    def release(self):
+        """Release this buffer from being subject to the garbage collection.
+
+        After this method is called, the caller is responsible for calling :meth:`close`
+        when done using this buffer, otherwise there would be a memory leak!
+        """
+        self._mnff.finalizer.detach()
+        self._mnff.finalizer = None
 
     @property
     def handle(self) -> DevicePointerT:

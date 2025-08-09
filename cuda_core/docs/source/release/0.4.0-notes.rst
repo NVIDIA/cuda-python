@@ -1,0 +1,31 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core.experimental
+
+``cuda.core`` 0.4.0 Release Notes
+=================================
+
+Released on MM DD, 2025
+
+
+Highlights
+----------
+
+
+Breaking Changes
+----------------
+
+
+New features
+------------
+
+- :class:`Buffer` adds a method :meth:`Buffer.release` allowing users to have full control over its lifetime without interfered by the Python garbage collector
+  
+
+New examples
+------------
+
+
+Fixes and enhancements
+----------------------
