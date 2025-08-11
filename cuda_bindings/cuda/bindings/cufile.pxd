@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 12.9.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.0.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -18,7 +18,12 @@ ctypedef CUfileBatchHandle_t BatchHandle
 ctypedef CUfileError_t Error
 ctypedef cufileRDMAInfo_t RDMAInfo
 ctypedef CUfileFSOps_t FSOps
+ctypedef CUfileOpCounter_t OpCounter
+ctypedef CUfilePerGpuStats_t PerGpuStats
 ctypedef CUfileDrvProps_t DrvProps
+ctypedef CUfileStatsLevel1_t StatsLevel1
+ctypedef CUfileStatsLevel2_t StatsLevel2
+ctypedef CUfileStatsLevel3_t StatsLevel3
 
 
 ###############################################################################
@@ -36,6 +41,7 @@ ctypedef CUfileBatchMode_t _BatchMode
 ctypedef CUFileSizeTConfigParameter_t _SizeTConfigParameter
 ctypedef CUFileBoolConfigParameter_t _BoolConfigParameter
 ctypedef CUFileStringConfigParameter_t _StringConfigParameter
+ctypedef CUFileArrayConfigParameter_t _ArrayConfigParameter
 
 
 ###############################################################################
@@ -68,6 +74,3 @@ cpdef int get_version() except? 0
 cpdef size_t get_parameter_size_t(int param) except? 0
 cpdef bint get_parameter_bool(int param) except? 0
 cpdef str get_parameter_string(int param, int len)
-cpdef set_parameter_size_t(int param, size_t value)
-cpdef set_parameter_bool(int param, bint value)
-cpdef set_parameter_string(int param, intptr_t desc_str)

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 12.9.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.0.0. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
@@ -859,6 +859,17 @@ class OpError(_IntEnum):
     GPU_MEMORY_PINNING_FAILED = CU_FILE_GPU_MEMORY_PINNING_FAILED
     BATCH_FULL = CU_FILE_BATCH_FULL
     ASYNC_NOT_SUPPORTED = CU_FILE_ASYNC_NOT_SUPPORTED
+    INTERNAL_BATCH_SETUP_ERROR = CU_FILE_INTERNAL_BATCH_SETUP_ERROR
+    INTERNAL_BATCH_SUBMIT_ERROR = CU_FILE_INTERNAL_BATCH_SUBMIT_ERROR
+    INTERNAL_BATCH_GETSTATUS_ERROR = CU_FILE_INTERNAL_BATCH_GETSTATUS_ERROR
+    INTERNAL_BATCH_CANCEL_ERROR = CU_FILE_INTERNAL_BATCH_CANCEL_ERROR
+    NOMEM_ERROR = CU_FILE_NOMEM_ERROR
+    IO_ERROR = CU_FILE_IO_ERROR
+    INTERNAL_BUF_REGISTER_ERROR = CU_FILE_INTERNAL_BUF_REGISTER_ERROR
+    HASH_OPR_ERROR = CU_FILE_HASH_OPR_ERROR
+    INVALID_CONTEXT_ERROR = CU_FILE_INVALID_CONTEXT_ERROR
+    NVFS_INTERNAL_DRIVER_ERROR = CU_FILE_NVFS_INTERNAL_DRIVER_ERROR
+    BATCH_NOCOMPAT_ERROR = CU_FILE_BATCH_NOCOMPAT_ERROR
     IO_MAX_ERROR = CU_FILE_IO_MAX_ERROR
 
 class DriverStatusFlags(_IntEnum):
@@ -948,6 +959,11 @@ class StringConfigParameter(_IntEnum):
     LOGGING_LEVEL = CUFILE_PARAM_LOGGING_LEVEL
     ENV_LOGFILE_PATH = CUFILE_PARAM_ENV_LOGFILE_PATH
     LOG_DIR = CUFILE_PARAM_LOG_DIR
+
+class ArrayConfigParameter(_IntEnum):
+    """See `CUFileArrayConfigParameter_t`."""
+    POSIX_POOL_SLAB_SIZE_KB = CUFILE_PARAM_POSIX_POOL_SLAB_SIZE_KB
+    POSIX_POOL_SLAB_COUNT = CUFILE_PARAM_POSIX_POOL_SLAB_COUNT
 
 
 ###############################################################################
@@ -1255,24 +1271,6 @@ cpdef str get_parameter_string(int param, int len):
         status = cuFileGetParameterString(<_StringConfigParameter>param, desc_str, len)
     check_status(status)
     return _desc_str_.decode()
-
-
-cpdef set_parameter_size_t(int param, size_t value):
-    with nogil:
-        status = cuFileSetParameterSizeT(<_SizeTConfigParameter>param, value)
-    check_status(status)
-
-
-cpdef set_parameter_bool(int param, bint value):
-    with nogil:
-        status = cuFileSetParameterBool(<_BoolConfigParameter>param, <cpp_bool>value)
-    check_status(status)
-
-
-cpdef set_parameter_string(int param, intptr_t desc_str):
-    with nogil:
-        status = cuFileSetParameterString(<_StringConfigParameter>param, <const char*>desc_str)
-    check_status(status)
 
 
 cpdef str op_status_error(int status):
