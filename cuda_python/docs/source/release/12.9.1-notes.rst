@@ -11,6 +11,7 @@ Included components
 -------------------
 
 * `cuda.bindings 12.9.1 <https://nvidia.github.io/cuda-python/cuda-bindings/latest/release/12.9.1-notes.html>`_
+* cuda.pathfinder 1.1.0
 
 
 Highlights
