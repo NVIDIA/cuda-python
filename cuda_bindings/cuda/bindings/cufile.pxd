@@ -74,3 +74,6 @@ cpdef int get_version() except? 0
 cpdef size_t get_parameter_size_t(int param) except? 0
 cpdef bint get_parameter_bool(int param) except? 0
 cpdef str get_parameter_string(int param, int len)
+cpdef set_parameter_size_t(int param, size_t value)
+cpdef set_parameter_bool(int param, bint value)
+cpdef set_parameter_string(int param, intptr_t desc_str)

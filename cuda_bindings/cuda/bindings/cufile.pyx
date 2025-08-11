@@ -1273,6 +1273,24 @@ cpdef str get_parameter_string(int param, int len):
     return _desc_str_.decode()
 
 
+cpdef set_parameter_size_t(int param, size_t value):
+    with nogil:
+        status = cuFileSetParameterSizeT(<_SizeTConfigParameter>param, value)
+    check_status(status)
+
+
+cpdef set_parameter_bool(int param, bint value):
+    with nogil:
+        status = cuFileSetParameterBool(<_BoolConfigParameter>param, <cpp_bool>value)
+    check_status(status)
+
+
+cpdef set_parameter_string(int param, intptr_t desc_str):
+    with nogil:
+        status = cuFileSetParameterString(<_StringConfigParameter>param, <const char*>desc_str)
+    check_status(status)
+
+
 cpdef str op_status_error(int status):
     """cufileop status string.
 
