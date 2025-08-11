@@ -279,6 +279,9 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.get_parameter_size_t.html">cuda.bindings.cufile.get_parameter_size_t</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.get_parameter_bool.html">cuda.bindings.cufile.get_parameter_bool</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.get_parameter_string.html">cuda.bindings.cufile.get_parameter_string</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.set_parameter_size_t.html">cuda.bindings.cufile.set_parameter_size_t</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.set_parameter_bool.html">cuda.bindings.cufile.set_parameter_bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.set_parameter_string.html">cuda.bindings.cufile.set_parameter_string</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.op_status_error.html">cuda.bindings.cufile.op_status_error</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.driver_close.html">cuda.bindings.cufile.driver_close</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.IOEvents.html">cuda.bindings.cufile.IOEvents</a></li>
@@ -462,10 +465,19 @@ Supported on Linux only.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.get_parameter_string.html#cuda.bindings.cufile.get_parameter_string" title="cuda.bindings.cufile.get_parameter_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_parameter_string</span></code></a>(int param, int len)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.op_status_error.html#cuda.bindings.cufile.op_status_error" title="cuda.bindings.cufile.op_status_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">op_status_error</span></code></a>(int status)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.set_parameter_size_t.html#cuda.bindings.cufile.set_parameter_size_t" title="cuda.bindings.cufile.set_parameter_size_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_parameter_size_t</span></code></a>(int param, size_t value)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.set_parameter_bool.html#cuda.bindings.cufile.set_parameter_bool" title="cuda.bindings.cufile.set_parameter_bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_parameter_bool</span></code></a>(int param, bool value)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.set_parameter_string.html#cuda.bindings.cufile.set_parameter_string" title="cuda.bindings.cufile.set_parameter_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_parameter_string</span></code></a>(int param, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.op_status_error.html#cuda.bindings.cufile.op_status_error" title="cuda.bindings.cufile.op_status_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">op_status_error</span></code></a>(int status)</p></td>
 <td><p>cufileop status string.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.driver_close.html#cuda.bindings.cufile.driver_close" title="cuda.bindings.cufile.driver_close"><code class="xref py py-obj docutils literal notranslate"><span class="pre">driver_close</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.bindings.cufile.driver_close.html#cuda.bindings.cufile.driver_close" title="cuda.bindings.cufile.driver_close"><code class="xref py py-obj docutils literal notranslate"><span class="pre">driver_close</span></code></a>()</p></td>
 <td><p>reset the cuFile library and release the nvidia-fs driver</p></td>
 </tr>
 </tbody>
