@@ -3,14 +3,14 @@
 
 import pytest
 
-from cuda.pathfinder import find_nvidia_headers
+from cuda.pathfinder import find_nvidia_header_directory
 
 
 def test_find_nvidia_header_directory(info_summary_append):
     with pytest.raises(RuntimeError, match=r"^UNKNOWN libname='unknown-libname'$"):
-        find_nvidia_headers.find_nvidia_header_directory("unknown-libname")
+        find_nvidia_header_directory("unknown-libname")
 
-    hdr_dir = find_nvidia_headers.find_nvidia_header_directory("nvshmem")
+    hdr_dir = find_nvidia_header_directory("nvshmem")
     # TODO: Find ways to test more meaningfully, and how to avoid HARD-WIRED PATHS in particular.
     assert hdr_dir in [
         # pip install nvidia-nvshmem-cu12
