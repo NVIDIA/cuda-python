@@ -1,4 +1,5 @@
-﻿.. SPDX-License-Identifier: Apache-2.0
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
 
 cuda.core.experimental.ObjectCode
 =================================
@@ -14,6 +15,10 @@ cuda.core.experimental.ObjectCode
    
    .. automethod:: __init__
    .. automethod:: from_cubin
+   .. automethod:: from_fatbin
+   .. automethod:: from_library
+   .. automethod:: from_ltoir
+   .. automethod:: from_object
    .. automethod:: from_ptx
    .. automethod:: get_kernel
 
@@ -27,5 +32,6 @@ cuda.core.experimental.ObjectCode
    
    .. autoproperty:: code
    .. autoproperty:: handle
+   .. autoproperty:: name
    
    

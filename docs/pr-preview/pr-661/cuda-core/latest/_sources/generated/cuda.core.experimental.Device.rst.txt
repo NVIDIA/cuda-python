@@ -1,4 +1,5 @@
-﻿.. SPDX-License-Identifier: Apache-2.0
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
 
 cuda.core.experimental.Device
 =============================
@@ -16,6 +17,7 @@ cuda.core.experimental.Device
    .. automethod:: allocate
    .. automethod:: create_context
    .. automethod:: create_event
+   .. automethod:: create_graph_builder
    .. automethod:: create_stream
    .. automethod:: set_current
    .. automethod:: sync

@@ -1,3 +1,4 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 Release Notes
@@ -6,7 +7,8 @@ Release Notes
 .. toctree::
    :maxdepth: 3
 
-   12.X.Y <release/12.X.Y-notes.rst>
+   13.0.0 <release/13.0.0-notes.rst>
+   12.9.1 <release/12.9.1-notes.rst>
    12.9.0 <release/12.9.0-notes.rst>
    12.8.0 <release/12.8.0-notes.md>
    12.6.2 <release/12.6.2-notes.md>

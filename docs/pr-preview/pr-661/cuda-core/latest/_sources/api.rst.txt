@@ -1,3 +1,4 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
 .. module:: cuda.core.experimental
@@ -17,11 +18,21 @@ CUDA runtime
    :toctree: generated/
 
    Device
+   Graph
+   GraphBuilder
    launch
+   Buffer
+   Stream
+   Event
+   MemoryResource
+   DeviceMemoryResource
+   LegacyPinnedMemoryResource
 
    :template: dataclass.rst
 
    EventOptions
+   GraphCompleteOptions
+   GraphDebugPrintOptions
    StreamOptions
    LaunchConfig
 
@@ -35,6 +46,7 @@ CUDA compilation toolchain
    Program
    Linker
    ObjectCode
+   Kernel
 
    :template: dataclass.rst
 

@@ -11,8 +11,3 @@
 ## Runtime Environment Variables
 
 - `CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM` : When set to 1, the default stream is the per-thread default stream. When set to 0, the default stream is the legacy default stream. This defaults to 0, for the legacy default stream. See [Stream Synchronization Behavior](https://docs.nvidia.com/cuda/cuda-runtime-api/stream-sync-behavior.html) for an explanation of the legacy and per-thread default streams.
-
-
-## Test-Time Environment Variables
-
-- `CUDA_PYTHON_TESTING_WITH_COMPUTE_SANITIZER` : When set to 1, tests are skipped that would cause [compute-sanitizer](https://docs.nvidia.com/compute-sanitizer/ComputeSanitizer/index.html) to raise an error.

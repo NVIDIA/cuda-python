@@ -3,14 +3,14 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="cuda.bindings Support Policy" href="support.html" /><link rel="prev" title="nvvm" href="module/nvvm.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="cuda.bindings Support Policy" href="support.html" /><link rel="prev" title="cuda.bindings.utils.get_ptx_ver" href="module/generated/cuda.bindings.utils.get_ptx_ver.html" />
         <link rel="canonical" href="docs/tips_and_tricks.html" />
 
     <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Tips and Tricks - cuda.bindings 12.9.0 documentation</title>
+        <title>Tips and Tricks - cuda.bindings 13.0.1a0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
     
@@ -173,7 +173,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">cuda.bindings 12.9.0 documentation</div></a>
+      <a href="index.html"><div class="brand">cuda.bindings 13.0.1a0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -201,7 +201,7 @@
     <img class="sidebar-logo only-dark" src="_static/logo-dark-mode.png" alt="Dark Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">cuda.bindings 12.9.0 documentation</span>
+  <span class="sidebar-brand-text">cuda.bindings 13.0.1a0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -212,7 +212,8 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/12.X.Y-notes.html">12.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.1-notes.html">12.9.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.0-notes.html">12.9.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.8.0-notes.html">12.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.6.2-notes.html">12.6.2</a></li>
@@ -251,6 +252,61 @@
 <li class="toctree-l2"><a class="reference internal" href="module/nvrtc.html">nvrtc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvjitlink.html">nvjitlink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvvm.html">nvvm</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="module/cufile.html">cufile</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of cufile</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.buf_register.html">cuda.bindings.cufile.buf_register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.buf_deregister.html">cuda.bindings.cufile.buf_deregister</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.read.html">cuda.bindings.cufile.read</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.write.html">cuda.bindings.cufile.write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_open.html">cuda.bindings.cufile.driver_open</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.use_count.html">cuda.bindings.cufile.use_count</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_get_properties.html">cuda.bindings.cufile.driver_get_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_set_poll_mode.html">cuda.bindings.cufile.driver_set_poll_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_set_max_direct_io_size.html">cuda.bindings.cufile.driver_set_max_direct_io_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_set_max_cache_size.html">cuda.bindings.cufile.driver_set_max_cache_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_set_max_pinned_mem_size.html">cuda.bindings.cufile.driver_set_max_pinned_mem_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.batch_io_set_up.html">cuda.bindings.cufile.batch_io_set_up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.batch_io_submit.html">cuda.bindings.cufile.batch_io_submit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.batch_io_get_status.html">cuda.bindings.cufile.batch_io_get_status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.batch_io_cancel.html">cuda.bindings.cufile.batch_io_cancel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.batch_io_destroy.html">cuda.bindings.cufile.batch_io_destroy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.read_async.html">cuda.bindings.cufile.read_async</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.write_async.html">cuda.bindings.cufile.write_async</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.stream_register.html">cuda.bindings.cufile.stream_register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.stream_deregister.html">cuda.bindings.cufile.stream_deregister</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.get_version.html">cuda.bindings.cufile.get_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.get_parameter_size_t.html">cuda.bindings.cufile.get_parameter_size_t</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.get_parameter_bool.html">cuda.bindings.cufile.get_parameter_bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.get_parameter_string.html">cuda.bindings.cufile.get_parameter_string</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.set_parameter_size_t.html">cuda.bindings.cufile.set_parameter_size_t</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.set_parameter_bool.html">cuda.bindings.cufile.set_parameter_bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.set_parameter_string.html">cuda.bindings.cufile.set_parameter_string</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.op_status_error.html">cuda.bindings.cufile.op_status_error</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_close.html">cuda.bindings.cufile.driver_close</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.IOEvents.html">cuda.bindings.cufile.IOEvents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.Descr.html">cuda.bindings.cufile.Descr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.IOParams.html">cuda.bindings.cufile.IOParams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.OpError.html">cuda.bindings.cufile.OpError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.DriverStatusFlags.html">cuda.bindings.cufile.DriverStatusFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.DriverControlFlags.html">cuda.bindings.cufile.DriverControlFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.FeatureFlags.html">cuda.bindings.cufile.FeatureFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.FileHandleType.html">cuda.bindings.cufile.FileHandleType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.Opcode.html">cuda.bindings.cufile.Opcode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.Status.html">cuda.bindings.cufile.Status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.BatchMode.html">cuda.bindings.cufile.BatchMode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.SizeTConfigParameter.html">cuda.bindings.cufile.SizeTConfigParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.BoolConfigParameter.html">cuda.bindings.cufile.BoolConfigParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.StringConfigParameter.html">cuda.bindings.cufile.StringConfigParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.cuFileError.html">cuda.bindings.cufile.cuFileError</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="module/utils.html">utils</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.utils.get_cuda_native_handle.html">cuda.bindings.utils.get_cuda_native_handle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver.html">cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.utils.get_ptx_ver.html">cuda.bindings.utils.get_ptx_ver</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Tips and Tricks</a></li>
@@ -325,7 +381,13 @@
 <section id="getting-the-address-of-underlying-c-objects-from-the-low-level-bindings">
 <h2>Getting the address of underlying C objects from the low-level bindings<a class="headerlink" href="#getting-the-address-of-underlying-c-objects-from-the-low-level-bindings" title="Link to this heading">¶</a></h2>
 <p>All CUDA C types are exposed to Python as Python classes. For example, the <a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUstream</span></code></a> type is exposed as a class with methods <a class="reference internal" href="module/driver.html#cuda.bindings.driver.CUstream.getPtr" title="cuda.bindings.driver.CUstream.getPtr"><code class="xref py py-meth docutils literal notranslate"><span class="pre">getPtr()</span></code></a> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">__int__()</span></code> implemented.</p>
-<p>There is an important distinction between the <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> method and the behaviour of <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. If you need to get the pointer address <em>of</em> the underlying <code class="docutils literal notranslate"><span class="pre">CUstream</span></code> C object wrapped in the Python class, you can do so by calling <code class="docutils literal notranslate"><span class="pre">int(instance_of_CUstream)</span></code>, which returns the address as a Python <cite>int</cite>, while calling <code class="docutils literal notranslate"><span class="pre">instance_of_CUstream.getPtr()</span></code> returns the pointer <em>to</em> the <code class="docutils literal notranslate"><span class="pre">CUstream</span></code> C object (that is, <code class="docutils literal notranslate"><span class="pre">&amp;CUstream</span></code>) as a Python <cite>int</cite>.</p>
+<p>There is an important distinction between the <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> method and the behaviour of <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. Since a <code class="docutils literal notranslate"><span class="pre">CUstream</span></code> is itself just a pointer, calling <code class="docutils literal notranslate"><span class="pre">instance_of_CUstream.getPtr()</span></code> returns the pointer <em>to</em> the pointer, instead of the value of the <code class="docutils literal notranslate"><span class="pre">CUstream</span></code> C object that is the pointer to the underlying stream handle. <code class="docutils literal notranslate"><span class="pre">int(instance_of_CUstream)</span></code> returns the value of the <code class="docutils literal notranslate"><span class="pre">CUstream</span></code> converted to a Python int and is the actual address of the underlying handle.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">int(cuda_obj)</span></code> to retrieve the underlying address of a CUDA object is deprecated and
+subject to future removal. Please switch to use <a class="reference internal" href="module/generated/cuda.bindings.utils.get_cuda_native_handle.html#cuda.bindings.utils.get_cuda_native_handle" title="cuda.bindings.utils.get_cuda_native_handle"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_cuda_native_handle()</span></code></a>
+instead.</p>
+</div>
 </section>
 <section id="lifetime-management-of-the-cuda-objects">
 <h2>Lifetime management of the CUDA objects<a class="headerlink" href="#lifetime-management-of-the-cuda-objects" title="Link to this heading">¶</a></h2>
@@ -366,14 +428,14 @@
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="module/nvvm.html">
+          <a class="prev-page" href="module/generated/cuda.bindings.utils.get_ptx_ver.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">nvvm</div>
+                <div class="title">cuda.bindings.utils.get_ptx_ver</div>
                 
               </div>
             </a>
@@ -422,7 +484,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=5b55e43a"></script>
+</div><script src="_static/documentation_options.js?v=37b1fd23"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
