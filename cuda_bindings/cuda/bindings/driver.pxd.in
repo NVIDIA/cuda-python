@@ -1,7 +1,7 @@
-# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0. Do not modify it directly.
+# This code was automatically generated with version 13.0.0. Do not modify it directly.
 cimport cuda.bindings.cydriver as cydriver
 cimport cuda.bindings._lib.utils as utils
 
@@ -673,7 +673,7 @@ cdef class CUstreamMemOpWaitValueParams_st:
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.waitValue.flags' in found_struct}}
     flags : unsigned int
-
+        See CUstreamWaitValue_flags.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.waitValue.alias' in found_struct}}
     alias : CUdeviceptr
@@ -723,7 +723,7 @@ cdef class CUstreamMemOpWriteValueParams_st:
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.writeValue.flags' in found_struct}}
     flags : unsigned int
-
+        See CUstreamWriteValue_flags.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.writeValue.alias' in found_struct}}
     alias : CUdeviceptr
@@ -761,7 +761,7 @@ cdef class CUstreamMemOpFlushRemoteWritesParams_st:
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.flushRemoteWrites.flags' in found_struct}}
     flags : unsigned int
-
+        Must be 0.
     {{endif}}
 
     Methods
@@ -803,23 +803,26 @@ cdef class CUstreamBatchMemOpParams_union:
     ----------
     {{if 'CUstreamBatchMemOpParams_union.operation' in found_struct}}
     operation : CUstreamBatchMemOpType
-
+        Operation. This is the first field of all the union elemets and
+        acts as a TAG to determine which union member is valid.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.waitValue' in found_struct}}
     waitValue : CUstreamMemOpWaitValueParams_st
-
+        Params for CU_STREAM_MEM_OP_WAIT_VALUE_32 and
+        CU_STREAM_MEM_OP_WAIT_VALUE_64 operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.writeValue' in found_struct}}
     writeValue : CUstreamMemOpWriteValueParams_st
-
+        Params for CU_STREAM_MEM_OP_WRITE_VALUE_32 and
+        CU_STREAM_MEM_OP_WRITE_VALUE_64 operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.flushRemoteWrites' in found_struct}}
     flushRemoteWrites : CUstreamMemOpFlushRemoteWritesParams_st
-
+        Params for CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.memoryBarrier' in found_struct}}
     memoryBarrier : CUstreamMemOpMemoryBarrierParams_st
-
+        Params for CU_STREAM_MEM_OP_BARRIER operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.pad' in found_struct}}
     pad : List[cuuint64_t]
@@ -850,6 +853,9 @@ cdef class CUstreamBatchMemOpParams_union:
 
 cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st:
     """
+    Batch memory operation node parameters  Used in the legacy
+    cuGraphAddBatchMemOpNode api. New code should use cuGraphAddNode()
+
     Attributes
     ----------
     {{if 'CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st.ctx' in found_struct}}
@@ -1900,6 +1906,10 @@ cdef class CUlaunchAttributeValue_union:
     sharedMemCarveout : unsigned int
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
+    {{endif}}
+    {{if 'CUlaunchAttributeValue_union.nvlinkUtilCentricScheduling' in found_struct}}
+    nvlinkUtilCentricScheduling : unsigned int
+
     {{endif}}
 
     Methods
@@ -3085,8 +3095,8 @@ cdef class CUDA_RESOURCE_VIEW_DESC_st:
 
 cdef class CUtensorMap_st:
     """
-    Tensor map descriptor. Requires compiler support for aligning to 64
-    bytes.
+    Tensor map descriptor. Requires compiler support for aligning to
+    128 bytes.
 
     Attributes
     ----------
@@ -5016,17 +5026,21 @@ cdef class CUcheckpointCheckpointArgs_st:
     cdef cydriver.CUcheckpointCheckpointArgs_st _pvt_val
     cdef cydriver.CUcheckpointCheckpointArgs_st* _pvt_ptr
 {{endif}}
-{{if 'CUcheckpointRestoreArgs_st' in found_struct}}
+{{if 'CUcheckpointGpuPair_st' in found_struct}}
 
-cdef class CUcheckpointRestoreArgs_st:
+cdef class CUcheckpointGpuPair_st:
     """
-    CUDA checkpoint optional restore arguments
+    CUDA checkpoint GPU UUID pairs for device remapping during restore
 
     Attributes
     ----------
-    {{if 'CUcheckpointRestoreArgs_st.reserved' in found_struct}}
-    reserved : List[cuuint64_t]
-        Reserved for future use, must be zeroed
+    {{if 'CUcheckpointGpuPair_st.oldUuid' in found_struct}}
+    oldUuid : CUuuid
+        UUID of the GPU that was checkpointed
+    {{endif}}
+    {{if 'CUcheckpointGpuPair_st.newUuid' in found_struct}}
+    newUuid : CUuuid
+        UUID of the GPU to restore onto
     {{endif}}
 
     Methods
@@ -5034,8 +5048,14 @@ cdef class CUcheckpointRestoreArgs_st:
     getPtr()
         Get memory address of class instance
     """
-    cdef cydriver.CUcheckpointRestoreArgs_st _pvt_val
-    cdef cydriver.CUcheckpointRestoreArgs_st* _pvt_ptr
+    cdef cydriver.CUcheckpointGpuPair_st _pvt_val
+    cdef cydriver.CUcheckpointGpuPair_st* _pvt_ptr
+    {{if 'CUcheckpointGpuPair_st.oldUuid' in found_struct}}
+    cdef CUuuid _oldUuid
+    {{endif}}
+    {{if 'CUcheckpointGpuPair_st.newUuid' in found_struct}}
+    cdef CUuuid _newUuid
+    {{endif}}
 {{endif}}
 {{if 'CUcheckpointUnlockArgs_st' in found_struct}}
 
@@ -5123,6 +5143,19 @@ cdef class CUdevSmResource_st:
     smCount : unsigned int
         The amount of streaming multiprocessors available in this resource.
         This is an output parameter only, do not write to this field.
+    {{endif}}
+    {{if 'CUdevSmResource_st.minSmPartitionSize' in found_struct}}
+    minSmPartitionSize : unsigned int
+        The minimum number of streaming multiprocessors required to
+        partition this resource. This is an output parameter only, do not
+        write to this field.
+    {{endif}}
+    {{if 'CUdevSmResource_st.smCoscheduledAlignment' in found_struct}}
+    smCoscheduledAlignment : unsigned int
+        The number of streaming multiprocessors in this resource that are
+        guaranteed to be co-scheduled on the same GPU processing cluster.
+        smCount is a multiple of this value. This is an output parameter
+        only, do not write to this field.
     {{endif}}
 
     Methods
@@ -5483,23 +5516,26 @@ cdef class CUstreamBatchMemOpParams_v1(CUstreamBatchMemOpParams_union):
     ----------
     {{if 'CUstreamBatchMemOpParams_union.operation' in found_struct}}
     operation : CUstreamBatchMemOpType
-
+        Operation. This is the first field of all the union elemets and
+        acts as a TAG to determine which union member is valid.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.waitValue' in found_struct}}
     waitValue : CUstreamMemOpWaitValueParams_st
-
+        Params for CU_STREAM_MEM_OP_WAIT_VALUE_32 and
+        CU_STREAM_MEM_OP_WAIT_VALUE_64 operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.writeValue' in found_struct}}
     writeValue : CUstreamMemOpWriteValueParams_st
-
+        Params for CU_STREAM_MEM_OP_WRITE_VALUE_32 and
+        CU_STREAM_MEM_OP_WRITE_VALUE_64 operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.flushRemoteWrites' in found_struct}}
     flushRemoteWrites : CUstreamMemOpFlushRemoteWritesParams_st
-
+        Params for CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.memoryBarrier' in found_struct}}
     memoryBarrier : CUstreamMemOpMemoryBarrierParams_st
-
+        Params for CU_STREAM_MEM_OP_BARRIER operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.pad' in found_struct}}
     pad : List[cuuint64_t]
@@ -5523,23 +5559,26 @@ cdef class CUstreamBatchMemOpParams(CUstreamBatchMemOpParams_v1):
     ----------
     {{if 'CUstreamBatchMemOpParams_union.operation' in found_struct}}
     operation : CUstreamBatchMemOpType
-
+        Operation. This is the first field of all the union elemets and
+        acts as a TAG to determine which union member is valid.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.waitValue' in found_struct}}
     waitValue : CUstreamMemOpWaitValueParams_st
-
+        Params for CU_STREAM_MEM_OP_WAIT_VALUE_32 and
+        CU_STREAM_MEM_OP_WAIT_VALUE_64 operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.writeValue' in found_struct}}
     writeValue : CUstreamMemOpWriteValueParams_st
-
+        Params for CU_STREAM_MEM_OP_WRITE_VALUE_32 and
+        CU_STREAM_MEM_OP_WRITE_VALUE_64 operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.flushRemoteWrites' in found_struct}}
     flushRemoteWrites : CUstreamMemOpFlushRemoteWritesParams_st
-
+        Params for CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.memoryBarrier' in found_struct}}
     memoryBarrier : CUstreamMemOpMemoryBarrierParams_st
-
+        Params for CU_STREAM_MEM_OP_BARRIER operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.pad' in found_struct}}
     pad : List[cuuint64_t]
@@ -5557,6 +5596,9 @@ cdef class CUstreamBatchMemOpParams(CUstreamBatchMemOpParams_v1):
 
 cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1(CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st):
     """
+    Batch memory operation node parameters  Used in the legacy
+    cuGraphAddBatchMemOpNode api. New code should use cuGraphAddNode()
+
     Attributes
     ----------
     {{if 'CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st.ctx' in found_struct}}
@@ -5587,6 +5629,9 @@ cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS_v1(CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st)
 
 cdef class CUDA_BATCH_MEM_OP_NODE_PARAMS(CUDA_BATCH_MEM_OP_NODE_PARAMS_v1):
     """
+    Batch memory operation node parameters  Used in the legacy
+    cuGraphAddBatchMemOpNode api. New code should use cuGraphAddNode()
+
     Attributes
     ----------
     {{if 'CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st.ctx' in found_struct}}
@@ -6550,6 +6595,10 @@ cdef class CUlaunchAttributeValue(CUlaunchAttributeValue_union):
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
     {{endif}}
+    {{if 'CUlaunchAttributeValue_union.nvlinkUtilCentricScheduling' in found_struct}}
+    nvlinkUtilCentricScheduling : unsigned int
+
+    {{endif}}
 
     Methods
     -------
@@ -6747,6 +6796,10 @@ cdef class CUkernelNodeAttrValue_v1(CUlaunchAttributeValue):
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
     {{endif}}
+    {{if 'CUlaunchAttributeValue_union.nvlinkUtilCentricScheduling' in found_struct}}
+    nvlinkUtilCentricScheduling : unsigned int
+
+    {{endif}}
 
     Methods
     -------
@@ -6863,6 +6916,10 @@ cdef class CUkernelNodeAttrValue(CUkernelNodeAttrValue_v1):
     sharedMemCarveout : unsigned int
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
+    {{endif}}
+    {{if 'CUlaunchAttributeValue_union.nvlinkUtilCentricScheduling' in found_struct}}
+    nvlinkUtilCentricScheduling : unsigned int
+
     {{endif}}
 
     Methods
@@ -6981,6 +7038,10 @@ cdef class CUstreamAttrValue_v1(CUlaunchAttributeValue):
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
     {{endif}}
+    {{if 'CUlaunchAttributeValue_union.nvlinkUtilCentricScheduling' in found_struct}}
+    nvlinkUtilCentricScheduling : unsigned int
+
+    {{endif}}
 
     Methods
     -------
@@ -7097,6 +7158,10 @@ cdef class CUstreamAttrValue(CUstreamAttrValue_v1):
     sharedMemCarveout : unsigned int
         Value of launch attribute
         CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT.
+    {{endif}}
+    {{if 'CUlaunchAttributeValue_union.nvlinkUtilCentricScheduling' in found_struct}}
+    nvlinkUtilCentricScheduling : unsigned int
+
     {{endif}}
 
     Methods
@@ -8489,8 +8554,8 @@ cdef class CUDA_RESOURCE_VIEW_DESC(CUDA_RESOURCE_VIEW_DESC_v1):
 
 cdef class CUtensorMap(CUtensorMap_st):
     """
-    Tensor map descriptor. Requires compiler support for aligning to 64
-    bytes.
+    Tensor map descriptor. Requires compiler support for aligning to
+    128 bytes.
 
     Attributes
     ----------
@@ -10473,17 +10538,21 @@ cdef class CUcheckpointCheckpointArgs(CUcheckpointCheckpointArgs_st):
     """
     pass
 {{endif}}
-{{if 'CUcheckpointRestoreArgs' in found_types}}
+{{if 'CUcheckpointGpuPair' in found_types}}
 
-cdef class CUcheckpointRestoreArgs(CUcheckpointRestoreArgs_st):
+cdef class CUcheckpointGpuPair(CUcheckpointGpuPair_st):
     """
-    CUDA checkpoint optional restore arguments
+    CUDA checkpoint GPU UUID pairs for device remapping during restore
 
     Attributes
     ----------
-    {{if 'CUcheckpointRestoreArgs_st.reserved' in found_struct}}
-    reserved : List[cuuint64_t]
-        Reserved for future use, must be zeroed
+    {{if 'CUcheckpointGpuPair_st.oldUuid' in found_struct}}
+    oldUuid : CUuuid
+        UUID of the GPU that was checkpointed
+    {{endif}}
+    {{if 'CUcheckpointGpuPair_st.newUuid' in found_struct}}
+    newUuid : CUuuid
+        UUID of the GPU to restore onto
     {{endif}}
 
     Methods
@@ -10577,6 +10646,19 @@ cdef class CUdevSmResource(CUdevSmResource_st):
     smCount : unsigned int
         The amount of streaming multiprocessors available in this resource.
         This is an output parameter only, do not write to this field.
+    {{endif}}
+    {{if 'CUdevSmResource_st.minSmPartitionSize' in found_struct}}
+    minSmPartitionSize : unsigned int
+        The minimum number of streaming multiprocessors required to
+        partition this resource. This is an output parameter only, do not
+        write to this field.
+    {{endif}}
+    {{if 'CUdevSmResource_st.smCoscheduledAlignment' in found_struct}}
+    smCoscheduledAlignment : unsigned int
+        The number of streaming multiprocessors in this resource that are
+        guaranteed to be co-scheduled on the same GPU processing cluster.
+        smCount is a multiple of this value. This is an output parameter
+        only, do not write to this field.
     {{endif}}
 
     Methods

@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -56,7 +56,7 @@ jobs:
       # is resolved
 
       - name: Set up miniforge
-        uses: conda-incubator/setup-miniconda@505e6394dae86d6a5c7fbb6e3fb8938e3e863830  # v3.1.1
+        uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f  # v3.2.0
         with:
           activate-environment: cuda-python-docs
           environment-file: ./cuda_python/docs/environment-docs.yml
@@ -115,6 +115,19 @@ jobs:
           pwd
           ls -lahR .
 
+      - name: Download cuda-pathfinder build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        with:
+          name: cuda-pathfinder-wheel
+          path: ./cuda_pathfinder
+          run-id: ${{ inputs.run-id }}
+          github-token: ${{ github.token }}
+
+      - name: Display structure of downloaded cuda-pathfinder artifacts
+        run: |
+          pwd
+          ls -lahR cuda_pathfinder
+
       - name: Download cuda.bindings build artifacts
         if: ${{ !inputs.is-release }}
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
@@ -161,6 +174,10 @@ jobs:
 
       - name: Install all packages
         run: |
+          pushd cuda_pathfinder
+          pip install *.whl
+          popd
+
           pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
           pip install *.whl
           popd

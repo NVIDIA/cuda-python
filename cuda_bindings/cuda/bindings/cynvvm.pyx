@@ -1,8 +1,8 @@
-# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 11.0.3 to 12.9.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.0.0. Do not modify it directly.
 
 from ._internal cimport nvvm as _nvvm
 
@@ -10,6 +10,10 @@ from ._internal cimport nvvm as _nvvm
 ###############################################################################
 # Wrapper functions
 ###############################################################################
+
+cdef const char* nvvmGetErrorString(nvvmResult result) except?NULL nogil:
+    return _nvvm._nvvmGetErrorString(result)
+
 
 cdef nvvmResult nvvmVersion(int* major, int* minor) except?_NVVMRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvvm._nvvmVersion(major, minor)

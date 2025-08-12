@@ -1,10 +1,6 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
-#
-# Please refer to the NVIDIA end user license agreement (EULA) associated
-# with this source code for terms and conditions that govern your use of
-# this software. Any use, reproduction, disclosure, or distribution of
-# this software and related documentation outside the terms of the EULA
-# is strictly prohibited.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 import ctypes
 import os
 import sys
@@ -13,7 +9,8 @@ import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
 
-from cuda import cuda, cudart
+from cuda.bindings import driver as cuda
+from cuda.bindings import runtime as cudart
 
 systemWideAtomics = """\
 #define LOOP_NUM 50
@@ -182,7 +179,8 @@ def main():
         print("Unified Memory not supported on this device")
         return
 
-    if device_prop.computeMode == cudart.cudaComputeMode.cudaComputeModeProhibited:
+    computeMode = checkCudaErrors(cudart.cudaDeviceGetAttribute(cudart.cudaDeviceAttr.cudaDevAttrComputeMode, dev_id))
+    if computeMode == cudart.cudaComputeMode.cudaComputeModeProhibited:
         # This sample requires being run with a default or process exclusive mode
         print("This sample requires a device in either default or process exclusive mode")
         return

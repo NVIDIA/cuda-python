@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # distutils: language=c++
@@ -6,9 +6,7 @@ from libc.string cimport (
     memset,
     memcmp
     )
-# TODO: update to new module once the old ones are removed, we use the
-# tests to cover backward compatibility.
-cimport cuda.ccuda as ccuda
+cimport cuda.bindings.cydriver as ccuda
 
 def test_ccuda_memcpy():
     # Init CUDA
@@ -22,7 +20,7 @@ def test_ccuda_memcpy():
 
     # Construct context
     cdef ccuda.CUcontext ctx
-    err = ccuda.cuCtxCreate(&ctx, 0, device)
+    err = ccuda.cuCtxCreate(&ctx, NULL, 0, device)
     assert(err == 0)
 
     # Allocate dev memory

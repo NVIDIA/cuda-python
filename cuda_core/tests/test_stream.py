@@ -1,4 +1,4 @@
-# Copyright 2024 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
@@ -52,7 +52,7 @@ def test_stream_record(init_cuda):
 
 def test_stream_record_invalid_event(init_cuda):
     stream = Device().create_stream(options=StreamOptions())
-    with pytest.raises(TypeError):
+    with pytest.raises(AttributeError):
         stream.record(event="invalid_event")
 
 
@@ -80,6 +80,7 @@ def test_stream_context(init_cuda):
     stream = Device().create_stream(options=StreamOptions())
     context = stream.context
     assert context is not None
+    assert context._handle is not None
 
 
 def test_stream_from_foreign_stream(init_cuda):
@@ -110,3 +111,29 @@ def test_per_thread_default_stream():
 def test_default_stream():
     stream = default_stream()
     assert isinstance(stream, Stream)
+
+
+def test_stream_subclassing(init_cuda):
+    class MyStream(Stream):
+        pass
+
+    dev = Device()
+    dev.set_current()
+    stream = MyStream._init(options=StreamOptions(), device_id=dev.device_id)
+    assert isinstance(stream, MyStream)
+
+
+def test_stream_legacy_default_subclassing():
+    class MyStream(Stream):
+        pass
+
+    stream = MyStream._legacy_default()
+    assert isinstance(stream, MyStream)
+
+
+def test_stream_per_thread_default_subclassing():
+    class MyStream(Stream):
+        pass
+
+    stream = MyStream._per_thread_default()
+    assert isinstance(stream, MyStream)

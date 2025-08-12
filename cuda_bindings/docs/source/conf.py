@@ -1,4 +1,4 @@
-# Copyright (c) 2012-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2012-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # Configuration file for the Sphinx documentation builder.
@@ -35,6 +35,7 @@ release = os.environ["SPHINX_CUDA_BINDINGS_VER"]
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "myst_nb",
@@ -103,6 +104,7 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "nvvm": ("https://docs.nvidia.com/cuda/libnvvm-api/", None),
     "nvjitlink": ("https://docs.nvidia.com/cuda/nvjitlink/", None),
+    "cufile": ("https://docs.nvidia.com/gpudirect-storage/api-reference-guide/", None),
 }
 
 suppress_warnings = [

@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import weakref
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Tuple, Union
 from warnings import warn
 
 if TYPE_CHECKING:
@@ -57,6 +57,8 @@ class ProgramOptions:
 
     Attributes
     ----------
+    name : str, optional
+        Name of the program. If the compilation succeeds, the name is passed down to the generated `ObjectCode`.
     arch : str, optional
         Pass the SM architecture value, such as ``sm_<CC>`` (for generating CUBIN) or
         ``compute_<CC>`` (for generating PTX). If not provided, the current device's architecture
@@ -180,48 +182,51 @@ class ProgramOptions:
         Default: False
     """
 
-    arch: Optional[str] = None
-    relocatable_device_code: Optional[bool] = None
-    extensible_whole_program: Optional[bool] = None
-    debug: Optional[bool] = None
-    lineinfo: Optional[bool] = None
-    device_code_optimize: Optional[bool] = None
-    ptxas_options: Optional[Union[str, List[str], Tuple[str]]] = None
-    max_register_count: Optional[int] = None
-    ftz: Optional[bool] = None
-    prec_sqrt: Optional[bool] = None
-    prec_div: Optional[bool] = None
-    fma: Optional[bool] = None
-    use_fast_math: Optional[bool] = None
-    extra_device_vectorization: Optional[bool] = None
-    link_time_optimization: Optional[bool] = None
-    gen_opt_lto: Optional[bool] = None
-    define_macro: Optional[
-        Union[str, Tuple[str, str], List[Union[str, Tuple[str, str]]], Tuple[Union[str, Tuple[str, str]]]]
-    ] = None
-    undefine_macro: Optional[Union[str, List[str], Tuple[str]]] = None
-    include_path: Optional[Union[str, List[str], Tuple[str]]] = None
-    pre_include: Optional[Union[str, List[str], Tuple[str]]] = None
-    no_source_include: Optional[bool] = None
-    std: Optional[str] = None
-    builtin_move_forward: Optional[bool] = None
-    builtin_initializer_list: Optional[bool] = None
-    disable_warnings: Optional[bool] = None
-    restrict: Optional[bool] = None
-    device_as_default_execution_space: Optional[bool] = None
-    device_int128: Optional[bool] = None
-    optimization_info: Optional[str] = None
-    no_display_error_number: Optional[bool] = None
-    diag_error: Optional[Union[int, List[int], Tuple[int]]] = None
-    diag_suppress: Optional[Union[int, List[int], Tuple[int]]] = None
-    diag_warn: Optional[Union[int, List[int], Tuple[int]]] = None
-    brief_diagnostics: Optional[bool] = None
-    time: Optional[str] = None
-    split_compile: Optional[int] = None
-    fdevice_syntax_only: Optional[bool] = None
-    minimal: Optional[bool] = None
+    name: str | None = "<default program>"
+    arch: str | None = None
+    relocatable_device_code: bool | None = None
+    extensible_whole_program: bool | None = None
+    debug: bool | None = None
+    lineinfo: bool | None = None
+    device_code_optimize: bool | None = None
+    ptxas_options: Union[str, List[str], Tuple[str]] | None = None
+    max_register_count: int | None = None
+    ftz: bool | None = None
+    prec_sqrt: bool | None = None
+    prec_div: bool | None = None
+    fma: bool | None = None
+    use_fast_math: bool | None = None
+    extra_device_vectorization: bool | None = None
+    link_time_optimization: bool | None = None
+    gen_opt_lto: bool | None = None
+    define_macro: (
+        Union[str, Tuple[str, str], List[Union[str, Tuple[str, str]]], Tuple[Union[str, Tuple[str, str]]]] | None
+    ) = None
+    undefine_macro: Union[str, List[str], Tuple[str]] | None = None
+    include_path: Union[str, List[str], Tuple[str]] | None = None
+    pre_include: Union[str, List[str], Tuple[str]] | None = None
+    no_source_include: bool | None = None
+    std: str | None = None
+    builtin_move_forward: bool | None = None
+    builtin_initializer_list: bool | None = None
+    disable_warnings: bool | None = None
+    restrict: bool | None = None
+    device_as_default_execution_space: bool | None = None
+    device_int128: bool | None = None
+    optimization_info: str | None = None
+    no_display_error_number: bool | None = None
+    diag_error: Union[int, List[int], Tuple[int]] | None = None
+    diag_suppress: Union[int, List[int], Tuple[int]] | None = None
+    diag_warn: Union[int, List[int], Tuple[int]] | None = None
+    brief_diagnostics: bool | None = None
+    time: str | None = None
+    split_compile: int | None = None
+    fdevice_syntax_only: bool | None = None
+    minimal: bool | None = None
 
     def __post_init__(self):
+        self._name = self.name.encode()
+
         self._formatted_options = []
         if self.arch is not None:
             self._formatted_options.append(f"--gpu-architecture={self.arch}")
@@ -242,12 +247,12 @@ class ProgramOptions:
         if self.device_code_optimize is not None:
             self._formatted_options.append(f"--dopt={'on' if self.device_code_optimize else 'off'}")
         if self.ptxas_options is not None:
-            self._formatted_options.append("--ptxas-options")
+            opt_name = "--ptxas-options"
             if isinstance(self.ptxas_options, str):
-                self._formatted_options.append(self.ptxas_options)
+                self._formatted_options.append(f"{opt_name}={self.ptxas_options}")
             elif is_sequence(self.ptxas_options):
-                for option in self.ptxas_options:
-                    self._formatted_options.append(option)
+                for opt_value in self.ptxas_options:
+                    self._formatted_options.append(f"{opt_name}={opt_value}")
         if self.max_register_count is not None:
             self._formatted_options.append(f"--maxrregcount={self.max_register_count}")
         if self.ftz is not None:
@@ -396,7 +401,7 @@ class Program:
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
 
-            self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), b"", 0, [], []))
+            self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), options._name, 0, [], []))
             self._backend = "NVRTC"
             self._linker = None
 
@@ -413,6 +418,7 @@ class Program:
 
     def _translate_program_options(self, options: ProgramOptions) -> LinkerOptions:
         return LinkerOptions(
+            name=options.name,
             arch=options.arch,
             max_register_count=options.max_register_count,
             time=options.time,
@@ -505,7 +511,7 @@ class Program:
                     handle_return(nvrtc.nvrtcGetProgramLog(self._mnff.handle, log), handle=self._mnff.handle)
                     logs.write(log.decode("utf-8", errors="backslashreplace"))
 
-            return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping)
+            return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping, name=self._options.name)
 
         supported_backends = ("nvJitLink", "driver")
         if self._backend not in supported_backends:

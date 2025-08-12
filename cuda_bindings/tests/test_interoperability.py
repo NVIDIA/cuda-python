@@ -1,11 +1,11 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import numpy as np
 import pytest
 
-import cuda.cuda as cuda
-import cuda.cudart as cudart
+import cuda.bindings.driver as cuda
+import cuda.bindings.runtime as cudart
 
 
 def supportsMemoryPool():
@@ -18,7 +18,7 @@ def test_interop_stream():
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
     err_dr, device = cuda.cuDeviceGet(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(0, device)
+    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
     # DRV to RT
@@ -42,7 +42,7 @@ def test_interop_event():
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
     err_dr, device = cuda.cuDeviceGet(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(0, device)
+    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
     # DRV to RT
@@ -66,7 +66,7 @@ def test_interop_graph():
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
     err_dr, device = cuda.cuDeviceGet(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(0, device)
+    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
     # DRV to RT
@@ -90,7 +90,7 @@ def test_interop_graphNode():
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
     err_dr, device = cuda.cuDeviceGet(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(0, device)
+    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
     err_dr, graph = cuda.cuGraphCreate(0)
@@ -119,7 +119,7 @@ def test_interop_userObject():
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
     err_dr, device = cuda.cuDeviceGet(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(0, device)
+    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
     # cudaUserObject_t
@@ -134,7 +134,7 @@ def test_interop_function():
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
     err_dr, device = cuda.cuDeviceGet(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(0, device)
+    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
     # cudaFunction_t
@@ -150,7 +150,7 @@ def test_interop_memPool():
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
     err_dr, device = cuda.cuDeviceGet(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(0, device)
+    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
     # DRV to RT
@@ -174,7 +174,7 @@ def test_interop_graphExec():
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
     err_dr, device = cuda.cuDeviceGet(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(0, device)
+    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
     err_dr, graph = cuda.cuGraphCreate(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
@@ -209,7 +209,7 @@ def test_interop_deviceptr():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Construct context
-    err, ctx = cuda.cuCtxCreate(0, device)
+    err, ctx = cuda.cuCtxCreate(None, 0, device)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Allocate dev memory

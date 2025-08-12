@@ -1,3 +1,4 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 **************************************************************
@@ -8,8 +9,8 @@ CUDA Python is the home for accessing NVIDIA's CUDA platform from Python. It con
 
 * `cuda.core <https://nvidia.github.io/cuda-python/cuda-core/latest>`_: Pythonic access to CUDA Runtime and other core functionalities
 * `cuda.bindings <https://nvidia.github.io/cuda-python/cuda-bindings/latest>`_: Low-level Python bindings to CUDA C APIs
-* `cuda.cooperative <https://nvidia.github.io/cccl/cuda_cooperative/>`_: A Python package providing CCCL's reusable block-wide and warp-wide *device* primitives for use within Numba CUDA kernels
-* `cuda.parallel <https://nvidia.github.io/cccl/cuda_parallel/>`_: A Python package for easy access to CCCL's highly efficient and customizable parallel algorithms, like `sort`, `scan`, `reduce`, `transform`, etc, that are callable on the *host*
+* `cuda.cooperative <https://nvidia.github.io/cccl/python/cooperative>`_: A Python package providing CCCL's reusable block-wide and warp-wide *device* primitives for use within Numba CUDA kernels
+* `cuda.parallel <https://nvidia.github.io/cccl/python/parallel>`_: A Python package for easy access to CCCL's highly efficient and customizable parallel algorithms, like `sort`, `scan`, `reduce`, `transform`, etc, that are callable on the *host*
 * `numba.cuda <https://nvidia.github.io/numba-cuda/>`_: Numba's target for CUDA GPU programming by directly compiling a restricted subset of Python code into CUDA kernels and device functions following the CUDA execution model.
 
 For access to NVIDIA CPU & GPU Math Libraries, please refer to `nvmath-python <https://docs.nvidia.com/cuda/nvmath-python/latest>`_.
@@ -46,3 +47,4 @@ The list of available interfaces are:
 * NVRTC
 * nvJitLink
 * NVVM
+* cuFile

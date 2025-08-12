@@ -1,7 +1,7 @@
-# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 12.9.0. Do not modify it directly.
+# This code was automatically generated with version 13.0.0. Do not modify it directly.
 cimport cuda.bindings._bindings.cynvrtc as cynvrtc
 
 {{if 'nvrtcGetErrorString' in found_functions}}
@@ -68,18 +68,6 @@ cdef nvrtcResult nvrtcGetCUBINSize(nvrtcProgram prog, size_t* cubinSizeRet) exce
 
 cdef nvrtcResult nvrtcGetCUBIN(nvrtcProgram prog, char* cubin) except ?NVRTC_ERROR_INVALID_INPUT nogil:
     return cynvrtc._nvrtcGetCUBIN(prog, cubin)
-{{endif}}
-
-{{if 'nvrtcGetNVVMSize' in found_functions}}
-
-cdef nvrtcResult nvrtcGetNVVMSize(nvrtcProgram prog, size_t* nvvmSizeRet) except ?NVRTC_ERROR_INVALID_INPUT nogil:
-    return cynvrtc._nvrtcGetNVVMSize(prog, nvvmSizeRet)
-{{endif}}
-
-{{if 'nvrtcGetNVVM' in found_functions}}
-
-cdef nvrtcResult nvrtcGetNVVM(nvrtcProgram prog, char* nvvm) except ?NVRTC_ERROR_INVALID_INPUT nogil:
-    return cynvrtc._nvrtcGetNVVM(prog, nvvm)
 {{endif}}
 
 {{if 'nvrtcGetLTOIRSize' in found_functions}}

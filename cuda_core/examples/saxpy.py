@@ -1,6 +1,15 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+
+# ################################################################################
+#
+# This demo illustrates how to use `cuda.core` to compile a templated CUDA kernel
+# and launch it using `cupy` arrays as inputs. This is a simple example of a
+# templated kernel, where the kernel is instantiated for both `float` and `double`
+# data types.
+#
+# ################################################################################
 
 import sys
 
@@ -32,6 +41,10 @@ s = dev.create_stream()
 arch = "".join(f"{i}" for i in dev.compute_capability)
 program_options = ProgramOptions(std="c++11", arch=f"sm_{arch}")
 prog = Program(code, code_type="c++", options=program_options)
+
+# Note the use of the `name_expressions` argument to specify the template
+# instantiations of the kernel that we will use. For non-templated kernels,
+# `name_expressions` will simply contain the name of the kernels.
 mod = prog.compile(
     "cubin",
     logs=sys.stdout,

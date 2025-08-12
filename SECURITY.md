@@ -6,9 +6,9 @@ including all source code repositories managed through our organization.
 If you need to report a security issue, please use the appropriate contact points outlined
 below. **Please do not report security vulnerabilities through GitHub/GitLab.**
 
-## Reporting Potential Security Vulnerability in nvmath-python
+## Reporting Potential Security Vulnerability in CUDA Python
 
-To report a potential security vulnerability in nvmath-python:
+To report a potential security vulnerability in CUDA Python:
 
 - Web: [Security Vulnerability Submission
   Form](https://www.nvidia.com/object/submit-security-vulnerability.html)

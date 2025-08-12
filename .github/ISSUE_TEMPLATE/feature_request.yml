@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -22,6 +22,7 @@ body:
       description: What area does this request apply to?
       multiple: false
       options:
+        - cuda.pathfinder
         - cuda.bindings
         - cuda.core
         - General cuda-python

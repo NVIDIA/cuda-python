@@ -1,6 +1,13 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+
+# ################################################################################
+#
+# This demo illustrates the use of thread block clusters in the CUDA launch
+# configuration.
+#
+# ################################################################################
 
 import os
 import sys
@@ -12,7 +19,12 @@ cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
 if cuda_path is None:
     print("this demo requires a valid CUDA_PATH environment variable set", file=sys.stderr)
     sys.exit(0)
-cuda_include_path = os.path.join(cuda_path, "include")
+cuda_include = os.path.join(cuda_path, "include")
+assert os.path.isdir(cuda_include)
+include_path = [cuda_include]
+cccl_include = os.path.join(cuda_include, "cccl")
+if os.path.isdir(cccl_include):
+    include_path.insert(0, cccl_include)
 
 # print cluster info using a kernel
 code = r"""
@@ -47,7 +59,7 @@ dev.set_current()
 prog = Program(
     code,
     code_type="c++",
-    options=ProgramOptions(arch=f"sm_{arch}", std="c++17", include_path=cuda_include_path),
+    options=ProgramOptions(arch=f"sm_{arch}", std="c++17", include_path=include_path),
 )
 mod = prog.compile(target_type="cubin")
 ker = mod.get_kernel("check_cluster_info")

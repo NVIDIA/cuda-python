@@ -1,15 +1,12 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
-#
-# Please refer to the NVIDIA end user license agreement (EULA) associated
-# with this source code for terms and conditions that govern your use of
-# this software. Any use, reproduction, disclosure, or distribution of
-# this software and related documentation outside the terms of the EULA
-# is strictly prohibited.
+# Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 import ctypes
 
 import numpy as np
 
-from cuda import cuda, nvrtc
+from cuda.bindings import driver as cuda
+from cuda.bindings import nvrtc
 
 
 def ASSERT_DRV(err):
@@ -45,7 +42,7 @@ def main():
     ASSERT_DRV(err)
 
     # Ctx
-    err, context = cuda.cuCtxCreate(0, cuDevice)
+    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
     ASSERT_DRV(err)
 
     # Create program

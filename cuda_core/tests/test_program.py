@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -24,6 +24,7 @@ def ptx_code_object():
 @pytest.mark.parametrize(
     "options",
     [
+        ProgramOptions(name="abc"),
         ProgramOptions(device_code_optimize=True, debug=True),
         ProgramOptions(relocatable_device_code=True, max_register_count=32),
         ProgramOptions(ftz=True, prec_sqrt=False, prec_div=False),
@@ -43,6 +44,8 @@ def ptx_code_object():
         ProgramOptions(diag_error=1234, diag_suppress=1234),
         ProgramOptions(diag_error=[1234, 1223], diag_suppress=(1234, 1223)),
         ProgramOptions(diag_warn=1000),
+        ProgramOptions(std="c++11", ptxas_options=["-v"]),
+        ProgramOptions(std="c++11", ptxas_options=["-v", "-O2"]),
     ],
 )
 def test_cpp_program_with_various_options(init_cuda, options):
@@ -103,21 +106,23 @@ def test_program_init_invalid_code_format():
 # This is tested against the current device's arch
 def test_program_compile_valid_target_type(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
-    program = Program(code, "c++")
+    program = Program(code, "c++", options={"name": "42"})
 
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         ptx_object_code = program.compile("ptx")
+        assert isinstance(ptx_object_code, ObjectCode)
+        assert ptx_object_code.name == "42"
         if any("The CUDA driver version is older than the backend version" in str(warning.message) for warning in w):
             pytest.skip("PTX version too new for current driver")
+        ptx_kernel = ptx_object_code.get_kernel("my_kernel")
+        assert isinstance(ptx_kernel, Kernel)
 
-    program = Program(ptx_object_code._module.decode(), "ptx")
+    program = Program(ptx_object_code._module.decode(), "ptx", options={"name": "24"})
     cubin_object_code = program.compile("cubin")
-    ptx_kernel = ptx_object_code.get_kernel("my_kernel")
-    cubin_kernel = cubin_object_code.get_kernel("my_kernel")
-    assert isinstance(ptx_object_code, ObjectCode)
     assert isinstance(cubin_object_code, ObjectCode)
-    assert isinstance(ptx_kernel, Kernel)
+    assert cubin_object_code.name == "24"
+    cubin_kernel = cubin_object_code.get_kernel("my_kernel")
     assert isinstance(cubin_kernel, Kernel)
 
 

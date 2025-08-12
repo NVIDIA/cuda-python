@@ -1,3 +1,4 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 -------
@@ -46,11 +47,13 @@ This section describes the device management functions of the CUDA runtime appli
 .. autofunction:: cuda.bindings.runtime.cudaGetDeviceCount
 .. autofunction:: cuda.bindings.runtime.cudaGetDeviceProperties
 .. autofunction:: cuda.bindings.runtime.cudaDeviceGetAttribute
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetHostAtomicCapabilities
 .. autofunction:: cuda.bindings.runtime.cudaDeviceGetDefaultMemPool
 .. autofunction:: cuda.bindings.runtime.cudaDeviceSetMemPool
 .. autofunction:: cuda.bindings.runtime.cudaDeviceGetMemPool
 .. autofunction:: cuda.bindings.runtime.cudaDeviceGetNvSciSyncAttributes
 .. autofunction:: cuda.bindings.runtime.cudaDeviceGetP2PAttribute
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetP2PAtomicCapabilities
 .. autofunction:: cuda.bindings.runtime.cudaChooseDevice
 .. autofunction:: cuda.bindings.runtime.cudaInitDevice
 .. autofunction:: cuda.bindings.runtime.cudaSetDevice
@@ -97,9 +100,7 @@ This section describes the stream management functions of the CUDA runtime appli
 .. autofunction:: cuda.bindings.runtime.cudaStreamEndCapture
 .. autofunction:: cuda.bindings.runtime.cudaStreamIsCapturing
 .. autofunction:: cuda.bindings.runtime.cudaStreamGetCaptureInfo
-.. autofunction:: cuda.bindings.runtime.cudaStreamGetCaptureInfo_v3
 .. autofunction:: cuda.bindings.runtime.cudaStreamUpdateCaptureDependencies
-.. autofunction:: cuda.bindings.runtime.cudaStreamUpdateCaptureDependencies_v2
 
 Event Management
 ----------------
@@ -114,7 +115,6 @@ This section describes the event management functions of the CUDA runtime applic
 .. autofunction:: cuda.bindings.runtime.cudaEventSynchronize
 .. autofunction:: cuda.bindings.runtime.cudaEventDestroy
 .. autofunction:: cuda.bindings.runtime.cudaEventElapsedTime
-.. autofunction:: cuda.bindings.runtime.cudaEventElapsedTime_v2
 
 External Resource Interoperability
 ----------------------------------
@@ -219,9 +219,10 @@ Some functions have overloaded C++ API template versions documented separately i
 .. autofunction:: cuda.bindings.runtime.cudaMemset2DAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemset3DAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemPrefetchAsync
-.. autofunction:: cuda.bindings.runtime.cudaMemPrefetchAsync_v2
+.. autofunction:: cuda.bindings.runtime.cudaMemPrefetchBatchAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemDiscardBatchAsync
+.. autofunction:: cuda.bindings.runtime.cudaMemDiscardAndPrefetchBatchAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemAdvise
-.. autofunction:: cuda.bindings.runtime.cudaMemAdvise_v2
 .. autofunction:: cuda.bindings.runtime.cudaMemRangeGetAttribute
 .. autofunction:: cuda.bindings.runtime.cudaMemRangeGetAttributes
 .. autofunction:: cuda.bindings.runtime.make_cudaPitchedPtr
@@ -258,6 +259,9 @@ Whether or not a device supports the integrated stream ordered memory allocator 
 .. autofunction:: cuda.bindings.runtime.cudaMemPoolGetAccess
 .. autofunction:: cuda.bindings.runtime.cudaMemPoolCreate
 .. autofunction:: cuda.bindings.runtime.cudaMemPoolDestroy
+.. autofunction:: cuda.bindings.runtime.cudaMemGetDefaultMemPool
+.. autofunction:: cuda.bindings.runtime.cudaMemGetMemPool
+.. autofunction:: cuda.bindings.runtime.cudaMemSetMemPool
 .. autofunction:: cuda.bindings.runtime.cudaMallocFromPoolAsync
 .. autofunction:: cuda.bindings.runtime.cudaMemPoolExportToShareableHandle
 .. autofunction:: cuda.bindings.runtime.cudaMemPoolImportFromShareableHandle
@@ -480,6 +484,18 @@ Version Management
 .. autofunction:: cuda.bindings.runtime.cudaRuntimeGetVersion
 .. autofunction:: cuda.bindings.runtime.getLocalRuntimeVersion
 
+Error Log Management Functions
+------------------------------
+
+This section describes the error log management functions of the CUDA runtime application programming interface. The Error Log Management interface will operate on both the CUDA Driver and CUDA Runtime.
+
+.. autoclass:: cuda.bindings.runtime.cudaLogsCallback_t
+.. autofunction:: cuda.bindings.runtime.cudaLogsRegisterCallback
+.. autofunction:: cuda.bindings.runtime.cudaLogsUnregisterCallback
+.. autofunction:: cuda.bindings.runtime.cudaLogsCurrent
+.. autofunction:: cuda.bindings.runtime.cudaLogsDumpToFile
+.. autofunction:: cuda.bindings.runtime.cudaLogsDumpToMemory
+
 Graph Management
 ----------------
 
@@ -531,15 +547,10 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.bindings.runtime.cudaGraphGetNodes
 .. autofunction:: cuda.bindings.runtime.cudaGraphGetRootNodes
 .. autofunction:: cuda.bindings.runtime.cudaGraphGetEdges
-.. autofunction:: cuda.bindings.runtime.cudaGraphGetEdges_v2
 .. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetDependencies
-.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetDependencies_v2
 .. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetDependentNodes
-.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetDependentNodes_v2
 .. autofunction:: cuda.bindings.runtime.cudaGraphAddDependencies
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddDependencies_v2
 .. autofunction:: cuda.bindings.runtime.cudaGraphRemoveDependencies
-.. autofunction:: cuda.bindings.runtime.cudaGraphRemoveDependencies_v2
 .. autofunction:: cuda.bindings.runtime.cudaGraphDestroyNode
 .. autofunction:: cuda.bindings.runtime.cudaGraphInstantiate
 .. autofunction:: cuda.bindings.runtime.cudaGraphInstantiateWithFlags
@@ -569,7 +580,6 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.bindings.runtime.cudaGraphRetainUserObject
 .. autofunction:: cuda.bindings.runtime.cudaGraphReleaseUserObject
 .. autofunction:: cuda.bindings.runtime.cudaGraphAddNode
-.. autofunction:: cuda.bindings.runtime.cudaGraphAddNode_v2
 .. autofunction:: cuda.bindings.runtime.cudaGraphNodeSetParams
 .. autofunction:: cuda.bindings.runtime.cudaGraphExecNodeSetParams
 .. autofunction:: cuda.bindings.runtime.cudaGraphConditionalHandleCreate
@@ -2059,7 +2069,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorLaunchTimeout
 
 
-        This indicates that the device kernel took too long to execute. This can only occur if timeouts are enabled - see the device property :py:obj:`~.kernelExecTimeoutEnabled` for more information. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
+        This indicates that the device kernel took too long to execute. This can only occur if timeouts are enabled - see the device attribute :py:obj:`~.cudaDevAttrKernelExecTimeout` for more information. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorLaunchIncompatibleTexturing
@@ -2155,7 +2165,7 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorCooperativeLaunchTooLarge
 
 
-        This error indicates that the number of blocks launched per grid for a kernel that was launched via either :py:obj:`~.cudaLaunchCooperativeKernel` or :py:obj:`~.cudaLaunchCooperativeKernelMultiDevice` exceeds the maximum number of blocks as allowed by :py:obj:`~.cudaOccupancyMaxActiveBlocksPerMultiprocessor` or :py:obj:`~.cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags` times the number of multiprocessors as specified by the device attribute :py:obj:`~.cudaDevAttrMultiProcessorCount`.
+        This error indicates that the number of blocks launched per grid for a kernel that was launched via either :py:obj:`~.cudaLaunchCooperativeKernel` exceeds the maximum number of blocks as allowed by :py:obj:`~.cudaOccupancyMaxActiveBlocksPerMultiprocessor` or :py:obj:`~.cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags` times the number of multiprocessors as specified by the device attribute :py:obj:`~.cudaDevAttrMultiProcessorCount`.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorTensorMemoryLeak
@@ -3894,10 +3904,7 @@ Data types used by CUDA Runtime
         Device supports launching cooperative kernels via :py:obj:`~.cudaLaunchCooperativeKernel`
 
 
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrCooperativeMultiDeviceLaunch
-
-
-        Deprecated, cudaLaunchCooperativeKernelMultiDevice is deprecated.
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved96
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxSharedMemoryPerBlockOptin
@@ -3970,12 +3977,6 @@ Data types used by CUDA Runtime
 
 
         External timeline semaphore interop is supported on the device
-
-
-    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMaxTimelineSemaphoreInteropSupported
-
-
-        Deprecated, External timeline semaphore interop is supported on the device
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMemoryPoolsSupported
@@ -4116,6 +4117,21 @@ Data types used by CUDA Runtime
         Device supports HostNuma location IPC between nodes in a multi-node system.
 
 
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrHostMemoryPoolsSupported
+
+
+        Device suports HOST location with the :py:obj:`~.cuMemAllocAsync` and :py:obj:`~.cuMemPool` family of APIs
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrReserved145
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrOnlyPartialHostNativeAtomicSupported
+
+
+        Link between the device and the host supports only some native atomic operations
+
+
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceAttr.cudaDevAttrMax
 
 .. autoclass:: cuda.bindings.runtime.cudaMemPoolAttr
@@ -4172,6 +4188,12 @@ Data types used by CUDA Runtime
     .. autoattribute:: cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeInvalid
 
 
+    .. autoattribute:: cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeNone
+
+
+        Location is unspecified. This is used when creating a managed memory pool to indicate no preferred location for the pool
+
+
     .. autoattribute:: cuda.bindings.runtime.cudaMemLocationType.cudaMemLocationTypeDevice
 
 
@@ -4223,6 +4245,12 @@ Data types used by CUDA Runtime
 
 
         This allocation type is 'pinned', i.e. cannot migrate from its current location while the application is actively using it
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeManaged
+
+
+        This allocation type is managed memory
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaMemAllocationType.cudaMemAllocationTypeMax
@@ -4361,6 +4389,74 @@ Data types used by CUDA Runtime
 
 
         Accessing CUDA arrays over the link supported
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDeviceP2PAttr.cudaDevP2PAttrOnlyPartialNativeAtomicSupported
+
+
+        Only some CUDA-valid atomic operations over the link are supported.
+
+.. autoclass:: cuda.bindings.runtime.cudaAtomicOperation
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationIntegerAdd
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationIntegerMin
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationIntegerMax
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationIntegerIncrement
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationIntegerDecrement
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationAnd
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationOr
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationXOR
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationExchange
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationCAS
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationFloatAdd
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationFloatMin
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationFloatMax
+
+.. autoclass:: cuda.bindings.runtime.cudaAtomicOperationCapability
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperationCapability.cudaAtomicCapabilitySigned
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperationCapability.cudaAtomicCapabilityUnsigned
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperationCapability.cudaAtomicCapabilityReduction
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperationCapability.cudaAtomicCapabilityScalar32
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperationCapability.cudaAtomicCapabilityScalar64
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperationCapability.cudaAtomicCapabilityScalar128
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaAtomicOperationCapability.cudaAtomicCapabilityVector32x4
 
 .. autoclass:: cuda.bindings.runtime.cudaExternalMemoryHandleType
 
@@ -4699,10 +4795,10 @@ Data types used by CUDA Runtime
         Scope represented by a grid_group
 
 
-    .. autoattribute:: cuda.bindings.runtime.cudaCGScope.cudaCGScopeMultiGrid
+    .. autoattribute:: cuda.bindings.runtime.cudaCGScope.cudaCGScopeReserved
 
 
-        Scope represented by a multi_grid_group
+        Reserved
 
 .. autoclass:: cuda.bindings.runtime.cudaGraphConditionalHandleFlags
 
@@ -5247,6 +5343,20 @@ Data types used by CUDA Runtime
 
         Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting :py:obj:`~.cudaLaunchAttributeValue.sharedMemCarveout` to a percentage between 0-100 signals sets the shared memory carveout preference in percent of the total shared memory for that kernel launch. This attribute takes precedence over :py:obj:`~.cudaFuncAttributePreferredSharedMemoryCarveout`. This is only a hint, and the driver can choose a different configuration if required for the launch.
 
+
+    .. autoattribute:: cuda.bindings.runtime.cudaLaunchAttributeID.cudaLaunchAttributeNvlinkUtilCentricScheduling
+
+
+        Valid for streams, graph nodes, launches. This attribute is a hint to the CUDA runtime that the launch should attempt to make the kernel maximize its NVLINK utilization. 
+
+
+
+         When possible to honor this hint, CUDA will assume each block in the grid launch will carry out an even amount of NVLINK traffic, and make a best-effort attempt to adjust the kernel launch based on that assumption. 
+
+         This attribute is a hint only. CUDA makes no functional or performance guarantee. Its applicability can be affected by many different factors, including driver version (i.e. CUDA doesn't guarantee the performance characteristics will be maintained between driver versions or a driver update could alter or regress previously observed perf characteristics.) It also doesn't guarantee a successful result, i.e. applying the attribute may not improve the performance of either the targeted kernel or the encapsulating application. 
+
+         Valid values for :py:obj:`~.cudaLaunchAttributeValue.nvlinkUtilCentricScheduling` are 0 (disabled) and 1 (enabled).
+
 .. autoclass:: cuda.bindings.runtime.cudaDeviceNumaConfig
 
     .. autoattribute:: cuda.bindings.runtime.cudaDeviceNumaConfig.cudaDeviceNumaConfigNone
@@ -5266,6 +5376,13 @@ Data types used by CUDA Runtime
 
 
         Sent when the process has exceeded its device memory budget
+
+.. autoclass:: cuda.bindings.runtime.cudaLogLevel
+
+    .. autoattribute:: cuda.bindings.runtime.cudaLogLevel.cudaLogLevelError
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaLogLevel.cudaLogLevelWarning
 
 .. autoclass:: cuda.bindings.runtime.cudaSurfaceBoundaryMode
 
@@ -5387,6 +5504,8 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaAsyncCallbackHandle_t
 .. autoclass:: cuda.bindings.runtime.cudaAsyncNotificationInfo_t
 .. autoclass:: cuda.bindings.runtime.cudaAsyncCallback
+.. autoclass:: cuda.bindings.runtime.cudaLogsCallbackHandle
+.. autoclass:: cuda.bindings.runtime.cudaLogIterator
 .. autoclass:: cuda.bindings.runtime.cudaSurfaceObject_t
 .. autoclass:: cuda.bindings.runtime.cudaTextureObject_t
 .. autoattribute:: cuda.bindings.runtime.CUDA_EGL_MAX_PLANES
@@ -5605,14 +5724,6 @@ Data types used by CUDA Runtime
 
     Tell the CUDA runtime that DeviceFlags is being set in cudaInitDevice call
 
-.. autoattribute:: cuda.bindings.runtime.cudaCooperativeLaunchMultiDeviceNoPreSync
-
-    If set, each kernel launched as part of :py:obj:`~.cudaLaunchCooperativeKernelMultiDevice` only waits for prior work in the stream corresponding to that GPU to complete before the kernel begins execution.
-
-.. autoattribute:: cuda.bindings.runtime.cudaCooperativeLaunchMultiDeviceNoPostSync
-
-    If set, any subsequent work pushed in a stream that participated in a call to :py:obj:`~.cudaLaunchCooperativeKernelMultiDevice` will only wait for the kernel launched on the GPU corresponding to that stream to complete before it begins execution.
-
 .. autoattribute:: cuda.bindings.runtime.cudaArraySparsePropertiesSingleMipTail
 
     Indicates that the layered sparse CUDA array or CUDA mipmapped array has a single mip tail region for all layers
@@ -5679,6 +5790,7 @@ Data types used by CUDA Runtime
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeMemSyncDomain
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributePreferredSharedMemoryCarveout
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeDeviceUpdatableKernelNode
+.. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttributeNvlinkUtilCentricScheduling
 .. autoattribute:: cuda.bindings.runtime.cudaKernelNodeAttrValue
 .. autoattribute:: cuda.bindings.runtime.cudaSurfaceType1D
 .. autoattribute:: cuda.bindings.runtime.cudaSurfaceType2D

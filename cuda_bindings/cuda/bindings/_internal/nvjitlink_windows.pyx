@@ -1,14 +1,14 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 12.9.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.0.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
 from .utils import FunctionNotFoundError, NotSupportedError
 
-from cuda.bindings import path_finder
+from cuda.pathfinder import load_nvidia_dynamic_lib
 
 import win32api
 
@@ -61,7 +61,7 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
             raise RuntimeError('something went wrong')
 
         # Load library
-        handle = path_finder._load_nvidia_dynamic_library("nvJitLink").handle
+        handle = load_nvidia_dynamic_lib("nvJitLink")._handle_uint
 
         # Load function
         global __nvJitLinkCreate

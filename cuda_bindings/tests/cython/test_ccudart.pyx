@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # distutils: language=c++
@@ -6,9 +6,7 @@ from libc.string cimport (
     memset,
     memcmp
     )
-# TODO: update to new module once the old ones are removed, we use the
-# tests to cover backward compatibility.
-cimport cuda.ccudart as ccudart
+cimport cuda.bindings.cyruntime as ccudart
 
 def test_ccudart_memcpy():
     # Allocate dev memory
@@ -38,9 +36,9 @@ def test_ccudart_memcpy():
     err = ccudart.cudaFree(dptr)
     assert(err == ccudart.cudaSuccess)
 
-from cuda.ccudart cimport dim3
-from cuda.ccudart cimport cudaMemAllocationHandleType
-from cuda.ccudart cimport CUuuid, cudaUUID_t
+from cuda.bindings.cyruntime cimport dim3
+from cuda.bindings.cyruntime cimport cudaMemAllocationHandleType
+from cuda.bindings.cyruntime cimport CUuuid, cudaUUID_t
 
 cdef extern from *:
     """

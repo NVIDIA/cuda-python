@@ -1,4 +1,4 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import ctypes
@@ -6,10 +6,10 @@ import math
 
 import numpy as np
 import pytest
-from conftest import skipif_testing_with_compute_sanitizer
 
-import cuda.cuda as cuda
-import cuda.cudart as cudart
+import cuda.bindings.driver as cuda
+import cuda.bindings.runtime as cudart
+from cuda.bindings import runtime
 
 
 def isSuccess(err):
@@ -67,7 +67,6 @@ def test_cudart_memcpy():
     assertSuccess(err)
 
 
-@skipif_testing_with_compute_sanitizer
 def test_cudart_hostRegister():
     # Use hostRegister API to check for correct enum return values
     page_size = 80
@@ -293,86 +292,98 @@ def test_cudart_cudaGetDeviceProperties():
     err, prop = cudart.cudaGetDeviceProperties(0)
     assertSuccess(err)
     attrs = [
-        "accessPolicyMaxWindowSize",
-        "asyncEngineCount",
-        "canMapHostMemory",
-        "canUseHostPointerForRegisteredMem",
-        "clockRate",
-        "computeMode",
-        "computePreemptionSupported",
-        "concurrentKernels",
-        "concurrentManagedAccess",
-        "cooperativeLaunch",
-        "cooperativeMultiDeviceLaunch",
-        "deviceOverlap",
-        "directManagedMemAccessFromHost",
-        "getPtr",
-        "globalL1CacheSupported",
-        "hostNativeAtomicSupported",
-        "integrated",
-        "isMultiGpuBoard",
-        "kernelExecTimeoutEnabled",
-        "l2CacheSize",
-        "localL1CacheSupported",
+        "name",
+        "uuid",
         "luid",
         "luidDeviceNodeMask",
-        "major",
-        "managedMemory",
-        "maxBlocksPerMultiProcessor",
+        "totalGlobalMem",
+        "sharedMemPerBlock",
+        "regsPerBlock",
+        "warpSize",
+        "memPitch",
+        "maxThreadsPerBlock",
+        "maxThreadsDim",
         "maxGridSize",
-        "maxSurface1D",
-        "maxSurface1DLayered",
-        "maxSurface2D",
-        "maxSurface2DLayered",
-        "maxSurface3D",
-        "maxSurfaceCubemap",
-        "maxSurfaceCubemapLayered",
+        "totalConstMem",
+        "major",
+        "minor",
+        "textureAlignment",
+        "texturePitchAlignment",
+        "multiProcessorCount",
+        "integrated",
+        "canMapHostMemory",
         "maxTexture1D",
-        "maxTexture1DLayered",
-        "maxTexture1DLinear",
         "maxTexture1DMipmap",
         "maxTexture2D",
-        "maxTexture2DGather",
-        "maxTexture2DLayered",
-        "maxTexture2DLinear",
         "maxTexture2DMipmap",
+        "maxTexture2DLinear",
+        "maxTexture2DGather",
         "maxTexture3D",
         "maxTexture3DAlt",
         "maxTextureCubemap",
+        "maxTexture1DLayered",
+        "maxTexture2DLayered",
         "maxTextureCubemapLayered",
-        "maxThreadsDim",
-        "maxThreadsPerBlock",
-        "maxThreadsPerMultiProcessor",
-        "memPitch",
-        "memoryBusWidth",
-        "memoryClockRate",
-        "minor",
-        "multiGpuBoardGroupID",
-        "multiProcessorCount",
-        "name",
-        "pageableMemoryAccess",
-        "pageableMemoryAccessUsesHostPageTables",
+        "maxSurface1D",
+        "maxSurface2D",
+        "maxSurface3D",
+        "maxSurface1DLayered",
+        "maxSurface2DLayered",
+        "maxSurfaceCubemap",
+        "maxSurfaceCubemapLayered",
+        "surfaceAlignment",
+        "concurrentKernels",
+        "ECCEnabled",
         "pciBusID",
         "pciDeviceID",
         "pciDomainID",
-        "persistingL2CacheMaxSize",
-        "regsPerBlock",
-        "regsPerMultiprocessor",
-        "reservedSharedMemPerBlock",
-        "sharedMemPerBlock",
-        "sharedMemPerBlockOptin",
-        "sharedMemPerMultiprocessor",
-        "singleToDoublePrecisionPerfRatio",
-        "streamPrioritiesSupported",
-        "surfaceAlignment",
         "tccDriver",
-        "textureAlignment",
-        "texturePitchAlignment",
-        "totalConstMem",
-        "totalGlobalMem",
+        "asyncEngineCount",
         "unifiedAddressing",
-        "uuid",
-        "warpSize",
+        "memoryBusWidth",
+        "l2CacheSize",
+        "persistingL2CacheMaxSize",
+        "maxThreadsPerMultiProcessor",
+        "streamPrioritiesSupported",
+        "globalL1CacheSupported",
+        "localL1CacheSupported",
+        "sharedMemPerMultiprocessor",
+        "regsPerMultiprocessor",
+        "managedMemory",
+        "isMultiGpuBoard",
+        "multiGpuBoardGroupID",
+        "hostNativeAtomicSupported",
+        "pageableMemoryAccess",
+        "concurrentManagedAccess",
+        "computePreemptionSupported",
+        "canUseHostPointerForRegisteredMem",
+        "cooperativeLaunch",
+        "sharedMemPerBlockOptin",
+        "pageableMemoryAccessUsesHostPageTables",
+        "directManagedMemAccessFromHost",
+        "maxBlocksPerMultiProcessor",
+        "accessPolicyMaxWindowSize",
+        "reservedSharedMemPerBlock",
+        "hostRegisterSupported",
+        "sparseCudaArraySupported",
+        "hostRegisterReadOnlySupported",
+        "timelineSemaphoreInteropSupported",
+        "memoryPoolsSupported",
+        "gpuDirectRDMASupported",
+        "gpuDirectRDMAFlushWritesOptions",
+        "gpuDirectRDMAWritesOrdering",
+        "memoryPoolSupportedHandleTypes",
+        "deferredMappingCudaArraySupported",
+        "ipcEventSupported",
+        "clusterLaunch",
+        "unifiedFunctionPointers",
+        "deviceNumaConfig",
+        "deviceNumaId",
+        "mpsEnabled",
+        "hostNumaId",
+        "gpuPciDeviceID",
+        "gpuPciSubsystemID",
+        "hostNumaMultinodeIpcSupported",
     ]
     for attr in attrs:
         assert hasattr(prop, attr)
@@ -1363,8 +1374,29 @@ def test_cudart_conditional():
 
     assert len(params.conditional.phGraph_out) == 1
     assert int(params.conditional.phGraph_out[0]) == 0
-    err, node = cudart.cudaGraphAddNode(graph, None, 0, params)
+    err, node = cudart.cudaGraphAddNode(graph, None, None, 0, params)
     assertSuccess(err)
 
     assert len(params.conditional.phGraph_out) == 1
     assert int(params.conditional.phGraph_out[0]) != 0
+
+
+@pytest.mark.parametrize(
+    "target",
+    (
+        runtime.cudaStream_t,
+        runtime.cudaEvent_t,
+        runtime.cudaGraph_t,
+        runtime.cudaGraphNode_t,
+        runtime.cudaGraphExec_t,
+        runtime.cudaMemPool_t,
+    ),
+)
+def test_struct_pointer_comparison(target):
+    a = target(123)
+    b = target(123)
+    assert a == b
+    assert hash(a) == hash(b)
+    c = target(456)
+    assert a != c
+    assert hash(a) != hash(c)

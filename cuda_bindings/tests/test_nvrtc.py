@@ -1,9 +1,9 @@
-# Copyright 2021-2024 NVIDIA Corporation.  All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import pytest
 
-from cuda import nvrtc
+from cuda.bindings import nvrtc
 
 
 def ASSERT_DRV(err):

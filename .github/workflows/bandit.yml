@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -20,4 +20,4 @@ jobs:
       security-events: write
     steps:
       - name: Perform Bandit Analysis
-        uses: PyCQA/bandit-action@8a1b30610f61f3f792fe7556e888c9d7dffa52de  # v1.0.0
+        uses: PyCQA/bandit-action@67a458d90fa11fb1463e91e7f4c8f068b5863c7f  # v1.0.1

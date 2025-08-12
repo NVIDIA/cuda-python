@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
@@ -24,7 +24,7 @@ cdef extern from * nogil:
             if (own_data)
                 manager_.reset(data);
             else
-                raw_data_ = data;       
+                raw_data_ = data;
         }
 
         nullable_unique_ptr(const nullable_unique_ptr&) = delete;
@@ -39,7 +39,7 @@ cdef extern from * nogil:
             {
                 manager_ = std::move(other.manager_);
                 raw_data_ = nullptr;  // just in case
-            }   
+            }
             else
             {
                 manager_.reset(nullptr);  // just in case
@@ -55,7 +55,7 @@ cdef extern from * nogil:
             {
                 manager_ = std::move(other.manager_);
                 raw_data_ = nullptr;  // just in case
-            }   
+            }
             else
             {
                 manager_.reset(nullptr);  // just in case

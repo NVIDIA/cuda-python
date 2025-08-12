@@ -1,3 +1,4 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 ------
@@ -84,7 +85,7 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUgraphNodeParams_st
 .. autoclass:: cuda.bindings.driver.CUcheckpointLockArgs_st
 .. autoclass:: cuda.bindings.driver.CUcheckpointCheckpointArgs_st
-.. autoclass:: cuda.bindings.driver.CUcheckpointRestoreArgs_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointGpuPair_st
 .. autoclass:: cuda.bindings.driver.CUcheckpointUnlockArgs_st
 .. autoclass:: cuda.bindings.driver.CUeglFrame_st
 .. autoclass:: cuda.bindings.driver.CUipcMem_flags
@@ -1339,7 +1340,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NATIVE_ATOMIC_SUPPORTED
 
 
-        Link between the device and the host supports native atomic operations
+        Link between the device and the host supports all native atomic operations
 
 
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SINGLE_TO_DOUBLE_PRECISION_PERF_RATIO
@@ -1690,6 +1691,30 @@ Data types used by CUDA driver
         Device supports HOST_NUMA location IPC between nodes in a multi-node system.
 
 
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_MEMORY_POOLS_SUPPORTED
+
+
+        Device suports HOST location with the :py:obj:`~.cuMemAllocAsync` and :py:obj:`~.cuMemPool` family of APIs
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED
+
+
+        Device supports HOST location with the virtual memory management APIs like :py:obj:`~.cuMemCreate`, :py:obj:`~.cuMemMap` and related APIs
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED
+
+
+        Device supports page-locked host memory buffer sharing with dma_buf mechanism.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED
+
+
+        Link between the device and the host supports only some native atomic operations
+
+
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX
 
 .. autoclass:: cuda.bindings.driver.CUpointer_attribute
@@ -1872,7 +1897,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
 
 
-        The maximum size in bytes of dynamically-allocated shared memory that can be used by this function. If the user-specified dynamic shared memory size is larger than this value, the launch will fail. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
+        The maximum size in bytes of dynamically-allocated shared memory that can be used by this function. If the user-specified dynamic shared memory size is larger than this value, the launch will fail. The default value of this attribute is :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK` - :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES`, except when :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES` is greater than :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK`, then the default value of this attribute is 0. The value can be increased to :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN` - :py:obj:`~.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES`. See :py:obj:`~.cuFuncSetAttribute`, :py:obj:`~.cuKernelSetAttribute`
 
 
     .. autoattribute:: cuda.bindings.driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
@@ -2488,6 +2513,14 @@ Data types used by CUDA driver
         Applies to: compiler only
 
 
+    .. autoattribute:: cuda.bindings.driver.CUjit_option.CU_JIT_SPLIT_COMPILE
+
+
+        This option specifies the maximum number of concurrent threads to use when running compiler optimizations. If the specified value is 1, the option will be ignored. If the specified value is 0, the number of threads will match the number of CPUs on the underlying machine. Otherwise, if the option is N, then up to N threads will be used. Option type: unsigned int
+
+        Applies to: compiler only
+
+
     .. autoattribute:: cuda.bindings.driver.CUjit_option.CU_JIT_NUM_OPTIONS
 
 .. autoclass:: cuda.bindings.driver.CUjit_target
@@ -2606,10 +2639,10 @@ Data types used by CUDA driver
         Compute device class 10.0.
 
 
-    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_101
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_110
 
 
-        Compute device class 10.1.
+        Compute device class 11.0.
 
 
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_103
@@ -2639,10 +2672,10 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_100A
 
 
-        Compute device class 10.1 with accelerated features.
+        Compute device class 11.0 with accelerated features.
 
 
-    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_101A
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_110A
 
 
         Compute device class 10.3. with accelerated features.
@@ -2669,10 +2702,10 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_100F
 
 
-        Compute device class 10.1 with family features.
+        Compute device class 11.0 with family features.
 
 
-    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_101F
+    .. autoattribute:: cuda.bindings.driver.CUjit_target.CU_TARGET_COMPUTE_110F
 
 
         Compute device class 10.3. with family features.
@@ -3045,7 +3078,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_BATCH_MEM_OP
 
 
-        Batch MemOp Node
+        Batch MemOp Node See :py:obj:`~.cuStreamBatchMemOp` and :py:obj:`~.CUstreamBatchMemOpType` for what these nodes can do.
 
 
     .. autoattribute:: cuda.bindings.driver.CUgraphNodeType.CU_GRAPH_NODE_TYPE_CONDITIONAL
@@ -3285,6 +3318,20 @@ Data types used by CUDA driver
 
         Valid for launches. On devices where the L1 cache and shared memory use the same hardware resources, setting :py:obj:`~.CUlaunchAttributeValue.sharedMemCarveout` to a percentage between 0-100 signals the CUDA driver to set the shared memory carveout preference, in percent of the total shared memory for that kernel launch. This attribute takes precedence over :py:obj:`~.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT`. This is only a hint, and the CUDA driver can choose a different configuration if required for the launch.
 
+
+    .. autoattribute:: cuda.bindings.driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_NVLINK_UTIL_CENTRIC_SCHEDULING
+
+
+        Valid for streams, graph nodes, launches. This attribute is a hint to the CUDA runtime that the launch should attempt to make the kernel maximize its NVLINK utilization. 
+
+
+
+         When possible to honor this hint, CUDA will assume each block in the grid launch will carry out an even amount of NVLINK traffic, and make a best-effort attempt to adjust the kernel launch based on that assumption. 
+
+         This attribute is a hint only. CUDA makes no functional or performance guarantee. Its applicability can be affected by many different factors, including driver version (i.e. CUDA doesn't guarantee the performance characteristics will be maintained between driver versions or a driver update could alter or regress previously observed perf characteristics.) It also doesn't guarantee a successful result, i.e. applying the attribute may not improve the performance of either the targeted kernel or the encapsulating application. 
+
+         Valid values for :py:obj:`~.CUlaunchAttributeValue`::nvlinkUtilCentricScheduling are 0 (disabled) and 1 (enabled).
+
 .. autoclass:: cuda.bindings.driver.CUstreamCaptureStatus
 
     .. autoattribute:: cuda.bindings.driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE
@@ -3445,6 +3492,12 @@ Data types used by CUDA driver
 
 
         This indicates that the CUDA driver that the application has loaded is a stub library. Applications that run with the stub rather than a real driver loaded will result in CUDA API returning this error.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_CALL_REQUIRES_NEWER_DRIVER
+
+
+        This indicates that the API call requires a newer CUDA driver than the one currently installed. Users should install an updated NVIDIA CUDA driver to allow the API call to succeed.
 
 
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_DEVICE_UNAVAILABLE
@@ -4003,7 +4056,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUdevice_P2PAttribute.CU_DEVICE_P2P_ATTRIBUTE_NATIVE_ATOMIC_SUPPORTED
 
 
-        Atomic operation over the link supported
+        All CUDA-valid atomic operation over the link are supported
 
 
     .. autoattribute:: cuda.bindings.driver.CUdevice_P2PAttribute.CU_DEVICE_P2P_ATTRIBUTE_ACCESS_ACCESS_SUPPORTED
@@ -4016,6 +4069,77 @@ Data types used by CUDA driver
 
 
         Accessing CUDA arrays over the link supported
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevice_P2PAttribute.CU_DEVICE_P2P_ATTRIBUTE_ONLY_PARTIAL_NATIVE_ATOMIC_SUPPORTED
+
+
+        Only some CUDA-valid atomic operations over the link are supported.
+
+.. autoclass:: cuda.bindings.driver.CUatomicOperation
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_ADD
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_MIN
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_MAX
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_INCREMENT
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_DECREMENT
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_AND
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_OR
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_XOR
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_EXCHANGE
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_CAS
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_FLOAT_ADD
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_FLOAT_MIN
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_FLOAT_MAX
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_MAX
+
+.. autoclass:: cuda.bindings.driver.CUatomicOperationCapability
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_SIGNED
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_UNSIGNED
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_REDUCTION
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_SCALAR_32
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_SCALAR_64
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_SCALAR_128
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_VECTOR_32x4
 
 .. autoclass:: cuda.bindings.driver.CUresourceViewFormat
 
@@ -4404,6 +4528,12 @@ Data types used by CUDA driver
 
         Handle is an NvSciBuf object
 
+
+    .. autoattribute:: cuda.bindings.driver.CUexternalMemoryHandleType.CU_EXTERNAL_MEMORY_HANDLE_TYPE_DMABUF_FD
+
+
+        Handle is a dma_buf file descriptor
+
 .. autoclass:: cuda.bindings.driver.CUexternalSemaphoreHandleType
 
     .. autoattribute:: cuda.bindings.driver.CUexternalSemaphoreHandleType.CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD
@@ -4526,6 +4656,12 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_INVALID
 
 
+    .. autoattribute:: cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE
+
+
+        Location is unspecified. This is used when creating a managed memory pool to indicate no preferred location for the pool
+
+
     .. autoattribute:: cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
 
 
@@ -4561,6 +4697,12 @@ Data types used by CUDA driver
 
 
         This allocation type is 'pinned', i.e. cannot migrate from its current location while the application is actively using it
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
+
+
+        This allocation type is managed memory
 
 
     .. autoattribute:: cuda.bindings.driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MAX
@@ -5959,7 +6101,7 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUgraphNodeParams
 .. autoclass:: cuda.bindings.driver.CUcheckpointLockArgs
 .. autoclass:: cuda.bindings.driver.CUcheckpointCheckpointArgs
-.. autoclass:: cuda.bindings.driver.CUcheckpointRestoreArgs
+.. autoclass:: cuda.bindings.driver.CUcheckpointGpuPair
 .. autoclass:: cuda.bindings.driver.CUcheckpointUnlockArgs
 .. autoclass:: cuda.bindings.driver.CUeglFrame_v1
 .. autoclass:: cuda.bindings.driver.CUeglFrame
@@ -6254,11 +6396,11 @@ This section describes the device management functions of the low-level CUDA dri
 .. autofunction:: cuda.bindings.driver.cuDeviceGetCount
 .. autofunction:: cuda.bindings.driver.cuDeviceGetName
 .. autofunction:: cuda.bindings.driver.cuDeviceGetUuid
-.. autofunction:: cuda.bindings.driver.cuDeviceGetUuid_v2
 .. autofunction:: cuda.bindings.driver.cuDeviceGetLuid
 .. autofunction:: cuda.bindings.driver.cuDeviceTotalMem
 .. autofunction:: cuda.bindings.driver.cuDeviceGetTexture1DLinearMaxWidth
 .. autofunction:: cuda.bindings.driver.cuDeviceGetAttribute
+.. autofunction:: cuda.bindings.driver.cuDeviceGetHostAtomicCapabilities
 .. autofunction:: cuda.bindings.driver.cuDeviceGetNvSciSyncAttributes
 .. autofunction:: cuda.bindings.driver.cuDeviceSetMemPool
 .. autofunction:: cuda.bindings.driver.cuDeviceGetMemPool
@@ -6291,18 +6433,18 @@ This section describes the context management functions of the low-level CUDA dr
 Please note that some functions are described in Primary Context Management section.
 
 .. autofunction:: cuda.bindings.driver.cuCtxCreate
-.. autofunction:: cuda.bindings.driver.cuCtxCreate_v3
-.. autofunction:: cuda.bindings.driver.cuCtxCreate_v4
 .. autofunction:: cuda.bindings.driver.cuCtxDestroy
 .. autofunction:: cuda.bindings.driver.cuCtxPushCurrent
 .. autofunction:: cuda.bindings.driver.cuCtxPopCurrent
 .. autofunction:: cuda.bindings.driver.cuCtxSetCurrent
 .. autofunction:: cuda.bindings.driver.cuCtxGetCurrent
 .. autofunction:: cuda.bindings.driver.cuCtxGetDevice
+.. autofunction:: cuda.bindings.driver.cuCtxGetDevice_v2
 .. autofunction:: cuda.bindings.driver.cuCtxGetFlags
 .. autofunction:: cuda.bindings.driver.cuCtxSetFlags
 .. autofunction:: cuda.bindings.driver.cuCtxGetId
 .. autofunction:: cuda.bindings.driver.cuCtxSynchronize
+.. autofunction:: cuda.bindings.driver.cuCtxSynchronize_v2
 .. autofunction:: cuda.bindings.driver.cuCtxSetLimit
 .. autofunction:: cuda.bindings.driver.cuCtxGetLimit
 .. autofunction:: cuda.bindings.driver.cuCtxGetCacheConfig
@@ -6535,6 +6677,9 @@ Whether or not a device supports the integrated stream ordered memory allocator 
 .. autofunction:: cuda.bindings.driver.cuMemPoolGetAccess
 .. autofunction:: cuda.bindings.driver.cuMemPoolCreate
 .. autofunction:: cuda.bindings.driver.cuMemPoolDestroy
+.. autofunction:: cuda.bindings.driver.cuMemGetDefaultMemPool
+.. autofunction:: cuda.bindings.driver.cuMemGetMemPool
+.. autofunction:: cuda.bindings.driver.cuMemSetMemPool
 .. autofunction:: cuda.bindings.driver.cuMemAllocFromPoolAsync
 .. autofunction:: cuda.bindings.driver.cuMemPoolExportToShareableHandle
 .. autofunction:: cuda.bindings.driver.cuMemPoolImportFromShareableHandle
@@ -6650,9 +6795,10 @@ This device address may be queried using cuMemHostGetDevicePointer() when a cont
 
 .. autofunction:: cuda.bindings.driver.cuPointerGetAttribute
 .. autofunction:: cuda.bindings.driver.cuMemPrefetchAsync
-.. autofunction:: cuda.bindings.driver.cuMemPrefetchAsync_v2
 .. autofunction:: cuda.bindings.driver.cuMemAdvise
-.. autofunction:: cuda.bindings.driver.cuMemAdvise_v2
+.. autofunction:: cuda.bindings.driver.cuMemPrefetchBatchAsync
+.. autofunction:: cuda.bindings.driver.cuMemDiscardBatchAsync
+.. autofunction:: cuda.bindings.driver.cuMemDiscardAndPrefetchBatchAsync
 .. autofunction:: cuda.bindings.driver.cuMemRangeGetAttribute
 .. autofunction:: cuda.bindings.driver.cuMemRangeGetAttributes
 .. autofunction:: cuda.bindings.driver.cuPointerSetAttribute
@@ -6679,9 +6825,7 @@ This section describes the stream management functions of the low-level CUDA dri
 .. autofunction:: cuda.bindings.driver.cuStreamEndCapture
 .. autofunction:: cuda.bindings.driver.cuStreamIsCapturing
 .. autofunction:: cuda.bindings.driver.cuStreamGetCaptureInfo
-.. autofunction:: cuda.bindings.driver.cuStreamGetCaptureInfo_v3
 .. autofunction:: cuda.bindings.driver.cuStreamUpdateCaptureDependencies
-.. autofunction:: cuda.bindings.driver.cuStreamUpdateCaptureDependencies_v2
 .. autofunction:: cuda.bindings.driver.cuStreamAttachMemAsync
 .. autofunction:: cuda.bindings.driver.cuStreamQuery
 .. autofunction:: cuda.bindings.driver.cuStreamSynchronize
@@ -6702,7 +6846,6 @@ This section describes the event management functions of the low-level CUDA driv
 .. autofunction:: cuda.bindings.driver.cuEventSynchronize
 .. autofunction:: cuda.bindings.driver.cuEventDestroy
 .. autofunction:: cuda.bindings.driver.cuEventElapsedTime
-.. autofunction:: cuda.bindings.driver.cuEventElapsedTime_v2
 
 External Resource Interoperability
 ----------------------------------
@@ -6832,15 +6975,10 @@ This section describes the graph management functions of the low-level CUDA driv
 .. autofunction:: cuda.bindings.driver.cuGraphGetNodes
 .. autofunction:: cuda.bindings.driver.cuGraphGetRootNodes
 .. autofunction:: cuda.bindings.driver.cuGraphGetEdges
-.. autofunction:: cuda.bindings.driver.cuGraphGetEdges_v2
 .. autofunction:: cuda.bindings.driver.cuGraphNodeGetDependencies
-.. autofunction:: cuda.bindings.driver.cuGraphNodeGetDependencies_v2
 .. autofunction:: cuda.bindings.driver.cuGraphNodeGetDependentNodes
-.. autofunction:: cuda.bindings.driver.cuGraphNodeGetDependentNodes_v2
 .. autofunction:: cuda.bindings.driver.cuGraphAddDependencies
-.. autofunction:: cuda.bindings.driver.cuGraphAddDependencies_v2
 .. autofunction:: cuda.bindings.driver.cuGraphRemoveDependencies
-.. autofunction:: cuda.bindings.driver.cuGraphRemoveDependencies_v2
 .. autofunction:: cuda.bindings.driver.cuGraphDestroyNode
 .. autofunction:: cuda.bindings.driver.cuGraphInstantiate
 .. autofunction:: cuda.bindings.driver.cuGraphInstantiateWithParams
@@ -6871,7 +7009,6 @@ This section describes the graph management functions of the low-level CUDA driv
 .. autofunction:: cuda.bindings.driver.cuGraphRetainUserObject
 .. autofunction:: cuda.bindings.driver.cuGraphReleaseUserObject
 .. autofunction:: cuda.bindings.driver.cuGraphAddNode
-.. autofunction:: cuda.bindings.driver.cuGraphAddNode_v2
 .. autofunction:: cuda.bindings.driver.cuGraphNodeSetParams
 .. autofunction:: cuda.bindings.driver.cuGraphExecNodeSetParams
 .. autofunction:: cuda.bindings.driver.cuGraphConditionalHandleCreate
@@ -6928,6 +7065,7 @@ This section describes the direct peer context memory access functions of the lo
 .. autofunction:: cuda.bindings.driver.cuCtxEnablePeerAccess
 .. autofunction:: cuda.bindings.driver.cuCtxDisablePeerAccess
 .. autofunction:: cuda.bindings.driver.cuDeviceGetP2PAttribute
+.. autofunction:: cuda.bindings.driver.cuDeviceGetP2PAtomicCapabilities
 
 Graphics Interoperability
 -------------------------
@@ -7054,9 +7192,13 @@ There are 4 main steps to using these new set of APIs.
 
 
 
-For ``CU_DEV_RESOURCE_TYPE_SM``\ , the partitions created have minimum SM count requirements, often rounding up and aligning the minCount provided to cuDevSmResourceSplitByCount. The following is a guideline for each architecture and may be subject to change:
+For ``CU_DEV_RESOURCE_TYPE_SM``\ , the partitions created have minimum SM count requirements, often rounding up and aligning the minCount provided to cuDevSmResourceSplitByCount. These requirements can be queried with cuDeviceGetDevResource from step (1) above to determine the minimum partition size (``sm.minSmPartitionSize``\ ) and alignment granularity (``sm.smCoscheduledAlignment``\ ).
 
-- On Compute Architecture 6.X: The minimum count is 1 SM.
+
+
+While it's recommended to use cuDeviceGetDevResource for accurate information, here is a guideline for each compute architecture:
+
+- On Compute Architecture 6.X: The minimum count is 2 SMs and must be a multiple of 2.
 
 
 
@@ -7151,6 +7293,7 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 .. autofunction:: cuda.bindings.driver.cuGreenCtxWaitEvent
 .. autofunction:: cuda.bindings.driver.cuStreamGetGreenCtx
 .. autofunction:: cuda.bindings.driver.cuGreenCtxStreamCreate
+.. autofunction:: cuda.bindings.driver.cuGreenCtxGetId
 .. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_VERSION
 .. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_EXTERNAL_BYTES
 .. autoattribute:: cuda.bindings.driver._CONCAT_INNER
@@ -7202,7 +7345,6 @@ Checkpoint and restore capabilities are currently restricted to Linux.
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessGetState
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessLock
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessCheckpoint
-.. autofunction:: cuda.bindings.driver.cuCheckpointProcessRestore
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessUnlock
 
 EGL Interoperability

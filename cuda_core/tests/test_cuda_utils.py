@@ -1,9 +1,8 @@
-# Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. ALL RIGHTS RESERVED.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import pytest
-from conftest import skipif_testing_with_compute_sanitizer
 
 from cuda.bindings import driver, runtime
 from cuda.core.experimental._utils import cuda_utils
@@ -19,7 +18,7 @@ def test_driver_cu_result_explanations_health():
         assert code in expl_dict
         known_codes.add(code)
 
-    if cuda_utils.get_binding_version() >= (12, 0):
+    if cuda_utils.get_binding_version() >= (13, 0):
         # Ensure expl_dict has no codes not known as a CUresult enum
         extra_expl = sorted(set(expl_dict.keys()) - known_codes)
         assert not extra_expl
@@ -35,19 +34,17 @@ def test_runtime_cuda_error_explanations_health():
         assert code in expl_dict
         known_codes.add(code)
 
-    if cuda_utils.get_binding_version() >= (12, 0):
+    if cuda_utils.get_binding_version() >= (13, 0):
         # Ensure expl_dict has no codes not known as a cudaError_t enum
         extra_expl = sorted(set(expl_dict.keys()) - known_codes)
         assert not extra_expl
 
 
-# this test causes an API error when the driver is too old to know about all of the error codes
-@skipif_testing_with_compute_sanitizer
 def test_check_driver_error():
     num_unexpected = 0
     for error in driver.CUresult:
         if error == driver.CUresult.CUDA_SUCCESS:
-            assert cuda_utils._check_driver_error(error) is None
+            assert cuda_utils._check_driver_error(error) == 0
         else:
             with pytest.raises(cuda_utils.CUDAError) as e:
                 cuda_utils._check_driver_error(error)
@@ -66,7 +63,7 @@ def test_check_runtime_error():
     num_unexpected = 0
     for error in runtime.cudaError_t:
         if error == runtime.cudaError_t.cudaSuccess:
-            assert cuda_utils._check_runtime_error(error) is None
+            assert cuda_utils._check_runtime_error(error) == 0
         else:
             with pytest.raises(cuda_utils.CUDAError) as e:
                 cuda_utils._check_runtime_error(error)
