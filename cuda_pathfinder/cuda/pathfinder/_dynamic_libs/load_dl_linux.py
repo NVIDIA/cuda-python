@@ -14,48 +14,34 @@ CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 
 LIBDL_PATH = ctypes.util.find_library("dl") or "libdl.so.2"
 LIBDL = ctypes.CDLL(LIBDL_PATH)
-LIBDL.dladdr.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIBDL.dladdr.restype = ctypes.c_int
+LIBDL.dlinfo.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p]
+LIBDL.dlinfo.restype = ctypes.c_int
 
 
-class DlInfo(ctypes.Structure):
-    """Structure used by dladdr to return information about a loaded symbol."""
+# First appeared in 2004-era glibc. Universally correct on Linux for all practical purposes.
+RTLD_DI_LINKMAP = 2
 
+
+class LinkMap(ctypes.Structure):
+    # Minimal fields we need; layout matches glibc's struct link_map
     _fields_ = (
-        ("dli_fname", ctypes.c_char_p),  # path to .so
-        ("dli_fbase", ctypes.c_void_p),
-        ("dli_sname", ctypes.c_char_p),
-        ("dli_saddr", ctypes.c_void_p),
+        ("l_addr", ctypes.c_void_p),
+        ("l_name", ctypes.c_char_p),
+        ("l_ld", ctypes.c_void_p),
+        ("l_next", ctypes.c_void_p),
+        ("l_prev", ctypes.c_void_p),
     )
 
 
-def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> Optional[str]:
-    """Get the absolute path of a loaded dynamic library on Linux.
+def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
+    lm_ptr = ctypes.POINTER(LinkMap)()
+    rc = LIBDL.dlinfo(ctypes.c_void_p(handle._handle), RTLD_DI_LINKMAP, ctypes.byref(lm_ptr))
+    if rc == 0 and lm_ptr and lm_ptr.contents.l_name:
+        path: str = lm_ptr.contents.l_name.decode()
+        if path:
+            return path
 
-    Args:
-        libname: The name of the library
-        handle: The library handle
-
-    Returns:
-        The absolute path to the library file, or None if no expected symbol is found
-
-    Raises:
-        OSError: If dladdr fails to get information about the symbol
-    """
-    from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import EXPECTED_LIB_SYMBOLS
-
-    for symbol_name in EXPECTED_LIB_SYMBOLS[libname]:
-        symbol = getattr(handle, symbol_name, None)
-        if symbol is not None:
-            break
-    else:
-        return None
-
-    addr = ctypes.cast(symbol, ctypes.c_void_p)
-    info = DlInfo()
-    if LIBDL.dladdr(addr, ctypes.byref(info)) == 0:
-        raise OSError(f"dladdr failed for {libname=!r}")
-    return info.dli_fname.decode()  # type: ignore[no-any-return]
+    raise OSError(f"abs_path_for_dynamic_library failed for {libname=!r}")
 
 
 def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
