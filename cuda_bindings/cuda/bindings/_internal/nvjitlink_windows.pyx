@@ -150,8 +150,8 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
         except:
             pass
 
-    __py_nvjitlink_init = True
-    return 0
+        __py_nvjitlink_init = True
+        return 0
 
 
 cdef dict func_ptrs = None

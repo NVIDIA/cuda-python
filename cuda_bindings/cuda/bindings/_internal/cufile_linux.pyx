@@ -416,8 +416,8 @@ cdef int _check_or_init_cufile() except -1 nogil:
                 handle = load_library(driver_ver)
             __cuFileGetParameterPosixPoolSlabArray = dlsym(handle, 'cuFileGetParameterPosixPoolSlabArray')
 
-    __py_cufile_init = True
-    return 0
+        __py_cufile_init = True
+        return 0
 
 
 cdef dict func_ptrs = None

@@ -494,8 +494,6 @@ cdef int cuPythonInit() except -1 nogil:
     cdef bint usePTDS
     cdef char libPath[260]
     with gil, __symbol_lock:
-        __cuPythonInit = True
-
         usePTDS = os.getenv('CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM', default=0)
 
         # Load library
@@ -8874,6 +8872,9 @@ cdef int cuPythonInit() except -1 nogil:
         __cuGraphicsVDPAURegisterOutputSurface = dlfcn.dlsym(handle, 'cuGraphicsVDPAURegisterOutputSurface')
         {{endif}}
         {{endif}}
+
+        __cuPythonInit = True
+        return 0
 
 {{if 'cuGetErrorString' in found_functions}}
 

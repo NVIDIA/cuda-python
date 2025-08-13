@@ -219,7 +219,7 @@ cdef int cuPythonInit() except -1 nogil:
             pass
         {{endif}}
 
-    {{else}}
+        {{else}}
         handle = <void*><uintptr_t>load_nvidia_dynamic_lib("nvrtc")._handle_uint
 
         # Load function
@@ -319,10 +319,10 @@ cdef int cuPythonInit() except -1 nogil:
         global __nvrtcSetFlowCallback
         __nvrtcSetFlowCallback = dlfcn.dlsym(handle, 'nvrtcSetFlowCallback')
         {{endif}}
-    {{endif}}
+        {{endif}}
 
-    __cuPythonInit = True
-    return 0
+        __cuPythonInit = True
+        return 0
 
 {{if 'nvrtcGetErrorString' in found_functions}}
 

@@ -143,8 +143,8 @@ cdef int _check_or_init_nvvm() except -1 nogil:
         except:
             pass
 
-    __py_nvvm_init = True
-    return 0
+        __py_nvvm_init = True
+        return 0
 
 
 cdef dict func_ptrs = None
