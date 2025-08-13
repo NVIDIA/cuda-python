@@ -5,6 +5,7 @@
 # This code was automatically generated across versions from 12.0.1 to 13.0.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
+import threading
 
 from .utils import FunctionNotFoundError, NotSupportedError
 
@@ -20,6 +21,7 @@ import win32api
 LOAD_LIBRARY_SEARCH_SYSTEM32     = 0x00000800
 LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
 LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
+cdef object __symbol_lock = threading.Lock()
 cdef bint __py_nvjitlink_init = False
 cdef void* __cuDriverGetVersion = NULL
 
@@ -45,7 +47,7 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
         return 0
 
     cdef int err, driver_ver
-    with gil:
+    with gil, __symbol_lock:
         # Load driver to check version
         try:
             handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
@@ -163,50 +165,51 @@ cpdef dict _inspect_function_pointers():
     _check_or_init_nvjitlink()
     cdef dict data = {}
 
-    global __nvJitLinkCreate
-    data["__nvJitLinkCreate"] = <intptr_t>__nvJitLinkCreate
+    with __symbol_lock:
+        global __nvJitLinkCreate
+        data["__nvJitLinkCreate"] = <intptr_t>__nvJitLinkCreate
 
-    global __nvJitLinkDestroy
-    data["__nvJitLinkDestroy"] = <intptr_t>__nvJitLinkDestroy
+        global __nvJitLinkDestroy
+        data["__nvJitLinkDestroy"] = <intptr_t>__nvJitLinkDestroy
 
-    global __nvJitLinkAddData
-    data["__nvJitLinkAddData"] = <intptr_t>__nvJitLinkAddData
+        global __nvJitLinkAddData
+        data["__nvJitLinkAddData"] = <intptr_t>__nvJitLinkAddData
 
-    global __nvJitLinkAddFile
-    data["__nvJitLinkAddFile"] = <intptr_t>__nvJitLinkAddFile
+        global __nvJitLinkAddFile
+        data["__nvJitLinkAddFile"] = <intptr_t>__nvJitLinkAddFile
 
-    global __nvJitLinkComplete
-    data["__nvJitLinkComplete"] = <intptr_t>__nvJitLinkComplete
+        global __nvJitLinkComplete
+        data["__nvJitLinkComplete"] = <intptr_t>__nvJitLinkComplete
 
-    global __nvJitLinkGetLinkedCubinSize
-    data["__nvJitLinkGetLinkedCubinSize"] = <intptr_t>__nvJitLinkGetLinkedCubinSize
+        global __nvJitLinkGetLinkedCubinSize
+        data["__nvJitLinkGetLinkedCubinSize"] = <intptr_t>__nvJitLinkGetLinkedCubinSize
 
-    global __nvJitLinkGetLinkedCubin
-    data["__nvJitLinkGetLinkedCubin"] = <intptr_t>__nvJitLinkGetLinkedCubin
+        global __nvJitLinkGetLinkedCubin
+        data["__nvJitLinkGetLinkedCubin"] = <intptr_t>__nvJitLinkGetLinkedCubin
 
-    global __nvJitLinkGetLinkedPtxSize
-    data["__nvJitLinkGetLinkedPtxSize"] = <intptr_t>__nvJitLinkGetLinkedPtxSize
+        global __nvJitLinkGetLinkedPtxSize
+        data["__nvJitLinkGetLinkedPtxSize"] = <intptr_t>__nvJitLinkGetLinkedPtxSize
 
-    global __nvJitLinkGetLinkedPtx
-    data["__nvJitLinkGetLinkedPtx"] = <intptr_t>__nvJitLinkGetLinkedPtx
+        global __nvJitLinkGetLinkedPtx
+        data["__nvJitLinkGetLinkedPtx"] = <intptr_t>__nvJitLinkGetLinkedPtx
 
-    global __nvJitLinkGetErrorLogSize
-    data["__nvJitLinkGetErrorLogSize"] = <intptr_t>__nvJitLinkGetErrorLogSize
+        global __nvJitLinkGetErrorLogSize
+        data["__nvJitLinkGetErrorLogSize"] = <intptr_t>__nvJitLinkGetErrorLogSize
 
-    global __nvJitLinkGetErrorLog
-    data["__nvJitLinkGetErrorLog"] = <intptr_t>__nvJitLinkGetErrorLog
+        global __nvJitLinkGetErrorLog
+        data["__nvJitLinkGetErrorLog"] = <intptr_t>__nvJitLinkGetErrorLog
 
-    global __nvJitLinkGetInfoLogSize
-    data["__nvJitLinkGetInfoLogSize"] = <intptr_t>__nvJitLinkGetInfoLogSize
+        global __nvJitLinkGetInfoLogSize
+        data["__nvJitLinkGetInfoLogSize"] = <intptr_t>__nvJitLinkGetInfoLogSize
 
-    global __nvJitLinkGetInfoLog
-    data["__nvJitLinkGetInfoLog"] = <intptr_t>__nvJitLinkGetInfoLog
+        global __nvJitLinkGetInfoLog
+        data["__nvJitLinkGetInfoLog"] = <intptr_t>__nvJitLinkGetInfoLog
 
-    global __nvJitLinkVersion
-    data["__nvJitLinkVersion"] = <intptr_t>__nvJitLinkVersion
+        global __nvJitLinkVersion
+        data["__nvJitLinkVersion"] = <intptr_t>__nvJitLinkVersion
 
-    func_ptrs = data
-    return data
+        func_ptrs = data
+        return data
 
 
 cpdef _inspect_function_pointer(str name):

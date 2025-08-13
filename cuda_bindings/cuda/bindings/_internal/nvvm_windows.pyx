@@ -5,6 +5,7 @@
 # This code was automatically generated across versions from 12.0.1 to 13.0.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
+import threading
 
 from .utils import FunctionNotFoundError, NotSupportedError
 
@@ -20,6 +21,7 @@ import win32api
 LOAD_LIBRARY_SEARCH_SYSTEM32     = 0x00000800
 LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
 LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
+cdef object __symbol_lock = threading.Lock()
 cdef bint __py_nvvm_init = False
 cdef void* __cuDriverGetVersion = NULL
 
@@ -44,7 +46,7 @@ cdef int _check_or_init_nvvm() except -1 nogil:
         return 0
 
     cdef int err, driver_ver
-    with gil:
+    with gil, __symbol_lock:
         # Load driver to check version
         try:
             handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
