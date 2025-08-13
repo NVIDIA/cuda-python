@@ -64,11 +64,10 @@ cdef int _check_or_init_nvvm() except -1 nogil:
     if __py_nvvm_init:
         return 0
 
-    cdef void* handle
-    cdef int err, driver_ver
+    cdef void* handle = NULL
+    cdef int err, driver_ver = 0
     with gil, __symbol_lock:
         # Load driver to check version
-        handle = NULL
         handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
         if handle == NULL:
             err_msg = dlerror()
@@ -191,48 +190,47 @@ cpdef dict _inspect_function_pointers():
     _check_or_init_nvvm()
     cdef dict data = {}
 
-    with __symbol_lock:
-        global __nvvmGetErrorString
-        data["__nvvmGetErrorString"] = <intptr_t>__nvvmGetErrorString
+    global __nvvmGetErrorString
+    data["__nvvmGetErrorString"] = <intptr_t>__nvvmGetErrorString
 
-        global __nvvmVersion
-        data["__nvvmVersion"] = <intptr_t>__nvvmVersion
+    global __nvvmVersion
+    data["__nvvmVersion"] = <intptr_t>__nvvmVersion
 
-        global __nvvmIRVersion
-        data["__nvvmIRVersion"] = <intptr_t>__nvvmIRVersion
+    global __nvvmIRVersion
+    data["__nvvmIRVersion"] = <intptr_t>__nvvmIRVersion
 
-        global __nvvmCreateProgram
-        data["__nvvmCreateProgram"] = <intptr_t>__nvvmCreateProgram
+    global __nvvmCreateProgram
+    data["__nvvmCreateProgram"] = <intptr_t>__nvvmCreateProgram
 
-        global __nvvmDestroyProgram
-        data["__nvvmDestroyProgram"] = <intptr_t>__nvvmDestroyProgram
+    global __nvvmDestroyProgram
+    data["__nvvmDestroyProgram"] = <intptr_t>__nvvmDestroyProgram
 
-        global __nvvmAddModuleToProgram
-        data["__nvvmAddModuleToProgram"] = <intptr_t>__nvvmAddModuleToProgram
+    global __nvvmAddModuleToProgram
+    data["__nvvmAddModuleToProgram"] = <intptr_t>__nvvmAddModuleToProgram
 
-        global __nvvmLazyAddModuleToProgram
-        data["__nvvmLazyAddModuleToProgram"] = <intptr_t>__nvvmLazyAddModuleToProgram
+    global __nvvmLazyAddModuleToProgram
+    data["__nvvmLazyAddModuleToProgram"] = <intptr_t>__nvvmLazyAddModuleToProgram
 
-        global __nvvmCompileProgram
-        data["__nvvmCompileProgram"] = <intptr_t>__nvvmCompileProgram
+    global __nvvmCompileProgram
+    data["__nvvmCompileProgram"] = <intptr_t>__nvvmCompileProgram
 
-        global __nvvmVerifyProgram
-        data["__nvvmVerifyProgram"] = <intptr_t>__nvvmVerifyProgram
+    global __nvvmVerifyProgram
+    data["__nvvmVerifyProgram"] = <intptr_t>__nvvmVerifyProgram
 
-        global __nvvmGetCompiledResultSize
-        data["__nvvmGetCompiledResultSize"] = <intptr_t>__nvvmGetCompiledResultSize
+    global __nvvmGetCompiledResultSize
+    data["__nvvmGetCompiledResultSize"] = <intptr_t>__nvvmGetCompiledResultSize
 
-        global __nvvmGetCompiledResult
-        data["__nvvmGetCompiledResult"] = <intptr_t>__nvvmGetCompiledResult
+    global __nvvmGetCompiledResult
+    data["__nvvmGetCompiledResult"] = <intptr_t>__nvvmGetCompiledResult
 
-        global __nvvmGetProgramLogSize
-        data["__nvvmGetProgramLogSize"] = <intptr_t>__nvvmGetProgramLogSize
+    global __nvvmGetProgramLogSize
+    data["__nvvmGetProgramLogSize"] = <intptr_t>__nvvmGetProgramLogSize
 
-        global __nvvmGetProgramLog
-        data["__nvvmGetProgramLog"] = <intptr_t>__nvvmGetProgramLog
+    global __nvvmGetProgramLog
+    data["__nvvmGetProgramLog"] = <intptr_t>__nvvmGetProgramLog
 
-        func_ptrs = data
-        return data
+    func_ptrs = data
+    return data
 
 
 cpdef _inspect_function_pointer(str name):

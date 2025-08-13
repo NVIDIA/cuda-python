@@ -96,7 +96,7 @@ cdef int _check_or_init_cufile() except -1 nogil:
         return 0
 
     cdef void* handle = NULL
-    cdef int err, driver_ver
+    cdef int err, driver_ver = 0
     with gil, __symbol_lock:
         # Load driver to check version
         handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)

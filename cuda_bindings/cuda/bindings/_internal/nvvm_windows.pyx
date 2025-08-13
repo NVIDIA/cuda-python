@@ -45,7 +45,7 @@ cdef int _check_or_init_nvvm() except -1 nogil:
     if __py_nvvm_init:
         return 0
 
-    cdef int err, driver_ver
+    cdef int err, driver_ver = 0
     with gil, __symbol_lock:
         # Load driver to check version
         try:

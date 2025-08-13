@@ -65,11 +65,10 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
     if __py_nvjitlink_init:
         return 0
 
-    cdef void* handle
-    cdef int err, driver_ver
+    cdef void* handle = NULL
+    cdef int err, driver_ver = 0
     with gil, __symbol_lock:
         # Load driver to check version
-        handle = NULL
         handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
         if handle == NULL:
             err_msg = dlerror()
@@ -184,8 +183,8 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
                 handle = load_library(driver_ver)
             __nvJitLinkVersion = dlsym(handle, 'nvJitLinkVersion')
 
-    __py_nvjitlink_init = True
-    return 0
+        __py_nvjitlink_init = True
+        return 0
 
 
 cdef dict func_ptrs = None
