@@ -11,7 +11,8 @@ from libc.stdint cimport uintptr_t
 {{endif}}
 from cuda.pathfinder import load_nvidia_dynamic_lib
 from libc.stdint cimport intptr_t
-
+import threading
+cdef object __symbol_lock = threading.Lock()
 cdef bint __cuPythonInit = False
 {{if 'nvrtcGetErrorString' in found_functions}}cdef void *__nvrtcGetErrorString = NULL{{endif}}
 {{if 'nvrtcVersion' in found_functions}}cdef void *__nvrtcVersion = NULL{{endif}}
@@ -44,21 +45,13 @@ cdef int cuPythonInit() except -1 nogil:
     global __cuPythonInit
     if __cuPythonInit:
         return 0
-    __cuPythonInit = True
 
     # Load library
-    {{if 'Windows' == platform.system()}}
-    with gil:
+    with gil, __symbol_lock:
+        {{if 'Windows' == platform.system()}}
         handle = load_nvidia_dynamic_lib("nvrtc")._handle_uint
-    {{else}}
-    with gil:
-        handle = <void*><uintptr_t>load_nvidia_dynamic_lib("nvrtc")._handle_uint
-    {{endif}}
 
-
-    # Load function
-    {{if 'Windows' == platform.system()}}
-    with gil:
+        # Load function
         {{if 'nvrtcGetErrorString' in found_functions}}
         try:
             global __nvrtcGetErrorString
@@ -242,113 +235,118 @@ cdef int cuPythonInit() except -1 nogil:
             pass
         {{endif}}
 
-    {{else}}
-    {{if 'nvrtcGetErrorString' in found_functions}}
-    global __nvrtcGetErrorString
-    __nvrtcGetErrorString = dlfcn.dlsym(handle, 'nvrtcGetErrorString')
-    {{endif}}
-    {{if 'nvrtcVersion' in found_functions}}
-    global __nvrtcVersion
-    __nvrtcVersion = dlfcn.dlsym(handle, 'nvrtcVersion')
-    {{endif}}
-    {{if 'nvrtcGetNumSupportedArchs' in found_functions}}
-    global __nvrtcGetNumSupportedArchs
-    __nvrtcGetNumSupportedArchs = dlfcn.dlsym(handle, 'nvrtcGetNumSupportedArchs')
-    {{endif}}
-    {{if 'nvrtcGetSupportedArchs' in found_functions}}
-    global __nvrtcGetSupportedArchs
-    __nvrtcGetSupportedArchs = dlfcn.dlsym(handle, 'nvrtcGetSupportedArchs')
-    {{endif}}
-    {{if 'nvrtcCreateProgram' in found_functions}}
-    global __nvrtcCreateProgram
-    __nvrtcCreateProgram = dlfcn.dlsym(handle, 'nvrtcCreateProgram')
-    {{endif}}
-    {{if 'nvrtcDestroyProgram' in found_functions}}
-    global __nvrtcDestroyProgram
-    __nvrtcDestroyProgram = dlfcn.dlsym(handle, 'nvrtcDestroyProgram')
-    {{endif}}
-    {{if 'nvrtcCompileProgram' in found_functions}}
-    global __nvrtcCompileProgram
-    __nvrtcCompileProgram = dlfcn.dlsym(handle, 'nvrtcCompileProgram')
-    {{endif}}
-    {{if 'nvrtcGetPTXSize' in found_functions}}
-    global __nvrtcGetPTXSize
-    __nvrtcGetPTXSize = dlfcn.dlsym(handle, 'nvrtcGetPTXSize')
-    {{endif}}
-    {{if 'nvrtcGetPTX' in found_functions}}
-    global __nvrtcGetPTX
-    __nvrtcGetPTX = dlfcn.dlsym(handle, 'nvrtcGetPTX')
-    {{endif}}
-    {{if 'nvrtcGetCUBINSize' in found_functions}}
-    global __nvrtcGetCUBINSize
-    __nvrtcGetCUBINSize = dlfcn.dlsym(handle, 'nvrtcGetCUBINSize')
-    {{endif}}
-    {{if 'nvrtcGetCUBIN' in found_functions}}
-    global __nvrtcGetCUBIN
-    __nvrtcGetCUBIN = dlfcn.dlsym(handle, 'nvrtcGetCUBIN')
-    {{endif}}
-    {{if 'nvrtcGetNVVMSize' in found_functions}}
-    global __nvrtcGetNVVMSize
-    __nvrtcGetNVVMSize = dlfcn.dlsym(handle, 'nvrtcGetNVVMSize')
-    {{endif}}
-    {{if 'nvrtcGetNVVM' in found_functions}}
-    global __nvrtcGetNVVM
-    __nvrtcGetNVVM = dlfcn.dlsym(handle, 'nvrtcGetNVVM')
-    {{endif}}
-    {{if 'nvrtcGetLTOIRSize' in found_functions}}
-    global __nvrtcGetLTOIRSize
-    __nvrtcGetLTOIRSize = dlfcn.dlsym(handle, 'nvrtcGetLTOIRSize')
-    {{endif}}
-    {{if 'nvrtcGetLTOIR' in found_functions}}
-    global __nvrtcGetLTOIR
-    __nvrtcGetLTOIR = dlfcn.dlsym(handle, 'nvrtcGetLTOIR')
-    {{endif}}
-    {{if 'nvrtcGetOptiXIRSize' in found_functions}}
-    global __nvrtcGetOptiXIRSize
-    __nvrtcGetOptiXIRSize = dlfcn.dlsym(handle, 'nvrtcGetOptiXIRSize')
-    {{endif}}
-    {{if 'nvrtcGetOptiXIR' in found_functions}}
-    global __nvrtcGetOptiXIR
-    __nvrtcGetOptiXIR = dlfcn.dlsym(handle, 'nvrtcGetOptiXIR')
-    {{endif}}
-    {{if 'nvrtcGetProgramLogSize' in found_functions}}
-    global __nvrtcGetProgramLogSize
-    __nvrtcGetProgramLogSize = dlfcn.dlsym(handle, 'nvrtcGetProgramLogSize')
-    {{endif}}
-    {{if 'nvrtcGetProgramLog' in found_functions}}
-    global __nvrtcGetProgramLog
-    __nvrtcGetProgramLog = dlfcn.dlsym(handle, 'nvrtcGetProgramLog')
-    {{endif}}
-    {{if 'nvrtcAddNameExpression' in found_functions}}
-    global __nvrtcAddNameExpression
-    __nvrtcAddNameExpression = dlfcn.dlsym(handle, 'nvrtcAddNameExpression')
-    {{endif}}
-    {{if 'nvrtcGetLoweredName' in found_functions}}
-    global __nvrtcGetLoweredName
-    __nvrtcGetLoweredName = dlfcn.dlsym(handle, 'nvrtcGetLoweredName')
-    {{endif}}
-    {{if 'nvrtcGetPCHHeapSize' in found_functions}}
-    global __nvrtcGetPCHHeapSize
-    __nvrtcGetPCHHeapSize = dlfcn.dlsym(handle, 'nvrtcGetPCHHeapSize')
-    {{endif}}
-    {{if 'nvrtcSetPCHHeapSize' in found_functions}}
-    global __nvrtcSetPCHHeapSize
-    __nvrtcSetPCHHeapSize = dlfcn.dlsym(handle, 'nvrtcSetPCHHeapSize')
-    {{endif}}
-    {{if 'nvrtcGetPCHCreateStatus' in found_functions}}
-    global __nvrtcGetPCHCreateStatus
-    __nvrtcGetPCHCreateStatus = dlfcn.dlsym(handle, 'nvrtcGetPCHCreateStatus')
-    {{endif}}
-    {{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
-    global __nvrtcGetPCHHeapSizeRequired
-    __nvrtcGetPCHHeapSizeRequired = dlfcn.dlsym(handle, 'nvrtcGetPCHHeapSizeRequired')
-    {{endif}}
-    {{if 'nvrtcSetFlowCallback' in found_functions}}
-    global __nvrtcSetFlowCallback
-    __nvrtcSetFlowCallback = dlfcn.dlsym(handle, 'nvrtcSetFlowCallback')
-    {{endif}}
+        {{else}}
+        handle = <void*><uintptr_t>load_nvidia_dynamic_lib("nvrtc")._handle_uint
 
-    {{endif}}
+        # Load function
+        {{if 'nvrtcGetErrorString' in found_functions}}
+        global __nvrtcGetErrorString
+        __nvrtcGetErrorString = dlfcn.dlsym(handle, 'nvrtcGetErrorString')
+        {{endif}}
+        {{if 'nvrtcVersion' in found_functions}}
+        global __nvrtcVersion
+        __nvrtcVersion = dlfcn.dlsym(handle, 'nvrtcVersion')
+        {{endif}}
+        {{if 'nvrtcGetNumSupportedArchs' in found_functions}}
+        global __nvrtcGetNumSupportedArchs
+        __nvrtcGetNumSupportedArchs = dlfcn.dlsym(handle, 'nvrtcGetNumSupportedArchs')
+        {{endif}}
+        {{if 'nvrtcGetSupportedArchs' in found_functions}}
+        global __nvrtcGetSupportedArchs
+        __nvrtcGetSupportedArchs = dlfcn.dlsym(handle, 'nvrtcGetSupportedArchs')
+        {{endif}}
+        {{if 'nvrtcCreateProgram' in found_functions}}
+        global __nvrtcCreateProgram
+        __nvrtcCreateProgram = dlfcn.dlsym(handle, 'nvrtcCreateProgram')
+        {{endif}}
+        {{if 'nvrtcDestroyProgram' in found_functions}}
+        global __nvrtcDestroyProgram
+        __nvrtcDestroyProgram = dlfcn.dlsym(handle, 'nvrtcDestroyProgram')
+        {{endif}}
+        {{if 'nvrtcCompileProgram' in found_functions}}
+        global __nvrtcCompileProgram
+        __nvrtcCompileProgram = dlfcn.dlsym(handle, 'nvrtcCompileProgram')
+        {{endif}}
+        {{if 'nvrtcGetPTXSize' in found_functions}}
+        global __nvrtcGetPTXSize
+        __nvrtcGetPTXSize = dlfcn.dlsym(handle, 'nvrtcGetPTXSize')
+        {{endif}}
+        {{if 'nvrtcGetPTX' in found_functions}}
+        global __nvrtcGetPTX
+        __nvrtcGetPTX = dlfcn.dlsym(handle, 'nvrtcGetPTX')
+        {{endif}}
+        {{if 'nvrtcGetCUBINSize' in found_functions}}
+        global __nvrtcGetCUBINSize
+        __nvrtcGetCUBINSize = dlfcn.dlsym(handle, 'nvrtcGetCUBINSize')
+        {{endif}}
+        {{if 'nvrtcGetCUBIN' in found_functions}}
+        global __nvrtcGetCUBIN
+        __nvrtcGetCUBIN = dlfcn.dlsym(handle, 'nvrtcGetCUBIN')
+        {{endif}}
+        {{if 'nvrtcGetNVVMSize' in found_functions}}
+        global __nvrtcGetNVVMSize
+        __nvrtcGetNVVMSize = dlfcn.dlsym(handle, 'nvrtcGetNVVMSize')
+        {{endif}}
+        {{if 'nvrtcGetNVVM' in found_functions}}
+        global __nvrtcGetNVVM
+        __nvrtcGetNVVM = dlfcn.dlsym(handle, 'nvrtcGetNVVM')
+        {{endif}}
+        {{if 'nvrtcGetLTOIRSize' in found_functions}}
+        global __nvrtcGetLTOIRSize
+        __nvrtcGetLTOIRSize = dlfcn.dlsym(handle, 'nvrtcGetLTOIRSize')
+        {{endif}}
+        {{if 'nvrtcGetLTOIR' in found_functions}}
+        global __nvrtcGetLTOIR
+        __nvrtcGetLTOIR = dlfcn.dlsym(handle, 'nvrtcGetLTOIR')
+        {{endif}}
+        {{if 'nvrtcGetOptiXIRSize' in found_functions}}
+        global __nvrtcGetOptiXIRSize
+        __nvrtcGetOptiXIRSize = dlfcn.dlsym(handle, 'nvrtcGetOptiXIRSize')
+        {{endif}}
+        {{if 'nvrtcGetOptiXIR' in found_functions}}
+        global __nvrtcGetOptiXIR
+        __nvrtcGetOptiXIR = dlfcn.dlsym(handle, 'nvrtcGetOptiXIR')
+        {{endif}}
+        {{if 'nvrtcGetProgramLogSize' in found_functions}}
+        global __nvrtcGetProgramLogSize
+        __nvrtcGetProgramLogSize = dlfcn.dlsym(handle, 'nvrtcGetProgramLogSize')
+        {{endif}}
+        {{if 'nvrtcGetProgramLog' in found_functions}}
+        global __nvrtcGetProgramLog
+        __nvrtcGetProgramLog = dlfcn.dlsym(handle, 'nvrtcGetProgramLog')
+        {{endif}}
+        {{if 'nvrtcAddNameExpression' in found_functions}}
+        global __nvrtcAddNameExpression
+        __nvrtcAddNameExpression = dlfcn.dlsym(handle, 'nvrtcAddNameExpression')
+        {{endif}}
+        {{if 'nvrtcGetLoweredName' in found_functions}}
+        global __nvrtcGetLoweredName
+        __nvrtcGetLoweredName = dlfcn.dlsym(handle, 'nvrtcGetLoweredName')
+        {{endif}}
+        {{if 'nvrtcGetPCHHeapSize' in found_functions}}
+        global __nvrtcGetPCHHeapSize
+        __nvrtcGetPCHHeapSize = dlfcn.dlsym(handle, 'nvrtcGetPCHHeapSize')
+        {{endif}}
+        {{if 'nvrtcSetPCHHeapSize' in found_functions}}
+        global __nvrtcSetPCHHeapSize
+        __nvrtcSetPCHHeapSize = dlfcn.dlsym(handle, 'nvrtcSetPCHHeapSize')
+        {{endif}}
+        {{if 'nvrtcGetPCHCreateStatus' in found_functions}}
+        global __nvrtcGetPCHCreateStatus
+        __nvrtcGetPCHCreateStatus = dlfcn.dlsym(handle, 'nvrtcGetPCHCreateStatus')
+        {{endif}}
+        {{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
+        global __nvrtcGetPCHHeapSizeRequired
+        __nvrtcGetPCHHeapSizeRequired = dlfcn.dlsym(handle, 'nvrtcGetPCHHeapSizeRequired')
+        {{endif}}
+        {{if 'nvrtcSetFlowCallback' in found_functions}}
+        global __nvrtcSetFlowCallback
+        __nvrtcSetFlowCallback = dlfcn.dlsym(handle, 'nvrtcSetFlowCallback')
+        {{endif}}
+        {{endif}}
+
+        __cuPythonInit = True
+        return 0
 
 {{if 'nvrtcGetErrorString' in found_functions}}
 
