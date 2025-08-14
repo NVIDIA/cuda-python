@@ -490,6 +490,7 @@ cdef int cuPythonInit() except -1 nogil:
     global __cuPythonInit
     if __cuPythonInit:
         return 0
+    __cuPythonInit = True
 
     cdef bint usePTDS
     cdef char libPath[260]
@@ -8873,7 +8874,6 @@ cdef int cuPythonInit() except -1 nogil:
         {{endif}}
         {{endif}}
 
-        __cuPythonInit = True
         return 0
 
 {{if 'cuGetErrorString' in found_functions}}
