@@ -14,7 +14,7 @@ import os
 import sys
 import threading
 cimport cuda.bindings._bindings.loader as loader
-cdef object __symbol_lock = threading.Lock()
+cdef object __symbol_lock = threading.RLock()
 cdef bint __cuPythonInit = False
 {{if 'cuGetErrorString' in found_functions}}cdef void *__cuGetErrorString = NULL{{endif}}
 {{if 'cuGetErrorName' in found_functions}}cdef void *__cuGetErrorName = NULL{{endif}}
