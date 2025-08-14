@@ -31,6 +31,11 @@ if not CUDA_HOME:
     raise RuntimeError("Environment variable CUDA_HOME or CUDA_PATH is not set")
 
 CUDA_HOME = CUDA_HOME.split(os.pathsep)
+
+LIBRARY_PATH = os.environ.get("LIBRARY_PATH", None)
+if not LIBRARY_PATH:
+    raise RuntimeError("Environment variable LIBRARY_PATH is not set")
+
 if os.environ.get("PARALLEL_LEVEL") is not None:
     warn(
         "Environment variable PARALLEL_LEVEL is deprecated. Use CUDA_PYTHON_PARALLEL_LEVEL instead",
