@@ -14,7 +14,6 @@ from libc.limits cimport CHAR_MIN
 from libcpp.vector cimport vector
 from cpython.buffer cimport PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, PyBUF_ANY_CONTIGUOUS
 from cpython.bytes cimport PyBytes_FromStringAndSize
-from cuda.bindings import utils
 import cuda.bindings.driver
 from libcpp.map cimport map
 
@@ -37915,7 +37914,7 @@ def sizeof(objType):
     raise TypeError("Unknown type: " + str(objType))
 
 def _add_native_handle_getters() -> None:
-    _add_cuda_native_handle_getter = utils._add_cuda_native_handle_getter
+    from cuda.bindings.utils import _add_cuda_native_handle_getter
     {{if 'cudaArray_t' in found_types}}
     def cudaArray_t_getter(cudaArray_t x): return <uintptr_t><void*><cyruntime.cudaArray_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaArray_t, cudaArray_t_getter)

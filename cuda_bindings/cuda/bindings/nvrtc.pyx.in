@@ -14,7 +14,6 @@ from libc.limits cimport CHAR_MIN
 from libcpp.vector cimport vector
 from cpython.buffer cimport PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, PyBUF_ANY_CONTIGUOUS
 from cpython.bytes cimport PyBytes_FromStringAndSize
-from cuda.bindings import utils
 
 ctypedef unsigned long long signed_char_ptr
 ctypedef unsigned long long unsigned_char_ptr
