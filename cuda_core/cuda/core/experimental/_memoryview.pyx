@@ -12,6 +12,7 @@ from typing import Any, Optional
 import numpy
 
 from cuda.core.experimental._utils.cuda_utils import handle_return, driver
+from cuda.core.experimental._utils cimport cuda_utils
 
 
 # TODO(leofang): support NumPy structured dtypes
@@ -184,48 +185,47 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
             stream=int(stream_ptr) if stream_ptr else None)
 
     cdef void* data = NULL
+    cdef DLTensor* dl_tensor
+    cdef DLManagedTensorVersioned* dlm_tensor_ver
+    cdef DLManagedTensor* dlm_tensor
+    cdef const char *used_name
     if cpython.PyCapsule_IsValid(
             capsule, DLPACK_VERSIONED_TENSOR_UNUSED_NAME):
         data = cpython.PyCapsule_GetPointer(
             capsule, DLPACK_VERSIONED_TENSOR_UNUSED_NAME)
         versioned = True
+        dlm_tensor_ver = <DLManagedTensorVersioned*>data
+        dl_tensor = &dlm_tensor_ver.dl_tensor
+        is_readonly = bool((dlm_tensor_ver.flags & DLPACK_FLAG_BITMASK_READ_ONLY) != 0)
+        used_name = DLPACK_VERSIONED_TENSOR_USED_NAME
     elif cpython.PyCapsule_IsValid(
             capsule, DLPACK_TENSOR_UNUSED_NAME):
         data = cpython.PyCapsule_GetPointer(
             capsule, DLPACK_TENSOR_UNUSED_NAME)
         versioned = False
-    else:
-        assert False
-
-    cdef DLManagedTensor* dlm_tensor
-    cdef DLManagedTensorVersioned* dlm_tensor_ver
-    cdef DLTensor* dl_tensor
-    if versioned:
-        dlm_tensor_ver = <DLManagedTensorVersioned*>data
-        dl_tensor = &dlm_tensor_ver.dl_tensor
-        is_readonly = bool((dlm_tensor_ver.flags & DLPACK_FLAG_BITMASK_READ_ONLY) != 0)
-    else:
         dlm_tensor = <DLManagedTensor*>data
         dl_tensor = &dlm_tensor.dl_tensor
         is_readonly = False
+        used_name = DLPACK_TENSOR_USED_NAME
+    else:
+        assert False
 
     cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
     buf.ptr = <intptr_t>(dl_tensor.data)
-    buf.shape = tuple(int(dl_tensor.shape[i]) for i in range(dl_tensor.ndim))
+    
+    buf.shape = cuda_utils.carray_int64_t_to_tuple(dl_tensor.shape, dl_tensor.ndim)
     if dl_tensor.strides:
-        buf.strides = tuple(
-            int(dl_tensor.strides[i]) for i in range(dl_tensor.ndim))
+        buf.strides = cuda_utils.carray_int64_t_to_tuple(dl_tensor.strides, dl_tensor.ndim)
     else:
         # C-order
         buf.strides = None
+
     buf.dtype = dtype_dlpack_to_numpy(&dl_tensor.dtype)
     buf.device_id = device_id
     buf.is_device_accessible = is_device_accessible
     buf.readonly = is_readonly
     buf.exporting_obj = obj
 
-    cdef const char* used_name = (
-        DLPACK_VERSIONED_TENSOR_USED_NAME if versioned else DLPACK_TENSOR_USED_NAME)
     cpython.PyCapsule_SetName(capsule, used_name)
 
     return buf
