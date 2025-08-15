@@ -2763,8 +2763,8 @@ cdef int cuPythonInit() except -1 nogil:
             _F_cuGetProcAddress_v2('cuGraphicsVDPAURegisterOutputSurface', &__cuGraphicsVDPAURegisterOutputSurface, 3010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
 
-        __cuPythonInit = True
-        return 0
+            __cuPythonInit = True
+            return 0
     
         {{if 'Windows' == platform.system()}}
         # Load using win32GetAddr
