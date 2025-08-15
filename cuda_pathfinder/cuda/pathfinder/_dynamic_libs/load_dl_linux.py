@@ -39,6 +39,39 @@ LIBDL.dlerror.restype = ctypes.c_char_p
 RTLD_DI_LINKMAP = 2
 
 
+class _LinkMapLNameView(ctypes.Structure):
+    """
+    Prefix-only view of glibc's `struct link_map` used **solely** to read `l_name`.
+
+    Background:
+      - `dlinfo(handle, RTLD_DI_LINKMAP, ...)` returns a `struct link_map*`.
+      - The first few members of `struct link_map` (including `l_name`) have been
+        stable on glibc for decades and are documented as debugger-visible.
+      - We only need the offset/layout of `l_name`, not the full struct.
+
+    Safety constraints:
+      - This is a **partial** definition (prefix). It must only be used via a pointer
+        returned by `dlinfo(...)`.
+      - Do **not** instantiate it or pass it **by value** to any C function.
+      - Do **not** access any members beyond those declared here.
+      - Do **not** rely on `ctypes.sizeof(LinkMapPrefix)` for allocation.
+
+    Rationale:
+      - Defining only the leading fields avoids depending on internal/unstable
+        tail members while keeping code more readable than raw pointer arithmetic.
+    """
+
+    _fields_ = (
+        ("l_addr", ctypes.c_void_p),  # ElfW(Addr)
+        ("l_name", ctypes.c_char_p),  # char*
+    )
+
+
+# Defensive assertions, mainly  to document the invariants we depend on
+assert _LinkMapLNameView.l_addr.offset == 0
+assert _LinkMapLNameView.l_name.offset == ctypes.sizeof(ctypes.c_void_p)
+
+
 def _dl_last_error() -> Optional[str]:
     msg_bytes = cast(Optional[bytes], LIBDL.dlerror())
     if not msg_bytes:
@@ -48,25 +81,20 @@ def _dl_last_error() -> Optional[str]:
 
 
 def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
-    lm_ptr = ctypes.c_void_p()
-    rc = LIBDL.dlinfo(ctypes.c_void_p(handle._handle), RTLD_DI_LINKMAP, ctypes.byref(lm_ptr))
+    lm_view = ctypes.POINTER(_LinkMapLNameView)()
+    rc = LIBDL.dlinfo(ctypes.c_void_p(handle._handle), RTLD_DI_LINKMAP, ctypes.byref(lm_view))
     if rc != 0:
         err = _dl_last_error()
         raise OSError(f"dlinfo failed for {libname=!r} (rc={rc})" + (f": {err}" if err else ""))
-    if not lm_ptr.value:
+    if not lm_view:  # NULL link_map**
         raise OSError(f"dlinfo returned NULL link_map pointer for {libname=!r}")
 
-    # l_name is the second field, right after l_addr (both pointer-sized)
-    l_name_field_addr = lm_ptr.value + ctypes.sizeof(ctypes.c_void_p)
-    l_name_addr = ctypes.c_void_p.from_address(l_name_field_addr).value
-    if not l_name_addr:
-        raise OSError(f"dlinfo returned NULL link_map->l_name for {libname=!r}")
-    l_name = ctypes.string_at(l_name_addr)  # bytes up to NUL
-    if not l_name:
-        raise OSError(f"dlinfo returned empty l_name for {libname=!r}")
+    l_name_bytes = lm_view.contents.l_name
+    if not l_name_bytes:
+        raise OSError(f"dlinfo returned empty link_map->l_name for {libname=!r}")
 
     # Won't raise, and preserves undecodable bytes round-trip
-    path = os.fsdecode(l_name)  # filesystem encoding + surrogateescape
+    path = os.fsdecode(l_name_bytes)  # filesystem encoding + surrogateescape
     if not path:
         raise OSError(f"dlinfo returned empty path string for {libname=!r}")
 
