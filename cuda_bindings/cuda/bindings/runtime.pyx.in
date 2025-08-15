@@ -37913,7 +37913,7 @@ def sizeof(objType):
         return sizeof(cyruntime.cudaEglStreamConnection){{endif}}
     raise TypeError("Unknown type: " + str(objType))
 
-def _add_native_handle_getters() -> None:
+cdef int _add_native_handle_getters() except?-1:
     from cuda.bindings.utils import _add_cuda_native_handle_getter
     {{if 'cudaArray_t' in found_types}}
     def cudaArray_t_getter(cudaArray_t x): return <uintptr_t><void*><cyruntime.cudaArray_t>(x._pvt_ptr[0])
@@ -38011,5 +38011,6 @@ def _add_native_handle_getters() -> None:
     def cudaEglStreamConnection_getter(cudaEglStreamConnection x): return <uintptr_t><void*><cyruntime.cudaEglStreamConnection>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaEglStreamConnection, cudaEglStreamConnection_getter)
     {{endif}}
+    return 0
 _add_native_handle_getters()
 

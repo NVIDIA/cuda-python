@@ -53949,7 +53949,7 @@ def sizeof(objType):
         return sizeof(cydriver.VdpOutputSurface){{endif}}
     raise TypeError("Unknown type: " + str(objType))
 
-def _add_native_handle_getters() -> None:
+cdef int _add_native_handle_getters() except?-1:
     from cuda.bindings.utils import _add_cuda_native_handle_getter
     {{if 'CUcontext' in found_types}}
     def CUcontext_getter(CUcontext x): return <uintptr_t><void*><cydriver.CUcontext>(x._pvt_ptr[0])
@@ -54067,5 +54067,6 @@ def _add_native_handle_getters() -> None:
     def EGLSyncKHR_getter(EGLSyncKHR x): return <uintptr_t><void*><cydriver.EGLSyncKHR>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(EGLSyncKHR, EGLSyncKHR_getter)
     {{endif}}
+    return 0
 _add_native_handle_getters()
 
