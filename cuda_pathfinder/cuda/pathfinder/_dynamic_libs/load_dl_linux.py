@@ -39,34 +39,34 @@ LIBDL.dlerror.restype = ctypes.c_char_p
 RTLD_DI_LINKMAP = 2
 
 
-class LinkMap(ctypes.Structure):
-    # Minimal definition for our purposes: include only the fields up to l_name.
-    # The real struct link_map has additional members, which we omit here.
-    _fields_ = (
-        ("l_addr", ctypes.c_void_p),
-        ("l_name", ctypes.c_char_p),
-    )
-
-
 def _dl_last_error() -> Optional[str]:
     msg = LIBDL.dlerror()
     return msg.decode() if msg else None
 
 
 def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
-    lm_ptr = ctypes.POINTER(LinkMap)()
+    lm_ptr = ctypes.c_void_p()
     rc = LIBDL.dlinfo(ctypes.c_void_p(handle._handle), RTLD_DI_LINKMAP, ctypes.byref(lm_ptr))
     if rc != 0:
         err = _dl_last_error()
         raise OSError(f"dlinfo failed for {libname=!r} (rc={rc})" + (f": {err}" if err else ""))
-    if not lm_ptr:
+    if not lm_ptr.value:
         raise OSError(f"dlinfo returned NULL link_map pointer for {libname=!r}")
-    name = lm_ptr.contents.l_name
-    if not name:
+
+    # l_name is the second field, right after l_addr (both pointer-sized)
+    l_name_field_addr = lm_ptr.value + ctypes.sizeof(ctypes.c_void_p)
+    l_name_addr = ctypes.c_void_p.from_address(l_name_field_addr).value
+    if not l_name_addr:
+        raise OSError(f"dlinfo returned NULL link_map->l_name for {libname=!r}")
+    l_name = ctypes.string_at(l_name_addr)  # bytes up to NUL
+    if not l_name:
         raise OSError(f"dlinfo returned empty l_name for {libname=!r}")
-    path: str = name.decode()
+
+    # Won't raise, and preserves undecodable bytes round-trip
+    path = os.fsdecode(l_name)  # filesystem encoding + surrogateescape
     if not path:
         raise OSError(f"dlinfo returned empty path string for {libname=!r}")
+
     return path
 
 
