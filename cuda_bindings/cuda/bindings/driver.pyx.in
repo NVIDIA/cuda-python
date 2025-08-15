@@ -14,6 +14,7 @@ from libc.limits cimport CHAR_MIN
 from libcpp.vector cimport vector
 from cpython.buffer cimport PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, PyBUF_ANY_CONTIGUOUS
 from cpython.bytes cimport PyBytes_FromStringAndSize
+from cuda.bindings import utils
 import cuda.bindings.driver
 from libcpp.map cimport map
 
@@ -53948,3 +53949,124 @@ def sizeof(objType):
     if objType == VdpOutputSurface:
         return sizeof(cydriver.VdpOutputSurface){{endif}}
     raise TypeError("Unknown type: " + str(objType))
+
+def _add_native_handle_getters() -> None:
+    _add_cuda_native_handle_getter = utils._add_cuda_native_handle_getter
+    {{if 'CUcontext' in found_types}}
+    def CUcontext_getter(CUcontext x): return <uintptr_t><void*><cydriver.CUcontext>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUcontext, CUcontext_getter)
+    {{endif}}
+    {{if 'CUmodule' in found_types}}
+    def CUmodule_getter(CUmodule x): return <uintptr_t><void*><cydriver.CUmodule>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUmodule, CUmodule_getter)
+    {{endif}}
+    {{if 'CUfunction' in found_types}}
+    def CUfunction_getter(CUfunction x): return <uintptr_t><void*><cydriver.CUfunction>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUfunction, CUfunction_getter)
+    {{endif}}
+    {{if 'CUlibrary' in found_types}}
+    def CUlibrary_getter(CUlibrary x): return <uintptr_t><void*><cydriver.CUlibrary>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUlibrary, CUlibrary_getter)
+    {{endif}}
+    {{if 'CUkernel' in found_types}}
+    def CUkernel_getter(CUkernel x): return <uintptr_t><void*><cydriver.CUkernel>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUkernel, CUkernel_getter)
+    {{endif}}
+    {{if 'CUarray' in found_types}}
+    def CUarray_getter(CUarray x): return <uintptr_t><void*><cydriver.CUarray>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUarray, CUarray_getter)
+    {{endif}}
+    {{if 'CUmipmappedArray' in found_types}}
+    def CUmipmappedArray_getter(CUmipmappedArray x): return <uintptr_t><void*><cydriver.CUmipmappedArray>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUmipmappedArray, CUmipmappedArray_getter)
+    {{endif}}
+    {{if 'CUtexref' in found_types}}
+    def CUtexref_getter(CUtexref x): return <uintptr_t><void*><cydriver.CUtexref>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUtexref, CUtexref_getter)
+    {{endif}}
+    {{if 'CUsurfref' in found_types}}
+    def CUsurfref_getter(CUsurfref x): return <uintptr_t><void*><cydriver.CUsurfref>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUsurfref, CUsurfref_getter)
+    {{endif}}
+    {{if 'CUevent' in found_types}}
+    def CUevent_getter(CUevent x): return <uintptr_t><void*><cydriver.CUevent>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUevent, CUevent_getter)
+    {{endif}}
+    {{if 'CUstream' in found_types}}
+    def CUstream_getter(CUstream x): return <uintptr_t><void*><cydriver.CUstream>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUstream, CUstream_getter)
+    {{endif}}
+    {{if 'CUgraphicsResource' in found_types}}
+    def CUgraphicsResource_getter(CUgraphicsResource x): return <uintptr_t><void*><cydriver.CUgraphicsResource>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUgraphicsResource, CUgraphicsResource_getter)
+    {{endif}}
+    {{if 'CUexternalMemory' in found_types}}
+    def CUexternalMemory_getter(CUexternalMemory x): return <uintptr_t><void*><cydriver.CUexternalMemory>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUexternalMemory, CUexternalMemory_getter)
+    {{endif}}
+    {{if 'CUexternalSemaphore' in found_types}}
+    def CUexternalSemaphore_getter(CUexternalSemaphore x): return <uintptr_t><void*><cydriver.CUexternalSemaphore>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUexternalSemaphore, CUexternalSemaphore_getter)
+    {{endif}}
+    {{if 'CUgraph' in found_types}}
+    def CUgraph_getter(CUgraph x): return <uintptr_t><void*><cydriver.CUgraph>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUgraph, CUgraph_getter)
+    {{endif}}
+    {{if 'CUgraphNode' in found_types}}
+    def CUgraphNode_getter(CUgraphNode x): return <uintptr_t><void*><cydriver.CUgraphNode>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUgraphNode, CUgraphNode_getter)
+    {{endif}}
+    {{if 'CUgraphExec' in found_types}}
+    def CUgraphExec_getter(CUgraphExec x): return <uintptr_t><void*><cydriver.CUgraphExec>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUgraphExec, CUgraphExec_getter)
+    {{endif}}
+    {{if 'CUmemoryPool' in found_types}}
+    def CUmemoryPool_getter(CUmemoryPool x): return <uintptr_t><void*><cydriver.CUmemoryPool>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUmemoryPool, CUmemoryPool_getter)
+    {{endif}}
+    {{if 'CUuserObject' in found_types}}
+    def CUuserObject_getter(CUuserObject x): return <uintptr_t><void*><cydriver.CUuserObject>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUuserObject, CUuserObject_getter)
+    {{endif}}
+    {{if 'CUgraphDeviceNode' in found_types}}
+    def CUgraphDeviceNode_getter(CUgraphDeviceNode x): return <uintptr_t><void*><cydriver.CUgraphDeviceNode>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUgraphDeviceNode, CUgraphDeviceNode_getter)
+    {{endif}}
+    {{if 'CUasyncCallbackHandle' in found_types}}
+    def CUasyncCallbackHandle_getter(CUasyncCallbackHandle x): return <uintptr_t><void*><cydriver.CUasyncCallbackHandle>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUasyncCallbackHandle, CUasyncCallbackHandle_getter)
+    {{endif}}
+    {{if 'CUgreenCtx' in found_types}}
+    def CUgreenCtx_getter(CUgreenCtx x): return <uintptr_t><void*><cydriver.CUgreenCtx>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUgreenCtx, CUgreenCtx_getter)
+    {{endif}}
+    {{if 'CUlinkState' in found_types}}
+    def CUlinkState_getter(CUlinkState x): return <uintptr_t><void*><cydriver.CUlinkState>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUlinkState, CUlinkState_getter)
+    {{endif}}
+    {{if 'CUdevResourceDesc' in found_types}}
+    def CUdevResourceDesc_getter(CUdevResourceDesc x): return <uintptr_t><void*><cydriver.CUdevResourceDesc>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUdevResourceDesc, CUdevResourceDesc_getter)
+    {{endif}}
+    {{if 'CUlogsCallbackHandle' in found_types}}
+    def CUlogsCallbackHandle_getter(CUlogsCallbackHandle x): return <uintptr_t><void*><cydriver.CUlogsCallbackHandle>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUlogsCallbackHandle, CUlogsCallbackHandle_getter)
+    {{endif}}
+    {{if True}}
+    def CUeglStreamConnection_getter(CUeglStreamConnection x): return <uintptr_t><void*><cydriver.CUeglStreamConnection>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(CUeglStreamConnection, CUeglStreamConnection_getter)
+    {{endif}}
+    {{if True}}
+    def EGLImageKHR_getter(EGLImageKHR x): return <uintptr_t><void*><cydriver.EGLImageKHR>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(EGLImageKHR, EGLImageKHR_getter)
+    {{endif}}
+    {{if True}}
+    def EGLStreamKHR_getter(EGLStreamKHR x): return <uintptr_t><void*><cydriver.EGLStreamKHR>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(EGLStreamKHR, EGLStreamKHR_getter)
+    {{endif}}
+    {{if True}}
+    def EGLSyncKHR_getter(EGLSyncKHR x): return <uintptr_t><void*><cydriver.EGLSyncKHR>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(EGLSyncKHR, EGLSyncKHR_getter)
+    {{endif}}
+_add_native_handle_getters()
+

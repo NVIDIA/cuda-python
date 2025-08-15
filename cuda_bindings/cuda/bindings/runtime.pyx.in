@@ -14,6 +14,7 @@ from libc.limits cimport CHAR_MIN
 from libcpp.vector cimport vector
 from cpython.buffer cimport PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, PyBUF_ANY_CONTIGUOUS
 from cpython.bytes cimport PyBytes_FromStringAndSize
+from cuda.bindings import utils
 import cuda.bindings.driver
 from libcpp.map cimport map
 
@@ -37912,3 +37913,104 @@ def sizeof(objType):
     if objType == cudaEglStreamConnection:
         return sizeof(cyruntime.cudaEglStreamConnection){{endif}}
     raise TypeError("Unknown type: " + str(objType))
+
+def _add_native_handle_getters() -> None:
+    _add_cuda_native_handle_getter = utils._add_cuda_native_handle_getter
+    {{if 'cudaArray_t' in found_types}}
+    def cudaArray_t_getter(cudaArray_t x): return <uintptr_t><void*><cyruntime.cudaArray_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaArray_t, cudaArray_t_getter)
+    {{endif}}
+    {{if 'cudaArray_const_t' in found_types}}
+    def cudaArray_const_t_getter(cudaArray_const_t x): return <uintptr_t><void*><cyruntime.cudaArray_const_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaArray_const_t, cudaArray_const_t_getter)
+    {{endif}}
+    {{if 'cudaMipmappedArray_t' in found_types}}
+    def cudaMipmappedArray_t_getter(cudaMipmappedArray_t x): return <uintptr_t><void*><cyruntime.cudaMipmappedArray_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaMipmappedArray_t, cudaMipmappedArray_t_getter)
+    {{endif}}
+    {{if 'cudaMipmappedArray_const_t' in found_types}}
+    def cudaMipmappedArray_const_t_getter(cudaMipmappedArray_const_t x): return <uintptr_t><void*><cyruntime.cudaMipmappedArray_const_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaMipmappedArray_const_t, cudaMipmappedArray_const_t_getter)
+    {{endif}}
+    {{if 'cudaStream_t' in found_types}}
+    def cudaStream_t_getter(cudaStream_t x): return <uintptr_t><void*><cyruntime.cudaStream_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaStream_t, cudaStream_t_getter)
+    {{endif}}
+    {{if 'cudaEvent_t' in found_types}}
+    def cudaEvent_t_getter(cudaEvent_t x): return <uintptr_t><void*><cyruntime.cudaEvent_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaEvent_t, cudaEvent_t_getter)
+    {{endif}}
+    {{if 'cudaGraphicsResource_t' in found_types}}
+    def cudaGraphicsResource_t_getter(cudaGraphicsResource_t x): return <uintptr_t><void*><cyruntime.cudaGraphicsResource_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaGraphicsResource_t, cudaGraphicsResource_t_getter)
+    {{endif}}
+    {{if 'cudaExternalMemory_t' in found_types}}
+    def cudaExternalMemory_t_getter(cudaExternalMemory_t x): return <uintptr_t><void*><cyruntime.cudaExternalMemory_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaExternalMemory_t, cudaExternalMemory_t_getter)
+    {{endif}}
+    {{if 'cudaExternalSemaphore_t' in found_types}}
+    def cudaExternalSemaphore_t_getter(cudaExternalSemaphore_t x): return <uintptr_t><void*><cyruntime.cudaExternalSemaphore_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaExternalSemaphore_t, cudaExternalSemaphore_t_getter)
+    {{endif}}
+    {{if 'cudaGraph_t' in found_types}}
+    def cudaGraph_t_getter(cudaGraph_t x): return <uintptr_t><void*><cyruntime.cudaGraph_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaGraph_t, cudaGraph_t_getter)
+    {{endif}}
+    {{if 'cudaGraphNode_t' in found_types}}
+    def cudaGraphNode_t_getter(cudaGraphNode_t x): return <uintptr_t><void*><cyruntime.cudaGraphNode_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaGraphNode_t, cudaGraphNode_t_getter)
+    {{endif}}
+    {{if 'cudaUserObject_t' in found_types}}
+    def cudaUserObject_t_getter(cudaUserObject_t x): return <uintptr_t><void*><cyruntime.cudaUserObject_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaUserObject_t, cudaUserObject_t_getter)
+    {{endif}}
+    {{if 'cudaFunction_t' in found_types}}
+    def cudaFunction_t_getter(cudaFunction_t x): return <uintptr_t><void*><cyruntime.cudaFunction_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaFunction_t, cudaFunction_t_getter)
+    {{endif}}
+    {{if 'cudaKernel_t' in found_types}}
+    def cudaKernel_t_getter(cudaKernel_t x): return <uintptr_t><void*><cyruntime.cudaKernel_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaKernel_t, cudaKernel_t_getter)
+    {{endif}}
+    {{if 'cudaLibrary_t' in found_types}}
+    def cudaLibrary_t_getter(cudaLibrary_t x): return <uintptr_t><void*><cyruntime.cudaLibrary_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaLibrary_t, cudaLibrary_t_getter)
+    {{endif}}
+    {{if 'cudaMemPool_t' in found_types}}
+    def cudaMemPool_t_getter(cudaMemPool_t x): return <uintptr_t><void*><cyruntime.cudaMemPool_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaMemPool_t, cudaMemPool_t_getter)
+    {{endif}}
+    {{if 'cudaGraphExec_t' in found_types}}
+    def cudaGraphExec_t_getter(cudaGraphExec_t x): return <uintptr_t><void*><cyruntime.cudaGraphExec_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaGraphExec_t, cudaGraphExec_t_getter)
+    {{endif}}
+    {{if 'cudaGraphDeviceNode_t' in found_types}}
+    def cudaGraphDeviceNode_t_getter(cudaGraphDeviceNode_t x): return <uintptr_t><void*><cyruntime.cudaGraphDeviceNode_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaGraphDeviceNode_t, cudaGraphDeviceNode_t_getter)
+    {{endif}}
+    {{if 'cudaAsyncCallbackHandle_t' in found_types}}
+    def cudaAsyncCallbackHandle_t_getter(cudaAsyncCallbackHandle_t x): return <uintptr_t><void*><cyruntime.cudaAsyncCallbackHandle_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaAsyncCallbackHandle_t, cudaAsyncCallbackHandle_t_getter)
+    {{endif}}
+    {{if 'cudaLogsCallbackHandle' in found_types}}
+    def cudaLogsCallbackHandle_getter(cudaLogsCallbackHandle x): return <uintptr_t><void*><cyruntime.cudaLogsCallbackHandle>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaLogsCallbackHandle, cudaLogsCallbackHandle_getter)
+    {{endif}}
+    {{if True}}
+    def EGLImageKHR_getter(EGLImageKHR x): return <uintptr_t><void*><cyruntime.EGLImageKHR>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(EGLImageKHR, EGLImageKHR_getter)
+    {{endif}}
+    {{if True}}
+    def EGLStreamKHR_getter(EGLStreamKHR x): return <uintptr_t><void*><cyruntime.EGLStreamKHR>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(EGLStreamKHR, EGLStreamKHR_getter)
+    {{endif}}
+    {{if True}}
+    def EGLSyncKHR_getter(EGLSyncKHR x): return <uintptr_t><void*><cyruntime.EGLSyncKHR>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(EGLSyncKHR, EGLSyncKHR_getter)
+    {{endif}}
+    {{if True}}
+    def cudaEglStreamConnection_getter(cudaEglStreamConnection x): return <uintptr_t><void*><cyruntime.cudaEglStreamConnection>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaEglStreamConnection, cudaEglStreamConnection_getter)
+    {{endif}}
+_add_native_handle_getters()
+
