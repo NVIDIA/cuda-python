@@ -213,7 +213,6 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
     buf.ptr = <intptr_t>(dl_tensor.data)
     
-    # Construct shape and strides tuples using the Python/C API for speed
     buf.shape = cuda_utils.carray_int64_t_to_tuple(dl_tensor.shape, dl_tensor.ndim)
     if dl_tensor.strides:
         buf.strides = cuda_utils.carray_int64_t_to_tuple(dl_tensor.strides, dl_tensor.ndim)

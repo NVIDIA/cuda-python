@@ -14,6 +14,7 @@ cpdef check_or_create_options(type cls, options, str options_description=*, bint
 
 
 cdef inline tuple carray_int64_t_to_tuple(libc.stdint.int64_t *ptr, int length):
+    # Construct shape and strides tuples using the Python/C API for speed
     result = cpython.PyTuple_New(length)
     for i in range(length):
         cpython.PyTuple_SET_ITEM(result, i, cpython.PyLong_FromLongLong(ptr[i]))
