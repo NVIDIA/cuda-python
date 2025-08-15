@@ -42,11 +42,10 @@ cdef bint __cuPythonInit = False
 
 cdef int cuPythonInit() except -1 nogil:
     global __cuPythonInit
+    if __cuPythonInit:
+        return 0
 
     with gil, __symbol_lock:
-        if __cuPythonInit:
-            return 0
-
         {{if 'Windows' == platform.system()}}
         handle = load_nvidia_dynamic_lib("nvrtc")._handle_uint
 
@@ -221,7 +220,7 @@ cdef int cuPythonInit() except -1 nogil:
         {{endif}}
 
         {{else}}
-        handle = <void*><uintptr_t>load_nvidia_dynamic_lib("nvrtc")._handle_uint
+        handle = <void*><uintptr_t>(load_nvidia_dynamic_lib("nvrtc")._handle_uint)
 
         # Load function
         {{if 'nvrtcGetErrorString' in found_functions}}

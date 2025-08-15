@@ -42,12 +42,12 @@ cdef void* __nvvmGetProgramLog = NULL
 
 cdef int _check_or_init_nvvm() except -1 nogil:
     global __py_nvvm_init
+    if __py_nvvm_init:
+        return 0
+
     cdef int err, driver_ver = 0
 
     with gil, __symbol_lock:
-        if __py_nvvm_init:
-            return 0
-
         # Load driver to check version
         try:
             handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
