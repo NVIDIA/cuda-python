@@ -12,6 +12,7 @@ from typing import Any, Optional
 import numpy
 
 from cuda.core.experimental._utils.cuda_utils import handle_return, driver
+from cuda.core.experimental._utils cimport cuda_utils
 
 
 # TODO(leofang): support NumPy structured dtypes
@@ -213,13 +214,9 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     buf.ptr = <intptr_t>(dl_tensor.data)
     
     # Construct shape and strides tuples using the Python/C API for speed
-    buf.shape = cpython.PyTuple_New(dl_tensor.ndim)
-    for i in range(dl_tensor.ndim):
-        cpython.PyTuple_SET_ITEM(buf.shape, i, cpython.PyLong_FromLong(dl_tensor.shape[i]))
+    buf.shape = cuda_utils.carray_int64_t_to_tuple(dl_tensor.shape, dl_tensor.ndim)
     if dl_tensor.strides:
-        buf.strides = cpython.PyTuple_New(dl_tensor.ndim)
-        for i in range(dl_tensor.ndim):
-            cpython.PyTuple_SET_ITEM(buf.strides, i, cpython.PyLong_FromLong(dl_tensor.strides[i]))
+        buf.strides = cuda_utils.carray_int64_t_to_tuple(dl_tensor.strides, dl_tensor.ndim)
     else:
         # C-order
         buf.strides = None
