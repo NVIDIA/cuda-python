@@ -5,10 +5,12 @@
 # This code was automatically generated across versions from 12.0.1 to 13.0.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
+import threading
 
 from .utils import FunctionNotFoundError, NotSupportedError
 
 from cuda.pathfinder import load_nvidia_dynamic_lib
+
 
 ###############################################################################
 # Extern
@@ -33,6 +35,7 @@ cdef extern from "<dlfcn.h>" nogil:
 # Wrapper init
 ###############################################################################
 
+cdef object __symbol_lock = threading.Lock()
 cdef bint __py_nvjitlink_init = False
 cdef void* __cuDriverGetVersion = NULL
 
@@ -62,128 +65,127 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
     if __py_nvjitlink_init:
         return 0
 
-    # Load driver to check version
     cdef void* handle = NULL
-    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
-    if handle == NULL:
-        with gil:
+    cdef int err, driver_ver = 0
+
+    with gil, __symbol_lock:
+        # Load driver to check version
+        handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
+        if handle == NULL:
             err_msg = dlerror()
             raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
-    global __cuDriverGetVersion
-    if __cuDriverGetVersion == NULL:
-        __cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
-    if __cuDriverGetVersion == NULL:
-        with gil:
+        global __cuDriverGetVersion
+        if __cuDriverGetVersion == NULL:
+            __cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
+        if __cuDriverGetVersion == NULL:
             raise RuntimeError('something went wrong')
-    cdef int err, driver_ver
-    err = (<int (*)(int*) noexcept nogil>__cuDriverGetVersion)(&driver_ver)
-    if err != 0:
-        with gil:
+        err = (<int (*)(int*) noexcept nogil>__cuDriverGetVersion)(&driver_ver)
+        if err != 0:
             raise RuntimeError('something went wrong')
-    #dlclose(handle)
-    handle = NULL
+        #dlclose(handle)
+        handle = NULL
 
-    # Load function
-    global __nvJitLinkCreate
-    __nvJitLinkCreate = dlsym(RTLD_DEFAULT, 'nvJitLinkCreate')
-    if __nvJitLinkCreate == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkCreate = dlsym(handle, 'nvJitLinkCreate')
+        # Load function
+        global __nvJitLinkCreate
+        __nvJitLinkCreate = dlsym(RTLD_DEFAULT, 'nvJitLinkCreate')
+        if __nvJitLinkCreate == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkCreate = dlsym(handle, 'nvJitLinkCreate')
 
-    global __nvJitLinkDestroy
-    __nvJitLinkDestroy = dlsym(RTLD_DEFAULT, 'nvJitLinkDestroy')
-    if __nvJitLinkDestroy == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkDestroy = dlsym(handle, 'nvJitLinkDestroy')
+        global __nvJitLinkDestroy
+        __nvJitLinkDestroy = dlsym(RTLD_DEFAULT, 'nvJitLinkDestroy')
+        if __nvJitLinkDestroy == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkDestroy = dlsym(handle, 'nvJitLinkDestroy')
 
-    global __nvJitLinkAddData
-    __nvJitLinkAddData = dlsym(RTLD_DEFAULT, 'nvJitLinkAddData')
-    if __nvJitLinkAddData == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkAddData = dlsym(handle, 'nvJitLinkAddData')
+        global __nvJitLinkAddData
+        __nvJitLinkAddData = dlsym(RTLD_DEFAULT, 'nvJitLinkAddData')
+        if __nvJitLinkAddData == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkAddData = dlsym(handle, 'nvJitLinkAddData')
 
-    global __nvJitLinkAddFile
-    __nvJitLinkAddFile = dlsym(RTLD_DEFAULT, 'nvJitLinkAddFile')
-    if __nvJitLinkAddFile == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkAddFile = dlsym(handle, 'nvJitLinkAddFile')
+        global __nvJitLinkAddFile
+        __nvJitLinkAddFile = dlsym(RTLD_DEFAULT, 'nvJitLinkAddFile')
+        if __nvJitLinkAddFile == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkAddFile = dlsym(handle, 'nvJitLinkAddFile')
 
-    global __nvJitLinkComplete
-    __nvJitLinkComplete = dlsym(RTLD_DEFAULT, 'nvJitLinkComplete')
-    if __nvJitLinkComplete == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkComplete = dlsym(handle, 'nvJitLinkComplete')
+        global __nvJitLinkComplete
+        __nvJitLinkComplete = dlsym(RTLD_DEFAULT, 'nvJitLinkComplete')
+        if __nvJitLinkComplete == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkComplete = dlsym(handle, 'nvJitLinkComplete')
 
-    global __nvJitLinkGetLinkedCubinSize
-    __nvJitLinkGetLinkedCubinSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedCubinSize')
-    if __nvJitLinkGetLinkedCubinSize == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkGetLinkedCubinSize = dlsym(handle, 'nvJitLinkGetLinkedCubinSize')
+        global __nvJitLinkGetLinkedCubinSize
+        __nvJitLinkGetLinkedCubinSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedCubinSize')
+        if __nvJitLinkGetLinkedCubinSize == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkGetLinkedCubinSize = dlsym(handle, 'nvJitLinkGetLinkedCubinSize')
 
-    global __nvJitLinkGetLinkedCubin
-    __nvJitLinkGetLinkedCubin = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedCubin')
-    if __nvJitLinkGetLinkedCubin == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkGetLinkedCubin = dlsym(handle, 'nvJitLinkGetLinkedCubin')
+        global __nvJitLinkGetLinkedCubin
+        __nvJitLinkGetLinkedCubin = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedCubin')
+        if __nvJitLinkGetLinkedCubin == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkGetLinkedCubin = dlsym(handle, 'nvJitLinkGetLinkedCubin')
 
-    global __nvJitLinkGetLinkedPtxSize
-    __nvJitLinkGetLinkedPtxSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedPtxSize')
-    if __nvJitLinkGetLinkedPtxSize == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkGetLinkedPtxSize = dlsym(handle, 'nvJitLinkGetLinkedPtxSize')
+        global __nvJitLinkGetLinkedPtxSize
+        __nvJitLinkGetLinkedPtxSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedPtxSize')
+        if __nvJitLinkGetLinkedPtxSize == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkGetLinkedPtxSize = dlsym(handle, 'nvJitLinkGetLinkedPtxSize')
 
-    global __nvJitLinkGetLinkedPtx
-    __nvJitLinkGetLinkedPtx = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedPtx')
-    if __nvJitLinkGetLinkedPtx == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkGetLinkedPtx = dlsym(handle, 'nvJitLinkGetLinkedPtx')
+        global __nvJitLinkGetLinkedPtx
+        __nvJitLinkGetLinkedPtx = dlsym(RTLD_DEFAULT, 'nvJitLinkGetLinkedPtx')
+        if __nvJitLinkGetLinkedPtx == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkGetLinkedPtx = dlsym(handle, 'nvJitLinkGetLinkedPtx')
 
-    global __nvJitLinkGetErrorLogSize
-    __nvJitLinkGetErrorLogSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetErrorLogSize')
-    if __nvJitLinkGetErrorLogSize == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkGetErrorLogSize = dlsym(handle, 'nvJitLinkGetErrorLogSize')
+        global __nvJitLinkGetErrorLogSize
+        __nvJitLinkGetErrorLogSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetErrorLogSize')
+        if __nvJitLinkGetErrorLogSize == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkGetErrorLogSize = dlsym(handle, 'nvJitLinkGetErrorLogSize')
 
-    global __nvJitLinkGetErrorLog
-    __nvJitLinkGetErrorLog = dlsym(RTLD_DEFAULT, 'nvJitLinkGetErrorLog')
-    if __nvJitLinkGetErrorLog == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkGetErrorLog = dlsym(handle, 'nvJitLinkGetErrorLog')
+        global __nvJitLinkGetErrorLog
+        __nvJitLinkGetErrorLog = dlsym(RTLD_DEFAULT, 'nvJitLinkGetErrorLog')
+        if __nvJitLinkGetErrorLog == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkGetErrorLog = dlsym(handle, 'nvJitLinkGetErrorLog')
 
-    global __nvJitLinkGetInfoLogSize
-    __nvJitLinkGetInfoLogSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetInfoLogSize')
-    if __nvJitLinkGetInfoLogSize == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkGetInfoLogSize = dlsym(handle, 'nvJitLinkGetInfoLogSize')
+        global __nvJitLinkGetInfoLogSize
+        __nvJitLinkGetInfoLogSize = dlsym(RTLD_DEFAULT, 'nvJitLinkGetInfoLogSize')
+        if __nvJitLinkGetInfoLogSize == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkGetInfoLogSize = dlsym(handle, 'nvJitLinkGetInfoLogSize')
 
-    global __nvJitLinkGetInfoLog
-    __nvJitLinkGetInfoLog = dlsym(RTLD_DEFAULT, 'nvJitLinkGetInfoLog')
-    if __nvJitLinkGetInfoLog == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkGetInfoLog = dlsym(handle, 'nvJitLinkGetInfoLog')
+        global __nvJitLinkGetInfoLog
+        __nvJitLinkGetInfoLog = dlsym(RTLD_DEFAULT, 'nvJitLinkGetInfoLog')
+        if __nvJitLinkGetInfoLog == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkGetInfoLog = dlsym(handle, 'nvJitLinkGetInfoLog')
 
-    global __nvJitLinkVersion
-    __nvJitLinkVersion = dlsym(RTLD_DEFAULT, 'nvJitLinkVersion')
-    if __nvJitLinkVersion == NULL:
-        if handle == NULL:
-            handle = load_library(driver_ver)
-        __nvJitLinkVersion = dlsym(handle, 'nvJitLinkVersion')
+        global __nvJitLinkVersion
+        __nvJitLinkVersion = dlsym(RTLD_DEFAULT, 'nvJitLinkVersion')
+        if __nvJitLinkVersion == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __nvJitLinkVersion = dlsym(handle, 'nvJitLinkVersion')
 
-    __py_nvjitlink_init = True
-    return 0
+        __py_nvjitlink_init = True
+        return 0
 
 
 cdef dict func_ptrs = None
