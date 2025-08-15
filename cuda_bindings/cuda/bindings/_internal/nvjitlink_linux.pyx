@@ -61,12 +61,13 @@ cdef void* load_library(int driver_ver) except* with gil:
 
 cdef int _check_or_init_nvjitlink() except -1 nogil:
     global __py_nvjitlink_init
+    if __py_nvjitlink_init:
+        return 0
+
+    cdef void* handle = NULL
     cdef int err, driver_ver = 0
 
     with gil, __symbol_lock:
-        if __py_nvjitlink_init:
-            return 0
-
         # Load driver to check version
         handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
         if handle == NULL:
