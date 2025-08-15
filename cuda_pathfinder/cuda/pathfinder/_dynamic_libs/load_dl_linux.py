@@ -5,7 +5,7 @@ import contextlib
 import ctypes
 import ctypes.util
 import os
-from typing import Optional
+from typing import Optional, cast
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import SUPPORTED_LINUX_SONAMES
@@ -40,8 +40,11 @@ RTLD_DI_LINKMAP = 2
 
 
 def _dl_last_error() -> Optional[str]:
-    msg = LIBDL.dlerror()
-    return msg.decode() if msg else None
+    msg_bytes = cast(Optional[bytes], LIBDL.dlerror())
+    if not msg_bytes:
+        return None  # no pending error
+    # Never raises; undecodable bytes are mapped to U+DC80..U+DCFF
+    return msg_bytes.decode("utf-8", "surrogateescape")
 
 
 def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
