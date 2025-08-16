@@ -6,7 +6,6 @@
 #     SUPPORTED_LIBNAMES
 #     SUPPORTED_WINDOWS_DLLS
 #     SUPPORTED_LINUX_SONAMES
-#     EXPECTED_LIB_SYMBOLS
 
 import sys
 
@@ -401,39 +400,3 @@ def is_suppressed_dll_file(path_basename: str) -> bool:
         #         nvrtc64_120_0.dll
         return path_basename.endswith(".alt.dll") or "-builtins" in path_basename
     return path_basename.startswith(("cudart32_", "nvvm32"))
-
-
-# Based on `nm -D --defined-only` output for Linux x86_64 distributions.
-EXPECTED_LIB_SYMBOLS = {
-    "nvJitLink": (
-        "__nvJitLinkCreate_12_0",  # 12.0 through 12.9
-        "nvJitLinkVersion",  # 12.3 and up
-    ),
-    "nvrtc": ("nvrtcVersion",),
-    "nvvm": ("nvvmVersion",),
-    "cudart": ("cudaRuntimeGetVersion",),
-    "nvfatbin": ("nvFatbinVersion",),
-    "cublas": ("cublasGetVersion",),
-    "cublasLt": ("cublasLtGetVersion",),
-    "cufft": ("cufftGetVersion",),
-    "cufftw": ("fftwf_malloc",),
-    "curand": ("curandGetVersion",),
-    "cusolver": ("cusolverGetVersion",),
-    "cusolverMg": ("cusolverMgCreate",),
-    "cusparse": ("cusparseGetVersion",),
-    "nppc": ("nppGetLibVersion",),
-    "nppial": ("nppiAdd_32f_C1R_Ctx",),
-    "nppicc": ("nppiColorToGray_8u_C3C1R_Ctx",),
-    "nppidei": ("nppiCopy_8u_C1R_Ctx",),
-    "nppif": ("nppiFilterSobelHorizBorder_8u_C1R_Ctx",),
-    "nppig": ("nppiResize_8u_C1R_Ctx",),
-    "nppim": ("nppiErode_8u_C1R_Ctx",),
-    "nppist": ("nppiMean_8u_C1R_Ctx",),
-    "nppisu": ("nppiFree",),
-    "nppitc": ("nppiThreshold_8u_C1R_Ctx",),
-    "npps": ("nppsAdd_32f_Ctx",),
-    "nvblas": ("dgemm",),
-    "cufile": ("cuFileGetVersion",),
-    # "cufile_rdma": ("rdma_buffer_reg",),
-    "nvjpeg": ("nvjpegCreate",),
-}
