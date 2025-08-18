@@ -78,7 +78,7 @@ cdef class StridedMemoryView:
         intptr_t device_id
         bint is_device_accessible
         bint readonly
-        object exporting_obj 
+        object exporting_obj
     
     # The tensor object if has obj has __dlpack__, otherwise must be NULL
     cdef DLTensor *dl_tensor
