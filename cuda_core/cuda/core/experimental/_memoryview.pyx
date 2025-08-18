@@ -75,7 +75,7 @@ cdef class StridedMemoryView:
     """
     cdef readonly:
         intptr_t ptr
-        int device_id
+        intptr_t device_id
         bint is_device_accessible
         bint readonly
         object exporting_obj 
