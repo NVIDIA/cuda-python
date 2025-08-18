@@ -37,6 +37,7 @@ LIBDL.dlerror.restype = ctypes.c_char_p
 
 # First appeared in 2004-era glibc. Universally correct on Linux for all practical purposes.
 RTLD_DI_LINKMAP = 2
+RTLD_DI_ORIGIN = 6
 
 
 class _LinkMapLNameView(ctypes.Structure):
@@ -80,7 +81,7 @@ def _dl_last_error() -> Optional[str]:
     return msg_bytes.decode("utf-8", "surrogateescape")
 
 
-def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
+def l_name_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
     lm_view = ctypes.POINTER(_LinkMapLNameView)()
     rc = LIBDL.dlinfo(ctypes.c_void_p(handle._handle), RTLD_DI_LINKMAP, ctypes.byref(lm_view))
     if rc != 0:
@@ -93,12 +94,31 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
     if not l_name_bytes:
         raise OSError(f"dlinfo returned empty link_map->l_name for {libname=!r}")
 
-    # Won't raise, and preserves undecodable bytes round-trip
-    path = os.fsdecode(l_name_bytes)  # filesystem encoding + surrogateescape
+    path = os.fsdecode(l_name_bytes)
     if not path:
-        raise OSError(f"dlinfo returned empty path string for {libname=!r}")
+        raise OSError(f"dlinfo returned empty l_name string for {libname=!r}")
 
     return path
+
+
+def l_origin_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
+    l_origin_buf = ctypes.create_string_buffer(4096)
+    rc = LIBDL.dlinfo(ctypes.c_void_p(handle._handle), RTLD_DI_ORIGIN, l_origin_buf)
+    if rc != 0:
+        err = _dl_last_error()
+        raise OSError(f"dlinfo failed for {libname=!r} (rc={rc})" + (f": {err}" if err else ""))
+
+    path = os.fsdecode(l_origin_buf.value)
+    if not path:
+        raise OSError(f"dlinfo returned empty l_origin string for {libname=!r}")
+
+    return path
+
+
+def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
+    l_name = l_name_for_dynamic_library(libname, handle)
+    l_origin = l_origin_for_dynamic_library(libname, handle)
+    return os.path.join(l_origin, os.path.basename(l_name))
 
 
 def get_candidate_sonames(libname: str) -> list[str]:
