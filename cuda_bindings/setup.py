@@ -239,8 +239,8 @@ include_dirs = [
     os.path.dirname(sysconfig.get_path("include")),
 ] + include_path_list
 library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib")]
-cudalib_subdir = r"lib\x64" if sys.platform == "win32" else "lib64"
-library_dirs.extend(os.path.join(prefix, cudalib_subdir) for prefix in CUDA_HOME)
+cudalib_subdirs = [r"lib\x64"] if sys.platform == "win32" else ["lib64", "lib"]
+library_dirs.extend(os.path.join(prefix, subdir) for prefix in CUDA_HOME for subdir in cudalib_subdirs)
 
 extra_compile_args = []
 extra_cythonize_kwargs = {}
