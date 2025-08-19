@@ -127,21 +127,7 @@ def get_candidate_sonames(libname: str) -> list[str]:
     return candidate_sonames
 
 
-def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
-    """Check if the library is already loaded in the process.
-
-    Args:
-        libname: The name of the library to check
-
-    Returns:
-        A LoadedDL object if the library is already loaded, None otherwise
-
-    Example:
-        >>> loaded = check_if_already_loaded_from_elsewhere("cudart")
-        >>> if loaded is not None:
-        ...     print(f"Library already loaded from {loaded.abs_path}")
-    """
-
+def check_if_already_loaded_from_elsewhere(libname: str, _have_abs_path: bool) -> Optional[LoadedDL]:
     for soname in get_candidate_sonames(libname):
         try:
             handle = ctypes.CDLL(soname, mode=os.RTLD_NOLOAD)

@@ -100,25 +100,16 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
     return buffer.value
 
 
-def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
-    """Check if the library is already loaded in the process.
-
-    Args:
-        libname: The name of the library to check
-
-    Returns:
-        A LoadedDL object if the library is already loaded, None otherwise
-
-    Example:
-        >>> loaded = check_if_already_loaded_from_elsewhere("cudart")
-        >>> if loaded is not None:
-        ...     print(f"Library already loaded from {loaded.abs_path}")
-    """
-
+def check_if_already_loaded_from_elsewhere(libname: str, have_abs_path: bool) -> Optional[LoadedDL]:
     for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
         handle = kernel32.GetModuleHandleW(dll_name)
         if handle:
             abs_path = abs_path_for_dynamic_library(libname, handle)
+            if have_abs_path and libname in LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY:
+                # This is a side-effect if the pathfinder loads the library via
+                # load_with_abs_path(). To make the side-effect more deterministic,
+                # activate it even if the library was already loaded from elsewhere.
+                add_dll_directory(abs_path)
             return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle))
     return None
 
