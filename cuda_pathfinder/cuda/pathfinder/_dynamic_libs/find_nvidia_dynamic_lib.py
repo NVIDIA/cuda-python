@@ -12,6 +12,7 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     IS_WINDOWS,
     is_suppressed_dll_file,
 )
+from cuda.pathfinder._utils.find_site_packages_so import find_all_so_files_under_all_site_packages
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs, find_sub_dirs_all_sitepackages
 
 
@@ -25,26 +26,13 @@ def _no_such_file_in_sub_dirs(
             attachments.append(f"    {node}")
 
 
-def _find_so_using_nvidia_lib_dirs(
-    libname: str, so_basename: str, error_messages: list[str], attachments: list[str]
-) -> Optional[str]:
-    file_wild = so_basename + "*"
-    nvidia_sub_dirs_list: list[tuple[str, ...]] = [("nvidia", "*", "lib")]  # works also for CTK 13 nvvm
-    if libname == "nvvm":
-        nvidia_sub_dirs_list.append(("nvidia", "*", "nvvm", "lib64"))  # CTK 12
-    for nvidia_sub_dirs in nvidia_sub_dirs_list:
-        for lib_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
-            # First look for an exact match
-            so_name = os.path.join(lib_dir, so_basename)
-            if os.path.isfile(so_name):
-                return so_name
-            # Look for a versioned library
-            # Using sort here mainly to make the result deterministic.
-            for so_name in sorted(glob.glob(os.path.join(lib_dir, file_wild))):
-                if os.path.isfile(so_name):
-                    return so_name
-    _no_such_file_in_sub_dirs(nvidia_sub_dirs, file_wild, error_messages, attachments)
-    return None
+def _find_so_using_nvidia_lib_dirs(so_basename: str) -> Optional[str]:
+    candidates = find_all_so_files_under_all_site_packages().get(so_basename)
+    if not candidates:
+        return None
+    so_versions = candidates.keys()
+    all_abs_paths: list[str] = candidates[next(iter(sorted(so_versions)))]
+    return next(iter(sorted(all_abs_paths)))
 
 
 def _find_dll_under_dir(dirpath: str, file_wild: str) -> Optional[str]:
@@ -161,12 +149,7 @@ class _FindNvidiaDynamicLib:
         else:
             self.lib_searched_for = f"lib{libname}.so"
             if self.abs_path is None:
-                self.abs_path = _find_so_using_nvidia_lib_dirs(
-                    libname,
-                    self.lib_searched_for,
-                    self.error_messages,
-                    self.attachments,
-                )
+                self.abs_path = _find_so_using_nvidia_lib_dirs(self.lib_searched_for)
 
     def retry_with_cuda_home_priority_last(self) -> None:
         cuda_home_lib_dir = _find_lib_dir_using_cuda_home(self.libname)
