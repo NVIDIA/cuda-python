@@ -80,11 +80,14 @@ cdef class StridedMemoryView:
         bint readonly
         object exporting_obj
     
+    # If using dlpack, this is a strong reference to the result of 
+    # obj.__dlpack__() so we can lazily create shape and strides from 
+    # it later.  If using CAI, this is a reference to the source 
+    # `__cuda_array_interface__` object.
+    cdef object metadata
+
     # The tensor object if has obj has __dlpack__, otherwise must be NULL
     cdef DLTensor *dl_tensor
-    # A strong reference to the result of obj.__dlpack__() so we
-    # can lazily create shape and strides from it later
-    cdef object dlpack_capsule
         
     # Memoized properties
     cdef tuple _shape
@@ -110,7 +113,7 @@ cdef class StridedMemoryView:
                     self.dl_tensor.ndim
                 )
             else:
-                self._shape = self.exporting_obj.__cuda_array_interface__["shape"]
+                self._shape = self.metadata["shape"]
         else:
             self._shape = ()
         return self._shape
@@ -126,7 +129,7 @@ cdef class StridedMemoryView:
                         self.dl_tensor.ndim
                     )
             else:
-                strides = self.exporting_obj.__cuda_array_interface__.get("strides")
+                strides = self.metadata.get("strides")
                 if strides is not None:
                     itemsize = self.dtype.itemsize
                     self._strides = cpython.PyTuple_New(len(strides))
@@ -142,7 +145,7 @@ cdef class StridedMemoryView:
                     self._dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
                 else:
                     # TODO: this only works for built-in numeric types
-                    self._dtype = numpy.dtype(self.exporting_obj.__cuda_array_interface__["typestr"])
+                    self._dtype = numpy.dtype(self.metadata["typestr"])
         return self._dtype
 
     def __repr__(self):
@@ -262,7 +265,7 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
 
     cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
     buf.dl_tensor = dl_tensor
-    buf.dlpack_capsule = capsule
+    buf.metadata = capsule
     buf.ptr = <intptr_t>(dl_tensor.data)
     buf.device_id = device_id
     buf.is_device_accessible = is_device_accessible
@@ -344,6 +347,7 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
 
     cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
     buf.exporting_obj = obj
+    buf.metadata = cai_data
     buf.dl_tensor = NULL
     buf.ptr, buf.readonly = cai_data["data"]
     buf.is_device_accessible = True
