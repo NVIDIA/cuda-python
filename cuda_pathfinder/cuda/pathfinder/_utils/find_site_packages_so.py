@@ -28,13 +28,15 @@ def find_all_so_files_under_all_site_packages() -> dict[str, dict[str, list[str]
     norm_dirs: list[Path] = []
     seen = set()
     for d in dirs:
-        try:
-            p = d.resolve()
-        except Exception:
-            p = d
-        if p.exists() and p.is_dir() and p not in seen:
-            seen.add(p)
-            norm_dirs.append(p)
+        for subdir in ("nvidia", "nvpl"):
+            ds = d / subdir
+            try:
+                p = ds.resolve()
+            except Exception:
+                p = ds
+            if p.exists() and p.is_dir() and p not in seen:
+                seen.add(p)
+                norm_dirs.append(p)
     norm_dirs.sort()
 
     # results[so_basename][so_version_suffix]
