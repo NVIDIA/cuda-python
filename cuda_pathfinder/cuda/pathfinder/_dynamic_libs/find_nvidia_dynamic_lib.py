@@ -12,7 +12,7 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     IS_WINDOWS,
     is_suppressed_dll_file,
 )
-from cuda.pathfinder._utils.find_site_packages_so import find_all_so_files_under_all_site_packages
+from cuda.pathfinder._utils.find_site_packages_so import find_all_so_files_via_metadata
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs, find_sub_dirs_all_sitepackages
 
 
@@ -27,7 +27,7 @@ def _no_such_file_in_sub_dirs(
 
 
 def _find_so_using_nvidia_lib_dirs(so_basename: str) -> Optional[str]:
-    candidates = find_all_so_files_under_all_site_packages().get(so_basename)
+    candidates = find_all_so_files_via_metadata().get(so_basename)
     if not candidates:
         return None
     so_versions = candidates.keys()
