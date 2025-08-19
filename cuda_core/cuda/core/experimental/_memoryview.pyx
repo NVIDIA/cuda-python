@@ -69,7 +69,7 @@ cdef class StridedMemoryView:
     obj : Any
         Any objects that supports either DLPack (up to v1.0) or CUDA Array
         Interface (v3).
-    stream_ptr: Optional[int]
+    stream_ptr: int
         The pointer address (as Python `int`) to the **consumer** stream.
         Stream ordering will be properly established unless ``-1`` is passed.
     """
@@ -85,6 +85,11 @@ cdef class StridedMemoryView:
     # A strong reference to the result of obj.__dlpack__() so we
     # can lazily create shape and strides from it later
     cdef object dlpack_capsule
+        
+    # Memoized properties
+    cdef tuple _shape
+    cdef object _strides
+    cdef object _dtype
 
     def __init__(self, obj=None, stream_ptr=None):
         if obj is not None:
@@ -98,23 +103,25 @@ cdef class StridedMemoryView:
 
     @property
     def shape(self) -> tuple[int]:
-        if self.exporting_obj is not None:
+        if self._shape is None and self.exporting_obj is not None:
             if self.dl_tensor != NULL:
-                return cuda_utils.carray_int64_t_to_tuple(
+                self._shape = cuda_utils.carray_int64_t_to_tuple(
                     self.dl_tensor.shape, 
                     self.dl_tensor.ndim
                 )
             else:
-                return self.exporting_obj.__cuda_array_interface__["shape"]
-        return ()
+                self._shape = self.exporting_obj.__cuda_array_interface__["shape"]
+        else:
+            self._shape = ()
+        return self._shape
 
     @property
     def strides(self) -> Optional[tuple[int]]:
         cdef int itemsize
-        if self.exporting_obj is not None:
+        if self._strides is None and self.exporting_obj is not None:
             if self.dl_tensor != NULL:
                 if self.dl_tensor.strides:
-                    return cuda_utils.carray_int64_t_to_tuple(
+                    self._strides = cuda_utils.carray_int64_t_to_tuple(
                         self.dl_tensor.strides, 
                         self.dl_tensor.ndim
                     )
@@ -122,21 +129,21 @@ cdef class StridedMemoryView:
                 strides = self.exporting_obj.__cuda_array_interface__.get("strides")
                 if strides is not None:
                     itemsize = self.dtype.itemsize
-                    result = cpython.PyTuple_New(len(strides))
+                    self._strides = cpython.PyTuple_New(len(strides))
                     for i in range(len(strides)):
-                        cpython.PyTuple_SET_ITEM(result, i, strides[i] // itemsize)
-                    return result
-        return None
+                        cpython.PyTuple_SET_ITEM(self._strides, i, strides[i] // itemsize)
+        return self._strides 
 
     @property
     def dtype(self) -> Optional[numpy.dtype]:
-        if self.exporting_obj is not None:
-            if self.dl_tensor != NULL:
-                return dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
-            else:
-                # TODO: this only works for built-in numeric types
-                return numpy.dtype(self.exporting_obj.__cuda_array_interface__["typestr"])
-        return None
+        if self._dtype is None:
+            if self.exporting_obj is not None:
+                if self.dl_tensor != NULL:
+                    self._dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
+                else:
+                    # TODO: this only works for built-in numeric types
+                    self._dtype = numpy.dtype(self.exporting_obj.__cuda_array_interface__["typestr"])
+        return self._dtype
 
     def __repr__(self):
         return (f"StridedMemoryView(ptr={self.ptr},\n"
