@@ -32,7 +32,7 @@ jobs:
           echo "OLD_BRANCH=${OLD_BRANCH}" >> $GITHUB_ENV
 
       - name: Create backport pull requests
-        uses: korthout/backport-action@0193454f0c5947491d348f33a275c119f30eb736  # v3.2.1
+        uses: korthout/backport-action@ca4972adce8039ff995e618f5fc02d1b7961f27a  # v3.3.0
         with:
           copy_assignees: true
           copy_labels_pattern: true
