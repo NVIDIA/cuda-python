@@ -353,7 +353,7 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
             buf.ptr))
 
     cdef intptr_t producer_s, consumer_s
-    stream_ptr = int(stream_ptr) if stream_ptr is not None else -1
+    stream_ptr = int(stream_ptr)
     if stream_ptr != -1:
         stream = cai_data.get("stream")
         if stream is not None:
