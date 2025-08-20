@@ -108,7 +108,7 @@ DIRECT_DEPENDENCIES = DIRECT_DEPENDENCIES_CTK | {
 #   cuda_12.9.1_575.57.08_linux.run
 #   cuda_13.0.0_580.65.06_linux.run
 # Generated with toolshed/build_pathfinder_sonames.py
-SUPPORTED_LINUX_SONAMES = {
+SUPPORTED_LINUX_SONAMES_CTK = {
     "cublas": (
         "libcublas.so.11",
         "libcublas.so.12",
@@ -236,6 +236,13 @@ SUPPORTED_LINUX_SONAMES = {
         "libnvvm.so.4",
     ),
 }
+SUPPORTED_LINUX_SONAMES_OTHER = {
+    "cufftMp": ("libcufftMp.so.11",),
+    "mathdx": ("libmathdx.so.0",),
+    "nvpl_fftw": ("libnvpl_fftw.so.0",),
+    "nvshmem_host": ("libnvshmem_host.so.3",),
+}
+SUPPORTED_LINUX_SONAMES = SUPPORTED_LINUX_SONAMES_CTK | SUPPORTED_LINUX_SONAMES_OTHER
 
 # Based on these released files:
 #   cuda_11.0.3_451.82_win10.exe
@@ -258,7 +265,7 @@ SUPPORTED_LINUX_SONAMES = {
 #   cuda_12.9.1_576.57_windows.exe
 #   cuda_13.0.0_windows.exe
 # Generated with toolshed/build_pathfinder_dlls.py
-SUPPORTED_WINDOWS_DLLS = {
+SUPPORTED_WINDOWS_DLLS_CTK = {
     "cublas": (
         "cublas64_11.dll",
         "cublas64_12.dll",
@@ -388,6 +395,10 @@ SUPPORTED_WINDOWS_DLLS = {
         "nvvm70.dll",
     ),
 }
+SUPPORTED_WINDOWS_DLLS_OTHER = {
+    "mathdx": ("mathdx64_0.dll",),
+}
+SUPPORTED_WINDOWS_DLLS = SUPPORTED_WINDOWS_DLLS_CTK | SUPPORTED_WINDOWS_DLLS_OTHER
 
 LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = (
     "cufft",
@@ -427,12 +438,13 @@ SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
     "nvrtc": ("nvidia/cu13/lib", "nvidia/cuda_nvrtc/lib"),
     "nvvm": ("nvidia/cu13/lib", "nvidia/cuda_nvcc/nvvm/lib64"),
 }
-SITE_PACKAGES_LIBDIRS_LINUX = SITE_PACKAGES_LIBDIRS_LINUX_CTK | {
+SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
     "cufftMp": ("nvidia/cufftmp/cu12/lib",),
     "mathdx": ("nvidia/cu12/lib",),
     "nvpl_fftw": ("nvpl/lib",),
     "nvshmem_host": ("nvidia/nvshmem/lib",),
 }
+SITE_PACKAGES_LIBDIRS_LINUX = SITE_PACKAGES_LIBDIRS_LINUX_CTK | SITE_PACKAGES_LIBDIRS_LINUX_OTHER
 
 # Generated with toolshed/make_site_packages_libdirs_windows.py
 SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = {
@@ -463,9 +475,10 @@ SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = {
     "nvrtc": ("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvrtc/bin"),
     "nvvm": ("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvcc/nvvm/bin"),
 }
-SITE_PACKAGES_LIBDIRS_WINDOWS = SITE_PACKAGES_LIBDIRS_WINDOWS_CTK | {
+SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER = {
     "mathdx": ("nvidia/cu12/bin",),
 }
+SITE_PACKAGES_LIBDIRS_WINDOWS = SITE_PACKAGES_LIBDIRS_WINDOWS_CTK | SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER
 
 
 def is_suppressed_dll_file(path_basename: str) -> bool:
