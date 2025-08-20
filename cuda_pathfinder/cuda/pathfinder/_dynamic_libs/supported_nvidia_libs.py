@@ -394,6 +394,8 @@ LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = (
     "nvrtc",
 )
 
+LIBNAMES_REQUIRING_RTLD_DEEPBIND = ("cufftMp",)
+
 
 def is_suppressed_dll_file(path_basename: str) -> bool:
     if path_basename.startswith("nvrtc"):
