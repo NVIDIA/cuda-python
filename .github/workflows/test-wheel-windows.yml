@@ -89,6 +89,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup proxy cache
+        uses: nv-gha-runners/setup-proxy-cache@main
+        continue-on-error: true
+        # Skip the cache on Windows nodes outside of our org.
+        if: ${{ inputs.host-platform != 'win-64' }}
+
       - name: Update driver
         run: |
           .github/workflows/install_gpu_driver.ps1
