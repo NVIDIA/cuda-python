@@ -12,6 +12,7 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     IS_WINDOWS,
     is_suppressed_dll_file,
 )
+from cuda.pathfinder._utils.find_site_packages_dll import find_all_dll_files_via_metadata
 from cuda.pathfinder._utils.find_site_packages_so import find_all_so_files_via_metadata
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs, find_sub_dirs_all_sitepackages
 
@@ -44,21 +45,19 @@ def _find_dll_under_dir(dirpath: str, file_wild: str) -> Optional[str]:
     return None
 
 
-def _find_dll_using_nvidia_bin_dirs(
-    libname: str, lib_searched_for: str, error_messages: list[str], attachments: list[str]
-) -> Optional[str]:
-    nvidia_sub_dirs_list: list[tuple[str, ...]] = [
-        ("nvidia", "*", "bin"),  # CTK 12
-        ("nvidia", "*", "bin", "*"),  # CTK 13, e.g. site-packages\nvidia\cu13\bin\x86_64\
-    ]
-    if libname == "nvvm":
-        nvidia_sub_dirs_list.append(("nvidia", "*", "nvvm", "bin"))  # Only for CTK 12
-    for nvidia_sub_dirs in nvidia_sub_dirs_list:
-        for bin_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
-            dll_name = _find_dll_under_dir(bin_dir, lib_searched_for)
-            if dll_name is not None:
-                return dll_name
-    _no_such_file_in_sub_dirs(nvidia_sub_dirs, lib_searched_for, error_messages, attachments)
+def _find_dll_using_nvidia_bin_dirs(libname: str) -> Optional[str]:
+    libname_lower = libname.lower()
+    candidates = []
+    for relname, abs_paths in find_all_dll_files_via_metadata().items():
+        if is_suppressed_dll_file(relname):
+            continue
+        if relname.startswith(libname_lower):
+            for abs_path in abs_paths:
+                candidates.append(abs_path)
+    if candidates:
+        candidates.sort()
+        result: str = candidates[0]  # help mypy
+        return result
     return None
 
 
@@ -140,12 +139,7 @@ class _FindNvidiaDynamicLib:
         if IS_WINDOWS:
             self.lib_searched_for = f"{libname}*.dll"
             if self.abs_path is None:
-                self.abs_path = _find_dll_using_nvidia_bin_dirs(
-                    libname,
-                    self.lib_searched_for,
-                    self.error_messages,
-                    self.attachments,
-                )
+                self.abs_path = _find_dll_using_nvidia_bin_dirs(libname)
         else:
             self.lib_searched_for = f"lib{libname}.so"
             if self.abs_path is None:

@@ -17,7 +17,7 @@ def split_so_version_suffix(so_filename: str) -> tuple[str, str]:
 
 
 @functools.cache
-def find_all_so_files_via_metadata() -> dict[str, dict[str, list[str]]]:
+def find_all_so_files_via_metadata() -> dict[str, dict[str, tuple[str, ...]]]:
     results: collections.defaultdict[str, collections.defaultdict[str, list[str]]] = collections.defaultdict(
         lambda: collections.defaultdict(list)
     )
@@ -36,4 +36,4 @@ def find_all_so_files_via_metadata() -> dict[str, dict[str, list[str]]]:
             results[so_basename][so_version_suffix].append(abs_path)
 
     # plain dicts; sort inner lists for stability
-    return {k: {kk: sorted(vv) for kk, vv in v.items()} for k, v in results.items()}
+    return {k: {kk: tuple(sorted(vv)) for kk, vv in v.items()} for k, v in results.items()}
