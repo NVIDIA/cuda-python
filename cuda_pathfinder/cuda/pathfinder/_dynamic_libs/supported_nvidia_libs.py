@@ -63,7 +63,7 @@ SUPPORTED_LIBNAMES_ALL = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_LINUX_ON
 SUPPORTED_LIBNAMES = SUPPORTED_LIBNAMES_WINDOWS if IS_WINDOWS else SUPPORTED_LIBNAMES_LINUX
 
 # Based on ldd output for Linux x86_64 nvidia-*-cu12 wheels (12.8.1)
-DIRECT_DEPENDENCIES = {
+DIRECT_DEPENDENCIES_CTK = {
     "cublas": ("cublasLt",),
     "cufftw": ("cufft",),
     # "cufile_rdma": ("cufile",),
@@ -81,6 +81,10 @@ DIRECT_DEPENDENCIES = {
     "nppitc": ("nppc",),
     "npps": ("nppc",),
     "nvblas": ("cublas", "cublasLt"),
+}
+DIRECT_DEPENDENCIES = DIRECT_DEPENDENCIES_CTK | {
+    "mathdx": ("nvrtc",),
+    "cufftMp": ("nvshmem_host",),
 }
 
 # Based on these released files:
