@@ -4,7 +4,7 @@
 
 name: "CI: Release"
 
-description: Manually-triggered release workflow. Must have a release note in the draft state and the release commit tagged.
+description: Manually-triggered release workflow. Creates a release draft if one doesn't exist for the given tag, or uses existing draft.
 
 on:
   workflow_dispatch:
@@ -46,7 +46,12 @@ jobs:
   check-tag:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if draft exists for the tag
+      - name: Checkout Source
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Check or create draft release for the tag
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -62,7 +67,7 @@ jobs:
           found=0
           for idx in ${!tags[@]}; do
             if [[ "${tags[$idx]}" == "${{ inputs.git-tag }}" ]]; then
-              echo "found ${{ inputs.git-tag }}"
+              echo "found existing release for ${{ inputs.git-tag }}"
               found=1
               if [[ "${is_draft[$idx]}" != "true" ]]; then
                 echo "the release note is not in draft state"
@@ -72,8 +77,8 @@ jobs:
             fi
           done
           if [[ "$found" == 0 ]]; then
-            echo "the release is not yet tagged"
-            exit 1
+            echo "no release found for ${{ inputs.git-tag }}, creating draft release"
+            gh release create "${{ inputs.git-tag }}" --draft --repo "${{ github.repository }}" --title "Release ${{ inputs.git-tag }}" --notes "Release ${{ inputs.git-tag }}"
           fi
 
   doc:
