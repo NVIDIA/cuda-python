@@ -120,7 +120,7 @@ launch(dev.default_stream, config, ker, grid_buffer, cluster_buffer, block_buffe
 dev.sync()
 
 # verify results
-print(f"\nResults stored in pinned memory:")
+print("\nResults stored in pinned memory:")
 print(f"Grid dimensions (blocks): {tuple(grid_dims)}")
 print(f"Cluster dimensions: {tuple(cluster_dims)}")
 print(f"Block dimensions (threads): {tuple(block_dims)}")
@@ -130,7 +130,7 @@ print(f"Block dimensions (threads): {tuple(block_dims)}")
 expected_grid_blocks = grid * cluster  # 4 * 2 = 8
 actual_grid_blocks = grid_dims[0]
 
-print(f"\nVerification:")
+print("\nVerification:")
 print(f"LaunchConfig specified: grid={grid} clusters, cluster={cluster} blocks/cluster")
 print(f"Expected total blocks: {expected_grid_blocks}")
 print(f"Actual total blocks: {actual_grid_blocks}")
