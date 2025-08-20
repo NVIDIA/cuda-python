@@ -10,6 +10,7 @@ from typing import Optional
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     IS_WINDOWS,
+    SITE_PACKAGES_LIBDIRS_LINUX,
     is_suppressed_dll_file,
 )
 from cuda.pathfinder._utils.find_site_packages_dll import find_all_dll_files_via_metadata
@@ -27,13 +28,31 @@ def _no_such_file_in_sub_dirs(
             attachments.append(f"    {node}")
 
 
-def _find_so_using_nvidia_lib_dirs(so_basename: str) -> Optional[str]:
-    candidates = find_all_so_files_via_metadata().get(so_basename)
-    if not candidates:
-        return None
-    so_versions = candidates.keys()
-    all_abs_paths: list[str] = candidates[next(iter(sorted(so_versions)))]
-    return next(iter(sorted(all_abs_paths)))
+def _find_so_using_nvidia_lib_dirs(libname: str, so_basename: str) -> Optional[str]:
+    rel_dirs = SITE_PACKAGES_LIBDIRS_LINUX.get(libname)
+    if rel_dirs is not None:
+        # Fast direct access with minimal globbing.
+        file_wild = so_basename + "*"
+        for rel_dir in rel_dirs:
+            for abs_dir in find_sub_dirs_all_sitepackages(tuple(rel_dir.split(os.path.sep))):
+                # First look for an exact match
+                so_name = os.path.join(abs_dir, so_basename)
+                if os.path.isfile(so_name):
+                    return so_name
+                # Look for a versioned library
+                # Using sort here mainly to make the result deterministic.
+                for so_name in sorted(glob.glob(os.path.join(abs_dir, file_wild))):
+                    if os.path.isfile(so_name):
+                        return so_name
+    else:
+        # This fallback is relatively slow, but acceptable.
+        candidates = find_all_so_files_via_metadata().get(so_basename)
+        if candidates:
+            so_versions = candidates.keys()
+            # For now, simply take the first candidate after sorting.
+            all_abs_paths: list[str] = candidates[next(iter(sorted(so_versions)))]
+            return next(iter(sorted(all_abs_paths)))
+    return None
 
 
 def _find_dll_under_dir(dirpath: str, file_wild: str) -> Optional[str]:
@@ -143,7 +162,7 @@ class _FindNvidiaDynamicLib:
         else:
             self.lib_searched_for = f"lib{libname}.so"
             if self.abs_path is None:
-                self.abs_path = _find_so_using_nvidia_lib_dirs(self.lib_searched_for)
+                self.abs_path = _find_so_using_nvidia_lib_dirs(libname, self.lib_searched_for)
 
     def retry_with_cuda_home_priority_last(self) -> None:
         cuda_home_lib_dir = _find_lib_dir_using_cuda_home(self.libname)
