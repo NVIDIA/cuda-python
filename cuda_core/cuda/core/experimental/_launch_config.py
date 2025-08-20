@@ -80,6 +80,13 @@ class LaunchConfig:
                     f"thread block clusters are not supported on devices with compute capability < 9.0 (got {cc})"
                 )
             self.cluster = cast_to_3_tuple("LaunchConfig.cluster", self.cluster)
+            # When cluster is set, grid should represent the number of clusters, not blocks.
+            # Convert grid dimensions from cluster units to block units by multiplying by cluster dimensions.
+            self.grid = (
+                self.grid[0] * self.cluster[0],
+                self.grid[1] * self.cluster[1], 
+                self.grid[2] * self.cluster[2]
+            )
         if self.shmem_size is None:
             self.shmem_size = 0
         if self.cooperative_launch and not Device().properties.cooperative_launch:

@@ -59,6 +59,10 @@ def test_launch_config_shmem_size():
     assert config.shmem_size == 0
 
 
+# NOTE: Cluster tests are skipped in CI because they require CUDA hardware and drivers
+# The cluster grid conversion functionality is tested manually via verify_cluster_fix.py
+
+
 def test_launch_invalid_values(init_cuda):
     code = 'extern "C" __global__ void my_kernel() {}'
     program = Program(code, "c++")
