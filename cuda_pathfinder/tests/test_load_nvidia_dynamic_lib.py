@@ -27,6 +27,18 @@ def test_supported_libnames_windows_dlls_consistency():
     )
 
 
+def test_supported_libnames_linux_site_packages_libdirs_ctk_consistency():
+    assert tuple(sorted(supported_nvidia_libs.SUPPORTED_LIBNAMES_LINUX)) == tuple(
+        sorted(supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_LINUX_CTK.keys())
+    )
+
+
+def test_supported_libnames_windows_site_packages_libdirs_ctk_consistency():
+    assert tuple(sorted(supported_nvidia_libs.SUPPORTED_LIBNAMES_WINDOWS)) == tuple(
+        sorted(supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_CTK.keys())
+    )
+
+
 @pytest.mark.parametrize("dict_name", ["SUPPORTED_LINUX_SONAMES", "SUPPORTED_WINDOWS_DLLS"])
 def test_libname_dict_values_are_unique(dict_name):
     libname_dict = getattr(supported_nvidia_libs, dict_name)

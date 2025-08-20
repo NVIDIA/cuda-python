@@ -397,20 +397,18 @@ LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = (
 LIBNAMES_REQUIRING_RTLD_DEEPBIND = ("cufftMp",)
 
 # Generated with toolshed/make_site_packages_libdirs_linux.py
-SITE_PACKAGES_LIBDIRS_LINUX = {
+SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
     "cublas": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
     "cublasLt": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
     "cudart": ("nvidia/cu13/lib", "nvidia/cuda_runtime/lib"),
     "cufft": ("nvidia/cu13/lib", "nvidia/cufft/lib"),
-    "cufftMp": ("nvidia/cufftmp/cu12/lib",),
     "cufftw": ("nvidia/cu13/lib", "nvidia/cufft/lib"),
     "cufile": ("nvidia/cu13/lib", "nvidia/cufile/lib"),
-    "cufile_rdma": ("nvidia/cu13/lib", "nvidia/cufile/lib"),
+    # "cufile_rdma": ("nvidia/cu13/lib", "nvidia/cufile/lib"),
     "curand": ("nvidia/cu13/lib", "nvidia/curand/lib"),
     "cusolver": ("nvidia/cu13/lib", "nvidia/cusolver/lib"),
     "cusolverMg": ("nvidia/cu13/lib", "nvidia/cusolver/lib"),
     "cusparse": ("nvidia/cu13/lib", "nvidia/cusparse/lib"),
-    "mathdx": ("nvidia/cu12/lib",),
     "nppc": ("nvidia/cu13/lib", "nvidia/npp/lib"),
     "nppial": ("nvidia/cu13/lib", "nvidia/npp/lib"),
     "nppicc": ("nvidia/cu13/lib", "nvidia/npp/lib"),
@@ -426,14 +424,18 @@ SITE_PACKAGES_LIBDIRS_LINUX = {
     "nvblas": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
     "nvfatbin": ("nvidia/cu13/lib", "nvidia/nvfatbin/lib"),
     "nvjpeg": ("nvidia/cu13/lib", "nvidia/nvjpeg/lib"),
-    "nvpl_fftw": ("nvpl/lib",),
     "nvrtc": ("nvidia/cu13/lib", "nvidia/cuda_nvrtc/lib"),
-    "nvshmem_host": ("nvidia/nvshmem/lib",),
     "nvvm": ("nvidia/cu13/lib", "nvidia/cuda_nvcc/nvvm/lib64"),
+}
+SITE_PACKAGES_LIBDIRS_LINUX = SITE_PACKAGES_LIBDIRS_LINUX_CTK | {
+    "cufftMp": ("nvidia/cufftmp/cu12/lib",),
+    "mathdx": ("nvidia/cu12/lib",),
+    "nvpl_fftw": ("nvpl/lib",),
+    "nvshmem_host": ("nvidia/nvshmem/lib",),
 }
 
 # Generated with toolshed/make_site_packages_libdirs_windows.py
-SITE_PACKAGES_LIBDIRS_WINDOWS = {
+SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = {
     "cublas": ("nvidia/cu13/bin/x86_64", "nvidia/cublas/bin"),
     "cublasLt": ("nvidia/cu13/bin/x86_64", "nvidia/cublas/bin"),
     "cudart": ("nvidia/cu13/bin/x86_64", "nvidia/cuda_runtime/bin"),
@@ -443,7 +445,6 @@ SITE_PACKAGES_LIBDIRS_WINDOWS = {
     "cusolver": ("nvidia/cu13/bin/x86_64", "nvidia/cusolver/bin"),
     "cusolverMg": ("nvidia/cu13/bin/x86_64", "nvidia/cusolver/bin"),
     "cusparse": ("nvidia/cu13/bin/x86_64", "nvidia/cusparse/bin"),
-    "mathdx": ("nvidia/cu12/bin",),
     "nppc": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
     "nppial": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
     "nppicc": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
@@ -461,6 +462,9 @@ SITE_PACKAGES_LIBDIRS_WINDOWS = {
     "nvjpeg": ("nvidia/cu13/bin/x86_64", "nvidia/nvjpeg/bin"),
     "nvrtc": ("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvrtc/bin"),
     "nvvm": ("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvcc/nvvm/bin"),
+}
+SITE_PACKAGES_LIBDIRS_WINDOWS = SITE_PACKAGES_LIBDIRS_WINDOWS_CTK | {
+    "mathdx": ("nvidia/cu12/bin",),
 }
 
 
