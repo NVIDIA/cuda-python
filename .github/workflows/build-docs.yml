@@ -52,8 +52,9 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.git-tag }}
 
-      # TODO: cache conda env to speed up the workflow once conda-incubator/setup-miniconda#267
-      # is resolved
+      - name: Setup proxy cache
+        uses: nv-gha-runners/setup-proxy-cache@main
+        continue-on-error: true
 
       - name: Set up miniforge
         uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f  # v3.2.0
