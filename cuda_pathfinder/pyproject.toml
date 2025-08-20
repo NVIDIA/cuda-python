@@ -30,7 +30,7 @@ nvidia_wheels_cu12 = [
     "nvidia-nvjpeg-cu12",
     "nvidia-libmathdx-cu12",
     "nvidia-cufftmp-cu12",
-    "nvidia-nvshmem-cu12",
+    "nvidia-nvshmem-cu12; sys_platform != 'win32'",
 ]
 nvidia_wheels_cu13 = [
     "nvidia-cublas",
@@ -47,7 +47,7 @@ nvidia_wheels_cu13 = [
     "nvidia-nvjitlink",
     "nvidia-nvjpeg",
     "nvidia-nvvm",
-    "nvidia-nvshmem-cu13",
+    "nvidia-nvshmem-cu13; sys_platform != 'win32'",
 ]
 other_wheels = [
     "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",

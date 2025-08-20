@@ -396,6 +396,7 @@ LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = (
 
 LIBNAMES_REQUIRING_RTLD_DEEPBIND = ("cufftMp",)
 
+# Generated with toolshed/make_site_packages_libdirs_linux.py
 SITE_PACKAGES_LIBDIRS_LINUX = {
     "cublas": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
     "cublasLt": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
@@ -429,6 +430,37 @@ SITE_PACKAGES_LIBDIRS_LINUX = {
     "nvrtc": ("nvidia/cu13/lib", "nvidia/cuda_nvrtc/lib"),
     "nvshmem_host": ("nvidia/nvshmem/lib",),
     "nvvm": ("nvidia/cu13/lib", "nvidia/cuda_nvcc/nvvm/lib64"),
+}
+
+# Generated with toolshed/make_site_packages_libdirs_windows.py
+SITE_PACKAGES_LIBDIRS_WINDOWS = {
+    "cublas": ("nvidia/cu13/bin/x86_64", "nvidia/cublas/bin"),
+    "cublasLt": ("nvidia/cu13/bin/x86_64", "nvidia/cublas/bin"),
+    "cudart": ("nvidia/cu13/bin/x86_64", "nvidia/cuda_runtime/bin"),
+    "cufft": ("nvidia/cu13/bin/x86_64", "nvidia/cufft/bin"),
+    "cufftw": ("nvidia/cu13/bin/x86_64", "nvidia/cufft/bin"),
+    "curand": ("nvidia/cu13/bin/x86_64", "nvidia/curand/bin"),
+    "cusolver": ("nvidia/cu13/bin/x86_64", "nvidia/cusolver/bin"),
+    "cusolverMg": ("nvidia/cu13/bin/x86_64", "nvidia/cusolver/bin"),
+    "cusparse": ("nvidia/cu13/bin/x86_64", "nvidia/cusparse/bin"),
+    "mathdx": ("nvidia/cu12/bin",),
+    "nppc": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppial": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppicc": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppidei": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppif": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppig": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppim": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppist": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppisu": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppitc": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "npps": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nvJitLink": ("nvidia/cu13/bin/x86_64", "nvidia/nvjitlink/bin"),
+    "nvblas": ("nvidia/cu13/bin/x86_64", "nvidia/cublas/bin"),
+    "nvfatbin": ("nvidia/cu13/bin/x86_64", "nvidia/nvfatbin/bin"),
+    "nvjpeg": ("nvidia/cu13/bin/x86_64", "nvidia/nvjpeg/bin"),
+    "nvrtc": ("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvrtc/bin"),
+    "nvvm": ("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvcc/nvvm/bin"),
 }
 
 
