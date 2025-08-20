@@ -59,8 +59,58 @@ def test_launch_config_shmem_size():
     assert config.shmem_size == 0
 
 
-# NOTE: Cluster tests are skipped in CI because they require CUDA hardware and drivers
-# The cluster grid conversion functionality is tested manually via verify_cluster_fix.py
+def test_launch_config_cluster_grid_conversion():
+    """Test that LaunchConfig correctly converts grid from cluster units to block units."""
+    # Mock the _lazy_init and device capability checks to avoid hardware requirements
+    import cuda.core.experimental._launch_config as lc_module
+    
+    # Store original values
+    original_inited = lc_module._inited
+    original_use_ex = getattr(lc_module, '_use_ex', None)
+    
+    try:
+        # Mock initialization state
+        lc_module._inited = True
+        lc_module._use_ex = True
+        
+        # Mock Device class to avoid hardware checks
+        from unittest.mock import patch, MagicMock
+        
+        mock_device = MagicMock()
+        mock_device.compute_capability = (9, 0)  # H100
+        mock_device.properties.cooperative_launch = True
+        
+        with patch('cuda.core.experimental._launch_config.Device', return_value=mock_device):
+            # Test case 1: 1D - Issue #867 example
+            config = LaunchConfig(grid=4, cluster=2, block=32)
+            assert config.grid == (8, 1, 1), f"Expected (8, 1, 1), got {config.grid}"
+            assert config.cluster == (2, 1, 1), f"Expected (2, 1, 1), got {config.cluster}"
+            assert config.block == (32, 1, 1), f"Expected (32, 1, 1), got {config.block}"
+            
+            # Test case 2: 2D grid and cluster
+            config = LaunchConfig(grid=(2, 3), cluster=(2, 2), block=32)
+            assert config.grid == (4, 6, 1), f"Expected (4, 6, 1), got {config.grid}"
+            assert config.cluster == (2, 2, 1), f"Expected (2, 2, 1), got {config.cluster}"
+            
+            # Test case 3: 3D full specification
+            config = LaunchConfig(grid=(2, 2, 2), cluster=(3, 3, 3), block=(8, 8, 8))
+            assert config.grid == (6, 6, 6), f"Expected (6, 6, 6), got {config.grid}"
+            assert config.cluster == (3, 3, 3), f"Expected (3, 3, 3), got {config.cluster}"
+            
+            # Test case 4: Identity case
+            config = LaunchConfig(grid=1, cluster=1, block=32)
+            assert config.grid == (1, 1, 1), f"Expected (1, 1, 1), got {config.grid}"
+            
+            # Test case 5: No cluster (should not convert grid)
+            config = LaunchConfig(grid=4, block=32)
+            assert config.grid == (4, 1, 1), f"Expected (4, 1, 1), got {config.grid}"
+            assert config.cluster is None
+            
+    finally:
+        # Restore original state
+        lc_module._inited = original_inited
+        if original_use_ex is not None:
+            lc_module._use_ex = original_use_ex
 
 
 def test_launch_invalid_values(init_cuda):

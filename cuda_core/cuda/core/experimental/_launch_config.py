@@ -35,10 +35,20 @@ def _lazy_init():
 class LaunchConfig:
     """Customizable launch options.
 
+    Note
+    ----
+    When cluster is specified, the grid parameter represents the number of
+    clusters (not blocks). The hierarchy is: grid (clusters) -> cluster (blocks) -> 
+    block (threads). Each dimension in grid specifies clusters, each dimension in 
+    cluster specifies blocks per cluster, and each dimension in block specifies 
+    threads per block.
+
     Attributes
     ----------
     grid : Union[tuple, int]
-        Collection of threads that will execute a kernel function.
+        Collection of threads that will execute a kernel function. When cluster
+        is not specified, this represents the number of blocks. When cluster is
+        specified, this represents the number of clusters.
     cluster : Union[tuple, int]
         Group of blocks (Thread Block Cluster) that will execute on the same
         GPU Processing Cluster (GPC). Blocks within a cluster have access to
