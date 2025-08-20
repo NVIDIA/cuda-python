@@ -100,26 +100,28 @@ def _to_native_launch_config(config: LaunchConfig) -> driver.CUlaunchConfig:
     _lazy_init()
     drv_cfg = driver.CUlaunchConfig()
     
-    # If cluster is specified, convert grid from cluster units to block units
+    # Handle grid dimensions and cluster configuration
     if config.cluster:
+        # Convert grid from cluster units to block units
         grid_blocks = (
             config.grid[0] * config.cluster[0],
             config.grid[1] * config.cluster[1],
             config.grid[2] * config.cluster[2]
         )
         drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = grid_blocks
-    else:
-        drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
         
-    drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
-    drv_cfg.sharedMemBytes = config.shmem_size
-    attrs = []  # TODO: support more attributes
-    if config.cluster:
+        # Set up cluster attribute
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
         dim = attr.value.clusterDim
         dim.x, dim.y, dim.z = config.cluster
-        attrs.append(attr)
+        attrs = [attr]
+    else:
+        drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
+        attrs = []
+        
+    drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
+    drv_cfg.sharedMemBytes = config.shmem_size
     if config.cooperative_launch:
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE
