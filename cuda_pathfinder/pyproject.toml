@@ -28,6 +28,9 @@ nvidia_wheels_cu12 = [
     "nvidia-nvfatbin-cu12",
     "nvidia-nvjitlink-cu12",
     "nvidia-nvjpeg-cu12",
+    "nvidia-libmathdx-cu12",
+    "nvidia-cufftmp-cu12",
+    "nvidia-nvshmem-cu12",
 ]
 nvidia_wheels_cu13 = [
     "nvidia-cublas",
@@ -44,6 +47,10 @@ nvidia_wheels_cu13 = [
     "nvidia-nvjitlink",
     "nvidia-nvjpeg",
     "nvidia-nvvm",
+    "nvidia-nvshmem-cu13",
+]
+other_wheels = [
+    "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
 
 [project.urls]
