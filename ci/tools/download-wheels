@@ -11,11 +11,11 @@ set -euo pipefail
 
 # Check required arguments
 if [[ $# -lt 3 ]]; then
-    echo "Usage: $0 <run-id> <component> <repository> [output-dir]"
-    echo "  run-id: The GitHub Actions run ID containing the artifacts"
-    echo "  component: The component name pattern to download (e.g., cuda-core, cuda-bindings)"
-    echo "  repository: The GitHub repository (e.g., NVIDIA/cuda-python)"
-    echo "  output-dir: Optional output directory (default: ./dist)"
+    echo "Usage: $0 <run-id> <component> <repository> [output-dir]" >&2
+    echo "  run-id: The GitHub Actions run ID containing the artifacts" >&2
+    echo "  component: The component name pattern to download (e.g., cuda-core, cuda-bindings)" >&2
+    echo "  repository: The GitHub repository (e.g., NVIDIA/cuda-python)" >&2
+    echo "  output-dir: Optional output directory (default: ./dist)" >&2
     exit 1
 fi
 
