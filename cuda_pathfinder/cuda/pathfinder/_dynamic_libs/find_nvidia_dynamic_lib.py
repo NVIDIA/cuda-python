@@ -11,6 +11,7 @@ from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     IS_WINDOWS,
     SITE_PACKAGES_LIBDIRS_LINUX,
+    SITE_PACKAGES_LIBDIRS_WINDOWS,
     is_suppressed_dll_file,
 )
 from cuda.pathfinder._utils.find_site_packages_dll import find_all_dll_files_via_metadata
@@ -64,19 +65,29 @@ def _find_dll_under_dir(dirpath: str, file_wild: str) -> Optional[str]:
     return None
 
 
-def _find_dll_using_nvidia_bin_dirs(libname: str) -> Optional[str]:
-    libname_lower = libname.lower()
-    candidates = []
-    for relname, abs_paths in find_all_dll_files_via_metadata().items():
-        if is_suppressed_dll_file(relname):
-            continue
-        if relname.startswith(libname_lower):
-            for abs_path in abs_paths:
-                candidates.append(abs_path)
-    if candidates:
-        candidates.sort()
-        result: str = candidates[0]  # help mypy
-        return result
+def _find_dll_using_nvidia_bin_dirs(libname: str, lib_searched_for: str) -> Optional[str]:
+    rel_dirs = SITE_PACKAGES_LIBDIRS_WINDOWS.get(libname)
+    if rel_dirs is not None:
+        # Fast direct access with minimal globbing.
+        for rel_dir in rel_dirs:
+            for abs_dir in find_sub_dirs_all_sitepackages(tuple(rel_dir.split(os.path.sep))):
+                dll_name = _find_dll_under_dir(abs_dir, lib_searched_for)
+                if dll_name is not None:
+                    return dll_name
+    else:
+        # This fallback is relatively slow, but acceptable.
+        libname_lower = libname.lower()
+        candidates = []
+        for relname, abs_paths in find_all_dll_files_via_metadata().items():
+            if is_suppressed_dll_file(relname):
+                continue
+            if relname.startswith(libname_lower):
+                for abs_path in abs_paths:
+                    candidates.append(abs_path)
+        if candidates:
+            candidates.sort()
+            result: str = candidates[0]  # help mypy
+            return result
     return None
 
 
@@ -158,7 +169,7 @@ class _FindNvidiaDynamicLib:
         if IS_WINDOWS:
             self.lib_searched_for = f"{libname}*.dll"
             if self.abs_path is None:
-                self.abs_path = _find_dll_using_nvidia_bin_dirs(libname)
+                self.abs_path = _find_dll_using_nvidia_bin_dirs(libname, self.lib_searched_for)
         else:
             self.lib_searched_for = f"lib{libname}.so"
             if self.abs_path is None:
