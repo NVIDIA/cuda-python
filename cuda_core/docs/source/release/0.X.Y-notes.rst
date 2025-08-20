@@ -3,7 +3,7 @@
 
 .. currentmodule:: cuda.core.experimental
 
-``cuda.core`` 0.3.3 Release Notes
+``cuda.core`` 0.X.Y Release Notes
 =================================
 
 Released on TBD
