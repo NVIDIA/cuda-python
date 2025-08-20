@@ -396,6 +396,41 @@ LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = (
 
 LIBNAMES_REQUIRING_RTLD_DEEPBIND = ("cufftMp",)
 
+SITE_PACKAGES_LIBDIRS_LINUX = {
+    "cublas": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
+    "cublasLt": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
+    "cudart": ("nvidia/cu13/lib", "nvidia/cuda_runtime/lib"),
+    "cufft": ("nvidia/cu13/lib", "nvidia/cufft/lib"),
+    "cufftMp": ("nvidia/cufftmp/cu12/lib",),
+    "cufftw": ("nvidia/cu13/lib", "nvidia/cufft/lib"),
+    "cufile": ("nvidia/cu13/lib", "nvidia/cufile/lib"),
+    "cufile_rdma": ("nvidia/cu13/lib", "nvidia/cufile/lib"),
+    "curand": ("nvidia/cu13/lib", "nvidia/curand/lib"),
+    "cusolver": ("nvidia/cu13/lib", "nvidia/cusolver/lib"),
+    "cusolverMg": ("nvidia/cu13/lib", "nvidia/cusolver/lib"),
+    "cusparse": ("nvidia/cu13/lib", "nvidia/cusparse/lib"),
+    "mathdx": ("nvidia/cu12/lib",),
+    "nppc": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppial": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppicc": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppidei": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppif": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppig": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppim": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppist": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppisu": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppitc": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "npps": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nvJitLink": ("nvidia/cu13/lib", "nvidia/nvjitlink/lib"),
+    "nvblas": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
+    "nvfatbin": ("nvidia/cu13/lib", "nvidia/nvfatbin/lib"),
+    "nvjpeg": ("nvidia/cu13/lib", "nvidia/nvjpeg/lib"),
+    "nvpl_fftw": ("nvpl/lib",),
+    "nvrtc": ("nvidia/cu13/lib", "nvidia/cuda_nvrtc/lib"),
+    "nvshmem_host": ("nvidia/nvshmem/lib",),
+    "nvvm": ("nvidia/cu13/lib", "nvidia/cuda_nvcc/nvvm/lib64"),
+}
+
 
 def is_suppressed_dll_file(path_basename: str) -> bool:
     if path_basename.startswith("nvrtc"):
