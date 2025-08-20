@@ -90,13 +90,6 @@ class LaunchConfig:
                     f"thread block clusters are not supported on devices with compute capability < 9.0 (got {cc})"
                 )
             self.cluster = cast_to_3_tuple("LaunchConfig.cluster", self.cluster)
-            # When cluster is set, grid should represent the number of clusters, not blocks.
-            # Convert grid dimensions from cluster units to block units by multiplying by cluster dimensions.
-            self.grid = (
-                self.grid[0] * self.cluster[0],
-                self.grid[1] * self.cluster[1], 
-                self.grid[2] * self.cluster[2]
-            )
         if self.shmem_size is None:
             self.shmem_size = 0
         if self.cooperative_launch and not Device().properties.cooperative_launch:
@@ -106,7 +99,18 @@ class LaunchConfig:
 def _to_native_launch_config(config: LaunchConfig) -> driver.CUlaunchConfig:
     _lazy_init()
     drv_cfg = driver.CUlaunchConfig()
-    drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
+    
+    # If cluster is specified, convert grid from cluster units to block units
+    if config.cluster:
+        grid_blocks = (
+            config.grid[0] * config.cluster[0],
+            config.grid[1] * config.cluster[1],
+            config.grid[2] * config.cluster[2]
+        )
+        drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = grid_blocks
+    else:
+        drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
+        
     drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
     drv_cfg.sharedMemBytes = config.shmem_size
     attrs = []  # TODO: support more attributes
