@@ -687,7 +687,7 @@ class GraphBuilder:
             [
                 handle_return(
                     driver.cuGraphAddChildGraphNode(
-                        graph_out, deps_info_out[0], num_dependencies_out, child_graph._mnff.graph
+                        graph_out, *deps_info_out, num_dependencies_out, child_graph._mnff.graph
                     )
                 )
             ]
