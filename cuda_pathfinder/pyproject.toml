@@ -15,35 +15,12 @@ test = [
     "pytest>=6.2.4",
 ]
 nvidia_wheels_cu12 = [
-    "cuda-toolkit[cublas]==12.*",
-    "cuda-toolkit[nvcc]==12.*",
-    "cuda-toolkit[nvrtc]==12.*",
-    "cuda-toolkit[cudart]==12.*",
-    "cuda-toolkit[cufft]==12.*",
+    "cuda-toolkit[cublas,nvcc,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg]==12.*",
     "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
-    "cuda-toolkit[curand]==12.*",
-    "cuda-toolkit[cusolver]==12.*",
-    "cuda-toolkit[cusparse]==12.*",
-    "cuda-toolkit[npp]==12.*",
-    "cuda-toolkit[nvfatbin]==12.*",
-    "cuda-toolkit[nvjitlink]==12.*",
-    "cuda-toolkit[nvjpeg]==12.*",
 ]
 nvidia_wheels_cu13 = [
-    "cuda-toolkit[cublas]==13.*",
-    "cuda-toolkit[nvcc]==13.*",
-    "cuda-toolkit[nvrtc]==13.*",
-    "cuda-toolkit[cudart]==13.*",
-    "cuda-toolkit[cufft]==13.*",
+    "cuda-toolkit[cublas,nvcc,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,nvvm]==13.*",
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
-    "cuda-toolkit[curand]==13.*",
-    "cuda-toolkit[cusolver]==13.*",
-    "cuda-toolkit[cusparse]==13.*",
-    "cuda-toolkit[npp]==13.*",
-    "cuda-toolkit[nvfatbin]==13.*",
-    "cuda-toolkit[nvjitlink]==13.*",
-    "cuda-toolkit[nvjpeg]==13.*",
-    "cuda-toolkit[nvvm]==13.*",
 ]
 
 [project.urls]
