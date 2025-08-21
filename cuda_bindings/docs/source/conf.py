@@ -59,27 +59,17 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 html_baseurl = "docs"
-html_theme = "furo"
-# html_theme = 'pydata_sphinx_theme'
+html_theme = "nvidia_sphinx_theme"
 html_theme_options = {
-    "light_logo": "logo-light-mode.png",
-    "dark_logo": "logo-dark-mode.png",
-    # For pydata_sphinx_theme:
-    # "logo": {
-    #    "image_light": "_static/logo-light-mode.png",
-    #    "image_dark": "_static/logo-dark-mode.png",
-    # },
-    # "switcher": {
-    #    "json_url": "https://nvidia.github.io/cuda-python/cuda-bindings/versions.json",
-    #    "version_match": release,
-    # },
-    ## Add light/dark mode and documentation version switcher
-    # "navbar_end": [
-    #    "search-button",
-    #    "theme-switcher",
-    #    "version-switcher",
-    #    "navbar-icon-links",
-    # ],
+    "switcher": {
+        "json_url": "https://nvidia.github.io/cuda-python/cuda-bindings/versions.json",
+        "version_match": release,
+    },
+    # Add light/dark mode and documentation version switcher
+    "navbar_center": [
+        "version-switcher",
+        "navbar-nav",
+    ],
 }
 if os.environ.get("CI"):
     if int(os.environ.get("BUILD_PREVIEW", 0)):
