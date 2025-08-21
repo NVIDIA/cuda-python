@@ -40,7 +40,7 @@ __global__ void vector_add(const float* A,
     }
 }
 """
-arch0 = "".join(f"{i}" for i in dev0.compute_capability)
+arch0 = dev0.arch
 prog_add = Program(code_add, code_type="c++", options={"std": "c++17", "arch": f"sm_{arch0}"})
 mod_add = prog_add.compile("cubin")
 ker_add = mod_add.get_kernel("vector_add")
@@ -63,7 +63,7 @@ __global__ void vector_sub(const float* A,
     }
 }
 """
-arch1 = "".join(f"{i}" for i in dev1.compute_capability)
+arch1 = dev1.arch
 prog_sub = Program(code_sub, code_type="c++", options={"std": "c++17", "arch": f"sm_{arch1}"})
 mod_sub = prog_sub.compile("cubin")
 ker_sub = mod_sub.get_kernel("vector_sub")

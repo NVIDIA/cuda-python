@@ -54,7 +54,7 @@ stream = dev.create_stream()
 cp.cuda.ExternalStream(int(stream.handle)).use()
 
 # Compile kernel
-arch = "".join(f"{i}" for i in dev.compute_capability)
+arch = dev.arch
 program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
 prog = Program(code, code_type="c++", options=program_options)
 mod = prog.compile("cubin")

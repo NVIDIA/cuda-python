@@ -38,7 +38,7 @@ dev.set_current()
 s = dev.create_stream()
 
 # prepare program
-arch = "".join(f"{i}" for i in dev.compute_capability)
+arch = dev.arch
 program_options = ProgramOptions(std="c++11", arch=f"sm_{arch}")
 prog = Program(code, code_type="c++", options=program_options)
 
