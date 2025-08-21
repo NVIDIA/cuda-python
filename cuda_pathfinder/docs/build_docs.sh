@@ -34,7 +34,7 @@ SPHINXOPTS="-j 4 -d build/.doctrees" make html
 #SPHINXOPTS="-v" make html
 
 # to support version dropdown menu
-cp ./versions.json build/html
+cp ./nv-versions.json build/html
 
 # to have a redirection page (to the latest docs)
 cp source/_templates/main.html build/html/index.html

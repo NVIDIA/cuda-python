@@ -21,7 +21,7 @@ import os
 # -- Project information -----------------------------------------------------
 
 project = "cuda.pathfinder"
-copyright = "2021-2025, NVIDIA"
+copyright = "2025, NVIDIA"
 author = "NVIDIA"
 
 # The full version, including alpha/beta/rc tags
@@ -35,7 +35,7 @@ release = os.environ["SPHINX_CUDA_PATHFINDER_VER"]
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
+    "sphinx.ext.autosummary", 
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "myst_nb",
@@ -44,6 +44,7 @@ extensions = [
 ]
 
 nb_execution_mode = "off"
+
 numfig = True
 
 # Add any paths that contain templates here, relative to this directory.
@@ -91,13 +92,4 @@ copybutton_exclude = ".linenos, .gp"
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
-    "numpy": ("https://numpy.org/doc/stable/", None),
-    "nvvm": ("https://docs.nvidia.com/cuda/libnvvm-api/", None),
-    "nvjitlink": ("https://docs.nvidia.com/cuda/nvjitlink/", None),
-    "cufile": ("https://docs.nvidia.com/gpudirect-storage/api-reference-guide/", None),
 }
-
-suppress_warnings = [
-    # for warnings about multiple possible targets, see NVIDIA/cuda-python#152
-    "ref.python",
-]

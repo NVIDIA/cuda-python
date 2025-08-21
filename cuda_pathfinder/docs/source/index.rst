@@ -12,7 +12,6 @@
    :caption: Contents:
 
    api
-   support
    contribute.md
    license
 
