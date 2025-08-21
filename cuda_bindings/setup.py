@@ -31,6 +31,7 @@ if not CUDA_HOME:
     raise RuntimeError("Environment variable CUDA_HOME or CUDA_PATH is not set")
 
 CUDA_HOME = CUDA_HOME.split(os.pathsep)
+
 if os.environ.get("PARALLEL_LEVEL") is not None:
     warn(
         "Environment variable PARALLEL_LEVEL is deprecated. Use CUDA_PYTHON_PARALLEL_LEVEL instead",
@@ -238,6 +239,8 @@ include_dirs = [
     os.path.dirname(sysconfig.get_path("include")),
 ] + include_path_list
 library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib")]
+cudalib_subdirs = [r"lib\x64"] if sys.platform == "win32" else ["lib64", "lib"]
+library_dirs.extend(os.path.join(prefix, subdir) for prefix in CUDA_HOME for subdir in cudalib_subdirs)
 
 extra_compile_args = []
 extra_cythonize_kwargs = {}
