@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.batch\_io\_destroy
-=======================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: batch_io_destroy
