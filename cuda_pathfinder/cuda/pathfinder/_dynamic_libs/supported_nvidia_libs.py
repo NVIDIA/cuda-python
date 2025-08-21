@@ -407,7 +407,7 @@ LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = (
 
 LIBNAMES_REQUIRING_RTLD_DEEPBIND = ("cufftMp",)
 
-# Generated with toolshed/make_site_packages_libdirs_linux.py
+# Based on output of toolshed/make_site_packages_libdirs_linux.py
 SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
     "cublas": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
     "cublasLt": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
@@ -446,7 +446,7 @@ SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
 }
 SITE_PACKAGES_LIBDIRS_LINUX = SITE_PACKAGES_LIBDIRS_LINUX_CTK | SITE_PACKAGES_LIBDIRS_LINUX_OTHER
 
-# Generated with toolshed/make_site_packages_libdirs_windows.py
+# Based on output of toolshed/make_site_packages_libdirs_windows.py
 SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = {
     "cublas": ("nvidia/cu13/bin/x86_64", "nvidia/cublas/bin"),
     "cublasLt": ("nvidia/cu13/bin/x86_64", "nvidia/cublas/bin"),

@@ -3,9 +3,20 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# For usage see top of collect_site_packages_so_files.sh
+
+import re
 import sys
 import os
 import argparse
+
+_SITE_PACKAGES_RE = re.compile(r"(?i)^.*?/site-packages/")
+
+
+def strip_site_packages_prefix(p: str) -> str:
+    """Remove any leading '.../site-packages/' (handles '\' or '/', case-insensitive)."""
+    p = p.replace("\\", "/")
+    return _SITE_PACKAGES_RE.sub("", p)
 
 
 def parse_lines(lines):
@@ -14,6 +25,7 @@ def parse_lines(lines):
         line = raw.strip()
         if not line or line.startswith("#"):
             continue
+        line = strip_site_packages_prefix(line)
         dirpath, fname = os.path.split(line)
         # Require something like libNAME.so, libNAME.so.12, libNAME.so.12.1, etc.
         i = fname.find(".so")
