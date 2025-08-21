@@ -29,7 +29,10 @@ def _no_such_file_in_sub_dirs(
             attachments.append(f"    {node}")
 
 
-def _find_so_using_nvidia_lib_dirs(libname: str, so_basename: str) -> Optional[str]:
+def _find_so_using_nvidia_lib_dirs(
+    libname: str, so_basename: str, error_messages: list[str], attachments: list[str]
+) -> Optional[str]:
+    assert error_messages is not attachments
     rel_dirs = SITE_PACKAGES_LIBDIRS_LINUX.get(libname)
     if rel_dirs is not None:
         # Fast direct access with minimal globbing.
@@ -65,7 +68,10 @@ def _find_dll_under_dir(dirpath: str, file_wild: str) -> Optional[str]:
     return None
 
 
-def _find_dll_using_nvidia_bin_dirs(libname: str, lib_searched_for: str) -> Optional[str]:
+def _find_dll_using_nvidia_bin_dirs(
+    libname: str, lib_searched_for: str, error_messages: list[str], attachments: list[str]
+) -> Optional[str]:
+    assert error_messages is not attachments
     rel_dirs = SITE_PACKAGES_LIBDIRS_WINDOWS.get(libname)
     if rel_dirs is not None:
         # Fast direct access with minimal globbing.
@@ -169,11 +175,21 @@ class _FindNvidiaDynamicLib:
         if IS_WINDOWS:
             self.lib_searched_for = f"{libname}*.dll"
             if self.abs_path is None:
-                self.abs_path = _find_dll_using_nvidia_bin_dirs(libname, self.lib_searched_for)
+                self.abs_path = _find_dll_using_nvidia_bin_dirs(
+                    libname,
+                    self.lib_searched_for,
+                    self.error_messages,
+                    self.attachments,
+                )
         else:
             self.lib_searched_for = f"lib{libname}.so"
             if self.abs_path is None:
-                self.abs_path = _find_so_using_nvidia_lib_dirs(libname, self.lib_searched_for)
+                self.abs_path = _find_so_using_nvidia_lib_dirs(
+                    libname,
+                    self.lib_searched_for,
+                    self.error_messages,
+                    self.attachments,
+                )
 
     def retry_with_cuda_home_priority_last(self) -> None:
         cuda_home_lib_dir = _find_lib_dir_using_cuda_home(self.libname)
