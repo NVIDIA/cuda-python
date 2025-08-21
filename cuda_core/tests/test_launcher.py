@@ -23,6 +23,7 @@ from cuda.core.experimental import (
     launch,
 )
 from cuda.core.experimental._memory import _SynchronousMemoryResource
+from cuda.core.experimental._utils.cuda_utils import CUDAError
 
 
 def test_launch_config_init(init_cuda):
@@ -57,6 +58,68 @@ def test_launch_config_shmem_size():
 
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1))
     assert config.shmem_size == 0
+
+
+def test_launch_config_cluster_grid_conversion(init_cuda):
+    """Test that LaunchConfig preserves original grid values and conversion happens in native config."""
+    try:
+        # Test case 1: 1D - Issue #867 example
+        config = LaunchConfig(grid=4, cluster=2, block=32)
+        assert config.grid == (4, 1, 1), f"Expected (4, 1, 1), got {config.grid}"
+        assert config.cluster == (2, 1, 1), f"Expected (2, 1, 1), got {config.cluster}"
+        assert config.block == (32, 1, 1), f"Expected (32, 1, 1), got {config.block}"
+
+        # Test case 2: 2D grid and cluster
+        config = LaunchConfig(grid=(2, 3), cluster=(2, 2), block=32)
+        assert config.grid == (2, 3, 1), f"Expected (2, 3, 1), got {config.grid}"
+        assert config.cluster == (2, 2, 1), f"Expected (2, 2, 1), got {config.cluster}"
+
+        # Test case 3: 3D full specification
+        config = LaunchConfig(grid=(2, 2, 2), cluster=(3, 3, 3), block=(8, 8, 8))
+        assert config.grid == (2, 2, 2), f"Expected (2, 2, 2), got {config.grid}"
+        assert config.cluster == (3, 3, 3), f"Expected (3, 3, 3), got {config.cluster}"
+
+        # Test case 4: Identity case
+        config = LaunchConfig(grid=1, cluster=1, block=32)
+        assert config.grid == (1, 1, 1), f"Expected (1, 1, 1), got {config.grid}"
+
+        # Test case 5: No cluster (should not convert grid)
+        config = LaunchConfig(grid=4, block=32)
+        assert config.grid == (4, 1, 1), f"Expected (4, 1, 1), got {config.grid}"
+        assert config.cluster is None
+
+    except CUDAError:
+        pytest.skip("Driver or GPU not new enough for thread block clusters")
+
+
+def test_launch_config_native_conversion(init_cuda):
+    """Test that _to_native_launch_config correctly converts grid from cluster units to block units."""
+    from cuda.core.experimental._launch_config import _to_native_launch_config
+
+    try:
+        # Test case 1: 1D - Issue #867 example
+        config = LaunchConfig(grid=4, cluster=2, block=32)
+        native_config = _to_native_launch_config(config)
+        assert native_config.gridDimX == 8, f"Expected gridDimX=8, got {native_config.gridDimX}"
+        assert native_config.gridDimY == 1, f"Expected gridDimY=1, got {native_config.gridDimY}"
+        assert native_config.gridDimZ == 1, f"Expected gridDimZ=1, got {native_config.gridDimZ}"
+
+        # Test case 2: 2D grid and cluster
+        config = LaunchConfig(grid=(2, 3), cluster=(2, 2), block=32)
+        native_config = _to_native_launch_config(config)
+        assert native_config.gridDimX == 4, f"Expected gridDimX=4, got {native_config.gridDimX}"
+        assert native_config.gridDimY == 6, f"Expected gridDimY=6, got {native_config.gridDimY}"
+        assert native_config.gridDimZ == 1, f"Expected gridDimZ=1, got {native_config.gridDimZ}"
+
+        # Test case 3: No cluster (should not convert grid)
+        config = LaunchConfig(grid=4, block=32)
+        native_config = _to_native_launch_config(config)
+        assert native_config.gridDimX == 4, f"Expected gridDimX=4, got {native_config.gridDimX}"
+        assert native_config.gridDimY == 1, f"Expected gridDimY=1, got {native_config.gridDimY}"
+        assert native_config.gridDimZ == 1, f"Expected gridDimZ=1, got {native_config.gridDimZ}"
+
+    except CUDAError:
+        pytest.skip("Driver or GPU not new enough for thread block clusters")
 
 
 def test_launch_invalid_values(init_cuda):
