@@ -325,7 +325,7 @@ jobs:
         if: startsWith(matrix.CUDA_VER, '13.')
         run: |
           pushd cuda_pathfinder
-          pip install -v .[nvidia_wheels_cu13,other_wheels,foreign_wheels]
+          pip install -v .[nvidia_wheels_cu13,nvidia_wheels_host,foreign_wheels]
           pip freeze
           popd
 

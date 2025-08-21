@@ -23,11 +23,11 @@ function Fresh-Venv {
 Set-Location -Path 'cuda_pathfinder'
 
 Fresh-Venv -Path '..\TmpCp12Venv'
-pip install -e '.[test,nvidia_wheels_cu12,other_wheels,foreign_wheels]'
+pip install -e '.[test,nvidia_wheels_cu12,nvidia_wheels_host,foreign_wheels]'
 deactivate
 
 Fresh-Venv -Path '..\TmpCp13Venv'
-pip install -e '.[test,nvidia_wheels_cu13,other_wheels,foreign_wheels]'
+pip install -e '.[test,nvidia_wheels_cu13,nvidia_wheels_host,foreign_wheels]'
 deactivate
 
 Set-Location -Path '..'
