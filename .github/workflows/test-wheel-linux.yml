@@ -143,6 +143,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup proxy cache
+        uses: nv-gha-runners/setup-proxy-cache@main
+        continue-on-error: true
+
       - name: Install dependencies
         uses: ./.github/actions/install_unix_deps
         continue-on-error: false

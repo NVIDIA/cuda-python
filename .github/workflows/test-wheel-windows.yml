@@ -89,6 +89,8 @@ jobs:
         with:
           fetch-depth: 0
 
+      # TODO: use setup-proxy-cache once we have self-hosted Windows runners
+
       - name: Update driver
         run: |
           .github/workflows/install_gpu_driver.ps1
