@@ -13,7 +13,7 @@ dependencies:
   - pydata-sphinx-theme
   - pytest
   - scipy
-  - sphinx >=7.1,<9.0
+  - sphinx <8.2.0
   - sphinx-copybutton
   - myst-nb
   - enum_tools
