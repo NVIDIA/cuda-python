@@ -51,8 +51,7 @@ class PyTorchStreamWrapper:
 s = dev.create_stream(PyTorchStreamWrapper(pt_stream))
 
 # prepare program
-arch = dev.arch
-program_options = ProgramOptions(std="c++11", arch=f"sm_{arch}")
+program_options = ProgramOptions(std="c++11", arch=f"sm_{dev.arch}")
 prog = Program(code, code_type="c++", options=program_options)
 mod = prog.compile(
     "cubin",
