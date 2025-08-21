@@ -157,11 +157,9 @@ jobs:
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
-            LIBRARY_PATH=/host/${{ env.CUDA_PATH }}/lib
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_HOME="$(cygpath -w ${{ env.CUDA_PATH }})"
-            LIB="${CUDA_HOME}\\lib\\x64;${LIB}"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
           CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
