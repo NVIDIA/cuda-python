@@ -108,15 +108,14 @@ jobs:
     with:
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
 
-  # Temporarily disabled status check job as it depends on test jobs
-  # checks:
-  #   name: Check job status
-  #   permissions:
-  #     checks: read
-  #   needs:
-  #     - build
-  #     - test-linux
-  #     - test-windows
-  #     - doc
-  #   secrets: inherit
-  #   uses: ./.github/workflows/status-check.yml
+  checks:
+    name: Check job status
+    permissions:
+      checks: read
+    needs:
+      - build
+      # - test-linux  # Temporarily disabled for documentation theme migration
+      # - test-windows  # Temporarily disabled for documentation theme migration
+      - doc
+    secrets: inherit
+    uses: ./.github/workflows/status-check.yml

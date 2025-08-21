@@ -59,7 +59,7 @@ html_baseurl = "docs"
 html_theme = "nvidia_sphinx_theme"
 html_theme_options = {
     "switcher": {
-        "json_url": "https://nvidia.github.io/cuda-python/cuda-core/versions.json",
+        "json_url": "https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json",
         "version_match": release,
     },
     # Add light/dark mode and documentation version switcher
