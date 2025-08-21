@@ -10,7 +10,7 @@ import ctypes
 
 import pytest
 
-from cuda.core.experimental import Buffer, Device, MemoryResource
+from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource
 from cuda.core.experimental._memory import DLDeviceType
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
@@ -257,3 +257,27 @@ def test_buffer_dunder_dlpack_device_failure():
     buffer = dummy_mr.allocate(size=1024)
     with pytest.raises(BufferError, match=r"^buffer is neither device-accessible nor host-accessible$"):
         buffer.__dlpack_device__()
+
+
+def test_device_memory_resource_initialization():
+    """Test that DeviceMemoryResource can be initialized successfully.
+    
+    This test verifies that the DeviceMemoryResource initializes properly,
+    including the release threshold configuration for performance optimization.
+    """
+    device = Device()
+    device.set_current()
+    
+    # This should succeed and configure the memory pool release threshold
+    mr = DeviceMemoryResource(device.device_id)
+    
+    # Verify basic properties
+    assert mr.device_id == device.device_id
+    assert mr.is_device_accessible is True
+    assert mr.is_host_accessible is False
+    
+    # Test allocation/deallocation works
+    buffer = mr.allocate(1024)
+    assert buffer.size == 1024
+    assert buffer.device_id == device.device_id
+    buffer.close()
