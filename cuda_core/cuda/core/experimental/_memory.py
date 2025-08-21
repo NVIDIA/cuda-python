@@ -325,16 +325,14 @@ class DeviceMemoryResource(MemoryResource):
     def __init__(self, device_id: int):
         self._handle = handle_return(driver.cuDeviceGetMemPool(device_id))
         self._dev_id = device_id
-        
+
         # Set a higher release threshold to improve performance when there are no active allocations.
-        # By default, the release threshold is 0, which means memory is immediately released back 
+        # By default, the release threshold is 0, which means memory is immediately released back
         # to the OS when there are no active suballocations, causing performance issues.
         try:
             # Check current release threshold
             current_threshold = handle_return(
-                driver.cuMemPoolGetAttribute(
-                    self._handle, driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD
-                )
+                driver.cuMemPoolGetAttribute(self._handle, driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD)
             )
             # If threshold is 0 (default), set it to maximum to retain memory in the pool
             if int(current_threshold) == 0:
