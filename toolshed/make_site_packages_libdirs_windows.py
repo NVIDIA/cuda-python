@@ -3,6 +3,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# For usage see top of collect_site_packages_dll_files.ps1
+
 """
 Build a dict mapping Windows CUDA/NVIDIA DLL *base* names to the tuple of directories
 they appear in.
