@@ -1,0 +1,52 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core.experimental
+
+``cuda.core`` 0.3.3 Release Notes
+=================================
+
+Released on TBD
+
+
+Highlights
+----------
+
+- Migrated test dependencies from individual NVIDIA packages to the ``cuda-toolkit`` metapackage for improved dependency resolution and version constraints.
+- Added complete CUDA 13.x test support with ``test-cu13`` dependency.
+
+
+Dependency Changes
+------------------
+
+- Test dependencies now use ``cuda-toolkit`` with appropriate version constraints:
+  
+  - ``nvidia-cuda-runtime-cu11`` → ``cuda-toolkit[cudart]==11.*``
+  - ``nvidia-cuda-runtime-cu12`` → ``cuda-toolkit[cudart]==12.*``
+  - Added ``test-cu13`` dependency with ``cupy-cuda13x`` now that it's available
+
+- The ``cuda-toolkit`` approach provides more predictable dependency resolution similar to conda's ``cuda-version`` mechanism.
+
+
+Breaking Changes
+----------------
+
+None.
+
+
+New features
+------------
+
+- Complete CUDA 13.x testing support through new ``test-cu13`` dependency group.
+
+
+New examples
+------------
+
+None.
+
+
+Fixes and enhancements
+----------------------
+
+- Improved dependency management through ``cuda-toolkit`` metapackage adoption, providing more consistent version resolution across CUDA components.

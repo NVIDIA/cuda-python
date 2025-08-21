@@ -12,6 +12,10 @@ CUDA Python is the home for accessing NVIDIA’s CUDA platform from Python. It c
 
 CUDA Python is currently undergoing an overhaul to improve existing and introduce new components. All of the previously available functionalities from the `cuda-python` package will continue to be available, please refer to the [cuda.bindings](https://nvidia.github.io/cuda-python/cuda-bindings/latest) documentation for installation guide and further detail.
 
+## Improved Dependency Management
+
+Starting with recent releases, CUDA Python components use the `cuda-toolkit` metapackage for managing CUDA wheel dependencies. This provides safer version constraints and more predictable dependency resolution, similar to conda's `cuda-version` approach. All user-facing installation commands remain identical (e.g., `pip install cuda-python[all]`).
+
 ## cuda-python as a metapackage
 
 `cuda-python` is being restructured to become a metapackage that contains a collection of subpackages. Each subpackage is versioned independently, allowing installation of each component as needed.

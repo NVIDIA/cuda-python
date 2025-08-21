@@ -1,0 +1,41 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 13.0.2 Release notes
+======================================
+
+Released on TBD
+
+
+Highlights
+----------
+
+* Migrated wheel dependencies from individual NVIDIA packages to the ``cuda-toolkit`` metapackage for improved dependency resolution and version constraints. This provides safer, more predictable dependency management similar to conda's ``cuda-version`` approach.
+
+
+Dependency Changes
+------------------
+
+* The ``[all]`` optional dependencies now use ``cuda-toolkit`` with appropriate extras instead of individual packages:
+
+  * Combined multiple CUDA toolkit components: ``cuda-toolkit[nvcc,nvrtc,nvjitlink,nvvm]==13.*``
+  * ``nvidia-cufile; sys_platform == 'linux'`` → ``cuda-toolkit[cufile]==13.*; sys_platform == 'linux'``
+
+* User-facing installation commands remain identical (``pip install cuda-python[all]``).
+
+
+Benefits
+--------
+
+* **Consistent dependency resolution**: The ``cuda-toolkit`` metapackage behaves similarly to conda's ``cuda-version``, providing more predictable version constraints
+* **Simplified maintenance**: Single metapackage instead of managing multiple individual wheel versions
+* **Cleaner dependency specifications**: Multiple related components combined into single dependency lines
+* **Version safety**: Maintains support for CUDA 11.8, 12.x, and 13.x as designed
+
+
+Known issues
+------------
+
+* Updating from older versions (v12.6.2.post1 and below) via ``pip install -U cuda-python`` might not work. Please do a clean re-installation by uninstalling ``pip uninstall -y cuda-python`` followed by installing ``pip install cuda-python``.

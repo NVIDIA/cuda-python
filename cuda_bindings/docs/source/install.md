@@ -10,7 +10,7 @@
 * Optionally, NVRTC, nvJitLink, NVVM, and cuFile from CUDA Toolkit 13.x
 
 ```{note}
-The optional CUDA Toolkit components can be installed via PyPI, Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit [Windows](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) and [Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html) Installation Guides).
+The optional CUDA Toolkit components are now installed via the ``cuda-toolkit`` metapackage from PyPI for improved dependency resolution. This provides version constraints similar to conda's ``cuda-version`` approach. Components can also be installed via Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit [Windows](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) and [Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html) Installation Guides).
 ```
 
 Starting from v12.8.0, `cuda-python` becomes a meta package which currently depends only on `cuda-bindings`; in the future more sub-packages will be added to `cuda-python`. In the instructions below, we still use `cuda-python` as example to serve existing users, but everything is applicable to `cuda-bindings` as well.
@@ -27,12 +27,12 @@ Install all optional dependencies with:
 pip install -U cuda-python[all]
 ```
 
-Where the optional dependencies are:
+Where the optional dependencies are now managed through the ``cuda-toolkit`` metapackage for improved version constraints and dependency resolution:
 
-* nvidia-cuda-nvrtc (Provides NVRTC shared library)
-* nvidia-nvjitlink (Provides nvJitLink shared library)
-* nvidia-cuda-nvcc (Provides NVVM shared library)
-* nvidia-cufile (Provides cuFile shared library)
+* ``cuda-toolkit[nvcc,nvrtc,nvjitlink,nvvm]==13.*`` (Provides NVRTC, nvJitLink, and NVVM shared libraries)
+* ``cuda-toolkit[cufile]==13.*; sys_platform == 'linux'`` (Provides cuFile shared library on Linux)
+
+The ``cuda-toolkit`` metapackage behaves similarly to conda's ``cuda-version``, providing more predictable version constraints and safer dependency resolution compared to individual NVIDIA wheel packages.
 
 
 ## Installing from Conda
