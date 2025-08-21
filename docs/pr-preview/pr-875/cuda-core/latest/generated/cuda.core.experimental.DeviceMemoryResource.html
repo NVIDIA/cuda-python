@@ -332,6 +332,11 @@ set to <em>current</em> on <code class="docutils literal notranslate"><span clas
 the driver would use the <em>default</em> mempool on the device.</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>During initialization, this class automatically configures the memory pool’s release
+threshold for improved performance. If the current threshold is 0 (default), it is
+set to the maximum value to prevent immediate memory release when there are no active
+allocations, which can cause performance degradation.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.__init__">
