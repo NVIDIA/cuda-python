@@ -683,11 +683,14 @@ class GraphBuilder:
             driver.cuStreamGetCaptureInfo(stream_handle)
         )
 
+        # See https://github.com/NVIDIA/cuda-python/pull/879#issuecomment-3211054159
+        # for rationale
+        deps_info_trimmed = deps_info_out[:num_dependencies_out]
         deps_info_update = [
             [
                 handle_return(
                     driver.cuGraphAddChildGraphNode(
-                        graph_out, *deps_info_out, num_dependencies_out, child_graph._mnff.graph
+                        graph_out, *deps_info_trimmed, num_dependencies_out, child_graph._mnff.graph
                     )
                 )
             ]
