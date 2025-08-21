@@ -35,7 +35,7 @@ release = os.environ["SPHINX_CUDA_PATHFINDER_VER"]
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary", 
+    "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "myst_nb",
