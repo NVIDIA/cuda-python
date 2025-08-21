@@ -248,6 +248,7 @@
 </ul>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Release Notes</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.X.Y-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.X.Y Release Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.3.2-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.2 Release Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.3.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.1 Release Notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.3.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.0 Release Notes</a></li>
@@ -506,6 +507,12 @@ calling this method, e.g.</p>
 
 <p class="rubric">Attributes</p>
 <dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.arch">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arch</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></em><a class="headerlink" href="#cuda.core.experimental.Device.arch" title="Link to this definition">¶</a></dt>
+<dd><p>Return compute capability as a string (e.g., ‘75’ for CC 7.5).</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental.Device.compute_capability">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compute_capability</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ComputeCapability</span></em><a class="headerlink" href="#cuda.core.experimental.Device.compute_capability" title="Link to this definition">¶</a></dt>
 <dd><p>major and minor.</p>
@@ -649,6 +656,7 @@ driver is older than CUDA 11.4.</p>
 <li><a class="reference internal" href="#cuda.core.experimental.Device.create_stream"><code class="docutils literal notranslate"><span class="pre">Device.create_stream()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental.Device.set_current"><code class="docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental.Device.sync"><code class="docutils literal notranslate"><span class="pre">Device.sync()</span></code></a></li>
+<li><a class="reference internal" href="#cuda.core.experimental.Device.arch"><code class="docutils literal notranslate"><span class="pre">Device.arch</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental.Device.compute_capability"><code class="docutils literal notranslate"><span class="pre">Device.compute_capability</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental.Device.context"><code class="docutils literal notranslate"><span class="pre">Device.context</span></code></a></li>
 <li><a class="reference internal" href="#cuda.core.experimental.Device.default_stream"><code class="docutils literal notranslate"><span class="pre">Device.default_stream</span></code></a></li>
