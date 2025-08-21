@@ -52,6 +52,9 @@ nvidia_wheels_cu13 = [
 other_wheels = [
     "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
+foreign_wheels = [
+    "pygit2",
+]
 
 [project.urls]
 Repository = "https://github.com/NVIDIA/cuda-python"

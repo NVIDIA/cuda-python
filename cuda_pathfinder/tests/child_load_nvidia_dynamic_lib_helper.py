@@ -37,7 +37,11 @@ def child_process_func(libname):
         raise RuntimeError("loaded_dl_from_cache is not loaded_dl_fresh")
 
     loaded_dl_no_cache = _load_lib_no_cache(libname)
-    if not loaded_dl_no_cache.was_already_loaded_from_elsewhere:
+    if (
+        not loaded_dl_no_cache.was_already_loaded_from_elsewhere
+        # Special case: foreign_wheels
+        and not libname.startswith("git2")
+    ):
         raise RuntimeError("not loaded_dl_no_cache.was_already_loaded_from_elsewhere")
     if not os.path.samefile(loaded_dl_no_cache.abs_path, loaded_dl_fresh.abs_path):
         raise RuntimeError(f"not os.path.samefile({loaded_dl_no_cache.abs_path=!r}, {loaded_dl_fresh.abs_path=!r})")
