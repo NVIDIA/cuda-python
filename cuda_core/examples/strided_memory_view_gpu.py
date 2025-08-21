@@ -103,8 +103,7 @@ def run():
     # To know the GPU's compute capability, we need to identify which GPU to use.
     dev = Device(0)
     dev.set_current()
-    arch = "".join(f"{i}" for i in dev.compute_capability)
-    gpu_prog = Program(gpu_code, code_type="c++", options=ProgramOptions(arch=f"sm_{arch}", std="c++11"))
+    gpu_prog = Program(gpu_code, code_type="c++", options=ProgramOptions(arch=f"sm_{dev.arch}", std="c++11"))
     mod = gpu_prog.compile(target_type="cubin")
     gpu_ker = mod.get_kernel(func_name)
 
