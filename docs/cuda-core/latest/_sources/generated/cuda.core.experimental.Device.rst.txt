@@ -30,6 +30,7 @@ cuda.core.experimental.Device
    .. rubric:: Attributes
 
    
+   .. autoproperty:: arch
    .. autoproperty:: compute_capability
    .. autoproperty:: context
    .. autoproperty:: default_stream
