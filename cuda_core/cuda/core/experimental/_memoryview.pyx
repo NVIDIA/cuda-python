@@ -91,7 +91,8 @@ cdef class StridedMemoryView:
         
     # Memoized properties
     cdef tuple _shape
-    cdef object _strides
+    cdef tuple _strides
+    cdef bint _strides_init  # Has the strides tuple been init'ed?
     cdef object _dtype
 
     def __init__(self, obj=None, stream_ptr=None):
@@ -121,20 +122,24 @@ cdef class StridedMemoryView:
     @property
     def strides(self) -> Optional[tuple[int]]:
         cdef int itemsize
-        if self._strides is None and self.exporting_obj is not None:
-            if self.dl_tensor != NULL:
-                if self.dl_tensor.strides:
-                    self._strides = cuda_utils.carray_int64_t_to_tuple(
-                        self.dl_tensor.strides, 
-                        self.dl_tensor.ndim
-                    )
-            else:
-                strides = self.metadata.get("strides")
-                if strides is not None:
-                    itemsize = self.dtype.itemsize
-                    self._strides = cpython.PyTuple_New(len(strides))
-                    for i in range(len(strides)):
-                        cpython.PyTuple_SET_ITEM(self._strides, i, strides[i] // itemsize)
+        if self._strides_init is False:
+            if self.exporting_obj is not None:
+                if self.dl_tensor != NULL:
+                    if self.dl_tensor.strides:
+                        self._strides = cuda_utils.carray_int64_t_to_tuple(
+                            self.dl_tensor.strides, 
+                            self.dl_tensor.ndim
+                        )
+                else:
+                    strides = self.metadata.get("strides")
+                    if strides is not None:
+                        itemsize = self.dtype.itemsize
+                        self._strides = cpython.PyTuple_New(len(strides))
+                        for i in range(len(strides)):
+                            cpython.PyTuple_SET_ITEM(
+                                self._strides, i, strides[i] // itemsize
+                            )
+            self._strides_init = True
         return self._strides 
 
     @property
