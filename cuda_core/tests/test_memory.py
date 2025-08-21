@@ -259,6 +259,7 @@ def test_buffer_dunder_dlpack_device_failure():
         buffer.__dlpack_device__()
 
 
+@pytest.mark.skipif(not Device().properties.memory_pools_supported, reason="memory pools not supported")
 def test_device_memory_resource_initialization():
     """Test that DeviceMemoryResource can be initialized successfully.
 
