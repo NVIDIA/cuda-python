@@ -2,7 +2,7 @@
 .. SPDX-License-Identifier: Apache-2.0
 
 ``cuda.pathfinder``: Utilities for locating CUDA components
-=========================================================
+===========================================================
 
 .. include:: ../../cuda/pathfinder/README.md
    :parser: myst_parser.sphinx_
