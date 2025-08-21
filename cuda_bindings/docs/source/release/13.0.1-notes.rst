@@ -13,13 +13,6 @@ Highlights
 ----------
 
 * Make populating the internal symbol table thread-safe.
-* Automatic CUDA library path detection based on ``CUDA_HOME``, eliminating the need to manually set ``LIBRARY_PATH`` environment variables for installation.
-
-
-Miscellaneous
--------------
-
-* Updated installation documentation to remove references to ``LIBRARY_PATH`` environment variable.
 
 
 Known issues
