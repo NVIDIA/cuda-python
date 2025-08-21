@@ -32,13 +32,14 @@ def _no_such_file_in_sub_dirs(
 def _find_so_using_nvidia_lib_dirs(
     libname: str, so_basename: str, error_messages: list[str], attachments: list[str]
 ) -> Optional[str]:
-    assert error_messages is not attachments
     rel_dirs = SITE_PACKAGES_LIBDIRS_LINUX.get(libname)
     if rel_dirs is not None:
         # Fast direct access with minimal globbing.
+        sub_dirs_searched = []
         file_wild = so_basename + "*"
         for rel_dir in rel_dirs:
-            for abs_dir in find_sub_dirs_all_sitepackages(tuple(rel_dir.split(os.path.sep))):
+            sub_dir = tuple(rel_dir.split(os.path.sep))
+            for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
                 # First look for an exact match
                 so_name = os.path.join(abs_dir, so_basename)
                 if os.path.isfile(so_name):
@@ -48,6 +49,9 @@ def _find_so_using_nvidia_lib_dirs(
                 for so_name in sorted(glob.glob(os.path.join(abs_dir, file_wild))):
                     if os.path.isfile(so_name):
                         return so_name
+            sub_dirs_searched.append(sub_dir)
+        for sub_dir in sub_dirs_searched:
+            _no_such_file_in_sub_dirs(sub_dir, file_wild, error_messages, attachments)
     else:
         # This fallback is relatively slow, but acceptable.
         candidates = find_all_so_files_via_metadata().get(so_basename)
@@ -71,15 +75,19 @@ def _find_dll_under_dir(dirpath: str, file_wild: str) -> Optional[str]:
 def _find_dll_using_nvidia_bin_dirs(
     libname: str, lib_searched_for: str, error_messages: list[str], attachments: list[str]
 ) -> Optional[str]:
-    assert error_messages is not attachments
     rel_dirs = SITE_PACKAGES_LIBDIRS_WINDOWS.get(libname)
     if rel_dirs is not None:
         # Fast direct access with minimal globbing.
+        sub_dirs_searched = []
         for rel_dir in rel_dirs:
-            for abs_dir in find_sub_dirs_all_sitepackages(tuple(rel_dir.split(os.path.sep))):
+            sub_dir = tuple(rel_dir.split(os.path.sep))
+            for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
                 dll_name = _find_dll_under_dir(abs_dir, lib_searched_for)
                 if dll_name is not None:
                     return dll_name
+            sub_dirs_searched.append(sub_dir)
+        for sub_dir in sub_dirs_searched:
+            _no_such_file_in_sub_dirs(sub_dir, lib_searched_for, error_messages, attachments)
     else:
         # This fallback is relatively slow, but acceptable.
         libname_lower = libname.lower()
