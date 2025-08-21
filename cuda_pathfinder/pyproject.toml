@@ -53,6 +53,7 @@ other_wheels = [
     "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
 foreign_wheels = [
+    # For tests/test_load_nvidia_dynamic_lib.py. See comment there (look for pygit2).
     "pygit2",
 ]
 

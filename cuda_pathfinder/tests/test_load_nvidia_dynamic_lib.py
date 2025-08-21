@@ -71,6 +71,10 @@ def test_runtime_error_on_non_64bit_python():
 
 
 def _get_git2_libname():
+    # For testing the fallback code paths in find_nvidia_dynamic_lib.py we need a
+    # "foreign" shared library unrelated to CUDA. To keep things simple, we pick a
+    # small, widely used wheel that bundles its own .so/.dll. The choice of pygit2
+    # is arbitrary — it is a stable dependency and unrelated to NVIDIA software.
     try:
         pygit2_dist = importlib.metadata.distribution("pygit2")
     except importlib.metadata.PackageNotFoundError:
