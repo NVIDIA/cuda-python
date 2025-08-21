@@ -440,7 +440,7 @@ SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
 }
 SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
     "cufftMp": ("nvidia/cufftmp/cu12/lib",),
-    "mathdx": ("nvidia/cu12/lib",),
+    "mathdx": ("nvidia/cu13/lib", "nvidia/cu12/lib"),
     "nvpl_fftw": ("nvpl/lib",),
     "nvshmem_host": ("nvidia/nvshmem/lib",),
 }
@@ -476,7 +476,7 @@ SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = {
     "nvvm": ("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvcc/nvvm/bin"),
 }
 SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER = {
-    "mathdx": ("nvidia/cu12/bin",),
+    "mathdx": ("nvidia/cu13/bin/x86_64", "nvidia/cu12/bin"),
 }
 SITE_PACKAGES_LIBDIRS_WINDOWS = SITE_PACKAGES_LIBDIRS_WINDOWS_CTK | SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER
 
