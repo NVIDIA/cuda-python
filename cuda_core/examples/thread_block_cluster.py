@@ -45,23 +45,23 @@ extern "C"
 __global__ void check_cluster_info(unsigned int* grid_dims, unsigned int* cluster_dims, unsigned int* block_dims) {
     auto g = cg::this_grid();
     auto b = cg::this_thread_block();
-    
+
     if (g.cluster_rank() == 0 && g.block_rank() == 0 && g.thread_rank() == 0) {
         // Store grid dimensions (in blocks)
         grid_dims[0] = g.dim_blocks().x;
         grid_dims[1] = g.dim_blocks().y;
         grid_dims[2] = g.dim_blocks().z;
-        
+
         // Store cluster dimensions
         cluster_dims[0] = g.dim_clusters().x;
         cluster_dims[1] = g.dim_clusters().y;
         cluster_dims[2] = g.dim_clusters().z;
-        
+
         // Store block dimensions (in threads)
         block_dims[0] = b.dim_threads().x;
         block_dims[1] = b.dim_threads().y;
         block_dims[2] = b.dim_threads().z;
-        
+
         // Also print to console
         printf("grid dim: (%u, %u, %u)\n", g.dim_blocks().x, g.dim_blocks().y, g.dim_blocks().z);
         printf("cluster dim: (%u, %u, %u)\n", g.dim_clusters().x, g.dim_clusters().y, g.dim_clusters().z);
