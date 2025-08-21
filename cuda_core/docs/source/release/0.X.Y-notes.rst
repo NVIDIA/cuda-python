@@ -36,4 +36,5 @@ None.
 Fixes and enhancements
 ----------------------
 
+- Improved :class:`DeviceMemoryResource` allocation performance when there are no active allocations (addresses issue #771).
 - Fix :class:`LaunchConfig` grid unit conversion when cluster is set (addresses issue #867).
