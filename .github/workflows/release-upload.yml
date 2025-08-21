@@ -11,13 +11,13 @@ on:
         type: string
         required: true
       run-id:
-        description: "The GHA run ID that generated validated artifacts (optional, for wheel uploads)"
+        description: "The GHA run ID that generated validated artifacts"
         type: string
-        required: false
+        required: true
       component:
-        description: "Component to download wheels for (optional, for wheel uploads)"
+        description: "Component to download wheels for"
         type: string
-        required: false
+        required: true
 
 concurrency:
   # Concurrency group that uses the workflow name and PR number if available
@@ -73,17 +73,14 @@ jobs:
           release/*
 
       - name: Download and Upload Wheels
-        if: ${{ inputs.run-id != '' && inputs.component != '' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Use the shared script to download wheels
           ./ci/tools/download-wheels "${{ inputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "release/wheels"
           
-          # Upload wheels to the release if any were downloaded
+          # Upload wheels to the release
           if [[ -d "release/wheels" && $(ls -A release/wheels 2>/dev/null | wc -l) -gt 0 ]]; then
             echo "Uploading wheels to release ${{ inputs.git-tag }}"
             gh release upload --clobber "${{ inputs.git-tag }}" --repo "${{ github.repository }}" release/wheels/*
-          else
-            echo "No wheels found to upload"
           fi
