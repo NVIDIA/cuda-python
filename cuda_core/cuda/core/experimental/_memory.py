@@ -318,6 +318,13 @@ class DeviceMemoryResource(MemoryResource):
         Device ordinal for which a memory resource is constructed. The mempool that is
         set to *current* on ``device_id`` is used. If no mempool is set to current yet,
         the driver would use the *default* mempool on the device.
+
+    Notes
+    -----
+    During initialization, this class automatically configures the memory pool's release
+    threshold for improved performance. If the current threshold is 0 (default), it is
+    set to the maximum value to prevent immediate memory release when there are no active
+    allocations, which can cause performance degradation.
     """
 
     __slots__ = ("_dev_id",)

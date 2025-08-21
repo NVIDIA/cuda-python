@@ -259,7 +259,6 @@ def test_buffer_dunder_dlpack_device_failure():
         buffer.__dlpack_device__()
 
 
-@pytest.mark.skipif(not Device().properties.memory_pools_supported, reason="memory pools not supported")
 def test_device_memory_resource_initialization():
     """Test that DeviceMemoryResource can be initialized successfully.
 
@@ -267,6 +266,8 @@ def test_device_memory_resource_initialization():
     including the release threshold configuration for performance optimization.
     """
     device = Device()
+    if not device.properties.memory_pools_supported:
+        pytest.skip("memory pools not supported")
     device.set_current()
 
     # This should succeed and configure the memory pool release threshold
