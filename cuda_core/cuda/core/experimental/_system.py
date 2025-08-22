@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Tuple
-
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._utils.cuda_utils import driver, handle_return, runtime
 
@@ -26,7 +24,7 @@ class System:
         self._initialized = True
 
     @property
-    def driver_version(self) -> Tuple[int, int]:
+    def driver_version(self) -> tuple[int, int]:
         """
         Query the CUDA driver version.
 

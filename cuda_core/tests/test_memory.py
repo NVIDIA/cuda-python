@@ -229,9 +229,9 @@ def test_buffer_dunder_dlpack():
         buffer.__dlpack__(dl_device=[])
     with pytest.raises(BufferError, match=r"^Sorry, not supported: copy=True$"):
         buffer.__dlpack__(copy=True)
-    with pytest.raises(BufferError, match=r"^Expected max_version Tuple\[int, int\], got \[\]$"):
+    with pytest.raises(BufferError, match=r"^Expected max_version tuple\[int, int\], got \[\]$"):
         buffer.__dlpack__(max_version=[])
-    with pytest.raises(BufferError, match=r"^Expected max_version Tuple\[int, int\], got \(9, 8, 7\)$"):
+    with pytest.raises(BufferError, match=r"^Expected max_version tuple\[int, int\], got \(9, 8, 7\)$"):
         buffer.__dlpack__(max_version=(9, 8, 7))
 
 

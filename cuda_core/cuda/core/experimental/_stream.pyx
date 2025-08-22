@@ -12,7 +12,7 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 import os
 import warnings
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Protocol, Tuple, Union
+from typing import TYPE_CHECKING, Optional, Protocol, Union
 
 if TYPE_CHECKING:
     import cuda.bindings
@@ -47,7 +47,7 @@ cdef class StreamOptions:
 
 
 class IsStreamT(Protocol):
-    def __cuda_stream__(self) -> Tuple[int, int]:
+    def __cuda_stream__(self) -> tuple[int, int]:
         """
         For any Python object that is meant to be interpreted as a CUDA stream, the intent
         can be communicated by implementing this protocol that returns a 2-tuple: The protocol
@@ -201,7 +201,7 @@ cdef class Stream:
             self._owner = None
         self._handle = None
 
-    def __cuda_stream__(self) -> Tuple[int, int]:
+    def __cuda_stream__(self) -> tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
         return (0, int(self.handle))
 
