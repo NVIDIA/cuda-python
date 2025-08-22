@@ -3,7 +3,7 @@
 
 import pytest
 
-from cuda.pathfinder import find_nvidia_header_directory
+from cuda.pathfinder import _find_nvidia_header_directory as find_nvidia_header_directory
 
 
 def test_find_nvidia_header_directory(info_summary_append):
