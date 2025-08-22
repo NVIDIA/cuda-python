@@ -57,7 +57,7 @@ cdef class HelperKernelParams:
                 raise RuntimeError("Argument 'kernelParams' failed to retrieve buffer through Buffer Protocol")
             self._pyobj_acquired = True
             self._ckernelParams = <void**><void_ptr>self._pybuffer.buf
-        elif isinstance(kernelParams, (Tuple)) and len(kernelParams) == 2 and isinstance(kernelParams[0], (Tuple)) and isinstance(kernelParams[1], (Tuple)):
+        elif isinstance(kernelParams, (tuple)) and len(kernelParams) == 2 and isinstance(kernelParams[0], (tuple)) and isinstance(kernelParams[1], (tuple)):
             # Hard run, construct and fill out contigues memory using provided kernel values and types based
             if len(kernelParams[0]) != len(kernelParams[1]):
                 raise TypeError("Argument 'kernelParams' has tuples with different length")
