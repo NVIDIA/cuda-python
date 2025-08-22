@@ -660,7 +660,9 @@
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Migrated wheel dependencies from individual NVIDIA packages to the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage for improved dependency resolution and version constraints.</p></li>
 <li><p>Automatic CUDA library path detection based on <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>, eliminating the need to manually set <code class="docutils literal notranslate"><span class="pre">LIBRARY_PATH</span></code> environment variables for installation.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">[all]</span></code> optional dependencies now use <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> with appropriate extras instead of individual packages. The NVCC compiler is no longer automatically installed with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-python[all]</span></code> as it was previously included only to access the NVVM library, which now has its own dedicated wheel. Users who need the NVCC compiler should explicitly install it with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-toolkit[nvcc]==X.Y</span></code> with the appropriate version for their needs.</p></li>
 </ul>
 </section>
 <section id="known-issues">
