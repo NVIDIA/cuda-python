@@ -31033,9 +31033,9 @@ def cuMemcpy3DBatchAsync(size_t numOps, opList : Optional[tuple[CUDA_MEMCPY3D_BA
         if cyopList is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(len(opList)) + 'x' + str(sizeof(cydriver.CUDA_MEMCPY3D_BATCH_OP)))
         for idx in range(len(opList)):
-            string.memcpy(&cyoplist[idx], (<CUDA_MEMCPY3D_BATCH_OP>oplist[idx])._pvt_ptr, sizeof(cydriver.CUDA_MEMCPY3D_BATCH_OP))
+            string.memcpy(&cyopList[idx], (<CUDA_MEMCPY3D_BATCH_OP>opList[idx])._pvt_ptr, sizeof(cydriver.CUDA_MEMCPY3D_BATCH_OP))
     elif len(opList) == 1:
-        cyopList = (<CUDA_MEMCPY3D_BATCH_OP>oplist[0])._pvt_ptr
+        cyopList = (<CUDA_MEMCPY3D_BATCH_OP>opList[0])._pvt_ptr
     with nogil:
         err = cydriver.cuMemcpy3DBatchAsync(numOps, cyopList, flags, cyhStream)
     if len(opList) > 1 and cyopList is not NULL:
