@@ -198,6 +198,9 @@ def test_object_code_load_ltoir(get_ltoir_object_code):
     assert mod_obj._code_type == "ltoir"
     # ltoir doesn't support kernel retrieval directly as it's used for linking
     assert mod_obj._handle is None  # Should only be loaded when needed
+    # Test that get_kernel fails for unsupported code type
+    with pytest.raises(RuntimeError, match=r'Unsupported code type "ltoir"'):
+        mod_obj.get_kernel("saxpy<float>")
 
 
 def test_object_code_load_ltoir_from_file(get_ltoir_object_code, tmp_path):
@@ -251,6 +254,9 @@ def test_object_code_load_object(get_saxpy_kernel):
     assert mod_obj._code_type == "object"
     # object code doesn't support direct kernel retrieval
     assert mod_obj._handle is None  # Should only be loaded when needed
+    # Test that get_kernel fails for unsupported code type
+    with pytest.raises(RuntimeError, match=r'Unsupported code type "object"'):
+        mod_obj.get_kernel("saxpy<float>")
 
 
 def test_object_code_load_object_from_file(get_saxpy_kernel, tmp_path):
@@ -278,6 +284,9 @@ def test_object_code_load_library(get_saxpy_kernel):
     assert mod_obj._code_type == "library"
     # library code doesn't support direct kernel retrieval
     assert mod_obj._handle is None  # Should only be loaded when needed
+    # Test that get_kernel fails for unsupported code type
+    with pytest.raises(RuntimeError, match=r'Unsupported code type "library"'):
+        mod_obj.get_kernel("saxpy<float>")
 
 
 def test_object_code_load_library_from_file(get_saxpy_kernel, tmp_path):
@@ -292,6 +301,54 @@ def test_object_code_load_library_from_file(get_saxpy_kernel, tmp_path):
     assert mod_obj.code == str(library_file)
     assert mod_obj._code_type == "library"
     assert mod_obj._handle is None  # Should only be loaded when needed
+
+
+def test_object_code_constructors_with_name_and_symbol_mapping():
+    """Test that all from_* constructors properly set name and symbol_mapping"""
+    # Dummy data for testing
+    dummy_bytes = b"dummy_code_data"
+    test_name = "test_object"
+    test_sym_map = {"kernel1": "mangled_kernel1", "kernel2": "mangled_kernel2"}
+    
+    # Test all constructors
+    constructors = [
+        (ObjectCode.from_cubin, "cubin"),
+        (ObjectCode.from_ptx, "ptx"),
+        (ObjectCode.from_ltoir, "ltoir"),
+        (ObjectCode.from_fatbin, "fatbin"),
+        (ObjectCode.from_object, "object"),
+        (ObjectCode.from_library, "library"),
+    ]
+    
+    for constructor, code_type in constructors:
+        obj = constructor(dummy_bytes, name=test_name, symbol_mapping=test_sym_map)
+        assert obj.name == test_name
+        assert obj._sym_map == test_sym_map
+        assert obj._code_type == code_type
+        assert obj.code == dummy_bytes
+
+
+def test_object_code_constructors_default_values():
+    """Test that all from_* constructors handle default values correctly"""
+    # Dummy data for testing
+    dummy_bytes = b"dummy_code_data"
+    
+    # Test all constructors with defaults
+    constructors = [
+        (ObjectCode.from_cubin, "cubin"),
+        (ObjectCode.from_ptx, "ptx"),
+        (ObjectCode.from_ltoir, "ltoir"),
+        (ObjectCode.from_fatbin, "fatbin"),
+        (ObjectCode.from_object, "object"),
+        (ObjectCode.from_library, "library"),
+    ]
+    
+    for constructor, code_type in constructors:
+        obj = constructor(dummy_bytes)  # Use defaults
+        assert obj.name == ""  # Default name should be empty string
+        assert obj._sym_map == {}  # Default symbol mapping should be empty dict
+        assert obj._code_type == code_type
+        assert obj.code == dummy_bytes
 
 
 def test_saxpy_arguments(get_saxpy_kernel, cuda12_4_prerequisite_check):
