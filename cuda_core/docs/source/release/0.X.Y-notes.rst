@@ -21,6 +21,7 @@ Dependency Changes
 ------------------
 
 - Test dependencies now use ``cuda-toolkit`` with appropriate version constraints and added ``test-cu13`` dependency with ``cupy-cuda13x`` now that it's available.
+- **Breaking change**: NVCC compiler is no longer automatically installed through the ``cuda-bindings[all]`` dependency. Users who need the NVCC compiler should explicitly install it with ``pip install nvidia-cuda-nvcc-cu13`` or the appropriate version for their needs.
 
 
 Breaking Changes

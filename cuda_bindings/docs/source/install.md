@@ -29,7 +29,6 @@ pip install -U cuda-python[all]
 
 Where the optional dependencies include:
 
-* ``nvidia-cuda-nvcc-cu13`` (NVCC compiler)
 * ``nvidia-cuda-nvrtc-cu13`` (NVRTC runtime compilation library)  
 * ``nvidia-nvjitlink-cu13`` (nvJitLink library)
 * ``nvidia-nvvm-cu13`` (NVVM library)
@@ -45,7 +44,12 @@ $ conda install -c conda-forge cuda-python
 ```
 
 ```{note}
-When using conda, the ``cuda-version`` metapackage can be used to control which CUDA Toolkit components are installed in the environment.
+When using conda, the ``cuda-version`` metapackage can be used to control the versions of CUDA Toolkit components that are installed to the conda environment.
+```
+
+For example:
+```console
+$ conda install -c conda-forge cuda-python cuda-version=13.0
 ```
 
 

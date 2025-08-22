@@ -33,7 +33,7 @@ dependencies = [
 
 [project.optional-dependencies]
 all = [
-    "cuda-toolkit[nvcc,nvrtc,nvjitlink,nvvm]==13.*",
+    "cuda-toolkit[nvrtc,nvjitlink,nvvm]==13.*",
     "cuda-toolkit[cufile]==13.*; sys_platform == 'linux'",
 ]
 

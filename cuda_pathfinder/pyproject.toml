@@ -15,11 +15,11 @@ test = [
     "pytest>=6.2.4",
 ]
 nvidia_wheels_cu12 = [
-    "cuda-toolkit[cublas,nvcc,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg]==12.*",
+    "cuda-toolkit[cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg]==12.*",
     "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
 ]
 nvidia_wheels_cu13 = [
-    "cuda-toolkit[cublas,nvcc,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,nvvm]==13.*",
+    "cuda-toolkit[cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,nvvm]==13.*",
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
 ]
 
