@@ -24,26 +24,29 @@ else:
 
 
 def _load_lib_no_cache(libname: str) -> LoadedDL:
-    # Check whether the library is already loaded into the current process by
-    # some other component. This check uses OS-level mechanisms (e.g.,
-    # dlopen on Linux, GetModuleHandle on Windows).
-    loaded = check_if_already_loaded_from_elsewhere(libname)
+    found = _FindNvidiaDynamicLib(libname)
+    have_abs_path = found.abs_path is not None
+
+    # If the library was already loaded by someone else, reproduce any OS-specific
+    # side-effects we would have applied on a direct absolute-path load (e.g.,
+    # AddDllDirectory on Windows for libs that require it).
+    loaded = check_if_already_loaded_from_elsewhere(libname, have_abs_path)
+
+    # Load dependencies regardless of who loaded the primary lib first.
+    # Doing this *after* the side-effect ensures dependencies resolve consistently
+    # relative to the actually loaded location.
+    load_dependencies(libname, load_nvidia_dynamic_lib)
+
     if loaded is not None:
         return loaded
 
-    # Load dependencies first
-    load_dependencies(libname, load_nvidia_dynamic_lib)
-
-    # Find the library path
-    found = _FindNvidiaDynamicLib(libname)
-    if found.abs_path is None:
+    if not have_abs_path:
         loaded = load_with_system_search(libname)
         if loaded is not None:
             return loaded
         found.retry_with_cuda_home_priority_last()
         found.raise_if_abs_path_is_None()
 
-    # Load the library from the found path
     assert found.abs_path is not None  # for mypy
     return load_with_abs_path(libname, found.abs_path)
 

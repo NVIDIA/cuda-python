@@ -9,11 +9,13 @@ multiple components:
 
 - `cuda.core`_: Pythonic access to CUDA runtime and other core functionalities
 - `cuda.bindings`_: Low-level Python bindings to CUDA C APIs
+- `cuda.pathfinder`_: Utilities for locating CUDA components installed in the user's Python environment
 - `cuda.cccl.cooperative`_: A Python module providing CCCL's reusable block-wide and warp-wide *device* primitives for use within Numba CUDA kernels
 - `cuda.cccl.parallel`_: A Python module for easy access to CCCL's highly efficient and customizable parallel algorithms, like ``sort``, ``scan``, ``reduce``, ``transform``, etc, that are callable on the *host*
 - `numba.cuda`_: Numba's target for CUDA GPU programming by directly compiling a restricted subset of Python code into CUDA kernels and device functions following the CUDA execution model.
 * `nvmath-python`_: Pythonic access to NVIDIA CPU & GPU Math Libraries, with both *host* and *device* (through `nvmath.device`_) APIs. It also provides low-level Python bindings to host C APIs (through `nvmath.bindings`_).
 
+.. _cuda.pathfinder: https://github.com/NVIDIA/cuda-python/blob/main/cuda_pathfinder/cuda/pathfinder/README.md
 .. _nvmath-python: https://docs.nvidia.com/cuda/nvmath-python/latest
 .. _nvmath.device: https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#device-apis
 .. _nvmath.bindings: https://docs.nvidia.com/cuda/nvmath-python/latest/bindings/index.html
@@ -33,6 +35,7 @@ be available, please refer to the `cuda.bindings`_ documentation for installatio
    release.md
    cuda.core <https://nvidia.github.io/cuda-python/cuda-core/latest>
    cuda.bindings <https://nvidia.github.io/cuda-python/cuda-bindings/latest>
+   cuda.pathfinder <https://github.com/NVIDIA/cuda-python/blob/main/cuda_pathfinder/cuda/pathfinder/README.md>
    cuda.cccl.cooperative <https://nvidia.github.io/cccl/python/cooperative>
    cuda.cccl.parallel <https://nvidia.github.io/cccl/python/parallel>
    numba.cuda <https://nvidia.github.io/numba-cuda/>

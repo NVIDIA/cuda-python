@@ -5,76 +5,130 @@ import contextlib
 import ctypes
 import ctypes.util
 import os
-from typing import Optional
+from typing import Optional, cast
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import SUPPORTED_LINUX_SONAMES
 
 CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 
-LIBDL_PATH = ctypes.util.find_library("dl") or "libdl.so.2"
-LIBDL = ctypes.CDLL(LIBDL_PATH)
-LIBDL.dladdr.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-LIBDL.dladdr.restype = ctypes.c_int
+
+def _load_libdl() -> ctypes.CDLL:
+    # In normal glibc-based Linux environments, find_library("dl") should return
+    # something like "libdl.so.2". In minimal or stripped-down environments
+    # (no ldconfig/gcc, incomplete linker cache), this can return None even
+    # though libdl is present. In that case, we fall back to the stable SONAME.
+    name = ctypes.util.find_library("dl") or "libdl.so.2"
+    try:
+        return ctypes.CDLL(name)
+    except OSError as e:
+        raise RuntimeError(f"Could not load {name!r} (required for dlinfo/dlerror on Linux)") from e
 
 
-class DlInfo(ctypes.Structure):
-    """Structure used by dladdr to return information about a loaded symbol."""
+LIBDL = _load_libdl()
+
+# dlinfo
+LIBDL.dlinfo.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p]
+LIBDL.dlinfo.restype = ctypes.c_int
+
+# dlerror (thread-local error string; cleared after read)
+LIBDL.dlerror.argtypes = []
+LIBDL.dlerror.restype = ctypes.c_char_p
+
+# First appeared in 2004-era glibc. Universally correct on Linux for all practical purposes.
+RTLD_DI_LINKMAP = 2
+RTLD_DI_ORIGIN = 6
+
+
+class _LinkMapLNameView(ctypes.Structure):
+    """
+    Prefix-only view of glibc's `struct link_map` used **solely** to read `l_name`.
+
+    Background:
+      - `dlinfo(handle, RTLD_DI_LINKMAP, ...)` returns a `struct link_map*`.
+      - The first few members of `struct link_map` (including `l_name`) have been
+        stable on glibc for decades and are documented as debugger-visible.
+      - We only need the offset/layout of `l_name`, not the full struct.
+
+    Safety constraints:
+      - This is a **partial** definition (prefix). It must only be used via a pointer
+        returned by `dlinfo(...)`.
+      - Do **not** instantiate it or pass it **by value** to any C function.
+      - Do **not** access any members beyond those declared here.
+      - Do **not** rely on `ctypes.sizeof(LinkMapPrefix)` for allocation.
+
+    Rationale:
+      - Defining only the leading fields avoids depending on internal/unstable
+        tail members while keeping code more readable than raw pointer arithmetic.
+    """
 
     _fields_ = (
-        ("dli_fname", ctypes.c_char_p),  # path to .so
-        ("dli_fbase", ctypes.c_void_p),
-        ("dli_sname", ctypes.c_char_p),
-        ("dli_saddr", ctypes.c_void_p),
+        ("l_addr", ctypes.c_void_p),  # ElfW(Addr)
+        ("l_name", ctypes.c_char_p),  # char*
     )
 
 
-def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> Optional[str]:
-    """Get the absolute path of a loaded dynamic library on Linux.
-
-    Args:
-        libname: The name of the library
-        handle: The library handle
-
-    Returns:
-        The absolute path to the library file, or None if no expected symbol is found
-
-    Raises:
-        OSError: If dladdr fails to get information about the symbol
-    """
-    from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import EXPECTED_LIB_SYMBOLS
-
-    for symbol_name in EXPECTED_LIB_SYMBOLS[libname]:
-        symbol = getattr(handle, symbol_name, None)
-        if symbol is not None:
-            break
-    else:
-        return None
-
-    addr = ctypes.cast(symbol, ctypes.c_void_p)
-    info = DlInfo()
-    if LIBDL.dladdr(addr, ctypes.byref(info)) == 0:
-        raise OSError(f"dladdr failed for {libname=!r}")
-    return info.dli_fname.decode()  # type: ignore[no-any-return]
+# Defensive assertions, mainly  to document the invariants we depend on
+assert _LinkMapLNameView.l_addr.offset == 0
+assert _LinkMapLNameView.l_name.offset == ctypes.sizeof(ctypes.c_void_p)
 
 
-def check_if_already_loaded_from_elsewhere(libname: str) -> Optional[LoadedDL]:
-    """Check if the library is already loaded in the process.
+def _dl_last_error() -> Optional[str]:
+    msg_bytes = cast(Optional[bytes], LIBDL.dlerror())
+    if not msg_bytes:
+        return None  # no pending error
+    # Never raises; undecodable bytes are mapped to U+DC80..U+DCFF
+    return msg_bytes.decode("utf-8", "surrogateescape")
 
-    Args:
-        libname: The name of the library to check
 
-    Returns:
-        A LoadedDL object if the library is already loaded, None otherwise
+def l_name_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
+    lm_view = ctypes.POINTER(_LinkMapLNameView)()
+    rc = LIBDL.dlinfo(ctypes.c_void_p(handle._handle), RTLD_DI_LINKMAP, ctypes.byref(lm_view))
+    if rc != 0:
+        err = _dl_last_error()
+        raise OSError(f"dlinfo failed for {libname=!r} (rc={rc})" + (f": {err}" if err else ""))
+    if not lm_view:  # NULL link_map**
+        raise OSError(f"dlinfo returned NULL link_map pointer for {libname=!r}")
 
-    Example:
-        >>> loaded = check_if_already_loaded_from_elsewhere("cudart")
-        >>> if loaded is not None:
-        ...     print(f"Library already loaded from {loaded.abs_path}")
-    """
-    from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import SUPPORTED_LINUX_SONAMES
+    l_name_bytes = lm_view.contents.l_name
+    if not l_name_bytes:
+        raise OSError(f"dlinfo returned empty link_map->l_name for {libname=!r}")
 
-    for soname in SUPPORTED_LINUX_SONAMES.get(libname, ()):
+    path = os.fsdecode(l_name_bytes)
+    if not path:
+        raise OSError(f"dlinfo returned empty l_name string for {libname=!r}")
+
+    return path
+
+
+def l_origin_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
+    l_origin_buf = ctypes.create_string_buffer(4096)
+    rc = LIBDL.dlinfo(ctypes.c_void_p(handle._handle), RTLD_DI_ORIGIN, l_origin_buf)
+    if rc != 0:
+        err = _dl_last_error()
+        raise OSError(f"dlinfo failed for {libname=!r} (rc={rc})" + (f": {err}" if err else ""))
+
+    path = os.fsdecode(l_origin_buf.value)
+    if not path:
+        raise OSError(f"dlinfo returned empty l_origin string for {libname=!r}")
+
+    return path
+
+
+def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
+    l_name = l_name_for_dynamic_library(libname, handle)
+    l_origin = l_origin_for_dynamic_library(libname, handle)
+    return os.path.join(l_origin, os.path.basename(l_name))
+
+
+def get_candidate_sonames(libname: str) -> list[str]:
+    candidate_sonames = list(SUPPORTED_LINUX_SONAMES.get(libname, ()))
+    candidate_sonames.append(f"lib{libname}.so")
+    return candidate_sonames
+
+
+def check_if_already_loaded_from_elsewhere(libname: str, _have_abs_path: bool) -> Optional[LoadedDL]:
+    for soname in get_candidate_sonames(libname):
         try:
             handle = ctypes.CDLL(soname, mode=os.RTLD_NOLOAD)
         except OSError:
@@ -96,9 +150,7 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
     Raises:
         RuntimeError: If the library is loaded but no expected symbol is found
     """
-    candidate_sonames = list(SUPPORTED_LINUX_SONAMES.get(libname, ()))
-    candidate_sonames.append(f"lib{libname}.so")
-    for soname in candidate_sonames:
+    for soname in get_candidate_sonames(libname):
         try:
             handle = ctypes.CDLL(soname, CDLL_MODE)
             abs_path = abs_path_for_dynamic_library(libname, handle)

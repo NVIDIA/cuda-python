@@ -105,6 +105,18 @@ def test_compute_capability():
     assert device.compute_capability == expected_cc
 
 
+def test_arch():
+    device = Device()
+    # Test that arch returns the same as the old pattern
+    expected_arch = "".join(f"{i}" for i in device.compute_capability)
+    assert device.arch == expected_arch
+    # Test that it's a string
+    assert isinstance(device.arch, str)
+    # Test that it matches the expected format (e.g., "75" for CC 7.5)
+    cc = device.compute_capability
+    assert device.arch == f"{cc.major}{cc.minor}"
+
+
 cuda_base_properties = [
     ("max_threads_per_block", int),
     ("max_block_dim_x", int),
