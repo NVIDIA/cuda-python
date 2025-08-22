@@ -3,9 +3,6 @@
 
 # Currently these installations are only manually tested:
 
-# pip install nvidia-nvshmem-cu12
-# pip install nvidia-nvshmem-cu13
-
 # conda create -y -n nvshmem python=3.12
 # conda activate nvshmem
 # conda install -y conda-forge::libnvshmem3 conda-forge::libnvshmem-dev
@@ -16,16 +13,30 @@
 # sudo apt install libnvshmem3-cuda-12 libnvshmem3-dev-cuda-12
 # sudo apt install libnvshmem3-cuda-13 libnvshmem3-dev-cuda-13
 
+import functools
+import importlib.metadata
+import re
+
 import pytest
 
 from cuda.pathfinder import _find_nvidia_header_directory as find_nvidia_header_directory
 
 
-def test_find_nvidia_header_directory(info_summary_append):
+@functools.cache
+def have_nvidia_nvshmem_package() -> bool:
+    pattern = re.compile(r"^nvidia-nvshmem-.*$")
+    return any(
+        pattern.match(dist.metadata["Name"]) for dist in importlib.metadata.distributions() if "Name" in dist.metadata
+    )
+
+
+def test_unknown_libname():
     with pytest.raises(RuntimeError, match=r"^UNKNOWN libname='unknown-libname'$"):
         find_nvidia_header_directory("unknown-libname")
 
-    hdr_dir = find_nvidia_header_directory("nvshmem")
-    # TODO: Find ways to test more meaningfully.
 
+def test_find_libname_nvshmem(info_summary_append):
+    hdr_dir = find_nvidia_header_directory("nvshmem")
     info_summary_append(f"{hdr_dir=!r}")
+    if have_nvidia_nvshmem_package():
+        assert hdr_dir is not None
