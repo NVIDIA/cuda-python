@@ -33,11 +33,8 @@ dependencies = [
 
 [project.optional-dependencies]
 all = [
-    "nvidia-cuda-nvcc~=13.0",
-    "nvidia-cuda-nvrtc~=13.0",
-    "nvidia-nvjitlink~=13.0",
-    "nvidia-nvvm~=13.0",
-    "nvidia-cufile; sys_platform == 'linux'",
+    "cuda-toolkit[nvrtc,nvjitlink,nvvm]==13.*",
+    "cuda-toolkit[cufile]==13.*; sys_platform == 'linux'",
 ]
 
 test = [
