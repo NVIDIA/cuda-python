@@ -15,6 +15,7 @@
 
 import functools
 import importlib.metadata
+import os
 import re
 
 import pytest
@@ -40,3 +41,11 @@ def test_find_libname_nvshmem(info_summary_append):
     info_summary_append(f"{hdr_dir=!r}")
     if have_nvidia_nvshmem_package():
         assert hdr_dir is not None
+        hdr_dir_parts = hdr_dir.split(os.path.sep)
+        assert any(
+            sub_dir in hdr_dir_parts
+            for sub_dir in (
+                "site-packages",  # pip install
+                "dist-packages",  # apt install
+            )
+        ), hdr_dir
