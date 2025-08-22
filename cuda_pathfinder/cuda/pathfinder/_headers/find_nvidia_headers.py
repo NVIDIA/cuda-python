@@ -35,7 +35,7 @@ def find_nvidia_header_directory(libname: str) -> Optional[str]:
             if os.path.isfile(nvshmem_h_path):
                 return hdr_dir
 
-    for hdr_dir in sorted(glob.glob("/usr/include/nvshmem_*")):
+    for hdr_dir in sorted(glob.glob("/usr/include/nvshmem_*"), reverse=True):
         if os.path.isdir(hdr_dir):
             nvshmem_h_path = os.path.join(hdr_dir, "nvshmem.h")
             if os.path.isfile(nvshmem_h_path):
