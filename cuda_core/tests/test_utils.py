@@ -15,6 +15,7 @@ import pytest
 
 import cuda.core.experimental
 from cuda.core.experimental import Device
+from cuda.core.experimental._memoryview import view_as_cai
 from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
 
 
@@ -164,3 +165,34 @@ class TestViewGPU:
         assert view.is_device_accessible is True
         assert view.exporting_obj is in_arr
         # can't test view.readonly with CuPy or Numba...
+
+
+@pytest.mark.skipif(cp is None, reason="CuPy is not installed")
+@pytest.mark.parametrize("in_arr,use_stream", (*gpu_array_samples(),))
+class TestViewCudaArrayInterfaceGPU:
+    def test_cuda_array_interface_gpu(self, in_arr, use_stream):
+        # TODO: use the device fixture?
+        dev = Device()
+        dev.set_current()
+        # This is the consumer stream
+        s = dev.create_stream() if use_stream else None
+
+        # The usual path in `StridedMemoryView` prefers the DLPack interface
+        # over __cuda_array_interface__, so we call `view_as_cai` directly
+        # here so we can test the CAI code path.
+        view = view_as_cai(in_arr, stream_ptr=s.handle if s else -1)
+        self._check_view(view, in_arr, dev)
+
+    def _check_view(self, view, in_arr, dev):
+        assert isinstance(view, StridedMemoryView)
+        assert view.ptr == gpu_array_ptr(in_arr)
+        assert view.shape == in_arr.shape
+        strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
+        if in_arr.flags["C_CONTIGUOUS"]:
+            assert view.strides is None
+        else:
+            assert view.strides == strides_in_counts
+        assert view.dtype == in_arr.dtype
+        assert view.device_id == dev.device_id
+        assert view.is_device_accessible is True
+        assert view.exporting_obj is in_arr

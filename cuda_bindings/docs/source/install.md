@@ -57,7 +57,6 @@ Source builds require that the provided CUDA headers are of the same major.minor
 
 ```console
 $ export CUDA_HOME=/usr/local/cuda
-$ export LIBRARY_PATH=$CUDA_HOME/lib64:$LIBRARY_PATH
 ```
 
 See [Environment Variables](environment_variables.md) for a description of other build-time environment variables.
