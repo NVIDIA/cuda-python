@@ -205,15 +205,15 @@ class LinkerOptions:
             self.formatted_options.append("-time")
         if self.verbose is not None:
             self.formatted_options.append("-verbose")
-        if self.link_time_optimization is not None:
+        if self.link_time_optimization is not None and self.link_time_optimization:
             self.formatted_options.append("-lto")
         if self.ptx is not None:
             self.formatted_options.append("-ptx")
         if self.optimization_level is not None:
             self.formatted_options.append(f"-O{self.optimization_level}")
-        if self.debug is not None:
+        if self.debug is not None and self.debug:
             self.formatted_options.append("-g")
-        if self.lineinfo is not None:
+        if self.lineinfo is not None and self.lineinfo:
             self.formatted_options.append("-lineinfo")
         if self.ftz is not None:
             self.formatted_options.append(f"-ftz={'true' if self.ftz else 'false'}")
