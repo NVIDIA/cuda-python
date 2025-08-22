@@ -33091,9 +33091,9 @@ def cuMemMapArrayAsync(mapInfoList : Optional[tuple[CUarrayMapInfo] | list[CUarr
         if cymapInfoList is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(len(mapInfoList)) + 'x' + str(sizeof(cydriver.CUarrayMapInfo)))
         for idx in range(len(mapInfoList)):
-            string.memcpy(&cymapInfolist[idx], (<CUarrayMapInfo>mapInfolist[idx])._pvt_ptr, sizeof(cydriver.CUarrayMapInfo))
+            string.memcpy(&cymapInfoList[idx], (<CUarrayMapInfo>mapInfoList[idx])._pvt_ptr, sizeof(cydriver.CUarrayMapInfo))
     elif len(mapInfoList) == 1:
-        cymapInfoList = (<CUarrayMapInfo>mapInfolist[0])._pvt_ptr
+        cymapInfoList = (<CUarrayMapInfo>mapInfoList[0])._pvt_ptr
     if count > len(mapInfoList): raise RuntimeError("List is too small: " + str(len(mapInfoList)) + " < " + str(count))
     with nogil:
         err = cydriver.cuMemMapArrayAsync(cymapInfoList, count, cyhStream)
@@ -40317,9 +40317,9 @@ def cuLaunchCooperativeKernelMultiDevice(launchParamsList : Optional[tuple[CUDA_
         if cylaunchParamsList is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(len(launchParamsList)) + 'x' + str(sizeof(cydriver.CUDA_LAUNCH_PARAMS)))
         for idx in range(len(launchParamsList)):
-            string.memcpy(&cylaunchParamslist[idx], (<CUDA_LAUNCH_PARAMS>launchParamslist[idx])._pvt_ptr, sizeof(cydriver.CUDA_LAUNCH_PARAMS))
+            string.memcpy(&cylaunchParamsList[idx], (<CUDA_LAUNCH_PARAMS>launchParamsList[idx])._pvt_ptr, sizeof(cydriver.CUDA_LAUNCH_PARAMS))
     elif len(launchParamsList) == 1:
-        cylaunchParamsList = (<CUDA_LAUNCH_PARAMS>launchParamslist[0])._pvt_ptr
+        cylaunchParamsList = (<CUDA_LAUNCH_PARAMS>launchParamsList[0])._pvt_ptr
     if numDevices > len(launchParamsList): raise RuntimeError("List is too small: " + str(len(launchParamsList)) + " < " + str(numDevices))
     with nogil:
         err = cydriver.cuLaunchCooperativeKernelMultiDevice(cylaunchParamsList, numDevices, flags)

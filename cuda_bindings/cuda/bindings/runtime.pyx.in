@@ -28246,9 +28246,9 @@ def cudaMemPoolSetAccess(memPool, descList : Optional[tuple[cudaMemAccessDesc] |
         if cydescList is NULL:
             raise MemoryError('Failed to allocate length x size memory: ' + str(len(descList)) + 'x' + str(sizeof(cyruntime.cudaMemAccessDesc)))
         for idx in range(len(descList)):
-            string.memcpy(&cydesclist[idx], (<cudaMemAccessDesc>desclist[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
+            string.memcpy(&cydescList[idx], (<cudaMemAccessDesc>descList[idx])._pvt_ptr, sizeof(cyruntime.cudaMemAccessDesc))
     elif len(descList) == 1:
-        cydescList = (<cudaMemAccessDesc>desclist[0])._pvt_ptr
+        cydescList = (<cudaMemAccessDesc>descList[0])._pvt_ptr
     if count > <size_t>len(descList): raise RuntimeError("List is too small: " + str(len(descList)) + " < " + str(count))
     with nogil:
         err = cyruntime.cudaMemPoolSetAccess(cymemPool, cydescList, count)
