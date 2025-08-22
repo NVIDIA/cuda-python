@@ -7,7 +7,6 @@ from libc.stdint cimport int32_t, uint32_t, int64_t, uint64_t
 from libc.stddef cimport wchar_t
 from libc.string cimport memcpy
 from enum import Enum
-from typing import List, Tuple
 import ctypes
 cimport cuda.bindings.cydriver as cydriver
 import cuda.bindings.driver as driver
@@ -117,7 +116,7 @@ cdef class HelperKernelParams:
                     raise TypeError("Unsupported type: " + str(type(ctype)))
                 idx += 1
         else:
-            raise TypeError("Argument 'kernelParams' is not a valid type: Tuple[Tuple[Any, ...], Tuple[Any, ...]] or PyObject implimenting Buffer Protocol or Int")
+            raise TypeError("Argument 'kernelParams' is not a valid type: tuple[tuple[Any, ...], tuple[Any, ...]] or PyObject implimenting Buffer Protocol or Int")
 
     def __dealloc__(self):
         if self._pyobj_acquired is True:
