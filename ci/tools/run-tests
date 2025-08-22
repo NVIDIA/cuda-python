@@ -31,7 +31,9 @@ popd
 
 if [[ "${test_module}" == "pathfinder" ]]; then
   pushd ./cuda_pathfinder
-  echo "Running pathfinder tests with ${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS}"
+  echo "Running pathfinder tests with " \
+      "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
+      "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS}"
   pwd
   pytest -ra -s -v tests/
   popd
