@@ -49,29 +49,22 @@ jobs:
       - name: Compute Python Test Matrix
         id: compute-matrix
         run: |
-          # Set a default GPU based upon architecture.
-          gpu="l4"
-          if [[ "${ARCH}" == "arm64" ]]; then
-            gpu="a100"
-          fi
-
           # Use the nightly matrix for branch tests
           MATRIX_TYPE="${BUILD_TYPE}"
           if [[ "${MATRIX_TYPE}" == "branch" ]]; then
             MATRIX_TYPE="nightly"
           fi
 
-          # Read base matrix from JSON file and substitute GPU placeholder
-          TEST_MATRIX=$(jq --arg gpu "$gpu" --arg arch "$ARCH" '
-            .linux[env.MATRIX_TYPE] | 
-            map(. + {ARCH: $arch} | if .GPU == "{gpu}" then . + {GPU: $gpu} else . end)
+          # Read base matrix from JSON file for the specific architecture
+          TEST_MATRIX=$(jq --arg arch "$ARCH" --arg matrix_type "$MATRIX_TYPE" '
+            .linux[$matrix_type] | 
+            map(select(.ARCH == $arch))
           ' ci/test-matrix.json)
 
           # Add special runner for amd64 if applicable
           if [[ "${ARCH}" == "amd64" ]]; then
-            SPECIAL_RUNNERS=$(jq --arg arch "$ARCH" '
-              .linux.special_runners.amd64 | 
-              map(. + {ARCH: $arch})
+            SPECIAL_RUNNERS=$(jq '
+              .linux.special_runners.amd64
             ' ci/test-matrix.json)
             TEST_MATRIX=$(jq --argjson special "$SPECIAL_RUNNERS" '. + $special' <<< "$TEST_MATRIX")
           fi
