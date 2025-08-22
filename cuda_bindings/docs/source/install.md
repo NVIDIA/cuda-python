@@ -29,9 +29,9 @@ pip install -U cuda-python[all]
 
 Where the optional dependencies include:
 
-* ``nvidia-cuda-nvrtc-cu13`` (NVRTC runtime compilation library)  
-* ``nvidia-nvjitlink-cu13`` (nvJitLink library)
-* ``nvidia-nvvm-cu13`` (NVVM library)
+* ``nvidia-cuda-nvrtc`` (NVRTC runtime compilation library)  
+* ``nvidia-nvjitlink`` (nvJitLink library)
+* ``nvidia-nvvm`` (NVVM library)
 * ``nvidia-cufile`` (cuFile library, Linux only)
 
 These are now installed through the ``cuda-toolkit`` metapackage for improved dependency resolution.
