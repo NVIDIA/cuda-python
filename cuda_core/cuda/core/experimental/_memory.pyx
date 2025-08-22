@@ -261,7 +261,7 @@ class MemoryResource(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def allocate(self, size: int, stream: Stream = None) -> Buffer:
+    def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
@@ -282,7 +282,7 @@ class MemoryResource(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def deallocate(self, ptr: DevicePointerT, size: int, stream: Stream = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -358,7 +358,7 @@ class DeviceMemoryResource(MemoryResource):
             )
             raise_if_driver_error(err)
 
-    def allocate(self, size: int, stream: Stream = None) -> Buffer:
+    def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
@@ -381,7 +381,7 @@ class DeviceMemoryResource(MemoryResource):
         raise_if_driver_error(err)
         return Buffer._init(ptr, size, self)
 
-    def deallocate(self, ptr: DevicePointerT, size: int, stream: Stream = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -424,7 +424,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
         # TODO: support flags from cuMemHostAlloc?
         self._handle = None
 
-    def allocate(self, size: int, stream: Stream = None) -> Buffer:
+    def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
@@ -443,7 +443,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
         raise_if_driver_error(err)
         return Buffer._init(ptr, size, self)
 
-    def deallocate(self, ptr: DevicePointerT, size: int, stream: Stream = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
