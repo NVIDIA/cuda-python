@@ -22,6 +22,9 @@ import pytest
 
 from cuda.pathfinder import _find_nvidia_header_directory as find_nvidia_header_directory
 
+STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS", "see_what_works")
+assert STRICTNESS in ("see_what_works", "all_must_work")
+
 
 @functools.cache
 def have_nvidia_nvshmem_package() -> bool:
@@ -39,7 +42,7 @@ def test_unknown_libname():
 def test_find_libname_nvshmem(info_summary_append):
     hdr_dir = find_nvidia_header_directory("nvshmem")
     info_summary_append(f"{hdr_dir=!r}")
-    if have_nvidia_nvshmem_package():
+    if STRICTNESS == "all_must_work" or have_nvidia_nvshmem_package():
         assert hdr_dir is not None
         hdr_dir_parts = hdr_dir.split(os.path.sep)
         assert any(
