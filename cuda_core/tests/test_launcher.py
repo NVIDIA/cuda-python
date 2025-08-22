@@ -368,4 +368,4 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
     cp.cuda.Stream.null.use()  # reset CuPy's current stream to the null stream
 
     # Verify buffer is properly closed
-    assert buffer.handle == 0, f"{memory_resource_class.__name__} buffer should be closed"
+    assert buffer.handle is None, f"{memory_resource_class.__name__} buffer should be closed"
