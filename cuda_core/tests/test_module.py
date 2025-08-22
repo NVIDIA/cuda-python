@@ -180,6 +180,120 @@ def test_object_code_handle(get_saxpy_object_code):
     assert mod.handle is not None
 
 
+@pytest.fixture(scope="function")
+def get_ltoir_object_code(init_cuda):
+    # Create LTOIR code using link-time optimization
+    prog = Program(SAXPY_KERNEL, code_type="c++", options=ProgramOptions(link_time_optimization=True))
+    mod = prog.compile("ltoir", name_expressions=("saxpy<float>", "saxpy<double>"))
+    return mod
+
+
+def test_object_code_load_ltoir(get_ltoir_object_code):
+    mod = get_ltoir_object_code
+    ltoir = mod._module
+    sym_map = mod._sym_map
+    assert isinstance(ltoir, bytes)
+    mod_obj = ObjectCode.from_ltoir(ltoir, symbol_mapping=sym_map)
+    assert mod_obj.code == ltoir
+    assert mod_obj._code_type == "ltoir"
+    # ltoir doesn't support kernel retrieval directly as it's used for linking
+    assert mod_obj._handle is None  # Should only be loaded when needed
+
+
+def test_object_code_load_ltoir_from_file(get_ltoir_object_code, tmp_path):
+    mod = get_ltoir_object_code
+    ltoir = mod._module
+    sym_map = mod._sym_map
+    assert isinstance(ltoir, bytes)
+    ltoir_file = tmp_path / "test.ltoir"
+    ltoir_file.write_bytes(ltoir)
+    mod_obj = ObjectCode.from_ltoir(str(ltoir_file), symbol_mapping=sym_map)
+    assert mod_obj.code == str(ltoir_file)
+    assert mod_obj._code_type == "ltoir"
+    assert mod_obj._handle is None  # Should only be loaded when needed
+
+
+def test_object_code_load_fatbin(get_saxpy_kernel):
+    # Use cubin as a substitute for fatbin since they have similar structure
+    _, mod = get_saxpy_kernel
+    cubin = mod._module
+    sym_map = mod._sym_map
+    assert isinstance(cubin, bytes)
+    mod_obj = ObjectCode.from_fatbin(cubin, symbol_mapping=sym_map)
+    assert mod_obj.code == cubin
+    assert mod_obj._code_type == "fatbin"
+    # fatbin supports kernel retrieval
+    mod_obj.get_kernel("saxpy<double>")  # force loading
+
+
+def test_object_code_load_fatbin_from_file(get_saxpy_kernel, tmp_path):
+    # Use cubin as a substitute for fatbin since they have similar structure
+    _, mod = get_saxpy_kernel
+    cubin = mod._module
+    sym_map = mod._sym_map
+    assert isinstance(cubin, bytes)
+    fatbin_file = tmp_path / "test.fatbin"
+    fatbin_file.write_bytes(cubin)
+    mod_obj = ObjectCode.from_fatbin(str(fatbin_file), symbol_mapping=sym_map)
+    assert mod_obj.code == str(fatbin_file)
+    assert mod_obj._code_type == "fatbin"
+    mod_obj.get_kernel("saxpy<double>")  # force loading
+
+
+def test_object_code_load_object(get_saxpy_kernel):
+    # Use cubin as a substitute for object code since they're binary formats
+    _, mod = get_saxpy_kernel
+    cubin = mod._module
+    sym_map = mod._sym_map
+    assert isinstance(cubin, bytes)
+    mod_obj = ObjectCode.from_object(cubin, symbol_mapping=sym_map)
+    assert mod_obj.code == cubin
+    assert mod_obj._code_type == "object"
+    # object code doesn't support direct kernel retrieval
+    assert mod_obj._handle is None  # Should only be loaded when needed
+
+
+def test_object_code_load_object_from_file(get_saxpy_kernel, tmp_path):
+    # Use cubin as a substitute for object code since they're binary formats
+    _, mod = get_saxpy_kernel
+    cubin = mod._module
+    sym_map = mod._sym_map
+    assert isinstance(cubin, bytes)
+    object_file = tmp_path / "test.o"
+    object_file.write_bytes(cubin)
+    mod_obj = ObjectCode.from_object(str(object_file), symbol_mapping=sym_map)
+    assert mod_obj.code == str(object_file)
+    assert mod_obj._code_type == "object"
+    assert mod_obj._handle is None  # Should only be loaded when needed
+
+
+def test_object_code_load_library(get_saxpy_kernel):
+    # Use cubin as a substitute for library since they're binary formats
+    _, mod = get_saxpy_kernel
+    cubin = mod._module
+    sym_map = mod._sym_map
+    assert isinstance(cubin, bytes)
+    mod_obj = ObjectCode.from_library(cubin, symbol_mapping=sym_map)
+    assert mod_obj.code == cubin
+    assert mod_obj._code_type == "library"
+    # library code doesn't support direct kernel retrieval
+    assert mod_obj._handle is None  # Should only be loaded when needed
+
+
+def test_object_code_load_library_from_file(get_saxpy_kernel, tmp_path):
+    # Use cubin as a substitute for library since they're binary formats
+    _, mod = get_saxpy_kernel
+    cubin = mod._module
+    sym_map = mod._sym_map
+    assert isinstance(cubin, bytes)
+    library_file = tmp_path / "test.a"
+    library_file.write_bytes(cubin)
+    mod_obj = ObjectCode.from_library(str(library_file), symbol_mapping=sym_map)
+    assert mod_obj.code == str(library_file)
+    assert mod_obj._code_type == "library"
+    assert mod_obj._handle is None  # Should only be loaded when needed
+
+
 def test_saxpy_arguments(get_saxpy_kernel, cuda12_4_prerequisite_check):
     krn, _ = get_saxpy_kernel
 
