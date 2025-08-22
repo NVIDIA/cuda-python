@@ -570,6 +570,7 @@
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Added <a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.arch" title="cuda.core.experimental.Device.arch"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.arch</span></code></a> property that returns the compute capability as a string (e.g., ‘75’ for CC 7.5), providing a convenient alternative to manually concatenating the compute capability tuple.</p></li>
+<li><p>CUDA 13.x testing support through new <code class="docutils literal notranslate"><span class="pre">test-cu13</span></code> dependency group.</p></li>
 </ul>
 </section>
 <section id="new-examples">
@@ -580,7 +581,9 @@
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Improved <a class="reference internal" href="../generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource" title="cuda.core.experimental.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a> allocation performance when there are no active allocations by setting a higher release threshold (addresses issue #771).</p></li>
+<li><p>Improved <code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> creation time performance by optimizing shape and strides tuple creation using Python/C API (addresses issue #449).</p></li>
 <li><p>Fix <a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig" title="cuda.core.experimental.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a> grid unit conversion when cluster is set (addresses issue #867).</p></li>
+<li><p>Fixed a bug in <a class="reference internal" href="../generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.add_child" title="cuda.core.experimental.GraphBuilder.add_child"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder.add_child</span></code></a> where dependencies extracted from capturing stream were passed inconsistently with num_dependencies parameter (addresses issue #843).</p></li>
 </ul>
 </section>
 </section>

@@ -494,8 +494,10 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/13.X.Y-notes.html">13.X.Y</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.X-notes.html">12.9.X</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.2-notes.html">12.9.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.1-notes.html">12.9.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.0-notes.html">12.9.0</a></li>
@@ -662,7 +664,7 @@
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The optional CUDA Toolkit components can be installed via PyPI, Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html">Windows</a> and <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html">Linux</a> Installation Guides).</p>
+<p>The optional CUDA Toolkit components are now installed via the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage from PyPI for improved dependency resolution. Components can also be installed via Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html">Windows</a> and <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html">Linux</a> Installation Guides).</p>
 </div>
 <p>Starting from v12.8.0, <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> becomes a meta package which currently depends only on <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>; in the future more sub-packages will be added to <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code>. In the instructions below, we still use <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> as example to serve existing users, but everything is applicable to <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> as well.</p>
 </section>
@@ -675,17 +677,26 @@
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>cuda-python<span class="o">[</span>all<span class="o">]</span>
 </pre></div>
 </div>
-<p>Where the optional dependencies are:</p>
+<p>Where the optional dependencies include:</p>
 <ul class="simple">
-<li><p>nvidia-cuda-nvrtc (Provides NVRTC shared library)</p></li>
-<li><p>nvidia-nvjitlink (Provides nvJitLink shared library)</p></li>
-<li><p>nvidia-cuda-nvcc (Provides NVVM shared library)</p></li>
-<li><p>nvidia-cufile (Provides cuFile shared library)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cuda-nvrtc</span></code> (NVRTC runtime compilation library)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-nvjitlink</span></code> (nvJitLink library)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-nvvm</span></code> (NVVM library)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cufile</span></code> (cuFile library, Linux only)</p></li>
 </ul>
+<p>These are now installed through the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage for improved dependency resolution.</p>
 </section>
 <section id="installing-from-conda">
 <h2>Installing from Conda<a class="headerlink" href="#installing-from-conda" title="Link to this heading">#</a></h2>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>cuda-python
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When using conda, the <code class="docutils literal notranslate"><span class="pre">cuda-version</span></code> metapackage can be used to control the versions of CUDA Toolkit components that are installed to the conda environment.</p>
+</div>
+<p>For example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>cuda-python<span class="w"> </span>cuda-version<span class="o">=</span><span class="m">13</span>.0
 </pre></div>
 </div>
 </section>
