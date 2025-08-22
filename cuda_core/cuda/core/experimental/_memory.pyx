@@ -4,8 +4,11 @@
 
 from __future__ import annotations
 
+from cuda.core.experimental._utils.cuda_utils cimport (
+    _check_driver_error as raise_if_driver_error,
+)
+
 import abc
-import weakref
 from typing import Tuple, TypeVar, Union
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
@@ -23,7 +26,7 @@ DevicePointerT = Union[driver.CUdeviceptr, int, None]
 """A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting :attr:`Buffer.handle`."""
 
 
-class Buffer:
+cdef class Buffer:
     """Represent a handle to allocated memory.
 
     This generic object provides a unified representation for how
@@ -33,34 +36,26 @@ class Buffer:
     Support for data interchange mechanisms are provided by DLPack.
     """
 
-    class _MembersNeededForFinalize:
-        __slots__ = ("ptr", "size", "mr")
+    cdef:
+        object _ptr
+        size_t _size
+        object _mr
 
-        def __init__(self, buffer_obj, ptr, size, mr):
-            self.ptr = ptr
-            self.size = size
-            self.mr = mr
-            weakref.finalize(buffer_obj, self.close)
-
-        def close(self, stream=None):
-            if self.ptr and self.mr is not None:
-                self.mr.deallocate(self.ptr, self.size, stream)
-                self.ptr = 0
-                self.mr = None
-
-    # TODO: handle ownership? (_mr could be None)
-    __slots__ = ("__weakref__", "_mnff")
-
-    def __new__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         raise RuntimeError("Buffer objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, ptr: DevicePointerT, size: int, mr: MemoryResource | None = None):
-        self = super().__new__(cls)
-        self._mnff = Buffer._MembersNeededForFinalize(self, ptr, size, mr)
+    def _init(cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None):
+        cdef Buffer self = Buffer.__new__(cls)
+        self._ptr = ptr
+        self._size = size
+        self._mr = mr
         return self
 
-    def close(self, stream: Stream = None):
+    def __del__(self):
+        self.close()
+
+    cpdef close(self, stream: Stream = None):
         """Deallocate this buffer asynchronously on the given stream.
 
         This buffer is released back to their memory resource
@@ -72,7 +67,10 @@ class Buffer:
             The stream object to use for asynchronous deallocation. If None,
             the behavior depends on the underlying memory resource.
         """
-        self._mnff.close(stream)
+        if self._ptr and self._mr is not None:
+            self._mr.deallocate(self._ptr, self._size, stream)
+            self._ptr = 0
+            self._mr = None
 
     @property
     def handle(self) -> DevicePointerT:
@@ -83,37 +81,37 @@ class Buffer:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(Buffer.handle)``.
         """
-        return self._mnff.ptr
+        return self._ptr
 
     @property
     def size(self) -> int:
         """Return the memory size of this buffer."""
-        return self._mnff.size
+        return self._size
 
     @property
     def memory_resource(self) -> MemoryResource:
         """Return the memory resource associated with this buffer."""
-        return self._mnff.mr
+        return self._mr
 
     @property
     def is_device_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
-        if self._mnff.mr is not None:
-            return self._mnff.mr.is_device_accessible
+        if self._mr is not None:
+            return self._mr.is_device_accessible
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     @property
     def is_host_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
-        if self._mnff.mr is not None:
-            return self._mnff.mr.is_host_accessible
+        if self._mr is not None:
+            return self._mr.is_host_accessible
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     @property
     def device_id(self) -> int:
         """Return the device ordinal of this buffer."""
-        if self._mnff.mr is not None:
-            return self._mnff.mr.device_id
+        if self._mr is not None:
+            return self._mr.device_id
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     def copy_to(self, dst: Buffer = None, *, stream: Stream) -> Buffer:
@@ -134,15 +132,20 @@ class Buffer:
         """
         if stream is None:
             raise ValueError("stream must be provided")
+        
+        cdef size_t src_size = self._size
+        
         if dst is None:
-            if self._mnff.mr is None:
+            if self._mr is None:
                 raise ValueError("a destination buffer must be provided (this buffer does not have a memory_resource)")
-            dst = self._mnff.mr.allocate(self._mnff.size, stream)
-        if dst._mnff.size != self._mnff.size:
+            dst = self._mr.allocate(src_size, stream)
+        
+        cdef size_t dst_size = dst._size
+        if dst_size != src_size:
             raise ValueError(
-                f"buffer sizes mismatch between src and dst (sizes are: src={self._mnff.size}, dst={dst._mnff.size})"
+                f"buffer sizes mismatch between src and dst (sizes are: src={src_size}, dst={dst_size})"
             )
-        handle_return(driver.cuMemcpyAsync(dst._mnff.ptr, self._mnff.ptr, self._mnff.size, stream.handle))
+        handle_return(driver.cuMemcpyAsync(dst._ptr, self._ptr, src_size, stream.handle))
         return dst
 
     def copy_from(self, src: Buffer, *, stream: Stream):
@@ -159,11 +162,15 @@ class Buffer:
         """
         if stream is None:
             raise ValueError("stream must be provided")
-        if src._mnff.size != self._mnff.size:
+            
+        cdef size_t dst_size = self._size
+        cdef size_t src_size = src._size
+        
+        if src_size != dst_size:
             raise ValueError(
-                f"buffer sizes mismatch between src and dst (sizes are: src={src._mnff.size}, dst={self._mnff.size})"
+                f"buffer sizes mismatch between src and dst (sizes are: src={src_size}, dst={dst_size})"
             )
-        handle_return(driver.cuMemcpyAsync(self._mnff.ptr, src._mnff.ptr, self._mnff.size, stream.handle))
+        handle_return(driver.cuMemcpyAsync(self._ptr, src._ptr, dst_size, stream.handle))
 
     def __dlpack__(
         self,
@@ -211,7 +218,7 @@ class Buffer:
         raise NotImplementedError("WIP: Buffer.__release_buffer__ hasn't been implemented yet.")
 
     @staticmethod
-    def from_handle(ptr: DevicePointerT, size: int, mr: MemoryResource | None = None) -> Buffer:
+    def from_handle(ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
         Parameters
@@ -325,23 +332,6 @@ class DeviceMemoryResource(MemoryResource):
     def __init__(self, device_id: int):
         self._handle = handle_return(driver.cuDeviceGetMemPool(device_id))
         self._dev_id = device_id
-
-        # Set a higher release threshold to improve performance when there are no active allocations.
-        # By default, the release threshold is 0, which means memory is immediately released back
-        # to the OS when there are no active suballocations, causing performance issues.
-        # Check current release threshold
-        current_threshold = handle_return(
-            driver.cuMemPoolGetAttribute(self._handle, driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD)
-        )
-        # If threshold is 0 (default), set it to maximum to retain memory in the pool
-        if int(current_threshold) == 0:
-            handle_return(
-                driver.cuMemPoolSetAttribute(
-                    self._handle,
-                    driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
-                    driver.cuuint64_t(0xFFFFFFFFFFFFFFFF),
-                )
-            )
 
     def allocate(self, size: int, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
