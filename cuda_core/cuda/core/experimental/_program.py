@@ -244,8 +244,8 @@ class ProgramOptions:
             self._formatted_options.append("--device-debug")
         if self.lineinfo is not None and self.lineinfo:
             self._formatted_options.append("--generate-line-info")
-        if self.device_code_optimize is not None:
-            self._formatted_options.append(f"--dopt={'on' if self.device_code_optimize else 'off'}")
+        if self.device_code_optimize is not None and self.device_code_optimize:
+            self._formatted_options.append("--dopt=on")
         if self.ptxas_options is not None:
             opt_name = "--ptxas-options"
             if isinstance(self.ptxas_options, str):
@@ -351,7 +351,7 @@ class ProgramOptions:
 
     def __repr__(self):
         # __TODO__ improve this
-        return self._formatted_options
+        return str(self._formatted_options)
 
 
 ProgramHandleT = Union["cuda.bindings.nvrtc.nvrtcProgram", LinkerHandleT]
