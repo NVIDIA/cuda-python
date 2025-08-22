@@ -1,0 +1,6 @@
+﻿cuda.bindings.cufile.driver\_close
+==================================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autofunction:: driver_close
