@@ -15,7 +15,7 @@ from typing import Tuple, TypeVar, Union
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
-from cuda.core.experimental._utils.cuda_utils import driver, handle_return
+from cuda.core.experimental._utils.cuda_utils import driver
 
 # TODO: define a memory property mixin class and make Buffer and
 # MemoryResource both inherit from it
@@ -42,6 +42,7 @@ cdef class Buffer:
         uintptr_t _ptr
         size_t _size
         object _mr
+        object _ptr_obj
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError("Buffer objects cannot be instantiated directly. Please use MemoryResource APIs.")
@@ -50,6 +51,7 @@ cdef class Buffer:
     def _init(cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None):
         cdef Buffer self = Buffer.__new__(cls)
         self._ptr = <uintptr_t>(int(ptr))
+        self._ptr_obj = ptr
         self._size = size
         self._mr = mr
         return self
@@ -73,6 +75,7 @@ cdef class Buffer:
             self._mr.deallocate(self._ptr, self._size, stream)
             self._ptr = 0
             self._mr = None
+            self._ptr_obj = None
 
     @property
     def handle(self) -> DevicePointerT:
@@ -83,7 +86,7 @@ cdef class Buffer:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(Buffer.handle)``.
         """
-        return self._ptr
+        return self._ptr_obj
 
     @property
     def size(self) -> int:
@@ -147,7 +150,8 @@ cdef class Buffer:
             raise ValueError(
                 f"buffer sizes mismatch between src and dst (sizes are: src={src_size}, dst={dst_size})"
             )
-        handle_return(driver.cuMemcpyAsync(dst._ptr, self._ptr, src_size, stream.handle))
+        err, = driver.cuMemcpyAsync(dst._ptr, self._ptr, src_size, stream.handle)
+        raise_if_driver_error(err)
         return dst
 
     def copy_from(self, src: Buffer, *, stream: Stream):
@@ -172,7 +176,8 @@ cdef class Buffer:
             raise ValueError(
                 f"buffer sizes mismatch between src and dst (sizes are: src={src_size}, dst={dst_size})"
             )
-        handle_return(driver.cuMemcpyAsync(self._ptr, src._ptr, dst_size, stream.handle))
+        err, = driver.cuMemcpyAsync(self._ptr, src._ptr, dst_size, stream.handle)
+        raise_if_driver_error(err)
 
     def __dlpack__(
         self,
@@ -332,25 +337,26 @@ class DeviceMemoryResource(MemoryResource):
     __slots__ = ("_dev_id",)
 
     def __init__(self, device_id: int):
-        self._handle = handle_return(driver.cuDeviceGetMemPool(device_id))
+        err, self._handle = driver.cuDeviceGetMemPool(device_id)
+        raise_if_driver_error(err)
         self._dev_id = device_id
 
         # Set a higher release threshold to improve performance when there are no active allocations.
         # By default, the release threshold is 0, which means memory is immediately released back
         # to the OS when there are no active suballocations, causing performance issues.
         # Check current release threshold
-        current_threshold = handle_return(
-            driver.cuMemPoolGetAttribute(self._handle, driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD)
+        err, current_threshold = driver.cuMemPoolGetAttribute(
+            self._handle, driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD
         )
+        raise_if_driver_error(err)
         # If threshold is 0 (default), set it to maximum to retain memory in the pool
         if int(current_threshold) == 0:
-            handle_return(
-                driver.cuMemPoolSetAttribute(
-                    self._handle,
-                    driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
-                    driver.cuuint64_t(0xFFFFFFFFFFFFFFFF),
-                )
+            err, = driver.cuMemPoolSetAttribute(
+                self._handle,
+                driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+                driver.cuuint64_t(0xFFFFFFFFFFFFFFFF),
             )
+            raise_if_driver_error(err)
 
     def allocate(self, size: int, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
@@ -371,7 +377,8 @@ class DeviceMemoryResource(MemoryResource):
         """
         if stream is None:
             stream = default_stream()
-        ptr = handle_return(driver.cuMemAllocFromPoolAsync(size, self._handle, stream.handle))
+        err, ptr = driver.cuMemAllocFromPoolAsync(size, self._handle, stream.handle)
+        raise_if_driver_error(err)
         return Buffer._init(ptr, size, self)
 
     def deallocate(self, ptr: DevicePointerT, size: int, stream: Stream = None):
@@ -389,7 +396,8 @@ class DeviceMemoryResource(MemoryResource):
         """
         if stream is None:
             stream = default_stream()
-        handle_return(driver.cuMemFreeAsync(ptr, stream.handle))
+        err, = driver.cuMemFreeAsync(ptr, stream.handle)
+        raise_if_driver_error(err)
 
     @property
     def is_device_accessible(self) -> bool:
@@ -431,7 +439,8 @@ class LegacyPinnedMemoryResource(MemoryResource):
         Buffer
             The allocated buffer object, which is accessible on both host and device.
         """
-        ptr = handle_return(driver.cuMemAllocHost(size))
+        err, ptr = driver.cuMemAllocHost(size)
+        raise_if_driver_error(err)
         return Buffer._init(ptr, size, self)
 
     def deallocate(self, ptr: DevicePointerT, size: int, stream: Stream = None):
@@ -449,7 +458,8 @@ class LegacyPinnedMemoryResource(MemoryResource):
         """
         if stream:
             stream.sync()
-        handle_return(driver.cuMemFreeHost(ptr))
+        err, = driver.cuMemFreeHost(ptr)
+        raise_if_driver_error(err)
 
     @property
     def is_device_accessible(self) -> bool:
@@ -475,14 +485,16 @@ class _SynchronousMemoryResource(MemoryResource):
         self._dev_id = device_id
 
     def allocate(self, size, stream=None) -> Buffer:
-        ptr = handle_return(driver.cuMemAlloc(size))
+        err, ptr = driver.cuMemAlloc(size)
+        raise_if_driver_error(err)
         return Buffer._init(ptr, size, self)
 
     def deallocate(self, ptr, size, stream=None):
         if stream is None:
             stream = default_stream()
         stream.sync()
-        handle_return(driver.cuMemFree(ptr))
+        err, = driver.cuMemFree(ptr)
+        raise_if_driver_error(err)
 
     @property
     def is_device_accessible(self) -> bool:
