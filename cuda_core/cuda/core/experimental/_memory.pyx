@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from libc.stdint cimport uintptr_t
+
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
 )
@@ -37,7 +39,7 @@ cdef class Buffer:
     """
 
     cdef:
-        object _ptr
+        uintptr_t _ptr
         size_t _size
         object _mr
 
@@ -47,7 +49,7 @@ cdef class Buffer:
     @classmethod
     def _init(cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None):
         cdef Buffer self = Buffer.__new__(cls)
-        self._ptr = ptr
+        self._ptr = <uintptr_t>(int(ptr))
         self._size = size
         self._mr = mr
         return self
@@ -332,6 +334,23 @@ class DeviceMemoryResource(MemoryResource):
     def __init__(self, device_id: int):
         self._handle = handle_return(driver.cuDeviceGetMemPool(device_id))
         self._dev_id = device_id
+
+        # Set a higher release threshold to improve performance when there are no active allocations.
+        # By default, the release threshold is 0, which means memory is immediately released back
+        # to the OS when there are no active suballocations, causing performance issues.
+        # Check current release threshold
+        current_threshold = handle_return(
+            driver.cuMemPoolGetAttribute(self._handle, driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD)
+        )
+        # If threshold is 0 (default), set it to maximum to retain memory in the pool
+        if int(current_threshold) == 0:
+            handle_return(
+                driver.cuMemPoolSetAttribute(
+                    self._handle,
+                    driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+                    driver.cuuint64_t(0xFFFFFFFFFFFFFFFF),
+                )
+            )
 
     def allocate(self, size: int, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.

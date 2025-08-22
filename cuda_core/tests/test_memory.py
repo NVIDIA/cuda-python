@@ -46,11 +46,11 @@ class DummyHostMemoryResource(MemoryResource):
     def allocate(self, size, stream=None) -> Buffer:
         # Allocate a ctypes buffer of size `size`
         ptr = (ctypes.c_byte * size)()
-        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
+        self._ptr = ptr
+        return Buffer.from_handle(ptr=ctypes.addressof(ptr), size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
-        # the memory is deallocated per the ctypes deallocation at garbage collection time
-        pass
+        del self._ptr
 
     @property
     def is_device_accessible(self) -> bool:
