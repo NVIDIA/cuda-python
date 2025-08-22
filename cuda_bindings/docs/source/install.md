@@ -27,18 +27,25 @@ Install all optional dependencies with:
 pip install -U cuda-python[all]
 ```
 
-Where the optional dependencies are now managed through the ``cuda-toolkit`` metapackage for improved version constraints and dependency resolution:
+Where the optional dependencies include:
 
-* ``cuda-toolkit[nvcc,nvrtc,nvjitlink,nvvm]==13.*`` (Provides NVRTC, nvJitLink, and NVVM shared libraries)
-* ``cuda-toolkit[cufile]==13.*; sys_platform == 'linux'`` (Provides cuFile shared library on Linux)
+* ``nvidia-cuda-nvcc-cu13`` (NVCC compiler)
+* ``nvidia-cuda-nvrtc-cu13`` (NVRTC runtime compilation library)  
+* ``nvidia-nvjitlink-cu13`` (nvJitLink library)
+* ``nvidia-nvvm-cu13`` (NVVM library)
+* ``nvidia-cufile`` (cuFile library, Linux only)
 
-The ``cuda-toolkit`` metapackage behaves similarly to conda's ``cuda-version``, providing more predictable version constraints and safer dependency resolution compared to individual NVIDIA wheel packages.
+These are now installed through the ``cuda-toolkit`` metapackage for improved dependency resolution.
 
 
 ## Installing from Conda
 
 ```console
 $ conda install -c conda-forge cuda-python
+```
+
+```{note}
+When using conda, the ``cuda-version`` metapackage can be used to control which CUDA Toolkit components are installed in the environment.
 ```
 
 
