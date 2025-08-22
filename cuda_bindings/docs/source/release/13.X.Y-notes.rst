@@ -12,7 +12,28 @@ Released on TBD
 Highlights
 ----------
 
+* Migrated wheel dependencies from individual NVIDIA packages to the ``cuda-toolkit`` metapackage for improved dependency resolution and version constraints.
 * Automatic CUDA library path detection based on ``CUDA_HOME``, eliminating the need to manually set ``LIBRARY_PATH`` environment variables for installation.
+
+
+Dependency Changes
+------------------
+
+* The ``[all]`` optional dependencies now use ``cuda-toolkit`` with appropriate extras instead of individual packages:
+
+  * Combined multiple CUDA toolkit components: ``cuda-toolkit[nvcc,nvrtc,nvjitlink,nvvm]==13.*``
+  * ``nvidia-cufile; sys_platform == 'linux'`` → ``cuda-toolkit[cufile]==13.*; sys_platform == 'linux'``
+
+* User-facing installation commands remain identical (``pip install cuda-python[all]``).
+
+
+Benefits
+--------
+
+* **Consistent dependency resolution**: More predictable version constraints through the ``cuda-toolkit`` metapackage
+* **Simplified maintenance**: Single metapackage instead of managing multiple individual wheel versions
+* **Cleaner dependency specifications**: Multiple related components combined into single dependency lines
+* **Version safety**: Maintains support for CUDA 11.8, 12.x, and 13.x as designed
 
 
 Known issues

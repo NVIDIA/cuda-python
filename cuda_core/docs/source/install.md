@@ -23,8 +23,6 @@ $ pip install cuda-core[cu12]
 ```
 and likewise use `[cu11]` for CUDA 11, or `[cu13]` for CUDA 13.
 
-The ``cuda-toolkit`` metapackage provides version constraints similar to conda's ``cuda-version``, ensuring more predictable dependency resolution compared to individual NVIDIA wheel packages.
-
 Note that using `cuda.core` with NVRTC installed from PyPI via `pip install` requires
 `cuda.bindings` 12.8.0+ or 11.8.6+. Likewise, with nvJitLink it requires 12.8.0+.
 

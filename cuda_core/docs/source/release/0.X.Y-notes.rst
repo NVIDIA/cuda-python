@@ -12,7 +12,19 @@ Released on TBD
 Highlights
 ----------
 
+- Migrated test dependencies from individual NVIDIA packages to the ``cuda-toolkit`` metapackage for improved dependency resolution and version constraints.
+- Added complete CUDA 13.x test support with ``test-cu13`` dependency.
 - Fix for :class:`LaunchConfig` grid parameter unit conversion when thread block clusters are used.
+
+
+Dependency Changes
+------------------
+
+- Test dependencies now use ``cuda-toolkit`` with appropriate version constraints:
+  
+  - ``nvidia-cuda-runtime-cu11`` → ``cuda-toolkit[cudart]==11.*``
+  - ``nvidia-cuda-runtime-cu12`` → ``cuda-toolkit[cudart]==12.*``
+  - Added ``test-cu13`` dependency with ``cupy-cuda13x`` now that it's available
 
 
 Breaking Changes
@@ -25,6 +37,7 @@ New features
 ------------
 
 - Added :attr:`Device.arch` property that returns the compute capability as a string (e.g., '75' for CC 7.5), providing a convenient alternative to manually concatenating the compute capability tuple.
+- Complete CUDA 13.x testing support through new ``test-cu13`` dependency group.
 
 
 New examples
@@ -40,3 +53,4 @@ Fixes and enhancements
 - Improved :class:`StridedMemoryView` creation time performance by optimizing shape and strides tuple creation using Python/C API (addresses issue #449).
 - Fix :class:`LaunchConfig` grid unit conversion when cluster is set (addresses issue #867).
 - Fixed a bug in :class:`GraphBuilder.add_child` where dependencies extracted from capturing stream were passed inconsistently with num_dependencies parameter (addresses issue #843).
+- Improved dependency management through ``cuda-toolkit`` metapackage adoption, providing more consistent version resolution across CUDA components.
