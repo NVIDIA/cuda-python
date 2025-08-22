@@ -12,7 +12,7 @@
    :caption: Contents:
 
    api
-   contribute.md
+   contribute
    license
 
 
