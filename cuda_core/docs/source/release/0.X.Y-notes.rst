@@ -12,7 +12,6 @@ Released on TBD
 Highlights
 ----------
 
-- Added complete CUDA 13.x test support with ``test-cu13`` dependency.
 - Fix for :class:`LaunchConfig` grid parameter unit conversion when thread block clusters are used.
 
 
