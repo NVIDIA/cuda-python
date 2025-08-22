@@ -19,8 +19,8 @@ cdef int _cudaPythonInit() except -1 nogil:
         return __usePTDS
 
 # Create a very small function to check whether we are init'ed, so the C
-# compiler is more likely to inline it.
-cdef int cudaPythonInit() except -1 nogil:
+# compiler can inline it.
+cdef inline int cudaPythonInit() except -1 nogil:
     if __cudaPythonInit:
         return __usePTDS
 
