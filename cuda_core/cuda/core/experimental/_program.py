@@ -245,7 +245,7 @@ class ProgramOptions:
         if self.lineinfo is not None and self.lineinfo:
             self._formatted_options.append("--generate-line-info")
         if self.device_code_optimize is not None and self.device_code_optimize:
-            self._formatted_options.append(f"--dopt=on")
+            self._formatted_options.append("--dopt=on")
         if self.ptxas_options is not None:
             opt_name = "--ptxas-options"
             if isinstance(self.ptxas_options, str):
