@@ -10,7 +10,7 @@
 * Optionally, NVRTC, nvJitLink, NVVM, and cuFile from CUDA Toolkit 13.x
 
 ```{note}
-The optional CUDA Toolkit components are now installed via the ``cuda-toolkit`` metapackage from PyPI for improved dependency resolution. Components can also be installed via Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit [Windows](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) and [Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html) Installation Guides).
+The optional CUDA Toolkit components are now installed via the `cuda-toolkit` metapackage from PyPI for improved dependency resolution. Components can also be installed via Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit [Windows](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) and [Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html) Installation Guides).
 ```
 
 Starting from v12.8.0, `cuda-python` becomes a meta package which currently depends only on `cuda-bindings`; in the future more sub-packages will be added to `cuda-python`. In the instructions below, we still use `cuda-python` as example to serve existing users, but everything is applicable to `cuda-bindings` as well.
@@ -29,12 +29,12 @@ pip install -U cuda-python[all]
 
 Where the optional dependencies include:
 
-* ``nvidia-cuda-nvrtc`` (NVRTC runtime compilation library)  
-* ``nvidia-nvjitlink`` (nvJitLink library)
-* ``nvidia-nvvm`` (NVVM library)
-* ``nvidia-cufile`` (cuFile library, Linux only)
+* `nvidia-cuda-nvrtc` (NVRTC runtime compilation library)  
+* `nvidia-nvjitlink` (nvJitLink library)
+* `nvidia-nvvm` (NVVM library)
+* `nvidia-cufile` (cuFile library, Linux only)
 
-These are now installed through the ``cuda-toolkit`` metapackage for improved dependency resolution.
+These are now installed through the `cuda-toolkit` metapackage for improved dependency resolution.
 
 
 ## Installing from Conda
@@ -44,12 +44,12 @@ $ conda install -c conda-forge cuda-python
 ```
 
 ```{note}
-When using conda, the ``cuda-version`` metapackage can be used to control the versions of CUDA Toolkit components that are installed to the conda environment.
+When using conda, the `cuda-version` metapackage can be used to control the versions of CUDA Toolkit components that are installed to the conda environment.
 ```
 
 For example:
 ```console
-$ conda install -c conda-forge cuda-python cuda-version=13.0
+$ conda install -c conda-forge cuda-python cuda-version=13
 ```
 
 
