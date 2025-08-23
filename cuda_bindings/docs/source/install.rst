@@ -73,7 +73,7 @@ Source builds require that the provided CUDA headers are of the same major.minor
 
    $ export CUDA_HOME=/usr/local/cuda
 
-See `Environment Variables <environment_variables.md>`_ for a description of other build-time environment variables.
+See `Environment Variables <environment_variables.rst>`_ for a description of other build-time environment variables.
 
 .. note::
 
