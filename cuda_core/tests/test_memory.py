@@ -226,11 +226,11 @@ def test_buffer_dunder_dlpack():
     capsule = buffer.__dlpack__(max_version=(1, 0))
     assert "dltensor" in repr(capsule)
     with pytest.raises(BufferError, match=r"^Sorry, not supported: dl_device other than None$"):
-        buffer.__dlpack__(dl_device=[])
+        buffer.__dlpack__(dl_device=())
     with pytest.raises(BufferError, match=r"^Sorry, not supported: copy=True$"):
         buffer.__dlpack__(copy=True)
-    with pytest.raises(BufferError, match=r"^Expected max_version Tuple\[int, int\], got \[\]$"):
-        buffer.__dlpack__(max_version=[])
+    with pytest.raises(BufferError, match=r"^Expected max_version Tuple\[int, int\], got \(\)$"):
+        buffer.__dlpack__(max_version=())
     with pytest.raises(BufferError, match=r"^Expected max_version Tuple\[int, int\], got \(9, 8, 7\)$"):
         buffer.__dlpack__(max_version=(9, 8, 7))
 
