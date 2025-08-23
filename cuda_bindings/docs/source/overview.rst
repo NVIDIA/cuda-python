@@ -15,7 +15,7 @@ interoperability among different accelerated libraries. Most importantly, it
 should be easy for Python developers to use NVIDIA GPUs.
 
 ``cuda.bindings`` workflow
-------------------------
+---------------------------
 
 Because Python is an interpreted language, you need a way to compile the device
 code into
@@ -286,17 +286,16 @@ was used for application performance.
 
 The following command was used to profile the applications:
 
-.. code-block:: {code-block} shell
+.. code-block:: shell
 
    nsys profile -s none -t cuda --stats=true <executable>
 
-.. code-block:: {list-table} Kernel and application performance comparison.
-
+.. list-table:: Kernel and application performance comparison.
    :header-rows: 1
-   
+
    * -
      - C++
-     - Python 
+     - Python
    * - Kernel execution
      - 352µs
      - 352µs
@@ -310,8 +309,7 @@ interactive kernel profiler for CUDA applications. It allows you to have
 detailed insights into kernel performance. This is useful when you're trying to
 maximize performance ({numref}``Figure 1``).
 
-.. code-block:: {figure} _static/images/Nsight-Compute-CLI-625x473.png
-
+.. figure:: _static/images/Nsight-Compute-CLI-625x473.png
    :name: Figure 1
    
    Screenshot of Nsight Compute CLI output of ``cuda.bindings`` example.
@@ -353,8 +351,7 @@ Let's use the following kernel definition as an example:
 
 The first step is to create array objects with types corresponding to your kernel arguments. Primitive NumPy types have the following corresponding kernel types:
 
-.. code-block:: {list-table} Correspondence between NumPy types and kernel types.
-
+.. list-table:: Correspondence between NumPy types and kernel types.
    :header-rows: 1
    
    * - NumPy type
