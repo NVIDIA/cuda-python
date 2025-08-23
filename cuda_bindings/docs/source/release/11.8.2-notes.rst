@@ -1,13 +1,17 @@
-# CUDA Python 11.8.2 Release notes
+CUDA Python 11.8.2 Release notes
+================================
 
 Released on May 18, 2023
 
-## Highlights
+Highlights
+----------
 - Open libcuda.so.1 instead of libcuda.so
 
-## Limitations
+Limitations
+-----------
 
-### CUDA Functions Not Supported in this Release
+CUDA Functions Not Supported in this Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Symbol APIs
     - cudaGraphExecMemcpyNodeSetParamsFromSymbol

@@ -1,13 +1,17 @@
-# CUDA Python 11.7.0 Release notes
+CUDA Python 11.7.0 Release notes
+================================
 
 Released on May 11, 2022
 
-## Highlights
+Highlights
+----------
 - Support CUDA Toolkit 11.7
 
-## Limitations
+Limitations
+-----------
 
-### CUDA Functions Not Supported in this Release
+CUDA Functions Not Supported in this Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Symbol APIs
     - cudaGraphExecMemcpyNodeSetParamsFromSymbol

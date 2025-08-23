@@ -1,15 +1,19 @@
-# CUDA Python 11.8.3 Release notes
+CUDA Python 11.8.3 Release notes
+================================
 
 Released on October 23, 2023
 
-## Highlights
+Highlights
+----------
 - Compatability with Cython 3
 - New API cudart.getLocalRuntimeVersion()
 - Modernize build config
 
-## Limitations
+Limitations
+-----------
 
-### CUDA Functions Not Supported in this Release
+CUDA Functions Not Supported in this Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Symbol APIs
     - cudaGraphExecMemcpyNodeSetParamsFromSymbol

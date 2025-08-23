@@ -1,9 +1,10 @@
-# Contributing
+Contributing
+============
 
-Thank you for your interest in contributing to `cuda-bindings`! Based on the type of contribution, it will fall into two categories:
+Thank you for your interest in contributing to ``cuda-bindings``! Based on the type of contribution, it will fall into two categories:
 
 1. You want to report a bug, feature request, or documentation issue
-    - File an [issue](https://github.com/NVIDIA/cuda-python/issues/new/choose)
+    - File an `issue <https://github.com/NVIDIA/cuda-python/issues/new/choose>`_
     describing what you encountered or what you want to see changed.
     - The NVIDIA team will evaluate the issues and triage them, scheduling
     them for a release. If you believe the issue needs priority attention

@@ -1,14 +1,18 @@
-# CUDA Python 12.4.0 Release notes
+CUDA Python 12.4.0 Release notes
+================================
 
 Released on March 5, 2024
 
-## Highlights
+Highlights
+----------
 - Rebase to CUDA Toolkit 12.4
 - Add PyPI/Conda support for Python 12
 
-## Limitations
+Limitations
+-----------
 
-### CUDA Functions Not Supported in this Release
+CUDA Functions Not Supported in this Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Symbol APIs
     - cudaGraphExecMemcpyNodeSetParamsFromSymbol

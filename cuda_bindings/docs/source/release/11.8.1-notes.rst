@@ -1,14 +1,18 @@
-# CUDA Python 11.8.1 Release notes
+CUDA Python 11.8.1 Release notes
+================================
 
 Released on November 4, 2022
 
-## Highlights
-- Resolves [issue #27](https://github.com/NVIDIA/cuda-python/issues/27)
+Highlights
+----------
+- Resolves `issue #27 <https://github.com/NVIDIA/cuda-python/issues/27>`_
 - Update install instructions to use latest CTK
 
-## Limitations
+Limitations
+-----------
 
-### CUDA Functions Not Supported in this Release
+CUDA Functions Not Supported in this Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Symbol APIs
     - cudaGraphExecMemcpyNodeSetParamsFromSymbol

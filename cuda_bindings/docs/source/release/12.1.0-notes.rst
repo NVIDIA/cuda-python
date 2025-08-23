@@ -1,16 +1,20 @@
-# CUDA Python 12.1.0 Release notes
+CUDA Python 12.1.0 Release notes
+================================
 
 Released on February 28, 2023
 
-## Highlights
+Highlights
+----------
 - Rebase to CUDA Toolkit 12.1
-- Resolve [Issue #41](https://github.com/NVIDIA/cuda-python/issues/41): Add support for Python 3.11
-- Resolve [Issue #42](https://github.com/NVIDIA/cuda-python/issues/42): Dropping Python 3.7
-- Resolve [Issue #43](https://github.com/NVIDIA/cuda-python/issues/43): Trim Conda package dependencies
+- Resolve `Issue #41 <https://github.com/NVIDIA/cuda-python/issues/41>`_: Add support for Python 3.11
+- Resolve `Issue #42 <https://github.com/NVIDIA/cuda-python/issues/42>`_: Dropping Python 3.7
+- Resolve `Issue #43 <https://github.com/NVIDIA/cuda-python/issues/43>`_: Trim Conda package dependencies
 
-## Limitations
+Limitations
+-----------
 
-### CUDA Functions Not Supported in this Release
+CUDA Functions Not Supported in this Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Symbol APIs
     - cudaGraphExecMemcpyNodeSetParamsFromSymbol

@@ -1,8 +1,10 @@
-# CUDA Python 11.5.0 Release notes
+CUDA Python 11.5.0 Release notes
+================================
 
 Released on October 18, 2021
 
-## Highlights
+Highlights
+----------
 - PyPi support
 - Conda support
 - GA release for CUDA Python
@@ -10,11 +12,13 @@ Released on October 18, 2021
 - Supports all CUDA 11.x releases
 - Low-level CUDA Cython bindings and Python wrappers
 
-## Limitations
+Limitations
+-----------
 
 - Changing default stream not supported; coming in future release
 
-### CUDA Functions Not Supported in this Release
+CUDA Functions Not Supported in this Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - cudaGetTextureReference
 - cudaGetSurfaceReference

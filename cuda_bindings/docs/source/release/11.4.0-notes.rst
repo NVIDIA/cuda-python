@@ -1,18 +1,22 @@
-# CUDA Python 11.4.0 Release notes
+CUDA Python 11.4.0 Release notes
+================================
 
 Released on August 16, 2021
 
-## Highlights
+Highlights
+----------
 - Initial EA release for CUDA Python
 - Supports all platforms that CUDA is supported
 - Supports all CUDA 11.x releases
 - Low-level CUDA Cython bindings and Python wrappers
 
-## Limitations
+Limitations
+-----------
 
 - Source code release only; Python packages coming in a future release.
 
-### CUDA Functions Not Supported in this Release
+CUDA Functions Not Supported in this Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - cudaGetTextureReference
 - cudaGetSurfaceReference

@@ -1,13 +1,17 @@
-# CUDA Python 11.6.1 Release notes
+CUDA Python 11.6.1 Release notes
+================================
 
 Released on March 18, 2022
 
-## Highlights
+Highlights
+----------
 - Fix string decomposition for WSL library load
 
-## Limitations
+Limitations
+-----------
 
-### CUDA Functions Not Supported in this Release
+CUDA Functions Not Supported in this Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Symbol APIs
     - cudaGraphExecMemcpyNodeSetParamsFromSymbol
