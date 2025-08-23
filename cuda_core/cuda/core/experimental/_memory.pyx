@@ -203,13 +203,14 @@ cdef class Buffer:
         return capsule
 
     def __dlpack_device__(self) -> Tuple[int, int]:
-        d_h = (bool(self.is_device_accessible), bool(self.is_host_accessible))
-        if d_h == (True, False):
+        cdef bint d = self.is_device_accessible
+        cdef bint h = self.is_host_accessible
+        if d and (not h):
             return (DLDeviceType.kDLCUDA, self.device_id)
-        if d_h == (True, True):
+        if d and h:
             # TODO: this can also be kDLCUDAManaged, we need more fine-grained checks
             return (DLDeviceType.kDLCUDAHost, 0)
-        if d_h == (False, True):
+        if (not d) and h:
             return (DLDeviceType.kDLCPU, 0)
         raise BufferError("buffer is neither device-accessible nor host-accessible")
 
