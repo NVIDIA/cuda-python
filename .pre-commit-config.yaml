@@ -30,6 +30,12 @@ repos:
         language: python
         additional_dependencies:
           - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
+      - id: no-markdown-in-docs
+        name: Prevent Markdown files in cuda_*/docs/ directories
+        entry: bash -c 'if git diff --cached --name-only --diff-filter=A | grep -E "^cuda_.*/docs/.*\.md$"; then echo "Error: Markdown files are not allowed in cuda_*/docs/ directories. Please use .rst format instead."; exit 1; fi'
+        language: system
+        pass_filenames: false
+        always_run: true
 
   - repo: https://github.com/PyCQA/bandit
     rev: 2d0b675b04c80ae42277e10500db06a0a37bae17  # frozen: 1.8.6

@@ -9,15 +9,15 @@
    :caption: Contents:
 
    release
-   install.md
-   overview.md
-   motivation.md
-   environment_variables.md
+   install.rst
+   overview.rst
+   motivation.rst
+   environment_variables.rst
    api
    tips_and_tricks
    support
-   contribute.md
-   conduct.md
+   contribute.rst
+   conduct.rst
    license
 
 
