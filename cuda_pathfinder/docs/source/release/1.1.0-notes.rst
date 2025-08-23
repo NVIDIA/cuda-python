@@ -1,0 +1,16 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. module:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.1.0 Release notes
+========================================
+
+Released on Aug 7, 2025
+
+
+Highlights
+----------
+
+* CTK 13.0.0 compatibility
+* Bug fix: load ``libnvJitLink.so.12`` from conda, not ``/usr/local/cuda`` (`PR #767 <https://github.com/NVIDIA/cuda-python/pull/767>`_)

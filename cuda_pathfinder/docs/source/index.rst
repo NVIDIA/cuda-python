@@ -15,6 +15,11 @@
    contribute
    license
 
+.. toctree::
+   :maxdepth: 2
+
+   release
+
 
 Indices and tables
 ==================
