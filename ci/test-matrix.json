@@ -85,16 +85,16 @@
   },
   "windows": {
     "pull-request": [
-      { "ARCH": "amd64", "PY_VER": "3.12", "CUDA_VER": "12.9.0", "LOCAL_CTK": "0", "GPU": "a100", "DRIVER": "latest-1" },
-      { "ARCH": "amd64", "PY_VER": "3.12", "CUDA_VER": "12.9.0", "LOCAL_CTK": "1", "GPU": "a100", "DRIVER": "latest-1" },
-      { "ARCH": "amd64", "PY_VER": "3.13", "CUDA_VER": "13.0.0", "LOCAL_CTK": "0", "GPU": "a100", "DRIVER": "latest-1" },
-      { "ARCH": "amd64", "PY_VER": "3.13", "CUDA_VER": "13.0.0", "LOCAL_CTK": "1", "GPU": "a100", "DRIVER": "latest-1" }
+      { "ARCH": "amd64", "PY_VER": "3.12", "CUDA_VER": "12.9.0", "LOCAL_CTK": "0", "GPU": "a100", "DRIVER": "latest" },
+      { "ARCH": "amd64", "PY_VER": "3.12", "CUDA_VER": "12.9.0", "LOCAL_CTK": "1", "GPU": "a100", "DRIVER": "latest" },
+      { "ARCH": "amd64", "PY_VER": "3.13", "CUDA_VER": "13.0.0", "LOCAL_CTK": "0", "GPU": "a100", "DRIVER": "latest" },
+      { "ARCH": "amd64", "PY_VER": "3.13", "CUDA_VER": "13.0.0", "LOCAL_CTK": "1", "GPU": "a100", "DRIVER": "latest" }
     ],
     "nightly": [
-      { "ARCH": "amd64", "PY_VER": "3.12", "CUDA_VER": "11.8.0", "LOCAL_CTK": "0", "GPU": "a100", "DRIVER": "latest-1" },
-      { "ARCH": "amd64", "PY_VER": "3.12", "CUDA_VER": "11.8.0", "LOCAL_CTK": "1", "GPU": "a100", "DRIVER": "latest-1" },
-      { "ARCH": "amd64", "PY_VER": "3.12", "CUDA_VER": "12.9.0", "LOCAL_CTK": "0", "GPU": "a100", "DRIVER": "latest-1" },
-      { "ARCH": "amd64", "PY_VER": "3.12", "CUDA_VER": "12.9.0", "LOCAL_CTK": "1", "GPU": "a100", "DRIVER": "latest-1" }
+      { "ARCH": "amd64", "PY_VER": "3.12", "CUDA_VER": "11.8.0", "LOCAL_CTK": "0", "GPU": "a100", "DRIVER": "latest" },
+      { "ARCH": "amd64", "PY_VER": "3.12", "CUDA_VER": "11.8.0", "LOCAL_CTK": "1", "GPU": "a100", "DRIVER": "latest" },
+      { "ARCH": "amd64", "PY_VER": "3.12", "CUDA_VER": "12.9.0", "LOCAL_CTK": "0", "GPU": "a100", "DRIVER": "latest" },
+      { "ARCH": "amd64", "PY_VER": "3.12", "CUDA_VER": "12.9.0", "LOCAL_CTK": "1", "GPU": "a100", "DRIVER": "latest" }
     ]
   }
 }
