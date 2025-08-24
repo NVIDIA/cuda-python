@@ -739,31 +739,25 @@ CUDA</a>.</p>
 <p>In the following code example, the Driver API is initialized so that the NVIDIA driver
 and GPU are accessible. Next, the GPU is queried for their compute capability. Finally,
 the program is compiled to target our local compute capability architecture with FMAD disabled.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Initialize</span> <span class="n">CUDA</span> <span class="n">Driver</span> <span class="n">API</span>
-<span class="o">==========================</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize CUDA Driver API</span>
 <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuInit</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 
-<span class="n">Retrieve</span> <span class="n">handle</span> <span class="k">for</span> <span class="n">device</span> <span class="mi">0</span>
-<span class="o">============================</span>
+<span class="c1"># Retrieve handle for device 0</span>
 <span class="n">cuDevice</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuDeviceGet</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 
-<span class="n">Derive</span> <span class="n">target</span> <span class="n">architecture</span> <span class="k">for</span> <span class="n">device</span> <span class="mi">0</span>
-<span class="o">=======================================</span>
+<span class="c1"># Derive target architecture for device 0</span>
 <span class="n">major</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">CUdevice_attribute</span><span class="o">.</span><span class="n">CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR</span><span class="p">,</span> <span class="n">cuDevice</span><span class="p">))</span>
 <span class="n">minor</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">CUdevice_attribute</span><span class="o">.</span><span class="n">CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR</span><span class="p">,</span> <span class="n">cuDevice</span><span class="p">))</span>
 <span class="n">arch_arg</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--gpu-architecture=compute_</span><span class="si">{</span><span class="n">major</span><span class="si">}{</span><span class="n">minor</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
 
-<span class="n">Create</span> <span class="n">program</span>
-<span class="o">==============</span>
+<span class="c1"># Create program</span>
 <span class="n">prog</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcCreateProgram</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">saxpy</span><span class="p">),</span> <span class="sa">b</span><span class="s2">&quot;saxpy.cu&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[]))</span>
 
-<span class="n">Compile</span> <span class="n">program</span>
-<span class="o">===============</span>
+<span class="c1"># Compile program</span>
 <span class="n">opts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">b</span><span class="s2">&quot;--fmad=false&quot;</span><span class="p">,</span> <span class="n">arch_arg</span><span class="p">]</span>
 <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcCompileProgram</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">opts</span><span class="p">))</span>
 
-<span class="n">Get</span> <span class="n">PTX</span> <span class="kn">from</span><span class="w"> </span><span class="nn">compilation</span>
-<span class="o">========================</span>
+<span class="c1"># Get PTX from compilation</span>
 <span class="n">ptxSize</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcGetPTXSize</span><span class="p">(</span><span class="n">prog</span><span class="p">))</span>
 <span class="n">ptx</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">ptxSize</span>
 <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcGetPTX</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="n">ptx</span><span class="p">))</span>
@@ -773,8 +767,7 @@ the program is compiled to target our local compute capability architecture with
 context. CUDA contexts are analogous to host processes for the device. In the
 following code example, a handle for compute device 0 is passed to
 <code class="docutils literal notranslate"><span class="pre">cuCtxCreate</span></code> to designate that GPU for context creation.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Create</span> <span class="n">context</span>
-<span class="o">==============</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create context</span>
 <span class="n">context</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuCtxCreate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">cuDevice</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -782,11 +775,9 @@ following code example, a handle for compute device 0 is passed to
 module. A module is analogous to dynamically loaded libraries for the device.
 After loading into the module, extract a specific kernel with
 <code class="docutils literal notranslate"><span class="pre">cuModuleGetFunction</span></code>. It is not uncommon for multiple kernels to reside in PTX.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Load</span> <span class="n">PTX</span> <span class="k">as</span> <span class="n">module</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">retrieve</span> <span class="n">function</span>
-<span class="o">=============================================</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load PTX as module data and retrieve function</span>
 <span class="n">ptx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ptx</span><span class="p">)</span>
-<span class="n">Note</span><span class="p">:</span> <span class="n">Incompatible</span> <span class="o">--</span><span class="n">gpu</span><span class="o">-</span><span class="n">architecture</span> <span class="n">would</span> <span class="n">be</span> <span class="n">detected</span> <span class="n">here</span>
-<span class="o">============================================================</span>
+<span class="c1"># Note: Incompatible --gpu-architecture would be detected here</span>
 <span class="n">module</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuModuleLoadData</span><span class="p">(</span><span class="n">ptx</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
 <span class="n">kernel</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuModuleGetFunction</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;saxpy&quot;</span><span class="p">))</span>
 </pre></div>
@@ -877,8 +868,7 @@ the data has finished transfer, as all API calls and kernel launches within a
 stream are serialized. After the call to transfer data back to the host is
 executed, <code class="docutils literal notranslate"><span class="pre">cuStreamSynchronize</span></code> is used to halt CPU execution until all operations
 in the designated stream are finished.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Assert</span> <span class="n">values</span> <span class="n">are</span> <span class="n">same</span> <span class="n">after</span> <span class="n">running</span> <span class="n">kernel</span>
-<span class="o">===========================================</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assert values are same after running kernel</span>
 <span class="n">hZ</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">hX</span> <span class="o">+</span> <span class="n">hY</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">hOut</span><span class="p">,</span> <span class="n">hZ</span><span class="p">):</span>
    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error outside tolerance for host-device vectors&quot;</span><span class="p">)</span>
@@ -1052,19 +1042,22 @@ ps-&gt;value = s.value;</p>
 <p>Putting it all together:
 .. code-block:: python</p>
 <blockquote>
-<div><p>testStruct = np.dtype([(“value”, np.int32)], align=True)</p>
-<p>pInt = checkCudaErrors(cudart.cudaMalloc(np.dtype(np.int32).itemsize))
+<div><p># Define a custom type
+testStruct = np.dtype([(“value”, np.int32)], align=True)</p>
+<p># Allocate device memory
+pInt = checkCudaErrors(cudart.cudaMalloc(np.dtype(np.int32).itemsize))
 pFloat = checkCudaErrors(cudart.cudaMalloc(np.dtype(np.float32).itemsize))
 pStruct = checkCudaErrors(cudart.cudaMalloc(testStruct.itemsize))</p>
-<dl class="simple">
-<dt>kernelValues = (</dt><dd><p>np.array(1, dtype=np.uint32),
+<p># Collect all input kernel arguments into a single tuple for further processing
+kernelValues = (</p>
+<blockquote>
+<div><p>np.array(1, dtype=np.uint32),
 np.array([pInt], dtype=np.intp),
 np.array(123.456, dtype=np.float32),
 np.array([pFloat], dtype=np.intp),
 np.array([5], testStruct),
 np.array([pStruct], dtype=np.intp),</p>
-</dd>
-</dl>
+</div></blockquote>
 <p>)</p>
 </div></blockquote>
 <p>The final step is to construct a <code class="docutils literal notranslate"><span class="pre">kernelParams</span></code> argument that fulfills all of the launch API conditions. This is made easy because each array object comes
@@ -1097,19 +1090,16 @@ with a <a class="reference external" href="https://numpy.org/doc/stable/referenc
 <p>The ctypes <a class="reference external" href="https://docs.python.org/3/library/ctypes.html#fundamental-data-types">fundamental data types</a> documentation describes the compatibility between different Python types and C types.
 Furthermore, <a class="reference external" href="https://docs.python.org/3/library/ctypes.html#calling-functions-with-your-own-custom-data-types">custom data types</a> can be used to support kernels with custom types.</p>
 <p>For this example the result becomes:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Define</span> <span class="n">a</span> <span class="n">custom</span> <span class="nb">type</span>
-<span class="o">====================</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define a custom type</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">testStruct</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">Structure</span><span class="p">):</span>
     <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">)]</span>
 
-<span class="n">Allocate</span> <span class="n">device</span> <span class="n">memory</span>
-<span class="o">======================</span>
+<span class="c1"># Allocate device memory</span>
 <span class="n">pInt</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">)))</span>
 <span class="n">pFloat</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_float</span><span class="p">)))</span>
 <span class="n">pStruct</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">testStruct</span><span class="p">)))</span>
 
-<span class="n">Collect</span> <span class="nb">all</span> <span class="nb">input</span> <span class="n">kernel</span> <span class="n">arguments</span> <span class="n">into</span> <span class="n">a</span> <span class="n">single</span> <span class="nb">tuple</span> <span class="k">for</span> <span class="n">further</span> <span class="n">processing</span>
-<span class="o">=============================================================================</span>
+<span class="c1"># Collect all input kernel arguments into a single tuple for further processing</span>
 <span class="n">kernelValues</span> <span class="o">=</span> <span class="p">(</span>
     <span class="mi">1</span><span class="p">,</span>
     <span class="n">pInt</span><span class="p">,</span>

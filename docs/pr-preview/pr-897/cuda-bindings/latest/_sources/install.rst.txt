@@ -28,7 +28,7 @@ Installing from PyPI
    $ pip install -U cuda-python
 
 Install all optional dependencies with:
-.. code-block:: shell
+.. code-block:: console
 
    pip install -U cuda-python[all]
 

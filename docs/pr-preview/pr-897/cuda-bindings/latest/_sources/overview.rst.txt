@@ -103,31 +103,25 @@ the program is compiled to target our local compute capability architecture with
 
 .. code-block:: python
 
-   Initialize CUDA Driver API
-   ==========================
+   # Initialize CUDA Driver API
    checkCudaErrors(driver.cuInit(0))
    
-   Retrieve handle for device 0
-   ============================
+   # Retrieve handle for device 0
    cuDevice = checkCudaErrors(driver.cuDeviceGet(0))
    
-   Derive target architecture for device 0
-   =======================================
+   # Derive target architecture for device 0
    major = checkCudaErrors(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice))
    minor = checkCudaErrors(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice))
    arch_arg = bytes(f'--gpu-architecture=compute_{major}{minor}', 'ascii')
    
-   Create program
-   ==============
+   # Create program
    prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(saxpy), b"saxpy.cu", 0, [], []))
    
-   Compile program
-   ===============
+   # Compile program
    opts = [b"--fmad=false", arch_arg]
    checkCudaErrors(nvrtc.nvrtcCompileProgram(prog, 2, opts))
    
-   Get PTX from compilation
-   ========================
+   # Get PTX from compilation
    ptxSize = checkCudaErrors(nvrtc.nvrtcGetPTXSize(prog))
    ptx = b" " * ptxSize
    checkCudaErrors(nvrtc.nvrtcGetPTX(prog, ptx))
@@ -139,8 +133,7 @@ following code example, a handle for compute device 0 is passed to
 
 .. code-block:: python
 
-   Create context
-   ==============
+   # Create context
    context = checkCudaErrors(driver.cuCtxCreate(0, cuDevice))
 
 With a CUDA context created on device 0, load the PTX generated earlier into a
@@ -150,11 +143,9 @@ After loading into the module, extract a specific kernel with
 
 .. code-block:: python
 
-   Load PTX as module data and retrieve function
-   =============================================
+   # Load PTX as module data and retrieve function
    ptx = np.char.array(ptx)
-   Note: Incompatible --gpu-architecture would be detected here
-   ============================================================
+   # Note: Incompatible --gpu-architecture would be detected here
    module = checkCudaErrors(driver.cuModuleLoadData(ptx.ctypes.data))
    kernel = checkCudaErrors(driver.cuModuleGetFunction(module, b"saxpy"))
 
@@ -258,8 +249,7 @@ in the designated stream are finished.
 
 .. code-block:: python
 
-   Assert values are same after running kernel
-   ===========================================
+   # Assert values are same after running kernel
    hZ = a * hX + hY
    if not np.allclose(hOut, hZ):
       raise ValueError("Error outside tolerance for host-device vectors")
@@ -416,18 +406,15 @@ Note how all three pointers are ``np.intp`` since the pointer values are always 
 Putting it all together:
 .. code-block:: python
 
-   Define a custom type
-   ====================
+   # Define a custom type
    testStruct = np.dtype([("value", np.int32)], align=True)
    
-   Allocate device memory
-   ======================
+   # Allocate device memory
    pInt = checkCudaErrors(cudart.cudaMalloc(np.dtype(np.int32).itemsize))
    pFloat = checkCudaErrors(cudart.cudaMalloc(np.dtype(np.float32).itemsize))
    pStruct = checkCudaErrors(cudart.cudaMalloc(testStruct.itemsize))
    
-   Collect all input kernel arguments into a single tuple for further processing
-   =============================================================================
+   # Collect all input kernel arguments into a single tuple for further processing
    kernelValues = (
        np.array(1, dtype=np.uint32),
        np.array([pInt], dtype=np.intp),
@@ -478,19 +465,16 @@ For this example the result becomes:
 
 .. code-block:: python
 
-   Define a custom type
-   ====================
+   # Define a custom type
    class testStruct(ctypes.Structure):
        _fields_ = [("value", ctypes.c_int)]
    
-   Allocate device memory
-   ======================
+   # Allocate device memory
    pInt = checkCudaErrors(cudart.cudaMalloc(ctypes.sizeof(ctypes.c_int)))
    pFloat = checkCudaErrors(cudart.cudaMalloc(ctypes.sizeof(ctypes.c_float)))
    pStruct = checkCudaErrors(cudart.cudaMalloc(ctypes.sizeof(testStruct)))
    
-   Collect all input kernel arguments into a single tuple for further processing
-   =============================================================================
+   # Collect all input kernel arguments into a single tuple for further processing
    kernelValues = (
        1,
        pInt,
