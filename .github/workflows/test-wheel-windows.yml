@@ -79,7 +79,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      # TODO: use setup-proxy-cache once we have self-hosted Windows runners
+      - name: Setup proxy cache
+        uses: nv-gha-runners/setup-proxy-cache@main
+        continue-on-error: true
 
       - name: Update driver
         run: |
