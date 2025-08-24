@@ -395,32 +395,56 @@ class Linker:
 
     def _add_code_object(self, object_code: ObjectCode):
         data = object_code._module
-        assert_type(data, bytes)
         with _exception_manager(self):
             name_str = f"{object_code.name}"
-            if _nvjitlink:
-                _nvjitlink.add_data(
-                    self._mnff.handle,
-                    self._input_type_from_code_type(object_code._code_type),
-                    data,
-                    len(data),
-                    name_str,
-                )
-            else:
-                name_bytes = name_str.encode()
-                handle_return(
-                    _driver.cuLinkAddData(
+            if isinstance(data, str):
+                # Handle file path input
+                if _nvjitlink:
+                    _nvjitlink.add_file(
+                        self._mnff.handle,
+                        self._input_type_from_code_type(object_code._code_type),
+                        data,
+                    )
+                else:
+                    name_bytes = name_str.encode()
+                    handle_return(
+                        _driver.cuLinkAddFile(
+                            self._mnff.handle,
+                            self._input_type_from_code_type(object_code._code_type),
+                            data.encode(),
+                            0,
+                            None,
+                            None,
+                        )
+                    )
+                    self._mnff.const_char_keep_alive.append(name_bytes)
+            elif isinstance(data, bytes):
+                # Handle bytes input (existing logic)
+                if _nvjitlink:
+                    _nvjitlink.add_data(
                         self._mnff.handle,
                         self._input_type_from_code_type(object_code._code_type),
                         data,
                         len(data),
-                        name_bytes,
-                        0,
-                        None,
-                        None,
+                        name_str,
                     )
-                )
-                self._mnff.const_char_keep_alive.append(name_bytes)
+                else:
+                    name_bytes = name_str.encode()
+                    handle_return(
+                        _driver.cuLinkAddData(
+                            self._mnff.handle,
+                            self._input_type_from_code_type(object_code._code_type),
+                            data,
+                            len(data),
+                            name_bytes,
+                            0,
+                            None,
+                            None,
+                        )
+                    )
+                    self._mnff.const_char_keep_alive.append(name_bytes)
+            else:
+                raise TypeError(f"Expected bytes or str, but got {type(data).__name__}")
 
     def link(self, target_type) -> ObjectCode:
         """

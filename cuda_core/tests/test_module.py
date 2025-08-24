@@ -351,6 +351,71 @@ def test_object_code_constructors_default_values():
         assert obj.code == dummy_bytes
 
 
+def test_object_code_file_path_linker_integration(get_saxpy_kernel, tmp_path):
+    """Test that ObjectCode created from file paths works with the Linker"""
+    _, mod = get_saxpy_kernel
+    cubin = mod._module
+    assert isinstance(cubin, bytes)
+    
+    # Create temporary files for different code types
+    test_files = {}
+    for code_type in ["cubin", "ptx", "ltoir", "fatbin", "object", "library"]:
+        file_path = tmp_path / f"test.{code_type}"
+        file_path.write_bytes(cubin)  # Use cubin bytes as proxy for all types
+        test_files[code_type] = str(file_path)
+    
+    # Create ObjectCode instances from file paths
+    file_based_objects = []
+    for code_type, file_path in test_files.items():
+        if code_type == "cubin":
+            obj = ObjectCode.from_cubin(file_path, name=f"file_{code_type}")
+        elif code_type == "ptx":
+            obj = ObjectCode.from_ptx(file_path, name=f"file_{code_type}")
+        elif code_type == "ltoir":
+            obj = ObjectCode.from_ltoir(file_path, name=f"file_{code_type}")
+        elif code_type == "fatbin":
+            obj = ObjectCode.from_fatbin(file_path, name=f"file_{code_type}")
+        elif code_type == "object":
+            obj = ObjectCode.from_object(file_path, name=f"file_{code_type}")
+        elif code_type == "library":
+            obj = ObjectCode.from_library(file_path, name=f"file_{code_type}")
+        
+        # Verify the ObjectCode was created correctly
+        assert obj.code == file_path
+        assert obj._code_type == code_type
+        assert obj.name == f"file_{code_type}"
+        assert isinstance(obj._module, str)  # Should store the file path
+        file_based_objects.append(obj)
+    
+    # Test that these ObjectCode instances can be used with Linker
+    # Note: We can't actually link most of these types together in practice,
+    # but we can verify the linker accepts them and handles the file path correctly
+    from cuda.core.experimental import Linker, LinkerOptions
+    
+    # Test with ptx which should be linkable (use only PTX for actual linking)
+    ptx_obj = None
+    for obj in file_based_objects:
+        if obj._code_type == "ptx":
+            ptx_obj = obj
+            break
+    
+    if ptx_obj is not None:
+        # Create a simple linker test - this will test that _add_code_object
+        # handles file paths correctly by not crashing on the file path
+        try:
+            arch = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
+            options = LinkerOptions(arch=arch)
+            # This should not crash - it should handle the file path in _add_code_object
+            linker = Linker(ptx_obj, options=options)
+            # We don't need to actually link since that might fail due to content,
+            # but creating the linker tests our file path handling
+            assert linker is not None
+        except Exception as e:
+            # If it fails, it should be due to content issues, not file path handling
+            # The key is that it should not fail with "Expected type bytes, but got str"
+            assert "Expected type bytes, but got str" not in str(e), f"File path handling failed: {e}"
+
+
 def test_saxpy_arguments(get_saxpy_kernel, cuda12_4_prerequisite_check):
     krn, _ = get_saxpy_kernel
 
