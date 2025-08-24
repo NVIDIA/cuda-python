@@ -326,7 +326,7 @@ NumPy `Array objects <https://numpy.org/doc/stable/reference/arrays.html>`_ can 
 Let's use the following kernel definition as an example:
 .. code-block:: python
 
-   kernel_string = """\
+   kernel_string = """
    typedef struct {
        int value;
    } testStruct;
