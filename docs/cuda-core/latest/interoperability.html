@@ -574,7 +574,7 @@ exposing their own stream types.</p>
 <p>To address this issue, we propose the <a class="reference internal" href="generated/cuda.core.experimental._stream.IsStreamT.html#cuda.core.experimental._stream.IsStreamT.__cuda_stream__" title="cuda.core.experimental._stream.IsStreamT.__cuda_stream__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__cuda_stream__</span></code></a> protocol
 (currently version 0) as follows: For any Python objects that are meant to be interpreted
 as a stream, they should add a <code class="docutils literal notranslate"><span class="pre">__cuda_stream__</span></code> <em>method</em> that returns a 2-tuple: The
-version number (<code class="docutils literal notranslate"><span class="pre">0</span></code>) and the address of <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code> (both as Python <cite>int</cite>):</p>
+version number (<code class="docutils literal notranslate"><span class="pre">0</span></code>) and the address of <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code> (both as Python <code class="docutils literal notranslate"><span class="pre">int</span></code>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyStream</span><span class="p">:</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__cuda_stream__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
