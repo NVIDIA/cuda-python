@@ -9,7 +9,7 @@ Released on January 24, 2025.
 Included components
 -------------------
 
-- ``cuda.bindings` 12.8.0 <https://nvidia.github.io/cuda-python/cuda-bindings/12.8.0/release/12.8.0-notes.html>`_
+* `cuda.bindings 12.8.0 <https://nvidia.github.io/cuda-python/cuda-bindings/12.8.0/release/12.8.0-notes.html>`_
 
 Highlights
 ----------

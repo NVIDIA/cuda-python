@@ -9,7 +9,7 @@ Released on Oct 7, 2024
 Included components
 -------------------
 
-- ``cuda.bindings` 12.6.1 <https://nvidia.github.io/cuda-python/cuda-bindings/12.6.1/release/12.6.1-notes.html>`_
+* `cuda.bindings 12.6.1 <https://nvidia.github.io/cuda-python/cuda-bindings/12.6.1/release/12.6.1-notes.html>`_
 
 Hightlights
 -----------
