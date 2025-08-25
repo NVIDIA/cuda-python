@@ -9,7 +9,7 @@ nvjitlink
 Note
 ----
 
-The nvjitlink bindings are not supported on nvJitLink installations <12.3. Ensure the installed CUDA toolkit's nvJitLink version is >=12.3.  
+The nvjitlink bindings are not supported on nvJitLink installations <12.3. Ensure the installed CUDA toolkit's nvJitLink version is >=12.3.
 
 Functions
 ---------

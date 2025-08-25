@@ -2348,4 +2348,3 @@ cdef CUresult _cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaReso
 
 cdef CUresult _cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
-

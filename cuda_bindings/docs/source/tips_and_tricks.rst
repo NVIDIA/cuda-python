@@ -27,9 +27,9 @@ All of the Python classes do not manage the lifetime of the underlying CUDA C ob
 Getting and setting attributes of extension types
 =================================================
 
-While the bindings outwardly present the attributes of extension types in a pythonic way, they can't always be interacted with in a Pythonic style. Often the getters/setters (__getitem__(), __setitem__()) are actually a translation step to convert values between Python and C. For example, in some cases, attempting to modify an attribute in place, will lead to unexpected behavior due to the design of the underlying implementation. For this reason, users should use the getters and setters directly when interacting with extension types. 
+While the bindings outwardly present the attributes of extension types in a pythonic way, they can't always be interacted with in a Pythonic style. Often the getters/setters (__getitem__(), __setitem__()) are actually a translation step to convert values between Python and C. For example, in some cases, attempting to modify an attribute in place, will lead to unexpected behavior due to the design of the underlying implementation. For this reason, users should use the getters and setters directly when interacting with extension types.
 
-An example of this is the :class:`~cuda.bindings.driver.CULaunchConfig` type. 
+An example of this is the :class:`~cuda.bindings.driver.CULaunchConfig` type.
 
 .. code-block:: python
 
@@ -37,7 +37,7 @@ An example of this is the :class:`~cuda.bindings.driver.CULaunchConfig` type.
 
     cfg.numAttrs += 1
     attr = cuda.CUlaunchAttribute()
-    
+
     ...
 
     # This works. We are passing the new attribute to the setter

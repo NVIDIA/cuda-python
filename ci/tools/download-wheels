@@ -49,18 +49,18 @@ do
     if [[ ! -d "$p" ]]; then
         continue
     fi
-    
+
     # exclude cython test artifacts
     if [[ "${p}" == *-tests ]]; then
         echo "Skipping test artifact: $p"
         continue
     fi
-    
+
     # If we're not downloading "all", only process matching component
     if [[ "$COMPONENT" != "all" && "$p" != ${COMPONENT}* ]]; then
         continue
     fi
-    
+
     echo "Processing artifact: $p"
     # Move wheel files to output directory
     if [[ -d "$p" ]]; then

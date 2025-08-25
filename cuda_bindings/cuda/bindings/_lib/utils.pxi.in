@@ -628,7 +628,7 @@ cdef class _HelperCUcoredumpSettings:
                             {{if 'CU_COREDUMP_ENABLE_USER_TRIGGER' in found_values}}cydriver.CUcoredumpSettings_enum.CU_COREDUMP_ENABLE_USER_TRIGGER,{{endif}}):
             if self._is_getter == False:
                 self._bool = init_value
-            
+
             self._cptr = <void*>&self._bool
             self._size = 1
         else:

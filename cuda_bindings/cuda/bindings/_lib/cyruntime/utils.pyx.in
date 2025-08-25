@@ -675,7 +675,7 @@ cdef cudaError_t getRuntimeEglFrame(cudaEglFrame *eglFrame, cydriver.CUeglFrame 
               cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_2020 or
               cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_2020 or
               cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_709 or
-              cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_709 or 
+              cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_709 or
               cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_709 or
               cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_2020 or
               cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_ER or

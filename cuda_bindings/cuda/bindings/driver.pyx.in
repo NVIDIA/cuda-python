@@ -50737,7 +50737,7 @@ def cuCoredumpSetAttributeGlobal(attrib not None : CUcoredumpSettings, value):
 
 @cython.embedsignature(True)
 def cuGetExportTable(pExportTableId : Optional[CUuuid]):
-    """ 
+    """
 
     Parameters
     ----------
@@ -54071,4 +54071,3 @@ cdef int _add_native_handle_getters() except?-1:
     {{endif}}
     return 0
 _add_native_handle_getters()
-
