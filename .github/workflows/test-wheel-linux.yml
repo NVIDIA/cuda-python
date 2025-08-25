@@ -149,12 +149,10 @@ jobs:
           SHA: ${{ github.sha }}
         run: ./ci/tools/env-vars test
 
-      - name: Download cuda-pathfinder build artifacts from main branch
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install GitHub CLI
+        # gh is needed for artifact fetching in subsequent steps
         run: |
           # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
-          # gh is needed for artifact fetching.
           mkdir -p -m 755 /etc/apt/keyrings \
                 && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
                 && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
@@ -163,6 +161,10 @@ jobs:
           && apt update \
           && apt install gh -y
 
+      - name: Download cuda-pathfinder build artifacts from main branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
           MAIN_BRANCH="main"
           PATHFINDER_BASENAME="cuda-pathfinder-wheel"
           LATEST_MAIN_RUN_ID=$(gh run list -b ${MAIN_BRANCH} -L 1 -w "CI" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
@@ -196,16 +198,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
-          # gh is needed for artifact fetching.
-          mkdir -p -m 755 /etc/apt/keyrings \
-                && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-                && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-          && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-          && apt update \
-          && apt install gh -y
-
           OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
           LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "build-and-test.yml" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
