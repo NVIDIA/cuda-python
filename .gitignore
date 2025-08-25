@@ -16,6 +16,7 @@ __pycache__/
 cache_driver
 cache_runtime
 cache_nvrtc
+cuda_bindings/cuda/bindings/_lib/utils.pxi
 
 # CUDA Python specific (auto-generated)
 cuda_bindings/cuda/bindings/_bindings/cydriver.pxd
