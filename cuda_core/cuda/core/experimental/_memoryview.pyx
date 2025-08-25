@@ -29,20 +29,20 @@ cdef class StridedMemoryView:
     This object supports both DLPack (up to v1.0) and CUDA Array Interface
     (CAI) v3. When wrapping an arbitrary object it will try the DLPack protocol
     first, then the CAI protocol. A :obj:`BufferError` is raised if neither is
-    supported. 
-    
+    supported.
+
     Since either way would take a consumer stream, for DLPack it is passed to
-    ``obj.__dlpack__()`` as-is (except for :obj:`None`, see below); for CAI, a 
+    ``obj.__dlpack__()`` as-is (except for :obj:`None`, see below); for CAI, a
     stream order will be established between the consumer stream and the
-    producer stream (from ``obj.__cuda_array_interface__()["stream"]``), as if  
-    ``cudaStreamWaitEvent`` is called by this method. 
-    
-    To opt-out of the stream ordering operation in either DLPack or CAI, 
-    please pass ``stream_ptr=-1``. Note that this deviates (on purpose) 
+    producer stream (from ``obj.__cuda_array_interface__()["stream"]``), as if
+    ``cudaStreamWaitEvent`` is called by this method.
+
+    To opt-out of the stream ordering operation in either DLPack or CAI,
+    please pass ``stream_ptr=-1``. Note that this deviates (on purpose)
     from the semantics of ``obj.__dlpack__(stream=None, ...)`` since ``cuda.core``
-    does not encourage using the (legacy) default/null stream, but is 
+    does not encourage using the (legacy) default/null stream, but is
     consistent with the CAI's semantics. For DLPack, ``stream=-1`` will be
-    internally passed to ``obj.__dlpack__()`` instead. 
+    internally passed to ``obj.__dlpack__()`` instead.
 
     Attributes
     ----------
@@ -79,16 +79,16 @@ cdef class StridedMemoryView:
         bint is_device_accessible
         bint readonly
         object exporting_obj
-    
-    # If using dlpack, this is a strong reference to the result of 
-    # obj.__dlpack__() so we can lazily create shape and strides from 
-    # it later.  If using CAI, this is a reference to the source 
+
+    # If using dlpack, this is a strong reference to the result of
+    # obj.__dlpack__() so we can lazily create shape and strides from
+    # it later.  If using CAI, this is a reference to the source
     # `__cuda_array_interface__` object.
     cdef object metadata
 
     # The tensor object if has obj has __dlpack__, otherwise must be NULL
     cdef DLTensor *dl_tensor
-        
+
     # Memoized properties
     cdef tuple _shape
     cdef tuple _strides
@@ -110,7 +110,7 @@ cdef class StridedMemoryView:
         if self._shape is None and self.exporting_obj is not None:
             if self.dl_tensor != NULL:
                 self._shape = cuda_utils.carray_int64_t_to_tuple(
-                    self.dl_tensor.shape, 
+                    self.dl_tensor.shape,
                     self.dl_tensor.ndim
                 )
             else:
@@ -127,7 +127,7 @@ cdef class StridedMemoryView:
                 if self.dl_tensor != NULL:
                     if self.dl_tensor.strides:
                         self._strides = cuda_utils.carray_int64_t_to_tuple(
-                            self.dl_tensor.strides, 
+                            self.dl_tensor.strides,
                             self.dl_tensor.ndim
                         )
                 else:
@@ -140,7 +140,7 @@ cdef class StridedMemoryView:
                                 self._strides, i, strides[i] // itemsize
                             )
             self._strides_init = True
-        return self._strides 
+        return self._strides
 
     @property
     def dtype(self) -> Optional[numpy.dtype]:

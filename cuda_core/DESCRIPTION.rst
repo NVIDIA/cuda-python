@@ -12,7 +12,7 @@ cuda-core: Pythonic access to CUDA core functionalities
 * `Examples <https://github.com/NVIDIA/cuda-python/tree/main/cuda_core/examples>`_
 * `Issue tracker <https://github.com/NVIDIA/cuda-python/issues/>`_
 
-`cuda.core` is currently under active development. Any feedbacks or suggestions are welcomed!
+``cuda.core`` is currently under active development. Feedback and suggestions are welcome!
 
 
 Installation
@@ -22,4 +22,4 @@ Installation
 
    pip install cuda-core[cu12]
 
-Please refer to the `installation instructions <https://nvidia.github.io/cuda-python/cuda-core/latest/install.html>`_ for different ways of installing `cuda.core`, including building from source.
+Please refer to the `installation instructions <https://nvidia.github.io/cuda-python/cuda-core/latest/install.html>`_ for different ways of installing ``cuda.core``, including building from source.

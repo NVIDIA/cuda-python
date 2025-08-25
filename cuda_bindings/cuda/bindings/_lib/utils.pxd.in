@@ -6,7 +6,7 @@ cimport cuda.bindings.cydriver as cydriver
 cimport cuda.bindings.cyruntime as cyruntime
 from libcpp.vector cimport vector
 
-cdef class HelperKernelParams:
+cdef class _HelperKernelParams:
     cdef Py_buffer _pybuffer
     cdef bint _pyobj_acquired
     cdef void** _ckernelParams
@@ -14,13 +14,13 @@ cdef class HelperKernelParams:
     cdef int _length
     cdef bint _malloc_list_created
 
-cdef class HelperInputVoidPtr:
+cdef class _HelperInputVoidPtr:
     cdef Py_buffer _pybuffer
     cdef void* _cptr
     cdef bint _pyobj_acquired
 {{if 'CUmemPool_attribute_enum' in found_types}}
 
-cdef class HelperCUmemPool_attribute:
+cdef class _HelperCUmemPool_attribute:
     cdef void* _cptr
     cdef cydriver.CUmemPool_attribute_enum _attr
     cdef bint _is_getter
@@ -31,7 +31,7 @@ cdef class HelperCUmemPool_attribute:
 {{endif}}
 {{if 'CUmem_range_attribute_enum' in found_types}}
 
-cdef class HelperCUmem_range_attribute:
+cdef class _HelperCUmem_range_attribute:
     cdef void* _cptr
     cdef cydriver.CUmem_range_attribute_enum _attr
     cdef size_t _data_size
@@ -42,7 +42,7 @@ cdef class HelperCUmem_range_attribute:
 {{endif}}
 {{if 'CUpointer_attribute_enum' in found_types}}
 
-cdef class HelperCUpointer_attribute:
+cdef class _HelperCUpointer_attribute:
     cdef void* _cptr
     cdef cydriver.CUpointer_attribute_enum _attr
     cdef bint _is_getter
@@ -60,7 +60,7 @@ cdef class HelperCUpointer_attribute:
 {{endif}}
 {{if 'CUgraphMem_attribute_enum' in found_types}}
 
-cdef class HelperCUgraphMem_attribute:
+cdef class _HelperCUgraphMem_attribute:
     cdef void* _cptr
     cdef cydriver.CUgraphMem_attribute_enum _attr
     cdef bint _is_getter
@@ -70,7 +70,7 @@ cdef class HelperCUgraphMem_attribute:
 {{endif}}
 {{if 'CUjit_option_enum' in found_types}}
 
-cdef class HelperCUjit_option:
+cdef class _HelperCUjit_option:
     cdef void* _cptr
     cdef cydriver.CUjit_option_enum _attr
 
@@ -83,11 +83,11 @@ cdef class HelperCUjit_option:
     cdef int _int
     cdef cydriver.CUjit_cacheMode_enum _cacheMode
     cdef vector[char*] _charstarstar # list of names
-    cdef InputVoidPtrPtrHelper _voidstarstar # list of addresses
+    cdef _InputVoidPtrPtrHelper _voidstarstar # list of addresses
 {{endif}}
 {{if 'cudaJitOption' in found_types}}
 
-cdef class HelperCudaJitOption:
+cdef class _HelperCudaJitOption:
     cdef void* _cptr
     cdef cyruntime.cudaJitOption _attr
 
@@ -101,7 +101,7 @@ cdef class HelperCudaJitOption:
 {{endif}}
 {{if 'CUlibraryOption_enum' in found_types}}
 
-cdef class HelperCUlibraryOption:
+cdef class _HelperCUlibraryOption:
     cdef void* _cptr
     cdef cydriver.CUlibraryOption_enum _attr
 
@@ -110,7 +110,7 @@ cdef class HelperCUlibraryOption:
 {{endif}}
 {{if 'cudaLibraryOption' in found_types}}
 
-cdef class HelperCudaLibraryOption:
+cdef class _HelperCudaLibraryOption:
     cdef void* _cptr
     cdef cyruntime.cudaLibraryOption _attr
 
@@ -119,7 +119,7 @@ cdef class HelperCudaLibraryOption:
 {{endif}}
 {{if 'CUmemAllocationHandleType_enum' in found_types}}
 
-cdef class HelperCUmemAllocationHandleType:
+cdef class _HelperCUmemAllocationHandleType:
     cdef void* _cptr
     cdef cydriver.CUmemAllocationHandleType_enum _type
 
@@ -132,12 +132,12 @@ cdef class HelperCUmemAllocationHandleType:
     {{endif}}
 {{endif}}
 
-cdef class InputVoidPtrPtrHelper:
+cdef class _InputVoidPtrPtrHelper:
     cdef void** _cptr
 
 {{if 'CUcoredumpSettings_enum' in found_types}}
 
-cdef class HelperCUcoredumpSettings:
+cdef class _HelperCUcoredumpSettings:
     cdef void* _cptr
     cdef cydriver.CUcoredumpSettings_enum _attrib
     cdef bint _is_getter

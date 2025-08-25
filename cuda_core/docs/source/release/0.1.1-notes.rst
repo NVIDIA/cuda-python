@@ -2,7 +2,7 @@
 .. SPDX-License-Identifier: Apache-2.0
 
 .. currentmodule:: cuda.core.experimental
-  
+
 ``cuda.core`` 0.1.1 Release Notes
 =================================
 
@@ -45,10 +45,10 @@ Limitations
 
 - All APIs are currently *experimental* and subject to change without deprecation notice.
   Please kindly share your feedback with us so that we can make ``cuda.core`` better!
-- Using ``cuda.core`` with NVRTC or nvJitLink installed from PyPI via `pip install` is currently
+- Using ``cuda.core`` with NVRTC or nvJitLink installed from PyPI via ``pip install`` is currently
   not supported. This will be fixed in a future release.
 - Some :class:`~LinkerOptions` are only available when using a modern version of CUDA. When using CUDA <12,
   the backend is the cuLink API which supports only a subset of the options that nvjitlink does.
   Further, some options aren't available on CUDA versions <12.6.
 - To use ``cuda.core`` with Python 3.13, it currently requires building ``cuda-python`` from source
-  prior to `pip install`. This extra step will be fixed soon.
+  prior to ``pip install``. This extra step will be fixed soon.
