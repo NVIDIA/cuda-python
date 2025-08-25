@@ -97,10 +97,10 @@ select = [
 ]
 
 ignore = [
-    "UP006",
-    "UP007",
+    "UP006", 
+    "UP007", 
     "E741", # ambiguous variable name such as I
-    "B007", # rename unsued loop variable to _name
+    "B007", # rename unsued loop variable to _name 
     "UP035" # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
 ]
 

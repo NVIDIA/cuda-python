@@ -512,7 +512,7 @@ cdef int cuPythonInit() except -1 nogil:
             {{else}}
             path = 'libcuda.so.1'
             {{endif}}
-
+    
         {{if 'Windows' == platform.system()}}
         LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
         try:
@@ -524,7 +524,7 @@ cdef int cuPythonInit() except -1 nogil:
         if (handle == NULL):
             raise RuntimeError('Failed to dlopen ' + path)
         {{endif}}
-
+    
         # Get latest __cuGetProcAddress_v2
         global __cuGetProcAddress_v2
         {{if 'Windows' == platform.system()}}
@@ -535,7 +535,7 @@ cdef int cuPythonInit() except -1 nogil:
         {{else}}
         __cuGetProcAddress_v2 = dlfcn.dlsym(handle, 'cuGetProcAddress_v2')
         {{endif}}
-
+    
         # Load using cuGetProcAddress if available
         if __cuGetProcAddress_v2 != NULL:
             _F_cuGetProcAddress_v2 = <__cuGetProcAddress_v2_T>__cuGetProcAddress_v2
@@ -2765,7 +2765,7 @@ cdef int cuPythonInit() except -1 nogil:
 
             __cuPythonInit = True
             return 0
-
+    
         {{if 'Windows' == platform.system()}}
         # Load using win32GetAddr
         if usePTDS:

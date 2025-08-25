@@ -60,7 +60,7 @@ The following code snippet lets us validate each API call and raise exceptions i
            return nvrtc.nvrtcGetErrorString(error)[1]
        else:
            raise RuntimeError('Unknown error type: {}'.format(error))
-
+   
    def checkCudaErrors(result):
        if result[0].value:
            raise RuntimeError("CUDA error code={}({})".format(result[0].value, _cudaGetErrorEnum(result[0])))
@@ -105,22 +105,22 @@ the program is compiled to target our local compute capability architecture with
 
    # Initialize CUDA Driver API
    checkCudaErrors(driver.cuInit(0))
-
+   
    # Retrieve handle for device 0
    cuDevice = checkCudaErrors(driver.cuDeviceGet(0))
-
+   
    # Derive target architecture for device 0
    major = checkCudaErrors(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, cuDevice))
    minor = checkCudaErrors(driver.cuDeviceGetAttribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, cuDevice))
    arch_arg = bytes(f'--gpu-architecture=compute_{major}{minor}', 'ascii')
-
+   
    # Create program
    prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(saxpy), b"saxpy.cu", 0, [], []))
-
+   
    # Compile program
    opts = [b"--fmad=false", arch_arg]
    checkCudaErrors(nvrtc.nvrtcCompileProgram(prog, 2, opts))
-
+   
    # Get PTX from compilation
    ptxSize = checkCudaErrors(nvrtc.nvrtcGetPTXSize(prog))
    ptx = b" " * ptxSize
@@ -158,11 +158,11 @@ and from the device:
 
    NUM_THREADS = 512  # Threads per block
    NUM_BLOCKS = 32768  # Blocks per grid
-
+   
    a = np.array([2.0], dtype=np.float32)
    n = np.array(NUM_THREADS * NUM_BLOCKS, dtype=np.uint32)
    bufferSize = n * a.itemsize
-
+   
    hX = np.random.rand(n).astype(dtype=np.float32)
    hY = np.random.rand(n).astype(dtype=np.float32)
    hOut = np.zeros(n).astype(dtype=np.float32)
@@ -182,9 +182,9 @@ by calling ``XX.ctypes.data`` for the associated XX:
    dXclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
    dYclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
    dOutclass = checkCudaErrors(driver.cuMemAlloc(bufferSize))
-
+   
    stream = checkCudaErrors(driver.cuStreamCreate(0))
-
+   
    checkCudaErrors(driver.cuMemcpyHtoDAsync(
       dXclass, hX.ctypes.data, bufferSize, stream
    ))
@@ -233,7 +233,7 @@ Now the kernel can be launched:
       args.ctypes.data,  # kernel arguments
       0,  # extra (ignore)
    ))
-
+   
    checkCudaErrors(driver.cuMemcpyDtoHAsync(
       hOut.ctypes.data, dOutclass, bufferSize, stream
    ))
@@ -304,7 +304,7 @@ maximize performance ({numref}``Figure 1``).
 
 .. figure:: _static/images/Nsight-Compute-CLI-625x473.png
    :name: Figure 1
-
+   
    Screenshot of Nsight Compute CLI output of ``cuda.bindings`` example.
 
 Preparing kernel arguments
@@ -331,7 +331,7 @@ Let's use the following kernel definition as an example:
    typedef struct {
        int value;
    } testStruct;
-
+   
    extern "C" __global__
    void testkernel(int i, int *pi,
                    float f, float *pf,
@@ -347,7 +347,7 @@ The first step is to create array objects with types corresponding to your kerne
 
 .. list-table:: Correspondence between NumPy types and kernel types.
    :header-rows: 1
-
+   
    * - NumPy type
      - Corresponding kernel types
      - itemsize (bytes)
@@ -410,12 +410,12 @@ Putting it all together:
 
    # Define a custom type
    testStruct = np.dtype([("value", np.int32)], align=True)
-
+   
    # Allocate device memory
    pInt = checkCudaErrors(cudart.cudaMalloc(np.dtype(np.int32).itemsize))
    pFloat = checkCudaErrors(cudart.cudaMalloc(np.dtype(np.float32).itemsize))
    pStruct = checkCudaErrors(cudart.cudaMalloc(testStruct.itemsize))
-
+   
    # Collect all input kernel arguments into a single tuple for further processing
    kernelValues = (
        np.array(1, dtype=np.uint32),
@@ -470,12 +470,12 @@ For this example the result becomes:
    # Define a custom type
    class testStruct(ctypes.Structure):
        _fields_ = [("value", ctypes.c_int)]
-
+   
    # Allocate device memory
    pInt = checkCudaErrors(cudart.cudaMalloc(ctypes.sizeof(ctypes.c_int)))
    pFloat = checkCudaErrors(cudart.cudaMalloc(ctypes.sizeof(ctypes.c_float)))
    pStruct = checkCudaErrors(cudart.cudaMalloc(ctypes.sizeof(testStruct)))
-
+   
    # Collect all input kernel arguments into a single tuple for further processing
    kernelValues = (
        1,
@@ -531,7 +531,7 @@ For this example, lets use the ``transformKernel`` from `examples/0_Introduction
        ...
    }
    """
-
+   
    def main():
        ...
        d_data = checkCudaErrors(cudart.cudaMalloc(size))
@@ -565,3 +565,4 @@ For ctypes, we leverage the special handling of ``None`` type since each Python 
        None,
    )
    kernelArgs = (kernelValues, kernelTypes)
+

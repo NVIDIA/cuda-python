@@ -84,10 +84,10 @@ select = [
 ]
 
 ignore = [
-    "UP006",
-    "UP007",
+    "UP006", 
+    "UP007", 
     "E741", # ambiguous variable name such as I
-    "B007", # rename unsued loop variable to _name
+    "B007", # rename unsued loop variable to _name 
     "UP035" # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
 ]
 
@@ -103,13 +103,13 @@ exclude = ["cuda/bindings/_version.py"]
   ]
 
 "tests/**/*" = [
-  "E722",
+  "E722", 
   "UP022",
   "E402", # module level import not at top of file
   "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
 
 "benchmarks/**/*" = [
-  "E722",
+  "E722", 
   "UP022",
   "E402", # module level import not at top of file
   "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)

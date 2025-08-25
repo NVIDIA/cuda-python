@@ -19177,7 +19177,7 @@ def cudaIpcOpenMemHandle(handle not None : cudaIpcMemHandle_t, unsigned int flag
 
     Notes
     -----
-    No guarantees are made about the address returned in `*devPtr`.
+    No guarantees are made about the address returned in `*devPtr`. 
      In particular, multiple processes may not receive the same address for the same `handle`.
     """
     cdef void_ptr devPtr = 0
@@ -38015,3 +38015,4 @@ cdef int _add_native_handle_getters() except?-1:
     {{endif}}
     return 0
 _add_native_handle_getters()
+

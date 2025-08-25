@@ -60,7 +60,7 @@ Don't forget to use :meth:`Device.set_current`!
 
    import cupy as cp
    from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
-
+   
    dev = Device()
    dev.set_current()
    s = dev.create_stream()
@@ -82,14 +82,14 @@ We're using `CuPy <https://cupy.dev/>`_ arrays as inputs for this example, but y
 .. code-block:: python
 
    ker = mod.get_kernel("vector_add<float>")
-
+   
    # Prepare input/output arrays (using CuPy)
    size = 50000
    rng = cp.random.default_rng()
    a = rng.random(size, dtype=cp.float32)
    b = rng.random(size, dtype=cp.float32)
    c = cp.empty_like(a)
-
+   
    # Configure launch parameters
    block = 256
    grid = (size + block - 1) // block

@@ -137,14 +137,14 @@ cdef class Buffer:
         """
         if stream is None:
             raise ValueError("stream must be provided")
-
+        
         cdef size_t src_size = self._size
-
+        
         if dst is None:
             if self._mr is None:
                 raise ValueError("a destination buffer must be provided (this buffer does not have a memory_resource)")
             dst = self._mr.allocate(src_size, stream)
-
+        
         cdef size_t dst_size = dst._size
         if dst_size != src_size:
             raise ValueError(
@@ -168,10 +168,10 @@ cdef class Buffer:
         """
         if stream is None:
             raise ValueError("stream must be provided")
-
+            
         cdef size_t dst_size = self._size
         cdef size_t src_size = src._size
-
+        
         if src_size != dst_size:
             raise ValueError(
                 f"buffer sizes mismatch between src and dst (sizes are: src={src_size}, dst={dst_size})"

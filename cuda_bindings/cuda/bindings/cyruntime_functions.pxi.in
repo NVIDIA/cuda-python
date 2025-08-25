@@ -1480,3 +1480,4 @@ cdef extern from "cuda_profiler_api.h":
     cudaError_t cudaProfilerStop() nogil
 
     {{endif}}
+

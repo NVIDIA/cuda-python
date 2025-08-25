@@ -10,10 +10,10 @@ Runtime Requirements
 ``cuda.core`` is supported on all platforms that CUDA is supported. Specific
 dependencies are as follows:
 
-.. list-table::
+.. list-table:: 
    :header-rows: 1
 
-   * -
+   * - 
      - CUDA 11
      - CUDA 12
    * - CUDA Toolkit\ [#f1]_
