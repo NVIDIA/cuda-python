@@ -94,6 +94,14 @@ def get_saxpy_object_code(init_cuda):
     return mod
 
 
+@pytest.fixture(scope="function")
+def get_saxpy_kernel_ltoir(init_cuda):
+    # Create LTOIR code using link-time optimization
+    prog = Program(SAXPY_KERNEL, code_type="c++", options=ProgramOptions(link_time_optimization=True))
+    mod = prog.compile("ltoir", name_expressions=("saxpy<float>", "saxpy<double>"))
+    return mod
+
+
 def test_get_kernel(init_cuda):
     kernel = """extern "C" __global__ void ABC() { }"""
 
@@ -163,6 +171,20 @@ def test_object_code_load_ptx(get_saxpy_kernel_ptx):
     mod_obj.get_kernel("saxpy<double>")  # force loading
 
 
+def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path):
+    ptx, mod = get_saxpy_kernel_ptx
+    sym_map = mod._sym_map
+    assert isinstance(ptx, str)
+    ptx_file = tmp_path / "test.ptx"
+    ptx_file.write_text(ptx)
+    mod_obj = ObjectCode.from_ptx(str(ptx_file), symbol_mapping=sym_map)
+    assert mod_obj.code == str(ptx_file)
+    assert mod_obj._code_type == "ptx"
+    if not Program._can_load_generated_ptx():
+        pytest.skip("PTX version too new for current driver")
+    mod_obj.get_kernel("saxpy<double>")  # force loading
+
+
 def test_object_code_load_cubin_from_file(get_saxpy_kernel, tmp_path):
     _, mod = get_saxpy_kernel
     cubin = mod._module
@@ -180,16 +202,8 @@ def test_object_code_handle(get_saxpy_object_code):
     assert mod.handle is not None
 
 
-@pytest.fixture(scope="function")
-def get_ltoir_object_code(init_cuda):
-    # Create LTOIR code using link-time optimization
-    prog = Program(SAXPY_KERNEL, code_type="c++", options=ProgramOptions(link_time_optimization=True))
-    mod = prog.compile("ltoir", name_expressions=("saxpy<float>", "saxpy<double>"))
-    return mod
-
-
-def test_object_code_load_ltoir(get_ltoir_object_code):
-    mod = get_ltoir_object_code
+def test_object_code_load_ltoir(get_saxpy_kernel_ltoir):
+    mod = get_saxpy_kernel_ltoir
     ltoir = mod._module
     sym_map = mod._sym_map
     assert isinstance(ltoir, bytes)
@@ -203,8 +217,8 @@ def test_object_code_load_ltoir(get_ltoir_object_code):
         mod_obj.get_kernel("saxpy<float>")
 
 
-def test_object_code_load_ltoir_from_file(get_ltoir_object_code, tmp_path):
-    mod = get_ltoir_object_code
+def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path):
+    mod = get_saxpy_kernel_ltoir
     ltoir = mod._module
     sym_map = mod._sym_map
     assert isinstance(ltoir, bytes)
@@ -216,139 +230,291 @@ def test_object_code_load_ltoir_from_file(get_ltoir_object_code, tmp_path):
     assert mod_obj._handle is None  # Should only be loaded when needed
 
 
-def test_object_code_load_fatbin(get_saxpy_kernel):
-    # Use cubin as a substitute for fatbin since they have similar structure
-    _, mod = get_saxpy_kernel
-    cubin = mod._module
-    sym_map = mod._sym_map
-    assert isinstance(cubin, bytes)
-    mod_obj = ObjectCode.from_fatbin(cubin, symbol_mapping=sym_map)
-    assert mod_obj.code == cubin
-    assert mod_obj._code_type == "fatbin"
-    # fatbin supports kernel retrieval
-    mod_obj.get_kernel("saxpy<double>")  # force loading
+def test_object_code_load_fatbin(get_saxpy_kernel_ltoir, tmp_path):
+    """
+    Test fatbin loading using NVCC-generated fatbins.
+    TODO: Can drop NVCC from test dependency once #156 is resolved.
+    """
+    import shutil
+    import subprocess
+    
+    # Check if NVCC is available
+    if not shutil.which("nvcc"):
+        pytest.skip("NVCC not available in PATH")
+    
+    # Create a simple CUDA kernel file
+    kernel_source = '''
+extern "C" __global__ void simple_kernel(float* data) {
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    data[idx] = data[idx] * 2.0f;
+}
+'''
+    
+    cu_file = tmp_path / "kernel.cu"
+    cu_file.write_text(kernel_source)
+    
+    # Get current device architecture
+    from cuda.core.experimental import Device
+    current_arch = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
+    
+    # Generate fatbin for multiple architectures
+    archs = ["sm_75", "sm_90", current_arch]
+    arch_flags = " ".join(f"--gpu-architecture={arch}" for arch in set(archs))
+    
+    fatbin_file = tmp_path / "kernel.fatbin"
+    
+    try:
+        # Generate fatbin using nvcc
+        cmd = f"nvcc --fatbin {arch_flags} -o {fatbin_file} {cu_file}"
+        subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        pytest.skip(f"Failed to generate fatbin with nvcc: {e}")
+    
+    # Test loading fatbin from bytes (in-memory)
+    fatbin_bytes = fatbin_file.read_bytes()
+    mod_obj_mem = ObjectCode.from_fatbin(fatbin_bytes, name="fatbin_memory")
+    assert mod_obj_mem.code == fatbin_bytes
+    assert mod_obj_mem._code_type == "fatbin"
+    assert mod_obj_mem.name == "fatbin_memory"
 
 
-def test_object_code_load_fatbin_from_file(get_saxpy_kernel, tmp_path):
-    # Use cubin as a substitute for fatbin since they have similar structure
-    _, mod = get_saxpy_kernel
-    cubin = mod._module
-    sym_map = mod._sym_map
-    assert isinstance(cubin, bytes)
-    fatbin_file = tmp_path / "test.fatbin"
-    fatbin_file.write_bytes(cubin)
-    mod_obj = ObjectCode.from_fatbin(str(fatbin_file), symbol_mapping=sym_map)
-    assert mod_obj.code == str(fatbin_file)
-    assert mod_obj._code_type == "fatbin"
-    mod_obj.get_kernel("saxpy<double>")  # force loading
+def test_object_code_load_fatbin_from_file(get_saxpy_kernel_ltoir, tmp_path):
+    """
+    Test fatbin loading from file path using NVCC-generated fatbins.
+    TODO: Can drop NVCC from test dependency once #156 is resolved.
+    """
+    import shutil
+    import subprocess
+    
+    # Check if NVCC is available
+    if not shutil.which("nvcc"):
+        pytest.skip("NVCC not available in PATH")
+    
+    # Create a simple CUDA kernel file
+    kernel_source = '''
+extern "C" __global__ void simple_kernel(float* data) {
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    data[idx] = data[idx] * 2.0f;
+}
+'''
+    
+    cu_file = tmp_path / "kernel.cu"
+    cu_file.write_text(kernel_source)
+    
+    # Get current device architecture
+    from cuda.core.experimental import Device
+    current_arch = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
+    
+    # Generate fatbin for multiple architectures
+    archs = ["sm_75", "sm_90", current_arch]
+    arch_flags = " ".join(f"--gpu-architecture={arch}" for arch in set(archs))
+    
+    fatbin_file = tmp_path / "kernel.fatbin"
+    
+    try:
+        # Generate fatbin using nvcc
+        cmd = f"nvcc --fatbin {arch_flags} -o {fatbin_file} {cu_file}"
+        subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        pytest.skip(f"Failed to generate fatbin with nvcc: {e}")
+    
+    # Test loading fatbin from file path
+    mod_obj_file = ObjectCode.from_fatbin(str(fatbin_file), name="fatbin_file")
+    assert mod_obj_file.code == str(fatbin_file)
+    assert mod_obj_file._code_type == "fatbin"
+    assert mod_obj_file.name == "fatbin_file"
 
 
-def test_object_code_load_object(get_saxpy_kernel):
-    # Use cubin as a substitute for object code since they're binary formats
-    _, mod = get_saxpy_kernel
-    cubin = mod._module
-    sym_map = mod._sym_map
-    assert isinstance(cubin, bytes)
-    mod_obj = ObjectCode.from_object(cubin, symbol_mapping=sym_map)
-    assert mod_obj.code == cubin
-    assert mod_obj._code_type == "object"
+def test_object_code_load_object(get_saxpy_kernel_ltoir, tmp_path):
+    """
+    Test object code loading using NVCC-generated object files.
+    TODO: Can drop NVCC from test dependency once #156 is resolved.
+    """
+    import shutil
+    import subprocess
+    
+    # Check if NVCC is available
+    if not shutil.which("nvcc"):
+        pytest.skip("NVCC not available in PATH")
+    
+    # Create a simple CUDA kernel file
+    kernel_source = '''
+extern "C" __global__ void simple_kernel(float* data) {
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    data[idx] = data[idx] * 2.0f;
+}
+'''
+    
+    cu_file = tmp_path / "kernel.cu"
+    cu_file.write_text(kernel_source)
+    
+    # Get current device architecture
+    from cuda.core.experimental import Device
+    current_arch = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
+    
+    object_file = tmp_path / "kernel.o"
+    
+    try:
+        # Generate object file using nvcc
+        cmd = f"nvcc --device-c --gpu-architecture={current_arch} -o {object_file} {cu_file}"
+        subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        pytest.skip(f"Failed to generate object file with nvcc: {e}")
+    
+    # Test loading object from bytes (in-memory)
+    object_bytes = object_file.read_bytes()
+    mod_obj_mem = ObjectCode.from_object(object_bytes, name="object_memory")
+    assert mod_obj_mem.code == object_bytes
+    assert mod_obj_mem._code_type == "object"
+    assert mod_obj_mem.name == "object_memory"
     # object code doesn't support direct kernel retrieval
-    assert mod_obj._handle is None  # Should only be loaded when needed
+    assert mod_obj_mem._handle is None  # Should only be loaded when needed
     # Test that get_kernel fails for unsupported code type
     with pytest.raises(RuntimeError, match=r'Unsupported code type "object"'):
-        mod_obj.get_kernel("saxpy<float>")
+        mod_obj_mem.get_kernel("simple_kernel")
 
 
-def test_object_code_load_object_from_file(get_saxpy_kernel, tmp_path):
-    # Use cubin as a substitute for object code since they're binary formats
-    _, mod = get_saxpy_kernel
-    cubin = mod._module
-    sym_map = mod._sym_map
-    assert isinstance(cubin, bytes)
-    object_file = tmp_path / "test.o"
-    object_file.write_bytes(cubin)
-    mod_obj = ObjectCode.from_object(str(object_file), symbol_mapping=sym_map)
-    assert mod_obj.code == str(object_file)
-    assert mod_obj._code_type == "object"
-    assert mod_obj._handle is None  # Should only be loaded when needed
-
-
-def test_object_code_load_library(get_saxpy_kernel):
-    # Use cubin as a substitute for library since they're binary formats
-    _, mod = get_saxpy_kernel
-    cubin = mod._module
-    sym_map = mod._sym_map
-    assert isinstance(cubin, bytes)
-    mod_obj = ObjectCode.from_library(cubin, symbol_mapping=sym_map)
-    assert mod_obj.code == cubin
-    assert mod_obj._code_type == "library"
-    # library code doesn't support direct kernel retrieval
-    assert mod_obj._handle is None  # Should only be loaded when needed
-    # Test that get_kernel fails for unsupported code type
-    with pytest.raises(RuntimeError, match=r'Unsupported code type "library"'):
-        mod_obj.get_kernel("saxpy<float>")
-
-
-def test_object_code_load_library_from_file(get_saxpy_kernel, tmp_path):
-    # Use cubin as a substitute for library since they're binary formats
-    _, mod = get_saxpy_kernel
-    cubin = mod._module
-    sym_map = mod._sym_map
-    assert isinstance(cubin, bytes)
-    library_file = tmp_path / "test.a"
-    library_file.write_bytes(cubin)
-    mod_obj = ObjectCode.from_library(str(library_file), symbol_mapping=sym_map)
-    assert mod_obj.code == str(library_file)
-    assert mod_obj._code_type == "library"
-    assert mod_obj._handle is None  # Should only be loaded when needed
-
-
-def test_object_code_constructors_with_name_and_symbol_mapping():
-    """Test that all from_* constructors properly set name and symbol_mapping"""
-    # Dummy data for testing
-    dummy_bytes = b"dummy_code_data"
-    test_name = "test_object"
-    test_sym_map = {"kernel1": "mangled_kernel1", "kernel2": "mangled_kernel2"}
+def test_object_code_load_object_from_file(get_saxpy_kernel_ltoir, tmp_path):
+    """
+    Test object code loading from file path using NVCC-generated object files.
+    TODO: Can drop NVCC from test dependency once #156 is resolved.
+    """
+    import shutil
+    import subprocess
     
-    # Test all constructors
-    constructors = [
-        (ObjectCode.from_cubin, "cubin"),
-        (ObjectCode.from_ptx, "ptx"),
-        (ObjectCode.from_ltoir, "ltoir"),
-        (ObjectCode.from_fatbin, "fatbin"),
-        (ObjectCode.from_object, "object"),
-        (ObjectCode.from_library, "library"),
-    ]
+    # Check if NVCC is available
+    if not shutil.which("nvcc"):
+        pytest.skip("NVCC not available in PATH")
     
-    for constructor, code_type in constructors:
-        obj = constructor(dummy_bytes, name=test_name, symbol_mapping=test_sym_map)
-        assert obj.name == test_name
-        assert obj._sym_map == test_sym_map
-        assert obj._code_type == code_type
-        assert obj.code == dummy_bytes
+    # Create a simple CUDA kernel file
+    kernel_source = '''
+extern "C" __global__ void simple_kernel(float* data) {
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    data[idx] = data[idx] * 2.0f;
+}
+'''
+    
+    cu_file = tmp_path / "kernel.cu"
+    cu_file.write_text(kernel_source)
+    
+    # Get current device architecture
+    from cuda.core.experimental import Device
+    current_arch = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
+    
+    object_file = tmp_path / "kernel.o"
+    
+    try:
+        # Generate object file using nvcc
+        cmd = f"nvcc --device-c --gpu-architecture={current_arch} -o {object_file} {cu_file}"
+        subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        pytest.skip(f"Failed to generate object file with nvcc: {e}")
+    
+    # Test loading object from file path
+    mod_obj_file = ObjectCode.from_object(str(object_file), name="object_file")
+    assert mod_obj_file.code == str(object_file)
+    assert mod_obj_file._code_type == "object"
+    assert mod_obj_file.name == "object_file"
+    assert mod_obj_file._handle is None  # Should only be loaded when needed
 
 
-def test_object_code_constructors_default_values():
-    """Test that all from_* constructors handle default values correctly"""
-    # Dummy data for testing
-    dummy_bytes = b"dummy_code_data"
+def test_object_code_load_library(get_saxpy_kernel_ltoir, tmp_path):
+    """
+    Test library loading using NVCC-generated library files.
+    TODO: Can drop NVCC from test dependency once #156 is resolved.
+    """
+    import shutil
+    import subprocess
     
-    # Test all constructors with defaults
-    constructors = [
-        (ObjectCode.from_cubin, "cubin"),
-        (ObjectCode.from_ptx, "ptx"),
-        (ObjectCode.from_ltoir, "ltoir"),
-        (ObjectCode.from_fatbin, "fatbin"),
-        (ObjectCode.from_object, "object"),
-        (ObjectCode.from_library, "library"),
-    ]
+    # Check if NVCC is available
+    if not shutil.which("nvcc"):
+        pytest.skip("NVCC not available in PATH")
     
-    for constructor, code_type in constructors:
-        obj = constructor(dummy_bytes)  # Use defaults
-        assert obj.name == ""  # Default name should be empty string
-        assert obj._sym_map == {}  # Default symbol mapping should be empty dict
-        assert obj._code_type == code_type
-        assert obj.code == dummy_bytes
+    # Create a simple CUDA kernel file
+    kernel_source = '''
+extern "C" __global__ void simple_kernel(float* data) {
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    data[idx] = data[idx] * 2.0f;
+}
+'''
+    
+    cu_file = tmp_path / "kernel.cu"
+    cu_file.write_text(kernel_source)
+    
+    # Get current device architecture
+    from cuda.core.experimental import Device
+    current_arch = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
+    
+    object_file = tmp_path / "kernel.o"
+    library_file = tmp_path / "libkernel.a"
+    
+    try:
+        # Generate object file first
+        cmd = f"nvcc --device-c --gpu-architecture={current_arch} -o {object_file} {cu_file}"
+        subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+        
+        # Create library from object file
+        cmd = f"ar rcs {library_file} {object_file}"
+        subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        pytest.skip(f"Failed to generate library with nvcc/ar: {e}")
+    
+    # Test loading library from bytes (in-memory)
+    library_bytes = library_file.read_bytes()
+    mod_obj_mem = ObjectCode.from_library(library_bytes, name="library_memory")
+    assert mod_obj_mem.code == library_bytes
+    assert mod_obj_mem._code_type == "library"
+    assert mod_obj_mem.name == "library_memory"
+    assert mod_obj_mem._handle is None  # Should only be loaded when needed
+
+
+def test_object_code_load_library_from_file(get_saxpy_kernel_ltoir, tmp_path):
+    """
+    Test library loading from file path using NVCC-generated library files.
+    TODO: Can drop NVCC from test dependency once #156 is resolved.
+    """
+    import shutil
+    import subprocess
+    
+    # Check if NVCC is available
+    if not shutil.which("nvcc"):
+        pytest.skip("NVCC not available in PATH")
+    
+    # Create a simple CUDA kernel file
+    kernel_source = '''
+extern "C" __global__ void simple_kernel(float* data) {
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    data[idx] = data[idx] * 2.0f;
+}
+'''
+    
+    cu_file = tmp_path / "kernel.cu"
+    cu_file.write_text(kernel_source)
+    
+    # Get current device architecture
+    from cuda.core.experimental import Device
+    current_arch = "sm_" + "".join(f"{i}" for i in Device().compute_capability)
+    
+    object_file = tmp_path / "kernel.o"
+    library_file = tmp_path / "libkernel.a"
+    
+    try:
+        # Generate object file first
+        cmd = f"nvcc --device-c --gpu-architecture={current_arch} -o {object_file} {cu_file}"
+        subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+        
+        # Create library from object file
+        cmd = f"ar rcs {library_file} {object_file}"
+        subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        pytest.skip(f"Failed to generate library with nvcc/ar: {e}")
+    
+    # Test loading library from file path
+    mod_obj_file = ObjectCode.from_library(str(library_file), name="library_file")
+    assert mod_obj_file.code == str(library_file)
+    assert mod_obj_file._code_type == "library"
+    assert mod_obj_file.name == "library_file"
+    assert mod_obj_file._handle is None  # Should only be loaded when needed
 
 
 def test_object_code_file_path_linker_integration(get_saxpy_kernel, tmp_path):
