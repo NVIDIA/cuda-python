@@ -14,14 +14,14 @@ dependencies are as follows:
    :header-rows: 1
 
    * -
-     - CUDA 11
      - CUDA 12
+     - CUDA 13
    * - CUDA Toolkit\ [#f1]_
-     - 11.2 - 11.8
      - 12.x
+     - 13.x
    * - Driver
-     - 450.80.02+ (Linux), 452.39+ (Windows)
      - 525.60.13+ (Linux), 527.41+ (Windows)
+     - 580.65+ (Linux), 580.88+ (Windows)
 
 .. [#f1] Including ``cuda-python``.
 
@@ -31,27 +31,27 @@ dependencies are as follows:
 Installing from PyPI
 --------------------
 
-``cuda.core`` works with ``cuda.bindings`` (part of ``cuda-python``) 11 or 12. Test dependencies now use the ``cuda-toolkit`` metapackage for improved dependency resolution. For example with CUDA 12:
+``cuda.core`` works with ``cuda.bindings`` (part of ``cuda-python``) 12 or 13. Test dependencies now use the ``cuda-toolkit`` metapackage for improved dependency resolution. For example with CUDA 12:
 
 .. code-block:: console
 
    $ pip install cuda-core[cu12]
 
-and likewise use ``[cu11]`` for CUDA 11, or ``[cu13]`` for CUDA 13.
+and likewise use ``[cu13]`` for CUDA 13.
 
 Note that using ``cuda.core`` with NVRTC installed from PyPI via ``pip install`` requires
-``cuda.bindings`` 12.8.0+ or 11.8.6+. Likewise, with nvJitLink it requires 12.8.0+.
+``cuda.bindings`` 12.8.0+. Likewise, with nvJitLink it requires 12.8.0+.
 
 Installing from Conda (conda-forge)
 -----------------------------------
 
-Same as above, ``cuda.core`` can be installed in a CUDA 11 or 12 environment. For example with CUDA 12:
+Same as above, ``cuda.core`` can be installed in a CUDA 12 or 13 environment. For example with CUDA 12:
 
 .. code-block:: console
 
    $ conda install -c conda-forge cuda-core cuda-version=12
 
-and likewise use ``cuda-version=11`` for CUDA 11.
+and likewise use ``cuda-version=13`` for CUDA 13.
 
 Note that to use ``cuda.core`` with nvJitLink installed from conda-forge requires ``cuda.bindings`` 12.8.0+.
 
@@ -64,4 +64,4 @@ Installing from Source
    $ cd cuda-python/cuda_core
    $ pip install .
 
-``cuda-bindings`` 11.x or 12.x is a required dependency.
+``cuda-bindings`` 12.x or 13.x is a required dependency.
