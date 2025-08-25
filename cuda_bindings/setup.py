@@ -343,7 +343,6 @@ sources_list = [
     (["cuda/bindings/_bindings/cyruntime.pyx"], static_runtime_libraries),
     (["cuda/bindings/_bindings/cyruntime_ptds.pyx"], static_runtime_libraries),
     # utils
-    (["cuda/bindings/_lib/utils.pyx", "cuda/bindings/_lib/param_packer.cpp"], None),
     (["cuda/bindings/_lib/cyruntime/cyruntime.pyx"], None),
     (["cuda/bindings/_lib/cyruntime/utils.pyx"], None),
     (["cuda/bindings/utils/*.pyx"], None),

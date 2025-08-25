@@ -15,6 +15,8 @@ from libcpp.vector cimport vector
 from cpython.buffer cimport PyObject_CheckBuffer, PyObject_GetBuffer, PyBuffer_Release, PyBUF_SIMPLE, PyBUF_ANY_CONTIGUOUS
 from cpython.bytes cimport PyBytes_FromStringAndSize
 
+include "_lib/utils.pxi"
+
 ctypedef unsigned long long signed_char_ptr
 ctypedef unsigned long long unsigned_char_ptr
 ctypedef unsigned long long char_ptr
@@ -1026,9 +1028,9 @@ def nvrtcSetFlowCallback(prog, callback, payload):
     else:
         pprog = int(nvrtcProgram(prog))
     cyprog = <cynvrtc.nvrtcProgram><void_ptr>pprog
-    cycallback = utils.HelperInputVoidPtr(callback)
+    cycallback = _HelperInputVoidPtr(callback)
     cdef void* cycallback_ptr = <void*><void_ptr>cycallback.cptr
-    cypayload = utils.HelperInputVoidPtr(payload)
+    cypayload = _HelperInputVoidPtr(payload)
     cdef void* cypayload_ptr = <void*><void_ptr>cypayload.cptr
     with nogil:
         err = cynvrtc.nvrtcSetFlowCallback(cyprog, cycallback_ptr, cypayload_ptr)

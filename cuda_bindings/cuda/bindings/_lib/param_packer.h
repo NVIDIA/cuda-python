@@ -1,46 +1,40 @@
 // SPDX-FileCopyrightText: Copyright (c) 2021-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+// Please refer to the NVIDIA end user license agreement (EULA) associated
+// with this source code for terms and conditions that govern your use of
+// this software. Any use, reproduction, disclosure, or distribution of
+// this software and related documentation outside the terms of the EULA
+// is strictly prohibited.
+
 #include <Python.h>
-#include "param_packer.h"
 
 #include <map>
 #include <functional>
 #include <stdexcept>
 #include <string>
 
-PyObject* enum_module = nullptr;
-PyTypeObject* enum_Enum = nullptr;
+static PyObject* ctypes_module = nullptr;
 
-PyObject* ctypes_module = nullptr;
-PyObject* ctypes_addressof = nullptr;
-PyObject* addressof_param_tuple = nullptr;
+static PyTypeObject* ctypes_c_char = nullptr;
+static PyTypeObject* ctypes_c_bool = nullptr;
+static PyTypeObject* ctypes_c_wchar = nullptr;
+static PyTypeObject* ctypes_c_byte = nullptr;
+static PyTypeObject* ctypes_c_ubyte = nullptr;
+static PyTypeObject* ctypes_c_short = nullptr;
+static PyTypeObject* ctypes_c_ushort = nullptr;
+static PyTypeObject* ctypes_c_int = nullptr;
+static PyTypeObject* ctypes_c_uint = nullptr;
+static PyTypeObject* ctypes_c_long = nullptr;
+static PyTypeObject* ctypes_c_ulong = nullptr;
+static PyTypeObject* ctypes_c_longlong = nullptr;
+static PyTypeObject* ctypes_c_ulonglong = nullptr;
+static PyTypeObject* ctypes_c_size_t = nullptr;
+static PyTypeObject* ctypes_c_float = nullptr;
+static PyTypeObject* ctypes_c_double = nullptr;
+static PyTypeObject* ctypes_c_void_p = nullptr;
 
-PyTypeObject* ctypes_c_char = nullptr;
-PyTypeObject* ctypes_c_bool = nullptr;
-PyTypeObject* ctypes_c_wchar = nullptr;
-PyTypeObject* ctypes_c_byte = nullptr;
-PyTypeObject* ctypes_c_ubyte = nullptr;
-PyTypeObject* ctypes_c_short = nullptr;
-PyTypeObject* ctypes_c_ushort = nullptr;
-PyTypeObject* ctypes_c_int = nullptr;
-PyTypeObject* ctypes_c_uint = nullptr;
-PyTypeObject* ctypes_c_long = nullptr;
-PyTypeObject* ctypes_c_ulong = nullptr;
-PyTypeObject* ctypes_c_longlong = nullptr;
-PyTypeObject* ctypes_c_ulonglong = nullptr;
-PyTypeObject* ctypes_c_size_t = nullptr;
-PyTypeObject* ctypes_c_float = nullptr;
-PyTypeObject* ctypes_c_double = nullptr;
-PyTypeObject* ctypes_c_void_p = nullptr;
-
-PyTypeObject* ctypes_c_ssize_t = nullptr;
-PyTypeObject* ctypes_c_longdouble = nullptr;
-PyTypeObject* ctypes_c_char_p = nullptr;
-PyTypeObject* ctypes_c_wchar_p = nullptr;
-PyTypeObject* ctypes_c_structure = nullptr;
-
-void fetch_ctypes()
+static void fetch_ctypes()
 {
     ctypes_module = PyImport_ImportModule("ctypes");
     if (ctypes_module == nullptr)
@@ -50,7 +44,6 @@ void fetch_ctypes()
     if (ctypes_dict == nullptr)
         throw std::runtime_error(std::string("FAILURE @ ") + std::string(__FILE__) + " : " + std::to_string(__LINE__));
     // supportedtypes
-    ctypes_c_int = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_int");
     ctypes_c_char = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_char");
     ctypes_c_bool = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_bool");
     ctypes_c_wchar = (PyTypeObject*) PyDict_GetItemString(ctypes_dict, "c_wchar");
@@ -72,9 +65,9 @@ void fetch_ctypes()
 
 
 // (target type, source type)
-std::map<std::pair<PyTypeObject*,PyTypeObject*>, std::function<int(void*, PyObject*)>> m_feeders;
+static std::map<std::pair<PyTypeObject*,PyTypeObject*>, std::function<int(void*, PyObject*)>> m_feeders;
 
-void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
+static void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
 {
     if (target_t == ctypes_c_int)
     {
@@ -140,7 +133,7 @@ void populate_feeders(PyTypeObject* target_t, PyTypeObject* source_t)
     }
 }
 
-int feed(void* ptr, PyObject* value, PyObject* type)
+static int feed(void* ptr, PyObject* value, PyObject* type)
 {
     PyTypeObject* pto = (PyTypeObject*)type;
     if (ctypes_c_int == nullptr)
