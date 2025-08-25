@@ -15,7 +15,6 @@ multiple components:
 - `numba.cuda`_: Numba's target for CUDA GPU programming by directly compiling a restricted subset of Python code into CUDA kernels and device functions following the CUDA execution model.
 * `nvmath-python`_: Pythonic access to NVIDIA CPU & GPU Math Libraries, with both *host* and *device* (through `nvmath.device`_) APIs. It also provides low-level Python bindings to host C APIs (through `nvmath.bindings`_).
 
-.. _cuda.pathfinder: https://github.com/NVIDIA/cuda-python/blob/main/cuda_pathfinder/cuda/pathfinder/README.md
 .. _nvmath-python: https://docs.nvidia.com/cuda/nvmath-python/latest
 .. _nvmath.device: https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#device-apis
 .. _nvmath.bindings: https://docs.nvidia.com/cuda/nvmath-python/latest/bindings/index.html
