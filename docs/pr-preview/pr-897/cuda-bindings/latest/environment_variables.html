@@ -653,18 +653,18 @@
                   
   <section id="environment-variables">
 <h1>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading">#</a></h1>
+<section id="runtime-environment-variables">
+<h2>Runtime Environment Variables<a class="headerlink" href="#runtime-environment-variables" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM</span></code> : When set to 1, the default stream is the per-thread default stream. When set to 0, the default stream is the legacy default stream. This defaults to 0, for the legacy default stream. See <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/stream-sync-behavior.html">Stream Synchronization Behavior</a> for an explanation of the legacy and per-thread default streams.</p></li>
+</ul>
+</section>
 <section id="build-time-environment-variables">
 <h2>Build-Time Environment Variables<a class="headerlink" href="#build-time-environment-variables" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code>: Specifies the location of the CUDA Toolkit.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_PARSER_CACHING</span></code> : bool, toggles the caching of parsed header files during the cuda-bindings build process. If caching is enabled (<code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_PARSER_CACHING</span></code> is True), the cache path is set to ./cache_&lt;library_name&gt;, where &lt;library_name&gt; is derived from the cuda toolkit libraries used to build cuda-bindings.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_PARALLEL_LEVEL</span></code> (previously <code class="docutils literal notranslate"><span class="pre">PARALLEL_LEVEL</span></code>) : int, sets the number of threads used in the compilation of extension modules. Not setting it or setting it to 0 would disable parallel builds.</p></li>
-</ul>
-</section>
-<section id="runtime-environment-variables">
-<h2>Runtime Environment Variables<a class="headerlink" href="#runtime-environment-variables" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM</span></code> : When set to 1, the default stream is the per-thread default stream. When set to 0, the default stream is the legacy default stream. This defaults to 0, for the legacy default stream. See <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/stream-sync-behavior.html">Stream Synchronization Behavior</a> for an explanation of the legacy and per-thread default streams.</p></li>
 </ul>
 </section>
 </section>
@@ -718,8 +718,8 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build-time-environment-variables">Build-Time Environment Variables</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime-environment-variables">Runtime Environment Variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build-time-environment-variables">Build-Time Environment Variables</a></li>
 </ul>
   </nav></div>
 

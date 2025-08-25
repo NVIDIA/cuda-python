@@ -488,13 +488,13 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/0.X.Y-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.X.Y Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.3.2-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.2 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.3.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.1 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.3.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.0 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.X.Y-notes.html">0.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.3.2-notes.html">0.3.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.3.1-notes.html">0.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.3.0-notes.html">0.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html">0.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html">0.1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html">0.1.0</a></li>
 </ul>
 </details></li>
 </ul>
@@ -551,7 +551,7 @@
   <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h1>
 <section id="what-is-cuda-core">
-<h2>What is <code class="docutils literal notranslate"><span class="pre">cuda</span> <span class="pre">core</span></code>?<a class="headerlink" href="#what-is-cuda-core" title="Link to this heading">#</a></h2>
+<h2>What is <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>?<a class="headerlink" href="#what-is-cuda-core" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> provides a Pythonic interface to the CUDA runtime and other functionality,
 including:</p>
 <ul class="simple">
@@ -606,8 +606,7 @@ Don’t forget to use <a class="reference internal" href="generated/cuda.core.ex
 <p>Next, we compile the CUDA C++ kernel from earlier using the <a class="reference internal" href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> class.
 The result of the compilation  is saved as a CUBIN.
 Note the use of the <code class="docutils literal notranslate"><span class="pre">name_expressions</span></code> parameter to the <a class="reference internal" href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program.compile" title="cuda.core.experimental.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Program.compile()</span></code></a> method to specify which kernel template instantiations to compile:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">arch</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dev</span><span class="o">.</span><span class="n">compute_capability</span><span class="p">)</span>
-<span class="n">program_options</span> <span class="o">=</span> <span class="n">ProgramOptions</span><span class="p">(</span><span class="n">std</span><span class="o">=</span><span class="s2">&quot;c++17&quot;</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;sm_</span><span class="si">{</span><span class="n">arch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">program_options</span> <span class="o">=</span> <span class="n">ProgramOptions</span><span class="p">(</span><span class="n">std</span><span class="o">=</span><span class="s2">&quot;c++17&quot;</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;sm_</span><span class="si">{</span><span class="n">dev</span><span class="o">.</span><span class="n">arch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">code_type</span><span class="o">=</span><span class="s2">&quot;c++&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">program_options</span><span class="p">)</span>
 <span class="n">mod</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;cubin&quot;</span><span class="p">,</span> <span class="n">name_expressions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;vector_add&lt;float&gt;&quot;</span><span class="p">,))</span>
 </pre></div>
@@ -695,7 +694,7 @@ our <a class="reference external" href="https://github.com/NVIDIA/cuda-python/tr
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-cuda-core">What is <code class="docutils literal notranslate"><span class="pre">cuda</span> <span class="pre">core</span></code>?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-cuda-core">What is <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code>?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-compiling-and-launching-a-cuda-kernel">Example: Compiling and Launching a CUDA kernel</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-and-recipes">Examples and Recipes</a></li>
 </ul>

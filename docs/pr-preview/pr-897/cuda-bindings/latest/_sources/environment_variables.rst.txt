@@ -4,6 +4,12 @@
 Environment Variables
 =====================
 
+Runtime Environment Variables
+-----------------------------
+
+- ``CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM`` : When set to 1, the default stream is the per-thread default stream. When set to 0, the default stream is the legacy default stream. This defaults to 0, for the legacy default stream. See `Stream Synchronization Behavior <https://docs.nvidia.com/cuda/cuda-runtime-api/stream-sync-behavior.html>`_ for an explanation of the legacy and per-thread default streams.
+
+
 Build-Time Environment Variables
 --------------------------------
 
@@ -13,7 +19,3 @@ Build-Time Environment Variables
 
 - ``CUDA_PYTHON_PARALLEL_LEVEL`` (previously ``PARALLEL_LEVEL``) : int, sets the number of threads used in the compilation of extension modules. Not setting it or setting it to 0 would disable parallel builds.
 
-Runtime Environment Variables
------------------------------
-
-- ``CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM`` : When set to 1, the default stream is the per-thread default stream. When set to 0, the default stream is the legacy default stream. This defaults to 0, for the legacy default stream. See `Stream Synchronization Behavior <https://docs.nvidia.com/cuda/cuda-runtime-api/stream-sync-behavior.html>`_ for an explanation of the legacy and per-thread default streams.

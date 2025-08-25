@@ -673,11 +673,10 @@
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>cuda-python
 </pre></div>
 </div>
-<p>Install all optional dependencies with:
-.. code-block:: console</p>
-<blockquote>
-<div><p>pip install -U cuda-python[all]</p>
-</div></blockquote>
+<p>Install all optional dependencies with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>cuda-python<span class="o">[</span>all<span class="o">]</span>
+</pre></div>
+</div>
 <p>Where the optional dependencies include:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cuda-nvrtc</span></code> (NVRTC runtime compilation library)</p></li>
@@ -696,11 +695,10 @@
 <p class="admonition-title">Note</p>
 <p>When using conda, the <code class="docutils literal notranslate"><span class="pre">cuda-version</span></code> metapackage can be used to control the versions of CUDA Toolkit components that are installed to the conda environment.</p>
 </div>
-<p>For example:
-.. code-block:: console</p>
-<blockquote>
-<div><p>$ conda install -c conda-forge cuda-python cuda-version=13</p>
-</div></blockquote>
+<p>For example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>cuda-python<span class="w"> </span>cuda-version<span class="o">=</span><span class="m">13</span>
+</pre></div>
+</div>
 </section>
 <section id="installing-from-source">
 <h2>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading">#</a></h2>
@@ -724,7 +722,7 @@
 </section>
 <section id="editable-install">
 <h3>Editable Install<a class="headerlink" href="#editable-install" title="Link to this heading">#</a></h3>
-<p>You can use</p>
+<p>You can use:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-v<span class="w"> </span>-e<span class="w"> </span>.
 </pre></div>
 </div>

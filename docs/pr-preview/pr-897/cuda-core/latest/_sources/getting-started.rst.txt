@@ -6,8 +6,8 @@
 Overview
 ========
 
-What is ``cuda core``?
---------------------
+What is ``cuda.core``?
+----------------------
 
 ``cuda.core`` provides a Pythonic interface to the CUDA runtime and other functionality,
 including:
@@ -71,8 +71,7 @@ Note the use of the ``name_expressions`` parameter to the :meth:`Program.compile
 
 .. code-block:: python
 
-   arch = "".join(f"{i}" for i in dev.compute_capability)
-   program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
+   program_options = ProgramOptions(std="c++17", arch=f"sm_{dev.arch}")
    prog = Program(code, code_type="c++", options=program_options)
    mod = prog.compile("cubin", name_expressions=("vector_add<float>",))
 

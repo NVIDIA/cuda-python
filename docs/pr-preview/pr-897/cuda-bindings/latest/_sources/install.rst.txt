@@ -28,9 +28,10 @@ Installing from PyPI
    $ pip install -U cuda-python
 
 Install all optional dependencies with:
+
 .. code-block:: console
 
-   pip install -U cuda-python[all]
+   $ pip install -U cuda-python[all]
 
 Where the optional dependencies include:
 
@@ -53,6 +54,7 @@ Installing from Conda
    When using conda, the ``cuda-version`` metapackage can be used to control the versions of CUDA Toolkit components that are installed to the conda environment.
 
 For example:
+
 .. code-block:: console
 
    $ conda install -c conda-forge cuda-python cuda-version=13
@@ -85,7 +87,7 @@ See `Environment Variables <environment_variables.rst>`_ for a description of ot
 Editable Install
 ^^^^^^^^^^^^^^^^
 
-You can use
+You can use:
 
 .. code-block:: console
 
