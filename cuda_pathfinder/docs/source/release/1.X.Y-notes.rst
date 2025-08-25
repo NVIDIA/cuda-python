@@ -12,14 +12,14 @@ Released on TBD
 Highlights
 ----------
 
-* `RTLD_DI_LINKMAP`-based new implementation of `abs_path_for_dynamic_library()` (`PR #834 <https://github.com/NVIDIA/cuda-python/pull/834>`_)
-  
-  - Eliminates `supported_nvidia_libs.EXPECTED_LIB_SYMBOLS` entirely, providing major simplification
+* ``RTLD_DI_LINKMAP``-based new implementation of ``abs_path_for_dynamic_library()`` (`PR #834 <https://github.com/NVIDIA/cuda-python/pull/834>`_)
+
+  - Eliminates ``supported_nvidia_libs.EXPECTED_LIB_SYMBOLS`` entirely, providing major simplification
   - Step towards resolving library discovery issues
   - Includes minor fixes and cleanup
 
-* Make `add_dll_directory()` and `load_dependencies()` side-effects more deterministic (`PR #855 <https://github.com/NVIDIA/cuda-python/pull/855>`_)
-  
+* Make ``add_dll_directory()`` and ``load_dependencies()`` side-effects more deterministic (`PR #855 <https://github.com/NVIDIA/cuda-python/pull/855>`_)
+
   - Improves stability in general and supports nvmath specifically
   - Proactive change to improve library loading consistency
   - Drops boilerplate docstrings for private functions
