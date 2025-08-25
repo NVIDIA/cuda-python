@@ -117,11 +117,24 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: ./ci/tools/env-vars test
 
-      - name: Download cuda-pathfinder build artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
-        with:
-          name: cuda-pathfinder-wheel
-          path: ./cuda_pathfinder
+      - name: Download cuda-pathfinder build artifacts from main branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $MAIN_BRANCH = "main"
+          $PATHFINDER_BASENAME = "cuda-pathfinder-wheel"
+          $runData = gh run list -b $MAIN_BRANCH -L 1 -w "CI" -s completed -R NVIDIA/cuda-python --json databaseId | ConvertFrom-Json
+          if (-not $runData -or $runData.Length -eq 0 -or -not $runData[0].databaseId -or [string]::IsNullOrEmpty($runData[0].databaseId)) {
+              Write-Host "LATEST_MAIN_RUN_ID not found!"
+              exit 1
+          }
+          $LATEST_MAIN_RUN_ID = $runData[0].databaseId
+
+          gh run download $LATEST_MAIN_RUN_ID -p $PATHFINDER_BASENAME -R NVIDIA/cuda-python
+          Get-ChildItem -Path $PATHFINDER_BASENAME
+          New-Item -Path "./cuda_pathfinder" -ItemType Directory -Force
+          Move-Item -Path "$PATHFINDER_BASENAME/*.whl" -Destination "./cuda_pathfinder/"
+          Remove-Item -Path $PATHFINDER_BASENAME -Force
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}

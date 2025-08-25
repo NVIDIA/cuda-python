@@ -149,11 +149,33 @@ jobs:
           SHA: ${{ github.sha }}
         run: ./ci/tools/env-vars test
 
-      - name: Download cuda-pathfinder build artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
-        with:
-          name: cuda-pathfinder-wheel
-          path: ./cuda_pathfinder
+      - name: Download cuda-pathfinder build artifacts from main branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
+          # gh is needed for artifact fetching.
+          mkdir -p -m 755 /etc/apt/keyrings \
+                && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+                && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+          && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+          && apt update \
+          && apt install gh -y
+
+          MAIN_BRANCH="main"
+          PATHFINDER_BASENAME="cuda-pathfinder-wheel"
+          LATEST_MAIN_RUN_ID=$(gh run list -b ${MAIN_BRANCH} -L 1 -w "CI" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
+          if [[ "$LATEST_MAIN_RUN_ID" == "" ]]; then
+            echo "LATEST_MAIN_RUN_ID not found!"
+            exit 1
+          fi
+
+          gh run download $LATEST_MAIN_RUN_ID -p ${PATHFINDER_BASENAME} -R NVIDIA/cuda-python
+          ls -al $PATHFINDER_BASENAME
+          mkdir -p ./cuda_pathfinder
+          mv $PATHFINDER_BASENAME/*.whl ./cuda_pathfinder/
+          rmdir $PATHFINDER_BASENAME
 
       - name: Download cuda-python build artifacts
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0'}}
