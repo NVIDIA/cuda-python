@@ -11,4 +11,3 @@ closes <!-- Link issue here -->
 <!-- TODO: - [ ] I am familiar with the [Contributing Guidelines](). -->
 - [ ] New or existing tests cover these changes.
 - [ ] The documentation is up to date with these changes.
-

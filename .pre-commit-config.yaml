@@ -12,6 +12,8 @@ ci:
     skip: [bandit]
     submodules: false
 
+gen_exclude: &gen_exclude '^cuda_bindings/cuda/bindings/.*\.in?$|cuda_bindings/docs/source/module/.*\.rst?$'
+
 # Please update the rev: SHAs below with this command:
 # pre-commit autoupdate --freeze
 repos:
@@ -38,6 +40,25 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+  # Standard hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: "v5.0.0"
+    hooks:
+    - id: check-added-large-files
+    - id: check-case-conflict
+    - id: check-docstring-first
+    - id: check-merge-conflict
+    - id: check-symlinks
+    - id: check-toml
+    - id: check-yaml
+    - id: debug-statements
+    - id: end-of-file-fixer
+      exclude: *gen_exclude
+    - id: mixed-line-ending
+    - id: requirements-txt-fixer
+    - id: trailing-whitespace
+      exclude: *gen_exclude
 
   # Checking for common mistakes
   - repo: https://github.com/pre-commit/pygrep-hooks

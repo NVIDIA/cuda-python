@@ -79,4 +79,3 @@ CUDA Functions Not Supported in this Release
 - cudaVDPAUSetVDPAUDevice
 
 .. note:: Deprecated APIs are removed from tracking
-
