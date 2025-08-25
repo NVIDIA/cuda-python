@@ -10,7 +10,7 @@ The ``cuda.bindings`` module has the following support policy:
    third number in the version string), however, is reserved to reflect Python-only changes and
    is out of sync with the Toolkit patch version.
 2. The module is actively maintained to support the latest CUDA major version and its prior major
-   version. For example, as of writing the bindings for CUDA 11 & 12 are maintained. Any fix in the
+   version. For example, as of writing the bindings for CUDA 12 & 13 are maintained. Any fix in the
    latest bindings would be backported to the prior major version.
 3. The module supports `CUDA minor version compatibility`_, meaning that ``cuda.bindings`` 12.x
    supports any Toolkit 12.y. (Whether or not a binding API would actually correctly function
