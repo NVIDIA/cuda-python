@@ -35,7 +35,7 @@ Install all optional dependencies with:
 
 Where the optional dependencies include:
 
-* ``nvidia-cuda-nvrtc`` (NVRTC runtime compilation library)  
+* ``nvidia-cuda-nvrtc`` (NVRTC runtime compilation library)
 * ``nvidia-nvjitlink`` (nvJitLink library)
 * ``nvidia-nvvm`` (NVVM library)
 * ``nvidia-cufile`` (cuFile library, Linux only)
