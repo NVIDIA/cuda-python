@@ -39,6 +39,23 @@ repos:
         pass_filenames: false
         always_run: true
 
+  # Standard hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: "v5.0.0"
+    hooks:
+    - id: check-added-large-files
+    - id: check-case-conflict
+    - id: check-docstring-first
+    - id: check-merge-conflict
+    - id: check-symlinks
+    - id: check-toml
+    - id: check-yaml
+    - id: debug-statements
+    - id: end-of-file-fixer
+    - id: mixed-line-ending
+    - id: requirements-txt-fixer
+    - id: trailing-whitespace
+
   # Checking for common mistakes
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: "v1.10.0"
