@@ -6,5 +6,9 @@
     {
         "version": "1.1.0",
         "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.1.0/"
+    },
+    {
+        "version": "1.0.0",
+        "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.0.0/"
     }
 ]
