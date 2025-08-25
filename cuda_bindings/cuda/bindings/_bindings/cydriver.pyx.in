@@ -490,10 +490,8 @@ cdef bint __cuPythonInit = False
 ctypedef CUresult (*__cuGetProcAddress_v2_T)(const char*, void**, int, cuuint64_t, CUdriverProcAddressQueryResult*) except?CUDA_ERROR_NOT_FOUND nogil
 cdef __cuGetProcAddress_v2_T _F_cuGetProcAddress_v2 = NULL
 
-cdef int cuPythonInit() except -1 nogil:
+cdef int _cuPythonInit() except -1 nogil:
     global __cuPythonInit
-    if __cuPythonInit:
-        return 0
 
     cdef bint usePTDS
     cdef char libPath[260]
@@ -8882,6 +8880,14 @@ cdef int cuPythonInit() except -1 nogil:
 
         __cuPythonInit = True
         return 0
+
+# Create a very small function to check whether we are init'ed, so the C
+# compiler can inline it.
+cdef inline int cuPythonInit() except -1 nogil:
+    if __cuPythonInit:
+        return 0
+    
+    return _cuPythonInit()
 
 {{if 'cuGetErrorString' in found_functions}}
 
