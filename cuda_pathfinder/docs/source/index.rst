@@ -4,9 +4,6 @@
 ``cuda.pathfinder``: Utilities for locating CUDA components
 ===========================================================
 
-.. include:: ../../cuda/pathfinder/README.md
-   :parser: myst_parser.sphinx_
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
