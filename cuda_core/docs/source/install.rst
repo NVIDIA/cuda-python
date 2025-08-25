@@ -21,7 +21,7 @@ dependencies are as follows:
      - 13.x
    * - Driver
      - 525.60.13+ (Linux), 527.41+ (Windows)
-     - 555.00+ (Linux), 556.12+ (Windows)
+     - 580.65+ (Linux), 580.88+ (Windows)
 
 .. [#f1] Including ``cuda-python``.
 

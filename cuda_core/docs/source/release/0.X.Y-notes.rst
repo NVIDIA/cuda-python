@@ -18,6 +18,7 @@ Highlights
 Breaking Changes
 ----------------
 
+- **CUDA 11 support dropped**: CUDA 11 support is no longer tested and it may or may not work with cuda.bindings and CTK 11.x. Users are encouraged to migrate to CUDA 12.x or 13.x.
 - **LaunchConfig grid parameter interpretation**: When :attr:`LaunchConfig.cluster` is specified, the :attr:`LaunchConfig.grid` parameter now correctly represents the number of clusters instead of blocks. Previously, the grid parameter was incorrectly interpreted as blocks, causing a mismatch with the expected C++ behavior. This change ensures that ``LaunchConfig(grid=4, cluster=2, block=32)`` correctly produces 4 clusters × 2 blocks/cluster = 8 total blocks, matching the C++ equivalent ``cudax::make_hierarchy(cudax::grid_dims(4), cudax::cluster_dims(2), cudax::block_dims(32))``.
 - When :class:`Buffer` is closed, :attr:`Buffer.handle` is now set to ``None``. It was previously set to ``0`` by accident.
 
