@@ -48,7 +48,7 @@ import this dependency as well.
    import numpy as np
 
 Error checking is a fundamental best practice when working with low-level interfaces.
-The following code snippet lets us validate each API call and raise exceptions in case of error.::
+The following code snippet lets us validate each API call and raise exceptions in case of error:
 
 .. code-block:: python
 
@@ -99,7 +99,7 @@ Go ahead and compile the kernel into PTX. Remember that this is executed at runt
 
 In the following code example, the Driver API is initialized so that the NVIDIA driver
 and GPU are accessible. Next, the GPU is queried for their compute capability. Finally,
-the program is compiled to target our local compute capability architecture with FMAD disabled.::
+the program is compiled to target our local compute capability architecture with FMAD disabled:
 
 .. code-block:: python
 
@@ -129,7 +129,7 @@ the program is compiled to target our local compute capability architecture with
 Before you can use the PTX or do any work on the GPU, you must create a CUDA
 context. CUDA contexts are analogous to host processes for the device. In the
 following code example, a handle for compute device 0 is passed to
-``cuCtxCreate`` to designate that GPU for context creation.::
+``cuCtxCreate`` to designate that GPU for context creation:
 
 .. code-block:: python
 
@@ -139,7 +139,7 @@ following code example, a handle for compute device 0 is passed to
 With a CUDA context created on device 0, load the PTX generated earlier into a
 module. A module is analogous to dynamically loaded libraries for the device.
 After loading into the module, extract a specific kernel with
-``cuModuleGetFunction``. It is not uncommon for multiple kernels to reside in PTX.::
+``cuModuleGetFunction``. It is not uncommon for multiple kernels to reside in PTX:
 
 .. code-block:: python
 
@@ -152,7 +152,7 @@ After loading into the module, extract a specific kernel with
 Next, get all your data prepared and transferred to the GPU. For increased
 application performance, you can input data on the device to eliminate data
 transfers. For completeness, this example shows how you would transfer data to
-and from the device.::
+and from the device:
 
 .. code-block:: python
 
@@ -175,7 +175,7 @@ execution.
 
 Python doesn't have a natural concept of pointers, yet ``cuMemcpyHtoDAsync`` expects
 ``void*``. This is where we leverage NumPy's data types to retrieve each host data pointer
-by calling ``XX.ctypes.data`` for the associated XX.::
+by calling ``XX.ctypes.data`` for the associated XX:
 
 .. code-block:: python
 
@@ -196,7 +196,7 @@ With data prep and resources allocation finished, the kernel is ready to be
 launched. To pass the location of the data on the device to the kernel execution
 configuration, you must retrieve the device pointer. In the following code
 example, we call ``int(XXclass)`` to retrieve the device pointer value for the
-associated XXclass as a Python ``int`` and wrap it in a ``np.array`` type.::
+associated XXclass as a Python ``int`` and wrap it in a ``np.array`` type:
 
 .. code-block:: python
 
@@ -209,14 +209,14 @@ but this time it's of type ``void**``. What this means is that our argument list
 be a contiguous array of ``void*`` elements, where each element is the pointer to a kernel
 argument on either host or device. Since we already prepared each of our arguments into a ``np.array`` type, the
 construction of our final contiguous array is done by retrieving the ``XX.ctypes.data``
-of each kernel argument.::
+of each kernel argument:
 
 .. code-block:: python
 
    args = [a, dX, dY, dOut, n]
    args = np.array([arg.ctypes.data for arg in args], dtype=np.uint64)
 
-Now the kernel can be launched::
+Now the kernel can be launched:
 
 .. code-block:: python
 
@@ -245,7 +245,7 @@ data transfers. That ensures that the kernel's compute is performed only after
 the data has finished transfer, as all API calls and kernel launches within a
 stream are serialized. After the call to transfer data back to the host is
 executed, ``cuStreamSynchronize`` is used to halt CPU execution until all operations
-in the designated stream are finished.::
+in the designated stream are finished:
 
 .. code-block:: python
 
@@ -255,7 +255,7 @@ in the designated stream are finished.::
       raise ValueError("Error outside tolerance for host-device vectors")
 
 Perform verification of the data to ensure correctness and finish the code with
-memory clean up.::
+memory clean up:
 
 .. code-block:: python
 
@@ -277,7 +277,7 @@ kernel performance and `CUDA
 Events <https://developer.nvidia.com/blog/how-implement-performance-metrics-cuda-cc/>`_
 was used for application performance.
 
-The following command was used to profile the applications::
+The following command was used to profile the applications:
 
 .. code-block:: shell
 
@@ -323,7 +323,7 @@ Using NumPy
 
 NumPy `Array objects <https://numpy.org/doc/stable/reference/arrays.html>`_ can be used to fulfill each of these conditions directly.
 
-Let's use the following kernel definition as an example::
+Let's use the following kernel definition as an example:
 
 .. code-block:: python
 
@@ -404,7 +404,7 @@ This example uses the following types:
 
 Note how all three pointers are ``np.intp`` since the pointer values are always a representation of an address space.
 
-Putting it all together::
+Putting it all together:
 
 .. code-block:: python
 
@@ -429,13 +429,13 @@ Putting it all together::
 The final step is to construct a ``kernelParams`` argument that fulfills all of the launch API conditions. This is made easy because each array object comes
 with a `ctypes <https://numpy.org/doc/stable/reference/generated/numpy.ndarray.ctypes.html#numpy.ndarray.ctypes>`_ data attribute that returns the underlying ``void*`` pointer value.
 
-By having the final array object contain all pointers, we fulfill the contiguous array requirement::
+By having the final array object contain all pointers, we fulfill the contiguous array requirement:
 
 .. code-block:: python
 
    kernelParams = np.array([arg.ctypes.data for arg in kernelValues], dtype=np.intp)
 
-The launch API supports `Buffer Protocol <https://docs.python.org/3/c-api/buffer.html>`_ objects, therefore we can pass the array object directly.::
+The launch API supports `Buffer Protocol <https://docs.python.org/3/c-api/buffer.html>`_ objects, therefore we can pass the array object directly:
 
 .. code-block:: python
 
@@ -463,7 +463,7 @@ The ctypes approach treats the ``kernelParams`` argument as a pair of two tuples
 The ctypes `fundamental data types <https://docs.python.org/3/library/ctypes.html#fundamental-data-types>`_ documentation describes the compatibility between different Python types and C types.
 Furthermore, `custom data types <https://docs.python.org/3/library/ctypes.html#calling-functions-with-your-own-custom-data-types>`_ can be used to support kernels with custom types.
 
-For this example the result becomes::
+For this example the result becomes:
 
 .. code-block:: python
 
@@ -502,7 +502,7 @@ Values that are set to ``None`` have a special meaning:
 
 In all three cases, the API call will fetch the underlying pointer value and construct a contiguous array with other kernel parameters.
 
-With the setup complete, the kernel can be launched::
+With the setup complete, the kernel can be launched:
 
 .. code-block:: python
 
@@ -520,7 +520,7 @@ CUDA objects
 
 Certain CUDA kernels use native CUDA types as their parameters such as ``cudaTextureObject_t``. These types require special handling since they're neither a primitive ctype nor a custom user type. Since ``cuda.bindings`` exposes each of them as Python classes, they each implement ``getPtr()`` and ``__int__()``. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under `Tips and Tricks <https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#>`_.
 
-For this example, lets use the ``transformKernel`` from `examples/0_Introduction/simpleCubemapTexture_test.py <https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/simpleCubemapTexture_test.py>`_::
+For this example, lets use the ``transformKernel`` from `examples/0_Introduction/simpleCubemapTexture_test.py <https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/simpleCubemapTexture_test.py>`_:
 
 .. code-block:: python
 
@@ -539,7 +539,7 @@ For this example, lets use the ``transformKernel`` from `examples/0_Introduction
        tex = checkCudaErrors(cudart.cudaCreateTextureObject(texRes, texDescr, None))
        ...
 
-For NumPy, we can convert these CUDA types by leveraging the ``__int__()`` call to fetch the address of the underlying ``cudaTextureObject_t`` C object and wrapping it in a NumPy object array of type ``np.intp``::
+For NumPy, we can convert these CUDA types by leveraging the ``__int__()`` call to fetch the address of the underlying ``cudaTextureObject_t`` C object and wrapping it in a NumPy object array of type ``np.intp``:
 
 .. code-block:: python
 
@@ -550,7 +550,7 @@ For NumPy, we can convert these CUDA types by leveraging the ``__int__()`` call 
    )
    kernelArgs = np.array([arg.ctypes.data for arg in kernelValues], dtype=np.intp)
 
-For ctypes, we leverage the special handling of ``None`` type since each Python class already implements ``getPtr()``::
+For ctypes, we leverage the special handling of ``None`` type since each Python class already implements ``getPtr()``:
 
 .. code-block:: python
 

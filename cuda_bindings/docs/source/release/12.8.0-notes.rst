@@ -24,6 +24,7 @@ Optional dependencies are added for packages:
 - nvidia-nvjitlink-cu12
 
 Installing these dependencies with ``cuda-python`` can be done using:
+
 .. code-block:: shell
 
    pip install cuda-python[all]

@@ -27,11 +27,11 @@ Installing from PyPI
 
    $ pip install -U cuda-python
 
-Install all optional dependencies with::
+Install all optional dependencies with:
 
 .. code-block:: console
 
-   pip install -U cuda-python[all]
+   $ pip install -U cuda-python[all]
 
 Where the optional dependencies include:
 
@@ -53,7 +53,7 @@ Installing from Conda
 
    When using conda, the ``cuda-version`` metapackage can be used to control the versions of CUDA Toolkit components that are installed to the conda environment.
 
-For example::
+For example:
 
 .. code-block:: console
 
@@ -72,7 +72,7 @@ Requirements
 
 [^2]: The CUDA Runtime static library (``libcudart_static.a`` on Linux, ``cudart_static.lib`` on Windows) is part of the CUDA Toolkit. If using conda packages, it is contained in the ``cuda-cudart-static`` package.
 
-Source builds require that the provided CUDA headers are of the same major.minor version as the ``cuda.bindings`` you're trying to build. Despite this requirement, note that the minor version compatibility is still maintained. Use the ``CUDA_HOME`` (or ``CUDA_PATH``) environment variable to specify the location of your headers. For example, if your headers are located in ``/usr/local/cuda/include``, then you should set ``CUDA_HOME`` with::
+Source builds require that the provided CUDA headers are of the same major.minor version as the ``cuda.bindings`` you're trying to build. Despite this requirement, note that the minor version compatibility is still maintained. Use the ``CUDA_HOME`` (or ``CUDA_PATH``) environment variable to specify the location of your headers. For example, if your headers are located in ``/usr/local/cuda/include``, then you should set ``CUDA_HOME`` with:
 
 .. code-block:: console
 
@@ -87,7 +87,7 @@ See `Environment Variables <environment_variables.rst>`_ for a description of ot
 Editable Install
 ^^^^^^^^^^^^^^^^
 
-You can use::
+You can use:
 
 .. code-block:: console
 

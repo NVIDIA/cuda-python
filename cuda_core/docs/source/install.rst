@@ -10,19 +10,29 @@ Runtime Requirements
 ``cuda.core`` is supported on all platforms that CUDA is supported. Specific
 dependencies are as follows:
 
-|                   | CUDA 11      | CUDA 12     |
-|------------------ | ------------ | ----------- |
-| CUDA Toolkit [^1] | 11.2 - 11.8  | 12.x        |
-| Driver            | 450.80.02+ (Linux), 452.39+ (Windows) | 525.60.13+ (Linux), 527.41+ (Windows) |
+.. list-table:: 
+   :header-rows: 1
 
-[^1]: Including ``cuda-python``.
+   * - 
+     - CUDA 11
+     - CUDA 12
+   * - CUDA Toolkit\ [#f1]_
+     - 11.2 - 11.8
+     - 12.x
+   * - Driver
+     - 450.80.02+ (Linux), 452.39+ (Windows)
+     - 525.60.13+ (Linux), 527.41+ (Windows)
+
+.. [#f1] Including ``cuda-python``.
+
 
 ``cuda.core`` supports Python 3.9 - 3.13, on Linux (x86-64, arm64) and Windows (x86-64).
 
 Installing from PyPI
 --------------------
 
-``cuda.core`` works with ``cuda.bindings`` (part of ``cuda-python``) 11 or 12. Test dependencies now use the ```cuda-toolkit``` metapackage for improved dependency resolution. For example with CUDA 12:
+``cuda.core`` works with ``cuda.bindings`` (part of ``cuda-python``) 11 or 12. Test dependencies now use the ``cuda-toolkit`` metapackage for improved dependency resolution. For example with CUDA 12:
+
 .. code-block:: console
 
    $ pip install cuda-core[cu12]
@@ -36,6 +46,7 @@ Installing from Conda (conda-forge)
 -----------------------------------
 
 Same as above, ``cuda.core`` can be installed in a CUDA 11 or 12 environment. For example with CUDA 12:
+
 .. code-block:: console
 
    $ conda install -c conda-forge cuda-core cuda-version=12
