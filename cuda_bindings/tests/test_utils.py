@@ -2,6 +2,9 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import random
+import subprocess  # nosec B404
+import sys
+from pathlib import Path
 
 import pytest
 
@@ -87,3 +90,28 @@ def test_get_handle(target):
 def test_get_handle_error(target):
     with pytest.raises(TypeError) as e:
         handle = get_cuda_native_handle(target)
+
+
+@pytest.mark.parametrize(
+    "module",
+    [
+        # Top-level modules for external Python use
+        # TODO: Import cycle detected: (('numeric',), ''), stack: [((),
+        # 'cuda.bindings.cufile'), ((), 'cuda.bindings.cycufile'),
+        # (('show_config',), 'numpy.__config__'), (('__cpu_features__',
+        # '__cpu_baseline__', '__cpu_dispatch__'),
+        # 'numpy._core._multiarray_umath'), (('numeric',), ''),
+        # (('shape_base',), '')]
+        # "cufile",
+        "driver",
+        "nvjitlink",
+        "nvrtc",
+        "nvvm",
+        # TODO: cuda.bindings.cyruntime -> cuda.bindings._lib.cyruntime.cyruntime cycle
+        # "runtime",
+    ],
+)
+def test_cyclical_imports(module):
+    subprocess.check_call(  # nosec B603
+        [sys.executable, Path(__file__).parent / "utils" / "check_cyclical_import.py", f"cuda.bindings.{module}"],
+    )
