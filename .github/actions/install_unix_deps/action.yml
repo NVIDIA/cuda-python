@@ -10,7 +10,7 @@ inputs:
   dependencies:
     required: true
     type: string
-  dependent_exes:  
+  dependent_exes:
     required: true
     type: string
 

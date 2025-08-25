@@ -17,4 +17,3 @@ Release Notes
    12.6.1 <release/12.6.1-notes.rst>
    11.8.7 <release/11.8.7-notes.rst>
    11.8.6 <release/11.8.6-notes.rst>
-

@@ -25,7 +25,7 @@ None.
 New features
 ------------
 
-- :class:`Stream` and :class:`Event` can be subclassed now. 
+- :class:`Stream` and :class:`Event` can be subclassed now.
 
 
 New examples
