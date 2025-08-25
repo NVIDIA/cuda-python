@@ -18,7 +18,7 @@ def import_hook(name, globals=None, locals=None, fromlist=(), *args, **kwargs):
     """Approximate a custom import system that does not allow import cycles."""
 
     stack_entry = (tuple(fromlist) if fromlist is not None else None, name)
-    if stack_entry in import_stack:
+    if stack_entry in import_stack and name.startswith("cuda.bindings."):
         raise ImportError(f"Import cycle detected: {stack_entry}, stack: {import_stack}")
     import_stack.append(stack_entry)
     res = orig_import(name, globals, locals, fromlist, *args, **kwargs)
