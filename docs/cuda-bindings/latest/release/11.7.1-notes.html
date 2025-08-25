@@ -668,26 +668,22 @@
 <h2>Limitations<a class="headerlink" href="#limitations" title="Link to this heading">#</a></h2>
 <section id="source-builds">
 <h3>Source builds<a class="headerlink" href="#source-builds" title="Link to this heading">#</a></h3>
-<p>CUDA Python no longer re-declares CUDA types, instead it uses the types from CUDA C headers. As such source builds now need to access to latest CTK headers. In particular:</p>
-<ol class="arabic simple">
-<li><p>“$CUDA_HOME/include” has latest CTK headers</p></li>
-<li><p>CTK headers have all types defined</p></li>
-</ol>
-<p>(2) Certain CUDA types are not declared on mobile platforms and may face a “has not been declared” error during source builds. A temporary workaround is to use the headers found in <a class="gitlab reference external" href="https://gitlab.com/nvidia/headers/cuda">nvidia/headers/cuda</a>. In particular CUDA Python needs the following headers and their dependencies:</p>
-<ul class="simple">
-<li><p>cuda.h</p></li>
-<li><p>cudaProfiler.h</p></li>
-<li><p>driver_types.h</p></li>
-<li><p>cuda_runtime.h</p></li>
-<li><p>nvrtc.h</p></li>
-</ul>
+<p>CUDA Python no longer re-declares CUDA types, instead it uses the types from CUDA C headers. As such source builds now need to access to latest CTK headers. In particular:
+1. “$CUDA_HOME/include” has latest CTK headers
+2. CTK headers have all types defined</p>
+<p>(2) Certain CUDA types are not declared on mobile platforms and may face a “has not been declared” error during source builds. A temporary workaround is to use the headers found in <a class="gitlab reference external" href="https://gitlab.com/nvidia/headers/cuda">nvidia/headers/cuda</a>. In particular CUDA Python needs the following headers and their dependencies:
+- cuda.h
+- cudaProfiler.h
+- driver_types.h
+- cuda_runtime.h
+- nvrtc.h</p>
 <p>This a short-term limitation and will be relaxed in a future release.</p>
 </section>
 <section id="cuda-functions-not-supported-in-this-release">
 <h3>CUDA Functions Not Supported in this Release<a class="headerlink" href="#cuda-functions-not-supported-in-this-release" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>Symbol APIs</p>
-<ul>
+<li><dl class="simple">
+<dt>Symbol APIs</dt><dd><ul>
 <li><p>cudaGraphExecMemcpyNodeSetParamsFromSymbol</p></li>
 <li><p>cudaGraphExecMemcpyNodeSetParamsToSymbol</p></li>
 <li><p>cudaGraphAddMemcpyNodeToSymbol</p></li>
@@ -702,13 +698,17 @@
 <li><p>cudaGetSymbolSize</p></li>
 <li><p>cudaGetFuncBySymbol</p></li>
 </ul>
+</dd>
+</dl>
 </li>
-<li><p>Launch Options</p>
-<ul>
+<li><dl class="simple">
+<dt>Launch Options</dt><dd><ul>
 <li><p>cudaLaunchKernel</p></li>
 <li><p>cudaLaunchCooperativeKernel</p></li>
 <li><p>cudaLaunchCooperativeKernelMultiDevice</p></li>
 </ul>
+</dd>
+</dl>
 </li>
 <li><p>cudaSetValidDevices</p></li>
 <li><p>cudaVDPAUSetVDPAUDevice</p></li>
