@@ -34,7 +34,7 @@ repos:
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
         entry: bash -c
-        args: ['if find . -path "*/docs/source/*.md" -not -path "./docs/README.md" | grep -q .; then echo "ERROR: Markdown files found in docs/source/ directories. Use reStructuredText (.rst) instead."; exit 1; fi']
+        args: ['if find . -path "*/docs/source/*.md" -not -path "./docs/README.md" | grep -q .; then echo "ERROR: Markdown files found in docs/source/ directories. Use reST (.rst) instead."; exit 1; fi']
         language: system
         pass_filenames: false
         always_run: true
