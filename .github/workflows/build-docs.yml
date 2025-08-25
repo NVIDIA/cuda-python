@@ -19,6 +19,7 @@ on:
         #   - cuda-core
         #   - cuda-bindings
         #   - cuda-python
+        #   - cuda-pathfinder
         #   - all
       git-tag:
         description: "Target git tag to build docs for"

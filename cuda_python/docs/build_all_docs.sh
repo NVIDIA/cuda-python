@@ -28,3 +28,13 @@ rm -rf build
 ./build_docs.sh $@
 cp -r build/html/* "$(dirs -l +1)"/$CUDA_CORE_PATH
 popd
+
+# build cuda-pathfinder docs
+CUDA_PATHFINDER_PATH=build/html/cuda-pathfinder
+mkdir -p $CUDA_PATHFINDER_PATH
+pushd .
+cd ../../cuda_pathfinder/docs
+rm -rf build
+./build_docs.sh $@
+cp -r build/html/* "$(dirs -l +1)"/$CUDA_PATHFINDER_PATH
+popd

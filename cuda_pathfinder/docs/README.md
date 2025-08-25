@@ -1,6 +1,6 @@
 # Build the documentation
 
-1. Install the `cuda-bindings` package of the version that we need to document.
+1. Install the `cuda-pathfinder` package of the version that we need to document.
 2. Ensure the version is included in the [`nv-versions.json`](./nv-versions.json).
 3. Build the docs with `./build_docs.sh`.
 4. The html artifacts should be available under both `./build/html/latest` and `./build/html/<version>`.
