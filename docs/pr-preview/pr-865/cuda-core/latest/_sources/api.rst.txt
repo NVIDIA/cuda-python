@@ -7,7 +7,7 @@
 ========================================
 
 All of the APIs listed (or cross-referenced from) below are considered *experimental*
-and subject to future changes without deprecation notice. Once stablized they will be
+and subject to future changes without deprecation notice. Once stabilized they will be
 moved out of the ``experimental`` namespace.
 
 
