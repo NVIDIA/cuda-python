@@ -12,6 +12,8 @@ ci:
     skip: [bandit]
     submodules: false
 
+gen_exclude: &gen_exclude '^cuda_bindings/cuda/bindings/.*\.in?$'
+
 # Please update the rev: SHAs below with this command:
 # pre-commit autoupdate --freeze
 repos:
@@ -52,9 +54,11 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
+      exclude: *gen_exclude
     - id: mixed-line-ending
     - id: requirements-txt-fixer
     - id: trailing-whitespace
+      exclude: *gen_exclude
 
   # Checking for common mistakes
   - repo: https://github.com/pre-commit/pygrep-hooks
