@@ -3,7 +3,8 @@
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
 cimport cuda.bindings.cyruntime as cyruntime
-cimport cuda.bindings._lib.utils as utils
+
+include "_lib/utils.pxd"
 cimport cuda.bindings.driver as driver
 
 {{if 'cudaArray_t' in found_types}}
@@ -2868,7 +2869,7 @@ cdef class cudaKernelNodeParams:
     cdef dim3 _blockDim
     {{endif}}
     {{if 'cudaKernelNodeParams.kernelParams' in found_struct}}
-    cdef utils.HelperKernelParams _cykernelParams
+    cdef _HelperKernelParams _cykernelParams
     {{endif}}
 {{endif}}
 {{if 'cudaKernelNodeParamsV2' in found_struct}}
@@ -2918,7 +2919,7 @@ cdef class cudaKernelNodeParamsV2:
     cdef dim3 _blockDim
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.kernelParams' in found_struct}}
-    cdef utils.HelperKernelParams _cykernelParams
+    cdef _HelperKernelParams _cykernelParams
     {{endif}}
 {{endif}}
 {{if 'cudaExternalSemaphoreSignalNodeParams' in found_struct}}

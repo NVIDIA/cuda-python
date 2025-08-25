@@ -12,6 +12,7 @@ from libc.stdint cimport uintptr_t
 from cuda.pathfinder import load_nvidia_dynamic_lib
 from libc.stdint cimport intptr_t
 import threading
+
 cdef object __symbol_lock = threading.Lock()
 cdef bint __cuPythonInit = False
 {{if 'nvrtcGetErrorString' in found_functions}}cdef void *__nvrtcGetErrorString = NULL{{endif}}
@@ -343,8 +344,8 @@ cdef int cuPythonInit() except -1 nogil:
         global __nvrtcSetFlowCallback
         __nvrtcSetFlowCallback = dlfcn.dlsym(handle, 'nvrtcSetFlowCallback')
         {{endif}}
-        {{endif}}
 
+        {{endif}}
         __cuPythonInit = True
         return 0
 
