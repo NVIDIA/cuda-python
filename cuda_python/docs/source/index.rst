@@ -31,7 +31,7 @@ be available, please refer to the `cuda.bindings`_ documentation for installatio
    :maxdepth: 2
    :caption: Contents:
 
-   release.md
+   release
    cuda.core <https://nvidia.github.io/cuda-python/cuda-core/latest>
    cuda.bindings <https://nvidia.github.io/cuda-python/cuda-bindings/latest>
    cuda.pathfinder <https://nvidia.github.io/cuda-python/cuda-pathfinder/latest>
