@@ -494,8 +494,10 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="13.X.Y-notes.html">13.X.Y</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.X-notes.html">12.9.X</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.2-notes.html">12.9.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.1-notes.html">12.9.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.0-notes.html">12.9.0</a></li>
@@ -659,10 +661,12 @@
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Rebase to CUDA Toolkit 12.3</p></li>
-<li><p>Resolve <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/16">Issue #16</a>: cuda.cudart.cudaRuntimeGetVersion() hard-codes the runtime version, rather than querying the runtime</p>
-<ul>
+<li><dl class="simple">
+<dt>Resolve <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/16">Issue #16</a>: cuda.cudart.cudaRuntimeGetVersion() hard-codes the runtime version, rather than querying the runtime</dt><dd><ul>
 <li><p>New API cudart.getLocalRuntimeVersion()</p></li>
 </ul>
+</dd>
+</dl>
 </li>
 <li><p>Resolve <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/48">Issue #48</a>: Dropping Python 3.8</p></li>
 <li><p>Resolve <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/51">Issue #51</a>: Dropping package releases for ppc64 on PYPI and conda-nvidia channel</p></li>
@@ -673,8 +677,8 @@
 <section id="cuda-functions-not-supported-in-this-release">
 <h3>CUDA Functions Not Supported in this Release<a class="headerlink" href="#cuda-functions-not-supported-in-this-release" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>Symbol APIs</p>
-<ul>
+<li><dl class="simple">
+<dt>Symbol APIs</dt><dd><ul>
 <li><p>cudaGraphExecMemcpyNodeSetParamsFromSymbol</p></li>
 <li><p>cudaGraphExecMemcpyNodeSetParamsToSymbol</p></li>
 <li><p>cudaGraphAddMemcpyNodeToSymbol</p></li>
@@ -689,13 +693,17 @@
 <li><p>cudaGetSymbolSize</p></li>
 <li><p>cudaGetFuncBySymbol</p></li>
 </ul>
+</dd>
+</dl>
 </li>
-<li><p>Launch Options</p>
-<ul>
+<li><dl class="simple">
+<dt>Launch Options</dt><dd><ul>
 <li><p>cudaLaunchKernel</p></li>
 <li><p>cudaLaunchCooperativeKernel</p></li>
 <li><p>cudaLaunchCooperativeKernelMultiDevice</p></li>
 </ul>
+</dd>
+</dl>
 </li>
 <li><p>cudaSetValidDevices</p></li>
 <li><p>cudaVDPAUSetVDPAUDevice</p></li>

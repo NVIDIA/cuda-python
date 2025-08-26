@@ -59,7 +59,7 @@
     <link rel="icon" href="_static/favicon.png"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API Reference" href="api.html" />
+    <link rel="next" title="cuda.pathfinder API Reference" href="api.html" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -176,7 +176,7 @@
     
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="api.html">
-    API Reference
+    cuda.pathfinder API Reference
   </a>
 </li>
 
@@ -191,6 +191,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="license.html">
     Software License Agreement
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="release.html">
+    Release Notes
   </a>
 </li>
 
@@ -320,7 +327,7 @@
     
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="api.html">
-    API Reference
+    cuda.pathfinder API Reference
   </a>
 </li>
 
@@ -335,6 +342,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="license.html">
     Software License Agreement
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="release.html">
+    Release Notes
   </a>
 </li>
 
@@ -370,9 +384,23 @@
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES.html">cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.load_nvidia_dynamic_lib.html">cuda.pathfinder.load_nvidia_dynamic_lib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.LoadedDL.html">cuda.pathfinder.LoadedDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.DynamicLibNotFoundError.html">cuda.pathfinder.DynamicLibNotFoundError</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Software License Agreement</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/1.X.Y-notes.html">1.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.1.0-notes.html">1.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.0.0-notes.html">1.0.0</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -402,83 +430,25 @@
                   
   <section id="cuda-pathfinder-utilities-for-locating-cuda-components">
 <h1><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code>: Utilities for locating CUDA components<a class="headerlink" href="#cuda-pathfinder-utilities-for-locating-cuda-components" title="Link to this heading">#</a></h1>
-<section id="cuda-pathfinder-module">
-<h2><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> Module<a class="headerlink" href="#cuda-pathfinder-module" title="Link to this heading">#</a></h2>
-<section id="public-api-for-loading-nvidia-dynamic-libs">
-<h3>Public API for loading NVIDIA Dynamic Libs<a class="headerlink" href="#public-api-for-loading-nvidia-dynamic-libs" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES</span></code> (<code class="docutils literal notranslate"><span class="pre">tuple[str]</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder.load_nvidia_dynamic_lib(libname:</span> <span class="pre">str)</span> <span class="pre">-&gt;</span> <span class="pre">LoadedDL</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder.LoadedDL</span></code>:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">abs_path</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">was_already_loaded_from_elsewhere</span></code> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>)</p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder.DynamicLibNotFoundError</span></code> (inherits from <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>)</p></li>
-</ul>
-</section>
-<section id="dynamic-library-loading-search-priority">
-<h3>Dynamic Library Loading Search Priority<a class="headerlink" href="#dynamic-library-loading-search-priority" title="Link to this heading">#</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">cuda.pathfinder.load_nvidia_dynamic_lib</span></code> function implements a
-hierarchical search strategy for locating NVIDIA shared libraries:</p>
-<ol class="arabic simple" start="0">
-<li><p><strong>Check if a library was loaded into the process already by some other means.</strong></p>
-<ul class="simple">
-<li><p>If yes, there is no alternative to skipping the rest of the search logic.
-The absolute path of the already loaded library will be returned, along
-with the handle to the library.</p></li>
-</ul>
-</li>
-<li><p><strong>NVIDIA Python wheels</strong></p>
-<ul class="simple">
-<li><p>Scans all site-packages to find libraries installed via NVIDIA Python wheels.</p></li>
-</ul>
-</li>
-<li><p><strong>OS default mechanisms / Conda environments</strong></p>
-<ul class="simple">
-<li><p>Falls back to native loader:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">dlopen()</span></code> on Linux</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">LoadLibraryW()</span></code> on Windows</p></li>
-</ul>
-</li>
-<li><p>Conda installations are expected to be discovered:</p>
-<ul>
-<li><p>Linux: Via <code class="docutils literal notranslate"><span class="pre">$ORIGIN/../lib</span></code> on <code class="docutils literal notranslate"><span class="pre">RPATH</span></code> (of the <code class="docutils literal notranslate"><span class="pre">python</span></code> binary;
-note that this preempts <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">/etc/ld.so.conf.d/</span></code>)</p></li>
-<li><p>Windows: Via <code class="docutils literal notranslate"><span class="pre">%CONDA_PREFIX%\Library\bin</span></code> on system <code class="docutils literal notranslate"><span class="pre">PATH</span></code></p></li>
-</ul>
-</li>
-<li><p>CTK installations with system config updates are expected to be discovered:</p>
-<ul>
-<li><p>Linux: Via <code class="docutils literal notranslate"><span class="pre">/etc/ld.so.conf.d/*cuda*.conf</span></code></p></li>
-<li><p>Windows: Via <code class="docutils literal notranslate"><span class="pre">C:\Program</span> <span class="pre">Files\NVIDIA</span> <span class="pre">GPU</span> <span class="pre">Computing</span> <span class="pre">Toolkit\CUDA\vX.Y\bin</span></code> on system <code class="docutils literal notranslate"><span class="pre">PATH</span></code></p></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>Environment variables</strong></p>
-<ul class="simple">
-<li><p>Relies on <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> environment variables if set
-(in that order).</p></li>
-</ul>
-</li>
-</ol>
-<p>Note that the search is done on a per-library basis. Currently there is no
-centralized mechanism that ensures all libraries are found in the same way.</p>
-</section>
-</section>
 <div class="toctree-wrapper compound">
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#module-cuda.pathfinder">cuda.pathfinder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api.html#public-api">Public API</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Software License Agreement</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="release.html">Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/1.X.Y-notes.html">1.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.1.0-notes.html">1.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.0.0-notes.html">1.0.0</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
@@ -506,7 +476,7 @@ centralized mechanism that ensures all libraries are found in the same way.</p>
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API Reference</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -532,11 +502,6 @@ centralized mechanism that ensures all libraries are found in the same way.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code>: Utilities for locating CUDA components</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-pathfinder-module"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> Module</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api-for-loading-nvidia-dynamic-libs">Public API for loading NVIDIA Dynamic Libs</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-library-loading-search-priority">Dynamic Library Loading Search Priority</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#indices-and-tables">Indices and tables</a></li>

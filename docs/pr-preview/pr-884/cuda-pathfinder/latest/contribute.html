@@ -60,7 +60,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Software License Agreement" href="license.html" />
-    <link rel="prev" title="API Reference" href="api.html" />
+    <link rel="prev" title="cuda.pathfinder.DynamicLibNotFoundError" href="generated/cuda.pathfinder.DynamicLibNotFoundError.html" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -177,7 +177,7 @@
     
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="api.html">
-    API Reference
+    cuda.pathfinder API Reference
   </a>
 </li>
 
@@ -192,6 +192,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="license.html">
     Software License Agreement
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="release.html">
+    Release Notes
   </a>
 </li>
 
@@ -317,7 +324,7 @@
     
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="api.html">
-    API Reference
+    cuda.pathfinder API Reference
   </a>
 </li>
 
@@ -332,6 +339,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="license.html">
     Software License Agreement
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="release.html">
+    Release Notes
   </a>
 </li>
 
@@ -367,9 +381,23 @@
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES.html">cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.load_nvidia_dynamic_lib.html">cuda.pathfinder.load_nvidia_dynamic_lib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.LoadedDL.html">cuda.pathfinder.LoadedDL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.DynamicLibNotFoundError.html">cuda.pathfinder.DynamicLibNotFoundError</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Software License Agreement</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/1.X.Y-notes.html">1.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.1.0-notes.html">1.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/1.0.0-notes.html">1.0.0</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -422,23 +450,21 @@
                 <article class="bd-article">
                   
   <section id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">#</a></h1>
+<span id="contributor-guide"></span><h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">#</a></h1>
 <p>Thank you for your interest in contributing to <code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code>! Based on the type of contribution, it will fall into two categories:</p>
-<ol class="arabic simple">
-<li><p>You want to report a bug, feature request, or documentation issue</p>
-<ul class="simple">
-<li><p>File an <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/new/choose">issue</a>
-describing what you encountered or what you want to see changed.</p></li>
-<li><p>The NVIDIA team will evaluate the issues and triage them, scheduling
-them for a release. If you believe the issue needs priority attention
-comment on the issue to notify the team.</p></li>
+<ol class="arabic">
+<li><dl>
+<dt>You want to report a bug, feature request, or documentation issue</dt><dd><ul class="simple">
+<li><p>File an <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/new/choose">issue</a> describing what you encountered or what you want to see changed.</p></li>
+<li><p>The NVIDIA team will evaluate the issues and triage them, scheduling</p></li>
 </ul>
+<p>them for a release. If you believe the issue needs priority attention
+comment on the issue to notify the team.</p>
+</dd>
+</dl>
 </li>
-<li><p>You want to implement a feature, improvement, or bug fix:</p>
-<ul class="simple">
-<li><p>Please ensure that your commits are signed <a class="reference external" href="https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification">following GitHub’s instruction</a>.</p></li>
-</ul>
-</li>
+<li><p>You want to implement a feature, improvement, or bug fix:
+- Please ensure that your commits are signed <a class="reference external" href="https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification">following GitHub’s instruction</a>.</p></li>
 </ol>
 </section>
 
@@ -453,12 +479,12 @@ comment on the issue to notify the team.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="api.html"
+       href="generated/cuda.pathfinder.DynamicLibNotFoundError.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">API Reference</p>
+        <p class="prev-next-title">cuda.pathfinder.DynamicLibNotFoundError</p>
       </div>
     </a>
     <a class="right-next"
