@@ -486,51 +486,51 @@
 </ul>
 </dd>
 </dl>
-<dl>
-<dt>Search order:</dt><dd><ol class="arabic" start="0">
-<li><p><strong>Already loaded in the current process</strong>
-- If a matching library is already loaded by some other component,</p>
-<blockquote>
-<div><p>return its absolute path and handle and skip the rest of the search.</p>
-</div></blockquote>
+<dl class="simple">
+<dt>Search order:</dt><dd><ol class="arabic simple" start="0">
+<li><p><strong>Already loaded in the current process</strong></p>
+<ul class="simple">
+<li><p>If a matching library is already loaded by some other component,
+return its absolute path and handle and skip the rest of the search.</p></li>
+</ul>
 </li>
-<li><p><strong>NVIDIA Python wheels</strong>
-- Scan installed distributions (<code class="docutils literal notranslate"><span class="pre">site-packages</span></code>) to find libraries</p>
-<blockquote>
-<div><p>shipped in NVIDIA wheels.</p>
-</div></blockquote>
+<li><p><strong>NVIDIA Python wheels</strong></p>
+<ul class="simple">
+<li><p>Scan installed distributions (<code class="docutils literal notranslate"><span class="pre">site-packages</span></code>) to find libraries
+shipped in NVIDIA wheels.</p></li>
+</ul>
 </li>
-<li><p><strong>OS default mechanisms / Conda environments</strong>
-- Fall back to the native loader:</p>
-<blockquote>
-<div><ul class="simple">
+<li><p><strong>OS default mechanisms / Conda environments</strong></p>
+<ul class="simple">
+<li><p>Fall back to the native loader:</p>
+<ul>
 <li><p>Linux: <code class="docutils literal notranslate"><span class="pre">dlopen()</span></code></p></li>
 <li><p>Windows: <code class="docutils literal notranslate"><span class="pre">LoadLibraryW()</span></code></p></li>
 </ul>
-</div></blockquote>
+</li>
+<li><p>Conda installations are commonly discovered via:</p>
 <ul>
-<li><p>Conda installations are commonly discovered via:
-- <strong>Linux</strong>: <code class="docutils literal notranslate"><span class="pre">$ORIGIN/../lib</span></code> in the <code class="docutils literal notranslate"><span class="pre">RPATH</span></code> of the <code class="docutils literal notranslate"><span class="pre">python</span></code> binary</p>
-<blockquote>
-<div><p>(note: this can take precedence over <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> and
-<code class="docutils literal notranslate"><span class="pre">/etc/ld.so.conf.d/</span></code>).</p>
-</div></blockquote>
-<ul class="simple">
-<li><p><strong>Windows</strong>: <code class="docutils literal notranslate"><span class="pre">%CONDA_PREFIX%\Library\bin</span></code> on the system <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p></li>
+<li><p>Linux: <code class="docutils literal notranslate"><span class="pre">$ORIGIN/../lib</span></code> in the <code class="docutils literal notranslate"><span class="pre">RPATH</span></code> of the <code class="docutils literal notranslate"><span class="pre">python</span></code> binary
+(note: this can take precedence over <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> and
+<code class="docutils literal notranslate"><span class="pre">/etc/ld.so.conf.d/</span></code>).</p></li>
+<li><p>Windows: <code class="docutils literal notranslate"><span class="pre">%CONDA_PREFIX%\Library\bin</span></code> on the system <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p></li>
 </ul>
 </li>
 <li><p>CUDA Toolkit (CTK) system installs with system config updates are often
-discovered via:
-- <strong>Linux</strong>: <code class="docutils literal notranslate"><span class="pre">/etc/ld.so.conf.d/*cuda*.conf</span></code>
-- <strong>Windows</strong>: <code class="docutils literal notranslate"><span class="pre">C:\Program</span> <span class="pre">Files\NVIDIA</span> <span class="pre">GPU</span> <span class="pre">Computing</span> <span class="pre">Toolkit\CUDA\vX.Y\bin</span></code></p>
-<blockquote>
-<div><p>on the system <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p>
-</div></blockquote>
+discovered via:</p>
+<ul>
+<li><p>Linux: <code class="docutils literal notranslate"><span class="pre">/etc/ld.so.conf.d/*cuda*.conf</span></code></p></li>
+<li><p>Windows: <code class="docutils literal notranslate"><span class="pre">C:\Program</span> <span class="pre">Files\NVIDIA</span> <span class="pre">GPU</span> <span class="pre">Computing</span> <span class="pre">Toolkit\CUDA\vX.Y\bin</span></code>
+on the system <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p></li>
+</ul>
 </li>
 </ul>
 </li>
-<li><p><strong>Environment variables</strong>
-- If set, use <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (in that order).</p></li>
+<li><p><strong>Environment variables</strong></p>
+<ul class="simple">
+<li><p>If set, use <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (in that order).</p></li>
+</ul>
+</li>
 </ol>
 </dd>
 </dl>
