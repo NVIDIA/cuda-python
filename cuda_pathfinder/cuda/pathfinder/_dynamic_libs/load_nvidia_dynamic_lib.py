@@ -80,16 +80,24 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         2. **OS default mechanisms / Conda environments**
 
            - Fall back to the native loader:
+
              - Linux: ``dlopen()``
+
              - Windows: ``LoadLibraryW()``
+
            - Conda installations are commonly discovered via:
+
              - **Linux**: ``$ORIGIN/../lib`` in the ``RPATH`` of the ``python`` binary
                (note: this can take precedence over ``LD_LIBRARY_PATH`` and
                ``/etc/ld.so.conf.d/``).
+
              - **Windows**: ``%CONDA_PREFIX%\\Library\\bin`` on the system ``PATH``.
+
            - CUDA Toolkit (CTK) system installs with system config updates are often
              discovered via:
+
              - **Linux**: ``/etc/ld.so.conf.d/*cuda*.conf``
+
              - **Windows**: ``C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\vX.Y\\bin``
                on the system ``PATH``.
 
