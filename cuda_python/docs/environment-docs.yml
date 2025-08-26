@@ -5,6 +5,8 @@ name: cuda-python-docs
 channels:
   - conda-forge
 dependencies:
+  # ATTENTION: This dependency list is duplicated in
+  #            toolshed/setup-docs-env.sh. Please KEEP THEM IN SYNC!
   - cython
   - myst-parser
   - numpy
