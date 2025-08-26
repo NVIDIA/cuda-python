@@ -68,14 +68,17 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
     Search order:
         0. **Already loaded in the current process**
+
            - If a matching library is already loaded by some other component,
              return its absolute path and handle and skip the rest of the search.
 
         1. **NVIDIA Python wheels**
+
            - Scan installed distributions (``site-packages``) to find libraries
              shipped in NVIDIA wheels.
 
         2. **OS default mechanisms / Conda environments**
+
            - Fall back to the native loader:
              - Linux: ``dlopen()``
              - Windows: ``LoadLibraryW()``
@@ -91,6 +94,7 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
                on the system ``PATH``.
 
         3. **Environment variables**
+
            - If set, use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
 
     Notes:
