@@ -9,11 +9,11 @@ from collections.abc import Sequence
 from typing import Callable
 
 try:
-    from cuda.bindings import driver, nvrtc, runtime
+    from cuda.bindings import driver, nvrtc, nvvm, runtime
 except ImportError:
     from cuda import cuda as driver
     from cuda import cudart as runtime
-    from cuda import nvrtc
+    from cuda import nvrtc, nvvm
 
 from cuda.core.experimental._utils.driver_cu_result_explanations import DRIVER_CU_RESULT_EXPLANATIONS
 from cuda.core.experimental._utils.runtime_cuda_error_explanations import RUNTIME_CUDA_ERROR_EXPLANATIONS
@@ -24,6 +24,10 @@ class CUDAError(Exception):
 
 
 class NVRTCError(CUDAError):
+    pass
+
+
+class NVVMError(CUDAError):
     pass
 
 
@@ -55,6 +59,7 @@ def _reduce_3_tuple(t: tuple):
 cdef object _DRIVER_SUCCESS = driver.CUresult.CUDA_SUCCESS
 cdef object _RUNTIME_SUCCESS = runtime.cudaError_t.cudaSuccess
 cdef object _NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS
+cdef object _NVVM_SUCCESS = nvvm.Result.SUCCESS
 
 
 cpdef inline int _check_driver_error(error) except?-1:
@@ -103,6 +108,22 @@ cpdef inline int _check_nvrtc_error(error, handle=None) except?-1:
     raise NVRTCError(err)
 
 
+cpdef inline int _check_nvvm_error(error, handle=None) except?-1:
+    if error == _NVVM_SUCCESS:
+        return 0
+    err = f"{error}: {nvvm.get_error_string(error)}"
+    if handle is not None:
+        try:
+            logsize = nvvm.get_program_log_size(handle)
+            if logsize > 1:
+                log = bytearray(logsize)
+                nvvm.get_program_log(handle, log)
+                err += f", compilation log:\n\n{log.decode('utf-8', errors='backslashreplace')}"
+        except:
+            pass  # Log extraction failed, but we still have the error
+    raise NVVMError(err)
+
+
 cdef inline int _check_error(error, handle=None) except?-1:
     if isinstance(error, driver.CUresult):
         return _check_driver_error(error)
@@ -110,6 +131,8 @@ cdef inline int _check_error(error, handle=None) except?-1:
         return _check_runtime_error(error)
     elif isinstance(error, nvrtc.nvrtcResult):
         return _check_nvrtc_error(error, handle=handle)
+    elif isinstance(error, nvvm.Result):
+        return _check_nvvm_error(error, handle=handle)
     else:
         raise RuntimeError(f"Unknown error type: {error}")
 
