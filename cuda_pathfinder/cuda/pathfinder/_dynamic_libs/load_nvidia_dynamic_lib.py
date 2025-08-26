@@ -87,18 +87,18 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
            - Conda installations are commonly discovered via:
 
-             - **Linux**: ``$ORIGIN/../lib`` in the ``RPATH`` of the ``python`` binary
+             - Linux: ``$ORIGIN/../lib`` in the ``RPATH`` of the ``python`` binary
                (note: this can take precedence over ``LD_LIBRARY_PATH`` and
                ``/etc/ld.so.conf.d/``).
 
-             - **Windows**: ``%CONDA_PREFIX%\\Library\\bin`` on the system ``PATH``.
+             - Windows: ``%CONDA_PREFIX%\\Library\\bin`` on the system ``PATH``.
 
            - CUDA Toolkit (CTK) system installs with system config updates are often
              discovered via:
 
-             - **Linux**: ``/etc/ld.so.conf.d/*cuda*.conf``
+             - Linux: ``/etc/ld.so.conf.d/*cuda*.conf``
 
-             - **Windows**: ``C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\vX.Y\\bin``
+             - Windows: ``C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\vX.Y\\bin``
                on the system ``PATH``.
 
         3. **Environment variables**
