@@ -318,8 +318,10 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
             mr = DeviceMemoryResource(dev.device_id)
         else:
             mr = _SynchronousMemoryResource(dev.device_id)
+        name = memory_resource_class
     else:
         mr = memory_resource_class()
+        name = str(mr)
 
     # Allocate memory
     size = 1024
@@ -359,7 +361,7 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
     stream.sync()
 
     # Verify kernel operations
-    assert cp.allclose(array, original * 3.0), f"{memory_resource_class.__name__} operation failed"
+    assert cp.allclose(array, original * 3.0), f"{name} operation failed"
 
     # Clean up
     buffer.close(stream)
@@ -368,4 +370,4 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
     cp.cuda.Stream.null.use()  # reset CuPy's current stream to the null stream
 
     # Verify buffer is properly closed
-    assert buffer.handle == 0, f"{memory_resource_class.__name__} buffer should be closed"
+    assert buffer.handle is None, f"{name} buffer should be closed"

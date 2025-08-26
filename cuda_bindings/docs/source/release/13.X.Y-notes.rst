@@ -16,6 +16,8 @@ Highlights
 * Automatic CUDA library path detection based on ``CUDA_HOME``, eliminating the need to manually set ``LIBRARY_PATH`` environment variables for installation.
 * The ``[all]`` optional dependencies now use ``cuda-toolkit`` with appropriate extras instead of individual packages. The NVCC compiler is no longer automatically installed with ``pip install cuda-python[all]`` as it was previously included only to access the NVVM library, which now has its own dedicated wheel. Users who need the NVCC compiler should explicitly install it with ``pip install cuda-toolkit[nvcc]==X.Y`` with the appropriate version for their needs.
 
+* The Python overhead of calling functions in CUDA bindings in `driver`, `runtime` and `nvrtc` has been reduced by approximately 30%.
+
 
 Known issues
 ------------
