@@ -119,8 +119,8 @@ cpdef inline int _check_nvvm_error(error, handle=None) except?-1:
                 log = bytearray(logsize)
                 nvvm.get_program_log(handle, log)
                 err += f", compilation log:\n\n{log.decode('utf-8', errors='backslashreplace')}"
-        except:
-            pass  # Log extraction failed, but we still have the error
+        except Exception as e:
+            raise NVVMError(err) from e
     raise NVVMError(err)
 
 
