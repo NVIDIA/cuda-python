@@ -54,7 +54,6 @@ repos:
     - id: end-of-file-fixer
       exclude: &gen_exclude '^(?:cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?)$'
     - id: mixed-line-ending
-    - id: requirements-txt-fixer
     - id: trailing-whitespace
       exclude: *gen_exclude
 
