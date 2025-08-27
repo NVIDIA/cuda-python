@@ -96,13 +96,7 @@ def test_get_handle_error(target):
     "module",
     [
         # Top-level modules for external Python use
-        # TODO: Import cycle detected: (('numeric',), ''), stack: [((),
-        # 'cuda.bindings.cufile'), ((), 'cuda.bindings.cycufile'),
-        # (('show_config',), 'numpy.__config__'), (('__cpu_features__',
-        # '__cpu_baseline__', '__cpu_dispatch__'),
-        # 'numpy._core._multiarray_umath'), (('numeric',), ''),
-        # (('shape_base',), '')]
-        # "cufile",
+        "cufile",
         "driver",
         "nvjitlink",
         "nvrtc",
