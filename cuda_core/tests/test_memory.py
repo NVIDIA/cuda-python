@@ -270,16 +270,18 @@ def test_device_memory_resource_initialization():
         pytest.skip("memory pools not supported")
     device.set_current()
 
-    # This should succeed and configure the memory pool release threshold
-    mr = DeviceMemoryResource(device.device_id)
+    # This should succeed and configure the memory pool release threshold.
+    # The resource can be constructed from either a device or device ordinal.
+    for device_arg in [device, device.device_id]:
+        mr = DeviceMemoryResource(device_arg)
 
-    # Verify basic properties
-    assert mr.device_id == device.device_id
-    assert mr.is_device_accessible is True
-    assert mr.is_host_accessible is False
+        # Verify basic properties
+        assert mr.device_id == device.device_id
+        assert mr.is_device_accessible is True
+        assert mr.is_host_accessible is False
 
-    # Test allocation/deallocation works
-    buffer = mr.allocate(1024)
-    assert buffer.size == 1024
-    assert buffer.device_id == device.device_id
-    buffer.close()
+        # Test allocation/deallocation works
+        buffer = mr.allocate(1024)
+        assert buffer.size == 1024
+        assert buffer.device_id == device.device_id
+        buffer.close()

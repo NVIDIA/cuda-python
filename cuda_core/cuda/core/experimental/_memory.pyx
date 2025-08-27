@@ -11,7 +11,10 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 )
 
 import abc
-from typing import Tuple, TypeVar, Union
+from typing import Tuple, TypeVar, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cuda.core.experimental._device import Device
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
@@ -329,15 +332,17 @@ class DeviceMemoryResource(MemoryResource):
 
     Parameters
     ----------
-    device_id : int
-        Device ordinal for which a memory resource is constructed. The mempool that is
-        set to *current* on ``device_id`` is used. If no mempool is set to current yet,
-        the driver would use the *default* mempool on the device.
+    device_id : int | Device
+        Device or Device ordinal for which a memory resource is constructed.
+	The mempool that is set to *current* on ``device_id`` is used. If no
+	mempool is set to current yet, the driver would use the *default*
+	mempool on the device.
     """
 
     __slots__ = ("_dev_id",)
 
-    def __init__(self, device_id: int):
+    def __init__(self, device_id: int | Device):
+        device_id = getattr(device_id, 'device_id', device_id)
         err, self._handle = driver.cuDeviceGetMemPool(device_id)
         raise_if_driver_error(err)
         self._dev_id = device_id
@@ -481,9 +486,9 @@ class LegacyPinnedMemoryResource(MemoryResource):
 class _SynchronousMemoryResource(MemoryResource):
     __slots__ = ("_dev_id",)
 
-    def __init__(self, device_id):
+    def __init__(self, device_id : int | Device):
         self._handle = None
-        self._dev_id = device_id
+        self._dev_id = getattr(device_id, 'device_id', device_id)
 
     def allocate(self, size, stream=None) -> Buffer:
         err, ptr = driver.cuMemAlloc(size)
