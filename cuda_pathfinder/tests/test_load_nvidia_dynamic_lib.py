@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
-import importlib.metadata
 import os
 from unittest.mock import patch
 
@@ -70,31 +69,6 @@ def test_runtime_error_on_non_64bit_python():
         load_nvidia_dynamic_lib("not_used")
 
 
-def _get_git2_libname():
-    # For testing the fallback code paths in find_nvidia_dynamic_lib.py we need a
-    # "foreign" shared library unrelated to CUDA. To keep things simple, we pick a
-    # small, widely used wheel that bundles its own .so/.dll. The choice of pygit2
-    # is arbitrary — it is a stable dependency and unrelated to NVIDIA software.
-    try:
-        pygit2_dist = importlib.metadata.distribution("pygit2")
-    except importlib.metadata.PackageNotFoundError:
-        pass
-    else:
-        for df in pygit2_dist.files:
-            fname = df.name
-            libname = ""
-            if supported_nvidia_libs.IS_WINDOWS:
-                if fname.endswith(".dll"):
-                    libname = os.path.basename(fname)[:-4]
-            elif fname.startswith("libgit2"):
-                idx = fname.find(".so")
-                if idx > 0:
-                    libname = fname[3:idx]
-            if libname.startswith("git2"):
-                return libname
-    return None
-
-
 @functools.cache
 def _get_libnames_for_test_load_nvidia_dynamic_lib():
     result = list(SUPPORTED_NVIDIA_LIBNAMES)
@@ -112,10 +86,6 @@ def _get_libnames_for_test_load_nvidia_dynamic_lib():
             so_basename = f"lib{libname}.so"
             if so_basename in all_dyn_libs:
                 result.append(libname)
-
-    libname = _get_git2_libname()
-    if libname is not None:
-        result.append(libname)
 
     return tuple(result)
 

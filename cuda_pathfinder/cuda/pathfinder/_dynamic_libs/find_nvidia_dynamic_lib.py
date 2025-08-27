@@ -14,8 +14,6 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     SITE_PACKAGES_LIBDIRS_WINDOWS,
     is_suppressed_dll_file,
 )
-from cuda.pathfinder._utils.find_site_packages_dll import find_all_dll_files_via_metadata
-from cuda.pathfinder._utils.find_site_packages_so import find_all_so_files_via_metadata
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs, find_sub_dirs_all_sitepackages
 
 
@@ -34,7 +32,6 @@ def _find_so_using_nvidia_lib_dirs(
 ) -> Optional[str]:
     rel_dirs = SITE_PACKAGES_LIBDIRS_LINUX.get(libname)
     if rel_dirs is not None:
-        # Fast direct access with minimal globbing.
         sub_dirs_searched = []
         file_wild = so_basename + "*"
         for rel_dir in rel_dirs:
@@ -52,14 +49,6 @@ def _find_so_using_nvidia_lib_dirs(
             sub_dirs_searched.append(sub_dir)
         for sub_dir in sub_dirs_searched:
             _no_such_file_in_sub_dirs(sub_dir, file_wild, error_messages, attachments)
-    else:
-        # This fallback is relatively slow, but acceptable.
-        candidates = find_all_so_files_via_metadata().get(so_basename)
-        if candidates:
-            so_versions = candidates.keys()
-            # For now, simply take the first candidate after sorting.
-            all_abs_paths: list[str] = candidates[next(iter(sorted(so_versions)))]
-            return next(iter(sorted(all_abs_paths)))
     return None
 
 
@@ -77,7 +66,6 @@ def _find_dll_using_nvidia_bin_dirs(
 ) -> Optional[str]:
     rel_dirs = SITE_PACKAGES_LIBDIRS_WINDOWS.get(libname)
     if rel_dirs is not None:
-        # Fast direct access with minimal globbing.
         sub_dirs_searched = []
         for rel_dir in rel_dirs:
             sub_dir = tuple(rel_dir.split(os.path.sep))
@@ -88,20 +76,6 @@ def _find_dll_using_nvidia_bin_dirs(
             sub_dirs_searched.append(sub_dir)
         for sub_dir in sub_dirs_searched:
             _no_such_file_in_sub_dirs(sub_dir, lib_searched_for, error_messages, attachments)
-    else:
-        # This fallback is relatively slow, but acceptable.
-        libname_lower = libname.lower()
-        candidates = []
-        for relname, abs_paths in find_all_dll_files_via_metadata().items():
-            if is_suppressed_dll_file(relname):
-                continue
-            if relname.startswith(libname_lower):
-                for abs_path in abs_paths:
-                    candidates.append(abs_path)
-        if candidates:
-            candidates.sort()
-            result: str = candidates[0]  # help mypy
-            return result
     return None
 
 
