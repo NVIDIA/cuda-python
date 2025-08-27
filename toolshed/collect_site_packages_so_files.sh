@@ -5,8 +5,8 @@
 
 # Usage:
 #     cd cuda-python
-#     toolshed/collect_site_packages_so_files.sh
-#     toolshed/make_site_packages_libdirs_linux.py site_packages_so.txt
+#     ./toolshed/collect_site_packages_so_files.sh
+#     ./toolshed/make_site_packages_libdirs.py linux site_packages_so.txt
 
 set -euo pipefail
 fresh_venv() {
