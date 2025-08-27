@@ -220,6 +220,7 @@ path_list = [
     os.path.join("cuda", "bindings"),
     os.path.join("cuda", "bindings", "_bindings"),
     os.path.join("cuda", "bindings", "_internal"),
+    os.path.join("cuda", "bindings", "_lib"),
     os.path.join("cuda", "bindings", "utils"),
 ]
 input_files = []
