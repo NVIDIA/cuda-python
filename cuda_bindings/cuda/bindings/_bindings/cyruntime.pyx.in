@@ -2672,4 +2672,4 @@ cdef cudaError_t _cudaProfilerStop() except ?cudaErrorCallRequiresNewerDriver no
     return cudaProfilerStop()
 {{endif}}
 
-include "../_lib/cyruntime/cyruntime.pyx"
+include "../_lib/cyruntime/cyruntime.pyi"
