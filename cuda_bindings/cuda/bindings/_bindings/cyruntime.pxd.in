@@ -3,6 +3,7 @@
 
 # This code was automatically generated with version 13.0.0. Do not modify it directly.
 include "../cyruntime_types.pxi"
+include "../_lib/cyruntime/cyruntime.pxd"
 
 {{if 'cudaDeviceReset' in found_functions}}
 

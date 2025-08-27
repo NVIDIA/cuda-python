@@ -29,10 +29,6 @@ cuda_bindings/cuda/bindings/_bindings/cynvrtc.pxd
 cuda_bindings/cuda/bindings/_bindings/cynvrtc.pyx
 cuda_bindings/cuda/bindings/_internal/nvjitlink.pyx
 cuda_bindings/cuda/bindings/_internal/nvvm.pyx
-cuda_bindings/cuda/bindings/_lib/cyruntime/cyruntime.pxd
-cuda_bindings/cuda/bindings/_lib/cyruntime/cyruntime.pyx
-cuda_bindings/cuda/bindings/_lib/cyruntime/utils.pxd
-cuda_bindings/cuda/bindings/_lib/cyruntime/utils.pyx
 cuda_bindings/cuda/bindings/_lib/utils.pxd
 cuda_bindings/cuda/bindings/_lib/utils.pyx
 cuda_bindings/cuda/bindings/cydriver.pxd

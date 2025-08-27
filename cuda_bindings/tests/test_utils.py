@@ -107,8 +107,7 @@ def test_get_handle_error(target):
         "nvjitlink",
         "nvrtc",
         "nvvm",
-        # TODO: cuda.bindings.cyruntime -> cuda.bindings._lib.cyruntime.cyruntime cycle
-        # "runtime",
+        "runtime",
     ],
 )
 def test_cyclical_imports(module):

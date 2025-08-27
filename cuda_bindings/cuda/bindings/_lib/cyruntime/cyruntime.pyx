@@ -1,11 +1,191 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import cython
-from cuda.bindings.cyruntime cimport *
 from libc.string cimport memset
-cimport cuda.bindings._bindings.cydriver as cydriver
+cimport cuda.bindings.cydriver as cydriver
 
+cdef cudaError_t _cudaEGLStreamProducerPresentFrame(cyruntime.cudaEglStreamConnection* conn, cyruntime.cudaEglFrame eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    cdef cydriver.CUeglFrame cueglFrame
+    err = getDriverEglFrame(&cueglFrame, eglframe)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuEGLStreamProducerPresentFrame(<cydriver.CUeglStreamConnection*>conn, cueglFrame, pStream)
+    return err
+
+cdef cudaError_t _cudaEGLStreamProducerReturnFrame(cyruntime.cudaEglStreamConnection* conn, cyruntime.cudaEglFrame* eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    if eglframe == NULL:
+        err = cudaErrorInvalidResourceHandle
+        return err
+    cdef cydriver.CUeglFrame cueglFrame
+    # err = <cudaError_t>cydriver._cuEGLStreamProducerReturnFrame(<cydriver.CUeglStreamConnection*>conn, &cueglFrame, pStream)
+    if err != cudaSuccess:
+        return err
+    err = getRuntimeEglFrame(eglframe, cueglFrame)
+    return err
+
+cdef cudaError_t _cudaGraphicsResourceGetMappedEglFrame(cyruntime.cudaEglFrame* eglFrame, cudaGraphicsResource_t resource, unsigned int index, unsigned int mipLevel) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    cdef cydriver.CUeglFrame cueglFrame
+    memset(&cueglFrame, 0, sizeof(cueglFrame))
+    # err = <cudaError_t>cydriver._cuGraphicsResourceGetMappedEglFrame(&cueglFrame, <cydriver.CUgraphicsResource>resource, index, mipLevel)
+    if err != cudaSuccess:
+        return err
+    err = getRuntimeEglFrame(eglFrame, cueglFrame)
+    return err
+
+cdef cudaError_t _cudaVDPAUSetVDPAUDevice(int device, cyruntime.VdpDevice vdpDevice, cyruntime.VdpGetProcAddress* vdpGetProcAddress) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cudaErrorNotSupported
+
+cdef cudaError_t _cudaVDPAUGetDevice(int* device, cyruntime.VdpDevice vdpDevice, cyruntime.VdpGetProcAddress* vdpGetProcAddress) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuVDPAUGetDevice(<cydriver.CUdevice*>device, vdpDevice, vdpGetProcAddress)
+    return err
+
+cdef cudaError_t _cudaGraphicsVDPAURegisterVideoSurface(cudaGraphicsResource** resource, cyruntime.VdpVideoSurface vdpSurface, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuGraphicsVDPAURegisterVideoSurface(<cydriver.CUgraphicsResource*>resource, vdpSurface, flags)
+    return err
+
+cdef cudaError_t _cudaGraphicsVDPAURegisterOutputSurface(cudaGraphicsResource** resource, cyruntime.VdpOutputSurface vdpSurface, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuGraphicsVDPAURegisterOutputSurface(<cydriver.CUgraphicsResource*>resource, vdpSurface, flags)
+    return err
+
+cdef cudaError_t _cudaGLGetDevices(unsigned int* pCudaDeviceCount, int* pCudaDevices, unsigned int cudaDeviceCount, cyruntime.cudaGLDeviceList deviceList) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuGLGetDevices_v2(pCudaDeviceCount, <cydriver.CUdevice*>pCudaDevices, cudaDeviceCount, <cydriver.CUGLDeviceList>deviceList)
+    return err
+
+cdef cudaError_t _cudaGraphicsGLRegisterImage(cudaGraphicsResource** resource, cyruntime.GLuint image, cyruntime.GLenum target, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuGraphicsGLRegisterImage(<cydriver.CUgraphicsResource*>resource, image, target, flags)
+    return err
+
+cdef cudaError_t _cudaGraphicsGLRegisterBuffer(cudaGraphicsResource** resource, cyruntime.GLuint buffer, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuGraphicsGLRegisterBuffer(<cydriver.CUgraphicsResource*>resource, buffer, flags)
+    return err
+
+cdef cudaError_t _cudaGraphicsEGLRegisterImage(cudaGraphicsResource_t* pCudaResource, cyruntime.EGLImageKHR image, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuGraphicsEGLRegisterImage(<cydriver.CUgraphicsResource*>pCudaResource, image, flags)
+    return err
+
+cdef cudaError_t _cudaEGLStreamConsumerConnect(cyruntime.cudaEglStreamConnection* conn, cyruntime.EGLStreamKHR eglStream) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuEGLStreamConsumerConnect(<cydriver.CUeglStreamConnection*>conn, eglStream)
+    return err
+
+cdef cudaError_t _cudaEGLStreamConsumerConnectWithFlags(cyruntime.cudaEglStreamConnection* conn, cyruntime.EGLStreamKHR eglStream, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuEGLStreamConsumerConnectWithFlags(<cydriver.CUeglStreamConnection*>conn, eglStream, flags)
+    return err
+
+cdef cudaError_t _cudaEGLStreamConsumerDisconnect(cyruntime.cudaEglStreamConnection* conn) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuEGLStreamConsumerDisconnect(<cydriver.CUeglStreamConnection*>conn)
+    return err
+
+cdef cudaError_t _cudaEGLStreamConsumerAcquireFrame(cyruntime.cudaEglStreamConnection* conn, cudaGraphicsResource_t* pCudaResource, cudaStream_t* pStream, unsigned int timeout) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuEGLStreamConsumerAcquireFrame(<cydriver.CUeglStreamConnection*>conn, <cydriver.CUgraphicsResource*>pCudaResource, <cydriver.CUstream*>pStream, timeout)
+    return err
+
+cdef cudaError_t _cudaEGLStreamConsumerReleaseFrame(cyruntime.cudaEglStreamConnection* conn, cudaGraphicsResource_t pCudaResource, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuEGLStreamConsumerReleaseFrame(<cydriver.CUeglStreamConnection*>conn, <cydriver.CUgraphicsResource>pCudaResource, <cydriver.CUstream*>pStream)
+    return err
+
+cdef cudaError_t _cudaEGLStreamProducerConnect(cyruntime.cudaEglStreamConnection* conn, cyruntime.EGLStreamKHR eglStream, cyruntime.EGLint width, cyruntime.EGLint height) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuEGLStreamProducerConnect(<cydriver.CUeglStreamConnection*>conn, eglStream, width, height)
+    return err
+
+cdef cudaError_t _cudaEGLStreamProducerDisconnect(cyruntime.cudaEglStreamConnection* conn) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuEGLStreamProducerDisconnect(<cydriver.CUeglStreamConnection*>conn)
+    return err
+
+cdef cudaError_t _cudaEventCreateFromEGLSync(cudaEvent_t* phEvent, cyruntime.EGLSyncKHR eglSync, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
+    cdef cudaError_t err = cudaSuccess
+    # cudaFree(0) is a NOP operations that initializes the context state
+    err = cudaFree(<void*>0)
+    if err != cudaSuccess:
+        return err
+    # err = <cudaError_t>cydriver._cuEventCreateFromEGLSync(<cydriver.CUevent*>phEvent, eglSync, flags)
+    return err
+
+## utility functions
 
 cdef int case_desc(const cudaChannelFormatDesc* d, int x, int y, int z, int w, int f) except ?cudaErrorCallRequiresNewerDriver nogil:
     return d[0].x == x and d[0].y == y and d[0].z == z and d[0].w == w and d[0].f == f
@@ -228,9 +408,7 @@ cdef cudaError_t getDescInfo(const cudaChannelFormatDesc* d, int *numberOfChanne
             return cudaErrorInvalidChannelDescriptor
     return cudaSuccess
 
-
 cdef cudaError_t getChannelFormatDescFromDriverDesc(cudaChannelFormatDesc* pRuntimeDesc, size_t* pDepth, size_t* pHeight, size_t* pWidth, const cydriver.CUDA_ARRAY3D_DESCRIPTOR_v2* pDriverDesc) except ?cudaErrorCallRequiresNewerDriver nogil:
-
     cdef int channel_size = 0
     if pDriverDesc[0].Format == cydriver.CU_AD_FORMAT_UNSIGNED_INT8:
         pRuntimeDesc[0].f = cudaChannelFormatKind.cudaChannelFormatKindUnsigned
@@ -375,8 +553,7 @@ cdef cudaError_t getChannelFormatDescFromDriverDesc(cudaChannelFormatDesc* pRunt
         pWidth[0]  = pDriverDesc[0].Width
     return cudaSuccess
 
-
-cdef cudaError_t getDriverEglFrame(cydriver.CUeglFrame *cuEglFrame, cudaEglFrame eglFrame) except ?cudaErrorCallRequiresNewerDriver nogil:
+cdef cudaError_t getDriverEglFrame(cydriver.CUeglFrame *cuEglFrame, cyruntime.cudaEglFrame eglFrame) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef cudaError_t err = cudaSuccess
     cdef unsigned int i = 0
 
@@ -384,7 +561,7 @@ cdef cudaError_t getDriverEglFrame(cydriver.CUeglFrame *cuEglFrame, cudaEglFrame
     if err != cudaSuccess:
         return err
     for i in range(eglFrame.planeCount):
-        if eglFrame.frameType == cudaEglFrameTypeArray:
+        if eglFrame.frameType == cyruntime.cudaEglFrameTypeArray:
             cuEglFrame[0].frame.pArray[i] = <cydriver.CUarray>eglFrame.frame.pArray[i]
         else:
             cuEglFrame[0].frame.pPitch[i] = eglFrame.frame.pPitch[i].ptr
@@ -393,244 +570,243 @@ cdef cudaError_t getDriverEglFrame(cydriver.CUeglFrame *cuEglFrame, cudaEglFrame
     cuEglFrame[0].depth = eglFrame.planeDesc[0].depth
     cuEglFrame[0].pitch = eglFrame.planeDesc[0].pitch
     cuEglFrame[0].planeCount = eglFrame.planeCount
-    if eglFrame.eglColorFormat == cudaEglColorFormatYUV420Planar:
+    if eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV420Planar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_PLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV420SemiPlanar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV420SemiPlanar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV422Planar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV422Planar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV422_PLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV422SemiPlanar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV422SemiPlanar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV422_SEMIPLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV444Planar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV444Planar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV444_PLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV444SemiPlanar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV444SemiPlanar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV444_SEMIPLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUYV422:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUYV422:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUYV_422
-    elif eglFrame.eglColorFormat == cudaEglColorFormatUYVY422:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatUYVY422:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_422
-    elif eglFrame.eglColorFormat == cudaEglColorFormatUYVY709:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatUYVY709:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_709
-    elif eglFrame.eglColorFormat == cudaEglColorFormatUYVY709_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatUYVY709_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_709_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatUYVY2020:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatUYVY2020:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_2020
-    elif eglFrame.eglColorFormat == cudaEglColorFormatARGB:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatARGB:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_ARGB
-    elif eglFrame.eglColorFormat == cudaEglColorFormatRGBA:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatRGBA:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_RGBA
-    elif eglFrame.eglColorFormat == cudaEglColorFormatABGR:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatABGR:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_ABGR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBGRA:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBGRA:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BGRA
-    elif eglFrame.eglColorFormat == cudaEglColorFormatL:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatL:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_L
-    elif eglFrame.eglColorFormat == cudaEglColorFormatR:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatR:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_R
-    elif eglFrame.eglColorFormat == cudaEglColorFormatA:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatA:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_A
-    elif eglFrame.eglColorFormat == cudaEglColorFormatRG:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatRG:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_RG
-    elif eglFrame.eglColorFormat == cudaEglColorFormatAYUV:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatAYUV:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_AYUV
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU444SemiPlanar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU444SemiPlanar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU444_SEMIPLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU422SemiPlanar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU422SemiPlanar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU422_SEMIPLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU420SemiPlanar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU420SemiPlanar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY10V10U10_444SemiPlanar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY10V10U10_444SemiPlanar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_444_SEMIPLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY10V10U10_420SemiPlanar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY10V10U10_420SemiPlanar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY12V12U12_444SemiPlanar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY12V12U12_444SemiPlanar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12V12U12_444_SEMIPLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY12V12U12_420SemiPlanar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY12V12U12_420SemiPlanar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12V12U12_420_SEMIPLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatVYUY_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatVYUY_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_VYUY_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatUYVY_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatUYVY_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUYV_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUYV_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUYV_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVYU_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVYU_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVYU_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUVA_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUVA_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUVA_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatAYUV_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatAYUV_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_AYUV_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV444Planar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV444Planar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV444_PLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV422Planar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV422Planar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV422_PLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV420Planar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV420Planar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_PLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV444SemiPlanar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV444SemiPlanar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV444_SEMIPLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV422SemiPlanar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV422SemiPlanar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV422_SEMIPLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV420SemiPlanar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV420SemiPlanar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU444Planar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU444Planar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU444_PLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU422Planar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU422Planar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU422_PLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU420Planar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU420Planar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_PLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU444SemiPlanar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU444SemiPlanar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU444_SEMIPLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU422SemiPlanar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU422SemiPlanar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU422_SEMIPLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU420SemiPlanar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU420SemiPlanar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayerRGGB:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayerRGGB:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_RGGB
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayerBGGR:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayerBGGR:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_BGGR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayerGRBG:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayerGRBG:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_GRBG
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayerGBRG:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayerGBRG:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_GBRG
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer10RGGB:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer10RGGB:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER10_RGGB
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer10BGGR:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer10BGGR:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER10_BGGR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer10GRBG:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer10GRBG:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER10_GRBG
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer10GBRG:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer10GBRG:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER10_GBRG
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer12RGGB:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer12RGGB:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_RGGB
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer12BGGR:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer12BGGR:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_BGGR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer12GRBG:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer12GRBG:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_GRBG
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer12GBRG:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer12GBRG:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_GBRG
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer14RGGB:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer14RGGB:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER14_RGGB
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer14BGGR:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer14BGGR:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER14_BGGR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer14GRBG:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer14GRBG:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER14_GRBG
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer14GBRG:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer14GBRG:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER14_GBRG
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer20RGGB:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer20RGGB:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER20_RGGB
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer20BGGR:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer20BGGR:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER20_BGGR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer20GRBG:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer20GRBG:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER20_GRBG
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer20GBRG:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer20GBRG:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER20_GBRG
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayerIspRGGB:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayerIspRGGB:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_ISP_RGGB
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayerIspBGGR:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayerIspBGGR:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_ISP_BGGR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayerIspGRBG:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayerIspGRBG:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_ISP_GRBG
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayerIspGBRG:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayerIspGBRG:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_ISP_GBRG
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU444Planar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU444Planar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU444_PLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU422Planar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU422Planar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU422_PLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU420Planar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU420Planar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_PLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayerBCCR:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayerBCCR:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_BCCR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayerRCCB:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayerRCCB:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_RCCB
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayerCRBC:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayerCRBC:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_CRBC
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayerCBRC:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayerCBRC:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_CBRC
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer10CCCC:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer10CCCC:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER10_CCCC
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer12BCCR:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer12BCCR:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_BCCR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer12RCCB:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer12RCCB:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_RCCB
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer12CRBC:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer12CRBC:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_CRBC
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer12CBRC:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer12CBRC:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_CBRC
-    elif eglFrame.eglColorFormat == cudaEglColorFormatBayer12CCCC:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatBayer12CCCC:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_CCCC
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV420SemiPlanar_2020:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV420SemiPlanar_2020:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_2020
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU420SemiPlanar_2020:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU420SemiPlanar_2020:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_2020
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV420Planar_2020:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV420Planar_2020:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_PLANAR_2020
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU420Planar_2020:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU420Planar_2020:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_PLANAR_2020
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV420SemiPlanar_709:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV420SemiPlanar_709:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_709
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU420SemiPlanar_709:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU420SemiPlanar_709:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_709
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUV420Planar_709:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUV420Planar_709:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_PLANAR_709
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVU420Planar_709:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVU420Planar_709:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_PLANAR_709
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY10V10U10_420SemiPlanar_709:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY10V10U10_420SemiPlanar_709:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_709
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY10V10U10_420SemiPlanar_2020:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY10V10U10_420SemiPlanar_2020:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_2020
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY10V10U10_422SemiPlanar_2020:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY10V10U10_422SemiPlanar_2020:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_422_SEMIPLANAR_2020
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY10V10U10_422SemiPlanar:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY10V10U10_422SemiPlanar:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_422_SEMIPLANAR
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY10V10U10_422SemiPlanar_709:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY10V10U10_422SemiPlanar_709:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_422_SEMIPLANAR_709
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY_709_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY_709_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y_709_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY10_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY10_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY10_709_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY10_709_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10_709_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY12_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY12_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY12_709_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY12_709_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12_709_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYUVA:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYUVA:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUVA
-    elif eglFrame.eglColorFormat == cudaEglColorFormatYVYU:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatYVYU:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVYU
-    elif eglFrame.eglColorFormat == cudaEglColorFormatVYUY:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatVYUY:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_VYUY
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY10V10U10_420SemiPlanar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY10V10U10_420SemiPlanar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_709_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY10V10U10_444SemiPlanar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY10V10U10_444SemiPlanar_ER:
         cuEglFrame[0].eglColorFormat =  cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_444_SEMIPLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_444_SEMIPLANAR_709_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY12V12U12_420SemiPlanar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY12V12U12_420SemiPlanar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12V12U12_420_SEMIPLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12V12U12_420_SEMIPLANAR_709_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY12V12U12_444SemiPlanar_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY12V12U12_444SemiPlanar_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12V12U12_444_SEMIPLANAR_ER
-    elif eglFrame.eglColorFormat == cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER:
+    elif eglFrame.eglColorFormat == cyruntime.cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER:
         cuEglFrame[0].eglColorFormat = cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12V12U12_444_SEMIPLANAR_709_ER
     else:
         return cudaErrorInvalidValue
-    if eglFrame.frameType == cudaEglFrameTypeArray:
+    if eglFrame.frameType == cyruntime.cudaEglFrameTypeArray:
         cuEglFrame[0].frameType = cydriver.CUeglFrameType_enum.CU_EGL_FRAME_TYPE_ARRAY
-    elif eglFrame.frameType == cudaEglFrameTypePitch:
+    elif eglFrame.frameType == cyruntime.cudaEglFrameTypePitch:
         cuEglFrame[0].frameType = cydriver.CUeglFrameType_enum.CU_EGL_FRAME_TYPE_PITCH
     else:
         return cudaErrorInvalidValue
 
-
 @cython.show_performance_hints(False)
-cdef cudaError_t getRuntimeEglFrame(cudaEglFrame *eglFrame, cydriver.CUeglFrame cueglFrame) except ?cudaErrorCallRequiresNewerDriver nogil:
+cdef cudaError_t getRuntimeEglFrame(cyruntime.cudaEglFrame *eglFrame, cydriver.CUeglFrame cueglFrame) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef cudaError_t err = cudaSuccess
     cdef unsigned int i
     cdef cydriver.CUDA_ARRAY3D_DESCRIPTOR_v2 ad
@@ -675,7 +851,7 @@ cdef cudaError_t getRuntimeEglFrame(cudaEglFrame *eglFrame, cydriver.CUeglFrame 
               cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_2020 or
               cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_2020 or
               cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_709 or
-              cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_709 or 
+              cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_709 or
               cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_709 or
               cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_2020 or
               cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_ER or
@@ -754,236 +930,236 @@ cdef cudaError_t getRuntimeEglFrame(cudaEglFrame *eglFrame, cydriver.CUeglFrame 
 
     eglFrame[0].planeCount = cueglFrame.planeCount
     if cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_PLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV420Planar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV420Planar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV420SemiPlanar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV420SemiPlanar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV422_PLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV422Planar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV422Planar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV422_SEMIPLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV422SemiPlanar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV422SemiPlanar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV444_PLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV444Planar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV444Planar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV444_SEMIPLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV444SemiPlanar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV444SemiPlanar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUYV_422:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUYV422
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUYV422
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_422:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatUYVY422
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatUYVY422
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_709:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatUYVY709
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatUYVY709
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_709_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatUYVY709_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatUYVY709_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_2020:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatUYVY2020
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatUYVY2020
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_ARGB:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatARGB
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatARGB
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_RGBA:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatRGBA
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatRGBA
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_ABGR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatABGR
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatABGR
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BGRA:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBGRA
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBGRA
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_L:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatL
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatL
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_R:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatR
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatR
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_A:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatA
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatA
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_RG:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatRG
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatRG
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_AYUV:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatAYUV
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatAYUV
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU444_SEMIPLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU444SemiPlanar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU444SemiPlanar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU422_SEMIPLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU422SemiPlanar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU422SemiPlanar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU420SemiPlanar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU420SemiPlanar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_444_SEMIPLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY10V10U10_444SemiPlanar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY10V10U10_444SemiPlanar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY10V10U10_420SemiPlanar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY10V10U10_420SemiPlanar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12V12U12_444_SEMIPLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY12V12U12_444SemiPlanar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY12V12U12_444SemiPlanar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12V12U12_420_SEMIPLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY12V12U12_420SemiPlanar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY12V12U12_420SemiPlanar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_VYUY_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatVYUY_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatVYUY_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_UYVY_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatUYVY_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatUYVY_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUYV_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUYV_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUYV_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVYU_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVYU_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVYU_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUVA_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUVA_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUVA_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_AYUV_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatAYUV_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatAYUV_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV444_PLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV444Planar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV444Planar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV422_PLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV422Planar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV422Planar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_PLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV420Planar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV420Planar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV444_SEMIPLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV444SemiPlanar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV444SemiPlanar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV422_SEMIPLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV422SemiPlanar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV422SemiPlanar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV420SemiPlanar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV420SemiPlanar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU444_PLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU444Planar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU444Planar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU422_PLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU422Planar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU422Planar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_PLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU420Planar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU420Planar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU444_SEMIPLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU444SemiPlanar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU444SemiPlanar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU422_SEMIPLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU422SemiPlanar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU422SemiPlanar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU420SemiPlanar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU420SemiPlanar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_RGGB:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayerRGGB
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayerRGGB
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_BGGR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayerBGGR
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayerBGGR
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_GRBG:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayerGRBG
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayerGRBG
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_GBRG:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayerGBRG
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayerGBRG
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER10_RGGB:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer10RGGB
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer10RGGB
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER10_BGGR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer10BGGR
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer10BGGR
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER10_GRBG:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer10GRBG
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer10GRBG
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER10_GBRG:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer10GBRG
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer10GBRG
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_RGGB:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer12RGGB
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer12RGGB
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_BGGR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer12BGGR
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer12BGGR
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_GRBG:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer12GRBG
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer12GRBG
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_GBRG:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer12GBRG
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer12GBRG
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER14_RGGB:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer14RGGB
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer14RGGB
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER14_BGGR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer14BGGR
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer14BGGR
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER14_GRBG:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer14GRBG
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer14GRBG
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER14_GBRG:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer14GBRG
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer14GBRG
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER20_RGGB:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer20RGGB
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer20RGGB
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER20_BGGR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer20BGGR
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer20BGGR
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER20_GRBG:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer20GRBG
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer20GRBG
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER20_GBRG:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer20GBRG
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer20GBRG
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_ISP_RGGB:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayerIspRGGB
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayerIspRGGB
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_ISP_BGGR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayerIspBGGR
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayerIspBGGR
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_ISP_GRBG:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayerIspGRBG
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayerIspGRBG
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_ISP_GBRG:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayerIspGBRG
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayerIspGBRG
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU444_PLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU444Planar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU444Planar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU422_PLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU422Planar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU422Planar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_PLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU420Planar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU420Planar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_BCCR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayerBCCR
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayerBCCR
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_RCCB:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayerRCCB
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayerRCCB
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_CRBC:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayerCRBC
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayerCRBC
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER_CBRC:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayerCBRC
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayerCBRC
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER10_CCCC:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer10CCCC
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer10CCCC
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_BCCR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer12BCCR
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer12BCCR
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_RCCB:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer12RCCB
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer12RCCB
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_CRBC:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer12CRBC
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer12CRBC
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_CBRC:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer12CBRC
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer12CBRC
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_BAYER12_CCCC:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatBayer12CCCC
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatBayer12CCCC
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_2020:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV420SemiPlanar_2020
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV420SemiPlanar_2020
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_2020:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU420SemiPlanar_2020
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU420SemiPlanar_2020
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_PLANAR_2020:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV420Planar_2020
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV420Planar_2020
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_PLANAR_2020:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU420Planar_2020
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU420Planar_2020
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_SEMIPLANAR_709:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV420SemiPlanar_709
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV420SemiPlanar_709
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_SEMIPLANAR_709:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU420SemiPlanar_709
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU420SemiPlanar_709
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUV420_PLANAR_709:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUV420Planar_709
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUV420Planar_709
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVU420_PLANAR_709:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVU420Planar_709
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVU420Planar_709
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_709:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY10V10U10_420SemiPlanar_709
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY10V10U10_420SemiPlanar_709
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_2020:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY10V10U10_420SemiPlanar_2020
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY10V10U10_420SemiPlanar_2020
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_422_SEMIPLANAR_2020:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY10V10U10_422SemiPlanar_2020
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY10V10U10_422SemiPlanar_2020
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_422_SEMIPLANAR:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY10V10U10_422SemiPlanar
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY10V10U10_422SemiPlanar
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_422_SEMIPLANAR_709:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY10V10U10_422SemiPlanar_709
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY10V10U10_422SemiPlanar_709
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y_709_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY_709_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY_709_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY10_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY10_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10_709_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY10_709_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY10_709_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY12_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY12_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12_709_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY12_709_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY12_709_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YUVA:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYUVA
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYUVA
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_YVYU:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatYVYU
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatYVYU
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_VYUY:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatVYUY
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatVYUY
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY10V10U10_420SemiPlanar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY10V10U10_420SemiPlanar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_420_SEMIPLANAR_709_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY10V10U10_420SemiPlanar_709_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_444_SEMIPLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY10V10U10_444SemiPlanar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY10V10U10_444SemiPlanar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y10V10U10_444_SEMIPLANAR_709_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY10V10U10_444SemiPlanar_709_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12V12U12_420_SEMIPLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY12V12U12_420SemiPlanar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY12V12U12_420SemiPlanar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12V12U12_420_SEMIPLANAR_709_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY12V12U12_420SemiPlanar_709_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12V12U12_444_SEMIPLANAR_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY12V12U12_444SemiPlanar_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY12V12U12_444SemiPlanar_ER
     elif cueglFrame.eglColorFormat == cydriver.CUeglColorFormat_enum.CU_EGL_COLOR_FORMAT_Y12V12U12_444_SEMIPLANAR_709_ER:
-        eglFrame[0].eglColorFormat = cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER
+        eglFrame[0].eglColorFormat = cyruntime.cudaEglColorFormatY12V12U12_444SemiPlanar_709_ER
     else:
         return cudaErrorInvalidValue
     if cueglFrame.frameType == cydriver.CUeglFrameType_enum.CU_EGL_FRAME_TYPE_ARRAY:
-        eglFrame[0].frameType = cudaEglFrameTypeArray
+        eglFrame[0].frameType = cyruntime.cudaEglFrameTypeArray
     elif cueglFrame.frameType == cydriver.CUeglFrameType_enum.CU_EGL_FRAME_TYPE_PITCH:
-        eglFrame[0].frameType = cudaEglFrameTypePitch
+        eglFrame[0].frameType = cyruntime.cudaEglFrameTypePitch
     else:
         return cudaErrorInvalidValue
