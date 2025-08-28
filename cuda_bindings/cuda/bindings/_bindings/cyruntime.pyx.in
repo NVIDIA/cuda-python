@@ -2671,3 +2671,5 @@ cdef cudaError_t _cudaProfilerStop() except ?cudaErrorCallRequiresNewerDriver no
         return ptds._cudaProfilerStop()
     return cudaProfilerStop()
 {{endif}}
+
+include "../_lib/cyruntime/cyruntime.pxi"

@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import platform
 import random
 import subprocess  # nosec B404
 import sys
@@ -94,21 +95,14 @@ def test_get_handle_error(target):
 
 @pytest.mark.parametrize(
     "module",
+    # Top-level modules for external Python use
     [
-        # Top-level modules for external Python use
-        # TODO: Import cycle detected: (('numeric',), ''), stack: [((),
-        # 'cuda.bindings.cufile'), ((), 'cuda.bindings.cycufile'),
-        # (('show_config',), 'numpy.__config__'), (('__cpu_features__',
-        # '__cpu_baseline__', '__cpu_dispatch__'),
-        # 'numpy._core._multiarray_umath'), (('numeric',), ''),
-        # (('shape_base',), '')]
-        # "cufile",
         "driver",
         "nvjitlink",
         "nvrtc",
         "nvvm",
-        # TODO: cuda.bindings.cyruntime -> cuda.bindings._lib.cyruntime.cyruntime cycle
-        # "runtime",
+        "runtime",
+        *(["cufile"] if platform.system() != "Windows" else []),
     ],
 )
 def test_cyclical_imports(module):
