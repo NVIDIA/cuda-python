@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=bba59b5c"></script>
+    <script src="../_static/documentation_options.js?v=21691ce4"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -51,7 +51,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.1a3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.0a0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -462,6 +462,16 @@
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Reverse tabulated names to achieve new → old search order (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/921">PR #921</a>)</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">SUPPORTED_LINUX_SONAMES</span></code> and <code class="docutils literal notranslate"><span class="pre">SUPPORTED_WINDOWS_DLLS</span></code> lists of DSOs are searched from new → old</p></li>
+</ul>
+</li>
+<li><p>Support non-CTK Nvidia libraries (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/864">PR #864</a>)</p>
+<ul>
+<li><p>Adds support for non-CTK Nvidia libraries: <code class="docutils literal notranslate"><span class="pre">mathdx</span></code>, <code class="docutils literal notranslate"><span class="pre">cufftMp</span></code>, <code class="docutils literal notranslate"><span class="pre">nvshmem_host</span></code>, <code class="docutils literal notranslate"><span class="pre">nvpl_fftw</span></code></p></li>
+</ul>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">RTLD_DI_LINKMAP</span></code>-based new implementation of <code class="docutils literal notranslate"><span class="pre">abs_path_for_dynamic_library()</span></code> (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/834">PR #834</a>)</p>
 <ul>
 <li><p>Eliminates <code class="docutils literal notranslate"><span class="pre">supported_nvidia_libs.EXPECTED_LIB_SYMBOLS</span></code> entirely, providing major simplification</p></li>
