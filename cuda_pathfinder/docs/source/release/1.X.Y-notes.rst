@@ -12,6 +12,14 @@ Released on TBD
 Highlights
 ----------
 
+* Reverse tabulated names to achieve new → old search order (`PR #921 <https://github.com/NVIDIA/cuda-python/pull/921>`_)
+
+  - ``SUPPORTED_LINUX_SONAMES`` and ``SUPPORTED_WINDOWS_DLLS`` lists of DSOs are searched from new → old
+
+* Support non-CTK Nvidia libraries (`PR #864 <https://github.com/NVIDIA/cuda-python/pull/864>`_)
+
+  - Adds support for non-CTK Nvidia libraries: ``mathdx``, ``cufftMp``, ``nvshmem_host``, ``nvpl_fftw``
+
 * ``RTLD_DI_LINKMAP``-based new implementation of ``abs_path_for_dynamic_library()`` (`PR #834 <https://github.com/NVIDIA/cuda-python/pull/834>`_)
 
   - Eliminates ``supported_nvidia_libs.EXPECTED_LIB_SYMBOLS`` entirely, providing major simplification
