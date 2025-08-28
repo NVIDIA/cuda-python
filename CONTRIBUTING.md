@@ -11,7 +11,7 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
 2. You want to implement a feature, improvement, or bug fix:
     - Please refer to each component's guideline:
        - [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html)
-       - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)¹
+       - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)<sup>[1](#footnote1)</sup>
        - [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/contribute.html)
 
 
@@ -21,6 +21,10 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 
 ### CI Pipeline Flow
 
+#### Visual Diagram (SVG)
+![CUDA Python CI Pipeline Flow](ci-pipeline.svg)
+
+#### Text-based Diagram (ASCII)
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
 │                                   TRIGGER EVENTS                                   │
@@ -35,7 +39,7 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐                     │
 │  │   linux-64      │  │ linux-aarch64   │  │     win-64      │                     │
 │  │  Self-hosted    │  │  Self-hosted    │  │ GitHub-hosted   │                     │
-│  │ linux-amd64-cpu8│  │ linux-arm64-cpu8│  │  windows-2022   │                     │
+│  │    (runners)    │  │    (runners)    │  │    (runners)    │                     │
 │  └─────────────────┘  └─────────────────┘  └─────────────────┘                     │
 │                                                                                     │
 │  • Python versions: 3.9, 3.10, 3.11, 3.12, 3.13                                  │
@@ -49,10 +53,10 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 │                                                                                     │
 │  ┌──────────────────────────┐              ┌──────────────────────────┐            │
 │  │     GitHub Artifacts     │              │      GitHub Cache        │            │
-│  │   • Wheel files (.whl)   │              │ • Build dependencies     │            │
-│  │   • Test artifacts       │              │ • Compiled binaries      │            │
-│  │   • Documentation        │              │ • Python environments    │            │
-│  │   (30-day retention)     │              │ • Package caches         │            │
+│  │   • Wheel files (.whl)   │              │   • Mini CTK cache       │            │
+│  │   • Test artifacts       │              │                          │            │
+│  │   • Documentation        │              │                          │            │
+│  │   (30-day retention)     │              │                          │            │
 │  └──────────────────────────┘              └──────────────────────────┘            │
 └─────────────────────────────────────────────────────────────────────────────────────┘
                                              │
@@ -64,7 +68,7 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 │  │   linux-64      │  │ linux-aarch64   │  │     win-64      │                     │
 │  │  Self-hosted    │  │  Self-hosted    │  │ GitHub-hosted   │                     │
 │  │   GPU runners   │  │   GPU runners   │  │   GPU runners   │                     │
-│  │   (L4/A100)     │  │     (A100)      │  │                 │                     │
+│  │                 │  │                 │  │                 │                     │
 │  └─────────────────┘  └─────────────────┘  └─────────────────┘                     │
 │                                                                                     │
 │  • Download wheels from artifacts                                                  │
@@ -95,11 +99,14 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 - **Build** → **Test** → **Documentation** → **Potential Release**
 - Artifacts stored as `{component}-python{version}-{platform}-{sha}`
 - Full test coverage across all platforms and CUDA versions
+- **Artifact flow out**: `cuda-pathfinder` artifacts → backport branches
 
 #### Backport Branches  
 - **Build** → **Test** → **Backport PR Creation**
 - Artifacts used for validation before creating backport pull requests
 - Maintains compatibility with older CUDA versions
+- **Artifact flow in**: `cuda-pathfinder` artifacts ← main branch
+- **Artifact flow out**: older `cuda-bindings` artifacts → main branch
 
 #### Pull Request Branches (`pull-request/*`)
 - **Build** → **Test** → **Status Check**
@@ -184,4 +191,4 @@ By making a contribution to this project, I certify that:
 
 ---
 
-¹ `cuda.bindings` follows the contributing guidelines from this repository (`cuda-python`).
+<a id="footnote1">1</a>: `cuda.bindings` follows the contributing guidelines from this repository (`cuda-python`).
