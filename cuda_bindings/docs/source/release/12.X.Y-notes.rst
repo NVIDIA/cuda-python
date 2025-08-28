@@ -27,6 +27,8 @@ Highlights
 * Python bindings in every module, including ``driver``, ``runtime``, and ``nvrtc``, now have the GIL
   released before calling the underlying C APIs.
 
+* The Python overhead of calling functions in CUDA bindings in ``driver``,
+  ``runtime`` and ``nvrtc`` has been reduced by approximately 30%.
 
 Bug fixes
 ---------

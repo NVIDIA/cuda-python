@@ -3,7 +3,6 @@
 
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
 cimport cuda.bindings._bindings.cyruntime as cyruntime
-cimport cuda.bindings._lib.cyruntime.cyruntime as custom_cyruntime
 cimport cython
 
 {{if 'cudaDeviceReset' in found_functions}}
@@ -1749,73 +1748,73 @@ cdef cudaExtent make_cudaExtent(size_t w, size_t h, size_t d) except* nogil:
 {{if True}}
 
 cdef cudaError_t cudaGraphicsEGLRegisterImage(cudaGraphicsResource** pCudaResource, EGLImageKHR image, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaGraphicsEGLRegisterImage(pCudaResource, image, flags)
+    return cyruntime._cudaGraphicsEGLRegisterImage(pCudaResource, image, flags)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerConnect(cudaEglStreamConnection* conn, EGLStreamKHR eglStream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaEGLStreamConsumerConnect(conn, eglStream)
+    return cyruntime._cudaEGLStreamConsumerConnect(conn, eglStream)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerConnectWithFlags(cudaEglStreamConnection* conn, EGLStreamKHR eglStream, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaEGLStreamConsumerConnectWithFlags(conn, eglStream, flags)
+    return cyruntime._cudaEGLStreamConsumerConnectWithFlags(conn, eglStream, flags)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerDisconnect(cudaEglStreamConnection* conn) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaEGLStreamConsumerDisconnect(conn)
+    return cyruntime._cudaEGLStreamConsumerDisconnect(conn)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerAcquireFrame(cudaEglStreamConnection* conn, cudaGraphicsResource_t* pCudaResource, cudaStream_t* pStream, unsigned int timeout) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaEGLStreamConsumerAcquireFrame(conn, pCudaResource, pStream, timeout)
+    return cyruntime._cudaEGLStreamConsumerAcquireFrame(conn, pCudaResource, pStream, timeout)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaEGLStreamConsumerReleaseFrame(cudaEglStreamConnection* conn, cudaGraphicsResource_t pCudaResource, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaEGLStreamConsumerReleaseFrame(conn, pCudaResource, pStream)
+    return cyruntime._cudaEGLStreamConsumerReleaseFrame(conn, pCudaResource, pStream)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaEGLStreamProducerConnect(cudaEglStreamConnection* conn, EGLStreamKHR eglStream, EGLint width, EGLint height) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaEGLStreamProducerConnect(conn, eglStream, width, height)
+    return cyruntime._cudaEGLStreamProducerConnect(conn, eglStream, width, height)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaEGLStreamProducerDisconnect(cudaEglStreamConnection* conn) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaEGLStreamProducerDisconnect(conn)
+    return cyruntime._cudaEGLStreamProducerDisconnect(conn)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaEGLStreamProducerPresentFrame(cudaEglStreamConnection* conn, cudaEglFrame eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaEGLStreamProducerPresentFrame(conn, eglframe, pStream)
+    return cyruntime._cudaEGLStreamProducerPresentFrame(conn, eglframe, pStream)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaEGLStreamProducerReturnFrame(cudaEglStreamConnection* conn, cudaEglFrame* eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaEGLStreamProducerReturnFrame(conn, eglframe, pStream)
+    return cyruntime._cudaEGLStreamProducerReturnFrame(conn, eglframe, pStream)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaGraphicsResourceGetMappedEglFrame(cudaEglFrame* eglFrame, cudaGraphicsResource_t resource, unsigned int index, unsigned int mipLevel) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaGraphicsResourceGetMappedEglFrame(eglFrame, resource, index, mipLevel)
+    return cyruntime._cudaGraphicsResourceGetMappedEglFrame(eglFrame, resource, index, mipLevel)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaEventCreateFromEGLSync(cudaEvent_t* phEvent, EGLSyncKHR eglSync, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaEventCreateFromEGLSync(phEvent, eglSync, flags)
+    return cyruntime._cudaEventCreateFromEGLSync(phEvent, eglSync, flags)
 {{endif}}
 
 {{if 'cudaProfilerStart' in found_functions}}
@@ -1833,43 +1832,43 @@ cdef cudaError_t cudaProfilerStop() except ?cudaErrorCallRequiresNewerDriver nog
 {{if True}}
 
 cdef cudaError_t cudaGLGetDevices(unsigned int* pCudaDeviceCount, int* pCudaDevices, unsigned int cudaDeviceCount, cudaGLDeviceList deviceList) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaGLGetDevices(pCudaDeviceCount, pCudaDevices, cudaDeviceCount, deviceList)
+    return cyruntime._cudaGLGetDevices(pCudaDeviceCount, pCudaDevices, cudaDeviceCount, deviceList)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaGraphicsGLRegisterImage(cudaGraphicsResource** resource, GLuint image, GLenum target, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaGraphicsGLRegisterImage(resource, image, target, flags)
+    return cyruntime._cudaGraphicsGLRegisterImage(resource, image, target, flags)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaGraphicsGLRegisterBuffer(cudaGraphicsResource** resource, GLuint buffer, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaGraphicsGLRegisterBuffer(resource, buffer, flags)
+    return cyruntime._cudaGraphicsGLRegisterBuffer(resource, buffer, flags)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaVDPAUGetDevice(int* device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaVDPAUGetDevice(device, vdpDevice, vdpGetProcAddress)
+    return cyruntime._cudaVDPAUGetDevice(device, vdpDevice, vdpGetProcAddress)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaVDPAUSetVDPAUDevice(int device, VdpDevice vdpDevice, VdpGetProcAddress* vdpGetProcAddress) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaVDPAUSetVDPAUDevice(device, vdpDevice, vdpGetProcAddress)
+    return cyruntime._cudaVDPAUSetVDPAUDevice(device, vdpDevice, vdpGetProcAddress)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaGraphicsVDPAURegisterVideoSurface(cudaGraphicsResource** resource, VdpVideoSurface vdpSurface, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaGraphicsVDPAURegisterVideoSurface(resource, vdpSurface, flags)
+    return cyruntime._cudaGraphicsVDPAURegisterVideoSurface(resource, vdpSurface, flags)
 {{endif}}
 
 {{if True}}
 
 cdef cudaError_t cudaGraphicsVDPAURegisterOutputSurface(cudaGraphicsResource** resource, VdpOutputSurface vdpSurface, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
-    return custom_cyruntime._cudaGraphicsVDPAURegisterOutputSurface(resource, vdpSurface, flags)
+    return cyruntime._cudaGraphicsVDPAURegisterOutputSurface(resource, vdpSurface, flags)
 {{endif}}
 
 {{if True}}
