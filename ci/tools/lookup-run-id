@@ -26,9 +26,19 @@ GIT_TAG="$1"
 REPOSITORY="$2"
 WORKFLOW_NAME="${3:-CI}"
 
-# Ensure we have a GitHub token
+# Ensure we have required tools
 if [[ -z "${GH_TOKEN:-}" ]]; then
     echo "Error: GH_TOKEN environment variable is required" >&2
+    exit 1
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo "Error: jq is required but not installed" >&2
+    exit 1
+fi
+
+if ! command -v gh >/dev/null 2>&1; then
+    echo "Error: GitHub CLI (gh) is required but not installed" >&2
     exit 1
 fi
 
@@ -51,23 +61,27 @@ RUN_DATA=$(gh run list \
     --repo "$REPOSITORY" \
     --commit "$COMMIT_SHA" \
     --workflow "$WORKFLOW_NAME" \
-    --status success \
+    --status completed \
     --json databaseId,workflowName,status,conclusion,headSha \
     --limit 10)
 
 if [[ -z "$RUN_DATA" || "$RUN_DATA" == "[]" ]]; then
-    echo "Error: No successful '$WORKFLOW_NAME' workflow runs found for commit $COMMIT_SHA" >&2
+    echo "Error: No completed '$WORKFLOW_NAME' workflow runs found for commit $COMMIT_SHA" >&2
     echo "Available workflow runs for this commit:" >&2
     gh run list --repo "$REPOSITORY" --commit "$COMMIT_SHA" --limit 10 || true
     exit 1
 fi
 
-# Extract the run ID from the first (most recent) successful run
-RUN_ID=$(echo "$RUN_DATA" | jq -r '.[0].databaseId // empty')
+# Filter for successful runs (conclusion = success) and extract the run ID from the first one
+RUN_ID=$(echo "$RUN_DATA" | jq -r '.[] | select(.conclusion == "success") | .databaseId' | head -1)
 
 if [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; then
-    echo "Error: Could not extract run ID from workflow data" >&2
-    echo "Workflow data: $RUN_DATA" >&2
+    echo "Error: No successful '$WORKFLOW_NAME' workflow runs found for commit $COMMIT_SHA" >&2
+    echo "Available workflow runs for this commit:" >&2
+    gh run list --repo "$REPOSITORY" --commit "$COMMIT_SHA" --limit 10 || true
+    echo "" >&2
+    echo "Completed runs with their conclusions:" >&2
+    echo "$RUN_DATA" | jq -r '.[] | "\(.databaseId): \(.conclusion)"' >&2
     exit 1
 fi
 
