@@ -82,7 +82,12 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
            - Scan installed distributions (``site-packages``) to find libraries
              shipped in NVIDIA wheels.
 
-        2. **OS default mechanisms / Conda environments**
+        2. **Conda environment**
+
+           - Detects if in a conda environment and searches for libraries in the expected locations within the conda
+             environment.
+
+        3. **OS default mechanisms**
 
            - Fall back to the native loader:
 

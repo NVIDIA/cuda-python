@@ -23,3 +23,8 @@ Highlights
   - Improves stability in general and supports nvmath specifically
   - Proactive change to improve library loading consistency
   - Drops boilerplate docstrings for private functions
+
+* Add conda search path prioritization for ``load_nvidia_dynamic_lib()`` (`PR #856 <https://github.com/NVIDIA/cuda-python/pull/856>`_)
+
+  - Enables loading libraries from conda environments before system paths
+  - Handles version mismatches between the conda environment and the system CTK
