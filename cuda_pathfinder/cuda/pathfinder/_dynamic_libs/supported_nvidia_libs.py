@@ -108,6 +108,7 @@ DIRECT_DEPENDENCIES = DIRECT_DEPENDENCIES_CTK | {
 #   cuda_12.9.1_575.57.08_linux.run
 #   cuda_13.0.0_580.65.06_linux.run
 # Generated with toolshed/build_pathfinder_sonames.py
+# Please keep in old → new sort order.
 SUPPORTED_LINUX_SONAMES_CTK = {
     "cublas": (
         "libcublas.so.11",
@@ -265,6 +266,7 @@ SUPPORTED_LINUX_SONAMES = SUPPORTED_LINUX_SONAMES_CTK | SUPPORTED_LINUX_SONAMES_
 #   cuda_12.9.1_576.57_windows.exe
 #   cuda_13.0.0_windows.exe
 # Generated with toolshed/build_pathfinder_dlls.py
+# Please keep in old → new sort order.
 SUPPORTED_WINDOWS_DLLS_CTK = {
     "cublas": (
         "cublas64_11.dll",
