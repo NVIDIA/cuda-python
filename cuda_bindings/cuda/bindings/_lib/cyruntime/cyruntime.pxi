@@ -1,6 +1,17 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+# These graphics API are the reimplemented version of what's supported by CUDA Runtime.
+# Issue https://github.com/NVIDIA/cuda-python/issues/488 will remove them by letting us
+# use call into the static library directly.
+
+# This file is included from cuda/bindings/_bindings/cyruntime.pyx.in but kept in a
+# separate file to keep it separated from the auto-generated code there.
+
+# Prior to https://github.com/NVIDIA/cuda-python/pull/914, this was two
+# independent modules (c.b._lib.cyruntime.cyruntime and
+# c.b._lib.cyruntime.utils), but was merged into one.
+
 from libc.string cimport memset
 cimport cuda.bindings.cydriver as cydriver
 

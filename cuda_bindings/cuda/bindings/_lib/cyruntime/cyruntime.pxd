@@ -9,6 +9,14 @@ cimport cuda.bindings._bindings.cydriver as _cydriver
 # use call into the static library directly.
 #
 # This is an ABI breaking change which can only happen in a major version bump.
+
+# This file is included from cuda/bindings/_bindings/cyruntime.pxd.in but kept in a
+# separate file to keep it separated from the auto-generated code there.
+
+# Prior to https://github.com/NVIDIA/cuda-python/pull/914, this was two
+# independent modules (c.b._lib.cyruntime.cyruntime and
+# c.b._lib.cyruntime.utils), but was merged into one.
+
 cdef cudaError_t _cudaEGLStreamProducerPresentFrame(cyruntime.cudaEglStreamConnection* conn, cyruntime.cudaEglFrame eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t _cudaEGLStreamProducerReturnFrame(cyruntime.cudaEglStreamConnection* conn, cyruntime.cudaEglFrame* eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil
 cdef cudaError_t _cudaGraphicsResourceGetMappedEglFrame(cyruntime.cudaEglFrame* eglFrame, cudaGraphicsResource_t resource, unsigned int index, unsigned int mipLevel) except ?cudaErrorCallRequiresNewerDriver nogil
