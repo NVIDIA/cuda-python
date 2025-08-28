@@ -1,117 +1,119 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 750" style="background-color: white;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 800" style="background-color: white;">
   <!-- Title -->
-  <text x="400" y="20" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333">CUDA Python CI Pipeline Flow</text>
+  <text x="450" y="20" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333">CUDA Python CI Pipeline Flow</text>
   
   <!-- Trigger Events -->
-  <rect x="50" y="40" width="700" height="70" rx="10" fill="#e8f4fd" stroke="#2196F3" stroke-width="2"/>
-  <text x="400" y="60" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1976D2">TRIGGER EVENTS</text>
-  <text x="200" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#333">• Push to main branch</text>
-  <text x="400" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#333">• Pull request</text>
-  <text x="200" y="95" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#333">• Push to pull-request/* branches</text>
-  <text x="400" y="95" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#333">• Manual workflow dispatch</text>
+  <rect x="50" y="40" width="800" height="70" rx="10" fill="#e8f4fd" stroke="#2196F3" stroke-width="2"/>
+  <text x="450" y="60" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1976D2">TRIGGER EVENTS</text>
+  <text x="250" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#333">• Push to main branch</text>
+  <text x="450" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#333">• Pull request</text>
+  <text x="250" y="95" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#333">• Push to pull-request/* branches</text>
+  <text x="450" y="95" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#333">• Manual workflow dispatch</text>
   
   <!-- Arrow down -->
-  <path d="M400 110 L400 130" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M450 110 L450 130" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
   
   <!-- Build Stage -->
-  <rect x="50" y="140" width="700" height="140" rx="10" fill="#f3e5f5" stroke="#9C27B0" stroke-width="2"/>
-  <text x="400" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#7B1FA2">BUILD STAGE</text>
+  <rect x="50" y="140" width="800" height="150" rx="10" fill="#f3e5f5" stroke="#9C27B0" stroke-width="2"/>
+  <text x="450" y="160" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#7B1FA2">BUILD STAGE</text>
   
   <!-- Build platforms -->
-  <rect x="80" y="180" width="180" height="60" rx="5" fill="white" stroke="#9C27B0"/>
-  <text x="170" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">linux-64</text>
-  <text x="170" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">Self-hosted</text>
+  <rect x="80" y="180" width="200" height="60" rx="5" fill="white" stroke="#9C27B0"/>
+  <text x="180" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">linux-64</text>
+  <text x="180" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">Self-hosted</text>
   
-  <rect x="310" y="180" width="180" height="60" rx="5" fill="white" stroke="#9C27B0"/>
-  <text x="400" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">linux-aarch64</text>
-  <text x="400" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">Self-hosted</text>
+  <rect x="350" y="180" width="200" height="60" rx="5" fill="white" stroke="#9C27B0"/>
+  <text x="450" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">linux-aarch64</text>
+  <text x="450" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">Self-hosted</text>
   
-  <rect x="540" y="180" width="180" height="60" rx="5" fill="white" stroke="#9C27B0"/>
-  <text x="630" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">win-64</text>
-  <text x="630" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">GitHub-hosted</text>
+  <rect x="620" y="180" width="200" height="60" rx="5" fill="white" stroke="#9C27B0"/>
+  <text x="720" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">win-64</text>
+  <text x="720" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">GitHub-hosted</text>
   
   <!-- Build stage details in purple box -->
-  <text x="70" y="260" font-family="Arial, sans-serif" font-size="11" fill="#333">• Python versions: 3.9, 3.10, 3.11, 3.12, 3.13</text>
-  <text x="70" y="275" font-family="Arial, sans-serif" font-size="11" fill="#333">• CUDA version: 13.0.0 (build-time)</text>
-  <text x="400" y="260" font-family="Arial, sans-serif" font-size="11" fill="#333">• Components: cuda-core, cuda-bindings,</text>
-  <text x="400" y="275" font-family="Arial, sans-serif" font-size="11" fill="#333">  cuda-pathfinder, cuda-python</text>
+  <text x="100" y="260" text-anchor="start" font-family="Arial, sans-serif" font-size="11" fill="#333">• Python versions: 3.9, 3.10, 3.11, 3.12, 3.13</text>
+  <text x="100" y="275" text-anchor="start" font-family="Arial, sans-serif" font-size="11" fill="#333">• CUDA version: 13.0.0 (build-time)</text>
+  <text x="500" y="260" text-anchor="start" font-family="Arial, sans-serif" font-size="11" fill="#333">• Components: cuda-core, cuda-bindings,</text>
+  <text x="500" y="275" text-anchor="start" font-family="Arial, sans-serif" font-size="11" fill="#333">  cuda-pathfinder, cuda-python</text>
   
   <!-- Arrow down -->
-  <path d="M400 280 L400 300" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M450 290 L450 310" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
   
   <!-- Artifact Storage -->
-  <rect x="50" y="310" width="700" height="120" rx="10" fill="#fff3e0" stroke="#FF9800" stroke-width="2"/>
-  <text x="400" y="330" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#F57C00">ARTIFACT STORAGE</text>
+  <rect x="50" y="320" width="800" height="130" rx="10" fill="#fff3e0" stroke="#FF9800" stroke-width="2"/>
+  <text x="450" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#F57C00">ARTIFACT STORAGE</text>
   
   <!-- Artifact types -->
-  <rect x="100" y="345" width="250" height="65" rx="5" fill="white" stroke="#FF9800"/>
-  <text x="225" y="365" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">GitHub Artifacts</text>
-  <text x="225" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">• Wheel files (.whl)</text>
-  <text x="225" y="392" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">• Test artifacts</text>
-  <text x="225" y="404" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">• Documentation</text>
-  <text x="225" y="418" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">(30-day retention)</text>
+  <rect x="120" y="355" width="280" height="80" rx="5" fill="white" stroke="#FF9800"/>
+  <text x="260" y="375" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">GitHub Artifacts</text>
+  <text x="260" y="390" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">• Wheel files (.whl)</text>
+  <text x="260" y="402" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">• Test artifacts</text>
+  <text x="260" y="414" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">• Documentation</text>
+  <text x="260" y="428" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">(30-day retention)</text>
   
-  <rect x="450" y="345" width="250" height="65" rx="5" fill="white" stroke="#FF9800"/>
-  <text x="575" y="365" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">GitHub Cache</text>
-  <text x="575" y="385" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">• Mini CTK cache</text>
+  <rect x="500" y="355" width="280" height="80" rx="5" fill="white" stroke="#FF9800"/>
+  <text x="640" y="375" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">GitHub Cache</text>
+  <text x="640" y="400" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">• Mini CTK cache</text>
   
   <!-- Arrow down -->
-  <path d="M400 430 L400 450" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M450 450 L450 470" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
   
   <!-- Test Stage -->
-  <rect x="50" y="460" width="700" height="120" rx="10" fill="#e8f5e8" stroke="#4CAF50" stroke-width="2"/>
-  <text x="400" y="480" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#388E3C">TEST STAGE</text>
+  <rect x="50" y="480" width="800" height="140" rx="10" fill="#e8f5e8" stroke="#4CAF50" stroke-width="2"/>
+  <text x="450" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#388E3C">TEST STAGE</text>
   
   <!-- Test platforms -->
-  <rect x="80" y="500" width="180" height="45" rx="5" fill="white" stroke="#4CAF50"/>
-  <text x="170" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">linux-64</text>
-  <text x="170" y="535" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">Self-hosted</text>
+  <rect x="80" y="520" width="200" height="45" rx="5" fill="white" stroke="#4CAF50"/>
+  <text x="180" y="540" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">linux-64</text>
+  <text x="180" y="555" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">Self-hosted</text>
   
-  <rect x="310" y="500" width="180" height="45" rx="5" fill="white" stroke="#4CAF50"/>
-  <text x="400" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">linux-aarch64</text>
-  <text x="400" y="535" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">Self-hosted</text>
+  <rect x="350" y="520" width="200" height="45" rx="5" fill="white" stroke="#4CAF50"/>
+  <text x="450" y="540" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">linux-aarch64</text>
+  <text x="450" y="555" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">Self-hosted</text>
   
-  <rect x="540" y="500" width="180" height="45" rx="5" fill="white" stroke="#4CAF50"/>
-  <text x="630" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">win-64</text>
-  <text x="630" y="535" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">GitHub-hosted</text>
+  <rect x="620" y="520" width="200" height="45" rx="5" fill="white" stroke="#4CAF50"/>
+  <text x="720" y="540" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">win-64</text>
+  <text x="720" y="555" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">GitHub-hosted</text>
   
   <!-- Test stage details and artifact flows in green box -->
-  <text x="70" y="560" font-family="Arial, sans-serif" font-size="11" fill="#333">• Download wheels from artifacts</text>
-  <text x="70" y="575" font-family="Arial, sans-serif" font-size="11" fill="#333">• Test against multiple CUDA runtime versions</text>
-  <text x="400" y="560" font-family="Arial, sans-serif" font-size="11" fill="#333">• Run Python unit tests, Cython tests, examples</text>
-  <text x="400" y="575" font-family="Arial, sans-serif" font-size="11" fill="#E91E63" font-weight="bold">Artifact Flows: cuda-pathfinder main→backport, cuda-bindings backport→main</text>
+  <text x="100" y="580" text-anchor="start" font-family="Arial, sans-serif" font-size="11" fill="#333">• Download wheels from artifacts</text>
+  <text x="100" y="595" text-anchor="start" font-family="Arial, sans-serif" font-size="11" fill="#333">• Test against multiple CUDA runtime versions</text>
+  <text x="100" y="610" text-anchor="start" font-family="Arial, sans-serif" font-size="11" fill="#333">• Run Python unit tests, Cython tests, examples</text>
+  <text x="500" y="580" text-anchor="start" font-family="Arial, sans-serif" font-size="11" fill="#E91E63" font-weight="bold">Artifact Flows:</text>
+  <text x="500" y="595" text-anchor="start" font-family="Arial, sans-serif" font-size="11" fill="#E91E63" font-weight="bold">• cuda-pathfinder: main → backport</text>
+  <text x="500" y="610" text-anchor="start" font-family="Arial, sans-serif" font-size="11" fill="#E91E63" font-weight="bold">• cuda-bindings: backport → main</text>
   
   <!-- Arrow down -->
-  <path d="M400 580 L400 600" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M450 620 L450 640" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
   
   <!-- Release Pipeline -->
-  <rect x="50" y="610" width="700" height="110" rx="10" fill="#ffebee" stroke="#f44336" stroke-width="2"/>
-  <text x="400" y="630" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#D32F2F">RELEASE PIPELINE</text>
+  <rect x="50" y="650" width="800" height="120" rx="10" fill="#ffebee" stroke="#f44336" stroke-width="2"/>
+  <text x="450" y="670" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#D32F2F">RELEASE PIPELINE</text>
   
   <!-- Release stages -->
-  <rect x="100" y="645" width="150" height="60" rx="5" fill="white" stroke="#f44336"/>
-  <text x="175" y="665" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#333">Validation</text>
-  <text x="175" y="680" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">• Artifact integrity</text>
-  <text x="175" y="692" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">• Git tag verification</text>
+  <rect x="120" y="685" width="180" height="60" rx="5" fill="white" stroke="#f44336"/>
+  <text x="210" y="705" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#333">Validation</text>
+  <text x="210" y="720" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">• Artifact integrity</text>
+  <text x="210" y="732" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">• Git tag verification</text>
   
-  <path d="M250 675 L300 675" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M300 715 L350 715" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
   
-  <rect x="325" y="645" width="150" height="60" rx="5" fill="white" stroke="#f44336"/>
-  <text x="400" y="665" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#333">Publishing</text>
-  <text x="400" y="680" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">• PyPI/TestPyPI</text>
-  <text x="400" y="692" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">• Component or all releases</text>
+  <rect x="360" y="685" width="180" height="60" rx="5" fill="white" stroke="#f44336"/>
+  <text x="450" y="705" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#333">Publishing</text>
+  <text x="450" y="720" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">• PyPI/TestPyPI</text>
+  <text x="450" y="732" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">• Component or all releases</text>
   
-  <path d="M475 675 L525 675" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M540 715 L590 715" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
   
-  <rect x="550" y="645" width="150" height="60" rx="5" fill="white" stroke="#f44336"/>
-  <text x="625" y="665" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#333">Documentation</text>
-  <text x="625" y="680" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">• GitHub Pages</text>
-  <text x="625" y="692" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">• Release notes</text>
+  <rect x="600" y="685" width="180" height="60" rx="5" fill="white" stroke="#f44336"/>
+  <text x="690" y="705" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#333">Documentation</text>
+  <text x="690" y="720" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">• GitHub Pages</text>
+  <text x="690" y="732" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">• Release notes</text>
   
   <!-- Release pipeline details in red box -->
-  <text x="70" y="730" font-family="Arial, sans-serif" font-size="11" fill="#333">• Manual workflow dispatch with run ID</text>
-  <text x="400" y="730" font-family="Arial, sans-serif" font-size="11" fill="#333">• Supports individual component or full releases</text>
+  <text x="100" y="760" text-anchor="start" font-family="Arial, sans-serif" font-size="11" fill="#333">• Manual workflow dispatch with run ID</text>
+  <text x="500" y="760" text-anchor="start" font-family="Arial, sans-serif" font-size="11" fill="#333">• Supports individual component or full releases</text>
   
   <!-- Arrow marker definition -->
   <defs>

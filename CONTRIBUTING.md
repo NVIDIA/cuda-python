@@ -41,7 +41,6 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 #### Pull Request Branches (`pull-request/*`)
 - **Build** → **Test** → **Status Check**
 - Artifacts used for CI validation only
-- Prevents untrusted code execution through signed commits requirement
 
 ### Key Infrastructure Details
 
