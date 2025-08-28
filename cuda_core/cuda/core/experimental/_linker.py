@@ -395,10 +395,10 @@ class Linker:
 
     def _add_code_object(self, object_code: ObjectCode):
         data = object_code._module
-        assert_type(data, bytes)
         with _exception_manager(self):
             name_str = f"{object_code.name}"
-            if _nvjitlink:
+            if _nvjitlink and isinstance(data, bytes):
+                # Handle bytes input with nvjitlink
                 _nvjitlink.add_data(
                     self._mnff.handle,
                     self._input_type_from_code_type(object_code._code_type),
@@ -406,7 +406,15 @@ class Linker:
                     len(data),
                     name_str,
                 )
-            else:
+            elif _nvjitlink and isinstance(data, str):
+                # Handle file path input with nvjitlink
+                _nvjitlink.add_file(
+                    self._mnff.handle,
+                    self._input_type_from_code_type(object_code._code_type),
+                    data,
+                )
+            elif isinstance(data, bytes):
+                # Handle bytes input with driver API
                 name_bytes = name_str.encode()
                 handle_return(
                     _driver.cuLinkAddData(
@@ -421,6 +429,22 @@ class Linker:
                     )
                 )
                 self._mnff.const_char_keep_alive.append(name_bytes)
+            elif isinstance(data, str):
+                # Handle file path input with driver API
+                name_bytes = name_str.encode()
+                handle_return(
+                    _driver.cuLinkAddFile(
+                        self._mnff.handle,
+                        self._input_type_from_code_type(object_code._code_type),
+                        data.encode(),
+                        0,
+                        None,
+                        None,
+                    )
+                )
+                self._mnff.const_char_keep_alive.append(name_bytes)
+            else:
+                raise TypeError(f"Expected bytes or str, but got {type(data).__name__}")
 
     def link(self, target_type) -> ObjectCode:
         """
