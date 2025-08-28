@@ -73,8 +73,19 @@
   <text x="641" y="378" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" font-weight="bold" fill="#333">GitHub Cache</text>
   <text x="639" y="402" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="10" fill="#666">• Mini CTK cache</text>
   
-  <!-- Rough arrow down -->
+  <!-- Rough arrow down to Test Stage -->
   <path d="M449,452 Q451,465 452,472 M447,468 L452,474 L457,469" stroke="#333" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+  
+  <!-- Artifact flow arrows -->
+  <!-- Arrow from GitHub Cache (mini CTK) back to Build Stage -->
+  <path d="M641,358 Q642,340 642,320 Q640,305 580,290 Q560,285 520,285" 
+        stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#rougharrow)" stroke-dasharray="5,3"/>
+  <text x="600" y="330" font-family="Comic Sans MS, cursive, sans-serif" font-size="9" fill="#FF9800" transform="rotate(-25 600 330)">mini CTK reuse</text>
+  
+  <!-- Arrow from GitHub Artifacts (wheels) to Release Pipeline -->
+  <path d="M260,437 Q258,520 260,580 Q262,620 300,650 Q340,665 380,670" 
+        stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#rougharrow)" stroke-dasharray="5,3"/>
+  <text x="290" y="550" font-family="Comic Sans MS, cursive, sans-serif" font-size="9" fill="#FF9800" transform="rotate(65 290 550)">wheel fetch</text>
   
   <!-- Test Stage - hand-drawn style -->
   <path d="M51,482 Q52,479 853,481 Q856,484 854,617 Q852,622 49,619 Q46,616 51,482 Z" 
