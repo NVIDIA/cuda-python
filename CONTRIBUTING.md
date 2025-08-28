@@ -21,77 +21,7 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 
 ### CI Pipeline Flow
 
-#### Visual Diagram (SVG)
-![CUDA Python CI Pipeline Flow](ci-pipeline.svg)
-
-#### Text-based Diagram (ASCII)
-```
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                                   TRIGGER EVENTS                                   │
-│  • Push to main branch              • Pull request                                 │
-│  • Push to pull-request/* branches  • Manual workflow dispatch                    │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-                                             │
-                                             ▼
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                                    BUILD STAGE                                     │
-│                                                                                     │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐                     │
-│  │   linux-64      │  │ linux-aarch64   │  │     win-64      │                     │
-│  │  Self-hosted    │  │  Self-hosted    │  │ GitHub-hosted   │                     │
-│  │    (runners)    │  │    (runners)    │  │    (runners)    │                     │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘                     │
-│                                                                                     │
-│  • Python versions: 3.9, 3.10, 3.11, 3.12, 3.13                                  │
-│  • CUDA version: 13.0.0 (build-time)                                              │
-│  • Components: cuda-core, cuda-bindings, cuda-pathfinder, cuda-python             │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-                                             │
-                                             ▼
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                               ARTIFACT STORAGE                                     │
-│                                                                                     │
-│  ┌──────────────────────────┐              ┌──────────────────────────┐            │
-│  │     GitHub Artifacts     │              │      GitHub Cache        │            │
-│  │   • Wheel files (.whl)   │              │   • Mini CTK cache       │            │
-│  │   • Test artifacts       │              │                          │            │
-│  │   • Documentation        │              │                          │            │
-│  │   (30-day retention)     │              │                          │            │
-│  └──────────────────────────┘              └──────────────────────────┘            │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-                                             │
-                                             ▼
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                                    TEST STAGE                                      │
-│                                                                                     │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐                     │
-│  │   linux-64      │  │ linux-aarch64   │  │     win-64      │                     │
-│  │  Self-hosted    │  │  Self-hosted    │  │ GitHub-hosted   │                     │
-│  │   GPU runners   │  │   GPU runners   │  │   GPU runners   │                     │
-│  │                 │  │                 │  │                 │                     │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘                     │
-│                                                                                     │
-│  • Download wheels from artifacts                                                  │
-│  • Test against multiple CUDA runtime versions                                     │
-│  • Run Python unit tests, Cython tests, examples                                  │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-                                             │
-                                             ▼
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                                RELEASE PIPELINE                                    │
-│                                                                                     │
-│  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐               │
-│  │   Validation    │────▶│   Publishing    │────▶│  Documentation  │               │
-│  │ • Artifact      │     │ • PyPI/TestPyPI │     │ • GitHub Pages  │               │
-│  │   integrity     │     │ • Component or  │     │ • API docs      │               │
-│  │ • Git tag       │     │   all releases  │     │ • Release notes │               │
-│  │   verification  │     │                 │     │                 │               │
-│  └─────────────────┘     └─────────────────┘     └─────────────────┘               │
-│                                                                                     │
-│  • Manual workflow dispatch with run ID                                            │
-│  • Supports individual component or full releases                                  │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-```
+![CUDA Python CI Pipeline Flow](ci/ci-pipeline.svg)
 
 ### Branch-specific Artifact Flow
 
