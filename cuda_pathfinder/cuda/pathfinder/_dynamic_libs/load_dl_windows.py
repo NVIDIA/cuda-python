@@ -132,6 +132,64 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
     return None
 
 
+def load_with_conda_search(libname: str) -> Optional[LoadedDL]:
+    """Try to load a DLL using conda search paths.
+
+    Args:
+        libname: The name of the library to load
+
+    Returns:
+        A LoadedDL object if successful, None if the library cannot be loaded
+    """
+    in_conda_build = False
+    in_conda_env = False
+    if os.getenv("CONDA_BUILD") == "1":
+        in_conda_build = True
+    elif os.getenv("CONDA_PREFIX"):
+        in_conda_env = True
+    else:
+        return None
+
+    normal_conda_lib_path = os.path.join("Library", "bin", "x64")
+    if libname == "nvvm":
+        normal_conda_lib_path = os.path.join("Library", "nvvm", "bin", "x64")
+
+    for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
+        if in_conda_build:
+            if prefix := os.getenv("PREFIX"):
+                prefix_normal_lib_path = os.path.join(prefix, normal_conda_lib_path)
+                if os.path.isdir(prefix_normal_lib_path):
+                    dll_name = os.path.join(prefix_normal_lib_path, dll_name)
+                    handle = kernel32.LoadLibraryExW(dll_name, None, 0)
+                    if handle:
+                        # TODO KEITH: Do we need this abs_path_for_dynamic_library call?
+                        # We're already resolving the absolute path based on the conda environment variables
+                        abs_path = abs_path_for_dynamic_library(libname, handle)
+                        return LoadedDL(abs_path, False, ctypes_handle_to_unsigned_int(handle))
+            if build_prefix := os.getenv("BUILD_PREFIX"):
+                build_prefix_normal_lib_path = os.path.join(build_prefix, normal_conda_lib_path)
+                if os.path.isdir(build_prefix_normal_lib_path):
+                    dll_name = os.path.join(build_prefix_normal_lib_path, dll_name)
+                    handle = kernel32.LoadLibraryExW(dll_name, None, 0)
+                    if handle:
+                        # TODO KEITH: Do we need this abs_path_for_dynamic_library call?
+                        # We're already resolving the absolute path based on the conda environment variables
+                        abs_path = abs_path_for_dynamic_library(libname, handle)
+                        return LoadedDL(abs_path, False, ctypes_handle_to_unsigned_int(handle))
+        elif in_conda_env:
+            if conda_prefix := os.getenv("CONDA_PREFIX"):
+                conda_prefix_normal_lib_path = os.path.join(conda_prefix, normal_conda_lib_path)
+                if os.path.isdir(conda_prefix_normal_lib_path):
+                    dll_name = os.path.join(conda_prefix_normal_lib_path, dll_name)
+                    handle = kernel32.LoadLibraryExW(dll_name, None, 0)
+                    if handle:
+                        # TODO KEITH: Do we need this abs_path_for_dynamic_library call?
+                        # We're already resolving the absolute path based on the conda environment variables
+                        abs_path = abs_path_for_dynamic_library(libname, handle)
+                        return LoadedDL(abs_path, False, ctypes_handle_to_unsigned_int(handle))
+    return None
+
+
 def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
     """Load a dynamic library from the given path.
 

@@ -173,6 +173,135 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
     return None
 
 
+def load_with_conda_search(libname: str) -> Optional[LoadedDL]:
+    """Try to load a library using conda search paths.
+
+    Args:
+        libname: The name of the library to load
+
+    Returns:
+        A LoadedDL object if successful, None if the library cannot be loaded
+    """
+    in_conda_build = False
+    in_conda_env = False
+    if os.getenv("CONDA_BUILD") == "1":
+        in_conda_build = True
+    elif os.getenv("CONDA_PREFIX"):
+        in_conda_env = True
+    else:
+        return None
+
+    normal_conda_lib_path = os.path.join("lib")
+    # TODO KEITH: All the libs in the targets directory are symlinked into the lib directory, do we need to search it?
+    # TODO KEITH: Should we do platform detection here to avoid extra searches? Any considerations we need to do in a
+    # cross compilation build environment?
+    nvidia_conda_target_lib_paths = [
+        os.path.join("targets", "x86_64-linux", "lib"),
+        os.path.join("targets", "sbsa-linux", "lib"),
+    ]
+    if libname == "nvvm":
+        normal_conda_lib_path = os.path.join("nvvm")
+        nvidia_conda_target_lib_paths = [
+            os.path.join("targets", "x86_64-linux", "nvvm", "lib64"),
+            os.path.join("targets", "sbsa-linux", "nvvm", "lib64"),
+        ]
+
+    for soname in get_candidate_sonames(libname):
+        if in_conda_build:
+            if prefix := os.getenv("PREFIX"):
+                for nvidia_conda_target_lib_path in nvidia_conda_target_lib_paths:
+                    prefix_target_lib_path = os.path.join(prefix, nvidia_conda_target_lib_path)
+                    if os.path.isdir(prefix_target_lib_path):
+                        soname = os.path.join(prefix_target_lib_path, soname)
+                        try:
+                            handle = _load_lib(libname, soname)
+                        except OSError:
+                            pass
+                        else:
+                            # TODO KEITH: Do we need this abs_path_for_dynamic_library call?
+                            # We're already resolving the absolute path based on the conda environment variables
+                            abs_path = abs_path_for_dynamic_library(libname, handle)
+                            if abs_path is None:
+                                raise RuntimeError(f"No expected symbol for {libname=!r}")
+                            return LoadedDL(abs_path, False, handle._handle)
+                # Only run if not found in the target lib paths
+                prefix_normal_lib_path = os.path.join(prefix, normal_conda_lib_path)
+                if os.path.isdir(prefix_normal_lib_path):
+                    soname = os.path.join(prefix_normal_lib_path, soname)
+                    try:
+                        handle = _load_lib(libname, soname)
+                    except OSError:
+                        pass
+                    else:
+                        # TODO KEITH: Do we need this abs_path_for_dynamic_library call?
+                        # We're already resolving the absolute path based on the conda environment variables
+                        abs_path = abs_path_for_dynamic_library(libname, handle)
+                        if abs_path is None:
+                            raise RuntimeError(f"No expected symbol for {libname=!r}")
+                        return LoadedDL(abs_path, False, handle._handle)
+            if build_prefix := os.getenv("BUILD_PREFIX"):
+                for nvidia_conda_target_lib_path in nvidia_conda_target_lib_paths:
+                    build_prefix_target_lib_path = os.path.join(build_prefix, nvidia_conda_target_lib_path)
+                    if os.path.isdir(build_prefix_target_lib_path):
+                        soname = os.path.join(build_prefix_target_lib_path, soname)
+                        try:
+                            handle = _load_lib(libname, soname)
+                        except OSError:
+                            pass
+                        else:
+                            # TODO KEITH: Do we need this abs_path_for_dynamic_library call?
+                            # We're already resolving the absolute path based on the conda environment variables
+                            abs_path = abs_path_for_dynamic_library(libname, handle)
+                            if abs_path is None:
+                                raise RuntimeError(f"No expected symbol for {libname=!r}")
+                            return LoadedDL(abs_path, False, handle._handle)
+                # Only run if not found in the target lib paths
+                build_prefix_normal_lib_path = os.path.join(build_prefix, normal_conda_lib_path)
+                if os.path.isdir(build_prefix_normal_lib_path):
+                    soname = os.path.join(build_prefix_normal_lib_path, soname)
+                    try:
+                        handle = _load_lib(libname, soname)
+                    except OSError:
+                        pass
+                    else:
+                        # TODO KEITH: Do we need this abs_path_for_dynamic_library call?
+                        # We're already resolving the absolute path based on the conda environment variables
+                        abs_path = abs_path_for_dynamic_library(libname, handle)
+                        if abs_path is None:
+                            raise RuntimeError(f"No expected symbol for {libname=!r}")
+                        return LoadedDL(abs_path, False, handle._handle)
+        elif in_conda_env:
+            if conda_prefix := os.getenv("CONDA_PREFIX"):
+                for nvidia_conda_target_lib_path in nvidia_conda_target_lib_paths:
+                    conda_prefix_target_lib_path = os.path.join(conda_prefix, nvidia_conda_target_lib_path)
+                    if os.path.isdir(conda_prefix_target_lib_path):
+                        soname = os.path.join(conda_prefix_target_lib_path, soname)
+                    try:
+                        handle = _load_lib(libname, soname)
+                    except OSError:
+                        pass
+                    else:
+                        # TODO KEITH: Do we need this abs_path_for_dynamic_library call?
+                        # We're already resolving the absolute path based on the conda environment variables
+                        abs_path = abs_path_for_dynamic_library(libname, handle)
+                        if abs_path is None:
+                            raise RuntimeError(f"No expected symbol for {libname=!r}")
+                        return LoadedDL(abs_path, False, handle._handle)
+                # Only run if not found in the target lib paths
+                conda_prefix_normal_lib_path = os.path.join(conda_prefix, normal_conda_lib_path)
+                if os.path.isdir(conda_prefix_normal_lib_path):
+                    soname = os.path.join(conda_prefix_normal_lib_path, soname)
+                    try:
+                        handle = _load_lib(libname, soname)
+                    except OSError:
+                        pass
+                    else:
+                        # TODO KEITH: Do we need this abs_path_for_dynamic_library call?
+                        # We're already resolving the absolute path based on the conda environment variables
+                        abs_path = abs_path_for_dynamic_library(libname, handle)
+    return None
+
+
 def _work_around_known_bugs(libname: str, found_path: str) -> None:
     if libname == "nvrtc":
         # Work around bug/oversight in
