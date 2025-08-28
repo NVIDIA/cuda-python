@@ -42,10 +42,8 @@ cdef bint __cuPythonInit = False
 {{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}cdef void *__nvrtcGetPCHHeapSizeRequired = NULL{{endif}}
 {{if 'nvrtcSetFlowCallback' in found_functions}}cdef void *__nvrtcSetFlowCallback = NULL{{endif}}
 
-cdef int cuPythonInit() except -1 nogil:
+cdef int _cuPythonInit() except -1 nogil:
     global __cuPythonInit
-    if __cuPythonInit:
-        return 0
 
     # Load library
     with gil, __symbol_lock:
@@ -348,6 +346,13 @@ cdef int cuPythonInit() except -1 nogil:
         {{endif}}
         __cuPythonInit = True
         return 0
+
+# Create a very small function to check whether we are init'ed, so the C
+# compiler can inline it.
+cdef inline int cuPythonInit() except -1 nogil:
+    if __cuPythonInit:
+        return 0
+    return _cuPythonInit()
 
 {{if 'nvrtcGetErrorString' in found_functions}}
 
