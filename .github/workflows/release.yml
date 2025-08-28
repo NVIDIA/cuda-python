@@ -27,6 +27,7 @@ on:
         description: "The GHA run ID that generated validated artifacts (optional - will be auto-detected from git tag if not provided)"
         required: false
         type: string
+        default: ""
       build-ctk-ver:
         type: string
         required: true
