@@ -38,10 +38,6 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 - **Artifact flow in**: `cuda-pathfinder` artifacts ← main branch
 - **Artifact flow out**: older `cuda-bindings` artifacts → main branch
 
-#### Pull Request Branches (`pull-request/*`)
-- **Build** → **Test** → **Status Check**
-- Artifacts used for CI validation only
-
 ### Key Infrastructure Details
 
 - **Self-hosted runners**: Used for Linux builds and GPU testing (more resources, faster builds)
