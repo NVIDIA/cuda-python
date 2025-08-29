@@ -240,6 +240,7 @@ SUPPORTED_LINUX_SONAMES_CTK = {
 SUPPORTED_LINUX_SONAMES_OTHER = {
     "cufftMp": ("libcufftMp.so.11",),
     "mathdx": ("libmathdx.so.0",),
+    "cudss": ("libcudss.so.0",),
     "nvpl_fftw": ("libnvpl_fftw.so.0",),
     "nvshmem_host": ("libnvshmem_host.so.3",),
 }
