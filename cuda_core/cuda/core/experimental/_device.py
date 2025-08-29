@@ -1003,7 +1003,7 @@ class Device:
                         )
                     )
                 ) == 1:
-                    dev._mr = DeviceMemoryResource(dev_id)
+                    dev._mr = DeviceMemoryResource.current(dev_id)
                 else:
                     dev._mr = _SynchronousMemoryResource(dev_id)
 
