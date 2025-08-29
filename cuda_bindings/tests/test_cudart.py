@@ -1400,3 +1400,9 @@ def test_struct_pointer_comparison(target):
     c = target(456)
     assert a != c
     assert hash(a) != hash(c)
+
+
+def test_getLocalRuntimeVersion():
+    err, version = cudart.getLocalRuntimeVersion()
+    assertSuccess(err)
+    assert version >= 10000  # CUDA 10.0

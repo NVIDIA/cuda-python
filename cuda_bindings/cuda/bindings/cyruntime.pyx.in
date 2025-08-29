@@ -2,8 +2,17 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # This code was automatically generated with version 13.0.0. Do not modify it directly.
+from libc.stdint cimport uintptr_t
 cimport cuda.bindings._bindings.cyruntime as cyruntime
 cimport cython
+
+from cuda.pathfinder import load_nvidia_dynamic_lib
+from pathlib import Path
+{{if 'Windows' == platform.system()}}
+import win32api
+{{else}}
+cimport cuda.bindings._lib.dlfcn as dlfcn
+{{endif}}
 
 {{if 'cudaDeviceReset' in found_functions}}
 
@@ -1885,35 +1894,28 @@ cdef cudaError_t cudaGraphicsVDPAURegisterOutputSurface(cudaGraphicsResource** r
 
 {{if True}}
 
-{{if 'Windows' != platform.system()}}
-cimport cuda.bindings._lib.dlfcn as dlfcn
-{{endif}}
-
 cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil:
-    {{if 'Windows' == platform.system()}}
     with gil:
-        raise NotImplementedError('"getLocalRuntimeVersion" is unsupported on Windows')
-    {{else}}
-    # Load
-    handle = dlfcn.dlopen('libcudart.so.13', dlfcn.RTLD_NOW)
-    if handle == NULL:
-        with gil:
-            raise RuntimeError(f'Failed to dlopen libcudart.so.13')
+        lib = load_nvidia_dynamic_lib("cudart")
+        filename = Path(lib.abs_path).name
+        handle = <void *><uintptr_t>lib._handle_uint
 
+    {{if 'Windows' == platform.system()}}
+    try:
+        __cudaRuntimeGetVersion = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cudaRuntimeGetVersion')
+    except:
+        pass
+    {{else}}
     __cudaRuntimeGetVersion = dlfcn.dlsym(handle, 'cudaRuntimeGetVersion')
+    {{endif}}
 
     if __cudaRuntimeGetVersion == NULL:
         with gil:
-            raise RuntimeError(f'Function "cudaRuntimeGetVersion" not found in libcudart.so.13')
+            raise RuntimeError(f'Function "cudaRuntimeGetVersion" not found in {filename}')
 
-    # Call
     cdef cudaError_t err = cudaSuccess
     err = (<cudaError_t (*)(int*) except ?cudaErrorCallRequiresNewerDriver nogil> __cudaRuntimeGetVersion)(runtimeVersion)
 
-    # Unload
-    dlfcn.dlclose(handle)
-
     # Return
     return err
-    {{endif}}
 {{endif}}
