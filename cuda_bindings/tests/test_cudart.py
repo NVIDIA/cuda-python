@@ -1405,4 +1405,4 @@ def test_struct_pointer_comparison(target):
 def test_getLocalRuntimeVersion():
     err, version = cudart.getLocalRuntimeVersion()
     assertSuccess(err)
-    assert version >= 10000  # CUDA 10.0
+    assert version >= 12000  # CUDA 12.0
