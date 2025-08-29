@@ -10,6 +10,7 @@ import array
 import ctypes
 import multiprocessing
 import platform
+import traceback
 
 import pytest
 
