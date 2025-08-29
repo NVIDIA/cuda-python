@@ -85,6 +85,7 @@ DIRECT_DEPENDENCIES_CTK = {
 DIRECT_DEPENDENCIES = DIRECT_DEPENDENCIES_CTK | {
     "mathdx": ("nvrtc",),
     "cufftMp": ("nvshmem_host",),
+    "cudss": ("cublas", "cublasLt"),
 }
 
 # Based on these released files:
@@ -240,6 +241,7 @@ SUPPORTED_LINUX_SONAMES_CTK = {
 SUPPORTED_LINUX_SONAMES_OTHER = {
     "cufftMp": ("libcufftMp.so.11",),
     "mathdx": ("libmathdx.so.0",),
+    "cudss": ("libcudss.so.0",),
     "nvpl_fftw": ("libnvpl_fftw.so.0",),
     "nvshmem_host": ("libnvshmem_host.so.3",),
 }
@@ -399,6 +401,7 @@ SUPPORTED_WINDOWS_DLLS_CTK = {
 }
 SUPPORTED_WINDOWS_DLLS_OTHER = {
     "mathdx": ("mathdx64_0.dll",),
+    "cudss": ("cudss64_0.dll",),
 }
 SUPPORTED_WINDOWS_DLLS = SUPPORTED_WINDOWS_DLLS_CTK | SUPPORTED_WINDOWS_DLLS_OTHER
 
@@ -441,6 +444,7 @@ SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
     "nvvm": ("nvidia/cu13/lib", "nvidia/cuda_nvcc/nvvm/lib64"),
 }
 SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
+    "cudss": ("nvidia/cu12/lib",),
     "cufftMp": ("nvidia/cufftmp/cu12/lib",),
     "mathdx": ("nvidia/cu13/lib", "nvidia/cu12/lib"),
     "nvpl_fftw": ("nvpl/lib",),

@@ -5,6 +5,10 @@
 cuda-pathfinder: Utilities for locating CUDA components
 *******************************************************
 
+.. image:: https://img.shields.io/badge/NVIDIA-black?logo=nvidia
+   :target: https://www.nvidia.com/
+   :alt: NVIDIA
+
 `cuda.pathfinder <https://nvidia.github.io/cuda-python/cuda-pathfinder/>`_
 aims to be a one-stop solution for locating CUDA components. Currently
 it supports locating and loading dynamic libraries (``.so``, ``.dll``);
