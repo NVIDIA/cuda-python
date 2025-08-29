@@ -307,7 +307,7 @@ def test_mempool():
     pool_size = 2097152  # 2MB size
 
     # Test basic pool creation
-    mr = DeviceMemoryResource(device, pool_size, ipc_enabled=False)
+    mr = DeviceMemoryResource(device, dict(max_size=pool_size, ipc_enabled=False))
     assert mr.device_id == device.device_id
     assert mr.is_device_accessible
     assert not mr.is_host_accessible
@@ -350,7 +350,7 @@ def test_mempool():
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        mr.get_shared_handle()
+        mr.get_shareable_handle()
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         mr.export_buffer(buffer)
@@ -388,7 +388,7 @@ def test_mempool_properties(property_name, expected_type):
 
     pool_size = 2097152  # 2MB size
     for ipc_enabled in [True, False]:
-        mr = DeviceMemoryResource(device, pool_size, ipc_enabled=ipc_enabled)
+        mr = DeviceMemoryResource(device, dict(max_size=pool_size, ipc_enabled=ipc_enabled))
         assert mr.is_ipc_enabled == ipc_enabled
 
         try:
@@ -503,7 +503,7 @@ def test_ipc_mempool():
 
     stream = device.create_stream()
     pool_size = 2097152  # 2MB size
-    mr = DeviceMemoryResource(device, pool_size, ipc_enabled=True)
+    mr = DeviceMemoryResource(device, dict(max_size=pool_size, ipc_enabled=True))
     assert mr.is_ipc_enabled
 
     # Create socket pair for handle transfer (only on Unix systems)
@@ -516,7 +516,7 @@ def test_ipc_mempool():
     process = None
 
     try:
-        shared_handle = mr.get_shared_handle()
+        shared_handle = mr.get_shareable_handle()
 
         # Allocate and export memory
         buffer = mr.allocate(64)
@@ -582,7 +582,7 @@ def test_ipc_mempool():
                 verify_buffer.close()
 
         finally:
-            mr.close_shared_handle(shared_handle)
+            mr.close_shareable_handle(shared_handle)
             buffer.close()
 
     finally:
