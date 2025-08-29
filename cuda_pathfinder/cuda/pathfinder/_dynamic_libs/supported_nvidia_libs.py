@@ -444,6 +444,7 @@ SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
     "nvvm": ("nvidia/cu13/lib", "nvidia/cuda_nvcc/nvvm/lib64"),
 }
 SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
+    "cudss": ("nvidia/cu12/lib",),
     "cufftMp": ("nvidia/cufftmp/cu12/lib",),
     "mathdx": ("nvidia/cu13/lib", "nvidia/cu12/lib"),
     "nvpl_fftw": ("nvpl/lib",),
