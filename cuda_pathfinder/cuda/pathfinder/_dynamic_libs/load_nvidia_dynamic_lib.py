@@ -13,12 +13,14 @@ if IS_WINDOWS:
     from cuda.pathfinder._dynamic_libs.load_dl_windows import (
         check_if_already_loaded_from_elsewhere,
         load_with_abs_path,
+        load_with_conda_search,
         load_with_system_search,
     )
 else:
     from cuda.pathfinder._dynamic_libs.load_dl_linux import (
         check_if_already_loaded_from_elsewhere,
         load_with_abs_path,
+        load_with_conda_search,
         load_with_system_search,
     )
 
@@ -41,6 +43,9 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
         return loaded
 
     if not have_abs_path:
+        loaded = load_with_conda_search(libname)
+        if loaded is not None:
+            return loaded
         loaded = load_with_system_search(libname)
         if loaded is not None:
             return loaded
@@ -77,7 +82,12 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
            - Scan installed distributions (``site-packages``) to find libraries
              shipped in NVIDIA wheels.
 
-        2. **OS default mechanisms / Conda environments**
+        2. **Conda environment**
+
+           - Detects if in a conda environment and searches for libraries in the expected locations within the conda
+             environment.
+
+        3. **OS default mechanisms**
 
            - Fall back to the native loader:
 

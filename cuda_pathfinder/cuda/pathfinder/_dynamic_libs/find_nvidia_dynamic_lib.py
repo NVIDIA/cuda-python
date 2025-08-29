@@ -27,7 +27,7 @@ def _no_such_file_in_sub_dirs(
             attachments.append(f"    {node}")
 
 
-def _find_so_using_nvidia_lib_dirs(
+def _find_so_using_nvidia_wheel_lib_dirs(
     libname: str, so_basename: str, error_messages: list[str], attachments: list[str]
 ) -> Optional[str]:
     rel_dirs = SITE_PACKAGES_LIBDIRS_LINUX.get(libname)
@@ -61,7 +61,7 @@ def _find_dll_under_dir(dirpath: str, file_wild: str) -> Optional[str]:
     return None
 
 
-def _find_dll_using_nvidia_bin_dirs(
+def _find_dll_using_nvidia_wheel_bin_dirs(
     libname: str, lib_searched_for: str, error_messages: list[str], attachments: list[str]
 ) -> Optional[str]:
     rel_dirs = SITE_PACKAGES_LIBDIRS_WINDOWS.get(libname)
@@ -157,7 +157,7 @@ class _FindNvidiaDynamicLib:
         if IS_WINDOWS:
             self.lib_searched_for = f"{libname}*.dll"
             if self.abs_path is None:
-                self.abs_path = _find_dll_using_nvidia_bin_dirs(
+                self.abs_path = _find_dll_using_nvidia_wheel_bin_dirs(
                     libname,
                     self.lib_searched_for,
                     self.error_messages,
@@ -166,7 +166,7 @@ class _FindNvidiaDynamicLib:
         else:
             self.lib_searched_for = f"lib{libname}.so"
             if self.abs_path is None:
-                self.abs_path = _find_so_using_nvidia_lib_dirs(
+                self.abs_path = _find_so_using_nvidia_wheel_lib_dirs(
                     libname,
                     self.lib_searched_for,
                     self.error_messages,
