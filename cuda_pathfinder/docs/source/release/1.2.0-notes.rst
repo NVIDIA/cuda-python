@@ -3,10 +3,10 @@
 
 .. module:: cuda.pathfinder
 
-``cuda-pathfinder`` 1.X.Y Release notes
+``cuda-pathfinder`` 1.2.0 Release notes
 ========================================
 
-Released on TBD
+Released on Aug 29, 2025
 
 
 Highlights

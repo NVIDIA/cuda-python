@@ -96,7 +96,7 @@ jobs:
       - name: Check cuda.pathfinder wheel
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
-          twine check cuda_pathfinder/*.whl
+          twine check --strict cuda_pathfinder/*.whl
 
       - name: Upload cuda.pathfinder build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
