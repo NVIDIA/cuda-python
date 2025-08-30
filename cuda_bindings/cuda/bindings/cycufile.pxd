@@ -4,6 +4,7 @@
 #
 # This code was automatically generated with version 12.9.0. Do not modify it directly.
 
+from libc.stdint cimport uint32_t, uint64_t
 from libc.time cimport time_t
 from libcpp cimport bool as cpp_bool
 from posix.types cimport off_t
