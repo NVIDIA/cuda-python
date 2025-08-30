@@ -24,6 +24,7 @@ from cuda.core.experimental._utils.cuda_utils import (
     is_nested_sequence,
     is_sequence,
     nvrtc,
+    nvvm,
 )
 
 
@@ -370,22 +371,26 @@ class Program:
     code : Any
         String of the CUDA Runtime Compilation program.
     code_type : Any
-        String of the code type. Currently ``"ptx"`` and ``"c++"`` are supported.
+        String of the code type. Currently ``"ptx"``, ``"c++"``, and ``"nvvm"`` are supported.
     options : ProgramOptions, optional
         A ProgramOptions object to customize the compilation process.
         See :obj:`ProgramOptions` for more information.
     """
 
     class _MembersNeededForFinalize:
-        __slots__ = "handle"
+        __slots__ = "handle", "backend"
 
-        def __init__(self, program_obj, handle):
+        def __init__(self, program_obj, handle, backend="NVRTC"):
             self.handle = handle
+            self.backend = backend
             weakref.finalize(program_obj, self.close)
 
         def close(self):
             if self.handle is not None:
-                handle_return(nvrtc.nvrtcDestroyProgram(self.handle))
+                if self.backend == "NVRTC":
+                    handle_return(nvrtc.nvrtcDestroyProgram(self.handle))
+                elif self.backend == "NVVM":
+                    handle_return(nvvm.destroy_program(self.handle))
                 self.handle = None
 
     __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options")
@@ -402,6 +407,7 @@ class Program:
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
 
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), options._name, 0, [], []))
+            self._mnff.backend = "NVRTC"
             self._backend = "NVRTC"
             self._linker = None
 
@@ -411,8 +417,21 @@ class Program:
                 ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
             self._backend = self._linker.backend
+
+        elif code_type == "nvvm":
+            if isinstance(code, str):
+                code = code.encode('utf-8')
+            elif not isinstance(code, (bytes, bytearray)):
+                raise TypeError("NVVM IR code must be provided as str, bytes, or bytearray")
+            
+            self._mnff.handle = nvvm.create_program()
+            self._mnff.backend = "NVVM"
+            nvvm.add_module_to_program(self._mnff.handle, code, len(code), options._name.decode())
+            self._backend = "NVVM"
+            self._linker = None
+
         else:
-            supported_code_types = ("c++", "ptx")
+            supported_code_types = ("c++", "ptx", "nvvm")
             assert code_type not in supported_code_types, f"{code_type=}"
             raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
 
@@ -512,6 +531,42 @@ class Program:
                     logs.write(log.decode("utf-8", errors="backslashreplace"))
 
             return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping, name=self._options.name)
+
+        elif self._backend == "NVVM":
+            if target_type != "ptx":
+                raise ValueError(f'NVVM backend only supports target_type="ptx", got "{target_type}"')
+            
+            nvvm_options = []
+            if self._options.arch is not None:
+                arch = self._options.arch
+                if arch.startswith("sm_"):
+                    arch = f"compute_{arch[3:]}"
+                nvvm_options.append(f"-arch={arch}")
+            else:
+                major, minor = Device().compute_capability
+                nvvm_options.append(f"-arch=compute_{major}{minor}")
+
+            if self._options.debug:
+                nvvm_options.append("-g")
+            if self._options.device_code_optimize is False:
+                nvvm_options.append("-opt=0")
+            elif self._options.device_code_optimize is True:
+                nvvm_options.append("-opt=3")
+
+            nvvm.compile_program(self._mnff.handle, len(nvvm_options), nvvm_options)
+            
+            size = nvvm.get_compiled_result_size(self._mnff.handle)
+            data = bytearray(size)
+            nvvm.get_compiled_result(self._mnff.handle, data)
+            
+            if logs is not None:
+                logsize = nvvm.get_program_log_size(self._mnff.handle)
+                if logsize > 1:
+                    log = bytearray(logsize)
+                    nvvm.get_program_log(self._mnff.handle, log)
+                    logs.write(log.decode("utf-8", errors="backslashreplace"))
+                    
+            return ObjectCode._init(data, target_type, name=self._options.name)
 
         supported_backends = ("nvJitLink", "driver")
         if self._backend not in supported_backends:

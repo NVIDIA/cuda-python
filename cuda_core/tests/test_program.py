@@ -12,6 +12,37 @@ from cuda.core.experimental._program import Program, ProgramOptions
 
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
 
+nvvm_ir = """
+target triple = "nvptx64-unknown-cuda"
+target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
+
+define i32 @ave(i32 %a, i32 %b) {
+entry:
+  %add = add nsw i32 %a, %b
+  %div = sdiv i32 %add, 2
+  ret i32 %div
+}
+
+define void @simple(i32* %data) {
+entry:
+  %0 = call i32 @llvm.nvvm.read.ptx.sreg.ctaid.x()
+  %1 = call i32 @llvm.nvvm.read.ptx.sreg.ntid.x()
+  %mul = mul i32 %0, %1
+  %2 = call i32 @llvm.nvvm.read.ptx.sreg.tid.x()
+  %add = add i32 %mul, %2
+  %call = call i32 @ave(i32 %add, i32 %add)
+  %idxprom = sext i32 %add to i64
+  store i32 %call, i32* %data, align 4
+  ret void
+}
+
+declare i32 @llvm.nvvm.read.ptx.sreg.ctaid.x() nounwind readnone
+
+declare i32 @llvm.nvvm.read.ptx.sreg.ntid.x() nounwind readnone
+
+declare i32 @llvm.nvvm.read.ptx.sreg.tid.x() nounwind readnone
+
+"""
 
 @pytest.fixture(scope="module")
 def ptx_code_object():
@@ -92,7 +123,7 @@ def test_program_init_valid_code_type():
 def test_program_init_invalid_code_type():
     code = "goto 100"
     with pytest.raises(
-        RuntimeError, match=r"^Unsupported code_type='fortran' \(supported_code_types=\('c\+\+', 'ptx'\)\)$"
+        RuntimeError, match=r"^Unsupported code_type='fortran' \(supported_code_types=\('c\+\+', 'ptx', 'nvvm'\)\)$"
     ):
         Program(code, "FORTRAN")
 
@@ -150,3 +181,42 @@ def test_program_close():
     program = Program(code, "c++")
     program.close()
     assert program.handle is None
+
+nvvm_options = [
+    ProgramOptions(name="nvvm_test"),
+    ProgramOptions(device_code_optimize=True),
+    ProgramOptions(arch="sm_90"),
+    ProgramOptions(debug=True),
+]
+
+@pytest.mark.parametrize("options", nvvm_options)
+def test_nvvm_program_with_various_options(init_cuda, options):
+    program = Program(nvvm_ir, "nvvm", options)
+    assert program.backend == "NVVM"
+    program.compile("ptx")
+    program.close()
+    assert program.handle is None
+
+
+def test_nvvm_program_creation():
+    program = Program(nvvm_ir, "nvvm")
+    assert program.backend == "NVVM"
+    assert program.handle is not None
+
+
+def test_nvvm_compile_invalid_target():
+    program = Program(nvvm_ir, "nvvm")
+    with pytest.raises(ValueError):
+        program.compile("cubin")
+
+
+def test_nvvm_compile_valid_target_type(init_cuda):
+    program = Program(nvvm_ir, "nvvm", options={"name": "nvvm_test"})
+    ptx_object_code = program.compile("ptx")
+    assert isinstance(ptx_object_code, ObjectCode)
+    assert ptx_object_code.name == "nvvm_test"
+    
+    ptx_kernel = ptx_object_code.get_kernel("nvvm_kernel")
+    assert isinstance(ptx_kernel, Kernel)
+    
+    program.close()
