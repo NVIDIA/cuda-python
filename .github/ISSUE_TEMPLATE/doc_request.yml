@@ -41,4 +41,3 @@ body:
       label: If this is a correction, please provide a link to the incorrect documentation. If this is a new documentation request, please link to where you have looked.
       placeholder: |
        https://nvidia.github.io/cuda-python/latest/
-

@@ -31,6 +31,7 @@ if not CUDA_HOME:
     raise RuntimeError("Environment variable CUDA_HOME or CUDA_PATH is not set")
 
 CUDA_HOME = CUDA_HOME.split(os.pathsep)
+
 if os.environ.get("PARALLEL_LEVEL") is not None:
     warn(
         "Environment variable PARALLEL_LEVEL is deprecated. Use CUDA_PYTHON_PARALLEL_LEVEL instead",
@@ -218,9 +219,8 @@ path_list = [
     os.path.join("cuda"),
     os.path.join("cuda", "bindings"),
     os.path.join("cuda", "bindings", "_bindings"),
-    os.path.join("cuda", "bindings", "_lib"),
-    os.path.join("cuda", "bindings", "_lib", "cyruntime"),
     os.path.join("cuda", "bindings", "_internal"),
+    os.path.join("cuda", "bindings", "_lib"),
     os.path.join("cuda", "bindings", "utils"),
 ]
 input_files = []
@@ -238,6 +238,8 @@ include_dirs = [
     os.path.dirname(sysconfig.get_path("include")),
 ] + include_path_list
 library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib")]
+cudalib_subdirs = [r"lib\x64"] if sys.platform == "win32" else ["lib64", "lib"]
+library_dirs.extend(os.path.join(prefix, subdir) for prefix in CUDA_HOME for subdir in cudalib_subdirs)
 
 extra_compile_args = []
 extra_cythonize_kwargs = {}
@@ -340,9 +342,6 @@ sources_list = [
     (["cuda/bindings/_bindings/cyruntime.pyx"], static_runtime_libraries),
     (["cuda/bindings/_bindings/cyruntime_ptds.pyx"], static_runtime_libraries),
     # utils
-    (["cuda/bindings/_lib/utils.pyx", "cuda/bindings/_lib/param_packer.cpp"], None),
-    (["cuda/bindings/_lib/cyruntime/cyruntime.pyx"], None),
-    (["cuda/bindings/_lib/cyruntime/utils.pyx"], None),
     (["cuda/bindings/utils/*.pyx"], None),
     # public
     *(([f], None) for f in cuda_bindings_files),

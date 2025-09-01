@@ -10,7 +10,7 @@ import ctypes
 
 import pytest
 
-from cuda.core.experimental import Buffer, Device, MemoryResource
+from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource
 from cuda.core.experimental._memory import DLDeviceType
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
@@ -46,11 +46,11 @@ class DummyHostMemoryResource(MemoryResource):
     def allocate(self, size, stream=None) -> Buffer:
         # Allocate a ctypes buffer of size `size`
         ptr = (ctypes.c_byte * size)()
-        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
+        self._ptr = ptr
+        return Buffer.from_handle(ptr=ctypes.addressof(ptr), size=size, mr=self)
 
     def deallocate(self, ptr, size, stream=None):
-        # the memory is deallocated per the ctypes deallocation at garbage collection time
-        pass
+        del self._ptr
 
     @property
     def is_device_accessible(self) -> bool:
@@ -203,7 +203,7 @@ def test_buffer_copy_from():
 def buffer_close(dummy_mr: MemoryResource):
     buffer = dummy_mr.allocate(size=1024)
     buffer.close()
-    assert buffer.handle == 0
+    assert buffer.handle is None
     assert buffer.memory_resource is None
 
 
@@ -226,11 +226,11 @@ def test_buffer_dunder_dlpack():
     capsule = buffer.__dlpack__(max_version=(1, 0))
     assert "dltensor" in repr(capsule)
     with pytest.raises(BufferError, match=r"^Sorry, not supported: dl_device other than None$"):
-        buffer.__dlpack__(dl_device=[])
+        buffer.__dlpack__(dl_device=())
     with pytest.raises(BufferError, match=r"^Sorry, not supported: copy=True$"):
         buffer.__dlpack__(copy=True)
-    with pytest.raises(BufferError, match=r"^Expected max_version Tuple\[int, int\], got \[\]$"):
-        buffer.__dlpack__(max_version=[])
+    with pytest.raises(BufferError, match=r"^Expected max_version Tuple\[int, int\], got \(\)$"):
+        buffer.__dlpack__(max_version=())
     with pytest.raises(BufferError, match=r"^Expected max_version Tuple\[int, int\], got \(9, 8, 7\)$"):
         buffer.__dlpack__(max_version=(9, 8, 7))
 
@@ -257,3 +257,29 @@ def test_buffer_dunder_dlpack_device_failure():
     buffer = dummy_mr.allocate(size=1024)
     with pytest.raises(BufferError, match=r"^buffer is neither device-accessible nor host-accessible$"):
         buffer.__dlpack_device__()
+
+
+def test_device_memory_resource_initialization():
+    """Test that DeviceMemoryResource can be initialized successfully.
+
+    This test verifies that the DeviceMemoryResource initializes properly,
+    including the release threshold configuration for performance optimization.
+    """
+    device = Device()
+    if not device.properties.memory_pools_supported:
+        pytest.skip("memory pools not supported")
+    device.set_current()
+
+    # This should succeed and configure the memory pool release threshold
+    mr = DeviceMemoryResource(device.device_id)
+
+    # Verify basic properties
+    assert mr.device_id == device.device_id
+    assert mr.is_device_accessible is True
+    assert mr.is_host_accessible is False
+
+    # Test allocation/deallocation works
+    buffer = mr.allocate(1024)
+    assert buffer.size == 1024
+    assert buffer.device_id == device.device_id
+    buffer.close()

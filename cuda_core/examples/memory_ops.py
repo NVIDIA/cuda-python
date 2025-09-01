@@ -54,8 +54,7 @@ stream = dev.create_stream()
 cp.cuda.ExternalStream(int(stream.handle)).use()
 
 # Compile kernel
-arch = "".join(f"{i}" for i in dev.compute_capability)
-program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
+program_options = ProgramOptions(std="c++17", arch=f"sm_{dev.arch}")
 prog = Program(code, code_type="c++", options=program_options)
 mod = prog.compile("cubin")
 kernel = mod.get_kernel("memory_ops")
@@ -130,8 +129,8 @@ stream.close()
 cp.cuda.Stream.null.use()  # reset CuPy's current stream to the null stream
 
 # Verify buffers are properly closed
-assert device_buffer.handle == 0, "Device buffer should be closed"
-assert pinned_buffer.handle == 0, "Pinned buffer should be closed"
-assert new_device_buffer.handle == 0, "New device buffer should be closed"
+assert device_buffer.handle is None, "Device buffer should be closed"
+assert pinned_buffer.handle is None, "Pinned buffer should be closed"
+assert new_device_buffer.handle is None, "New device buffer should be closed"
 
 print("Memory management example completed!")

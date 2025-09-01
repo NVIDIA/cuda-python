@@ -12,12 +12,12 @@ from typing import Any, Optional
 import numpy
 
 from cuda.core.experimental._utils.cuda_utils import handle_return, driver
+from cuda.core.experimental._utils cimport cuda_utils
 
 
 # TODO(leofang): support NumPy structured dtypes
 
 
-@cython.dataclasses.dataclass
 cdef class StridedMemoryView:
     """A dataclass holding metadata of a strided dense array/tensor.
 
@@ -29,20 +29,20 @@ cdef class StridedMemoryView:
     This object supports both DLPack (up to v1.0) and CUDA Array Interface
     (CAI) v3. When wrapping an arbitrary object it will try the DLPack protocol
     first, then the CAI protocol. A :obj:`BufferError` is raised if neither is
-    supported. 
-    
+    supported.
+
     Since either way would take a consumer stream, for DLPack it is passed to
-    ``obj.__dlpack__()`` as-is (except for :obj:`None`, see below); for CAI, a 
+    ``obj.__dlpack__()`` as-is (except for :obj:`None`, see below); for CAI, a
     stream order will be established between the consumer stream and the
-    producer stream (from ``obj.__cuda_array_interface__()["stream"]``), as if  
-    ``cudaStreamWaitEvent`` is called by this method. 
-    
-    To opt-out of the stream ordering operation in either DLPack or CAI, 
-    please pass ``stream_ptr=-1``. Note that this deviates (on purpose) 
+    producer stream (from ``obj.__cuda_array_interface__()["stream"]``), as if
+    ``cudaStreamWaitEvent`` is called by this method.
+
+    To opt-out of the stream ordering operation in either DLPack or CAI,
+    please pass ``stream_ptr=-1``. Note that this deviates (on purpose)
     from the semantics of ``obj.__dlpack__(stream=None, ...)`` since ``cuda.core``
-    does not encourage using the (legacy) default/null stream, but is 
+    does not encourage using the (legacy) default/null stream, but is
     consistent with the CAI's semantics. For DLPack, ``stream=-1`` will be
-    internally passed to ``obj.__dlpack__()`` instead. 
+    internally passed to ``obj.__dlpack__()`` instead.
 
     Attributes
     ----------
@@ -50,7 +50,7 @@ cdef class StridedMemoryView:
         Pointer to the tensor buffer (as a Python `int`).
     shape : tuple
         Shape of the tensor.
-    strides : tuple
+    strides : Optional[tuple]
         Strides of the tensor (in **counts**, not bytes).
     dtype: numpy.dtype
         Data type of the tensor.
@@ -73,15 +73,27 @@ cdef class StridedMemoryView:
         The pointer address (as Python `int`) to the **consumer** stream.
         Stream ordering will be properly established unless ``-1`` is passed.
     """
-    # TODO: switch to use Cython's cdef typing?
-    ptr: int = None
-    shape: tuple = None
-    strides: tuple = None  # in counts, not bytes
-    dtype: numpy.dtype = None
-    device_id: int = None  # -1 for CPU
-    is_device_accessible: bool = None
-    readonly: bool = None
-    exporting_obj: Any = None
+    cdef readonly:
+        intptr_t ptr
+        int device_id
+        bint is_device_accessible
+        bint readonly
+        object exporting_obj
+
+    # If using dlpack, this is a strong reference to the result of
+    # obj.__dlpack__() so we can lazily create shape and strides from
+    # it later.  If using CAI, this is a reference to the source
+    # `__cuda_array_interface__` object.
+    cdef object metadata
+
+    # The tensor object if has obj has __dlpack__, otherwise must be NULL
+    cdef DLTensor *dl_tensor
+
+    # Memoized properties
+    cdef tuple _shape
+    cdef tuple _strides
+    cdef bint _strides_init  # Has the strides tuple been init'ed?
+    cdef object _dtype
 
     def __init__(self, obj=None, stream_ptr=None):
         if obj is not None:
@@ -91,8 +103,55 @@ cdef class StridedMemoryView:
             else:
                 view_as_cai(obj, stream_ptr, self)
         else:
-            # default construct
             pass
+
+    @property
+    def shape(self) -> tuple[int]:
+        if self._shape is None and self.exporting_obj is not None:
+            if self.dl_tensor != NULL:
+                self._shape = cuda_utils.carray_int64_t_to_tuple(
+                    self.dl_tensor.shape,
+                    self.dl_tensor.ndim
+                )
+            else:
+                self._shape = self.metadata["shape"]
+        else:
+            self._shape = ()
+        return self._shape
+
+    @property
+    def strides(self) -> Optional[tuple[int]]:
+        cdef int itemsize
+        if self._strides_init is False:
+            if self.exporting_obj is not None:
+                if self.dl_tensor != NULL:
+                    if self.dl_tensor.strides:
+                        self._strides = cuda_utils.carray_int64_t_to_tuple(
+                            self.dl_tensor.strides,
+                            self.dl_tensor.ndim
+                        )
+                else:
+                    strides = self.metadata.get("strides")
+                    if strides is not None:
+                        itemsize = self.dtype.itemsize
+                        self._strides = cpython.PyTuple_New(len(strides))
+                        for i in range(len(strides)):
+                            cpython.PyTuple_SET_ITEM(
+                                self._strides, i, strides[i] // itemsize
+                            )
+            self._strides_init = True
+        return self._strides
+
+    @property
+    def dtype(self) -> Optional[numpy.dtype]:
+        if self._dtype is None:
+            if self.exporting_obj is not None:
+                if self.dl_tensor != NULL:
+                    self._dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
+                else:
+                    # TODO: this only works for built-in numeric types
+                    self._dtype = numpy.dtype(self.metadata["typestr"])
+        return self._dtype
 
     def __repr__(self):
         return (f"StridedMemoryView(ptr={self.ptr},\n"
@@ -151,7 +210,7 @@ cdef class _StridedMemoryViewProxy:
 
 cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef int dldevice, device_id, i
-    cdef bint is_device_accessible, versioned, is_readonly
+    cdef bint is_device_accessible, is_readonly
     is_device_accessible = False
     dldevice, device_id = obj.__dlpack_device__()
     if dldevice == _kDLCPU:
@@ -184,49 +243,39 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
             stream=int(stream_ptr) if stream_ptr else None)
 
     cdef void* data = NULL
+    cdef DLTensor* dl_tensor
+    cdef DLManagedTensorVersioned* dlm_tensor_ver
+    cdef DLManagedTensor* dlm_tensor
+    cdef const char *used_name
     if cpython.PyCapsule_IsValid(
             capsule, DLPACK_VERSIONED_TENSOR_UNUSED_NAME):
         data = cpython.PyCapsule_GetPointer(
             capsule, DLPACK_VERSIONED_TENSOR_UNUSED_NAME)
-        versioned = True
+        dlm_tensor_ver = <DLManagedTensorVersioned*>data
+        dl_tensor = &dlm_tensor_ver.dl_tensor
+        is_readonly = bool((dlm_tensor_ver.flags & DLPACK_FLAG_BITMASK_READ_ONLY) != 0)
+        used_name = DLPACK_VERSIONED_TENSOR_USED_NAME
     elif cpython.PyCapsule_IsValid(
             capsule, DLPACK_TENSOR_UNUSED_NAME):
         data = cpython.PyCapsule_GetPointer(
             capsule, DLPACK_TENSOR_UNUSED_NAME)
-        versioned = False
-    else:
-        assert False
-
-    cdef DLManagedTensor* dlm_tensor
-    cdef DLManagedTensorVersioned* dlm_tensor_ver
-    cdef DLTensor* dl_tensor
-    if versioned:
-        dlm_tensor_ver = <DLManagedTensorVersioned*>data
-        dl_tensor = &dlm_tensor_ver.dl_tensor
-        is_readonly = bool((dlm_tensor_ver.flags & DLPACK_FLAG_BITMASK_READ_ONLY) != 0)
-    else:
         dlm_tensor = <DLManagedTensor*>data
         dl_tensor = &dlm_tensor.dl_tensor
         is_readonly = False
+        used_name = DLPACK_TENSOR_USED_NAME
+    else:
+        assert False
+
+    cpython.PyCapsule_SetName(capsule, used_name)
 
     cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
+    buf.dl_tensor = dl_tensor
+    buf.metadata = capsule
     buf.ptr = <intptr_t>(dl_tensor.data)
-    buf.shape = tuple(int(dl_tensor.shape[i]) for i in range(dl_tensor.ndim))
-    if dl_tensor.strides:
-        buf.strides = tuple(
-            int(dl_tensor.strides[i]) for i in range(dl_tensor.ndim))
-    else:
-        # C-order
-        buf.strides = None
-    buf.dtype = dtype_dlpack_to_numpy(&dl_tensor.dtype)
     buf.device_id = device_id
     buf.is_device_accessible = is_device_accessible
     buf.readonly = is_readonly
     buf.exporting_obj = obj
-
-    cdef const char* used_name = (
-        DLPACK_VERSIONED_TENSOR_USED_NAME if versioned else DLPACK_TENSOR_USED_NAME)
-    cpython.PyCapsule_SetName(capsule, used_name)
 
     return buf
 
@@ -291,7 +340,8 @@ cdef object dtype_dlpack_to_numpy(DLDataType* dtype):
     return numpy.dtype(np_dtype)
 
 
-cdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
+# Also generate for Python so we can test this code path
+cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
     cdef dict cai_data = obj.__cuda_array_interface__
     if cai_data["version"] < 3:
         raise BufferError("only CUDA Array Interface v3 or above is supported")
@@ -302,14 +352,9 @@ cdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
 
     cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
     buf.exporting_obj = obj
+    buf.metadata = cai_data
+    buf.dl_tensor = NULL
     buf.ptr, buf.readonly = cai_data["data"]
-    buf.shape = cai_data["shape"]
-    # TODO: this only works for built-in numeric types
-    buf.dtype = numpy.dtype(cai_data["typestr"])
-    buf.strides = cai_data.get("strides")
-    if buf.strides is not None:
-        # convert to counts
-        buf.strides = tuple(s // buf.dtype.itemsize for s in buf.strides)
     buf.is_device_accessible = True
     buf.device_id = handle_return(
         driver.cuPointerGetAttribute(
@@ -317,18 +362,20 @@ cdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
             buf.ptr))
 
     cdef intptr_t producer_s, consumer_s
-    stream = cai_data.get("stream")
-    if stream is not None:
-        producer_s = <intptr_t>(stream)
-        consumer_s = <intptr_t>(stream_ptr)
-        assert producer_s > 0
-        # establish stream order
-        if producer_s != consumer_s:
-            e = handle_return(driver.cuEventCreate(
-                driver.CUevent_flags.CU_EVENT_DISABLE_TIMING))
-            handle_return(driver.cuEventRecord(e, producer_s))
-            handle_return(driver.cuStreamWaitEvent(consumer_s, e, 0))
-            handle_return(driver.cuEventDestroy(e))
+    stream_ptr = int(stream_ptr)
+    if stream_ptr != -1:
+        stream = cai_data.get("stream")
+        if stream is not None:
+            producer_s = <intptr_t>(stream)
+            consumer_s = <intptr_t>(stream_ptr)
+            assert producer_s > 0
+            # establish stream order
+            if producer_s != consumer_s:
+                e = handle_return(driver.cuEventCreate(
+                    driver.CUevent_flags.CU_EVENT_DISABLE_TIMING))
+                handle_return(driver.cuEventRecord(e, producer_s))
+                handle_return(driver.cuStreamWaitEvent(consumer_s, e, 0))
+                handle_return(driver.cuEventDestroy(e))
 
     return buf
 

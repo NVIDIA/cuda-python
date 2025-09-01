@@ -35,10 +35,20 @@ def _lazy_init():
 class LaunchConfig:
     """Customizable launch options.
 
+    Note
+    ----
+    When cluster is specified, the grid parameter represents the number of
+    clusters (not blocks). The hierarchy is: grid (clusters) -> cluster (blocks) ->
+    block (threads). Each dimension in grid specifies clusters in the grid, each dimension in
+    cluster specifies blocks per cluster, and each dimension in block specifies
+    threads per block.
+
     Attributes
     ----------
     grid : Union[tuple, int]
-        Collection of threads that will execute a kernel function.
+        Collection of threads that will execute a kernel function. When cluster
+        is not specified, this represents the number of blocks, otherwise
+        this represents the number of clusters.
     cluster : Union[tuple, int]
         Group of blocks (Thread Block Cluster) that will execute on the same
         GPU Processing Cluster (GPC). Blocks within a cluster have access to
@@ -89,16 +99,29 @@ class LaunchConfig:
 def _to_native_launch_config(config: LaunchConfig) -> driver.CUlaunchConfig:
     _lazy_init()
     drv_cfg = driver.CUlaunchConfig()
-    drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
-    drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
-    drv_cfg.sharedMemBytes = config.shmem_size
-    attrs = []  # TODO: support more attributes
+
+    # Handle grid dimensions and cluster configuration
     if config.cluster:
+        # Convert grid from cluster units to block units
+        grid_blocks = (
+            config.grid[0] * config.cluster[0],
+            config.grid[1] * config.cluster[1],
+            config.grid[2] * config.cluster[2],
+        )
+        drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = grid_blocks
+
+        # Set up cluster attribute
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
         dim = attr.value.clusterDim
         dim.x, dim.y, dim.z = config.cluster
-        attrs.append(attr)
+        attrs = [attr]
+    else:
+        drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
+        attrs = []
+
+    drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
+    drv_cfg.sharedMemBytes = config.shmem_size
     if config.cooperative_launch:
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE

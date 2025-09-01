@@ -19,6 +19,7 @@ on:
         #   - cuda-core
         #   - cuda-bindings
         #   - cuda-python
+        #   - cuda-pathfinder
         #   - all
       git-tag:
         description: "Target git tag to build docs for"
@@ -47,13 +48,12 @@ jobs:
         shell: bash -el {0}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: 0
           ref: ${{ inputs.git-tag }}
 
-      # TODO: cache conda env to speed up the workflow once conda-incubator/setup-miniconda#267
-      # is resolved
+      # TODO: This workflow runs on GH-hosted runner and cannot use the proxy cache
 
       - name: Set up miniforge
         uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f  # v3.2.0
@@ -103,7 +103,7 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
 
       - name: Download cuda-python build artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           name: cuda-python-wheel
           path: .
@@ -116,7 +116,7 @@ jobs:
           ls -lahR .
 
       - name: Download cuda-pathfinder build artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
@@ -130,14 +130,14 @@ jobs:
 
       - name: Download cuda.bindings build artifacts
         if: ${{ !inputs.is-release }}
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
       - name: Download cuda.bindings build artifacts
         if: ${{ inputs.is-release }}
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           pattern: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           merge-multiple: true
@@ -152,14 +152,14 @@ jobs:
 
       - name: Download cuda.core build artifacts
         if: ${{ !inputs.is-release }}
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Download cuda.core build artifacts
         if: ${{ inputs.is-release }}
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           pattern: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           merge-multiple: true
@@ -238,7 +238,7 @@ jobs:
 
       # TODO: Consider removing this step?
       - name: Upload doc artifacts
-        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b  # v4.0.0
         with:
           path: artifacts/
           retention-days: 3

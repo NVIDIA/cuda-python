@@ -3,7 +3,8 @@
 
 # This code was automatically generated with version 13.0.0. Do not modify it directly.
 cimport cuda.bindings.cydriver as cydriver
-cimport cuda.bindings._lib.utils as utils
+
+include "_lib/utils.pxd"
 
 {{if 'CUcontext' in found_types}}
 
@@ -1164,7 +1165,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_st:
     cdef CUfunction _func
     {{endif}}
     {{if 'CUDA_KERNEL_NODE_PARAMS_st.kernelParams' in found_struct}}
-    cdef utils.HelperKernelParams _cykernelParams
+    cdef _HelperKernelParams _cykernelParams
     {{endif}}
 {{endif}}
 {{if 'CUDA_KERNEL_NODE_PARAMS_v2_st' in found_struct}}
@@ -1237,7 +1238,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v2_st:
     cdef CUfunction _func
     {{endif}}
     {{if 'CUDA_KERNEL_NODE_PARAMS_v2_st.kernelParams' in found_struct}}
-    cdef utils.HelperKernelParams _cykernelParams
+    cdef _HelperKernelParams _cykernelParams
     {{endif}}
     {{if 'CUDA_KERNEL_NODE_PARAMS_v2_st.kern' in found_struct}}
     cdef CUkernel _kern
@@ -1316,7 +1317,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v3_st:
     cdef CUfunction _func
     {{endif}}
     {{if 'CUDA_KERNEL_NODE_PARAMS_v3_st.kernelParams' in found_struct}}
-    cdef utils.HelperKernelParams _cykernelParams
+    cdef _HelperKernelParams _cykernelParams
     {{endif}}
     {{if 'CUDA_KERNEL_NODE_PARAMS_v3_st.kern' in found_struct}}
     cdef CUkernel _kern
@@ -3201,7 +3202,7 @@ cdef class CUDA_LAUNCH_PARAMS_st:
     cdef CUstream _hStream
     {{endif}}
     {{if 'CUDA_LAUNCH_PARAMS_st.kernelParams' in found_struct}}
-    cdef utils.HelperKernelParams _cykernelParams
+    cdef _HelperKernelParams _cykernelParams
     {{endif}}
 {{endif}}
 {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.handle.win32' in found_struct}}

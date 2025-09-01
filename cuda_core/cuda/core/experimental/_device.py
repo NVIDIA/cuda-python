@@ -1113,6 +1113,11 @@ class Device:
         return cc
 
     @property
+    def arch(self) -> str:
+        """Return compute capability as a string (e.g., '75' for CC 7.5)."""
+        return f"{self.compute_capability.major}{self.compute_capability.minor}"
+
+    @property
     def context(self) -> Context:
         """Return the current :obj:`~_context.Context` associated with this device.
 
