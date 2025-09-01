@@ -443,7 +443,7 @@ class Program:
                 elif self.backend == "NVVM":
                     try:
                         nvvm = _get_nvvm_module()
-                        handle_return(nvvm.destroy_program(self.handle))
+                        nvvm.destroy_program(self.handle)
                     except ImportError as e:
                         pass
                 self.handle = None
@@ -623,7 +623,8 @@ class Program:
                     nvvm.get_program_log(self._mnff.handle, log)
                     logs.write(log.decode("utf-8", errors="backslashreplace"))
                     
-            return ObjectCode._init(data, target_type, name=self._options.name)
+            data_bytes = bytes(data)
+            return ObjectCode._init(data_bytes, target_type, name=self._options.name)
 
         supported_backends = ("nvJitLink", "driver")
         if self._backend not in supported_backends:
