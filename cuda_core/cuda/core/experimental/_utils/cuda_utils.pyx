@@ -9,11 +9,11 @@ from collections.abc import Sequence
 from typing import Callable
 
 try:
-    from cuda.bindings import driver, nvrtc, nvvm, runtime
+    from cuda.bindings import driver, nvrtc, runtime
 except ImportError:
     from cuda import cuda as driver
     from cuda import cudart as runtime
-    from cuda import nvrtc, nvvm
+    from cuda import nvrtc
 
 from cuda.core.experimental._utils.driver_cu_result_explanations import DRIVER_CU_RESULT_EXPLANATIONS
 from cuda.core.experimental._utils.runtime_cuda_error_explanations import RUNTIME_CUDA_ERROR_EXPLANATIONS
