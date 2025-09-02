@@ -8,7 +8,10 @@ import os
 from typing import Optional, cast
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import SUPPORTED_LINUX_SONAMES
+from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
+    LIBNAMES_REQUIRING_RTLD_DEEPBIND,
+    SUPPORTED_LINUX_SONAMES,
+)
 
 CDLL_MODE = os.RTLD_NOW | os.RTLD_GLOBAL
 
@@ -122,7 +125,8 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
 
 
 def get_candidate_sonames(libname: str) -> list[str]:
-    candidate_sonames = list(SUPPORTED_LINUX_SONAMES.get(libname, ()))
+    # Reverse tabulated names to achieve new → old search order.
+    candidate_sonames = list(reversed(SUPPORTED_LINUX_SONAMES.get(libname, ())))
     candidate_sonames.append(f"lib{libname}.so")
     return candidate_sonames
 
@@ -136,6 +140,13 @@ def check_if_already_loaded_from_elsewhere(libname: str, _have_abs_path: bool) -
         else:
             return LoadedDL(abs_path_for_dynamic_library(libname, handle), True, handle._handle)
     return None
+
+
+def _load_lib(libname: str, filename: str) -> ctypes.CDLL:
+    cdll_mode = CDLL_MODE
+    if libname in LIBNAMES_REQUIRING_RTLD_DEEPBIND:
+        cdll_mode |= os.RTLD_DEEPBIND
+    return ctypes.CDLL(filename, cdll_mode)
 
 
 def load_with_system_search(libname: str) -> Optional[LoadedDL]:
@@ -152,13 +163,14 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
     """
     for soname in get_candidate_sonames(libname):
         try:
-            handle = ctypes.CDLL(soname, CDLL_MODE)
+            handle = _load_lib(libname, soname)
+        except OSError:
+            pass
+        else:
             abs_path = abs_path_for_dynamic_library(libname, handle)
             if abs_path is None:
                 raise RuntimeError(f"No expected symbol for {libname=!r}")
             return LoadedDL(abs_path, False, handle._handle)
-        except OSError:
-            pass
     return None
 
 
@@ -196,7 +208,7 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
     """
     _work_around_known_bugs(libname, found_path)
     try:
-        handle = ctypes.CDLL(found_path, CDLL_MODE)
+        handle = _load_lib(libname, found_path)
     except OSError as e:
         raise RuntimeError(f"Failed to dlopen {found_path}: {e}") from e
     return LoadedDL(found_path, False, handle._handle)

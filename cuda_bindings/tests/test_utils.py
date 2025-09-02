@@ -1,7 +1,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import platform
 import random
+import subprocess  # nosec B404
+import sys
+from pathlib import Path
 
 import pytest
 
@@ -87,3 +91,21 @@ def test_get_handle(target):
 def test_get_handle_error(target):
     with pytest.raises(TypeError) as e:
         handle = get_cuda_native_handle(target)
+
+
+@pytest.mark.parametrize(
+    "module",
+    # Top-level modules for external Python use
+    [
+        "driver",
+        "nvjitlink",
+        "nvrtc",
+        "nvvm",
+        "runtime",
+        *(["cufile"] if platform.system() != "Windows" else []),
+    ],
+)
+def test_cyclical_imports(module):
+    subprocess.check_call(  # nosec B603
+        [sys.executable, Path(__file__).parent / "utils" / "check_cyclical_import.py", f"cuda.bindings.{module}"],
+    )

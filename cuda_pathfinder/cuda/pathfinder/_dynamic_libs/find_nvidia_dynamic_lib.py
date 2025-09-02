@@ -10,6 +10,8 @@ from typing import Optional
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     IS_WINDOWS,
+    SITE_PACKAGES_LIBDIRS_LINUX,
+    SITE_PACKAGES_LIBDIRS_WINDOWS,
     is_suppressed_dll_file,
 )
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs, find_sub_dirs_all_sitepackages
@@ -28,22 +30,25 @@ def _no_such_file_in_sub_dirs(
 def _find_so_using_nvidia_lib_dirs(
     libname: str, so_basename: str, error_messages: list[str], attachments: list[str]
 ) -> Optional[str]:
-    file_wild = so_basename + "*"
-    nvidia_sub_dirs_list: list[tuple[str, ...]] = [("nvidia", "*", "lib")]  # works also for CTK 13 nvvm
-    if libname == "nvvm":
-        nvidia_sub_dirs_list.append(("nvidia", "*", "nvvm", "lib64"))  # CTK 12
-    for nvidia_sub_dirs in nvidia_sub_dirs_list:
-        for lib_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
-            # First look for an exact match
-            so_name = os.path.join(lib_dir, so_basename)
-            if os.path.isfile(so_name):
-                return so_name
-            # Look for a versioned library
-            # Using sort here mainly to make the result deterministic.
-            for so_name in sorted(glob.glob(os.path.join(lib_dir, file_wild))):
+    rel_dirs = SITE_PACKAGES_LIBDIRS_LINUX.get(libname)
+    if rel_dirs is not None:
+        sub_dirs_searched = []
+        file_wild = so_basename + "*"
+        for rel_dir in rel_dirs:
+            sub_dir = tuple(rel_dir.split(os.path.sep))
+            for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
+                # First look for an exact match
+                so_name = os.path.join(abs_dir, so_basename)
                 if os.path.isfile(so_name):
                     return so_name
-    _no_such_file_in_sub_dirs(nvidia_sub_dirs, file_wild, error_messages, attachments)
+                # Look for a versioned library
+                # Using sort here mainly to make the result deterministic.
+                for so_name in sorted(glob.glob(os.path.join(abs_dir, file_wild))):
+                    if os.path.isfile(so_name):
+                        return so_name
+            sub_dirs_searched.append(sub_dir)
+        for sub_dir in sub_dirs_searched:
+            _no_such_file_in_sub_dirs(sub_dir, file_wild, error_messages, attachments)
     return None
 
 
@@ -59,18 +64,18 @@ def _find_dll_under_dir(dirpath: str, file_wild: str) -> Optional[str]:
 def _find_dll_using_nvidia_bin_dirs(
     libname: str, lib_searched_for: str, error_messages: list[str], attachments: list[str]
 ) -> Optional[str]:
-    nvidia_sub_dirs_list: list[tuple[str, ...]] = [
-        ("nvidia", "*", "bin"),  # CTK 12
-        ("nvidia", "*", "bin", "*"),  # CTK 13, e.g. site-packages\nvidia\cu13\bin\x86_64\
-    ]
-    if libname == "nvvm":
-        nvidia_sub_dirs_list.append(("nvidia", "*", "nvvm", "bin"))  # Only for CTK 12
-    for nvidia_sub_dirs in nvidia_sub_dirs_list:
-        for bin_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
-            dll_name = _find_dll_under_dir(bin_dir, lib_searched_for)
-            if dll_name is not None:
-                return dll_name
-    _no_such_file_in_sub_dirs(nvidia_sub_dirs, lib_searched_for, error_messages, attachments)
+    rel_dirs = SITE_PACKAGES_LIBDIRS_WINDOWS.get(libname)
+    if rel_dirs is not None:
+        sub_dirs_searched = []
+        for rel_dir in rel_dirs:
+            sub_dir = tuple(rel_dir.split(os.path.sep))
+            for abs_dir in find_sub_dirs_all_sitepackages(sub_dir):
+                dll_name = _find_dll_under_dir(abs_dir, lib_searched_for)
+                if dll_name is not None:
+                    return dll_name
+            sub_dirs_searched.append(sub_dir)
+        for sub_dir in sub_dirs_searched:
+            _no_such_file_in_sub_dirs(sub_dir, lib_searched_for, error_messages, attachments)
     return None
 
 

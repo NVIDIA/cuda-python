@@ -10,15 +10,21 @@ cimport cython
 
 cdef bint __cudaPythonInit = False
 cdef bint __usePTDS = False
-cdef int cudaPythonInit() except -1 nogil:
+cdef int _cudaPythonInit() except -1 nogil:
         global __cudaPythonInit
         global __usePTDS
-        if __cudaPythonInit:
-            return __usePTDS
+
         with gil:
             __usePTDS = os.getenv('CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM', default=False)
         __cudaPythonInit = True
         return __usePTDS
+
+# Create a very small function to check whether we are init'ed, so the C
+# compiler can inline it.
+cdef inline int cudaPythonInit() except -1 nogil:
+    if __cudaPythonInit:
+        return __usePTDS
+    return _cudaPythonInit()
 
 {{if 'cudaDeviceReset' in found_functions}}
 
@@ -2665,3 +2671,6 @@ cdef cudaError_t _cudaProfilerStop() except ?cudaErrorCallRequiresNewerDriver no
         return ptds._cudaProfilerStop()
     return cudaProfilerStop()
 {{endif}}
+
+
+include "../_lib/cyruntime/cyruntime.pxi"
