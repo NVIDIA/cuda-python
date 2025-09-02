@@ -1901,10 +1901,7 @@ cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCa
         handle = <void *><uintptr_t>(lib._handle_uint)
 
         {{if 'Windows' == platform.system()}}
-        try:
-            __cudaRuntimeGetVersion = <void*><unsigned long long>win32api.GetProcAddress(<uintptr_t>handle, 'cudaRuntimeGetVersion')
-        except:
-            pass
+        __cudaRuntimeGetVersion = <void*><unsigned long long>win32api.GetProcAddress(<uintptr_t>handle, 'cudaRuntimeGetVersion')
         {{else}}
         __cudaRuntimeGetVersion = dlfcn.dlsym(handle, 'cudaRuntimeGetVersion')
         {{endif}}
