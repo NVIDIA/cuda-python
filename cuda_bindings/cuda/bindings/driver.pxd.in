@@ -2991,7 +2991,7 @@ cdef class CUDA_TEXTURE_DESC_st:
     Attributes
     ----------
     {{if 'CUDA_TEXTURE_DESC_st.addressMode' in found_struct}}
-    addressMode : List[CUaddress_mode]
+    addressMode : list[CUaddress_mode]
         Address modes
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.filterMode' in found_struct}}
@@ -8344,7 +8344,7 @@ cdef class CUDA_TEXTURE_DESC_v1(CUDA_TEXTURE_DESC_st):
     Attributes
     ----------
     {{if 'CUDA_TEXTURE_DESC_st.addressMode' in found_struct}}
-    addressMode : List[CUaddress_mode]
+    addressMode : list[CUaddress_mode]
         Address modes
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.filterMode' in found_struct}}
@@ -8400,7 +8400,7 @@ cdef class CUDA_TEXTURE_DESC(CUDA_TEXTURE_DESC_v1):
     Attributes
     ----------
     {{if 'CUDA_TEXTURE_DESC_st.addressMode' in found_struct}}
-    addressMode : List[CUaddress_mode]
+    addressMode : list[CUaddress_mode]
         Address modes
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.filterMode' in found_struct}}

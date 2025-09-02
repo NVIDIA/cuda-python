@@ -4044,7 +4044,7 @@ cdef class cudaTextureDesc:
     Attributes
     ----------
     {{if 'cudaTextureDesc.addressMode' in found_struct}}
-    addressMode : List[cudaTextureAddressMode]
+    addressMode : list[cudaTextureAddressMode]
         Texture address mode for up to 3 dimensions
     {{endif}}
     {{if 'cudaTextureDesc.filterMode' in found_struct}}
