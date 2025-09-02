@@ -347,7 +347,7 @@ def _requires_ipc(func):
     return wrapper
 
 def _def_mempool_attr_property(scope: dict, name: str, property_type: type, doc: str):
-    """Defines a property in the supplied scope for accessing a memory pool attribute.
+    """Define a property in the supplied scope for accessing a memory pool attribute.
 
     Args:
         name: The name of the property (e.g., 'reuse_follow_event_dependencies').
@@ -487,7 +487,7 @@ class DeviceMemoryResource(MemoryResource):
         self.close()
 
     def close(self):
-        """Closes the device memory resource and destroys the associated memory pool if owned."""
+        """Close the device memory resource and destroy the associated memory pool if owned."""
         if self and self._mempool_owned:
             err, = driver.cuMemPoolDestroy(self._mempool_handle)
             raise_if_driver_error(err)
@@ -497,14 +497,14 @@ class DeviceMemoryResource(MemoryResource):
             self._mempool_owned = False
 
     def __bool__(self):
-        """Checks if the device memory resource is valid."""
+        """Check if the device memory resource is valid."""
         return self._mempool_handle is not None
 
     @classmethod
     def from_shared_handle(cls, device_id: int | Device, shared_handle: int) -> DeviceMemoryResource:
-        """Creates a device memory resource from a shared handle.
+        """Create a device memory resource from a shared handle.
 
-        Constructs a new `DeviceMemoryResource` instance that imports a memory
+        Construct a new `DeviceMemoryResource` instance that imports a memory
         pool from a shareable handle. The memory pool is marked as owned, and
         the resource is associated with the specified `device_id`.
 
@@ -536,7 +536,7 @@ class DeviceMemoryResource(MemoryResource):
 
     @_requires_ipc
     def get_shareable_handle(self) -> int:
-        """Exports the memory pool handle to be shared (requires IPC).  The
+        """Export the memory pool handle to be shared (requires IPC).  The
         handle can be used to share the memory pool with other processes.
 
         Returns
@@ -548,7 +548,7 @@ class DeviceMemoryResource(MemoryResource):
         return shared_handle
 
     def close_shareable_handle(self, shared_handle) -> None:
-        """Closes a shareable handle for the memory pool."""
+        """Close a shareable handle for the memory pool."""
         assert self._ipc_handle_type == driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
         os.close(shared_handle)
 
@@ -626,12 +626,12 @@ class DeviceMemoryResource(MemoryResource):
 
     @property
     def is_device_accessible(self) -> bool:
-        """Returns True. This memory resource provides device-accessible buffers."""
+        """Return True. This memory resource provides device-accessible buffers."""
         return True
 
     @property
     def is_host_accessible(self) -> bool:
-        """Returns False. This memory resource does not provide host-accessible buffers."""
+        """Return False. This memory resource does not provide host-accessible buffers."""
         return False
 
     @property
