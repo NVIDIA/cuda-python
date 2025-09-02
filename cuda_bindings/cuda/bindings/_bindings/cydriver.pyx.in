@@ -529,7 +529,7 @@ cdef int _cuPythonInit() except -1 nogil:
         {{if 'Windows' == platform.system()}}
         try:
             __cuGetProcAddress_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGetProcAddress_v2')
-        except:
+        except Exception:
             pass
         {{else}}
         __cuGetProcAddress_v2 = dlfcn.dlsym(handle, 'cuGetProcAddress_v2')
@@ -2773,595 +2773,595 @@ cdef int _cuPythonInit() except -1 nogil:
             try:
                 global __cuMemcpy
                 __cuMemcpy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyPeer' in found_functions}}
             try:
                 global __cuMemcpyPeer
                 __cuMemcpyPeer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyPeer_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyHtoD_v2' in found_functions}}
             try:
                 global __cuMemcpyHtoD_v2
                 __cuMemcpyHtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoD_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyDtoH_v2' in found_functions}}
             try:
                 global __cuMemcpyDtoH_v2
                 __cuMemcpyDtoH_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoH_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyDtoD_v2' in found_functions}}
             try:
                 global __cuMemcpyDtoD_v2
                 __cuMemcpyDtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoD_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyDtoA_v2' in found_functions}}
             try:
                 global __cuMemcpyDtoA_v2
                 __cuMemcpyDtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoA_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyAtoD_v2' in found_functions}}
             try:
                 global __cuMemcpyAtoD_v2
                 __cuMemcpyAtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoD_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyHtoA_v2' in found_functions}}
             try:
                 global __cuMemcpyHtoA_v2
                 __cuMemcpyHtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoA_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyAtoH_v2' in found_functions}}
             try:
                 global __cuMemcpyAtoH_v2
                 __cuMemcpyAtoH_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoH_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyAtoA_v2' in found_functions}}
             try:
                 global __cuMemcpyAtoA_v2
                 __cuMemcpyAtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoA_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy2D_v2' in found_functions}}
             try:
                 global __cuMemcpy2D_v2
                 __cuMemcpy2D_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2D_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy2DUnaligned_v2' in found_functions}}
             try:
                 global __cuMemcpy2DUnaligned_v2
                 __cuMemcpy2DUnaligned_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2DUnaligned_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy3D_v2' in found_functions}}
             try:
                 global __cuMemcpy3D_v2
                 __cuMemcpy3D_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3D_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy3DPeer' in found_functions}}
             try:
                 global __cuMemcpy3DPeer
                 __cuMemcpy3DPeer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DPeer_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyAsync' in found_functions}}
             try:
                 global __cuMemcpyAsync
                 __cuMemcpyAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyPeerAsync' in found_functions}}
             try:
                 global __cuMemcpyPeerAsync
                 __cuMemcpyPeerAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyPeerAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyHtoDAsync_v2' in found_functions}}
             try:
                 global __cuMemcpyHtoDAsync_v2
                 __cuMemcpyHtoDAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoDAsync_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyDtoHAsync_v2' in found_functions}}
             try:
                 global __cuMemcpyDtoHAsync_v2
                 __cuMemcpyDtoHAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoHAsync_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyDtoDAsync_v2' in found_functions}}
             try:
                 global __cuMemcpyDtoDAsync_v2
                 __cuMemcpyDtoDAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoDAsync_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyHtoAAsync_v2' in found_functions}}
             try:
                 global __cuMemcpyHtoAAsync_v2
                 __cuMemcpyHtoAAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoAAsync_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyAtoHAsync_v2' in found_functions}}
             try:
                 global __cuMemcpyAtoHAsync_v2
                 __cuMemcpyAtoHAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoHAsync_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy2DAsync_v2' in found_functions}}
             try:
                 global __cuMemcpy2DAsync_v2
                 __cuMemcpy2DAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2DAsync_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy3DAsync_v2' in found_functions}}
             try:
                 global __cuMemcpy3DAsync_v2
                 __cuMemcpy3DAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DAsync_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy3DPeerAsync' in found_functions}}
             try:
                 global __cuMemcpy3DPeerAsync
                 __cuMemcpy3DPeerAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DPeerAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyBatchAsync_v2' in found_functions}}
             try:
                 global __cuMemcpyBatchAsync_v2
                 __cuMemcpyBatchAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyBatchAsync_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy3DBatchAsync_v2' in found_functions}}
             try:
                 global __cuMemcpy3DBatchAsync_v2
                 __cuMemcpy3DBatchAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DBatchAsync_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD8_v2' in found_functions}}
             try:
                 global __cuMemsetD8_v2
                 __cuMemsetD8_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD8_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD16_v2' in found_functions}}
             try:
                 global __cuMemsetD16_v2
                 __cuMemsetD16_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD16_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD32_v2' in found_functions}}
             try:
                 global __cuMemsetD32_v2
                 __cuMemsetD32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD32_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD2D8_v2' in found_functions}}
             try:
                 global __cuMemsetD2D8_v2
                 __cuMemsetD2D8_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D8_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD2D16_v2' in found_functions}}
             try:
                 global __cuMemsetD2D16_v2
                 __cuMemsetD2D16_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D16_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD2D32_v2' in found_functions}}
             try:
                 global __cuMemsetD2D32_v2
                 __cuMemsetD2D32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D32_v2_ptds')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD8Async' in found_functions}}
             try:
                 global __cuMemsetD8Async
                 __cuMemsetD8Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD8Async_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD16Async' in found_functions}}
             try:
                 global __cuMemsetD16Async
                 __cuMemsetD16Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD16Async_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD32Async' in found_functions}}
             try:
                 global __cuMemsetD32Async
                 __cuMemsetD32Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD32Async_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD2D8Async' in found_functions}}
             try:
                 global __cuMemsetD2D8Async
                 __cuMemsetD2D8Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D8Async_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD2D16Async' in found_functions}}
             try:
                 global __cuMemsetD2D16Async
                 __cuMemsetD2D16Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D16Async_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD2D32Async' in found_functions}}
             try:
                 global __cuMemsetD2D32Async
                 __cuMemsetD2D32Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D32Async_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemBatchDecompressAsync' in found_functions}}
             try:
                 global __cuMemBatchDecompressAsync
                 __cuMemBatchDecompressAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemBatchDecompressAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemMapArrayAsync' in found_functions}}
             try:
                 global __cuMemMapArrayAsync
                 __cuMemMapArrayAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemMapArrayAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemFreeAsync' in found_functions}}
             try:
                 global __cuMemFreeAsync
                 __cuMemFreeAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemFreeAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemAllocAsync' in found_functions}}
             try:
                 global __cuMemAllocAsync
                 __cuMemAllocAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAllocAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemAllocFromPoolAsync' in found_functions}}
             try:
                 global __cuMemAllocFromPoolAsync
                 __cuMemAllocFromPoolAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAllocFromPoolAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemPrefetchAsync_v2' in found_functions}}
             try:
                 global __cuMemPrefetchAsync_v2
                 __cuMemPrefetchAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPrefetchAsync_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemPrefetchBatchAsync' in found_functions}}
             try:
                 global __cuMemPrefetchBatchAsync
                 __cuMemPrefetchBatchAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPrefetchBatchAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemDiscardBatchAsync' in found_functions}}
             try:
                 global __cuMemDiscardBatchAsync
                 __cuMemDiscardBatchAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemDiscardBatchAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemDiscardAndPrefetchBatchAsync' in found_functions}}
             try:
                 global __cuMemDiscardAndPrefetchBatchAsync
                 __cuMemDiscardAndPrefetchBatchAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemDiscardAndPrefetchBatchAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetPriority' in found_functions}}
             try:
                 global __cuStreamGetPriority
                 __cuStreamGetPriority = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetPriority_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetDevice' in found_functions}}
             try:
                 global __cuStreamGetDevice
                 __cuStreamGetDevice = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetDevice_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetFlags' in found_functions}}
             try:
                 global __cuStreamGetFlags
                 __cuStreamGetFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetFlags_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetId' in found_functions}}
             try:
                 global __cuStreamGetId
                 __cuStreamGetId = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetId_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetCtx' in found_functions}}
             try:
                 global __cuStreamGetCtx
                 __cuStreamGetCtx = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCtx_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetCtx_v2' in found_functions}}
             try:
                 global __cuStreamGetCtx_v2
                 __cuStreamGetCtx_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCtx_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamWaitEvent' in found_functions}}
             try:
                 global __cuStreamWaitEvent
                 __cuStreamWaitEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitEvent_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamAddCallback' in found_functions}}
             try:
                 global __cuStreamAddCallback
                 __cuStreamAddCallback = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamAddCallback_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamBeginCapture_v2' in found_functions}}
             try:
                 global __cuStreamBeginCapture_v2
                 __cuStreamBeginCapture_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBeginCapture_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
             try:
                 global __cuStreamBeginCaptureToGraph
                 __cuStreamBeginCaptureToGraph = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBeginCaptureToGraph_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamEndCapture' in found_functions}}
             try:
                 global __cuStreamEndCapture
                 __cuStreamEndCapture = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamEndCapture_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamIsCapturing' in found_functions}}
             try:
                 global __cuStreamIsCapturing
                 __cuStreamIsCapturing = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamIsCapturing_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetCaptureInfo_v3' in found_functions}}
             try:
                 global __cuStreamGetCaptureInfo_v3
                 __cuStreamGetCaptureInfo_v3 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCaptureInfo_v3_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}
             try:
                 global __cuStreamUpdateCaptureDependencies_v2
                 __cuStreamUpdateCaptureDependencies_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamUpdateCaptureDependencies_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamAttachMemAsync' in found_functions}}
             try:
                 global __cuStreamAttachMemAsync
                 __cuStreamAttachMemAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamAttachMemAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamQuery' in found_functions}}
             try:
                 global __cuStreamQuery
                 __cuStreamQuery = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamQuery_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamSynchronize' in found_functions}}
             try:
                 global __cuStreamSynchronize
                 __cuStreamSynchronize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamSynchronize_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamCopyAttributes' in found_functions}}
             try:
                 global __cuStreamCopyAttributes
                 __cuStreamCopyAttributes = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamCopyAttributes_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetAttribute' in found_functions}}
             try:
                 global __cuStreamGetAttribute
                 __cuStreamGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetAttribute_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamSetAttribute' in found_functions}}
             try:
                 global __cuStreamSetAttribute
                 __cuStreamSetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamSetAttribute_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuEventRecord' in found_functions}}
             try:
                 global __cuEventRecord
                 __cuEventRecord = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventRecord_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuEventRecordWithFlags' in found_functions}}
             try:
                 global __cuEventRecordWithFlags
                 __cuEventRecordWithFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventRecordWithFlags_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuSignalExternalSemaphoresAsync' in found_functions}}
             try:
                 global __cuSignalExternalSemaphoresAsync
                 __cuSignalExternalSemaphoresAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuSignalExternalSemaphoresAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuWaitExternalSemaphoresAsync' in found_functions}}
             try:
                 global __cuWaitExternalSemaphoresAsync
                 __cuWaitExternalSemaphoresAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuWaitExternalSemaphoresAsync_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamWaitValue32_v2' in found_functions}}
             try:
                 global __cuStreamWaitValue32_v2
                 __cuStreamWaitValue32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue32_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamWaitValue64_v2' in found_functions}}
             try:
                 global __cuStreamWaitValue64_v2
                 __cuStreamWaitValue64_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue64_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamWriteValue32_v2' in found_functions}}
             try:
                 global __cuStreamWriteValue32_v2
                 __cuStreamWriteValue32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue32_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamWriteValue64_v2' in found_functions}}
             try:
                 global __cuStreamWriteValue64_v2
                 __cuStreamWriteValue64_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue64_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamBatchMemOp_v2' in found_functions}}
             try:
                 global __cuStreamBatchMemOp_v2
                 __cuStreamBatchMemOp_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBatchMemOp_v2_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuLaunchKernel' in found_functions}}
             try:
                 global __cuLaunchKernel
                 __cuLaunchKernel = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchKernel_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuLaunchKernelEx' in found_functions}}
             try:
                 global __cuLaunchKernelEx
                 __cuLaunchKernelEx = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchKernelEx_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuLaunchCooperativeKernel' in found_functions}}
             try:
                 global __cuLaunchCooperativeKernel
                 __cuLaunchCooperativeKernel = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchCooperativeKernel_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuLaunchHostFunc' in found_functions}}
             try:
                 global __cuLaunchHostFunc
                 __cuLaunchHostFunc = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchHostFunc_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuGraphInstantiateWithParams' in found_functions}}
             try:
                 global __cuGraphInstantiateWithParams
                 __cuGraphInstantiateWithParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphInstantiateWithParams_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuGraphUpload' in found_functions}}
             try:
                 global __cuGraphUpload
                 __cuGraphUpload = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphUpload_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuGraphLaunch' in found_functions}}
             try:
                 global __cuGraphLaunch
                 __cuGraphLaunch = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphLaunch_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuGraphicsMapResources' in found_functions}}
             try:
                 global __cuGraphicsMapResources
                 __cuGraphicsMapResources = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsMapResources_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuGraphicsUnmapResources' in found_functions}}
             try:
                 global __cuGraphicsUnmapResources
                 __cuGraphicsUnmapResources = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsUnmapResources_ptsz')
-            except:
+            except Exception:
                 pass
             {{endif}}
         else:
@@ -3371,595 +3371,595 @@ cdef int _cuPythonInit() except -1 nogil:
             try:
                 global __cuMemcpy
                 __cuMemcpy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyPeer' in found_functions}}
             try:
                 global __cuMemcpyPeer
                 __cuMemcpyPeer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyPeer')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyHtoD_v2' in found_functions}}
             try:
                 global __cuMemcpyHtoD_v2
                 __cuMemcpyHtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoD_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyDtoH_v2' in found_functions}}
             try:
                 global __cuMemcpyDtoH_v2
                 __cuMemcpyDtoH_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoH_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyDtoD_v2' in found_functions}}
             try:
                 global __cuMemcpyDtoD_v2
                 __cuMemcpyDtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoD_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyDtoA_v2' in found_functions}}
             try:
                 global __cuMemcpyDtoA_v2
                 __cuMemcpyDtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoA_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyAtoD_v2' in found_functions}}
             try:
                 global __cuMemcpyAtoD_v2
                 __cuMemcpyAtoD_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoD_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyHtoA_v2' in found_functions}}
             try:
                 global __cuMemcpyHtoA_v2
                 __cuMemcpyHtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoA_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyAtoH_v2' in found_functions}}
             try:
                 global __cuMemcpyAtoH_v2
                 __cuMemcpyAtoH_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoH_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyAtoA_v2' in found_functions}}
             try:
                 global __cuMemcpyAtoA_v2
                 __cuMemcpyAtoA_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoA_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy2D_v2' in found_functions}}
             try:
                 global __cuMemcpy2D_v2
                 __cuMemcpy2D_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2D_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy2DUnaligned_v2' in found_functions}}
             try:
                 global __cuMemcpy2DUnaligned_v2
                 __cuMemcpy2DUnaligned_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2DUnaligned_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy3D_v2' in found_functions}}
             try:
                 global __cuMemcpy3D_v2
                 __cuMemcpy3D_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3D_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy3DPeer' in found_functions}}
             try:
                 global __cuMemcpy3DPeer
                 __cuMemcpy3DPeer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DPeer')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyAsync' in found_functions}}
             try:
                 global __cuMemcpyAsync
                 __cuMemcpyAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyPeerAsync' in found_functions}}
             try:
                 global __cuMemcpyPeerAsync
                 __cuMemcpyPeerAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyPeerAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyHtoDAsync_v2' in found_functions}}
             try:
                 global __cuMemcpyHtoDAsync_v2
                 __cuMemcpyHtoDAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoDAsync_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyDtoHAsync_v2' in found_functions}}
             try:
                 global __cuMemcpyDtoHAsync_v2
                 __cuMemcpyDtoHAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoHAsync_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyDtoDAsync_v2' in found_functions}}
             try:
                 global __cuMemcpyDtoDAsync_v2
                 __cuMemcpyDtoDAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyDtoDAsync_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyHtoAAsync_v2' in found_functions}}
             try:
                 global __cuMemcpyHtoAAsync_v2
                 __cuMemcpyHtoAAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyHtoAAsync_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyAtoHAsync_v2' in found_functions}}
             try:
                 global __cuMemcpyAtoHAsync_v2
                 __cuMemcpyAtoHAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyAtoHAsync_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy2DAsync_v2' in found_functions}}
             try:
                 global __cuMemcpy2DAsync_v2
                 __cuMemcpy2DAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy2DAsync_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy3DAsync_v2' in found_functions}}
             try:
                 global __cuMemcpy3DAsync_v2
                 __cuMemcpy3DAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DAsync_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy3DPeerAsync' in found_functions}}
             try:
                 global __cuMemcpy3DPeerAsync
                 __cuMemcpy3DPeerAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DPeerAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpyBatchAsync_v2' in found_functions}}
             try:
                 global __cuMemcpyBatchAsync_v2
                 __cuMemcpyBatchAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpyBatchAsync_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemcpy3DBatchAsync_v2' in found_functions}}
             try:
                 global __cuMemcpy3DBatchAsync_v2
                 __cuMemcpy3DBatchAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemcpy3DBatchAsync_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD8_v2' in found_functions}}
             try:
                 global __cuMemsetD8_v2
                 __cuMemsetD8_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD8_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD16_v2' in found_functions}}
             try:
                 global __cuMemsetD16_v2
                 __cuMemsetD16_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD16_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD32_v2' in found_functions}}
             try:
                 global __cuMemsetD32_v2
                 __cuMemsetD32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD32_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD2D8_v2' in found_functions}}
             try:
                 global __cuMemsetD2D8_v2
                 __cuMemsetD2D8_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D8_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD2D16_v2' in found_functions}}
             try:
                 global __cuMemsetD2D16_v2
                 __cuMemsetD2D16_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D16_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD2D32_v2' in found_functions}}
             try:
                 global __cuMemsetD2D32_v2
                 __cuMemsetD2D32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D32_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD8Async' in found_functions}}
             try:
                 global __cuMemsetD8Async
                 __cuMemsetD8Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD8Async')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD16Async' in found_functions}}
             try:
                 global __cuMemsetD16Async
                 __cuMemsetD16Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD16Async')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD32Async' in found_functions}}
             try:
                 global __cuMemsetD32Async
                 __cuMemsetD32Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD32Async')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD2D8Async' in found_functions}}
             try:
                 global __cuMemsetD2D8Async
                 __cuMemsetD2D8Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D8Async')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD2D16Async' in found_functions}}
             try:
                 global __cuMemsetD2D16Async
                 __cuMemsetD2D16Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D16Async')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemsetD2D32Async' in found_functions}}
             try:
                 global __cuMemsetD2D32Async
                 __cuMemsetD2D32Async = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemsetD2D32Async')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemBatchDecompressAsync' in found_functions}}
             try:
                 global __cuMemBatchDecompressAsync
                 __cuMemBatchDecompressAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemBatchDecompressAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemMapArrayAsync' in found_functions}}
             try:
                 global __cuMemMapArrayAsync
                 __cuMemMapArrayAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemMapArrayAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemFreeAsync' in found_functions}}
             try:
                 global __cuMemFreeAsync
                 __cuMemFreeAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemFreeAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemAllocAsync' in found_functions}}
             try:
                 global __cuMemAllocAsync
                 __cuMemAllocAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAllocAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemAllocFromPoolAsync' in found_functions}}
             try:
                 global __cuMemAllocFromPoolAsync
                 __cuMemAllocFromPoolAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAllocFromPoolAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemPrefetchAsync_v2' in found_functions}}
             try:
                 global __cuMemPrefetchAsync_v2
                 __cuMemPrefetchAsync_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPrefetchAsync_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemPrefetchBatchAsync' in found_functions}}
             try:
                 global __cuMemPrefetchBatchAsync
                 __cuMemPrefetchBatchAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPrefetchBatchAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemDiscardBatchAsync' in found_functions}}
             try:
                 global __cuMemDiscardBatchAsync
                 __cuMemDiscardBatchAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemDiscardBatchAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuMemDiscardAndPrefetchBatchAsync' in found_functions}}
             try:
                 global __cuMemDiscardAndPrefetchBatchAsync
                 __cuMemDiscardAndPrefetchBatchAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemDiscardAndPrefetchBatchAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetPriority' in found_functions}}
             try:
                 global __cuStreamGetPriority
                 __cuStreamGetPriority = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetPriority')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetDevice' in found_functions}}
             try:
                 global __cuStreamGetDevice
                 __cuStreamGetDevice = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetDevice')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetFlags' in found_functions}}
             try:
                 global __cuStreamGetFlags
                 __cuStreamGetFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetFlags')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetId' in found_functions}}
             try:
                 global __cuStreamGetId
                 __cuStreamGetId = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetId')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetCtx' in found_functions}}
             try:
                 global __cuStreamGetCtx
                 __cuStreamGetCtx = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCtx')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetCtx_v2' in found_functions}}
             try:
                 global __cuStreamGetCtx_v2
                 __cuStreamGetCtx_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCtx_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamWaitEvent' in found_functions}}
             try:
                 global __cuStreamWaitEvent
                 __cuStreamWaitEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitEvent')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamAddCallback' in found_functions}}
             try:
                 global __cuStreamAddCallback
                 __cuStreamAddCallback = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamAddCallback')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamBeginCapture_v2' in found_functions}}
             try:
                 global __cuStreamBeginCapture_v2
                 __cuStreamBeginCapture_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBeginCapture_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamBeginCaptureToGraph' in found_functions}}
             try:
                 global __cuStreamBeginCaptureToGraph
                 __cuStreamBeginCaptureToGraph = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBeginCaptureToGraph')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamEndCapture' in found_functions}}
             try:
                 global __cuStreamEndCapture
                 __cuStreamEndCapture = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamEndCapture')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamIsCapturing' in found_functions}}
             try:
                 global __cuStreamIsCapturing
                 __cuStreamIsCapturing = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamIsCapturing')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetCaptureInfo_v3' in found_functions}}
             try:
                 global __cuStreamGetCaptureInfo_v3
                 __cuStreamGetCaptureInfo_v3 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetCaptureInfo_v3')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamUpdateCaptureDependencies_v2' in found_functions}}
             try:
                 global __cuStreamUpdateCaptureDependencies_v2
                 __cuStreamUpdateCaptureDependencies_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamUpdateCaptureDependencies_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamAttachMemAsync' in found_functions}}
             try:
                 global __cuStreamAttachMemAsync
                 __cuStreamAttachMemAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamAttachMemAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamQuery' in found_functions}}
             try:
                 global __cuStreamQuery
                 __cuStreamQuery = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamQuery')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamSynchronize' in found_functions}}
             try:
                 global __cuStreamSynchronize
                 __cuStreamSynchronize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamSynchronize')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamCopyAttributes' in found_functions}}
             try:
                 global __cuStreamCopyAttributes
                 __cuStreamCopyAttributes = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamCopyAttributes')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamGetAttribute' in found_functions}}
             try:
                 global __cuStreamGetAttribute
                 __cuStreamGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetAttribute')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamSetAttribute' in found_functions}}
             try:
                 global __cuStreamSetAttribute
                 __cuStreamSetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamSetAttribute')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuEventRecord' in found_functions}}
             try:
                 global __cuEventRecord
                 __cuEventRecord = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventRecord')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuEventRecordWithFlags' in found_functions}}
             try:
                 global __cuEventRecordWithFlags
                 __cuEventRecordWithFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventRecordWithFlags')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuSignalExternalSemaphoresAsync' in found_functions}}
             try:
                 global __cuSignalExternalSemaphoresAsync
                 __cuSignalExternalSemaphoresAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuSignalExternalSemaphoresAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuWaitExternalSemaphoresAsync' in found_functions}}
             try:
                 global __cuWaitExternalSemaphoresAsync
                 __cuWaitExternalSemaphoresAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuWaitExternalSemaphoresAsync')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamWaitValue32_v2' in found_functions}}
             try:
                 global __cuStreamWaitValue32_v2
                 __cuStreamWaitValue32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue32_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamWaitValue64_v2' in found_functions}}
             try:
                 global __cuStreamWaitValue64_v2
                 __cuStreamWaitValue64_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWaitValue64_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamWriteValue32_v2' in found_functions}}
             try:
                 global __cuStreamWriteValue32_v2
                 __cuStreamWriteValue32_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue32_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamWriteValue64_v2' in found_functions}}
             try:
                 global __cuStreamWriteValue64_v2
                 __cuStreamWriteValue64_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamWriteValue64_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuStreamBatchMemOp_v2' in found_functions}}
             try:
                 global __cuStreamBatchMemOp_v2
                 __cuStreamBatchMemOp_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamBatchMemOp_v2')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuLaunchKernel' in found_functions}}
             try:
                 global __cuLaunchKernel
                 __cuLaunchKernel = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchKernel')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuLaunchKernelEx' in found_functions}}
             try:
                 global __cuLaunchKernelEx
                 __cuLaunchKernelEx = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchKernelEx')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuLaunchCooperativeKernel' in found_functions}}
             try:
                 global __cuLaunchCooperativeKernel
                 __cuLaunchCooperativeKernel = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchCooperativeKernel')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuLaunchHostFunc' in found_functions}}
             try:
                 global __cuLaunchHostFunc
                 __cuLaunchHostFunc = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchHostFunc')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuGraphInstantiateWithParams' in found_functions}}
             try:
                 global __cuGraphInstantiateWithParams
                 __cuGraphInstantiateWithParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphInstantiateWithParams')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuGraphUpload' in found_functions}}
             try:
                 global __cuGraphUpload
                 __cuGraphUpload = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphUpload')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuGraphLaunch' in found_functions}}
             try:
                 global __cuGraphLaunch
                 __cuGraphLaunch = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphLaunch')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuGraphicsMapResources' in found_functions}}
             try:
                 global __cuGraphicsMapResources
                 __cuGraphicsMapResources = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsMapResources')
-            except:
+            except Exception:
                 pass
             {{endif}}
             {{if 'cuGraphicsUnmapResources' in found_functions}}
             try:
                 global __cuGraphicsUnmapResources
                 __cuGraphicsUnmapResources = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsUnmapResources')
-            except:
+            except Exception:
                 pass
             {{endif}}
         # Get remaining functions
@@ -3967,2688 +3967,2688 @@ cdef int _cuPythonInit() except -1 nogil:
         try:
             global __cuGetErrorString
             __cuGetErrorString = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGetErrorString')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGetErrorName' in found_functions}}
         try:
             global __cuGetErrorName
             __cuGetErrorName = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGetErrorName')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuInit' in found_functions}}
         try:
             global __cuInit
             __cuInit = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuInit')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDriverGetVersion' in found_functions}}
         try:
             global __cuDriverGetVersion
             __cuDriverGetVersion = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDriverGetVersion')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGet' in found_functions}}
         try:
             global __cuDeviceGet
             __cuDeviceGet = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGet')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetCount' in found_functions}}
         try:
             global __cuDeviceGetCount
             __cuDeviceGetCount = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetCount')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetName' in found_functions}}
         try:
             global __cuDeviceGetName
             __cuDeviceGetName = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetName')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetUuid_v2' in found_functions}}
         try:
             global __cuDeviceGetUuid_v2
             __cuDeviceGetUuid_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetUuid_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetLuid' in found_functions}}
         try:
             global __cuDeviceGetLuid
             __cuDeviceGetLuid = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetLuid')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceTotalMem_v2' in found_functions}}
         try:
             global __cuDeviceTotalMem_v2
             __cuDeviceTotalMem_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceTotalMem_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetTexture1DLinearMaxWidth' in found_functions}}
         try:
             global __cuDeviceGetTexture1DLinearMaxWidth
             __cuDeviceGetTexture1DLinearMaxWidth = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetTexture1DLinearMaxWidth')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetAttribute' in found_functions}}
         try:
             global __cuDeviceGetAttribute
             __cuDeviceGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetHostAtomicCapabilities' in found_functions}}
         try:
             global __cuDeviceGetHostAtomicCapabilities
             __cuDeviceGetHostAtomicCapabilities = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetHostAtomicCapabilities')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetNvSciSyncAttributes' in found_functions}}
         try:
             global __cuDeviceGetNvSciSyncAttributes
             __cuDeviceGetNvSciSyncAttributes = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetNvSciSyncAttributes')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceSetMemPool' in found_functions}}
         try:
             global __cuDeviceSetMemPool
             __cuDeviceSetMemPool = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceSetMemPool')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetMemPool' in found_functions}}
         try:
             global __cuDeviceGetMemPool
             __cuDeviceGetMemPool = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetMemPool')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetDefaultMemPool' in found_functions}}
         try:
             global __cuDeviceGetDefaultMemPool
             __cuDeviceGetDefaultMemPool = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetDefaultMemPool')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetExecAffinitySupport' in found_functions}}
         try:
             global __cuDeviceGetExecAffinitySupport
             __cuDeviceGetExecAffinitySupport = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetExecAffinitySupport')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuFlushGPUDirectRDMAWrites' in found_functions}}
         try:
             global __cuFlushGPUDirectRDMAWrites
             __cuFlushGPUDirectRDMAWrites = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFlushGPUDirectRDMAWrites')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetProperties' in found_functions}}
         try:
             global __cuDeviceGetProperties
             __cuDeviceGetProperties = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetProperties')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceComputeCapability' in found_functions}}
         try:
             global __cuDeviceComputeCapability
             __cuDeviceComputeCapability = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceComputeCapability')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDevicePrimaryCtxRetain' in found_functions}}
         try:
             global __cuDevicePrimaryCtxRetain
             __cuDevicePrimaryCtxRetain = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDevicePrimaryCtxRetain')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDevicePrimaryCtxRelease_v2' in found_functions}}
         try:
             global __cuDevicePrimaryCtxRelease_v2
             __cuDevicePrimaryCtxRelease_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDevicePrimaryCtxRelease_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDevicePrimaryCtxSetFlags_v2' in found_functions}}
         try:
             global __cuDevicePrimaryCtxSetFlags_v2
             __cuDevicePrimaryCtxSetFlags_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDevicePrimaryCtxSetFlags_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDevicePrimaryCtxGetState' in found_functions}}
         try:
             global __cuDevicePrimaryCtxGetState
             __cuDevicePrimaryCtxGetState = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDevicePrimaryCtxGetState')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDevicePrimaryCtxReset_v2' in found_functions}}
         try:
             global __cuDevicePrimaryCtxReset_v2
             __cuDevicePrimaryCtxReset_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDevicePrimaryCtxReset_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxCreate_v4' in found_functions}}
         try:
             global __cuCtxCreate_v4
             __cuCtxCreate_v4 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxCreate_v4')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxDestroy_v2' in found_functions}}
         try:
             global __cuCtxDestroy_v2
             __cuCtxDestroy_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxDestroy_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxPushCurrent_v2' in found_functions}}
         try:
             global __cuCtxPushCurrent_v2
             __cuCtxPushCurrent_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxPushCurrent_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxPopCurrent_v2' in found_functions}}
         try:
             global __cuCtxPopCurrent_v2
             __cuCtxPopCurrent_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxPopCurrent_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxSetCurrent' in found_functions}}
         try:
             global __cuCtxSetCurrent
             __cuCtxSetCurrent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxSetCurrent')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxGetCurrent' in found_functions}}
         try:
             global __cuCtxGetCurrent
             __cuCtxGetCurrent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxGetCurrent')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxGetDevice' in found_functions}}
         try:
             global __cuCtxGetDevice
             __cuCtxGetDevice = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxGetDevice')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxGetDevice_v2' in found_functions}}
         try:
             global __cuCtxGetDevice_v2
             __cuCtxGetDevice_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxGetDevice_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxGetFlags' in found_functions}}
         try:
             global __cuCtxGetFlags
             __cuCtxGetFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxGetFlags')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxSetFlags' in found_functions}}
         try:
             global __cuCtxSetFlags
             __cuCtxSetFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxSetFlags')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxGetId' in found_functions}}
         try:
             global __cuCtxGetId
             __cuCtxGetId = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxGetId')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxSynchronize' in found_functions}}
         try:
             global __cuCtxSynchronize
             __cuCtxSynchronize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxSynchronize')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxSynchronize_v2' in found_functions}}
         try:
             global __cuCtxSynchronize_v2
             __cuCtxSynchronize_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxSynchronize_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxSetLimit' in found_functions}}
         try:
             global __cuCtxSetLimit
             __cuCtxSetLimit = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxSetLimit')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxGetLimit' in found_functions}}
         try:
             global __cuCtxGetLimit
             __cuCtxGetLimit = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxGetLimit')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxGetCacheConfig' in found_functions}}
         try:
             global __cuCtxGetCacheConfig
             __cuCtxGetCacheConfig = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxGetCacheConfig')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxSetCacheConfig' in found_functions}}
         try:
             global __cuCtxSetCacheConfig
             __cuCtxSetCacheConfig = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxSetCacheConfig')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxGetApiVersion' in found_functions}}
         try:
             global __cuCtxGetApiVersion
             __cuCtxGetApiVersion = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxGetApiVersion')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxGetStreamPriorityRange' in found_functions}}
         try:
             global __cuCtxGetStreamPriorityRange
             __cuCtxGetStreamPriorityRange = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxGetStreamPriorityRange')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxResetPersistingL2Cache' in found_functions}}
         try:
             global __cuCtxResetPersistingL2Cache
             __cuCtxResetPersistingL2Cache = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxResetPersistingL2Cache')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxGetExecAffinity' in found_functions}}
         try:
             global __cuCtxGetExecAffinity
             __cuCtxGetExecAffinity = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxGetExecAffinity')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxRecordEvent' in found_functions}}
         try:
             global __cuCtxRecordEvent
             __cuCtxRecordEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxRecordEvent')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxWaitEvent' in found_functions}}
         try:
             global __cuCtxWaitEvent
             __cuCtxWaitEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxWaitEvent')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxAttach' in found_functions}}
         try:
             global __cuCtxAttach
             __cuCtxAttach = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxAttach')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxDetach' in found_functions}}
         try:
             global __cuCtxDetach
             __cuCtxDetach = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxDetach')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxGetSharedMemConfig' in found_functions}}
         try:
             global __cuCtxGetSharedMemConfig
             __cuCtxGetSharedMemConfig = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxGetSharedMemConfig')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxSetSharedMemConfig' in found_functions}}
         try:
             global __cuCtxSetSharedMemConfig
             __cuCtxSetSharedMemConfig = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxSetSharedMemConfig')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuModuleLoad' in found_functions}}
         try:
             global __cuModuleLoad
             __cuModuleLoad = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuModuleLoad')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuModuleLoadData' in found_functions}}
         try:
             global __cuModuleLoadData
             __cuModuleLoadData = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuModuleLoadData')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuModuleLoadDataEx' in found_functions}}
         try:
             global __cuModuleLoadDataEx
             __cuModuleLoadDataEx = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuModuleLoadDataEx')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuModuleLoadFatBinary' in found_functions}}
         try:
             global __cuModuleLoadFatBinary
             __cuModuleLoadFatBinary = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuModuleLoadFatBinary')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuModuleUnload' in found_functions}}
         try:
             global __cuModuleUnload
             __cuModuleUnload = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuModuleUnload')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuModuleGetLoadingMode' in found_functions}}
         try:
             global __cuModuleGetLoadingMode
             __cuModuleGetLoadingMode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuModuleGetLoadingMode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuModuleGetFunction' in found_functions}}
         try:
             global __cuModuleGetFunction
             __cuModuleGetFunction = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuModuleGetFunction')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuModuleGetFunctionCount' in found_functions}}
         try:
             global __cuModuleGetFunctionCount
             __cuModuleGetFunctionCount = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuModuleGetFunctionCount')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuModuleEnumerateFunctions' in found_functions}}
         try:
             global __cuModuleEnumerateFunctions
             __cuModuleEnumerateFunctions = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuModuleEnumerateFunctions')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuModuleGetGlobal_v2' in found_functions}}
         try:
             global __cuModuleGetGlobal_v2
             __cuModuleGetGlobal_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuModuleGetGlobal_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLinkCreate_v2' in found_functions}}
         try:
             global __cuLinkCreate_v2
             __cuLinkCreate_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLinkCreate_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLinkAddData_v2' in found_functions}}
         try:
             global __cuLinkAddData_v2
             __cuLinkAddData_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLinkAddData_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLinkAddFile_v2' in found_functions}}
         try:
             global __cuLinkAddFile_v2
             __cuLinkAddFile_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLinkAddFile_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLinkComplete' in found_functions}}
         try:
             global __cuLinkComplete
             __cuLinkComplete = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLinkComplete')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLinkDestroy' in found_functions}}
         try:
             global __cuLinkDestroy
             __cuLinkDestroy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLinkDestroy')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuModuleGetTexRef' in found_functions}}
         try:
             global __cuModuleGetTexRef
             __cuModuleGetTexRef = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuModuleGetTexRef')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuModuleGetSurfRef' in found_functions}}
         try:
             global __cuModuleGetSurfRef
             __cuModuleGetSurfRef = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuModuleGetSurfRef')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLibraryLoadData' in found_functions}}
         try:
             global __cuLibraryLoadData
             __cuLibraryLoadData = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLibraryLoadData')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLibraryLoadFromFile' in found_functions}}
         try:
             global __cuLibraryLoadFromFile
             __cuLibraryLoadFromFile = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLibraryLoadFromFile')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLibraryUnload' in found_functions}}
         try:
             global __cuLibraryUnload
             __cuLibraryUnload = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLibraryUnload')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLibraryGetKernel' in found_functions}}
         try:
             global __cuLibraryGetKernel
             __cuLibraryGetKernel = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLibraryGetKernel')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLibraryGetKernelCount' in found_functions}}
         try:
             global __cuLibraryGetKernelCount
             __cuLibraryGetKernelCount = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLibraryGetKernelCount')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLibraryEnumerateKernels' in found_functions}}
         try:
             global __cuLibraryEnumerateKernels
             __cuLibraryEnumerateKernels = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLibraryEnumerateKernels')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLibraryGetModule' in found_functions}}
         try:
             global __cuLibraryGetModule
             __cuLibraryGetModule = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLibraryGetModule')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuKernelGetFunction' in found_functions}}
         try:
             global __cuKernelGetFunction
             __cuKernelGetFunction = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuKernelGetFunction')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuKernelGetLibrary' in found_functions}}
         try:
             global __cuKernelGetLibrary
             __cuKernelGetLibrary = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuKernelGetLibrary')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLibraryGetGlobal' in found_functions}}
         try:
             global __cuLibraryGetGlobal
             __cuLibraryGetGlobal = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLibraryGetGlobal')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLibraryGetManaged' in found_functions}}
         try:
             global __cuLibraryGetManaged
             __cuLibraryGetManaged = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLibraryGetManaged')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLibraryGetUnifiedFunction' in found_functions}}
         try:
             global __cuLibraryGetUnifiedFunction
             __cuLibraryGetUnifiedFunction = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLibraryGetUnifiedFunction')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuKernelGetAttribute' in found_functions}}
         try:
             global __cuKernelGetAttribute
             __cuKernelGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuKernelGetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuKernelSetAttribute' in found_functions}}
         try:
             global __cuKernelSetAttribute
             __cuKernelSetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuKernelSetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuKernelSetCacheConfig' in found_functions}}
         try:
             global __cuKernelSetCacheConfig
             __cuKernelSetCacheConfig = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuKernelSetCacheConfig')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuKernelGetName' in found_functions}}
         try:
             global __cuKernelGetName
             __cuKernelGetName = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuKernelGetName')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuKernelGetParamInfo' in found_functions}}
         try:
             global __cuKernelGetParamInfo
             __cuKernelGetParamInfo = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuKernelGetParamInfo')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemGetInfo_v2' in found_functions}}
         try:
             global __cuMemGetInfo_v2
             __cuMemGetInfo_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemGetInfo_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemAlloc_v2' in found_functions}}
         try:
             global __cuMemAlloc_v2
             __cuMemAlloc_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAlloc_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemAllocPitch_v2' in found_functions}}
         try:
             global __cuMemAllocPitch_v2
             __cuMemAllocPitch_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAllocPitch_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemFree_v2' in found_functions}}
         try:
             global __cuMemFree_v2
             __cuMemFree_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemFree_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemGetAddressRange_v2' in found_functions}}
         try:
             global __cuMemGetAddressRange_v2
             __cuMemGetAddressRange_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemGetAddressRange_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemAllocHost_v2' in found_functions}}
         try:
             global __cuMemAllocHost_v2
             __cuMemAllocHost_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAllocHost_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemFreeHost' in found_functions}}
         try:
             global __cuMemFreeHost
             __cuMemFreeHost = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemFreeHost')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemHostAlloc' in found_functions}}
         try:
             global __cuMemHostAlloc
             __cuMemHostAlloc = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemHostAlloc')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemHostGetDevicePointer_v2' in found_functions}}
         try:
             global __cuMemHostGetDevicePointer_v2
             __cuMemHostGetDevicePointer_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemHostGetDevicePointer_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemHostGetFlags' in found_functions}}
         try:
             global __cuMemHostGetFlags
             __cuMemHostGetFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemHostGetFlags')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemAllocManaged' in found_functions}}
         try:
             global __cuMemAllocManaged
             __cuMemAllocManaged = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAllocManaged')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceRegisterAsyncNotification' in found_functions}}
         try:
             global __cuDeviceRegisterAsyncNotification
             __cuDeviceRegisterAsyncNotification = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceRegisterAsyncNotification')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceUnregisterAsyncNotification' in found_functions}}
         try:
             global __cuDeviceUnregisterAsyncNotification
             __cuDeviceUnregisterAsyncNotification = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceUnregisterAsyncNotification')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetByPCIBusId' in found_functions}}
         try:
             global __cuDeviceGetByPCIBusId
             __cuDeviceGetByPCIBusId = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetByPCIBusId')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetPCIBusId' in found_functions}}
         try:
             global __cuDeviceGetPCIBusId
             __cuDeviceGetPCIBusId = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetPCIBusId')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuIpcGetEventHandle' in found_functions}}
         try:
             global __cuIpcGetEventHandle
             __cuIpcGetEventHandle = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuIpcGetEventHandle')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuIpcOpenEventHandle' in found_functions}}
         try:
             global __cuIpcOpenEventHandle
             __cuIpcOpenEventHandle = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuIpcOpenEventHandle')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuIpcGetMemHandle' in found_functions}}
         try:
             global __cuIpcGetMemHandle
             __cuIpcGetMemHandle = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuIpcGetMemHandle')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuIpcOpenMemHandle_v2' in found_functions}}
         try:
             global __cuIpcOpenMemHandle_v2
             __cuIpcOpenMemHandle_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuIpcOpenMemHandle_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuIpcCloseMemHandle' in found_functions}}
         try:
             global __cuIpcCloseMemHandle
             __cuIpcCloseMemHandle = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuIpcCloseMemHandle')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemHostRegister_v2' in found_functions}}
         try:
             global __cuMemHostRegister_v2
             __cuMemHostRegister_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemHostRegister_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemHostUnregister' in found_functions}}
         try:
             global __cuMemHostUnregister
             __cuMemHostUnregister = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemHostUnregister')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuArrayCreate_v2' in found_functions}}
         try:
             global __cuArrayCreate_v2
             __cuArrayCreate_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuArrayCreate_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuArrayGetDescriptor_v2' in found_functions}}
         try:
             global __cuArrayGetDescriptor_v2
             __cuArrayGetDescriptor_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuArrayGetDescriptor_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuArrayGetSparseProperties' in found_functions}}
         try:
             global __cuArrayGetSparseProperties
             __cuArrayGetSparseProperties = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuArrayGetSparseProperties')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMipmappedArrayGetSparseProperties' in found_functions}}
         try:
             global __cuMipmappedArrayGetSparseProperties
             __cuMipmappedArrayGetSparseProperties = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMipmappedArrayGetSparseProperties')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuArrayGetMemoryRequirements' in found_functions}}
         try:
             global __cuArrayGetMemoryRequirements
             __cuArrayGetMemoryRequirements = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuArrayGetMemoryRequirements')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMipmappedArrayGetMemoryRequirements' in found_functions}}
         try:
             global __cuMipmappedArrayGetMemoryRequirements
             __cuMipmappedArrayGetMemoryRequirements = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMipmappedArrayGetMemoryRequirements')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuArrayGetPlane' in found_functions}}
         try:
             global __cuArrayGetPlane
             __cuArrayGetPlane = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuArrayGetPlane')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuArrayDestroy' in found_functions}}
         try:
             global __cuArrayDestroy
             __cuArrayDestroy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuArrayDestroy')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuArray3DCreate_v2' in found_functions}}
         try:
             global __cuArray3DCreate_v2
             __cuArray3DCreate_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuArray3DCreate_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuArray3DGetDescriptor_v2' in found_functions}}
         try:
             global __cuArray3DGetDescriptor_v2
             __cuArray3DGetDescriptor_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuArray3DGetDescriptor_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMipmappedArrayCreate' in found_functions}}
         try:
             global __cuMipmappedArrayCreate
             __cuMipmappedArrayCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMipmappedArrayCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMipmappedArrayGetLevel' in found_functions}}
         try:
             global __cuMipmappedArrayGetLevel
             __cuMipmappedArrayGetLevel = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMipmappedArrayGetLevel')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMipmappedArrayDestroy' in found_functions}}
         try:
             global __cuMipmappedArrayDestroy
             __cuMipmappedArrayDestroy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMipmappedArrayDestroy')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemGetHandleForAddressRange' in found_functions}}
         try:
             global __cuMemGetHandleForAddressRange
             __cuMemGetHandleForAddressRange = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemGetHandleForAddressRange')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemAddressReserve' in found_functions}}
         try:
             global __cuMemAddressReserve
             __cuMemAddressReserve = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAddressReserve')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemAddressFree' in found_functions}}
         try:
             global __cuMemAddressFree
             __cuMemAddressFree = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAddressFree')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemCreate' in found_functions}}
         try:
             global __cuMemCreate
             __cuMemCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemRelease' in found_functions}}
         try:
             global __cuMemRelease
             __cuMemRelease = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemRelease')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemMap' in found_functions}}
         try:
             global __cuMemMap
             __cuMemMap = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemMap')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemUnmap' in found_functions}}
         try:
             global __cuMemUnmap
             __cuMemUnmap = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemUnmap')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemSetAccess' in found_functions}}
         try:
             global __cuMemSetAccess
             __cuMemSetAccess = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemSetAccess')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemGetAccess' in found_functions}}
         try:
             global __cuMemGetAccess
             __cuMemGetAccess = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemGetAccess')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemExportToShareableHandle' in found_functions}}
         try:
             global __cuMemExportToShareableHandle
             __cuMemExportToShareableHandle = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemExportToShareableHandle')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemImportFromShareableHandle' in found_functions}}
         try:
             global __cuMemImportFromShareableHandle
             __cuMemImportFromShareableHandle = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemImportFromShareableHandle')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemGetAllocationGranularity' in found_functions}}
         try:
             global __cuMemGetAllocationGranularity
             __cuMemGetAllocationGranularity = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemGetAllocationGranularity')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemGetAllocationPropertiesFromHandle' in found_functions}}
         try:
             global __cuMemGetAllocationPropertiesFromHandle
             __cuMemGetAllocationPropertiesFromHandle = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemGetAllocationPropertiesFromHandle')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemRetainAllocationHandle' in found_functions}}
         try:
             global __cuMemRetainAllocationHandle
             __cuMemRetainAllocationHandle = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemRetainAllocationHandle')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemPoolTrimTo' in found_functions}}
         try:
             global __cuMemPoolTrimTo
             __cuMemPoolTrimTo = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolTrimTo')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemPoolSetAttribute' in found_functions}}
         try:
             global __cuMemPoolSetAttribute
             __cuMemPoolSetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolSetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemPoolGetAttribute' in found_functions}}
         try:
             global __cuMemPoolGetAttribute
             __cuMemPoolGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolGetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemPoolSetAccess' in found_functions}}
         try:
             global __cuMemPoolSetAccess
             __cuMemPoolSetAccess = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolSetAccess')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemPoolGetAccess' in found_functions}}
         try:
             global __cuMemPoolGetAccess
             __cuMemPoolGetAccess = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolGetAccess')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemPoolCreate' in found_functions}}
         try:
             global __cuMemPoolCreate
             __cuMemPoolCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemPoolDestroy' in found_functions}}
         try:
             global __cuMemPoolDestroy
             __cuMemPoolDestroy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolDestroy')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemGetDefaultMemPool' in found_functions}}
         try:
             global __cuMemGetDefaultMemPool
             __cuMemGetDefaultMemPool = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemGetDefaultMemPool')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemGetMemPool' in found_functions}}
         try:
             global __cuMemGetMemPool
             __cuMemGetMemPool = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemGetMemPool')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemSetMemPool' in found_functions}}
         try:
             global __cuMemSetMemPool
             __cuMemSetMemPool = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemSetMemPool')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemPoolExportToShareableHandle' in found_functions}}
         try:
             global __cuMemPoolExportToShareableHandle
             __cuMemPoolExportToShareableHandle = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolExportToShareableHandle')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemPoolImportFromShareableHandle' in found_functions}}
         try:
             global __cuMemPoolImportFromShareableHandle
             __cuMemPoolImportFromShareableHandle = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolImportFromShareableHandle')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemPoolExportPointer' in found_functions}}
         try:
             global __cuMemPoolExportPointer
             __cuMemPoolExportPointer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolExportPointer')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemPoolImportPointer' in found_functions}}
         try:
             global __cuMemPoolImportPointer
             __cuMemPoolImportPointer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemPoolImportPointer')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMulticastCreate' in found_functions}}
         try:
             global __cuMulticastCreate
             __cuMulticastCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMulticastCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMulticastAddDevice' in found_functions}}
         try:
             global __cuMulticastAddDevice
             __cuMulticastAddDevice = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMulticastAddDevice')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMulticastBindMem' in found_functions}}
         try:
             global __cuMulticastBindMem
             __cuMulticastBindMem = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMulticastBindMem')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMulticastBindAddr' in found_functions}}
         try:
             global __cuMulticastBindAddr
             __cuMulticastBindAddr = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMulticastBindAddr')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMulticastUnbind' in found_functions}}
         try:
             global __cuMulticastUnbind
             __cuMulticastUnbind = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMulticastUnbind')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMulticastGetGranularity' in found_functions}}
         try:
             global __cuMulticastGetGranularity
             __cuMulticastGetGranularity = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMulticastGetGranularity')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuPointerGetAttribute' in found_functions}}
         try:
             global __cuPointerGetAttribute
             __cuPointerGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuPointerGetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemAdvise_v2' in found_functions}}
         try:
             global __cuMemAdvise_v2
             __cuMemAdvise_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemAdvise_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemRangeGetAttribute' in found_functions}}
         try:
             global __cuMemRangeGetAttribute
             __cuMemRangeGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemRangeGetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuMemRangeGetAttributes' in found_functions}}
         try:
             global __cuMemRangeGetAttributes
             __cuMemRangeGetAttributes = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuMemRangeGetAttributes')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuPointerSetAttribute' in found_functions}}
         try:
             global __cuPointerSetAttribute
             __cuPointerSetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuPointerSetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuPointerGetAttributes' in found_functions}}
         try:
             global __cuPointerGetAttributes
             __cuPointerGetAttributes = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuPointerGetAttributes')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuStreamCreate' in found_functions}}
         try:
             global __cuStreamCreate
             __cuStreamCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuStreamCreateWithPriority' in found_functions}}
         try:
             global __cuStreamCreateWithPriority
             __cuStreamCreateWithPriority = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamCreateWithPriority')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuThreadExchangeStreamCaptureMode' in found_functions}}
         try:
             global __cuThreadExchangeStreamCaptureMode
             __cuThreadExchangeStreamCaptureMode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuThreadExchangeStreamCaptureMode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuStreamDestroy_v2' in found_functions}}
         try:
             global __cuStreamDestroy_v2
             __cuStreamDestroy_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamDestroy_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuEventCreate' in found_functions}}
         try:
             global __cuEventCreate
             __cuEventCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuEventQuery' in found_functions}}
         try:
             global __cuEventQuery
             __cuEventQuery = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventQuery')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuEventSynchronize' in found_functions}}
         try:
             global __cuEventSynchronize
             __cuEventSynchronize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventSynchronize')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuEventDestroy_v2' in found_functions}}
         try:
             global __cuEventDestroy_v2
             __cuEventDestroy_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventDestroy_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuEventElapsedTime_v2' in found_functions}}
         try:
             global __cuEventElapsedTime_v2
             __cuEventElapsedTime_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventElapsedTime_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuImportExternalMemory' in found_functions}}
         try:
             global __cuImportExternalMemory
             __cuImportExternalMemory = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuImportExternalMemory')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuExternalMemoryGetMappedBuffer' in found_functions}}
         try:
             global __cuExternalMemoryGetMappedBuffer
             __cuExternalMemoryGetMappedBuffer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuExternalMemoryGetMappedBuffer')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuExternalMemoryGetMappedMipmappedArray' in found_functions}}
         try:
             global __cuExternalMemoryGetMappedMipmappedArray
             __cuExternalMemoryGetMappedMipmappedArray = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuExternalMemoryGetMappedMipmappedArray')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDestroyExternalMemory' in found_functions}}
         try:
             global __cuDestroyExternalMemory
             __cuDestroyExternalMemory = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDestroyExternalMemory')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuImportExternalSemaphore' in found_functions}}
         try:
             global __cuImportExternalSemaphore
             __cuImportExternalSemaphore = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuImportExternalSemaphore')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDestroyExternalSemaphore' in found_functions}}
         try:
             global __cuDestroyExternalSemaphore
             __cuDestroyExternalSemaphore = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDestroyExternalSemaphore')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuFuncGetAttribute' in found_functions}}
         try:
             global __cuFuncGetAttribute
             __cuFuncGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFuncGetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuFuncSetAttribute' in found_functions}}
         try:
             global __cuFuncSetAttribute
             __cuFuncSetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFuncSetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuFuncSetCacheConfig' in found_functions}}
         try:
             global __cuFuncSetCacheConfig
             __cuFuncSetCacheConfig = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFuncSetCacheConfig')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuFuncGetModule' in found_functions}}
         try:
             global __cuFuncGetModule
             __cuFuncGetModule = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFuncGetModule')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuFuncGetName' in found_functions}}
         try:
             global __cuFuncGetName
             __cuFuncGetName = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFuncGetName')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuFuncGetParamInfo' in found_functions}}
         try:
             global __cuFuncGetParamInfo
             __cuFuncGetParamInfo = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFuncGetParamInfo')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuFuncIsLoaded' in found_functions}}
         try:
             global __cuFuncIsLoaded
             __cuFuncIsLoaded = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFuncIsLoaded')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuFuncLoad' in found_functions}}
         try:
             global __cuFuncLoad
             __cuFuncLoad = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFuncLoad')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLaunchCooperativeKernelMultiDevice' in found_functions}}
         try:
             global __cuLaunchCooperativeKernelMultiDevice
             __cuLaunchCooperativeKernelMultiDevice = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchCooperativeKernelMultiDevice')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuFuncSetBlockShape' in found_functions}}
         try:
             global __cuFuncSetBlockShape
             __cuFuncSetBlockShape = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFuncSetBlockShape')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuFuncSetSharedSize' in found_functions}}
         try:
             global __cuFuncSetSharedSize
             __cuFuncSetSharedSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFuncSetSharedSize')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuParamSetSize' in found_functions}}
         try:
             global __cuParamSetSize
             __cuParamSetSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuParamSetSize')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuParamSeti' in found_functions}}
         try:
             global __cuParamSeti
             __cuParamSeti = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuParamSeti')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuParamSetf' in found_functions}}
         try:
             global __cuParamSetf
             __cuParamSetf = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuParamSetf')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuParamSetv' in found_functions}}
         try:
             global __cuParamSetv
             __cuParamSetv = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuParamSetv')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLaunch' in found_functions}}
         try:
             global __cuLaunch
             __cuLaunch = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunch')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLaunchGrid' in found_functions}}
         try:
             global __cuLaunchGrid
             __cuLaunchGrid = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchGrid')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLaunchGridAsync' in found_functions}}
         try:
             global __cuLaunchGridAsync
             __cuLaunchGridAsync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLaunchGridAsync')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuParamSetTexRef' in found_functions}}
         try:
             global __cuParamSetTexRef
             __cuParamSetTexRef = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuParamSetTexRef')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuFuncSetSharedMemConfig' in found_functions}}
         try:
             global __cuFuncSetSharedMemConfig
             __cuFuncSetSharedMemConfig = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuFuncSetSharedMemConfig')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphCreate' in found_functions}}
         try:
             global __cuGraphCreate
             __cuGraphCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddKernelNode_v2' in found_functions}}
         try:
             global __cuGraphAddKernelNode_v2
             __cuGraphAddKernelNode_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddKernelNode_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphKernelNodeGetParams_v2' in found_functions}}
         try:
             global __cuGraphKernelNodeGetParams_v2
             __cuGraphKernelNodeGetParams_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphKernelNodeGetParams_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphKernelNodeSetParams_v2' in found_functions}}
         try:
             global __cuGraphKernelNodeSetParams_v2
             __cuGraphKernelNodeSetParams_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphKernelNodeSetParams_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddMemcpyNode' in found_functions}}
         try:
             global __cuGraphAddMemcpyNode
             __cuGraphAddMemcpyNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddMemcpyNode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphMemcpyNodeGetParams' in found_functions}}
         try:
             global __cuGraphMemcpyNodeGetParams
             __cuGraphMemcpyNodeGetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphMemcpyNodeGetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphMemcpyNodeSetParams' in found_functions}}
         try:
             global __cuGraphMemcpyNodeSetParams
             __cuGraphMemcpyNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphMemcpyNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddMemsetNode' in found_functions}}
         try:
             global __cuGraphAddMemsetNode
             __cuGraphAddMemsetNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddMemsetNode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphMemsetNodeGetParams' in found_functions}}
         try:
             global __cuGraphMemsetNodeGetParams
             __cuGraphMemsetNodeGetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphMemsetNodeGetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphMemsetNodeSetParams' in found_functions}}
         try:
             global __cuGraphMemsetNodeSetParams
             __cuGraphMemsetNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphMemsetNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddHostNode' in found_functions}}
         try:
             global __cuGraphAddHostNode
             __cuGraphAddHostNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddHostNode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphHostNodeGetParams' in found_functions}}
         try:
             global __cuGraphHostNodeGetParams
             __cuGraphHostNodeGetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphHostNodeGetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphHostNodeSetParams' in found_functions}}
         try:
             global __cuGraphHostNodeSetParams
             __cuGraphHostNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphHostNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddChildGraphNode' in found_functions}}
         try:
             global __cuGraphAddChildGraphNode
             __cuGraphAddChildGraphNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddChildGraphNode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphChildGraphNodeGetGraph' in found_functions}}
         try:
             global __cuGraphChildGraphNodeGetGraph
             __cuGraphChildGraphNodeGetGraph = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphChildGraphNodeGetGraph')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddEmptyNode' in found_functions}}
         try:
             global __cuGraphAddEmptyNode
             __cuGraphAddEmptyNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddEmptyNode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddEventRecordNode' in found_functions}}
         try:
             global __cuGraphAddEventRecordNode
             __cuGraphAddEventRecordNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddEventRecordNode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphEventRecordNodeGetEvent' in found_functions}}
         try:
             global __cuGraphEventRecordNodeGetEvent
             __cuGraphEventRecordNodeGetEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphEventRecordNodeGetEvent')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphEventRecordNodeSetEvent' in found_functions}}
         try:
             global __cuGraphEventRecordNodeSetEvent
             __cuGraphEventRecordNodeSetEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphEventRecordNodeSetEvent')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddEventWaitNode' in found_functions}}
         try:
             global __cuGraphAddEventWaitNode
             __cuGraphAddEventWaitNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddEventWaitNode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphEventWaitNodeGetEvent' in found_functions}}
         try:
             global __cuGraphEventWaitNodeGetEvent
             __cuGraphEventWaitNodeGetEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphEventWaitNodeGetEvent')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphEventWaitNodeSetEvent' in found_functions}}
         try:
             global __cuGraphEventWaitNodeSetEvent
             __cuGraphEventWaitNodeSetEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphEventWaitNodeSetEvent')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddExternalSemaphoresSignalNode' in found_functions}}
         try:
             global __cuGraphAddExternalSemaphoresSignalNode
             __cuGraphAddExternalSemaphoresSignalNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddExternalSemaphoresSignalNode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExternalSemaphoresSignalNodeGetParams' in found_functions}}
         try:
             global __cuGraphExternalSemaphoresSignalNodeGetParams
             __cuGraphExternalSemaphoresSignalNodeGetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExternalSemaphoresSignalNodeGetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExternalSemaphoresSignalNodeSetParams' in found_functions}}
         try:
             global __cuGraphExternalSemaphoresSignalNodeSetParams
             __cuGraphExternalSemaphoresSignalNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExternalSemaphoresSignalNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddExternalSemaphoresWaitNode' in found_functions}}
         try:
             global __cuGraphAddExternalSemaphoresWaitNode
             __cuGraphAddExternalSemaphoresWaitNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddExternalSemaphoresWaitNode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExternalSemaphoresWaitNodeGetParams' in found_functions}}
         try:
             global __cuGraphExternalSemaphoresWaitNodeGetParams
             __cuGraphExternalSemaphoresWaitNodeGetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExternalSemaphoresWaitNodeGetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExternalSemaphoresWaitNodeSetParams' in found_functions}}
         try:
             global __cuGraphExternalSemaphoresWaitNodeSetParams
             __cuGraphExternalSemaphoresWaitNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExternalSemaphoresWaitNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddBatchMemOpNode' in found_functions}}
         try:
             global __cuGraphAddBatchMemOpNode
             __cuGraphAddBatchMemOpNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddBatchMemOpNode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphBatchMemOpNodeGetParams' in found_functions}}
         try:
             global __cuGraphBatchMemOpNodeGetParams
             __cuGraphBatchMemOpNodeGetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphBatchMemOpNodeGetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphBatchMemOpNodeSetParams' in found_functions}}
         try:
             global __cuGraphBatchMemOpNodeSetParams
             __cuGraphBatchMemOpNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphBatchMemOpNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecBatchMemOpNodeSetParams' in found_functions}}
         try:
             global __cuGraphExecBatchMemOpNodeSetParams
             __cuGraphExecBatchMemOpNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecBatchMemOpNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddMemAllocNode' in found_functions}}
         try:
             global __cuGraphAddMemAllocNode
             __cuGraphAddMemAllocNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddMemAllocNode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphMemAllocNodeGetParams' in found_functions}}
         try:
             global __cuGraphMemAllocNodeGetParams
             __cuGraphMemAllocNodeGetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphMemAllocNodeGetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddMemFreeNode' in found_functions}}
         try:
             global __cuGraphAddMemFreeNode
             __cuGraphAddMemFreeNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddMemFreeNode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphMemFreeNodeGetParams' in found_functions}}
         try:
             global __cuGraphMemFreeNodeGetParams
             __cuGraphMemFreeNodeGetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphMemFreeNodeGetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGraphMemTrim' in found_functions}}
         try:
             global __cuDeviceGraphMemTrim
             __cuDeviceGraphMemTrim = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGraphMemTrim')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetGraphMemAttribute' in found_functions}}
         try:
             global __cuDeviceGetGraphMemAttribute
             __cuDeviceGetGraphMemAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetGraphMemAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceSetGraphMemAttribute' in found_functions}}
         try:
             global __cuDeviceSetGraphMemAttribute
             __cuDeviceSetGraphMemAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceSetGraphMemAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphClone' in found_functions}}
         try:
             global __cuGraphClone
             __cuGraphClone = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphClone')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphNodeFindInClone' in found_functions}}
         try:
             global __cuGraphNodeFindInClone
             __cuGraphNodeFindInClone = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphNodeFindInClone')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphNodeGetType' in found_functions}}
         try:
             global __cuGraphNodeGetType
             __cuGraphNodeGetType = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphNodeGetType')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphGetNodes' in found_functions}}
         try:
             global __cuGraphGetNodes
             __cuGraphGetNodes = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphGetNodes')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphGetRootNodes' in found_functions}}
         try:
             global __cuGraphGetRootNodes
             __cuGraphGetRootNodes = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphGetRootNodes')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphGetEdges_v2' in found_functions}}
         try:
             global __cuGraphGetEdges_v2
             __cuGraphGetEdges_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphGetEdges_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphNodeGetDependencies_v2' in found_functions}}
         try:
             global __cuGraphNodeGetDependencies_v2
             __cuGraphNodeGetDependencies_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphNodeGetDependencies_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphNodeGetDependentNodes_v2' in found_functions}}
         try:
             global __cuGraphNodeGetDependentNodes_v2
             __cuGraphNodeGetDependentNodes_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphNodeGetDependentNodes_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddDependencies_v2' in found_functions}}
         try:
             global __cuGraphAddDependencies_v2
             __cuGraphAddDependencies_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddDependencies_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphRemoveDependencies_v2' in found_functions}}
         try:
             global __cuGraphRemoveDependencies_v2
             __cuGraphRemoveDependencies_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphRemoveDependencies_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphDestroyNode' in found_functions}}
         try:
             global __cuGraphDestroyNode
             __cuGraphDestroyNode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphDestroyNode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphInstantiateWithFlags' in found_functions}}
         try:
             global __cuGraphInstantiateWithFlags
             __cuGraphInstantiateWithFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphInstantiateWithFlags')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecGetFlags' in found_functions}}
         try:
             global __cuGraphExecGetFlags
             __cuGraphExecGetFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecGetFlags')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecKernelNodeSetParams_v2' in found_functions}}
         try:
             global __cuGraphExecKernelNodeSetParams_v2
             __cuGraphExecKernelNodeSetParams_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecKernelNodeSetParams_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecMemcpyNodeSetParams' in found_functions}}
         try:
             global __cuGraphExecMemcpyNodeSetParams
             __cuGraphExecMemcpyNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecMemcpyNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecMemsetNodeSetParams' in found_functions}}
         try:
             global __cuGraphExecMemsetNodeSetParams
             __cuGraphExecMemsetNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecMemsetNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecHostNodeSetParams' in found_functions}}
         try:
             global __cuGraphExecHostNodeSetParams
             __cuGraphExecHostNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecHostNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecChildGraphNodeSetParams' in found_functions}}
         try:
             global __cuGraphExecChildGraphNodeSetParams
             __cuGraphExecChildGraphNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecChildGraphNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecEventRecordNodeSetEvent' in found_functions}}
         try:
             global __cuGraphExecEventRecordNodeSetEvent
             __cuGraphExecEventRecordNodeSetEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecEventRecordNodeSetEvent')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecEventWaitNodeSetEvent' in found_functions}}
         try:
             global __cuGraphExecEventWaitNodeSetEvent
             __cuGraphExecEventWaitNodeSetEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecEventWaitNodeSetEvent')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecExternalSemaphoresSignalNodeSetParams' in found_functions}}
         try:
             global __cuGraphExecExternalSemaphoresSignalNodeSetParams
             __cuGraphExecExternalSemaphoresSignalNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecExternalSemaphoresSignalNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecExternalSemaphoresWaitNodeSetParams' in found_functions}}
         try:
             global __cuGraphExecExternalSemaphoresWaitNodeSetParams
             __cuGraphExecExternalSemaphoresWaitNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecExternalSemaphoresWaitNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphNodeSetEnabled' in found_functions}}
         try:
             global __cuGraphNodeSetEnabled
             __cuGraphNodeSetEnabled = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphNodeSetEnabled')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphNodeGetEnabled' in found_functions}}
         try:
             global __cuGraphNodeGetEnabled
             __cuGraphNodeGetEnabled = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphNodeGetEnabled')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecDestroy' in found_functions}}
         try:
             global __cuGraphExecDestroy
             __cuGraphExecDestroy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecDestroy')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphDestroy' in found_functions}}
         try:
             global __cuGraphDestroy
             __cuGraphDestroy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphDestroy')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecUpdate_v2' in found_functions}}
         try:
             global __cuGraphExecUpdate_v2
             __cuGraphExecUpdate_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecUpdate_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphKernelNodeCopyAttributes' in found_functions}}
         try:
             global __cuGraphKernelNodeCopyAttributes
             __cuGraphKernelNodeCopyAttributes = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphKernelNodeCopyAttributes')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphKernelNodeGetAttribute' in found_functions}}
         try:
             global __cuGraphKernelNodeGetAttribute
             __cuGraphKernelNodeGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphKernelNodeGetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphKernelNodeSetAttribute' in found_functions}}
         try:
             global __cuGraphKernelNodeSetAttribute
             __cuGraphKernelNodeSetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphKernelNodeSetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphDebugDotPrint' in found_functions}}
         try:
             global __cuGraphDebugDotPrint
             __cuGraphDebugDotPrint = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphDebugDotPrint')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuUserObjectCreate' in found_functions}}
         try:
             global __cuUserObjectCreate
             __cuUserObjectCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuUserObjectCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuUserObjectRetain' in found_functions}}
         try:
             global __cuUserObjectRetain
             __cuUserObjectRetain = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuUserObjectRetain')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuUserObjectRelease' in found_functions}}
         try:
             global __cuUserObjectRelease
             __cuUserObjectRelease = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuUserObjectRelease')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphRetainUserObject' in found_functions}}
         try:
             global __cuGraphRetainUserObject
             __cuGraphRetainUserObject = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphRetainUserObject')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphReleaseUserObject' in found_functions}}
         try:
             global __cuGraphReleaseUserObject
             __cuGraphReleaseUserObject = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphReleaseUserObject')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphAddNode_v2' in found_functions}}
         try:
             global __cuGraphAddNode_v2
             __cuGraphAddNode_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphAddNode_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphNodeSetParams' in found_functions}}
         try:
             global __cuGraphNodeSetParams
             __cuGraphNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphExecNodeSetParams' in found_functions}}
         try:
             global __cuGraphExecNodeSetParams
             __cuGraphExecNodeSetParams = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphExecNodeSetParams')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphConditionalHandleCreate' in found_functions}}
         try:
             global __cuGraphConditionalHandleCreate
             __cuGraphConditionalHandleCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphConditionalHandleCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuOccupancyMaxActiveBlocksPerMultiprocessor' in found_functions}}
         try:
             global __cuOccupancyMaxActiveBlocksPerMultiprocessor
             __cuOccupancyMaxActiveBlocksPerMultiprocessor = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuOccupancyMaxActiveBlocksPerMultiprocessor')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags' in found_functions}}
         try:
             global __cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
             __cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuOccupancyMaxPotentialBlockSize' in found_functions}}
         try:
             global __cuOccupancyMaxPotentialBlockSize
             __cuOccupancyMaxPotentialBlockSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuOccupancyMaxPotentialBlockSize')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuOccupancyMaxPotentialBlockSizeWithFlags' in found_functions}}
         try:
             global __cuOccupancyMaxPotentialBlockSizeWithFlags
             __cuOccupancyMaxPotentialBlockSizeWithFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuOccupancyMaxPotentialBlockSizeWithFlags')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuOccupancyAvailableDynamicSMemPerBlock' in found_functions}}
         try:
             global __cuOccupancyAvailableDynamicSMemPerBlock
             __cuOccupancyAvailableDynamicSMemPerBlock = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuOccupancyAvailableDynamicSMemPerBlock')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuOccupancyMaxPotentialClusterSize' in found_functions}}
         try:
             global __cuOccupancyMaxPotentialClusterSize
             __cuOccupancyMaxPotentialClusterSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuOccupancyMaxPotentialClusterSize')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuOccupancyMaxActiveClusters' in found_functions}}
         try:
             global __cuOccupancyMaxActiveClusters
             __cuOccupancyMaxActiveClusters = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuOccupancyMaxActiveClusters')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefSetArray' in found_functions}}
         try:
             global __cuTexRefSetArray
             __cuTexRefSetArray = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefSetArray')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefSetMipmappedArray' in found_functions}}
         try:
             global __cuTexRefSetMipmappedArray
             __cuTexRefSetMipmappedArray = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefSetMipmappedArray')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefSetAddress_v2' in found_functions}}
         try:
             global __cuTexRefSetAddress_v2
             __cuTexRefSetAddress_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefSetAddress_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefSetAddress2D_v3' in found_functions}}
         try:
             global __cuTexRefSetAddress2D_v3
             __cuTexRefSetAddress2D_v3 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefSetAddress2D_v3')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefSetFormat' in found_functions}}
         try:
             global __cuTexRefSetFormat
             __cuTexRefSetFormat = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefSetFormat')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefSetAddressMode' in found_functions}}
         try:
             global __cuTexRefSetAddressMode
             __cuTexRefSetAddressMode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefSetAddressMode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefSetFilterMode' in found_functions}}
         try:
             global __cuTexRefSetFilterMode
             __cuTexRefSetFilterMode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefSetFilterMode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefSetMipmapFilterMode' in found_functions}}
         try:
             global __cuTexRefSetMipmapFilterMode
             __cuTexRefSetMipmapFilterMode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefSetMipmapFilterMode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefSetMipmapLevelBias' in found_functions}}
         try:
             global __cuTexRefSetMipmapLevelBias
             __cuTexRefSetMipmapLevelBias = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefSetMipmapLevelBias')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefSetMipmapLevelClamp' in found_functions}}
         try:
             global __cuTexRefSetMipmapLevelClamp
             __cuTexRefSetMipmapLevelClamp = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefSetMipmapLevelClamp')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefSetMaxAnisotropy' in found_functions}}
         try:
             global __cuTexRefSetMaxAnisotropy
             __cuTexRefSetMaxAnisotropy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefSetMaxAnisotropy')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefSetBorderColor' in found_functions}}
         try:
             global __cuTexRefSetBorderColor
             __cuTexRefSetBorderColor = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefSetBorderColor')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefSetFlags' in found_functions}}
         try:
             global __cuTexRefSetFlags
             __cuTexRefSetFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefSetFlags')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefGetAddress_v2' in found_functions}}
         try:
             global __cuTexRefGetAddress_v2
             __cuTexRefGetAddress_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefGetAddress_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefGetArray' in found_functions}}
         try:
             global __cuTexRefGetArray
             __cuTexRefGetArray = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefGetArray')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefGetMipmappedArray' in found_functions}}
         try:
             global __cuTexRefGetMipmappedArray
             __cuTexRefGetMipmappedArray = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefGetMipmappedArray')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefGetAddressMode' in found_functions}}
         try:
             global __cuTexRefGetAddressMode
             __cuTexRefGetAddressMode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefGetAddressMode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefGetFilterMode' in found_functions}}
         try:
             global __cuTexRefGetFilterMode
             __cuTexRefGetFilterMode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefGetFilterMode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefGetFormat' in found_functions}}
         try:
             global __cuTexRefGetFormat
             __cuTexRefGetFormat = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefGetFormat')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefGetMipmapFilterMode' in found_functions}}
         try:
             global __cuTexRefGetMipmapFilterMode
             __cuTexRefGetMipmapFilterMode = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefGetMipmapFilterMode')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefGetMipmapLevelBias' in found_functions}}
         try:
             global __cuTexRefGetMipmapLevelBias
             __cuTexRefGetMipmapLevelBias = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefGetMipmapLevelBias')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefGetMipmapLevelClamp' in found_functions}}
         try:
             global __cuTexRefGetMipmapLevelClamp
             __cuTexRefGetMipmapLevelClamp = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefGetMipmapLevelClamp')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefGetMaxAnisotropy' in found_functions}}
         try:
             global __cuTexRefGetMaxAnisotropy
             __cuTexRefGetMaxAnisotropy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefGetMaxAnisotropy')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefGetBorderColor' in found_functions}}
         try:
             global __cuTexRefGetBorderColor
             __cuTexRefGetBorderColor = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefGetBorderColor')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefGetFlags' in found_functions}}
         try:
             global __cuTexRefGetFlags
             __cuTexRefGetFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefGetFlags')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefCreate' in found_functions}}
         try:
             global __cuTexRefCreate
             __cuTexRefCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexRefDestroy' in found_functions}}
         try:
             global __cuTexRefDestroy
             __cuTexRefDestroy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexRefDestroy')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuSurfRefSetArray' in found_functions}}
         try:
             global __cuSurfRefSetArray
             __cuSurfRefSetArray = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuSurfRefSetArray')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuSurfRefGetArray' in found_functions}}
         try:
             global __cuSurfRefGetArray
             __cuSurfRefGetArray = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuSurfRefGetArray')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexObjectCreate' in found_functions}}
         try:
             global __cuTexObjectCreate
             __cuTexObjectCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexObjectCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexObjectDestroy' in found_functions}}
         try:
             global __cuTexObjectDestroy
             __cuTexObjectDestroy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexObjectDestroy')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexObjectGetResourceDesc' in found_functions}}
         try:
             global __cuTexObjectGetResourceDesc
             __cuTexObjectGetResourceDesc = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexObjectGetResourceDesc')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexObjectGetTextureDesc' in found_functions}}
         try:
             global __cuTexObjectGetTextureDesc
             __cuTexObjectGetTextureDesc = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexObjectGetTextureDesc')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTexObjectGetResourceViewDesc' in found_functions}}
         try:
             global __cuTexObjectGetResourceViewDesc
             __cuTexObjectGetResourceViewDesc = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTexObjectGetResourceViewDesc')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuSurfObjectCreate' in found_functions}}
         try:
             global __cuSurfObjectCreate
             __cuSurfObjectCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuSurfObjectCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuSurfObjectDestroy' in found_functions}}
         try:
             global __cuSurfObjectDestroy
             __cuSurfObjectDestroy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuSurfObjectDestroy')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuSurfObjectGetResourceDesc' in found_functions}}
         try:
             global __cuSurfObjectGetResourceDesc
             __cuSurfObjectGetResourceDesc = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuSurfObjectGetResourceDesc')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTensorMapEncodeTiled' in found_functions}}
         try:
             global __cuTensorMapEncodeTiled
             __cuTensorMapEncodeTiled = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTensorMapEncodeTiled')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTensorMapEncodeIm2col' in found_functions}}
         try:
             global __cuTensorMapEncodeIm2col
             __cuTensorMapEncodeIm2col = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTensorMapEncodeIm2col')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTensorMapEncodeIm2colWide' in found_functions}}
         try:
             global __cuTensorMapEncodeIm2colWide
             __cuTensorMapEncodeIm2colWide = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTensorMapEncodeIm2colWide')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuTensorMapReplaceAddress' in found_functions}}
         try:
             global __cuTensorMapReplaceAddress
             __cuTensorMapReplaceAddress = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuTensorMapReplaceAddress')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceCanAccessPeer' in found_functions}}
         try:
             global __cuDeviceCanAccessPeer
             __cuDeviceCanAccessPeer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceCanAccessPeer')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxEnablePeerAccess' in found_functions}}
         try:
             global __cuCtxEnablePeerAccess
             __cuCtxEnablePeerAccess = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxEnablePeerAccess')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxDisablePeerAccess' in found_functions}}
         try:
             global __cuCtxDisablePeerAccess
             __cuCtxDisablePeerAccess = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxDisablePeerAccess')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetP2PAttribute' in found_functions}}
         try:
             global __cuDeviceGetP2PAttribute
             __cuDeviceGetP2PAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetP2PAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetP2PAtomicCapabilities' in found_functions}}
         try:
             global __cuDeviceGetP2PAtomicCapabilities
             __cuDeviceGetP2PAtomicCapabilities = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetP2PAtomicCapabilities')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphicsUnregisterResource' in found_functions}}
         try:
             global __cuGraphicsUnregisterResource
             __cuGraphicsUnregisterResource = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsUnregisterResource')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphicsSubResourceGetMappedArray' in found_functions}}
         try:
             global __cuGraphicsSubResourceGetMappedArray
             __cuGraphicsSubResourceGetMappedArray = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsSubResourceGetMappedArray')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphicsResourceGetMappedMipmappedArray' in found_functions}}
         try:
             global __cuGraphicsResourceGetMappedMipmappedArray
             __cuGraphicsResourceGetMappedMipmappedArray = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsResourceGetMappedMipmappedArray')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphicsResourceGetMappedPointer_v2' in found_functions}}
         try:
             global __cuGraphicsResourceGetMappedPointer_v2
             __cuGraphicsResourceGetMappedPointer_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsResourceGetMappedPointer_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGraphicsResourceSetMapFlags_v2' in found_functions}}
         try:
             global __cuGraphicsResourceSetMapFlags_v2
             __cuGraphicsResourceSetMapFlags_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsResourceSetMapFlags_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGetProcAddress_v2' in found_functions}}
         try:
             global __cuGetProcAddress_v2
             __cuGetProcAddress_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGetProcAddress_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCoredumpGetAttribute' in found_functions}}
         try:
             global __cuCoredumpGetAttribute
             __cuCoredumpGetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCoredumpGetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCoredumpGetAttributeGlobal' in found_functions}}
         try:
             global __cuCoredumpGetAttributeGlobal
             __cuCoredumpGetAttributeGlobal = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCoredumpGetAttributeGlobal')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCoredumpSetAttribute' in found_functions}}
         try:
             global __cuCoredumpSetAttribute
             __cuCoredumpSetAttribute = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCoredumpSetAttribute')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCoredumpSetAttributeGlobal' in found_functions}}
         try:
             global __cuCoredumpSetAttributeGlobal
             __cuCoredumpSetAttributeGlobal = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCoredumpSetAttributeGlobal')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGetExportTable' in found_functions}}
         try:
             global __cuGetExportTable
             __cuGetExportTable = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGetExportTable')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGreenCtxCreate' in found_functions}}
         try:
             global __cuGreenCtxCreate
             __cuGreenCtxCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGreenCtxCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGreenCtxDestroy' in found_functions}}
         try:
             global __cuGreenCtxDestroy
             __cuGreenCtxDestroy = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGreenCtxDestroy')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxFromGreenCtx' in found_functions}}
         try:
             global __cuCtxFromGreenCtx
             __cuCtxFromGreenCtx = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxFromGreenCtx')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDeviceGetDevResource' in found_functions}}
         try:
             global __cuDeviceGetDevResource
             __cuDeviceGetDevResource = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDeviceGetDevResource')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCtxGetDevResource' in found_functions}}
         try:
             global __cuCtxGetDevResource
             __cuCtxGetDevResource = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCtxGetDevResource')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGreenCtxGetDevResource' in found_functions}}
         try:
             global __cuGreenCtxGetDevResource
             __cuGreenCtxGetDevResource = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGreenCtxGetDevResource')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDevSmResourceSplitByCount' in found_functions}}
         try:
             global __cuDevSmResourceSplitByCount
             __cuDevSmResourceSplitByCount = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDevSmResourceSplitByCount')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuDevResourceGenerateDesc' in found_functions}}
         try:
             global __cuDevResourceGenerateDesc
             __cuDevResourceGenerateDesc = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuDevResourceGenerateDesc')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGreenCtxRecordEvent' in found_functions}}
         try:
             global __cuGreenCtxRecordEvent
             __cuGreenCtxRecordEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGreenCtxRecordEvent')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGreenCtxWaitEvent' in found_functions}}
         try:
             global __cuGreenCtxWaitEvent
             __cuGreenCtxWaitEvent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGreenCtxWaitEvent')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuStreamGetGreenCtx' in found_functions}}
         try:
             global __cuStreamGetGreenCtx
             __cuStreamGetGreenCtx = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuStreamGetGreenCtx')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGreenCtxStreamCreate' in found_functions}}
         try:
             global __cuGreenCtxStreamCreate
             __cuGreenCtxStreamCreate = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGreenCtxStreamCreate')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuGreenCtxGetId' in found_functions}}
         try:
             global __cuGreenCtxGetId
             __cuGreenCtxGetId = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGreenCtxGetId')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLogsRegisterCallback' in found_functions}}
         try:
             global __cuLogsRegisterCallback
             __cuLogsRegisterCallback = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLogsRegisterCallback')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLogsUnregisterCallback' in found_functions}}
         try:
             global __cuLogsUnregisterCallback
             __cuLogsUnregisterCallback = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLogsUnregisterCallback')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLogsCurrent' in found_functions}}
         try:
             global __cuLogsCurrent
             __cuLogsCurrent = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLogsCurrent')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLogsDumpToFile' in found_functions}}
         try:
             global __cuLogsDumpToFile
             __cuLogsDumpToFile = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLogsDumpToFile')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuLogsDumpToMemory' in found_functions}}
         try:
             global __cuLogsDumpToMemory
             __cuLogsDumpToMemory = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuLogsDumpToMemory')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCheckpointProcessGetRestoreThreadId' in found_functions}}
         try:
             global __cuCheckpointProcessGetRestoreThreadId
             __cuCheckpointProcessGetRestoreThreadId = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCheckpointProcessGetRestoreThreadId')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCheckpointProcessGetState' in found_functions}}
         try:
             global __cuCheckpointProcessGetState
             __cuCheckpointProcessGetState = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCheckpointProcessGetState')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCheckpointProcessLock' in found_functions}}
         try:
             global __cuCheckpointProcessLock
             __cuCheckpointProcessLock = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCheckpointProcessLock')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCheckpointProcessCheckpoint' in found_functions}}
         try:
             global __cuCheckpointProcessCheckpoint
             __cuCheckpointProcessCheckpoint = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCheckpointProcessCheckpoint')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuCheckpointProcessUnlock' in found_functions}}
         try:
             global __cuCheckpointProcessUnlock
             __cuCheckpointProcessUnlock = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuCheckpointProcessUnlock')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuProfilerStart' in found_functions}}
         try:
             global __cuProfilerStart
             __cuProfilerStart = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuProfilerStart')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'cuProfilerStop' in found_functions}}
         try:
             global __cuProfilerStop
             __cuProfilerStop = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuProfilerStop')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuGraphicsEGLRegisterImage
             __cuGraphicsEGLRegisterImage = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsEGLRegisterImage')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuEGLStreamConsumerConnect
             __cuEGLStreamConsumerConnect = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamConsumerConnect')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuEGLStreamConsumerConnectWithFlags
             __cuEGLStreamConsumerConnectWithFlags = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamConsumerConnectWithFlags')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuEGLStreamConsumerDisconnect
             __cuEGLStreamConsumerDisconnect = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamConsumerDisconnect')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuEGLStreamConsumerAcquireFrame
             __cuEGLStreamConsumerAcquireFrame = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamConsumerAcquireFrame')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuEGLStreamConsumerReleaseFrame
             __cuEGLStreamConsumerReleaseFrame = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamConsumerReleaseFrame')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuEGLStreamProducerConnect
             __cuEGLStreamProducerConnect = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamProducerConnect')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuEGLStreamProducerDisconnect
             __cuEGLStreamProducerDisconnect = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamProducerDisconnect')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuEGLStreamProducerPresentFrame
             __cuEGLStreamProducerPresentFrame = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamProducerPresentFrame')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuEGLStreamProducerReturnFrame
             __cuEGLStreamProducerReturnFrame = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEGLStreamProducerReturnFrame')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuGraphicsResourceGetMappedEglFrame
             __cuGraphicsResourceGetMappedEglFrame = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsResourceGetMappedEglFrame')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuEventCreateFromEGLSync
             __cuEventCreateFromEGLSync = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuEventCreateFromEGLSync')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuGraphicsGLRegisterBuffer
             __cuGraphicsGLRegisterBuffer = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsGLRegisterBuffer')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuGraphicsGLRegisterImage
             __cuGraphicsGLRegisterImage = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsGLRegisterImage')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuGLGetDevices_v2
             __cuGLGetDevices_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGLGetDevices_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuVDPAUGetDevice
             __cuVDPAUGetDevice = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuVDPAUGetDevice')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuVDPAUCtxCreate_v2
             __cuVDPAUCtxCreate_v2 = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuVDPAUCtxCreate_v2')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuGraphicsVDPAURegisterVideoSurface
             __cuGraphicsVDPAURegisterVideoSurface = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsVDPAURegisterVideoSurface')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if True}}
         try:
             global __cuGraphicsVDPAURegisterOutputSurface
             __cuGraphicsVDPAURegisterOutputSurface = <void*><unsigned long long>win32api.GetProcAddress(handle, 'cuGraphicsVDPAURegisterOutputSurface')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{else}}

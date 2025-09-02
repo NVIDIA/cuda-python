@@ -53,168 +53,168 @@ cdef int _cuPythonInit() except -1 nogil:
         try:
             global __nvrtcGetErrorString
             __nvrtcGetErrorString = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetErrorString')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcVersion' in found_functions}}
         try:
             global __nvrtcVersion
             __nvrtcVersion = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcVersion')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetNumSupportedArchs' in found_functions}}
         try:
             global __nvrtcGetNumSupportedArchs
             __nvrtcGetNumSupportedArchs = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetNumSupportedArchs')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetSupportedArchs' in found_functions}}
         try:
             global __nvrtcGetSupportedArchs
             __nvrtcGetSupportedArchs = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetSupportedArchs')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcCreateProgram' in found_functions}}
         try:
             global __nvrtcCreateProgram
             __nvrtcCreateProgram = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcCreateProgram')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcDestroyProgram' in found_functions}}
         try:
             global __nvrtcDestroyProgram
             __nvrtcDestroyProgram = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcDestroyProgram')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcCompileProgram' in found_functions}}
         try:
             global __nvrtcCompileProgram
             __nvrtcCompileProgram = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcCompileProgram')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetPTXSize' in found_functions}}
         try:
             global __nvrtcGetPTXSize
             __nvrtcGetPTXSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetPTXSize')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetPTX' in found_functions}}
         try:
             global __nvrtcGetPTX
             __nvrtcGetPTX = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetPTX')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetCUBINSize' in found_functions}}
         try:
             global __nvrtcGetCUBINSize
             __nvrtcGetCUBINSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetCUBINSize')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetCUBIN' in found_functions}}
         try:
             global __nvrtcGetCUBIN
             __nvrtcGetCUBIN = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetCUBIN')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetLTOIRSize' in found_functions}}
         try:
             global __nvrtcGetLTOIRSize
             __nvrtcGetLTOIRSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetLTOIRSize')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetLTOIR' in found_functions}}
         try:
             global __nvrtcGetLTOIR
             __nvrtcGetLTOIR = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetLTOIR')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetOptiXIRSize' in found_functions}}
         try:
             global __nvrtcGetOptiXIRSize
             __nvrtcGetOptiXIRSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetOptiXIRSize')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetOptiXIR' in found_functions}}
         try:
             global __nvrtcGetOptiXIR
             __nvrtcGetOptiXIR = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetOptiXIR')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetProgramLogSize' in found_functions}}
         try:
             global __nvrtcGetProgramLogSize
             __nvrtcGetProgramLogSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetProgramLogSize')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetProgramLog' in found_functions}}
         try:
             global __nvrtcGetProgramLog
             __nvrtcGetProgramLog = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetProgramLog')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcAddNameExpression' in found_functions}}
         try:
             global __nvrtcAddNameExpression
             __nvrtcAddNameExpression = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcAddNameExpression')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetLoweredName' in found_functions}}
         try:
             global __nvrtcGetLoweredName
             __nvrtcGetLoweredName = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetLoweredName')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetPCHHeapSize' in found_functions}}
         try:
             global __nvrtcGetPCHHeapSize
             __nvrtcGetPCHHeapSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetPCHHeapSize')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcSetPCHHeapSize' in found_functions}}
         try:
             global __nvrtcSetPCHHeapSize
             __nvrtcSetPCHHeapSize = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcSetPCHHeapSize')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetPCHCreateStatus' in found_functions}}
         try:
             global __nvrtcGetPCHCreateStatus
             __nvrtcGetPCHCreateStatus = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetPCHCreateStatus')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcGetPCHHeapSizeRequired' in found_functions}}
         try:
             global __nvrtcGetPCHHeapSizeRequired
             __nvrtcGetPCHHeapSizeRequired = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcGetPCHHeapSizeRequired')
-        except:
+        except Exception:
             pass
         {{endif}}
         {{if 'nvrtcSetFlowCallback' in found_functions}}
         try:
             global __nvrtcSetFlowCallback
             __nvrtcSetFlowCallback = <void*><unsigned long long>win32api.GetProcAddress(handle, 'nvrtcSetFlowCallback')
-        except:
+        except Exception:
             pass
         {{endif}}
 
