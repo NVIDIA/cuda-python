@@ -1913,8 +1913,7 @@ cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCa
     err = (<cudaError_t (*)(int*) except ?cudaErrorCallRequiresNewerDriver nogil> __cudaRuntimeGetVersion)(runtimeVersion)
 
     {{if 'Windows' != platform.system()}}
-    with gil:
-        dlfcn.dlclose(handle)
+    dlfcn.dlclose(handle)
     {{endif}}
 
     # Return
