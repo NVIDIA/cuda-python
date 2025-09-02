@@ -190,8 +190,8 @@ cdef class Buffer:
         self,
         *,
         stream: int | None = None,
-        max_version: Tuple[int, int] | None = None,
-        dl_device: Tuple[int, int] | None = None,
+        max_version: tuple[int, int] | None = None,
+        dl_device: tuple[int, int] | None = None,
         copy: bool | None = None,
     ) -> PyCapsule:
         # Note: we ignore the stream argument entirely (as if it is -1).
@@ -204,12 +204,12 @@ cdef class Buffer:
             versioned = False
         else:
             if not isinstance(max_version, tuple) or len(max_version) != 2:
-                raise BufferError(f"Expected max_version Tuple[int, int], got {max_version}")
+                raise BufferError(f"Expected max_version tuple[int, int], got {max_version}")
             versioned = max_version >= (1, 0)
         capsule = make_py_capsule(self, versioned)
         return capsule
 
-    def __dlpack_device__(self) -> Tuple[int, int]:
+    def __dlpack_device__(self) -> tuple[int, int]:
         cdef bint d = self.is_device_accessible
         cdef bint h = self.is_host_accessible
         if d and (not h):

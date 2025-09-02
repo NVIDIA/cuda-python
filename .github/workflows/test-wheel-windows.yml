@@ -288,17 +288,15 @@ jobs:
             pip install "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
           }
 
-      - name: Install cuda.pathfinder nvidia_wheels_cu13
-        if: startsWith(matrix.CUDA_VER, '13.')
+      - name: Install cuda.pathfinder extra wheels for testing
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_pathfinder
-          pip install -v .[nvidia_wheels_cu13]
-          pip freeze
+          pip install --only-binary=:all: -v ".[nvidia_wheels_cu${TEST_CUDA_MAJOR},nvidia_wheels_host]"
+          pip list
           popd
 
       - name: Run cuda.pathfinder tests with all_must_work
-        if: startsWith(matrix.CUDA_VER, '13.')
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
         shell: bash --noprofile --norc -xeuo pipefail {0}

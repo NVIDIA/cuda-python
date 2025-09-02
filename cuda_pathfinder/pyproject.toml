@@ -7,7 +7,7 @@ description = "Pathfinder for CUDA components"
 authors = [{ name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com" }]
 license = "Apache-2.0"
 requires-python = ">=3.9"
-dynamic = ["version"]
+dynamic = ["version", "readme"]
 dependencies = []
 
 [project.optional-dependencies]
@@ -17,10 +17,18 @@ test = [
 nvidia_wheels_cu12 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg]==12.*",
     "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
+    "nvidia-libmathdx-cu12",
+    "nvidia-cudss-cu12",
+    "nvidia-cufftmp-cu12; sys_platform != 'win32'",
+    "nvidia-nvshmem-cu12; sys_platform != 'win32'",
 ]
 nvidia_wheels_cu13 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,nvvm]==13.*",
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
+    "nvidia-nvshmem-cu13; sys_platform != 'win32'",
+]
+nvidia_wheels_host = [
+    "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
 
 [project.urls]
