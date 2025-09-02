@@ -1898,20 +1898,18 @@ cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCa
     with gil:
         lib = load_nvidia_dynamic_lib("cudart")
         filename = Path(lib.abs_path).name
-        handle = <void *><uintptr_t>lib._handle_uint
+        handle = <void *><uintptr_t>(lib._handle_uint)
 
-    {{if 'Windows' == platform.system()}}
-    with gil:
+        {{if 'Windows' == platform.system()}}
         try:
             __cudaRuntimeGetVersion = <void*><unsigned long long>win32api.GetProcAddress(<uintptr_t>handle, 'cudaRuntimeGetVersion')
         except:
             pass
-    {{else}}
-    __cudaRuntimeGetVersion = dlfcn.dlsym(handle, 'cudaRuntimeGetVersion')
-    {{endif}}
+        {{else}}
+        __cudaRuntimeGetVersion = dlfcn.dlsym(handle, 'cudaRuntimeGetVersion')
+        {{endif}}
 
-    if __cudaRuntimeGetVersion == NULL:
-        with gil:
+        if __cudaRuntimeGetVersion == NULL:
             raise RuntimeError(f'Function "cudaRuntimeGetVersion" not found in {filename}')
 
     cdef cudaError_t err = cudaSuccess
