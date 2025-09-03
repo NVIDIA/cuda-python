@@ -20,11 +20,11 @@ from cuda.core.experimental._utils.cuda_utils import (
     _handle_boolean_option,
     check_or_create_options,
     driver,
-    handle_return,
     get_binding_version,
+    handle_return,
     is_nested_sequence,
     is_sequence,
-    nvrtc
+    nvrtc,
 )
 
 _nvvm_module = None
@@ -37,22 +37,22 @@ def _get_nvvm_module():
     NVVM bindings were added in CUDA 12.9.0, so we need to handle cases where:
     1. cuda.bindings is not new enough (< 12.9.0)
     2. libnvvm is not found in the Python environment
-    
+
     Returns:
         The nvvm module if available and working
-        
+
     Raises:
         ImportError: If NVVM is not available due to version or library issues
     """
     global _nvvm_module, _nvvm_import_attempted
-    
+
     if _nvvm_import_attempted:
         if _nvvm_module is None:
             raise ImportError("NVVM module is not available (previous import attempt failed)")
         return _nvvm_module
-    
+
     _nvvm_import_attempted = True
-    
+
     try:
         version = get_binding_version()
         if version < (12, 9):
@@ -60,19 +60,17 @@ def _get_nvvm_module():
                 f"NVVM bindings require cuda-bindings >= 12.9.0, but found {version[0]}.{version[1]}.x. "
                 "Please update cuda-bindings to use NVVM features."
             )
-        
+
         from cuda.bindings import nvvm
         from cuda.bindings._internal.nvvm import _inspect_function_pointer
         if _inspect_function_pointer("__nvvmCreateProgram") == 0:
             raise ImportError(
                 "NVVM library (libnvvm) is not available in this Python environment. "
-                f"Original error: {e}"
-            
             )
-        
+
         _nvvm_module = nvvm
         return _nvvm_module
-        
+
     except ImportError as e:
         _nvvm_module = None
         raise e
@@ -474,7 +472,7 @@ class Program:
                 code = code.encode('utf-8')
             elif not isinstance(code, (bytes, bytearray)):
                 raise TypeError("NVVM IR code must be provided as str, bytes, or bytearray")
-            
+
             nvvm = _get_nvvm_module()
             self._mnff.handle = nvvm.create_program()
             self._mnff.backend = "NVVM"
@@ -503,11 +501,11 @@ class Program:
             split_compile=options.split_compile,
             ptxas_options=options.ptxas_options,
         )
-        
+
     def _translate_program_options_to_nvvm(self, options: ProgramOptions) -> List[str]:
         """Translate ProgramOptions to NVVM-specific compilation options."""
         nvvm_options = []
-        
+
         if options.arch is not None:
             arch = options.arch
             if arch.startswith("sm_"):
@@ -522,7 +520,7 @@ class Program:
             nvvm_options.append("-opt=0")
         elif options.device_code_optimize is True:
             nvvm_options.append("-opt=3")
-            
+
         return nvvm_options
 
     def close(self):
@@ -608,22 +606,22 @@ class Program:
         elif self._backend == "NVVM":
             if target_type != "ptx":
                 raise ValueError(f'NVVM backend only supports target_type="ptx", got "{target_type}"')
-            
+
             nvvm_options = self._translate_program_options_to_nvvm(self._options)
             nvvm = _get_nvvm_module()
             nvvm.compile_program(self._mnff.handle, len(nvvm_options), nvvm_options)
-            
+
             size = nvvm.get_compiled_result_size(self._mnff.handle)
             data = bytearray(size)
             nvvm.get_compiled_result(self._mnff.handle, data)
-            
+
             if logs is not None:
                 logsize = nvvm.get_program_log_size(self._mnff.handle)
                 if logsize > 1:
                     log = bytearray(logsize)
                     nvvm.get_program_log(self._mnff.handle, log)
                     logs.write(log.decode("utf-8", errors="backslashreplace"))
-                    
+
             data_bytes = bytes(data)
             return ObjectCode._init(data_bytes, target_type, name=self._options.name)
 
@@ -651,4 +649,3 @@ class Program:
             handle, call ``int(Program.handle)``.
         """
         return self._mnff.handle
-        

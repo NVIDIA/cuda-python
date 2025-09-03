@@ -18,8 +18,8 @@ def get_nvvm_ir():
         from cuda.core.experimental._program import _get_nvvm_module
         nvvm = _get_nvvm_module()
         major, minor, debug_major, debug_minor = nvvm.ir_version()
-        
-        
+
+
         nvvm_ir_template = '''target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
@@ -53,10 +53,10 @@ declare i32 @llvm.nvvm.read.ptx.sreg.tid.x() nounwind readnone
 !nvvmir.version = !{{!1}}
 !1 = !{{i32 {major}, i32 0, i32 {debug_major}, i32 0}}
 '''
-        
+
         return nvvm_ir_template.format(major=major, debug_major=debug_major)
     except Exception:
-        
+
         return """target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
@@ -273,17 +273,17 @@ def test_nvvm_compile_to_ptx(init_cuda):
             assert isinstance(ptx_object_code, ObjectCode)
             assert ptx_object_code.name == "nvvm_test"
             assert ptx_object_code._code_type == "ptx"
-            
+
             ptx_code = ptx_object_code.code
             if isinstance(ptx_code, bytes):
                 ptx_text = ptx_code.decode()
             else:
                 ptx_text = str(ptx_code)
             assert ".visible .entry simple(" in ptx_text
-            
+
             ptx_kernel = ptx_object_code.get_kernel("simple")
             assert isinstance(ptx_kernel, Kernel)
-            
+
         except Exception as e:
             if any(error in str(e) for error in ["ERROR_IR_VERSION_MISMATCH", "ERROR_INVALID_OPTION", "ERROR_COMPILATION"]):
                 pytest.skip(f"NVVM IR not compatible with this CUDA version: {e}")
@@ -291,7 +291,7 @@ def test_nvvm_compile_to_ptx(init_cuda):
                 raise
         finally:
             program.close()
-            
+
     except ImportError as e:
         pytest.skip(f"NVVM not available: {e}")
 
@@ -306,19 +306,19 @@ def test_nvvm_program_options(init_cuda, options):
     try:
         program = Program(nvvm_ir, "nvvm", options)
         assert program.backend == "NVVM"
-        
+
         try:
             ptx_code = program.compile("ptx")
             assert isinstance(ptx_code, ObjectCode)
             assert ptx_code.name == options.name
-            
+
             code_content = ptx_code.code
             if isinstance(code_content, bytes):
                 ptx_text = code_content.decode()
             else:
                 ptx_text = str(code_content)
             assert ".visible .entry simple(" in ptx_text
-            
+
         except Exception as e:
             if any(error in str(e) for error in ["ERROR_IR_VERSION_MISMATCH", "ERROR_INVALID_OPTION", "ERROR_COMPILATION"]):
                 pytest.skip(f"NVVM compilation not supported: {e}")
@@ -326,6 +326,6 @@ def test_nvvm_program_options(init_cuda, options):
                 raise
         finally:
             program.close()
-            
+
     except ImportError as e:
         pytest.skip(f"NVVM not available: {e}")
