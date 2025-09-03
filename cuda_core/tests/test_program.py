@@ -28,7 +28,12 @@ nvvm_available = pytest.mark.skipif(
 
 @pytest.fixture(scope="session")
 def nvvm_ir():
-    """Generate working NVVM IR with proper version metadata"""
+    """Generate working NVVM IR with proper version metadata
+       The try clause here is used for older nvvm modules which
+       might not have an ir_version() method. In which case the 
+       fallback assumes no version metadata will be present in 
+       the input nvvm ir
+    """
     try:
         from cuda.core.experimental._program import _get_nvvm_module
         nvvm = _get_nvvm_module()
