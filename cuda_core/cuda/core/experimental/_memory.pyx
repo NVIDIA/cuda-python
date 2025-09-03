@@ -17,6 +17,7 @@ from functools import wraps
 from libc.stdint cimport uintptr_t
 from typing import Tuple, TypeVar, Union, TYPE_CHECKING
 import abc
+import cython
 import os
 import platform
 
@@ -400,8 +401,8 @@ cdef class DeviceMemoryResourceOptions:
         Maximum pool size. When set to 0, defaults to a system-dependent value.
         (Default to 0)
     """
-    ipc_enabled: bool = False
-    max_size: int = 0
+    ipc_enabled : cython.bint = False
+    max_size : cython.int = 0
 
 class DeviceMemoryResource(MemoryResource):
     """Create a device memory resource managing a stream-ordered memory pool.
