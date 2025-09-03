@@ -1,0 +1,17 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. module:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.0.0 Release notes
+========================================
+
+Released on Jul 16, 2025
+
+
+Highlights
+----------
+
+* First release of ``cuda-pathfinder`` as a stand-alone module.
+* Replaces ``cuda.bindings.path_finder``, which was released with ``cuda-bindings`` 12.9.0 and is now `deprecated <https://github.com/NVIDIA/cuda-python/blob/ed12c8301c6f9b23e6db9829e66e4ec745a76a7a/cuda_bindings/cuda/bindings/_path_finder/README.md>`_.
+* ``cuda-pathfinder`` is a noarch package and has no dependencies (other than a Python 3.9+ interpreter).
