@@ -507,8 +507,8 @@ class DeviceMemoryResource(MemoryResource):
         return self._mempool_handle is not None
 
     @classmethod
-    def from_shared_handle(cls, device_id: int | Device, shared_handle: int) -> DeviceMemoryResource:
-        """Create a device memory resource from a shared handle.
+    def from_allocation_handle(cls, device_id: int | Device, alloc_handle: int) -> DeviceMemoryResource:
+        """Create a device memory resource from an allocation handle.
 
         Construct a new `DeviceMemoryResource` instance that imports a memory
         pool from a shareable handle. The memory pool is marked as owned, and
@@ -520,7 +520,7 @@ class DeviceMemoryResource(MemoryResource):
             The ID of the device or a Device object for which the memory
             resource is created.
 
-        shared_handle : int
+        alloc_handle : int
             The shareable handle of the device memory resource to import.
 
         Returns
@@ -535,13 +535,13 @@ class DeviceMemoryResource(MemoryResource):
         self._ipc_handle_type = _IPC_HANDLE_TYPE
         self._mempool_owned = True
 
-        err, self._mempool_handle = driver.cuMemPoolImportFromShareableHandle(shared_handle, _IPC_HANDLE_TYPE, 0)
+        err, self._mempool_handle = driver.cuMemPoolImportFromShareableHandle(alloc_handle, _IPC_HANDLE_TYPE, 0)
         raise_if_driver_error(err)
 
         return self
 
     @_requires_ipc
-    def get_shareable_handle(self) -> int:
+    def get_allocation_handle(self) -> int:
         """Export the memory pool handle to be shared (requires IPC).  The
         handle can be used to share the memory pool with other processes.
 
@@ -549,14 +549,14 @@ class DeviceMemoryResource(MemoryResource):
         -------
             The shareable handle for the memory pool.
         """
-        err, shared_handle = driver.cuMemPoolExportToShareableHandle(self._mempool_handle, _IPC_HANDLE_TYPE, 0)
+        err, alloc_handle = driver.cuMemPoolExportToShareableHandle(self._mempool_handle, _IPC_HANDLE_TYPE, 0)
         raise_if_driver_error(err)
-        return shared_handle
+        return alloc_handle
 
-    def close_shareable_handle(self, shared_handle) -> None:
+    def close_allocation_handle(self, alloc_handle) -> None:
         """Close a shareable handle for the memory pool."""
         assert self._ipc_handle_type == driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
-        os.close(shared_handle)
+        os.close(alloc_handle)
 
     @_requires_ipc
     def export_buffer(self, buffer: Buffer) -> IPCBufferDescriptor:

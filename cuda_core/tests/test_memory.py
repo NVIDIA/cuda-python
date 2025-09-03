@@ -362,7 +362,7 @@ def test_mempool():
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        mr.get_shareable_handle()
+        mr.get_allocation_handle()
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         mr.export_buffer(buffer)
@@ -446,9 +446,9 @@ def mempool_child_process(importer, queue):
         device.set_current()
         stream = device.create_stream()
 
-        # Get the shared handle differently based on platform
+        # Get the allocation handle differently based on platform
         if platform.system() == "Windows":
-            shared_handle = queue.get()  # On Windows, we pass the handle through the queue
+            alloc_handle = queue.get()  # On Windows, we pass the handle through the queue
         else:
             # Unix socket handle transfer
             fds = array.array("i")
@@ -457,9 +457,9 @@ def mempool_child_process(importer, queue):
             cmsg_level, cmsg_type, cmsg_data = ancdata[0]
             assert cmsg_level == SOL_SOCKET and cmsg_type == SCM_RIGHTS
             fds.frombytes(cmsg_data[: len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
-            shared_handle = int(fds[0])
+            alloc_handle = int(fds[0])
 
-        mr = DeviceMemoryResource.from_shared_handle(device, shared_handle)
+        mr = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
         ipc_buffer = queue.get()  # Get exported buffer data
         buffer = mr.import_buffer(ipc_buffer)
 
@@ -528,7 +528,7 @@ def test_ipc_mempool():
     process = None
 
     try:
-        shared_handle = mr.get_shareable_handle()
+        alloc_handle = mr.get_allocation_handle()
 
         # Allocate and export memory
         buffer = mr.allocate(64)
@@ -558,10 +558,10 @@ def test_ipc_mempool():
 
             # Send handles to child process
             if platform.system() == "Windows":
-                queue.put(shared_handle)  # Send handle through queue on Windows
+                queue.put(alloc_handle)  # Send handle through queue on Windows
             else:
                 # Use Unix socket for handle transfer
-                exporter.sendmsg([], [(SOL_SOCKET, SCM_RIGHTS, array.array("i", [shared_handle]))])
+                exporter.sendmsg([], [(SOL_SOCKET, SCM_RIGHTS, array.array("i", [alloc_handle]))])
 
             queue.put(ipc_buffer)
 
@@ -594,7 +594,7 @@ def test_ipc_mempool():
                 verify_buffer.close()
 
         finally:
-            mr.close_shareable_handle(shared_handle)
+            mr.close_allocation_handle(alloc_handle)
             buffer.close()
 
     finally:
