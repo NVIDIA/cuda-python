@@ -1540,7 +1540,7 @@ equal to 2.0</p></li>
 allocated size of <cite>*operations</cite> and <cite>*capabilities</cite> must be <cite>count</cite>.</p>
 <p>For each <a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperation" title="cuda.bindings.runtime.cudaAtomicOperation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperation</span></code></a> in <cite>*operations</cite>, the
 corresponding result in <cite>*capabilities</cite> will be a bitmask indicating
-which of <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperationCapability</span></code> the link supports
+which of <a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperationCapability" title="cuda.bindings.runtime.cudaAtomicOperationCapability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperationCapability</span></code></a> the link supports
 natively.</p>
 <p>Returns <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a> if <cite>dev</cite> is not valid.</p>
 <p>Returns <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a> if <cite>*capabilities</cite> or
@@ -1793,7 +1793,7 @@ The allocated size of <cite>*operations</cite> and <cite>*capabilities</cite> mu
 <cite>count</cite>.</p>
 <p>For each <a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperation" title="cuda.bindings.runtime.cudaAtomicOperation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperation</span></code></a> in <cite>*operations</cite>, the
 corresponding result in <cite>*capabilities</cite> will be a bitmask indicating
-which of <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperationCapability</span></code> the link supports
+which of <a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperationCapability" title="cuda.bindings.runtime.cudaAtomicOperationCapability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperationCapability</span></code></a> the link supports
 natively.</p>
 <p>Returns <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a> if <cite>srcDevice</cite> or
 <cite>dstDevice</cite> are not valid or if they represent the same device.</p>
@@ -23294,6 +23294,25 @@ individual copies specified in <a class="reference internal" href="#cuda.binding
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaAtomicOperationCapability">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaAtomicOperationCapability</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaAtomicOperationCapability" title="Link to this definition">#</a></dt>
+<dd><p>CUDA-valid Atomic Operation capabilities</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaExternalMemoryHandleType">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaExternalMemoryHandleType</span></span><span class="sig-paren">(</span>
 
@@ -28260,6 +28279,7 @@ order to interpret this field.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationFloatMax"><code class="docutils literal notranslate"><span class="pre">cudaAtomicOperationFloatMax</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaAtomicOperationCapability"><code class="docutils literal notranslate"><span class="pre">cudaAtomicOperationCapability</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaExternalMemoryHandleType"><code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryHandleType</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeOpaqueFd"><code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryHandleTypeOpaqueFd</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeOpaqueWin32"><code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryHandleTypeOpaqueWin32</span></code></a></li>
