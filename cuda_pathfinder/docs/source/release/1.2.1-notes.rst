@@ -1,0 +1,15 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. module:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.2.1 Release notes
+=======================================
+
+Released on Aug 29, 2025
+
+
+Highlights
+----------
+
+* Support cuDSS library (`PR #931 <https://github.com/NVIDIA/cuda-python/pull/931>`_)

@@ -219,9 +219,8 @@ path_list = [
     os.path.join("cuda"),
     os.path.join("cuda", "bindings"),
     os.path.join("cuda", "bindings", "_bindings"),
-    os.path.join("cuda", "bindings", "_lib"),
-    os.path.join("cuda", "bindings", "_lib", "cyruntime"),
     os.path.join("cuda", "bindings", "_internal"),
+    os.path.join("cuda", "bindings", "_lib"),
     os.path.join("cuda", "bindings", "utils"),
 ]
 input_files = []
@@ -343,8 +342,6 @@ sources_list = [
     (["cuda/bindings/_bindings/cyruntime.pyx"], static_runtime_libraries),
     (["cuda/bindings/_bindings/cyruntime_ptds.pyx"], static_runtime_libraries),
     # utils
-    (["cuda/bindings/_lib/cyruntime/cyruntime.pyx"], None),
-    (["cuda/bindings/_lib/cyruntime/utils.pyx"], None),
     (["cuda/bindings/utils/*.pyx"], None),
     # public
     *(([f], None) for f in cuda_bindings_files),
