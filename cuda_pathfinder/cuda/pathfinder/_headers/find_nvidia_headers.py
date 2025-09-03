@@ -7,6 +7,7 @@ import os
 from typing import Optional
 
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
+from cuda.pathfinder._utils.conda_env import get_conda_prefix
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
 
@@ -27,9 +28,9 @@ def find_nvidia_header_directory(libname: str) -> Optional[str]:
         if os.path.isfile(nvshmem_h_path):
             return hdr_dir
 
-    conda_prefix = os.environ.get("CONDA_PREFIX")
-    if conda_prefix and os.path.isdir(conda_prefix):
-        hdr_dir = os.path.join(conda_prefix, "include")
+    conda_prefix = get_conda_prefix()
+    if conda_prefix and os.path.isdir(conda_prefix.path):
+        hdr_dir = os.path.join(conda_prefix.path, "include")
         if os.path.isdir(hdr_dir):
             nvshmem_h_path = os.path.join(hdr_dir, "nvshmem.h")
             if os.path.isfile(nvshmem_h_path):
