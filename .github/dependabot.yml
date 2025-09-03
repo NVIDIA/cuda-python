@@ -19,7 +19,3 @@ updates:
         applies-to: version-updates
         patterns: ["*"]
         update-types: ["minor", "patch"]
-
-    # Prevent updates for the Bandit Action; we manage it manually according to corp policies
-    ignore:
-      - dependency-name: "PyCQA/bandit-action"
