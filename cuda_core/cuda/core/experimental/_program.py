@@ -62,13 +62,12 @@ def _get_nvvm_module():
             )
         
         from cuda.bindings import nvvm
-        try:
-            from cuda.bindings._internal.nvvm import _inspect_function_pointers
-            _inspect_function_pointers()
-        except Exception as e:
+        from cuda.bindings._internal.nvvm import _inspect_function_pointer
+        if _inspect_function_pointer("__nvvmCreateProgram") == 0:
             raise ImportError(
                 "NVVM library (libnvvm) is not available in this Python environment. "
                 f"Original error: {e}"
+            
             )
         
         _nvvm_module = nvvm
@@ -431,7 +430,7 @@ class Program:
     class _MembersNeededForFinalize:
         __slots__ = "handle", "backend"
 
-        def __init__(self, program_obj, handle, backend="NVRTC"):
+        def __init__(self, program_obj, handle, backend):
             self.handle = handle
             self.backend = backend
             weakref.finalize(program_obj, self.close)
@@ -441,17 +440,14 @@ class Program:
                 if self.backend == "NVRTC":
                     handle_return(nvrtc.nvrtcDestroyProgram(self.handle))
                 elif self.backend == "NVVM":
-                    try:
-                        nvvm = _get_nvvm_module()
-                        nvvm.destroy_program(self.handle)
-                    except ImportError as e:
-                        pass
+                    nvvm = _get_nvvm_module()
+                    nvvm.destroy_program(self.handle)
                 self.handle = None
 
     __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options")
 
     def __init__(self, code, code_type, options: ProgramOptions = None):
-        self._mnff = Program._MembersNeededForFinalize(self, None)
+        self._mnff = Program._MembersNeededForFinalize(self, None, None)
 
         self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
         code_type = code_type.lower()
@@ -507,6 +503,27 @@ class Program:
             split_compile=options.split_compile,
             ptxas_options=options.ptxas_options,
         )
+        
+    def _translate_program_options_to_nvvm(self, options: ProgramOptions) -> List[str]:
+        """Translate ProgramOptions to NVVM-specific compilation options."""
+        nvvm_options = []
+        
+        if options.arch is not None:
+            arch = options.arch
+            if arch.startswith("sm_"):
+                arch = f"compute_{arch[3:]}"
+            nvvm_options.append(f"-arch={arch}")
+        else:
+            major, minor = Device().compute_capability
+            nvvm_options.append(f"-arch=compute_{major}{minor}")
+        if options.debug:
+            nvvm_options.append("-g")
+        if options.device_code_optimize is False:
+            nvvm_options.append("-opt=0")
+        elif options.device_code_optimize is True:
+            nvvm_options.append("-opt=3")
+            
+        return nvvm_options
 
     def close(self):
         """Destroy this program."""
@@ -592,23 +609,7 @@ class Program:
             if target_type != "ptx":
                 raise ValueError(f'NVVM backend only supports target_type="ptx", got "{target_type}"')
             
-            nvvm_options = []
-            if self._options.arch is not None:
-                arch = self._options.arch
-                if arch.startswith("sm_"):
-                    arch = f"compute_{arch[3:]}"
-                nvvm_options.append(f"-arch={arch}")
-            else:
-                major, minor = Device().compute_capability
-                nvvm_options.append(f"-arch=compute_{major}{minor}")
-
-            if self._options.debug:
-                nvvm_options.append("-g")
-            if self._options.device_code_optimize is False:
-                nvvm_options.append("-opt=0")
-            elif self._options.device_code_optimize is True:
-                nvvm_options.append("-opt=3")
-            
+            nvvm_options = self._translate_program_options_to_nvvm(self._options)
             nvvm = _get_nvvm_module()
             nvvm.compile_program(self._mnff.handle, len(nvvm_options), nvvm_options)
             
@@ -645,6 +646,12 @@ class Program:
            The type of the returned object depends on the backend.
 
         .. caution::
+
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(Program.handle)``.
+        """
+        return self._mnff.handle
+aution::
 
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(Program.handle)``.

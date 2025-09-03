@@ -544,24 +544,6 @@ class ObjectCode:
             them (default to no mappings).
         """
         return ObjectCode._init(module, "ltoir", name=name, symbol_mapping=symbol_mapping)
-    
-    @staticmethod
-    def from_nvvm(module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None) -> "ObjectCode":
-        """Create an :class:`ObjectCode` instance from an existing NVVM IR.
-
-        Parameters
-        ----------
-        module : Union[bytes, str]
-            Either a bytes object containing the in-memory NVVM IR code to load, or
-            a file path string pointing to the on-disk NVVM IR file to load.
-        name : Optional[str]
-            A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
-            A dictionary specifying how the unmangled symbol names (as keys)
-            should be mapped to the mangled names before trying to retrieve
-            them (default to no mappings).
-        """
-        return ObjectCode._init(module, "nvvm", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
     def from_fatbin(
