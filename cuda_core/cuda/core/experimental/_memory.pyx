@@ -622,7 +622,7 @@ class DeviceMemoryResource(MemoryResource):
 
     @property
     def handle(self) -> cuda.bindings.driver.CUmemoryPool:
-        """The memory resource handle."""
+        """Handle to the underlying memory pool."""
         return self._mempool_handle
 
     @property
