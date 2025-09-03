@@ -86,7 +86,26 @@ class nvrtcResult(IntEnum):
     {{if 'NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED' in found_values}}
     NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED = cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED{{endif}}
 
-_dict_nvrtcResult = dict(((int(v), v) for k, v in nvrtcResult.__members__.items()))
+cdef dict _dict_nvrtcResult = {
+    cynvrtc.nvrtcResult.NVRTC_SUCCESS: nvrtcResult.NVRTC_SUCCESS,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY: nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE: nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT: nvrtcResult.NVRTC_ERROR_INVALID_INPUT,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM: nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION: nvrtcResult.NVRTC_ERROR_INVALID_OPTION,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION: nvrtcResult.NVRTC_ERROR_COMPILATION,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE: nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION: nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION: nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID: nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR: nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED: nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED: nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED: nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE: nvrtcResult.NVRTC_ERROR_PCH_CREATE,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED: nvrtcResult.NVRTC_ERROR_CANCELLED,
+    cynvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED: nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED
+}
 {{endif}}
 {{if 'nvrtcProgram' in found_types}}
 
@@ -266,11 +285,13 @@ def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional
     :py:obj:`~.nvrtcDestroyProgram`
     """
     includeNames = [] if includeNames is None else includeNames
-    if not all(isinstance(_x, (bytes)) for _x in includeNames):
-        raise TypeError("Argument 'includeNames' is not instance of type (expected tuple[bytes] or list[bytes]")
+    for _x in includeNames:
+        if not isinstance(_x, bytes):
+            raise TypeError("Argument 'includeNames' is not instance of type (expected tuple[bytes] or list[bytes]")
     headers = [] if headers is None else headers
-    if not all(isinstance(_x, (bytes)) for _x in headers):
-        raise TypeError("Argument 'headers' is not instance of type (expected tuple[bytes] or list[bytes]")
+    for _x in headers:
+        if not isinstance(_x, bytes):
+            raise TypeError("Argument 'headers' is not instance of type (expected tuple[bytes] or list[bytes]")
     cdef nvrtcProgram prog = nvrtcProgram()
     if numHeaders > len(headers): raise RuntimeError("List is too small: " + str(len(headers)) + " < " + str(numHeaders))
     if numHeaders > len(includeNames): raise RuntimeError("List is too small: " + str(len(includeNames)) + " < " + str(numHeaders))
@@ -352,8 +373,9 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | 
         - :py:obj:`~.NVRTC_ERROR_CANCELLED`
     """
     options = [] if options is None else options
-    if not all(isinstance(_x, (bytes)) for _x in options):
-        raise TypeError("Argument 'options' is not instance of type (expected tuple[bytes] or list[bytes]")
+    for _x in options:
+        if not isinstance(_x, bytes):
+            raise TypeError("Argument 'options' is not instance of type (expected tuple[bytes] or list[bytes]")
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
         pprog = 0
