@@ -270,6 +270,11 @@ class MemoryResource(abc.ABC):
         ...
 
     @abc.abstractmethod
+    def __bool__(self):
+        """Check if the memory resource is valid."""
+        ...
+
+    @abc.abstractmethod
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
 
@@ -659,6 +664,9 @@ class LegacyPinnedMemoryResource(MemoryResource):
         # TODO: support flags from cuMemHostAlloc?
         self._handle = None
 
+    def __bool__(self):
+        return self._handle is not None
+
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
 
@@ -718,6 +726,9 @@ class _SynchronousMemoryResource(MemoryResource):
     def __init__(self, device_id : int | Device):
         self._handle = None
         self._dev_id = getattr(device_id, 'device_id', device_id)
+
+    def __bool__(self):
+        return self._handle is not None
 
     def allocate(self, size, stream=None) -> Buffer:
         err, ptr = driver.cuMemAlloc(size)

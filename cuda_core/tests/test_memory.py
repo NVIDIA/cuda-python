@@ -26,6 +26,9 @@ class DummyDeviceMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device
 
+    def __bool__(self):
+        return True
+
     def allocate(self, size, stream=None) -> Buffer:
         ptr = handle_return(driver.cuMemAlloc(size))
         return Buffer.from_handle(ptr=ptr, size=size, mr=self)
@@ -49,6 +52,9 @@ class DummyDeviceMemoryResource(MemoryResource):
 class DummyHostMemoryResource(MemoryResource):
     def __init__(self):
         pass
+
+    def __bool__(self):
+        return True
 
     def allocate(self, size, stream=None) -> Buffer:
         # Allocate a ctypes buffer of size `size`
@@ -76,6 +82,9 @@ class DummyUnifiedMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device
 
+    def __bool__(self):
+        return True
+
     def allocate(self, size, stream=None) -> Buffer:
         ptr = handle_return(driver.cuMemAllocManaged(size, driver.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
         return Buffer.from_handle(ptr=ptr, size=size, mr=self)
@@ -99,6 +108,9 @@ class DummyUnifiedMemoryResource(MemoryResource):
 class DummyPinnedMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device
+
+    def __bool__(self):
+        return True
 
     def allocate(self, size, stream=None) -> Buffer:
         ptr = handle_return(driver.cuMemAllocHost(size))
