@@ -651,9 +651,4 @@ class Program:
             handle, call ``int(Program.handle)``.
         """
         return self._mnff.handle
-aution::
-
-            This handle is a Python object. To get the memory address of the underlying C
-            handle, call ``int(Program.handle)``.
-        """
-        return self._mnff.handle
+        
