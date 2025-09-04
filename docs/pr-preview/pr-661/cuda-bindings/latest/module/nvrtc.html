@@ -847,7 +847,7 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 <li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
 </ul>
 </li>
-<li><p><strong>supportedArchs</strong> (<em>List[int]</em>) – sorted array of supported architectures.</p></li>
+<li><p><strong>supportedArchs</strong> (<em>list[int]</em>) – sorted array of supported architectures.</p></li>
 </ul>
 </p>
 </dd>
@@ -873,7 +873,7 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcCreateProgram">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCreateProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">char</span> <span class="pre">*src,</span> <span class="pre">char</span> <span class="pre">*name,</span> <span class="pre">int</span> <span class="pre">numHeaders,</span> <span class="pre">headers:</span> <span class="pre">Optional[Tuple[bytes]</span> <span class="pre">|</span> <span class="pre">List[bytes]],</span> <span class="pre">includeNames:</span> <span class="pre">Optional[Tuple[bytes]</span> <span class="pre">|</span> <span class="pre">List[bytes]]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcCreateProgram" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCreateProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">char</span> <span class="pre">*src,</span> <span class="pre">char</span> <span class="pre">*name,</span> <span class="pre">int</span> <span class="pre">numHeaders,</span> <span class="pre">headers:</span> <span class="pre">Optional[tuple[bytes]</span> <span class="pre">|</span> <span class="pre">list[bytes]],</span> <span class="pre">includeNames:</span> <span class="pre">Optional[tuple[bytes]</span> <span class="pre">|</span> <span class="pre">list[bytes]]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcCreateProgram" title="Link to this definition">#</a></dt>
 <dd><p>nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter <cite>prog</cite> with it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -883,9 +883,9 @@ NVRTC API functions return nvrtcResult to indicate the call result.</p>
 used when <cite>name</cite> is <cite>NULL</cite> or “”.</p></li>
 <li><p><strong>numHeaders</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of headers used.  <cite>numHeaders</cite> must be greater than or equal
 to 0.</p></li>
-<li><p><strong>headers</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a><em>]</em>) – Sources of the headers.  <cite>headers</cite> can be <cite>NULL</cite> when <cite>numHeaders</cite>
+<li><p><strong>headers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a><em>]</em>) – Sources of the headers.  <cite>headers</cite> can be <cite>NULL</cite> when <cite>numHeaders</cite>
 is 0.</p></li>
-<li><p><strong>includeNames</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a><em>]</em>) – Name of each header by which they can be included in the CUDA
+<li><p><strong>includeNames</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a><em>]</em>) – Name of each header by which they can be included in the CUDA
 program source.  <cite>includeNames</cite> can be <cite>NULL</cite> when <cite>numHeaders</cite> is
 0. These headers must be included with the exact names specified
 here.</p></li>
@@ -940,7 +940,7 @@ here.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcCompileProgram">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCompileProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">prog,</span> <span class="pre">int</span> <span class="pre">numOptions,</span> <span class="pre">options:</span> <span class="pre">Optional[Tuple[bytes]</span> <span class="pre">|</span> <span class="pre">List[bytes]]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCompileProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">prog,</span> <span class="pre">int</span> <span class="pre">numOptions,</span> <span class="pre">options:</span> <span class="pre">Optional[tuple[bytes]</span> <span class="pre">|</span> <span class="pre">list[bytes]]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="Link to this definition">#</a></dt>
 <dd><p>nvrtcCompileProgram compiles the given program.</p>
 <p>It supports compile options listed in <code class="xref py py-obj docutils literal notranslate"><span class="pre">Supported</span> <span class="pre">Compile</span>
 <span class="pre">Options</span></code>.</p>
@@ -949,7 +949,7 @@ here.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
 <li><p><strong>numOptions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of compiler options passed.</p></li>
-<li><p><strong>options</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a><em>]</em>) – Compiler options in the form of C string array.  <cite>options</cite> can be
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a><em>]</em>) – Compiler options in the form of C string array.  <cite>options</cite> can be
 <cite>NULL</cite> when <cite>numOptions</cite> is 0.</p></li>
 </ul>
 </dd>

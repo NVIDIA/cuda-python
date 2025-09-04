@@ -488,13 +488,13 @@
 </ul>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.X.Y Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="0.3.2-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.2 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="0.3.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.1 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="0.3.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.0 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="0.2.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.2.0 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="0.1.1-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="0.1.0-notes.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">0.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="0.3.2-notes.html">0.3.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="0.3.1-notes.html">0.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="0.3.0-notes.html">0.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="0.2.0-notes.html">0.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="0.1.1-notes.html">0.1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="0.1.0-notes.html">0.1.0</a></li>
 </ul>
 </details></li>
 </ul>
@@ -563,7 +563,9 @@
 <section id="breaking-changes">
 <h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p><strong>CUDA 11 support dropped</strong>: CUDA 11 support is no longer tested and it may or may not work with cuda.bindings and CTK 11.x. Users are encouraged to migrate to CUDA 12.x or 13.x.</p></li>
 <li><p><strong>LaunchConfig grid parameter interpretation</strong>: When <a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig.cluster" title="cuda.core.experimental.LaunchConfig.cluster"><code class="xref py py-attr docutils literal notranslate"><span class="pre">LaunchConfig.cluster</span></code></a> is specified, the <a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig.grid" title="cuda.core.experimental.LaunchConfig.grid"><code class="xref py py-attr docutils literal notranslate"><span class="pre">LaunchConfig.grid</span></code></a> parameter now correctly represents the number of clusters instead of blocks. Previously, the grid parameter was incorrectly interpreted as blocks, causing a mismatch with the expected C++ behavior. This change ensures that <code class="docutils literal notranslate"><span class="pre">LaunchConfig(grid=4,</span> <span class="pre">cluster=2,</span> <span class="pre">block=32)</span></code> correctly produces 4 clusters × 2 blocks/cluster = 8 total blocks, matching the C++ equivalent <code class="docutils literal notranslate"><span class="pre">cudax::make_hierarchy(cudax::grid_dims(4),</span> <span class="pre">cudax::cluster_dims(2),</span> <span class="pre">cudax::block_dims(32))</span></code>.</p></li>
+<li><p>When <a class="reference internal" href="../generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> is closed, <code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.handle</span></code> is now set to <code class="docutils literal notranslate"><span class="pre">None</span></code>. It was previously set to <code class="docutils literal notranslate"><span class="pre">0</span></code> by accident.</p></li>
 </ul>
 </section>
 <section id="new-features">
@@ -584,6 +586,7 @@
 <li><p>Improved <code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> creation time performance by optimizing shape and strides tuple creation using Python/C API (addresses issue #449).</p></li>
 <li><p>Fix <a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig" title="cuda.core.experimental.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a> grid unit conversion when cluster is set (addresses issue #867).</p></li>
 <li><p>Fixed a bug in <a class="reference internal" href="../generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.add_child" title="cuda.core.experimental.GraphBuilder.add_child"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder.add_child</span></code></a> where dependencies extracted from capturing stream were passed inconsistently with num_dependencies parameter (addresses issue #843).</p></li>
+<li><p>Make <a class="reference internal" href="../generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> creation more performant.</p></li>
 </ul>
 </section>
 </section>
