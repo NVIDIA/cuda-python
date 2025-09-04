@@ -63,10 +63,9 @@ def _get_nvvm_module():
 
         from cuda.bindings import nvvm
         from cuda.bindings._internal.nvvm import _inspect_function_pointer
+
         if _inspect_function_pointer("__nvvmCreateProgram") == 0:
-            raise ImportError(
-                "NVVM library (libnvvm) is not available in this Python environment. "
-            )
+            raise ImportError("NVVM library (libnvvm) is not available in this Python environment. ")
 
         _nvvm_module = nvvm
         return _nvvm_module
@@ -469,7 +468,7 @@ class Program:
 
         elif code_type == "nvvm":
             if isinstance(code, str):
-                code = code.encode('utf-8')
+                code = code.encode("utf-8")
             elif not isinstance(code, (bytes, bytearray)):
                 raise TypeError("NVVM IR code must be provided as str, bytes, or bytearray")
 
