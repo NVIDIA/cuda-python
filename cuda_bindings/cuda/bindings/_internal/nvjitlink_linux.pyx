@@ -16,6 +16,8 @@ from cuda.pathfinder import load_nvidia_dynamic_lib
 # Extern
 ###############################################################################
 
+from .utils import NotSupportedError
+
 cdef extern from "<dlfcn.h>" nogil:
     void* dlopen(const char*, int)
     char* dlerror()

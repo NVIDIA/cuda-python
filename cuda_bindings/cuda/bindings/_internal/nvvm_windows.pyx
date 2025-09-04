@@ -12,12 +12,12 @@ from .utils import FunctionNotFoundError, NotSupportedError
 from cuda.pathfinder import load_nvidia_dynamic_lib
 
 from libc.stddef cimport wchar_t
-from libc.stdint cimport intptr_t, uintptr_t
+from libc.stdint cimport uintptr_t
 from cpython cimport PyUnicode_AsWideCharString
 
 from .utils import NotSupportedError
 
-cdef extern from "windows.h":
+cdef extern from "windows.h" nogil:
     ctypedef void* HMODULE
     ctypedef void* HANDLE
     ctypedef void* FARPROC
@@ -32,9 +32,13 @@ cdef extern from "windows.h":
         LPCWSTR lpLibFileName,
         HANDLE hFile,
         DWORD dwFlags
-    ) nogil
+    )
 
-    FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, const char* lpProcName) nogil
+    HMODULE _LoadLibraryW "LoadLibraryW"(LPCWSTR lpLibFileName)
+
+    FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, const char* lpProcName)
+
+    HMODULE _GetModuleHandleW "GetModuleHandleW"(LPCWSTR lpModuleName)
 
 cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags) nogil:
     cdef wchar_t* wpath
@@ -46,8 +50,20 @@ cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags) nogi
         dwFlags
     )
 
-cdef inline FARPROC GetProcAddress(uintptr_t hModule, const char* lpProcName) nogil:
+cdef inline uintptr_t LoadLibraryW(str path) nogil:
+    cdef wchar_t* wpath
+    with gil:
+        wpath = PyUnicode_AsWideCharString(path, NULL)
+    return <uintptr_t>_LoadLibraryW(wpath)
+
+cdef inline void *GetProcAddress(uintptr_t hModule, const char* lpProcName) nogil:
     return _GetProcAddress(<HMODULE>hModule, lpProcName)
+
+cdef inline uintptr_t GetModuleHandleW(str path) nogil:
+    cdef wchar_t* wpath
+    with gil:
+        wpath = PyUnicode_AsWideCharString(path, NULL)
+    return <uintptr_t>_GetModuleHandleW(wpath)
 
 cdef int get_cuda_version():
     cdef int err, driver_ver = 0
