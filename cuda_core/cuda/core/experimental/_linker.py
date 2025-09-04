@@ -8,7 +8,7 @@ import ctypes
 import weakref
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Tuple, Union
+from typing import TYPE_CHECKING, Union
 from warnings import warn
 
 if TYPE_CHECKING:
@@ -140,14 +140,14 @@ class LinkerOptions:
     fma : bool, optional
         Use fast multiply-add.
         Default: True.
-    kernels_used : [Union[str, Tuple[str], List[str]]], optional
+    kernels_used : [Union[str, tuple[str], list[str]]], optional
         Pass a kernel or sequence of kernels that are used; any not in the list can be removed.
-    variables_used : [Union[str, Tuple[str], List[str]]], optional
+    variables_used : [Union[str, tuple[str], list[str]]], optional
         Pass a variable or sequence of variables that are used; any not in the list can be removed.
     optimize_unused_variables : bool, optional
         Assume that if a variable is not referenced in device code, it can be removed.
         Default: False.
-    ptxas_options : [Union[str, Tuple[str], List[str]]], optional
+    ptxas_options : [Union[str, tuple[str], list[str]]], optional
         Pass options to PTXAS.
     split_compile : int, optional
         Split compilation maximum thread count. Use 0 to use all available processors. Value of 1 disables split
@@ -177,10 +177,10 @@ class LinkerOptions:
     prec_div: bool | None = None
     prec_sqrt: bool | None = None
     fma: bool | None = None
-    kernels_used: Union[str, Tuple[str], List[str]] | None = None
-    variables_used: Union[str, Tuple[str], List[str]] | None = None
+    kernels_used: Union[str, tuple[str], list[str]] | None = None
+    variables_used: Union[str, tuple[str], list[str]] | None = None
     optimize_unused_variables: bool | None = None
-    ptxas_options: Union[str, Tuple[str], List[str]] | None = None
+    ptxas_options: Union[str, tuple[str], list[str]] | None = None
     split_compile: int | None = None
     split_compile_extended: int | None = None
     no_cache: bool | None = None

@@ -5,8 +5,8 @@
 # This code was automatically generated across versions from 12.0.1 to 13.0.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
-import threading
 
+import threading
 from .utils import FunctionNotFoundError, NotSupportedError
 
 from cuda.pathfinder import load_nvidia_dynamic_lib

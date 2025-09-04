@@ -114,7 +114,7 @@ cdef class _HelperKernelParams:
                     raise TypeError("Unsupported type: " + str(type(ctype)))
                 idx += 1
         else:
-            raise TypeError("Argument 'kernelParams' is not a valid type: Tuple[Tuple[Any, ...], Tuple[Any, ...]] or PyObject implimenting Buffer Protocol or Int")
+            raise TypeError("Argument 'kernelParams' is not a valid type: tuple[tuple[Any, ...], tuple[Any, ...]] or PyObject implimenting Buffer Protocol or Int")
 
     def __dealloc__(self):
         if self._pyobj_acquired is True:

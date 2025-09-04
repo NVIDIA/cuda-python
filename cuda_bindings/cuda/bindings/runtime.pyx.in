@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # This code was automatically generated with version 13.0.0. Do not modify it directly.
-from typing import List, Tuple, Any, Optional
+from typing import Any, Optional
 from enum import IntEnum
 import cython
 import ctypes
@@ -6317,7 +6317,7 @@ cdef class cudaArraySparseProperties:
         Flags will either be zero or cudaArraySparsePropertiesSingleMipTail
     {{endif}}
     {{if 'cudaArraySparseProperties.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -6434,7 +6434,7 @@ cdef class cudaArrayMemoryRequirements:
         Alignment necessary for mapping the array.
     {{endif}}
     {{if 'cudaArrayMemoryRequirements.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -7011,7 +7011,7 @@ cdef class cudaMemcpyNodeParams:
         Must be zero
     {{endif}}
     {{if 'cudaMemcpyNodeParams.reserved' in found_struct}}
-    reserved : List[int]
+    reserved : list[int]
         Must be zero
     {{endif}}
     {{if 'cudaMemcpyNodeParams.copyParams' in found_struct}}
@@ -8233,7 +8233,7 @@ cdef class anon_struct5:
     Attributes
     ----------
     {{if 'cudaResourceDesc.res.reserved.reserved' in found_struct}}
-    reserved : List[int]
+    reserved : list[int]
 
     {{endif}}
 
@@ -8539,7 +8539,7 @@ cdef class cudaResourceViewDesc:
         Last layer index
     {{endif}}
     {{if 'cudaResourceViewDesc.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Must be zero
     {{endif}}
 
@@ -8730,7 +8730,7 @@ cdef class cudaPointerAttributes:
         pointer if an invalid pointer has been passed to CUDA.
     {{endif}}
     {{if 'cudaPointerAttributes.reserved' in found_struct}}
-    reserved : List[long]
+    reserved : list[long]
         Must be zero
     {{endif}}
 
@@ -8941,7 +8941,7 @@ cdef class cudaFuncAttributes:
         cudaFuncSetAttribute
     {{endif}}
     {{if 'cudaFuncAttributes.reserved' in found_struct}}
-    reserved : List[int]
+    reserved : list[int]
         Reserved for future use.
     {{endif}}
 
@@ -10688,11 +10688,11 @@ cdef class cudaDeviceProp:
         Maximum number of threads per block
     {{endif}}
     {{if 'cudaDeviceProp.maxThreadsDim' in found_struct}}
-    maxThreadsDim : List[int]
+    maxThreadsDim : list[int]
         Maximum size of each dimension of a block
     {{endif}}
     {{if 'cudaDeviceProp.maxGridSize' in found_struct}}
-    maxGridSize : List[int]
+    maxGridSize : list[int]
         Maximum size of each dimension of a grid
     {{endif}}
     {{if 'cudaDeviceProp.totalConstMem' in found_struct}}
@@ -10738,29 +10738,29 @@ cdef class cudaDeviceProp:
         Maximum 1D mipmapped texture size
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture2D' in found_struct}}
-    maxTexture2D : List[int]
+    maxTexture2D : list[int]
         Maximum 2D texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture2DMipmap' in found_struct}}
-    maxTexture2DMipmap : List[int]
+    maxTexture2DMipmap : list[int]
         Maximum 2D mipmapped texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture2DLinear' in found_struct}}
-    maxTexture2DLinear : List[int]
+    maxTexture2DLinear : list[int]
         Maximum dimensions (width, height, pitch) for 2D textures bound to
         pitched memory
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture2DGather' in found_struct}}
-    maxTexture2DGather : List[int]
+    maxTexture2DGather : list[int]
         Maximum 2D texture dimensions if texture gather operations have to
         be performed
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture3D' in found_struct}}
-    maxTexture3D : List[int]
+    maxTexture3D : list[int]
         Maximum 3D texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture3DAlt' in found_struct}}
-    maxTexture3DAlt : List[int]
+    maxTexture3DAlt : list[int]
         Maximum alternate 3D texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTextureCubemap' in found_struct}}
@@ -10768,15 +10768,15 @@ cdef class cudaDeviceProp:
         Maximum Cubemap texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture1DLayered' in found_struct}}
-    maxTexture1DLayered : List[int]
+    maxTexture1DLayered : list[int]
         Maximum 1D layered texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture2DLayered' in found_struct}}
-    maxTexture2DLayered : List[int]
+    maxTexture2DLayered : list[int]
         Maximum 2D layered texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTextureCubemapLayered' in found_struct}}
-    maxTextureCubemapLayered : List[int]
+    maxTextureCubemapLayered : list[int]
         Maximum Cubemap layered texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxSurface1D' in found_struct}}
@@ -10784,19 +10784,19 @@ cdef class cudaDeviceProp:
         Maximum 1D surface size
     {{endif}}
     {{if 'cudaDeviceProp.maxSurface2D' in found_struct}}
-    maxSurface2D : List[int]
+    maxSurface2D : list[int]
         Maximum 2D surface dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxSurface3D' in found_struct}}
-    maxSurface3D : List[int]
+    maxSurface3D : list[int]
         Maximum 3D surface dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxSurface1DLayered' in found_struct}}
-    maxSurface1DLayered : List[int]
+    maxSurface1DLayered : list[int]
         Maximum 1D layered surface dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxSurface2DLayered' in found_struct}}
-    maxSurface2DLayered : List[int]
+    maxSurface2DLayered : list[int]
         Maximum 2D layered surface dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxSurfaceCubemap' in found_struct}}
@@ -10804,7 +10804,7 @@ cdef class cudaDeviceProp:
         Maximum Cubemap surface dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxSurfaceCubemapLayered' in found_struct}}
-    maxSurfaceCubemapLayered : List[int]
+    maxSurfaceCubemapLayered : list[int]
         Maximum Cubemap layered surface dimensions
     {{endif}}
     {{if 'cudaDeviceProp.surfaceAlignment' in found_struct}}
@@ -11037,7 +11037,7 @@ cdef class cudaDeviceProp:
         multi-node system.
     {{endif}}
     {{if 'cudaDeviceProp.reserved' in found_struct}}
-    reserved : List[int]
+    reserved : list[int]
         Reserved for future use
     {{endif}}
 
@@ -12739,7 +12739,7 @@ cdef class cudaExternalMemoryHandleDesc:
         Flags must either be zero or cudaExternalMemoryDedicated
     {{endif}}
     {{if 'cudaExternalMemoryHandleDesc.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Must be zero
     {{endif}}
 
@@ -12864,7 +12864,7 @@ cdef class cudaExternalMemoryBufferDesc:
         Flags reserved for future use. Must be zero.
     {{endif}}
     {{if 'cudaExternalMemoryBufferDesc.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Must be zero
     {{endif}}
 
@@ -12978,7 +12978,7 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
         Total number of levels in the mipmap chain
     {{endif}}
     {{if 'cudaExternalMemoryMipmappedArrayDesc.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Must be zero
     {{endif}}
 
@@ -13268,7 +13268,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
         Flags reserved for the future. Must be zero.
     {{endif}}
     {{if 'cudaExternalSemaphoreHandleDesc.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Must be zero
     {{endif}}
 
@@ -13534,7 +13534,7 @@ cdef class anon_struct12:
 
     {{endif}}
     {{if 'cudaExternalSemaphoreSignalParams.params.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -13648,7 +13648,7 @@ cdef class cudaExternalSemaphoreSignalParams:
         all other types of cudaExternalSemaphore_t, flags must be zero.
     {{endif}}
     {{if 'cudaExternalSemaphoreSignalParams.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -13914,7 +13914,7 @@ cdef class anon_struct15:
 
     {{endif}}
     {{if 'cudaExternalSemaphoreWaitParams.params.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -14028,7 +14028,7 @@ cdef class cudaExternalSemaphoreWaitParams:
         all other types of cudaExternalSemaphore_t, flags must be zero.
     {{endif}}
     {{if 'cudaExternalSemaphoreWaitParams.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -15358,11 +15358,11 @@ cdef class cudaGraphNodeParams:
         Type of the node
     {{endif}}
     {{if 'cudaGraphNodeParams.reserved0' in found_struct}}
-    reserved0 : List[int]
+    reserved0 : list[int]
         Reserved. Must be zero.
     {{endif}}
     {{if 'cudaGraphNodeParams.reserved1' in found_struct}}
-    reserved1 : List[long long]
+    reserved1 : list[long long]
         Padding. Unused bytes must be zero.
     {{endif}}
     {{if 'cudaGraphNodeParams.kernel' in found_struct}}
@@ -17491,7 +17491,7 @@ cdef class cudaTextureDesc:
     Attributes
     ----------
     {{if 'cudaTextureDesc.addressMode' in found_struct}}
-    addressMode : List[cudaTextureAddressMode]
+    addressMode : list[cudaTextureAddressMode]
         Texture address mode for up to 3 dimensions
     {{endif}}
     {{if 'cudaTextureDesc.filterMode' in found_struct}}
@@ -17507,7 +17507,7 @@ cdef class cudaTextureDesc:
         Perform sRGB->linear conversion during texture read
     {{endif}}
     {{if 'cudaTextureDesc.borderColor' in found_struct}}
-    borderColor : List[float]
+    borderColor : list[float]
         Texture Border Color
     {{endif}}
     {{if 'cudaTextureDesc.normalizedCoords' in found_struct}}
@@ -17788,7 +17788,7 @@ cdef class cudaEglPlaneDesc_st:
         Channel Format Descriptor
     {{endif}}
     {{if True}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Reserved for future use
     {{endif}}
 
@@ -17923,11 +17923,11 @@ cdef class anon_union9:
     Attributes
     ----------
     {{if True}}
-    pArray : List[cudaArray_t]
+    pArray : list[cudaArray_t]
 
     {{endif}}
     {{if True}}
-    pPitch : List[cudaPitchedPtr]
+    pPitch : list[cudaPitchedPtr]
 
     {{endif}}
 
@@ -17968,7 +17968,7 @@ cdef class anon_union9:
     def pArray(self):
         return [cudaArray_t(init_value=<void_ptr>_pArray) for _pArray in self._pvt_ptr[0].frame.pArray]
     @pArray.setter
-    def pArray(self, pArray : List[cudaArray_t]):
+    def pArray(self, pArray : list[cudaArray_t]):
         if len(pArray) != 3:
             raise IndexError('not enough values found during array assignment, expected 3, got', len(pArray))
         pArray = [int(_pArray) for _pArray in pArray]
@@ -17984,7 +17984,7 @@ cdef class anon_union9:
             string.memcpy(<cyruntime.cudaPitchedPtr*><void_ptr>out_pPitch[_idx].getPtr(), &self._pvt_ptr[0].frame.pPitch[_idx], sizeof(cyruntime.cudaPitchedPtr))
         return out_pPitch
     @pPitch.setter
-    def pPitch(self, pPitch : List[cudaPitchedPtr]):
+    def pPitch(self, pPitch : list[cudaPitchedPtr]):
         if len(pPitch) != 3:
             raise IndexError('not enough values found during array assignment, expected 3, got', len(pPitch))
         for _idx in range(len(pPitch)):
@@ -18012,7 +18012,7 @@ cdef class cudaEglFrame_st:
 
     {{endif}}
     {{if True}}
-    planeDesc : List[cudaEglPlaneDesc]
+    planeDesc : list[cudaEglPlaneDesc]
         CUDA EGL Plane Descriptor cudaEglPlaneDesc
     {{endif}}
     {{if True}}
@@ -18101,7 +18101,7 @@ cdef class cudaEglFrame_st:
             string.memcpy(<cyruntime.cudaEglPlaneDesc*><void_ptr>out_planeDesc[_idx].getPtr(), &self._pvt_ptr[0].planeDesc[_idx], sizeof(cyruntime.cudaEglPlaneDesc))
         return out_planeDesc
     @planeDesc.setter
-    def planeDesc(self, planeDesc : List[cudaEglPlaneDesc]):
+    def planeDesc(self, planeDesc : list[cudaEglPlaneDesc]):
         if len(planeDesc) != 3:
             raise IndexError('not enough values found during array assignment, expected 3, got', len(planeDesc))
         for _idx in range(len(planeDesc)):
@@ -19724,7 +19724,7 @@ def cudaDeviceGetAttribute(attr not None : cudaDeviceAttr, int device):
 {{if 'cudaDeviceGetHostAtomicCapabilities' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaDeviceGetHostAtomicCapabilities(operations : Optional[Tuple[cudaAtomicOperation] | List[cudaAtomicOperation]], unsigned int count, int device):
+def cudaDeviceGetHostAtomicCapabilities(operations : Optional[tuple[cudaAtomicOperation] | list[cudaAtomicOperation]], unsigned int count, int device):
     """ Queries details about atomic operations supported between the device and host.
 
     Returns in `*capabilities` the details about requested atomic
@@ -19744,7 +19744,7 @@ def cudaDeviceGetHostAtomicCapabilities(operations : Optional[Tuple[cudaAtomicOp
 
     Parameters
     ----------
-    operations : List[:py:obj:`~.cudaAtomicOperation`]
+    operations : list[:py:obj:`~.cudaAtomicOperation`]
         Requested operations
     count : unsigned int
         Count of requested operations and size of capabilities
@@ -19755,7 +19755,7 @@ def cudaDeviceGetHostAtomicCapabilities(operations : Optional[Tuple[cudaAtomicOp
     -------
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorInvalidValue`
-    capabilities : List[unsigned int]
+    capabilities : list[unsigned int]
         Returned capability details of each requested operation
 
     See Also
@@ -19764,7 +19764,7 @@ def cudaDeviceGetHostAtomicCapabilities(operations : Optional[Tuple[cudaAtomicOp
     """
     operations = [] if operations is None else operations
     if not all(isinstance(_x, (cudaAtomicOperation)) for _x in operations):
-        raise TypeError("Argument 'operations' is not instance of type (expected Tuple[cyruntime.cudaAtomicOperation] or List[cyruntime.cudaAtomicOperation]")
+        raise TypeError("Argument 'operations' is not instance of type (expected tuple[cyruntime.cudaAtomicOperation] or list[cyruntime.cudaAtomicOperation]")
     cdef unsigned int* cycapabilities = NULL
     pycapabilities = []
     if count != 0:
@@ -20053,7 +20053,7 @@ def cudaDeviceGetP2PAttribute(attr not None : cudaDeviceP2PAttr, int srcDevice, 
 {{if 'cudaDeviceGetP2PAtomicCapabilities' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaDeviceGetP2PAtomicCapabilities(operations : Optional[Tuple[cudaAtomicOperation] | List[cudaAtomicOperation]], unsigned int count, int srcDevice, int dstDevice):
+def cudaDeviceGetP2PAtomicCapabilities(operations : Optional[tuple[cudaAtomicOperation] | list[cudaAtomicOperation]], unsigned int count, int srcDevice, int dstDevice):
     """ Queries details about atomic operations supported between two devices.
 
     Returns in `*capabilities` the details about requested atomic
@@ -20075,7 +20075,7 @@ def cudaDeviceGetP2PAtomicCapabilities(operations : Optional[Tuple[cudaAtomicOpe
 
     Parameters
     ----------
-    operations : List[:py:obj:`~.cudaAtomicOperation`]
+    operations : list[:py:obj:`~.cudaAtomicOperation`]
         Requested operations
     count : unsigned int
         Count of requested operations and size of capabilities
@@ -20088,7 +20088,7 @@ def cudaDeviceGetP2PAtomicCapabilities(operations : Optional[Tuple[cudaAtomicOpe
     -------
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorInvalidValue`
-    capabilities : List[unsigned int]
+    capabilities : list[unsigned int]
         Returned capability details of each requested operation
 
     See Also
@@ -20097,7 +20097,7 @@ def cudaDeviceGetP2PAtomicCapabilities(operations : Optional[Tuple[cudaAtomicOpe
     """
     operations = [] if operations is None else operations
     if not all(isinstance(_x, (cudaAtomicOperation)) for _x in operations):
-        raise TypeError("Argument 'operations' is not instance of type (expected Tuple[cyruntime.cudaAtomicOperation] or List[cyruntime.cudaAtomicOperation]")
+        raise TypeError("Argument 'operations' is not instance of type (expected tuple[cyruntime.cudaAtomicOperation] or list[cyruntime.cudaAtomicOperation]")
     cdef unsigned int* cycapabilities = NULL
     pycapabilities = []
     if count != 0:
@@ -21354,7 +21354,7 @@ def cudaStreamBeginCapture(stream, mode not None : cudaStreamCaptureMode):
 {{if 'cudaStreamBeginCaptureToGraph' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaStreamBeginCaptureToGraph(stream, graph, dependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], dependencyData : Optional[Tuple[cudaGraphEdgeData] | List[cudaGraphEdgeData]], size_t numDependencies, mode not None : cudaStreamCaptureMode):
+def cudaStreamBeginCaptureToGraph(stream, graph, dependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], dependencyData : Optional[tuple[cudaGraphEdgeData] | list[cudaGraphEdgeData]], size_t numDependencies, mode not None : cudaStreamCaptureMode):
     """ Begins graph capture on a stream to an existing graph.
 
     Begin graph capture on `stream`. When a stream is in capture mode, all
@@ -21379,10 +21379,10 @@ def cudaStreamBeginCaptureToGraph(stream, graph, dependencies : Optional[Tuple[c
         Stream in which to initiate capture.
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to capture into.
-    dependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    dependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the first node captured in the stream. Can be NULL
         if numDependencies is 0.
-    dependencyData : List[:py:obj:`~.cudaGraphEdgeData`]
+    dependencyData : list[:py:obj:`~.cudaGraphEdgeData`]
         Optional array of data associated with each dependency.
     numDependencies : size_t
         Number of dependencies.
@@ -21406,10 +21406,10 @@ def cudaStreamBeginCaptureToGraph(stream, graph, dependencies : Optional[Tuple[c
     """
     dependencyData = [] if dependencyData is None else dependencyData
     if not all(isinstance(_x, (cudaGraphEdgeData,)) for _x in dependencyData):
-        raise TypeError("Argument 'dependencyData' is not instance of type (expected Tuple[cyruntime.cudaGraphEdgeData,] or List[cyruntime.cudaGraphEdgeData,]")
+        raise TypeError("Argument 'dependencyData' is not instance of type (expected tuple[cyruntime.cudaGraphEdgeData,] or list[cyruntime.cudaGraphEdgeData,]")
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -21689,7 +21689,7 @@ def cudaStreamGetCaptureInfo(stream):
         are or become unreachable from the original stream at
         :py:obj:`~.cudaStreamEndCapture` due to direct actions on the graph
         do not trigger :py:obj:`~.cudaErrorStreamCaptureUnjoined`.
-    dependencies_out : List[:py:obj:`~.cudaGraphNode_t`]
+    dependencies_out : list[:py:obj:`~.cudaGraphNode_t`]
         Optional location to store a pointer to an array of nodes. The next
         node to be captured in the stream will depend on this set of nodes,
         absent operations such as event wait which modify this set. The
@@ -21698,7 +21698,7 @@ def cudaStreamGetCaptureInfo(stream):
         be copied out and are valid until they or the graph is destroyed.
         The driver-owned array may also be passed directly to APIs that
         operate on the graph (not the stream) without copying.
-    edgeData_out : List[:py:obj:`~.cudaGraphEdgeData`]
+    edgeData_out : list[:py:obj:`~.cudaGraphEdgeData`]
         Optional location to store a pointer to an array of graph edge
         data. This array parallels `dependencies_out`; the next node to be
         added has an edge to `dependencies_out`[i] with annotation
@@ -21743,7 +21743,7 @@ def cudaStreamGetCaptureInfo(stream):
 {{if 'cudaStreamUpdateCaptureDependencies' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaStreamUpdateCaptureDependencies(stream, dependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], dependencyData : Optional[Tuple[cudaGraphEdgeData] | List[cudaGraphEdgeData]], size_t numDependencies, unsigned int flags):
+def cudaStreamUpdateCaptureDependencies(stream, dependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], dependencyData : Optional[tuple[cudaGraphEdgeData] | list[cudaGraphEdgeData]], size_t numDependencies, unsigned int flags):
     """ Update the set of dependencies in a capturing stream.
 
     Modifies the dependency set of a capturing stream. The dependency set
@@ -21767,9 +21767,9 @@ def cudaStreamUpdateCaptureDependencies(stream, dependencies : Optional[Tuple[cu
     ----------
     stream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
         The stream to update
-    dependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    dependencies : list[:py:obj:`~.cudaGraphNode_t`]
         The set of dependencies to add
-    dependencyData : List[:py:obj:`~.cudaGraphEdgeData`]
+    dependencyData : list[:py:obj:`~.cudaGraphEdgeData`]
         Optional array of data associated with each dependency.
     numDependencies : size_t
         The size of the dependencies array
@@ -21787,10 +21787,10 @@ def cudaStreamUpdateCaptureDependencies(stream, dependencies : Optional[Tuple[cu
     """
     dependencyData = [] if dependencyData is None else dependencyData
     if not all(isinstance(_x, (cudaGraphEdgeData,)) for _x in dependencyData):
-        raise TypeError("Argument 'dependencyData' is not instance of type (expected Tuple[cyruntime.cudaGraphEdgeData,] or List[cyruntime.cudaGraphEdgeData,]")
+        raise TypeError("Argument 'dependencyData' is not instance of type (expected tuple[cyruntime.cudaGraphEdgeData,] or list[cyruntime.cudaGraphEdgeData,]")
     dependencies = [] if dependencies is None else dependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in dependencies):
-        raise TypeError("Argument 'dependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'dependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaStream_t cystream
     if stream is None:
         pstream = 0
@@ -22721,7 +22721,7 @@ def cudaImportExternalSemaphore(semHandleDesc : Optional[cudaExternalSemaphoreHa
 {{if 'cudaSignalExternalSemaphoresAsync' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaSignalExternalSemaphoresAsync(extSemArray : Optional[Tuple[cudaExternalSemaphore_t] | List[cudaExternalSemaphore_t]], paramsArray : Optional[Tuple[cudaExternalSemaphoreSignalParams] | List[cudaExternalSemaphoreSignalParams]], unsigned int numExtSems, stream):
+def cudaSignalExternalSemaphoresAsync(extSemArray : Optional[tuple[cudaExternalSemaphore_t] | list[cudaExternalSemaphore_t]], paramsArray : Optional[tuple[cudaExternalSemaphoreSignalParams] | list[cudaExternalSemaphoreSignalParams]], unsigned int numExtSems, stream):
     """ Signals a set of external semaphore objects.
 
     Enqueues a signal operation on a set of externally allocated semaphore
@@ -22812,9 +22812,9 @@ def cudaSignalExternalSemaphoresAsync(extSemArray : Optional[Tuple[cudaExternalS
 
     Parameters
     ----------
-    extSemArray : List[:py:obj:`~.cudaExternalSemaphore_t`]
+    extSemArray : list[:py:obj:`~.cudaExternalSemaphore_t`]
         Set of external semaphores to be signaled
-    paramsArray : List[:py:obj:`~.cudaExternalSemaphoreSignalParams`]
+    paramsArray : list[:py:obj:`~.cudaExternalSemaphoreSignalParams`]
         Array of semaphore parameters
     numExtSems : unsigned int
         Number of semaphores to signal
@@ -22840,10 +22840,10 @@ def cudaSignalExternalSemaphoresAsync(extSemArray : Optional[Tuple[cudaExternalS
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     paramsArray = [] if paramsArray is None else paramsArray
     if not all(isinstance(_x, (cudaExternalSemaphoreSignalParams,)) for _x in paramsArray):
-        raise TypeError("Argument 'paramsArray' is not instance of type (expected Tuple[cyruntime.cudaExternalSemaphoreSignalParams,] or List[cyruntime.cudaExternalSemaphoreSignalParams,]")
+        raise TypeError("Argument 'paramsArray' is not instance of type (expected tuple[cyruntime.cudaExternalSemaphoreSignalParams,] or list[cyruntime.cudaExternalSemaphoreSignalParams,]")
     extSemArray = [] if extSemArray is None else extSemArray
     if not all(isinstance(_x, (cudaExternalSemaphore_t,)) for _x in extSemArray):
-        raise TypeError("Argument 'extSemArray' is not instance of type (expected Tuple[cyruntime.cudaExternalSemaphore_t,] or List[cyruntime.cudaExternalSemaphore_t,]")
+        raise TypeError("Argument 'extSemArray' is not instance of type (expected tuple[cyruntime.cudaExternalSemaphore_t,] or list[cyruntime.cudaExternalSemaphore_t,]")
     cdef cyruntime.cudaExternalSemaphore_t* cyextSemArray = NULL
     if len(extSemArray) > 1:
         cyextSemArray = <cyruntime.cudaExternalSemaphore_t*> calloc(len(extSemArray), sizeof(cyruntime.cudaExternalSemaphore_t))
@@ -22877,7 +22877,7 @@ def cudaSignalExternalSemaphoresAsync(extSemArray : Optional[Tuple[cudaExternalS
 {{if 'cudaWaitExternalSemaphoresAsync' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaWaitExternalSemaphoresAsync(extSemArray : Optional[Tuple[cudaExternalSemaphore_t] | List[cudaExternalSemaphore_t]], paramsArray : Optional[Tuple[cudaExternalSemaphoreWaitParams] | List[cudaExternalSemaphoreWaitParams]], unsigned int numExtSems, stream):
+def cudaWaitExternalSemaphoresAsync(extSemArray : Optional[tuple[cudaExternalSemaphore_t] | list[cudaExternalSemaphore_t]], paramsArray : Optional[tuple[cudaExternalSemaphoreWaitParams] | list[cudaExternalSemaphoreWaitParams]], unsigned int numExtSems, stream):
     """ Waits on a set of external semaphore objects.
 
     Enqueues a wait operation on a set of externally allocated semaphore
@@ -22941,9 +22941,9 @@ def cudaWaitExternalSemaphoresAsync(extSemArray : Optional[Tuple[cudaExternalSem
 
     Parameters
     ----------
-    extSemArray : List[:py:obj:`~.cudaExternalSemaphore_t`]
+    extSemArray : list[:py:obj:`~.cudaExternalSemaphore_t`]
         External semaphores to be waited on
-    paramsArray : List[:py:obj:`~.cudaExternalSemaphoreWaitParams`]
+    paramsArray : list[:py:obj:`~.cudaExternalSemaphoreWaitParams`]
         Array of semaphore parameters
     numExtSems : unsigned int
         Number of semaphores to wait on
@@ -22969,10 +22969,10 @@ def cudaWaitExternalSemaphoresAsync(extSemArray : Optional[Tuple[cudaExternalSem
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     paramsArray = [] if paramsArray is None else paramsArray
     if not all(isinstance(_x, (cudaExternalSemaphoreWaitParams,)) for _x in paramsArray):
-        raise TypeError("Argument 'paramsArray' is not instance of type (expected Tuple[cyruntime.cudaExternalSemaphoreWaitParams,] or List[cyruntime.cudaExternalSemaphoreWaitParams,]")
+        raise TypeError("Argument 'paramsArray' is not instance of type (expected tuple[cyruntime.cudaExternalSemaphoreWaitParams,] or list[cyruntime.cudaExternalSemaphoreWaitParams,]")
     extSemArray = [] if extSemArray is None else extSemArray
     if not all(isinstance(_x, (cudaExternalSemaphore_t,)) for _x in extSemArray):
-        raise TypeError("Argument 'extSemArray' is not instance of type (expected Tuple[cyruntime.cudaExternalSemaphore_t,] or List[cyruntime.cudaExternalSemaphore_t,]")
+        raise TypeError("Argument 'extSemArray' is not instance of type (expected tuple[cyruntime.cudaExternalSemaphore_t,] or list[cyruntime.cudaExternalSemaphore_t,]")
     cdef cyruntime.cudaExternalSemaphore_t* cyextSemArray = NULL
     if len(extSemArray) > 1:
         cyextSemArray = <cyruntime.cudaExternalSemaphore_t*> calloc(len(extSemArray), sizeof(cyruntime.cudaExternalSemaphore_t))
@@ -25859,7 +25859,7 @@ def cudaMemcpyPeerAsync(dst, int dstDevice, src, int srcDevice, size_t count, st
 {{if 'cudaMemcpyBatchAsync' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemcpyBatchAsync(dsts : Optional[Tuple[Any] | List[Any]], srcs : Optional[Tuple[Any] | List[Any]], sizes : Tuple[int] | List[int], size_t count, attrs : Optional[Tuple[cudaMemcpyAttributes] | List[cudaMemcpyAttributes]], attrsIdxs : Tuple[int] | List[int], size_t numAttrs, stream):
+def cudaMemcpyBatchAsync(dsts : Optional[tuple[Any] | list[Any]], srcs : Optional[tuple[Any] | list[Any]], sizes : tuple[int] | list[int], size_t count, attrs : Optional[tuple[cudaMemcpyAttributes] | list[cudaMemcpyAttributes]], attrsIdxs : tuple[int] | list[int], size_t numAttrs, stream):
     """ Performs a batch of memory copies asynchronously.
 
     Performs a batch of memory copies. The batch as a whole executes in
@@ -25933,17 +25933,17 @@ def cudaMemcpyBatchAsync(dsts : Optional[Tuple[Any] | List[Any]], srcs : Optiona
 
     Parameters
     ----------
-    dsts : List[Any]
+    dsts : list[Any]
         Array of destination pointers.
-    srcs : List[Any]
+    srcs : list[Any]
         Array of memcpy source pointers.
-    sizes : List[int]
+    sizes : list[int]
         Array of sizes for memcpy operations.
     count : size_t
         Size of `dsts`, `srcs` and `sizes` arrays
-    attrs : List[:py:obj:`~.cudaMemcpyAttributes`]
+    attrs : list[:py:obj:`~.cudaMemcpyAttributes`]
         Array of memcpy attributes.
-    attrsIdxs : List[int]
+    attrsIdxs : list[int]
         Array of indices to specify which copies each entry in the `attrs`
         array applies to. The attributes specified in attrs[k] will be
         applied to copies starting from attrsIdxs[k] through attrsIdxs[k+1]
@@ -25969,12 +25969,12 @@ def cudaMemcpyBatchAsync(dsts : Optional[Tuple[Any] | List[Any]], srcs : Optiona
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     if not all(isinstance(_x, (int)) for _x in attrsIdxs):
-        raise TypeError("Argument 'attrsIdxs' is not instance of type (expected Tuple[int] or List[int]")
+        raise TypeError("Argument 'attrsIdxs' is not instance of type (expected tuple[int] or list[int]")
     attrs = [] if attrs is None else attrs
     if not all(isinstance(_x, (cudaMemcpyAttributes,)) for _x in attrs):
-        raise TypeError("Argument 'attrs' is not instance of type (expected Tuple[cyruntime.cudaMemcpyAttributes,] or List[cyruntime.cudaMemcpyAttributes,]")
+        raise TypeError("Argument 'attrs' is not instance of type (expected tuple[cyruntime.cudaMemcpyAttributes,] or list[cyruntime.cudaMemcpyAttributes,]")
     if not all(isinstance(_x, (int)) for _x in sizes):
-        raise TypeError("Argument 'sizes' is not instance of type (expected Tuple[int] or List[int]")
+        raise TypeError("Argument 'sizes' is not instance of type (expected tuple[int] or list[int]")
     srcs = [] if srcs is None else srcs
     dsts = [] if dsts is None else dsts
     pylist = [_HelperInputVoidPtr(pydsts) for pydsts in dsts]
@@ -26009,7 +26009,7 @@ def cudaMemcpyBatchAsync(dsts : Optional[Tuple[Any] | List[Any]], srcs : Optiona
 {{if 'cudaMemcpy3DBatchAsync' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemcpy3DBatchAsync(size_t numOps, opList : Optional[Tuple[cudaMemcpy3DBatchOp] | List[cudaMemcpy3DBatchOp]], unsigned long long flags, stream):
+def cudaMemcpy3DBatchAsync(size_t numOps, opList : Optional[tuple[cudaMemcpy3DBatchOp] | list[cudaMemcpy3DBatchOp]], unsigned long long flags, stream):
     """ Performs a batch of 3D memory copies asynchronously.
 
     Performs a batch of memory copies. The batch as a whole executes in
@@ -26095,7 +26095,7 @@ def cudaMemcpy3DBatchAsync(size_t numOps, opList : Optional[Tuple[cudaMemcpy3DBa
     ----------
     numOps : size_t
         Total number of memcpy operations.
-    opList : List[:py:obj:`~.cudaMemcpy3DBatchOp`]
+    opList : list[:py:obj:`~.cudaMemcpy3DBatchOp`]
         Array of size `numOps` containing the actual memcpy operations.
     flags : unsigned long long
         Flags for future use, must be zero now.
@@ -26118,7 +26118,7 @@ def cudaMemcpy3DBatchAsync(size_t numOps, opList : Optional[Tuple[cudaMemcpy3DBa
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     opList = [] if opList is None else opList
     if not all(isinstance(_x, (cudaMemcpy3DBatchOp,)) for _x in opList):
-        raise TypeError("Argument 'opList' is not instance of type (expected Tuple[cyruntime.cudaMemcpy3DBatchOp,] or List[cyruntime.cudaMemcpy3DBatchOp,]")
+        raise TypeError("Argument 'opList' is not instance of type (expected tuple[cyruntime.cudaMemcpy3DBatchOp,] or list[cyruntime.cudaMemcpy3DBatchOp,]")
     if numOps > <size_t>len(opList): raise RuntimeError("List is too small: " + str(len(opList)) + " < " + str(numOps))
     cdef cyruntime.cudaMemcpy3DBatchOp* cyopList = NULL
     if len(opList) > 1:
@@ -26830,7 +26830,7 @@ def cudaMemPrefetchAsync(devPtr, size_t count, location not None : cudaMemLocati
 {{if 'cudaMemPrefetchBatchAsync' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemPrefetchBatchAsync(dptrs : Optional[Tuple[Any] | List[Any]], sizes : Tuple[int] | List[int], size_t count, prefetchLocs : Optional[Tuple[cudaMemLocation] | List[cudaMemLocation]], prefetchLocIdxs : Tuple[int] | List[int], size_t numPrefetchLocs, unsigned long long flags, stream):
+def cudaMemPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : tuple[int] | list[int], size_t count, prefetchLocs : Optional[tuple[cudaMemLocation] | list[cudaMemLocation]], prefetchLocIdxs : tuple[int] | list[int], size_t numPrefetchLocs, unsigned long long flags, stream):
     """ Performs a batch of memory prefetches asynchronously.
 
     Performs a batch of memory prefetches. The batch as a whole executes in
@@ -26867,15 +26867,15 @@ def cudaMemPrefetchBatchAsync(dptrs : Optional[Tuple[Any] | List[Any]], sizes : 
 
     Parameters
     ----------
-    dptrs : List[Any]
+    dptrs : list[Any]
         Array of pointers to be prefetched
-    sizes : List[int]
+    sizes : list[int]
         Array of sizes for memory prefetch operations.
     count : size_t
         Size of `dptrs` and `sizes` arrays.
-    prefetchLocs : List[:py:obj:`~.cudaMemLocation`]
+    prefetchLocs : list[:py:obj:`~.cudaMemLocation`]
         Array of locations to prefetch to.
-    prefetchLocIdxs : List[int]
+    prefetchLocIdxs : list[int]
         Array of indices to specify which operands each entry in the
         `prefetchLocs` array applies to. The locations specified in
         prefetchLocs[k] will be applied to copies starting from
@@ -26904,12 +26904,12 @@ def cudaMemPrefetchBatchAsync(dptrs : Optional[Tuple[Any] | List[Any]], sizes : 
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     if not all(isinstance(_x, (int)) for _x in prefetchLocIdxs):
-        raise TypeError("Argument 'prefetchLocIdxs' is not instance of type (expected Tuple[int] or List[int]")
+        raise TypeError("Argument 'prefetchLocIdxs' is not instance of type (expected tuple[int] or list[int]")
     prefetchLocs = [] if prefetchLocs is None else prefetchLocs
     if not all(isinstance(_x, (cudaMemLocation,)) for _x in prefetchLocs):
-        raise TypeError("Argument 'prefetchLocs' is not instance of type (expected Tuple[cyruntime.cudaMemLocation,] or List[cyruntime.cudaMemLocation,]")
+        raise TypeError("Argument 'prefetchLocs' is not instance of type (expected tuple[cyruntime.cudaMemLocation,] or list[cyruntime.cudaMemLocation,]")
     if not all(isinstance(_x, (int)) for _x in sizes):
-        raise TypeError("Argument 'sizes' is not instance of type (expected Tuple[int] or List[int]")
+        raise TypeError("Argument 'sizes' is not instance of type (expected tuple[int] or list[int]")
     dptrs = [] if dptrs is None else dptrs
     pylist = [_HelperInputVoidPtr(pydptrs) for pydptrs in dptrs]
     cdef _InputVoidPtrPtrHelper voidStarHelperdptrs = _InputVoidPtrPtrHelper(pylist)
@@ -26939,7 +26939,7 @@ def cudaMemPrefetchBatchAsync(dptrs : Optional[Tuple[Any] | List[Any]], sizes : 
 {{if 'cudaMemDiscardBatchAsync' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemDiscardBatchAsync(dptrs : Optional[Tuple[Any] | List[Any]], sizes : Tuple[int] | List[int], size_t count, unsigned long long flags, stream):
+def cudaMemDiscardBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : tuple[int] | list[int], size_t count, unsigned long long flags, stream):
     """ Performs a batch of memory discards asynchronously.
 
     Performs a batch of memory discards. The batch as a whole executes in
@@ -26971,9 +26971,9 @@ def cudaMemDiscardBatchAsync(dptrs : Optional[Tuple[Any] | List[Any]], sizes : T
 
     Parameters
     ----------
-    dptrs : List[Any]
+    dptrs : list[Any]
         Array of pointers to be discarded
-    sizes : List[int]
+    sizes : list[int]
         Array of sizes for memory discard operations.
     count : size_t
         Size of `dptrs` and `sizes` arrays.
@@ -26997,7 +26997,7 @@ def cudaMemDiscardBatchAsync(dptrs : Optional[Tuple[Any] | List[Any]], sizes : T
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     if not all(isinstance(_x, (int)) for _x in sizes):
-        raise TypeError("Argument 'sizes' is not instance of type (expected Tuple[int] or List[int]")
+        raise TypeError("Argument 'sizes' is not instance of type (expected tuple[int] or list[int]")
     dptrs = [] if dptrs is None else dptrs
     pylist = [_HelperInputVoidPtr(pydptrs) for pydptrs in dptrs]
     cdef _InputVoidPtrPtrHelper voidStarHelperdptrs = _InputVoidPtrPtrHelper(pylist)
@@ -27013,7 +27013,7 @@ def cudaMemDiscardBatchAsync(dptrs : Optional[Tuple[Any] | List[Any]], sizes : T
 {{if 'cudaMemDiscardAndPrefetchBatchAsync' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemDiscardAndPrefetchBatchAsync(dptrs : Optional[Tuple[Any] | List[Any]], sizes : Tuple[int] | List[int], size_t count, prefetchLocs : Optional[Tuple[cudaMemLocation] | List[cudaMemLocation]], prefetchLocIdxs : Tuple[int] | List[int], size_t numPrefetchLocs, unsigned long long flags, stream):
+def cudaMemDiscardAndPrefetchBatchAsync(dptrs : Optional[tuple[Any] | list[Any]], sizes : tuple[int] | list[int], size_t count, prefetchLocs : Optional[tuple[cudaMemLocation] | list[cudaMemLocation]], prefetchLocIdxs : tuple[int] | list[int], size_t numPrefetchLocs, unsigned long long flags, stream):
     """ Performs a batch of memory discards and prefetches asynchronously.
 
     Performs a batch of memory discards followed by prefetches. The batch
@@ -27058,15 +27058,15 @@ def cudaMemDiscardAndPrefetchBatchAsync(dptrs : Optional[Tuple[Any] | List[Any]]
 
     Parameters
     ----------
-    dptrs : List[Any]
+    dptrs : list[Any]
         Array of pointers to be discarded
-    sizes : List[int]
+    sizes : list[int]
         Array of sizes for memory discard operations.
     count : size_t
         Size of `dptrs` and `sizes` arrays.
-    prefetchLocs : List[:py:obj:`~.cudaMemLocation`]
+    prefetchLocs : list[:py:obj:`~.cudaMemLocation`]
         Array of locations to prefetch to.
-    prefetchLocIdxs : List[int]
+    prefetchLocIdxs : list[int]
         Array of indices to specify which operands each entry in the
         `prefetchLocs` array applies to. The locations specified in
         prefetchLocs[k] will be applied to operations starting from
@@ -27095,12 +27095,12 @@ def cudaMemDiscardAndPrefetchBatchAsync(dptrs : Optional[Tuple[Any] | List[Any]]
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
     if not all(isinstance(_x, (int)) for _x in prefetchLocIdxs):
-        raise TypeError("Argument 'prefetchLocIdxs' is not instance of type (expected Tuple[int] or List[int]")
+        raise TypeError("Argument 'prefetchLocIdxs' is not instance of type (expected tuple[int] or list[int]")
     prefetchLocs = [] if prefetchLocs is None else prefetchLocs
     if not all(isinstance(_x, (cudaMemLocation,)) for _x in prefetchLocs):
-        raise TypeError("Argument 'prefetchLocs' is not instance of type (expected Tuple[cyruntime.cudaMemLocation,] or List[cyruntime.cudaMemLocation,]")
+        raise TypeError("Argument 'prefetchLocs' is not instance of type (expected tuple[cyruntime.cudaMemLocation,] or list[cyruntime.cudaMemLocation,]")
     if not all(isinstance(_x, (int)) for _x in sizes):
-        raise TypeError("Argument 'sizes' is not instance of type (expected Tuple[int] or List[int]")
+        raise TypeError("Argument 'sizes' is not instance of type (expected tuple[int] or list[int]")
     dptrs = [] if dptrs is None else dptrs
     pylist = [_HelperInputVoidPtr(pydptrs) for pydptrs in dptrs]
     cdef _InputVoidPtrPtrHelper voidStarHelperdptrs = _InputVoidPtrPtrHelper(pylist)
@@ -27477,7 +27477,7 @@ def cudaMemRangeGetAttribute(size_t dataSize, attribute not None : cudaMemRangeA
 {{if 'cudaMemRangeGetAttributes' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemRangeGetAttributes(dataSizes : Tuple[int] | List[int], attributes : Optional[Tuple[cudaMemRangeAttribute] | List[cudaMemRangeAttribute]], size_t numAttributes, devPtr, size_t count):
+def cudaMemRangeGetAttributes(dataSizes : tuple[int] | list[int], attributes : Optional[tuple[cudaMemRangeAttribute] | list[cudaMemRangeAttribute]], size_t numAttributes, devPtr, size_t count):
     """ Query attributes of a given memory range.
 
     Query attributes of the memory range starting at `devPtr` with a size
@@ -27510,9 +27510,9 @@ def cudaMemRangeGetAttributes(dataSizes : Tuple[int] | List[int], attributes : O
 
     Parameters
     ----------
-    dataSizes : List[int]
+    dataSizes : list[int]
         Array containing the sizes of each result
-    attributes : List[:py:obj:`~.cudaMemRangeAttribute`]
+    attributes : list[:py:obj:`~.cudaMemRangeAttribute`]
         An array of attributes to query (numAttributes and the number of
         attributes in this array should match)
     numAttributes : size_t
@@ -27526,7 +27526,7 @@ def cudaMemRangeGetAttributes(dataSizes : Tuple[int] | List[int], attributes : O
     -------
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-    data : List[Any]
+    data : list[Any]
         A two-dimensional array containing pointers to memory locations
         where the result of each attribute query will be written to.
 
@@ -27536,9 +27536,9 @@ def cudaMemRangeGetAttributes(dataSizes : Tuple[int] | List[int], attributes : O
     """
     attributes = [] if attributes is None else attributes
     if not all(isinstance(_x, (cudaMemRangeAttribute)) for _x in attributes):
-        raise TypeError("Argument 'attributes' is not instance of type (expected Tuple[cyruntime.cudaMemRangeAttribute] or List[cyruntime.cudaMemRangeAttribute]")
+        raise TypeError("Argument 'attributes' is not instance of type (expected tuple[cyruntime.cudaMemRangeAttribute] or list[cyruntime.cudaMemRangeAttribute]")
     if not all(isinstance(_x, (int)) for _x in dataSizes):
-        raise TypeError("Argument 'dataSizes' is not instance of type (expected Tuple[int] or List[int]")
+        raise TypeError("Argument 'dataSizes' is not instance of type (expected tuple[int] or list[int]")
     pylist = [_HelperCUmem_range_attribute(pyattributes, pydataSizes) for (pyattributes, pydataSizes) in zip(attributes, dataSizes)]
     cdef _InputVoidPtrPtrHelper voidStarHelperdata = _InputVoidPtrPtrHelper(pylist)
     cdef void** cyvoidStarHelper_ptr = <void**><void_ptr>voidStarHelperdata.cptr
@@ -28209,14 +28209,14 @@ def cudaMemPoolGetAttribute(memPool, attr not None : cudaMemPoolAttr):
 {{if 'cudaMemPoolSetAccess' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaMemPoolSetAccess(memPool, descList : Optional[Tuple[cudaMemAccessDesc] | List[cudaMemAccessDesc]], size_t count):
+def cudaMemPoolSetAccess(memPool, descList : Optional[tuple[cudaMemAccessDesc] | list[cudaMemAccessDesc]], size_t count):
     """ Controls visibility of pools between devices.
 
     Parameters
     ----------
     pool : :py:obj:`~.CUmemoryPool` or :py:obj:`~.cudaMemPool_t`
         The pool being modified
-    map : List[:py:obj:`~.cudaMemAccessDesc`]
+    map : list[:py:obj:`~.cudaMemAccessDesc`]
         Array of access descriptors. Each descriptor instructs the access
         to enable for a single gpu
     count : size_t
@@ -28233,7 +28233,7 @@ def cudaMemPoolSetAccess(memPool, descList : Optional[Tuple[cudaMemAccessDesc] |
     """
     descList = [] if descList is None else descList
     if not all(isinstance(_x, (cudaMemAccessDesc,)) for _x in descList):
-        raise TypeError("Argument 'descList' is not instance of type (expected Tuple[cyruntime.cudaMemAccessDesc,] or List[cyruntime.cudaMemAccessDesc,]")
+        raise TypeError("Argument 'descList' is not instance of type (expected tuple[cyruntime.cudaMemAccessDesc,] or list[cyruntime.cudaMemAccessDesc,]")
     cdef cyruntime.cudaMemPool_t cymemPool
     if memPool is None:
         pmemPool = 0
@@ -30317,7 +30317,7 @@ def cudaGraphCreate(unsigned int flags):
 {{if 'cudaGraphAddKernelNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddKernelNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], size_t numDependencies, pNodeParams : Optional[cudaKernelNodeParams]):
+def cudaGraphAddKernelNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, pNodeParams : Optional[cudaKernelNodeParams]):
     """ Creates a kernel execution node and adds it to a graph.
 
     Creates a new kernel execution node and adds it to `graph` with
@@ -30381,7 +30381,7 @@ def cudaGraphAddKernelNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
     numDependencies : size_t
         Number of dependencies
@@ -30405,7 +30405,7 @@ def cudaGraphAddKernelNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -30659,7 +30659,7 @@ def cudaGraphKernelNodeSetAttribute(hNode, attr not None : cudaKernelNodeAttrID,
 {{if 'cudaGraphAddMemcpyNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], size_t numDependencies, pCopyParams : Optional[cudaMemcpy3DParms]):
+def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, pCopyParams : Optional[cudaMemcpy3DParms]):
     """ Creates a memcpy node and adds it to a graph.
 
     Creates a new memcpy node and adds it to `graph` with `numDependencies`
@@ -30681,7 +30681,7 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
     numDependencies : size_t
         Number of dependencies
@@ -30701,7 +30701,7 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -30735,7 +30735,7 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t
 {{if 'cudaGraphAddMemcpyNode1D' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], size_t numDependencies, dst, src, size_t count, kind not None : cudaMemcpyKind):
+def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, dst, src, size_t count, kind not None : cudaMemcpyKind):
     """ Creates a 1D memcpy node and adds it to a graph.
 
     Creates a new 1D memcpy node and adds it to `graph` with
@@ -30767,7 +30767,7 @@ def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[Tuple[cudaGraphNode
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
     numDependencies : size_t
         Number of dependencies
@@ -30793,7 +30793,7 @@ def cudaGraphAddMemcpyNode1D(graph, pDependencies : Optional[Tuple[cudaGraphNode
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -30970,7 +30970,7 @@ def cudaGraphMemcpyNodeSetParams1D(node, dst, src, size_t count, kind not None :
 {{if 'cudaGraphAddMemsetNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddMemsetNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], size_t numDependencies, pMemsetParams : Optional[cudaMemsetParams]):
+def cudaGraphAddMemsetNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, pMemsetParams : Optional[cudaMemsetParams]):
     """ Creates a memset node and adds it to a graph.
 
     Creates a new memset node and adds it to `graph` with `numDependencies`
@@ -30986,7 +30986,7 @@ def cudaGraphAddMemsetNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
     numDependencies : size_t
         Number of dependencies
@@ -31006,7 +31006,7 @@ def cudaGraphAddMemsetNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -31118,7 +31118,7 @@ def cudaGraphMemsetNodeSetParams(node, pNodeParams : Optional[cudaMemsetParams])
 {{if 'cudaGraphAddHostNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddHostNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], size_t numDependencies, pNodeParams : Optional[cudaHostNodeParams]):
+def cudaGraphAddHostNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, pNodeParams : Optional[cudaHostNodeParams]):
     """ Creates a host execution node and adds it to a graph.
 
     Creates a new CPU execution node and adds it to `graph` with
@@ -31135,7 +31135,7 @@ def cudaGraphAddHostNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] 
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
     numDependencies : size_t
         Number of dependencies
@@ -31155,7 +31155,7 @@ def cudaGraphAddHostNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] 
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -31267,7 +31267,7 @@ def cudaGraphHostNodeSetParams(node, pNodeParams : Optional[cudaHostNodeParams])
 {{if 'cudaGraphAddChildGraphNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddChildGraphNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], size_t numDependencies, childGraph):
+def cudaGraphAddChildGraphNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, childGraph):
     """ Creates a child graph node and adds it to a graph.
 
     Creates a new node which executes an embedded graph, and adds it to
@@ -31287,7 +31287,7 @@ def cudaGraphAddChildGraphNode(graph, pDependencies : Optional[Tuple[cudaGraphNo
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
     numDependencies : size_t
         Number of dependencies
@@ -31315,7 +31315,7 @@ def cudaGraphAddChildGraphNode(graph, pDependencies : Optional[Tuple[cudaGraphNo
     cychildGraph = <cyruntime.cudaGraph_t><void_ptr>pchildGraph
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -31393,7 +31393,7 @@ def cudaGraphChildGraphNodeGetGraph(node):
 {{if 'cudaGraphAddEmptyNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddEmptyNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], size_t numDependencies):
+def cudaGraphAddEmptyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies):
     """ Creates an empty node and adds it to a graph.
 
     Creates a new node which performs no operation, and adds it to `graph`
@@ -31413,7 +31413,7 @@ def cudaGraphAddEmptyNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t]
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
     numDependencies : size_t
         Number of dependencies
@@ -31431,7 +31431,7 @@ def cudaGraphAddEmptyNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t]
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -31464,7 +31464,7 @@ def cudaGraphAddEmptyNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t]
 {{if 'cudaGraphAddEventRecordNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], size_t numDependencies, event):
+def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, event):
     """ Creates an event record node and adds it to a graph.
 
     Creates a new event record node and adds it to `hGraph` with
@@ -31483,7 +31483,7 @@ def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[Tuple[cudaGraphN
     ----------
     hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    dependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    dependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
     numDependencies : size_t
         Number of dependencies
@@ -31511,7 +31511,7 @@ def cudaGraphAddEventRecordNode(graph, pDependencies : Optional[Tuple[cudaGraphN
     cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -31629,7 +31629,7 @@ def cudaGraphEventRecordNodeSetEvent(node, event):
 {{if 'cudaGraphAddEventWaitNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], size_t numDependencies, event):
+def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, event):
     """ Creates an event wait node and adds it to a graph.
 
     Creates a new event wait node and adds it to `hGraph` with
@@ -31651,7 +31651,7 @@ def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[Tuple[cudaGraphNod
     ----------
     hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    dependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    dependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
     numDependencies : size_t
         Number of dependencies
@@ -31679,7 +31679,7 @@ def cudaGraphAddEventWaitNode(graph, pDependencies : Optional[Tuple[cudaGraphNod
     cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -31797,7 +31797,7 @@ def cudaGraphEventWaitNodeSetEvent(node, event):
 {{if 'cudaGraphAddExternalSemaphoresSignalNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaExternalSemaphoreSignalNodeParams]):
+def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaExternalSemaphoreSignalNodeParams]):
     """ Creates an external semaphore signal node and adds it to a graph.
 
     Creates a new external semaphore signal node and adds it to `graph`
@@ -31815,7 +31815,7 @@ def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[Tup
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
     numDependencies : size_t
         Number of dependencies
@@ -31835,7 +31835,7 @@ def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[Tup
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -31954,7 +31954,7 @@ def cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : Optional[
 {{if 'cudaGraphAddExternalSemaphoresWaitNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaExternalSemaphoreWaitNodeParams]):
+def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaExternalSemaphoreWaitNodeParams]):
     """ Creates an external semaphore wait node and adds it to a graph.
 
     Creates a new external semaphore wait node and adds it to `graph` with
@@ -31972,7 +31972,7 @@ def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[Tuple
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
     numDependencies : size_t
         Number of dependencies
@@ -31992,7 +31992,7 @@ def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[Tuple
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -32111,7 +32111,7 @@ def cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : Optional[cu
 {{if 'cudaGraphAddMemAllocNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaMemAllocNodeParams]):
+def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, nodeParams : Optional[cudaMemAllocNodeParams]):
     """ Creates an allocation node and adds it to a graph.
 
     Creates a new allocation node and adds it to `graph` with
@@ -32168,7 +32168,7 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[Tuple[cudaGraphNode
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
     numDependencies : size_t
         Number of dependencies
@@ -32188,7 +32188,7 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[Tuple[cudaGraphNode
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -32265,7 +32265,7 @@ def cudaGraphMemAllocNodeGetParams(node):
 {{if 'cudaGraphAddMemFreeNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], size_t numDependencies, dptr):
+def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], size_t numDependencies, dptr):
     """ Creates a memory free node and adds it to a graph.
 
     Creates a new memory free node and adds it to `graph` with
@@ -32300,7 +32300,7 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
     numDependencies : size_t
         Number of dependencies
@@ -32320,7 +32320,7 @@ def cudaGraphAddMemFreeNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_
     """
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -32686,7 +32686,7 @@ def cudaGraphGetNodes(graph, size_t numNodes = 0):
     -------
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-    nodes : List[:py:obj:`~.cudaGraphNode_t`]
+    nodes : list[:py:obj:`~.cudaGraphNode_t`]
         Pointer to return the nodes
     numNodes : int
         See description
@@ -32745,7 +32745,7 @@ def cudaGraphGetRootNodes(graph, size_t pNumRootNodes = 0):
     -------
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
-    pRootNodes : List[:py:obj:`~.cudaGraphNode_t`]
+    pRootNodes : list[:py:obj:`~.cudaGraphNode_t`]
         Pointer to return the root nodes
     pNumRootNodes : int
         See description
@@ -32811,11 +32811,11 @@ def cudaGraphGetEdges(graph, size_t numEdges = 0):
     -------
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorLossyQuery`, :py:obj:`~.cudaErrorInvalidValue`
-    from : List[:py:obj:`~.cudaGraphNode_t`]
+    from : list[:py:obj:`~.cudaGraphNode_t`]
         Location to return edge endpoints
-    to : List[:py:obj:`~.cudaGraphNode_t`]
+    to : list[:py:obj:`~.cudaGraphNode_t`]
         Location to return edge endpoints
-    edgeData : List[:py:obj:`~.cudaGraphEdgeData`]
+    edgeData : list[:py:obj:`~.cudaGraphEdgeData`]
         Optional location to return edge data
     numEdges : int
         See description
@@ -32900,9 +32900,9 @@ def cudaGraphNodeGetDependencies(node, size_t pNumDependencies = 0):
     -------
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorLossyQuery`, :py:obj:`~.cudaErrorInvalidValue`
-    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Pointer to return the dependencies
-    edgeData : List[:py:obj:`~.cudaGraphEdgeData`]
+    edgeData : list[:py:obj:`~.cudaGraphEdgeData`]
         Optional array to return edge data for each dependency
     pNumDependencies : int
         See description
@@ -32977,9 +32977,9 @@ def cudaGraphNodeGetDependentNodes(node, size_t pNumDependentNodes = 0):
     -------
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorLossyQuery`, :py:obj:`~.cudaErrorInvalidValue`
-    pDependentNodes : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependentNodes : list[:py:obj:`~.cudaGraphNode_t`]
         Pointer to return the dependent nodes
-    edgeData : List[:py:obj:`~.cudaGraphEdgeData`]
+    edgeData : list[:py:obj:`~.cudaGraphEdgeData`]
         Optional pointer to return edge data for dependent nodes
     pNumDependentNodes : int
         See description
@@ -33027,7 +33027,7 @@ def cudaGraphNodeGetDependentNodes(node, size_t pNumDependentNodes = 0):
 {{if 'cudaGraphAddDependencies' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddDependencies(graph, from_ : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], to : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], edgeData : Optional[Tuple[cudaGraphEdgeData] | List[cudaGraphEdgeData]], size_t numDependencies):
+def cudaGraphAddDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], to : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], edgeData : Optional[tuple[cudaGraphEdgeData] | list[cudaGraphEdgeData]], size_t numDependencies):
     """ Adds dependency edges to a graph.
 
     The number of dependencies to be added is defined by `numDependencies`
@@ -33041,11 +33041,11 @@ def cudaGraphAddDependencies(graph, from_ : Optional[Tuple[cudaGraphNode_t] | Li
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which dependencies are added
-    from : List[:py:obj:`~.cudaGraphNode_t`]
+    from : list[:py:obj:`~.cudaGraphNode_t`]
         Array of nodes that provide the dependencies
-    to : List[:py:obj:`~.cudaGraphNode_t`]
+    to : list[:py:obj:`~.cudaGraphNode_t`]
         Array of dependent nodes
-    edgeData : List[:py:obj:`~.cudaGraphEdgeData`]
+    edgeData : list[:py:obj:`~.cudaGraphEdgeData`]
         Optional array of edge data. If NULL, default (zeroed) edge data is
         assumed.
     numDependencies : size_t
@@ -33062,13 +33062,13 @@ def cudaGraphAddDependencies(graph, from_ : Optional[Tuple[cudaGraphNode_t] | Li
     """
     edgeData = [] if edgeData is None else edgeData
     if not all(isinstance(_x, (cudaGraphEdgeData,)) for _x in edgeData):
-        raise TypeError("Argument 'edgeData' is not instance of type (expected Tuple[cyruntime.cudaGraphEdgeData,] or List[cyruntime.cudaGraphEdgeData,]")
+        raise TypeError("Argument 'edgeData' is not instance of type (expected tuple[cyruntime.cudaGraphEdgeData,] or list[cyruntime.cudaGraphEdgeData,]")
     to = [] if to is None else to
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in to):
-        raise TypeError("Argument 'to' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'to' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     from_ = [] if from_ is None else from_
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in from_):
-        raise TypeError("Argument 'from_' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'from_' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -33120,7 +33120,7 @@ def cudaGraphAddDependencies(graph, from_ : Optional[Tuple[cudaGraphNode_t] | Li
 {{if 'cudaGraphRemoveDependencies' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphRemoveDependencies(graph, from_ : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], to : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], edgeData : Optional[Tuple[cudaGraphEdgeData] | List[cudaGraphEdgeData]], size_t numDependencies):
+def cudaGraphRemoveDependencies(graph, from_ : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], to : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], edgeData : Optional[tuple[cudaGraphEdgeData] | list[cudaGraphEdgeData]], size_t numDependencies):
     """ Removes dependency edges from a graph.
 
     The number of `pDependencies` to be removed is defined by
@@ -33137,11 +33137,11 @@ def cudaGraphRemoveDependencies(graph, from_ : Optional[Tuple[cudaGraphNode_t] |
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph from which to remove dependencies
-    from : List[:py:obj:`~.cudaGraphNode_t`]
+    from : list[:py:obj:`~.cudaGraphNode_t`]
         Array of nodes that provide the dependencies
-    to : List[:py:obj:`~.cudaGraphNode_t`]
+    to : list[:py:obj:`~.cudaGraphNode_t`]
         Array of dependent nodes
-    edgeData : List[:py:obj:`~.cudaGraphEdgeData`]
+    edgeData : list[:py:obj:`~.cudaGraphEdgeData`]
         Optional array of edge data. If NULL, edge data is assumed to be
         default (zeroed).
     numDependencies : size_t
@@ -33158,13 +33158,13 @@ def cudaGraphRemoveDependencies(graph, from_ : Optional[Tuple[cudaGraphNode_t] |
     """
     edgeData = [] if edgeData is None else edgeData
     if not all(isinstance(_x, (cudaGraphEdgeData,)) for _x in edgeData):
-        raise TypeError("Argument 'edgeData' is not instance of type (expected Tuple[cyruntime.cudaGraphEdgeData,] or List[cyruntime.cudaGraphEdgeData,]")
+        raise TypeError("Argument 'edgeData' is not instance of type (expected tuple[cyruntime.cudaGraphEdgeData,] or list[cyruntime.cudaGraphEdgeData,]")
     to = [] if to is None else to
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in to):
-        raise TypeError("Argument 'to' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'to' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     from_ = [] if from_ is None else from_
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in from_):
-        raise TypeError("Argument 'from_' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'from_' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -35083,7 +35083,7 @@ def cudaGraphReleaseUserObject(graph, object, unsigned int count):
 {{if 'cudaGraphAddNode' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaGraphAddNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | List[cudaGraphNode_t]], dependencyData : Optional[Tuple[cudaGraphEdgeData] | List[cudaGraphEdgeData]], size_t numDependencies, nodeParams : Optional[cudaGraphNodeParams]):
+def cudaGraphAddNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | list[cudaGraphNode_t]], dependencyData : Optional[tuple[cudaGraphEdgeData] | list[cudaGraphEdgeData]], size_t numDependencies, nodeParams : Optional[cudaGraphNodeParams]):
     """ Adds a node of arbitrary type to a graph.
 
     Creates a new node in `graph` described by `nodeParams` with
@@ -35109,9 +35109,9 @@ def cudaGraphAddNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | Li
     ----------
     graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph to which to add the node
-    pDependencies : List[:py:obj:`~.cudaGraphNode_t`]
+    pDependencies : list[:py:obj:`~.cudaGraphNode_t`]
         Dependencies of the node
-    dependencyData : List[:py:obj:`~.cudaGraphEdgeData`]
+    dependencyData : list[:py:obj:`~.cudaGraphEdgeData`]
         Optional edge data for the dependencies. If NULL, the data is
         assumed to be default (zeroed) for all dependencies.
     numDependencies : size_t
@@ -35132,10 +35132,10 @@ def cudaGraphAddNode(graph, pDependencies : Optional[Tuple[cudaGraphNode_t] | Li
     """
     dependencyData = [] if dependencyData is None else dependencyData
     if not all(isinstance(_x, (cudaGraphEdgeData,)) for _x in dependencyData):
-        raise TypeError("Argument 'dependencyData' is not instance of type (expected Tuple[cyruntime.cudaGraphEdgeData,] or List[cyruntime.cudaGraphEdgeData,]")
+        raise TypeError("Argument 'dependencyData' is not instance of type (expected tuple[cyruntime.cudaGraphEdgeData,] or list[cyruntime.cudaGraphEdgeData,]")
     pDependencies = [] if pDependencies is None else pDependencies
     if not all(isinstance(_x, (cudaGraphNode_t,driver.CUgraphNode)) for _x in pDependencies):
-        raise TypeError("Argument 'pDependencies' is not instance of type (expected Tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or List[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
+        raise TypeError("Argument 'pDependencies' is not instance of type (expected tuple[cyruntime.cudaGraphNode_t,driver.CUgraphNode] or list[cyruntime.cudaGraphNode_t,driver.CUgraphNode]")
     cdef cyruntime.cudaGraph_t cygraph
     if graph is None:
         pgraph = 0
@@ -35547,7 +35547,7 @@ def cudaGetDriverEntryPointByVersion(char* symbol, unsigned int cudaVersion, uns
 {{if 'cudaLibraryLoadData' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaLibraryLoadData(code, jitOptions : Optional[Tuple[cudaJitOption] | List[cudaJitOption]], jitOptionsValues : Optional[Tuple[Any] | List[Any]], unsigned int numJitOptions, libraryOptions : Optional[Tuple[cudaLibraryOption] | List[cudaLibraryOption]], libraryOptionValues : Optional[Tuple[Any] | List[Any]], unsigned int numLibraryOptions):
+def cudaLibraryLoadData(code, jitOptions : Optional[tuple[cudaJitOption] | list[cudaJitOption]], jitOptionsValues : Optional[tuple[Any] | list[Any]], unsigned int numJitOptions, libraryOptions : Optional[tuple[cudaLibraryOption] | list[cudaLibraryOption]], libraryOptionValues : Optional[tuple[Any] | list[Any]], unsigned int numLibraryOptions):
     """ Load a library with specified code and options.
 
     Takes a pointer `code` and loads the corresponding library `library`
@@ -35589,15 +35589,15 @@ def cudaLibraryLoadData(code, jitOptions : Optional[Tuple[cudaJitOption] | List[
     ----------
     code : Any
         Code to load
-    jitOptions : List[:py:obj:`~.cudaJitOption`]
+    jitOptions : list[:py:obj:`~.cudaJitOption`]
         Options for JIT
-    jitOptionsValues : List[Any]
+    jitOptionsValues : list[Any]
         Option values for JIT
     numJitOptions : unsigned int
         Number of options
-    libraryOptions : List[:py:obj:`~.cudaLibraryOption`]
+    libraryOptions : list[:py:obj:`~.cudaLibraryOption`]
         Options for loading
-    libraryOptionValues : List[Any]
+    libraryOptionValues : list[Any]
         Option values for loading
     numLibraryOptions : unsigned int
         Number of options for loading
@@ -35616,11 +35616,11 @@ def cudaLibraryLoadData(code, jitOptions : Optional[Tuple[cudaJitOption] | List[
     libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
     libraryOptions = [] if libraryOptions is None else libraryOptions
     if not all(isinstance(_x, (cudaLibraryOption)) for _x in libraryOptions):
-        raise TypeError("Argument 'libraryOptions' is not instance of type (expected Tuple[cyruntime.cudaLibraryOption] or List[cyruntime.cudaLibraryOption]")
+        raise TypeError("Argument 'libraryOptions' is not instance of type (expected tuple[cyruntime.cudaLibraryOption] or list[cyruntime.cudaLibraryOption]")
     jitOptionsValues = [] if jitOptionsValues is None else jitOptionsValues
     jitOptions = [] if jitOptions is None else jitOptions
     if not all(isinstance(_x, (cudaJitOption)) for _x in jitOptions):
-        raise TypeError("Argument 'jitOptions' is not instance of type (expected Tuple[cyruntime.cudaJitOption] or List[cyruntime.cudaJitOption]")
+        raise TypeError("Argument 'jitOptions' is not instance of type (expected tuple[cyruntime.cudaJitOption] or list[cyruntime.cudaJitOption]")
     cdef cudaLibrary_t library = cudaLibrary_t()
     cycode = _HelperInputVoidPtr(code)
     cdef void* cycode_ptr = <void*><void_ptr>cycode.cptr
@@ -35646,7 +35646,7 @@ def cudaLibraryLoadData(code, jitOptions : Optional[Tuple[cudaJitOption] | List[
 {{if 'cudaLibraryLoadFromFile' in found_functions}}
 
 @cython.embedsignature(True)
-def cudaLibraryLoadFromFile(char* fileName, jitOptions : Optional[Tuple[cudaJitOption] | List[cudaJitOption]], jitOptionsValues : Optional[Tuple[Any] | List[Any]], unsigned int numJitOptions, libraryOptions : Optional[Tuple[cudaLibraryOption] | List[cudaLibraryOption]], libraryOptionValues : Optional[Tuple[Any] | List[Any]], unsigned int numLibraryOptions):
+def cudaLibraryLoadFromFile(char* fileName, jitOptions : Optional[tuple[cudaJitOption] | list[cudaJitOption]], jitOptionsValues : Optional[tuple[Any] | list[Any]], unsigned int numJitOptions, libraryOptions : Optional[tuple[cudaLibraryOption] | list[cudaLibraryOption]], libraryOptionValues : Optional[tuple[Any] | list[Any]], unsigned int numLibraryOptions):
     """ Load a library with specified file and options.
 
     Takes a pointer `code` and loads the corresponding library `library`
@@ -35688,15 +35688,15 @@ def cudaLibraryLoadFromFile(char* fileName, jitOptions : Optional[Tuple[cudaJitO
     ----------
     fileName : bytes
         File to load from
-    jitOptions : List[:py:obj:`~.cudaJitOption`]
+    jitOptions : list[:py:obj:`~.cudaJitOption`]
         Options for JIT
-    jitOptionsValues : List[Any]
+    jitOptionsValues : list[Any]
         Option values for JIT
     numJitOptions : unsigned int
         Number of options
-    libraryOptions : List[:py:obj:`~.cudaLibraryOption`]
+    libraryOptions : list[:py:obj:`~.cudaLibraryOption`]
         Options for loading
-    libraryOptionValues : List[Any]
+    libraryOptionValues : list[Any]
         Option values for loading
     numLibraryOptions : unsigned int
         Number of options for loading
@@ -35715,11 +35715,11 @@ def cudaLibraryLoadFromFile(char* fileName, jitOptions : Optional[Tuple[cudaJitO
     libraryOptionValues = [] if libraryOptionValues is None else libraryOptionValues
     libraryOptions = [] if libraryOptions is None else libraryOptions
     if not all(isinstance(_x, (cudaLibraryOption)) for _x in libraryOptions):
-        raise TypeError("Argument 'libraryOptions' is not instance of type (expected Tuple[cyruntime.cudaLibraryOption] or List[cyruntime.cudaLibraryOption]")
+        raise TypeError("Argument 'libraryOptions' is not instance of type (expected tuple[cyruntime.cudaLibraryOption] or list[cyruntime.cudaLibraryOption]")
     jitOptionsValues = [] if jitOptionsValues is None else jitOptionsValues
     jitOptions = [] if jitOptions is None else jitOptions
     if not all(isinstance(_x, (cudaJitOption)) for _x in jitOptions):
-        raise TypeError("Argument 'jitOptions' is not instance of type (expected Tuple[cyruntime.cudaJitOption] or List[cyruntime.cudaJitOption]")
+        raise TypeError("Argument 'jitOptions' is not instance of type (expected tuple[cyruntime.cudaJitOption] or list[cyruntime.cudaJitOption]")
     cdef cudaLibrary_t library = cudaLibrary_t()
     cdef vector[cyruntime.cudaJitOption] cyjitOptions = [pyjitOptions.value for pyjitOptions in (jitOptions)]
     pylist = [_HelperCudaJitOption(pyoptions, pyoptionValues) for pyoptions, pyoptionValues in zip(jitOptions, jitOptionsValues)]
@@ -36032,7 +36032,7 @@ def cudaLibraryEnumerateKernels(unsigned int numKernels, lib):
     -------
     cudaError_t
         :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidResourceHandle`
-    kernels : List[:py:obj:`~.cudaKernel_t`]
+    kernels : list[:py:obj:`~.cudaKernel_t`]
         Buffer where the kernel handles are returned to
 
     See Also
@@ -37084,7 +37084,7 @@ def cudaGLGetDevices(unsigned int cudaDeviceCount, deviceList not None : cudaGLD
     pCudaDeviceCount : unsigned int
         Returned number of CUDA devices corresponding to the current OpenGL
         context
-    pCudaDevices : List[int]
+    pCudaDevices : list[int]
         Returned CUDA devices corresponding to the current OpenGL context
 
     See Also
