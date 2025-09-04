@@ -11,19 +11,68 @@ from .utils import FunctionNotFoundError, NotSupportedError
 
 from cuda.pathfinder import load_nvidia_dynamic_lib
 
-import win32api
+from libc.stddef cimport wchar_t
+from libc.stdint cimport intptr_t, uintptr_t
+from cpython cimport PyUnicode_AsWideCharString
+
+from .utils import NotSupportedError
+
+cdef extern from "windows.h":
+    ctypedef void* HMODULE
+    ctypedef void* HANDLE
+    ctypedef void* FARPROC
+    ctypedef unsigned long DWORD
+    ctypedef const wchar_t *LPCWSTR
+
+    cdef DWORD LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
+    cdef DWORD LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
+    cdef DWORD LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
+
+    HMODULE _LoadLibraryExW "LoadLibraryExW"(
+        LPCWSTR lpLibFileName,
+        HANDLE hFile,
+        DWORD dwFlags
+    ) nogil
+
+    FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, const char* lpProcName) nogil
+
+cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags) nogil:
+    cdef wchar_t* wpath
+    with gil:
+        wpath = PyUnicode_AsWideCharString(path, NULL)
+    return <uintptr_t>_LoadLibraryExW(
+        wpath,
+        hFile,
+        dwFlags
+    )
+
+cdef inline FARPROC GetProcAddress(uintptr_t hModule, const char* lpProcName) nogil:
+    return _GetProcAddress(<HMODULE>hModule, lpProcName)
+
+cdef int get_cuda_version():
+    cdef int err, driver_ver = 0
+
+    # Load driver to check version
+    handle = LoadLibraryExW("nvcuda.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)
+    if handle == 0:
+        raise NotSupportedError('CUDA driver is not found')
+    cuDriverGetVersion = GetProcAddress(handle, 'cuDriverGetVersion')
+    if cuDriverGetVersion == NULL:
+        raise RuntimeError('something went wrong')
+    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
+    if err != 0:
+        raise RuntimeError('something went wrong')
+
+    return driver_ver
+
 
 
 ###############################################################################
 # Wrapper init
 ###############################################################################
 
-LOAD_LIBRARY_SEARCH_SYSTEM32     = 0x00000800
-LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
-LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
 cdef object __symbol_lock = threading.Lock()
 cdef bint __py_nvjitlink_init = False
-cdef void* __cuDriverGetVersion = NULL
 
 cdef void* __nvJitLinkCreate = NULL
 cdef void* __nvJitLinkDestroy = NULL
@@ -46,110 +95,54 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
     if __py_nvjitlink_init:
         return 0
 
-    cdef int err, driver_ver = 0
-
     with gil, __symbol_lock:
-        # Load driver to check version
-        try:
-            handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
-        except Exception as e:
-            raise NotSupportedError(f'CUDA driver is not found ({e})')
-        global __cuDriverGetVersion
-        if __cuDriverGetVersion == NULL:
-            __cuDriverGetVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'cuDriverGetVersion')
-            if __cuDriverGetVersion == NULL:
-                raise RuntimeError('something went wrong')
-        err = (<int (*)(int*) noexcept nogil>__cuDriverGetVersion)(&driver_ver)
-        if err != 0:
-            raise RuntimeError('something went wrong')
+        driver_ver = get_cuda_version()
 
         # Load library
         handle = load_nvidia_dynamic_lib("nvJitLink")._handle_uint
 
         # Load function
         global __nvJitLinkCreate
-        try:
-            __nvJitLinkCreate = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkCreate')
-        except:
-            pass
+        __nvJitLinkCreate = GetProcAddress(handle, 'nvJitLinkCreate')
 
         global __nvJitLinkDestroy
-        try:
-            __nvJitLinkDestroy = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkDestroy')
-        except:
-            pass
+        __nvJitLinkDestroy = GetProcAddress(handle, 'nvJitLinkDestroy')
 
         global __nvJitLinkAddData
-        try:
-            __nvJitLinkAddData = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkAddData')
-        except:
-            pass
+        __nvJitLinkAddData = GetProcAddress(handle, 'nvJitLinkAddData')
 
         global __nvJitLinkAddFile
-        try:
-            __nvJitLinkAddFile = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkAddFile')
-        except:
-            pass
+        __nvJitLinkAddFile = GetProcAddress(handle, 'nvJitLinkAddFile')
 
         global __nvJitLinkComplete
-        try:
-            __nvJitLinkComplete = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkComplete')
-        except:
-            pass
+        __nvJitLinkComplete = GetProcAddress(handle, 'nvJitLinkComplete')
 
         global __nvJitLinkGetLinkedCubinSize
-        try:
-            __nvJitLinkGetLinkedCubinSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedCubinSize')
-        except:
-            pass
+        __nvJitLinkGetLinkedCubinSize = GetProcAddress(handle, 'nvJitLinkGetLinkedCubinSize')
 
         global __nvJitLinkGetLinkedCubin
-        try:
-            __nvJitLinkGetLinkedCubin = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedCubin')
-        except:
-            pass
+        __nvJitLinkGetLinkedCubin = GetProcAddress(handle, 'nvJitLinkGetLinkedCubin')
 
         global __nvJitLinkGetLinkedPtxSize
-        try:
-            __nvJitLinkGetLinkedPtxSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedPtxSize')
-        except:
-            pass
+        __nvJitLinkGetLinkedPtxSize = GetProcAddress(handle, 'nvJitLinkGetLinkedPtxSize')
 
         global __nvJitLinkGetLinkedPtx
-        try:
-            __nvJitLinkGetLinkedPtx = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetLinkedPtx')
-        except:
-            pass
+        __nvJitLinkGetLinkedPtx = GetProcAddress(handle, 'nvJitLinkGetLinkedPtx')
 
         global __nvJitLinkGetErrorLogSize
-        try:
-            __nvJitLinkGetErrorLogSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetErrorLogSize')
-        except:
-            pass
+        __nvJitLinkGetErrorLogSize = GetProcAddress(handle, 'nvJitLinkGetErrorLogSize')
 
         global __nvJitLinkGetErrorLog
-        try:
-            __nvJitLinkGetErrorLog = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetErrorLog')
-        except:
-            pass
+        __nvJitLinkGetErrorLog = GetProcAddress(handle, 'nvJitLinkGetErrorLog')
 
         global __nvJitLinkGetInfoLogSize
-        try:
-            __nvJitLinkGetInfoLogSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetInfoLogSize')
-        except:
-            pass
+        __nvJitLinkGetInfoLogSize = GetProcAddress(handle, 'nvJitLinkGetInfoLogSize')
 
         global __nvJitLinkGetInfoLog
-        try:
-            __nvJitLinkGetInfoLog = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkGetInfoLog')
-        except:
-            pass
+        __nvJitLinkGetInfoLog = GetProcAddress(handle, 'nvJitLinkGetInfoLog')
 
         global __nvJitLinkVersion
-        try:
-            __nvJitLinkVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvJitLinkVersion')
-        except:
-            pass
+        __nvJitLinkVersion = GetProcAddress(handle, 'nvJitLinkVersion')
 
         __py_nvjitlink_init = True
         return 0

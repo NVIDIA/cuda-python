@@ -11,19 +11,68 @@ from .utils import FunctionNotFoundError, NotSupportedError
 
 from cuda.pathfinder import load_nvidia_dynamic_lib
 
-import win32api
+from libc.stddef cimport wchar_t
+from libc.stdint cimport intptr_t, uintptr_t
+from cpython cimport PyUnicode_AsWideCharString
+
+from .utils import NotSupportedError
+
+cdef extern from "windows.h":
+    ctypedef void* HMODULE
+    ctypedef void* HANDLE
+    ctypedef void* FARPROC
+    ctypedef unsigned long DWORD
+    ctypedef const wchar_t *LPCWSTR
+
+    cdef DWORD LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
+    cdef DWORD LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
+    cdef DWORD LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
+
+    HMODULE _LoadLibraryExW "LoadLibraryExW"(
+        LPCWSTR lpLibFileName,
+        HANDLE hFile,
+        DWORD dwFlags
+    ) nogil
+
+    FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, const char* lpProcName) nogil
+
+cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags) nogil:
+    cdef wchar_t* wpath
+    with gil:
+        wpath = PyUnicode_AsWideCharString(path, NULL)
+    return <uintptr_t>_LoadLibraryExW(
+        wpath,
+        hFile,
+        dwFlags
+    )
+
+cdef inline FARPROC GetProcAddress(uintptr_t hModule, const char* lpProcName) nogil:
+    return _GetProcAddress(<HMODULE>hModule, lpProcName)
+
+cdef int get_cuda_version():
+    cdef int err, driver_ver = 0
+
+    # Load driver to check version
+    handle = LoadLibraryExW("nvcuda.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)
+    if handle == 0:
+        raise NotSupportedError('CUDA driver is not found')
+    cuDriverGetVersion = GetProcAddress(handle, 'cuDriverGetVersion')
+    if cuDriverGetVersion == NULL:
+        raise RuntimeError('something went wrong')
+    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
+    if err != 0:
+        raise RuntimeError('something went wrong')
+
+    return driver_ver
+
 
 
 ###############################################################################
 # Wrapper init
 ###############################################################################
 
-LOAD_LIBRARY_SEARCH_SYSTEM32     = 0x00000800
-LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
-LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
 cdef object __symbol_lock = threading.Lock()
 cdef bint __py_nvvm_init = False
-cdef void* __cuDriverGetVersion = NULL
 
 cdef void* __nvvmGetErrorString = NULL
 cdef void* __nvvmVersion = NULL
@@ -45,104 +94,51 @@ cdef int _check_or_init_nvvm() except -1 nogil:
     if __py_nvvm_init:
         return 0
 
-    cdef int err, driver_ver = 0
-
     with gil, __symbol_lock:
-        # Load driver to check version
-        try:
-            handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
-        except Exception as e:
-            raise NotSupportedError(f'CUDA driver is not found ({e})')
-        global __cuDriverGetVersion
-        if __cuDriverGetVersion == NULL:
-            __cuDriverGetVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'cuDriverGetVersion')
-            if __cuDriverGetVersion == NULL:
-                raise RuntimeError('something went wrong')
-        err = (<int (*)(int*) noexcept nogil>__cuDriverGetVersion)(&driver_ver)
-        if err != 0:
-            raise RuntimeError('something went wrong')
+        driver_ver = get_cuda_version()
 
         # Load library
         handle = load_nvidia_dynamic_lib("nvvm")._handle_uint
 
         # Load function
         global __nvvmGetErrorString
-        try:
-            __nvvmGetErrorString = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmGetErrorString')
-        except:
-            pass
+        __nvvmGetErrorString = GetProcAddress(handle, 'nvvmGetErrorString')
 
         global __nvvmVersion
-        try:
-            __nvvmVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmVersion')
-        except:
-            pass
+        __nvvmVersion = GetProcAddress(handle, 'nvvmVersion')
 
         global __nvvmIRVersion
-        try:
-            __nvvmIRVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmIRVersion')
-        except:
-            pass
+        __nvvmIRVersion = GetProcAddress(handle, 'nvvmIRVersion')
 
         global __nvvmCreateProgram
-        try:
-            __nvvmCreateProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmCreateProgram')
-        except:
-            pass
+        __nvvmCreateProgram = GetProcAddress(handle, 'nvvmCreateProgram')
 
         global __nvvmDestroyProgram
-        try:
-            __nvvmDestroyProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmDestroyProgram')
-        except:
-            pass
+        __nvvmDestroyProgram = GetProcAddress(handle, 'nvvmDestroyProgram')
 
         global __nvvmAddModuleToProgram
-        try:
-            __nvvmAddModuleToProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmAddModuleToProgram')
-        except:
-            pass
+        __nvvmAddModuleToProgram = GetProcAddress(handle, 'nvvmAddModuleToProgram')
 
         global __nvvmLazyAddModuleToProgram
-        try:
-            __nvvmLazyAddModuleToProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmLazyAddModuleToProgram')
-        except:
-            pass
+        __nvvmLazyAddModuleToProgram = GetProcAddress(handle, 'nvvmLazyAddModuleToProgram')
 
         global __nvvmCompileProgram
-        try:
-            __nvvmCompileProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmCompileProgram')
-        except:
-            pass
+        __nvvmCompileProgram = GetProcAddress(handle, 'nvvmCompileProgram')
 
         global __nvvmVerifyProgram
-        try:
-            __nvvmVerifyProgram = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmVerifyProgram')
-        except:
-            pass
+        __nvvmVerifyProgram = GetProcAddress(handle, 'nvvmVerifyProgram')
 
         global __nvvmGetCompiledResultSize
-        try:
-            __nvvmGetCompiledResultSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmGetCompiledResultSize')
-        except:
-            pass
+        __nvvmGetCompiledResultSize = GetProcAddress(handle, 'nvvmGetCompiledResultSize')
 
         global __nvvmGetCompiledResult
-        try:
-            __nvvmGetCompiledResult = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmGetCompiledResult')
-        except:
-            pass
+        __nvvmGetCompiledResult = GetProcAddress(handle, 'nvvmGetCompiledResult')
 
         global __nvvmGetProgramLogSize
-        try:
-            __nvvmGetProgramLogSize = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmGetProgramLogSize')
-        except:
-            pass
+        __nvvmGetProgramLogSize = GetProcAddress(handle, 'nvvmGetProgramLogSize')
 
         global __nvvmGetProgramLog
-        try:
-            __nvvmGetProgramLog = <void*><intptr_t>win32api.GetProcAddress(handle, 'nvvmGetProgramLog')
-        except:
-            pass
+        __nvvmGetProgramLog = GetProcAddress(handle, 'nvvmGetProgramLog')
 
         __py_nvvm_init = True
         return 0
