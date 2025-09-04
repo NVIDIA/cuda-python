@@ -1406,7 +1406,7 @@ def test_struct_pointer_comparison(target):
 def test_getLocalRuntimeVersion():
     try:
         err, version = cudart.getLocalRuntimeVersion()
-    except pathfinder.DynamicLibraryNotFoundError:
+    except pathfinder.DynamicLibNotFoundError:
         pass
     else:
         assertSuccess(err)
