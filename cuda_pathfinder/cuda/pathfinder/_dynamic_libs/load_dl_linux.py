@@ -125,7 +125,8 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.CDLL) -> str:
 
 
 def get_candidate_sonames(libname: str) -> list[str]:
-    candidate_sonames = list(SUPPORTED_LINUX_SONAMES.get(libname, ()))
+    # Reverse tabulated names to achieve new → old search order.
+    candidate_sonames = list(reversed(SUPPORTED_LINUX_SONAMES.get(libname, ())))
     candidate_sonames.append(f"lib{libname}.so")
     return candidate_sonames
 

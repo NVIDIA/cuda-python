@@ -12,9 +12,10 @@ cimport cuda.bindings._lib.dlfcn as dlfcn
 from libc.stdint cimport intptr_t
 import os
 import sys
-import threading
 cimport cuda.bindings._bindings.loader as loader
-cdef object __symbol_lock = threading.RLock()
+import threading
+
+cdef object __symbol_lock = threading.Lock()
 cdef bint __cuPythonInit = False
 {{if 'cuGetErrorString' in found_functions}}cdef void *__cuGetErrorString = NULL{{endif}}
 {{if 'cuGetErrorName' in found_functions}}cdef void *__cuGetErrorName = NULL{{endif}}
@@ -510,7 +511,7 @@ cdef int _cuPythonInit() except -1 nogil:
             {{else}}
             path = 'libcuda.so.1'
             {{endif}}
-    
+
         {{if 'Windows' == platform.system()}}
         LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
         try:
@@ -522,7 +523,7 @@ cdef int _cuPythonInit() except -1 nogil:
         if (handle == NULL):
             raise RuntimeError('Failed to dlopen ' + path)
         {{endif}}
-    
+
         # Get latest __cuGetProcAddress_v2
         global __cuGetProcAddress_v2
         {{if 'Windows' == platform.system()}}
@@ -533,7 +534,7 @@ cdef int _cuPythonInit() except -1 nogil:
         {{else}}
         __cuGetProcAddress_v2 = dlfcn.dlsym(handle, 'cuGetProcAddress_v2')
         {{endif}}
-    
+
         # Load using cuGetProcAddress if available
         if __cuGetProcAddress_v2 != NULL:
             _F_cuGetProcAddress_v2 = <__cuGetProcAddress_v2_T>__cuGetProcAddress_v2
@@ -2760,10 +2761,9 @@ cdef int _cuPythonInit() except -1 nogil:
             global __cuGraphicsVDPAURegisterOutputSurface
             _F_cuGetProcAddress_v2('cuGraphicsVDPAURegisterOutputSurface', &__cuGraphicsVDPAURegisterOutputSurface, 3010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
-
             __cuPythonInit = True
             return 0
-    
+
         {{if 'Windows' == platform.system()}}
         # Load using win32GetAddr
         if usePTDS:
@@ -8877,7 +8877,6 @@ cdef int _cuPythonInit() except -1 nogil:
         __cuGraphicsVDPAURegisterOutputSurface = dlfcn.dlsym(handle, 'cuGraphicsVDPAURegisterOutputSurface')
         {{endif}}
         {{endif}}
-
         __cuPythonInit = True
         return 0
 
@@ -8886,7 +8885,6 @@ cdef int _cuPythonInit() except -1 nogil:
 cdef inline int cuPythonInit() except -1 nogil:
     if __cuPythonInit:
         return 0
-    
     return _cuPythonInit()
 
 {{if 'cuGetErrorString' in found_functions}}
