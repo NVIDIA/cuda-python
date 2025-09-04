@@ -7,7 +7,6 @@ cimport cuda.bindings._bindings.cyruntime as cyruntime
 cimport cython
 
 from cuda.pathfinder import load_nvidia_dynamic_lib
-from pathlib import Path
 {{if 'Windows' == platform.system()}}
 import win32api
 {{else}}
@@ -1897,7 +1896,6 @@ cdef cudaError_t cudaGraphicsVDPAURegisterOutputSurface(cudaGraphicsResource** r
 cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil:
     with gil:
         lib = load_nvidia_dynamic_lib("cudart")
-        filename = Path(lib.abs_path).name
         handle = <void *><uintptr_t>(lib._handle_uint)
 
         {{if 'Windows' == platform.system()}}
@@ -1907,7 +1905,7 @@ cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCa
         {{endif}}
 
         if __cudaRuntimeGetVersion == NULL:
-            raise RuntimeError(f'Function "cudaRuntimeGetVersion" not found in {filename}')
+            raise RuntimeError(f'Function "cudaRuntimeGetVersion" not found in {lib.abs_path}')
 
     cdef cudaError_t err = cudaSuccess
     err = (<cudaError_t (*)(int*) except ?cudaErrorCallRequiresNewerDriver nogil> __cudaRuntimeGetVersion)(runtimeVersion)
