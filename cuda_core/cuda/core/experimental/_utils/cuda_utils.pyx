@@ -26,6 +26,7 @@ class CUDAError(Exception):
 class NVRTCError(CUDAError):
     pass
 
+
 ComputeCapability = namedtuple("ComputeCapability", ("major", "minor"))
 
 
@@ -54,6 +55,7 @@ def _reduce_3_tuple(t: tuple):
 cdef object _DRIVER_SUCCESS = driver.CUresult.CUDA_SUCCESS
 cdef object _RUNTIME_SUCCESS = runtime.cudaError_t.cudaSuccess
 cdef object _NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS
+
 
 cpdef inline int _check_driver_error(error) except?-1:
     if error == _DRIVER_SUCCESS:
@@ -99,6 +101,7 @@ cpdef inline int _check_nvrtc_error(error, handle=None) except?-1:
         _ = nvrtc.nvrtcGetProgramLog(handle, log)
         err += f", compilation log:\n\n{log.decode('utf-8', errors='backslashreplace')}"
     raise NVRTCError(err)
+
 
 cdef inline int _check_error(error, handle=None) except?-1:
     if isinstance(error, driver.CUresult):
