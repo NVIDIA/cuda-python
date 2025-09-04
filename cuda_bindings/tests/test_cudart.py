@@ -9,6 +9,7 @@ import pytest
 
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
+from cuda import pathfinder
 from cuda.bindings import runtime
 
 
@@ -1403,6 +1404,10 @@ def test_struct_pointer_comparison(target):
 
 
 def test_getLocalRuntimeVersion():
-    err, version = cudart.getLocalRuntimeVersion()
-    assertSuccess(err)
-    assert version >= 12000  # CUDA 12.0
+    try:
+        err, version = cudart.getLocalRuntimeVersion()
+    except pathfinder.DynamicLibraryNotFoundError:
+        pass
+    else:
+        assertSuccess(err)
+        assert version >= 12000  # CUDA 12.0
