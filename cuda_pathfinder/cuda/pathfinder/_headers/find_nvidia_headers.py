@@ -4,10 +4,11 @@
 import functools
 import glob
 import os
-from typing import Optional
+from typing import Optional, cast
 
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
 from cuda.pathfinder._utils.conda_env import get_conda_prefix
+from cuda.pathfinder._utils.env_vars_for_include import iter_env_vars_for_include_dirs
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
 
@@ -41,5 +42,11 @@ def find_nvidia_header_directory(libname: str) -> Optional[str]:
             nvshmem_h_path = os.path.join(hdr_dir, "nvshmem.h")
             if os.path.isfile(nvshmem_h_path):
                 return hdr_dir
+
+    for hdr_dir in iter_env_vars_for_include_dirs():
+        if os.path.isdir(hdr_dir):
+            nvshmem_h_path = os.path.join(hdr_dir, "nvshmem.h")
+            if os.path.isfile(nvshmem_h_path):
+                return cast(str, hdr_dir)  # help mypy
 
     return None
