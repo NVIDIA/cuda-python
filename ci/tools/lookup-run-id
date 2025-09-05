@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# A utility script to find the GitHub Actions workflow run ID for a given git tag.
+# This script looks for the CI workflow run that corresponds to the commit of the given tag.
+
+set -euo pipefail
+
+# Check required arguments
+if [[ $# -lt 2 ]]; then
+    echo "Usage: $0 <git-tag> <repository> [workflow-name]" >&2
+    echo "  git-tag: The git tag to find the corresponding workflow run for" >&2
+    echo "  repository: The GitHub repository (e.g., NVIDIA/cuda-python)" >&2
+    echo "  workflow-name: Optional workflow name to filter by (default: CI)" >&2
+    echo "" >&2
+    echo "Examples:" >&2
+    echo "  $0 v13.0.1 NVIDIA/cuda-python" >&2
+    echo "  $0 v13.0.1 NVIDIA/cuda-python \"CI\"" >&2
+    exit 1
+fi
+
+GIT_TAG="${1}"
+REPOSITORY="${2}"
+WORKFLOW_NAME="${3:-CI}"
+
+# Ensure we have required tools
+if [[ -z "${GH_TOKEN:-}" ]]; then
+    echo "Error: GH_TOKEN environment variable is required" >&2
+    exit 1
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo "Error: jq is required but not installed" >&2
+    exit 1
+fi
+
+if ! command -v gh >/dev/null 2>&1; then
+    echo "Error: GitHub CLI (gh) is required but not installed" >&2
+    exit 1
+fi
+
+echo "Looking up run ID for tag: ${GIT_TAG} in repository: ${REPOSITORY}" >&2
+
+# Resolve git tag to commit SHA
+if ! COMMIT_SHA=$(git rev-parse "${GIT_TAG}"); then
+    echo "Error: Could not resolve git tag '${GIT_TAG}' to a commit SHA" >&2
+    echo "Make sure the tag exists and you have fetched it" >&2
+    exit 1
+fi
+
+echo "Resolved tag '${GIT_TAG}' to commit: ${COMMIT_SHA}" >&2
+
+# Find workflow runs for this commit
+echo "Searching for '${WORKFLOW_NAME}' workflow runs for commit: ${COMMIT_SHA}" >&2
+
+# Get workflow runs for the commit, filter by workflow name and successful status
+RUN_DATA=$(gh run list \
+    --repo "${REPOSITORY}" \
+    --commit "${COMMIT_SHA}" \
+    --workflow "${WORKFLOW_NAME}" \
+    --status completed \
+    --json databaseId,workflowName,status,conclusion,headSha \
+    --limit 10)
+
+if [[ -z "${RUN_DATA}" || "${RUN_DATA}" == "[]" ]]; then
+    echo "Error: No completed '${WORKFLOW_NAME}' workflow runs found for commit ${COMMIT_SHA}" >&2
+    echo "Available workflow runs for this commit:" >&2
+    gh run list --repo "${REPOSITORY}" --commit "${COMMIT_SHA}" --limit 10 || true
+    exit 1
+fi
+
+# Filter for successful runs (conclusion = success) and extract the run ID from the first one
+RUN_ID=$(echo "${RUN_DATA}" | jq -r '.[] | select(.conclusion == "success") | .databaseId' | head -1)
+
+if [[ -z "${RUN_ID}" || "${RUN_ID}" == "null" ]]; then
+    echo "Error: No successful '${WORKFLOW_NAME}' workflow runs found for commit ${COMMIT_SHA}" >&2
+    echo "Available workflow runs for this commit:" >&2
+    gh run list --repo "$REPOSITORY" --commit "${COMMIT_SHA}" --limit 10 || true
+    echo "" >&2
+    echo "Completed runs with their conclusions:" >&2
+    echo "${RUN_DATA}" | jq -r '.[] | "\(.databaseId): \(.conclusion)"' >&2
+    exit 1
+fi
+
+echo "Found workflow run ID: ${RUN_ID} for tag '${GIT_TAG}'" >&2
+
+# Verify the run has the expected artifacts by checking if there are any artifacts
+echo "Verifying artifacts exist for run ${RUN_ID}..." >&2
+ARTIFACT_LIST=$(gh run view "${RUN_ID}" --repo "${REPOSITORY}" --json url || echo "")
+
+if [[ -z "${ARTIFACT_LIST}" ]]; then
+    echo "Warning: Could not verify artifacts for workflow run ${RUN_ID}" >&2
+fi
+
+# Output the run ID (this is what gets used by calling scripts)
+echo "${RUN_ID}"
