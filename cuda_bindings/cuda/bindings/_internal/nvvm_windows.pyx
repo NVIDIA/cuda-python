@@ -13,7 +13,7 @@ from cuda.pathfinder import load_nvidia_dynamic_lib
 
 from libc.stddef cimport wchar_t
 from libc.stdint cimport uintptr_t
-from cpython cimport PyUnicode_AsWideCharString
+from cpython cimport PyUnicode_AsWideCharString, PyMem_Free
 
 from .utils import NotSupportedError
 
@@ -23,6 +23,7 @@ cdef extern from "windows.h" nogil:
     ctypedef void* FARPROC
     ctypedef unsigned long DWORD
     ctypedef const wchar_t *LPCWSTR
+    ctypedef const char *LPCSTR
 
     cdef DWORD LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
     cdef DWORD LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
@@ -36,19 +37,23 @@ cdef extern from "windows.h" nogil:
 
     HMODULE _LoadLibraryW "LoadLibraryW"(LPCWSTR lpLibFileName)
 
-    FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, const char* lpProcName)
+    FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, LPCSTR lpProcName)
 
     HMODULE _GetModuleHandleW "GetModuleHandleW"(LPCWSTR lpModuleName)
 
-cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags) nogil:
-    cdef wchar_t* wpath
-    with gil:
-        wpath = PyUnicode_AsWideCharString(path, NULL)
-    return <uintptr_t>_LoadLibraryExW(
-        wpath,
-        hFile,
-        dwFlags
-    )
+cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags):
+    cdef uintptr_t result
+    cdef wchar_t* wpath = PyUnicode_AsWideCharString(path, NULL)
+    if wpath == NULL:
+        raise
+    with nogil:
+        result = <uintptr_t>_LoadLibraryExW(
+            wpath,
+            hFile,
+            dwFlags
+        )
+    PyMem_Free(wpath)
+    return result
 
 cdef inline uintptr_t LoadLibraryW(str path) nogil:
     cdef wchar_t* wpath
