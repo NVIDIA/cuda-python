@@ -30,15 +30,13 @@ def find_nvidia_header_directory(libname: str) -> Optional[str]:
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if conda_prefix and os.path.isdir(conda_prefix):
         hdr_dir = os.path.join(conda_prefix, "include")
-        if os.path.isdir(hdr_dir):
-            nvshmem_h_path = os.path.join(hdr_dir, "nvshmem.h")
-            if os.path.isfile(nvshmem_h_path):
-                return hdr_dir
+        nvshmem_h_path = os.path.join(hdr_dir, "nvshmem.h")
+        if os.path.isfile(nvshmem_h_path):
+            return hdr_dir
 
     for hdr_dir in sorted(glob.glob("/usr/include/nvshmem_*"), reverse=True):
-        if os.path.isdir(hdr_dir):
-            nvshmem_h_path = os.path.join(hdr_dir, "nvshmem.h")
-            if os.path.isfile(nvshmem_h_path):
-                return hdr_dir
+        nvshmem_h_path = os.path.join(hdr_dir, "nvshmem.h")
+        if os.path.isfile(nvshmem_h_path):
+            return hdr_dir
 
     return None
