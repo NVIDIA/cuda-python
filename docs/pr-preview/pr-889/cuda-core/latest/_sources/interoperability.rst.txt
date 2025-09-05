@@ -38,7 +38,7 @@ exposing their own stream types.
 To address this issue, we propose the :attr:`~_stream.IsStreamT.__cuda_stream__` protocol
 (currently version 0) as follows: For any Python objects that are meant to be interpreted
 as a stream, they should add a ``__cuda_stream__`` *method* that returns a 2-tuple: The
-version number (``0``) and the address of ``cudaStream_t`` (both as Python `int`):
+version number (``0``) and the address of ``cudaStream_t`` (both as Python ``int``):
 
 .. code-block:: python
 

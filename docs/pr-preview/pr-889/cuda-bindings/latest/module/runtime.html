@@ -1533,14 +1533,14 @@ equal to 2.0</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceGetHostAtomicCapabilities">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGetHostAtomicCapabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">operations:</span> <span class="pre">Optional[Tuple[cudaAtomicOperation]</span> <span class="pre">|</span> <span class="pre">List[cudaAtomicOperation]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">count,</span> <span class="pre">int</span> <span class="pre">device</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceGetHostAtomicCapabilities" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGetHostAtomicCapabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">operations:</span> <span class="pre">Optional[tuple[cudaAtomicOperation]</span> <span class="pre">|</span> <span class="pre">list[cudaAtomicOperation]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">count,</span> <span class="pre">int</span> <span class="pre">device</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceGetHostAtomicCapabilities" title="Link to this definition">#</a></dt>
 <dd><p>Queries details about atomic operations supported between the device and host.</p>
 <p>Returns in <cite>*capabilities</cite> the details about requested atomic
 <cite>*operations</cite> over the the link between <cite>dev</cite> and the host. The
 allocated size of <cite>*operations</cite> and <cite>*capabilities</cite> must be <cite>count</cite>.</p>
 <p>For each <a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperation" title="cuda.bindings.runtime.cudaAtomicOperation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperation</span></code></a> in <cite>*operations</cite>, the
 corresponding result in <cite>*capabilities</cite> will be a bitmask indicating
-which of <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperationCapability</span></code> the link supports
+which of <a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperationCapability" title="cuda.bindings.runtime.cudaAtomicOperationCapability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperationCapability</span></code></a> the link supports
 natively.</p>
 <p>Returns <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a> if <cite>dev</cite> is not valid.</p>
 <p>Returns <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a> if <cite>*capabilities</cite> or
@@ -1549,7 +1549,7 @@ not valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>operations</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperation" title="cuda.bindings.runtime.cudaAtomicOperation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperation</span></code></a>]) – Requested operations</p></li>
+<li><p><strong>operations</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperation" title="cuda.bindings.runtime.cudaAtomicOperation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperation</span></code></a>]) – Requested operations</p></li>
 <li><p><strong>count</strong> (<em>unsigned int</em>) – Count of requested operations and size of capabilities</p></li>
 <li><p><strong>dev</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device handle</p></li>
 </ul>
@@ -1557,7 +1557,7 @@ not valid.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
-<li><p><strong>capabilities</strong> (<em>List[unsigned int]</em>) – Returned capability details of each requested operation</p></li>
+<li><p><strong>capabilities</strong> (<em>list[unsigned int]</em>) – Returned capability details of each requested operation</p></li>
 </ul>
 </p>
 </dd>
@@ -1785,7 +1785,7 @@ if <cite>value</cite> is a null pointer.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaDeviceGetP2PAtomicCapabilities">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGetP2PAtomicCapabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">operations:</span> <span class="pre">Optional[Tuple[cudaAtomicOperation]</span> <span class="pre">|</span> <span class="pre">List[cudaAtomicOperation]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">count,</span> <span class="pre">int</span> <span class="pre">srcDevice,</span> <span class="pre">int</span> <span class="pre">dstDevice</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceGetP2PAtomicCapabilities" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaDeviceGetP2PAtomicCapabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">operations:</span> <span class="pre">Optional[tuple[cudaAtomicOperation]</span> <span class="pre">|</span> <span class="pre">list[cudaAtomicOperation]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">count,</span> <span class="pre">int</span> <span class="pre">srcDevice,</span> <span class="pre">int</span> <span class="pre">dstDevice</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaDeviceGetP2PAtomicCapabilities" title="Link to this definition">#</a></dt>
 <dd><p>Queries details about atomic operations supported between two devices.</p>
 <p>Returns in <cite>*capabilities</cite> the details about requested atomic
 <cite>*operations</cite> over the the link between <cite>srcDevice</cite> and <cite>dstDevice</cite>.
@@ -1793,7 +1793,7 @@ The allocated size of <cite>*operations</cite> and <cite>*capabilities</cite> mu
 <cite>count</cite>.</p>
 <p>For each <a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperation" title="cuda.bindings.runtime.cudaAtomicOperation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperation</span></code></a> in <cite>*operations</cite>, the
 corresponding result in <cite>*capabilities</cite> will be a bitmask indicating
-which of <code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperationCapability</span></code> the link supports
+which of <a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperationCapability" title="cuda.bindings.runtime.cudaAtomicOperationCapability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperationCapability</span></code></a> the link supports
 natively.</p>
 <p>Returns <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a> if <cite>srcDevice</cite> or
 <cite>dstDevice</cite> are not valid or if they represent the same device.</p>
@@ -1803,7 +1803,7 @@ not valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>operations</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperation" title="cuda.bindings.runtime.cudaAtomicOperation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperation</span></code></a>]) – Requested operations</p></li>
+<li><p><strong>operations</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperation" title="cuda.bindings.runtime.cudaAtomicOperation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperation</span></code></a>]) – Requested operations</p></li>
 <li><p><strong>count</strong> (<em>unsigned int</em>) – Count of requested operations and size of capabilities</p></li>
 <li><p><strong>srcDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The source device of the target link</p></li>
 <li><p><strong>dstDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The destination device of the target link</p></li>
@@ -1812,7 +1812,7 @@ not valid.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
-<li><p><strong>capabilities</strong> (<em>List[unsigned int]</em>) – Returned capability details of each requested operation</p></li>
+<li><p><strong>capabilities</strong> (<em>list[unsigned int]</em>) – Returned capability details of each requested operation</p></li>
 </ul>
 </p>
 </dd>
@@ -2830,7 +2830,7 @@ calls that are potentially unsafe. For more details see
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaStreamBeginCaptureToGraph">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamBeginCaptureToGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream,</span> <span class="pre">graph,</span> <span class="pre">dependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">dependencyData:</span> <span class="pre">Optional[Tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">mode:</span> <span class="pre">cudaStreamCaptureMode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamBeginCaptureToGraph" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamBeginCaptureToGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream,</span> <span class="pre">graph,</span> <span class="pre">dependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">dependencyData:</span> <span class="pre">Optional[tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">mode:</span> <span class="pre">cudaStreamCaptureMode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamBeginCaptureToGraph" title="Link to this definition">#</a></dt>
 <dd><p>Begins graph capture on a stream to an existing graph.</p>
 <p>Begin graph capture on <cite>stream</cite>. When a stream is in capture mode, all
 operations pushed into the stream will not be executed, but will
@@ -2850,9 +2850,9 @@ same thread.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream in which to initiate capture.</p></li>
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to capture into.</p></li>
-<li><p><strong>dependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the first node captured in the stream. Can be NULL
+<li><p><strong>dependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the first node captured in the stream. Can be NULL
 if numDependencies is 0.</p></li>
-<li><p><strong>dependencyData</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional array of data associated with each dependency.</p></li>
+<li><p><strong>dependencyData</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional array of data associated with each dependency.</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies.</p></li>
 <li><p><strong>mode</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaStreamCaptureMode" title="cuda.bindings.runtime.cudaStreamCaptureMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCaptureMode</span></code></a>) – Controls the interaction of this capture sequence with other API
 calls that are potentially unsafe. For more details see
@@ -3044,7 +3044,7 @@ be invalidated before end of capture for certain errors. Nodes that
 are or become unreachable from the original stream at
 <a class="reference internal" href="#cuda.bindings.runtime.cudaStreamEndCapture" title="cuda.bindings.runtime.cudaStreamEndCapture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamEndCapture</span></code></a> due to direct actions on the graph
 do not trigger <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorStreamCaptureUnjoined" title="cuda.bindings.runtime.cudaError_t.cudaErrorStreamCaptureUnjoined"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorStreamCaptureUnjoined</span></code></a>.</p></li>
-<li><p><strong>dependencies_out</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Optional location to store a pointer to an array of nodes. The next
+<li><p><strong>dependencies_out</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Optional location to store a pointer to an array of nodes. The next
 node to be captured in the stream will depend on this set of nodes,
 absent operations such as event wait which modify this set. The
 array pointer is valid until the next API call which operates on
@@ -3052,7 +3052,7 @@ the stream or until the capture is terminated. The node handles may
 be copied out and are valid until they or the graph is destroyed.
 The driver-owned array may also be passed directly to APIs that
 operate on the graph (not the stream) without copying.</p></li>
-<li><p><strong>edgeData_out</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional location to store a pointer to an array of graph edge
+<li><p><strong>edgeData_out</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional location to store a pointer to an array of graph edge
 data. This array parallels <cite>dependencies_out</cite>; the next node to be
 added has an edge to <cite>dependencies_out`[i] with annotation
 `edgeData_out`[i] for each `i</cite>. The array pointer is valid until
@@ -3072,7 +3072,7 @@ dependencies_out.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaStreamUpdateCaptureDependencies">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamUpdateCaptureDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream,</span> <span class="pre">dependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">dependencyData:</span> <span class="pre">Optional[Tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamUpdateCaptureDependencies" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaStreamUpdateCaptureDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream,</span> <span class="pre">dependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">dependencyData:</span> <span class="pre">Optional[tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaStreamUpdateCaptureDependencies" title="Link to this definition">#</a></dt>
 <dd><p>Update the set of dependencies in a capturing stream.</p>
 <p>Modifies the dependency set of a capturing stream. The dependency set
 is the set of nodes that the next captured node in the stream will
@@ -3091,8 +3091,8 @@ capturing.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to update</p></li>
-<li><p><strong>dependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – The set of dependencies to add</p></li>
-<li><p><strong>dependencyData</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional array of data associated with each dependency.</p></li>
+<li><p><strong>dependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – The set of dependencies to add</p></li>
+<li><p><strong>dependencyData</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional array of data associated with each dependency.</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – The size of the dependencies array</p></li>
 <li><p><strong>flags</strong> (<em>unsigned int</em>) – See above</p></li>
 </ul>
@@ -3772,7 +3772,7 @@ NULL, then it must name a valid synchronization object.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaSignalExternalSemaphoresAsync">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSignalExternalSemaphoresAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">extSemArray:</span> <span class="pre">Optional[Tuple[cudaExternalSemaphore_t]</span> <span class="pre">|</span> <span class="pre">List[cudaExternalSemaphore_t]],</span> <span class="pre">paramsArray:</span> <span class="pre">Optional[Tuple[cudaExternalSemaphoreSignalParams]</span> <span class="pre">|</span> <span class="pre">List[cudaExternalSemaphoreSignalParams]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numExtSems,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaSignalExternalSemaphoresAsync" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaSignalExternalSemaphoresAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">extSemArray:</span> <span class="pre">Optional[tuple[cudaExternalSemaphore_t]</span> <span class="pre">|</span> <span class="pre">list[cudaExternalSemaphore_t]],</span> <span class="pre">paramsArray:</span> <span class="pre">Optional[tuple[cudaExternalSemaphoreSignalParams]</span> <span class="pre">|</span> <span class="pre">list[cudaExternalSemaphoreSignalParams]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numExtSems,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaSignalExternalSemaphoresAsync" title="Link to this definition">#</a></dt>
 <dd><p>Signals a set of external semaphore objects.</p>
 <p>Enqueues a signal operation on a set of externally allocated semaphore
 object in the specified stream. The operations will be executed when
@@ -3856,8 +3856,8 @@ keyed mutex will be released with the key specified in
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>extSemArray</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphore_t" title="cuda.bindings.runtime.cudaExternalSemaphore_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphore_t</span></code></a>]) – Set of external semaphores to be signaled</p></li>
-<li><p><strong>paramsArray</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphoreSignalParams" title="cuda.bindings.runtime.cudaExternalSemaphoreSignalParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphoreSignalParams</span></code></a>]) – Array of semaphore parameters</p></li>
+<li><p><strong>extSemArray</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphore_t" title="cuda.bindings.runtime.cudaExternalSemaphore_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphore_t</span></code></a>]) – Set of external semaphores to be signaled</p></li>
+<li><p><strong>paramsArray</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphoreSignalParams" title="cuda.bindings.runtime.cudaExternalSemaphoreSignalParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphoreSignalParams</span></code></a>]) – Array of semaphore parameters</p></li>
 <li><p><strong>numExtSems</strong> (<em>unsigned int</em>) – Number of semaphores to signal</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream to enqueue the signal operations in</p></li>
 </ul>
@@ -3877,7 +3877,7 @@ keyed mutex will be released with the key specified in
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaWaitExternalSemaphoresAsync">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaWaitExternalSemaphoresAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">extSemArray:</span> <span class="pre">Optional[Tuple[cudaExternalSemaphore_t]</span> <span class="pre">|</span> <span class="pre">List[cudaExternalSemaphore_t]],</span> <span class="pre">paramsArray:</span> <span class="pre">Optional[Tuple[cudaExternalSemaphoreWaitParams]</span> <span class="pre">|</span> <span class="pre">List[cudaExternalSemaphoreWaitParams]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numExtSems,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaWaitExternalSemaphoresAsync" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaWaitExternalSemaphoresAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">extSemArray:</span> <span class="pre">Optional[tuple[cudaExternalSemaphore_t]</span> <span class="pre">|</span> <span class="pre">list[cudaExternalSemaphore_t]],</span> <span class="pre">paramsArray:</span> <span class="pre">Optional[tuple[cudaExternalSemaphoreWaitParams]</span> <span class="pre">|</span> <span class="pre">list[cudaExternalSemaphoreWaitParams]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numExtSems,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaWaitExternalSemaphoresAsync" title="Link to this definition">#</a></dt>
 <dd><p>Waits on a set of external semaphore objects.</p>
 <p>Enqueues a wait operation on a set of externally allocated semaphore
 object in the specified stream. The operations will be executed when
@@ -3935,8 +3935,8 @@ used to specify infinite timeout</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>extSemArray</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphore_t" title="cuda.bindings.runtime.cudaExternalSemaphore_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphore_t</span></code></a>]) – External semaphores to be waited on</p></li>
-<li><p><strong>paramsArray</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphoreWaitParams" title="cuda.bindings.runtime.cudaExternalSemaphoreWaitParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphoreWaitParams</span></code></a>]) – Array of semaphore parameters</p></li>
+<li><p><strong>extSemArray</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphore_t" title="cuda.bindings.runtime.cudaExternalSemaphore_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphore_t</span></code></a>]) – External semaphores to be waited on</p></li>
+<li><p><strong>paramsArray</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphoreWaitParams" title="cuda.bindings.runtime.cudaExternalSemaphoreWaitParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphoreWaitParams</span></code></a>]) – Array of semaphore parameters</p></li>
 <li><p><strong>numExtSems</strong> (<em>unsigned int</em>) – Number of semaphores to wait on</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream to enqueue the wait operations in</p></li>
 </ul>
@@ -6107,7 +6107,7 @@ all work on other devices.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemcpyBatchAsync">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemcpyBatchAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dsts:</span> <span class="pre">Optional[Tuple[Any]</span> <span class="pre">|</span> <span class="pre">List[Any]],</span> <span class="pre">srcs:</span> <span class="pre">Optional[Tuple[Any]</span> <span class="pre">|</span> <span class="pre">List[Any]],</span> <span class="pre">sizes:</span> <span class="pre">Tuple[int]</span> <span class="pre">|</span> <span class="pre">List[int],</span> <span class="pre">size_t</span> <span class="pre">count,</span> <span class="pre">attrs:</span> <span class="pre">Optional[Tuple[cudaMemcpyAttributes]</span> <span class="pre">|</span> <span class="pre">List[cudaMemcpyAttributes]],</span> <span class="pre">attrsIdxs:</span> <span class="pre">Tuple[int]</span> <span class="pre">|</span> <span class="pre">List[int],</span> <span class="pre">size_t</span> <span class="pre">numAttrs,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemcpyBatchAsync" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemcpyBatchAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dsts:</span> <span class="pre">Optional[tuple[Any]</span> <span class="pre">|</span> <span class="pre">list[Any]],</span> <span class="pre">srcs:</span> <span class="pre">Optional[tuple[Any]</span> <span class="pre">|</span> <span class="pre">list[Any]],</span> <span class="pre">sizes:</span> <span class="pre">tuple[int]</span> <span class="pre">|</span> <span class="pre">list[int],</span> <span class="pre">size_t</span> <span class="pre">count,</span> <span class="pre">attrs:</span> <span class="pre">Optional[tuple[cudaMemcpyAttributes]</span> <span class="pre">|</span> <span class="pre">list[cudaMemcpyAttributes]],</span> <span class="pre">attrsIdxs:</span> <span class="pre">tuple[int]</span> <span class="pre">|</span> <span class="pre">list[int],</span> <span class="pre">size_t</span> <span class="pre">numAttrs,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemcpyBatchAsync" title="Link to this definition">#</a></dt>
 <dd><p>Performs a batch of memory copies asynchronously.</p>
 <p>Performs a batch of memory copies. The batch as a whole executes in
 stream order but copies within a batch are not guaranteed to execute in
@@ -6175,12 +6175,12 @@ platform and other parameters of the copy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dsts</strong> (<em>List</em><em>[</em><em>Any</em><em>]</em>) – Array of destination pointers.</p></li>
-<li><p><strong>srcs</strong> (<em>List</em><em>[</em><em>Any</em><em>]</em>) – Array of memcpy source pointers.</p></li>
-<li><p><strong>sizes</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of sizes for memcpy operations.</p></li>
+<li><p><strong>dsts</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of destination pointers.</p></li>
+<li><p><strong>srcs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of memcpy source pointers.</p></li>
+<li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of sizes for memcpy operations.</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Size of <cite>dsts</cite>, <cite>srcs</cite> and <cite>sizes</cite> arrays</p></li>
-<li><p><strong>attrs</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpyAttributes" title="cuda.bindings.runtime.cudaMemcpyAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpyAttributes</span></code></a>]) – Array of memcpy attributes.</p></li>
-<li><p><strong>attrsIdxs</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of indices to specify which copies each entry in the <cite>attrs</cite>
+<li><p><strong>attrs</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpyAttributes" title="cuda.bindings.runtime.cudaMemcpyAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpyAttributes</span></code></a>]) – Array of memcpy attributes.</p></li>
+<li><p><strong>attrsIdxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of indices to specify which copies each entry in the <cite>attrs</cite>
 array applies to. The attributes specified in attrs[k] will be
 applied to copies starting from attrsIdxs[k] through attrsIdxs[k+1]
 - 1. Also attrs[numAttrs-1] will apply to copies starting from
@@ -6201,7 +6201,7 @@ stream.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemcpy3DBatchAsync">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemcpy3DBatchAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">size_t</span> <span class="pre">numOps,</span> <span class="pre">opList:</span> <span class="pre">Optional[Tuple[cudaMemcpy3DBatchOp]</span> <span class="pre">|</span> <span class="pre">List[cudaMemcpy3DBatchOp]],</span> <span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">flags,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemcpy3DBatchAsync" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemcpy3DBatchAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">size_t</span> <span class="pre">numOps,</span> <span class="pre">opList:</span> <span class="pre">Optional[tuple[cudaMemcpy3DBatchOp]</span> <span class="pre">|</span> <span class="pre">list[cudaMemcpy3DBatchOp]],</span> <span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">flags,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemcpy3DBatchAsync" title="Link to this definition">#</a></dt>
 <dd><p>Performs a batch of 3D memory copies asynchronously.</p>
 <p>Performs a batch of memory copies. The batch as a whole executes in
 stream order but copies within a batch are not guaranteed to execute in
@@ -6280,7 +6280,7 @@ platform and other parameters of the copy.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>numOps</strong> (<em>size_t</em>) – Total number of memcpy operations.</p></li>
-<li><p><strong>opList</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DBatchOp" title="cuda.bindings.runtime.cudaMemcpy3DBatchOp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DBatchOp</span></code></a>]) – Array of size <cite>numOps</cite> containing the actual memcpy operations.</p></li>
+<li><p><strong>opList</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DBatchOp" title="cuda.bindings.runtime.cudaMemcpy3DBatchOp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DBatchOp</span></code></a>]) – Array of size <cite>numOps</cite> containing the actual memcpy operations.</p></li>
 <li><p><strong>flags</strong> (<em>unsigned long long</em>) – Flags for future use, must be zero now.</p></li>
 <li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to enqueue the operations in. Must not be default NULL
 stream.</p></li>
@@ -6877,7 +6877,7 @@ all work on other devices.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemPrefetchBatchAsync">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemPrefetchBatchAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dptrs:</span> <span class="pre">Optional[Tuple[Any]</span> <span class="pre">|</span> <span class="pre">List[Any]],</span> <span class="pre">sizes:</span> <span class="pre">Tuple[int]</span> <span class="pre">|</span> <span class="pre">List[int],</span> <span class="pre">size_t</span> <span class="pre">count,</span> <span class="pre">prefetchLocs:</span> <span class="pre">Optional[Tuple[cudaMemLocation]</span> <span class="pre">|</span> <span class="pre">List[cudaMemLocation]],</span> <span class="pre">prefetchLocIdxs:</span> <span class="pre">Tuple[int]</span> <span class="pre">|</span> <span class="pre">List[int],</span> <span class="pre">size_t</span> <span class="pre">numPrefetchLocs,</span> <span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">flags,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemPrefetchBatchAsync" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemPrefetchBatchAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dptrs:</span> <span class="pre">Optional[tuple[Any]</span> <span class="pre">|</span> <span class="pre">list[Any]],</span> <span class="pre">sizes:</span> <span class="pre">tuple[int]</span> <span class="pre">|</span> <span class="pre">list[int],</span> <span class="pre">size_t</span> <span class="pre">count,</span> <span class="pre">prefetchLocs:</span> <span class="pre">Optional[tuple[cudaMemLocation]</span> <span class="pre">|</span> <span class="pre">list[cudaMemLocation]],</span> <span class="pre">prefetchLocIdxs:</span> <span class="pre">tuple[int]</span> <span class="pre">|</span> <span class="pre">list[int],</span> <span class="pre">size_t</span> <span class="pre">numPrefetchLocs,</span> <span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">flags,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemPrefetchBatchAsync" title="Link to this definition">#</a></dt>
 <dd><p>Performs a batch of memory prefetches asynchronously.</p>
 <p>Performs a batch of memory prefetches. The batch as a whole executes in
 stream order but operations within a batch are not guaranteed to
@@ -6911,11 +6911,11 @@ Furthermore, <cite>numPrefetchLocs</cite> must be lesser than or equal to <cite>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dptrs</strong> (<em>List</em><em>[</em><em>Any</em><em>]</em>) – Array of pointers to be prefetched</p></li>
-<li><p><strong>sizes</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of sizes for memory prefetch operations.</p></li>
+<li><p><strong>dptrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of pointers to be prefetched</p></li>
+<li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of sizes for memory prefetch operations.</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Size of <cite>dptrs</cite> and <cite>sizes</cite> arrays.</p></li>
-<li><p><strong>prefetchLocs</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocation" title="cuda.bindings.runtime.cudaMemLocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocation</span></code></a>]) – Array of locations to prefetch to.</p></li>
-<li><p><strong>prefetchLocIdxs</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of indices to specify which operands each entry in the
+<li><p><strong>prefetchLocs</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocation" title="cuda.bindings.runtime.cudaMemLocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocation</span></code></a>]) – Array of locations to prefetch to.</p></li>
+<li><p><strong>prefetchLocIdxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of indices to specify which operands each entry in the
 <cite>prefetchLocs</cite> array applies to. The locations specified in
 prefetchLocs[k] will be applied to copies starting from
 prefetchLocIdxs[k] through prefetchLocIdxs[k+1] - 1. Also
@@ -6935,7 +6935,7 @@ stream.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemDiscardBatchAsync">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemDiscardBatchAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dptrs:</span> <span class="pre">Optional[Tuple[Any]</span> <span class="pre">|</span> <span class="pre">List[Any]],</span> <span class="pre">sizes:</span> <span class="pre">Tuple[int]</span> <span class="pre">|</span> <span class="pre">List[int],</span> <span class="pre">size_t</span> <span class="pre">count,</span> <span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">flags,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemDiscardBatchAsync" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemDiscardBatchAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dptrs:</span> <span class="pre">Optional[tuple[Any]</span> <span class="pre">|</span> <span class="pre">list[Any]],</span> <span class="pre">sizes:</span> <span class="pre">tuple[int]</span> <span class="pre">|</span> <span class="pre">list[int],</span> <span class="pre">size_t</span> <span class="pre">count,</span> <span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">flags,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemDiscardBatchAsync" title="Link to this definition">#</a></dt>
 <dd><p>Performs a batch of memory discards asynchronously.</p>
 <p>Performs a batch of memory discards. The batch as a whole executes in
 stream order but operations within a batch are not guaranteed to
@@ -6964,8 +6964,8 @@ devices have a non-zero value for
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dptrs</strong> (<em>List</em><em>[</em><em>Any</em><em>]</em>) – Array of pointers to be discarded</p></li>
-<li><p><strong>sizes</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of sizes for memory discard operations.</p></li>
+<li><p><strong>dptrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of pointers to be discarded</p></li>
+<li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of sizes for memory discard operations.</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Size of <cite>dptrs</cite> and <cite>sizes</cite> arrays.</p></li>
 <li><p><strong>flags</strong> (<em>unsigned long long</em>) – Flags reserved for future use. Must be zero.</p></li>
 <li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to enqueue the operations in. Must not be legacy NULL
@@ -6980,7 +6980,7 @@ stream.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemDiscardAndPrefetchBatchAsync">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemDiscardAndPrefetchBatchAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dptrs:</span> <span class="pre">Optional[Tuple[Any]</span> <span class="pre">|</span> <span class="pre">List[Any]],</span> <span class="pre">sizes:</span> <span class="pre">Tuple[int]</span> <span class="pre">|</span> <span class="pre">List[int],</span> <span class="pre">size_t</span> <span class="pre">count,</span> <span class="pre">prefetchLocs:</span> <span class="pre">Optional[Tuple[cudaMemLocation]</span> <span class="pre">|</span> <span class="pre">List[cudaMemLocation]],</span> <span class="pre">prefetchLocIdxs:</span> <span class="pre">Tuple[int]</span> <span class="pre">|</span> <span class="pre">List[int],</span> <span class="pre">size_t</span> <span class="pre">numPrefetchLocs,</span> <span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">flags,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemDiscardAndPrefetchBatchAsync" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemDiscardAndPrefetchBatchAsync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dptrs:</span> <span class="pre">Optional[tuple[Any]</span> <span class="pre">|</span> <span class="pre">list[Any]],</span> <span class="pre">sizes:</span> <span class="pre">tuple[int]</span> <span class="pre">|</span> <span class="pre">list[int],</span> <span class="pre">size_t</span> <span class="pre">count,</span> <span class="pre">prefetchLocs:</span> <span class="pre">Optional[tuple[cudaMemLocation]</span> <span class="pre">|</span> <span class="pre">list[cudaMemLocation]],</span> <span class="pre">prefetchLocIdxs:</span> <span class="pre">tuple[int]</span> <span class="pre">|</span> <span class="pre">list[int],</span> <span class="pre">size_t</span> <span class="pre">numPrefetchLocs,</span> <span class="pre">unsigned</span> <span class="pre">long</span> <span class="pre">long</span> <span class="pre">flags,</span> <span class="pre">stream</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemDiscardAndPrefetchBatchAsync" title="Link to this definition">#</a></dt>
 <dd><p>Performs a batch of memory discards and prefetches asynchronously.</p>
 <p>Performs a batch of memory discards followed by prefetches. The batch
 as a whole executes in stream order but operations within a batch are
@@ -7022,11 +7022,11 @@ or equal to <cite>count</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dptrs</strong> (<em>List</em><em>[</em><em>Any</em><em>]</em>) – Array of pointers to be discarded</p></li>
-<li><p><strong>sizes</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of sizes for memory discard operations.</p></li>
+<li><p><strong>dptrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of pointers to be discarded</p></li>
+<li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of sizes for memory discard operations.</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Size of <cite>dptrs</cite> and <cite>sizes</cite> arrays.</p></li>
-<li><p><strong>prefetchLocs</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocation" title="cuda.bindings.runtime.cudaMemLocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocation</span></code></a>]) – Array of locations to prefetch to.</p></li>
-<li><p><strong>prefetchLocIdxs</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of indices to specify which operands each entry in the
+<li><p><strong>prefetchLocs</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocation" title="cuda.bindings.runtime.cudaMemLocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocation</span></code></a>]) – Array of locations to prefetch to.</p></li>
+<li><p><strong>prefetchLocIdxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of indices to specify which operands each entry in the
 <cite>prefetchLocs</cite> array applies to. The locations specified in
 prefetchLocs[k] will be applied to operations starting from
 prefetchLocIdxs[k] through prefetchLocIdxs[k+1] - 1. Also
@@ -7382,7 +7382,7 @@ query will be written to.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemRangeGetAttributes">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemRangeGetAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dataSizes:</span> <span class="pre">Tuple[int]</span> <span class="pre">|</span> <span class="pre">List[int],</span> <span class="pre">attributes:</span> <span class="pre">Optional[Tuple[cudaMemRangeAttribute]</span> <span class="pre">|</span> <span class="pre">List[cudaMemRangeAttribute]],</span> <span class="pre">size_t</span> <span class="pre">numAttributes,</span> <span class="pre">devPtr,</span> <span class="pre">size_t</span> <span class="pre">count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemRangeGetAttributes" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemRangeGetAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dataSizes:</span> <span class="pre">tuple[int]</span> <span class="pre">|</span> <span class="pre">list[int],</span> <span class="pre">attributes:</span> <span class="pre">Optional[tuple[cudaMemRangeAttribute]</span> <span class="pre">|</span> <span class="pre">list[cudaMemRangeAttribute]],</span> <span class="pre">size_t</span> <span class="pre">numAttributes,</span> <span class="pre">devPtr,</span> <span class="pre">size_t</span> <span class="pre">count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemRangeGetAttributes" title="Link to this definition">#</a></dt>
 <dd><p>Query attributes of a given memory range.</p>
 <p>Query attributes of the memory range starting at <cite>devPtr</cite> with a size
 of <cite>count</cite> bytes. The memory range must refer to managed memory
@@ -7407,8 +7407,8 @@ restrictions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataSizes</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array containing the sizes of each result</p></li>
-<li><p><strong>attributes</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeAttribute" title="cuda.bindings.runtime.cudaMemRangeAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeAttribute</span></code></a>]) – An array of attributes to query (numAttributes and the number of
+<li><p><strong>dataSizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array containing the sizes of each result</p></li>
+<li><p><strong>attributes</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeAttribute" title="cuda.bindings.runtime.cudaMemRangeAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeAttribute</span></code></a>]) – An array of attributes to query (numAttributes and the number of
 attributes in this array should match)</p></li>
 <li><p><strong>numAttributes</strong> (<em>size_t</em>) – Number of attributes to query</p></li>
 <li><p><strong>devPtr</strong> (<em>Any</em>) – Start of the range to query</p></li>
@@ -7418,7 +7418,7 @@ attributes in this array should match)</p></li>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
-<li><p><strong>data</strong> (<em>List[Any]</em>) – A two-dimensional array containing pointers to memory locations
+<li><p><strong>data</strong> (<em>list[Any]</em>) – A two-dimensional array containing pointers to memory locations
 where the result of each attribute query will be written to.</p></li>
 </ul>
 </p>
@@ -7742,13 +7742,13 @@ by the application since the last time it was reset.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaMemPoolSetAccess">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemPoolSetAccess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">memPool,</span> <span class="pre">descList:</span> <span class="pre">Optional[Tuple[cudaMemAccessDesc]</span> <span class="pre">|</span> <span class="pre">List[cudaMemAccessDesc]],</span> <span class="pre">size_t</span> <span class="pre">count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemPoolSetAccess" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaMemPoolSetAccess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">memPool,</span> <span class="pre">descList:</span> <span class="pre">Optional[tuple[cudaMemAccessDesc]</span> <span class="pre">|</span> <span class="pre">list[cudaMemAccessDesc]],</span> <span class="pre">size_t</span> <span class="pre">count</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemPoolSetAccess" title="Link to this definition">#</a></dt>
 <dd><p>Controls visibility of pools between devices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pool</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUmemoryPool" title="cuda.bindings.driver.CUmemoryPool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUmemoryPool</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaMemPool_t" title="cuda.bindings.runtime.cudaMemPool_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPool_t</span></code></a>) – The pool being modified</p></li>
-<li><p><strong>map</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemAccessDesc" title="cuda.bindings.runtime.cudaMemAccessDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAccessDesc</span></code></a>]) – Array of access descriptors. Each descriptor instructs the access
+<li><p><strong>map</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemAccessDesc" title="cuda.bindings.runtime.cudaMemAccessDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAccessDesc</span></code></a>]) – Array of access descriptors. Each descriptor instructs the access
 to enable for a single gpu</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Number of descriptors in the map array.</p></li>
 </ul>
@@ -8450,7 +8450,7 @@ cudaErrorInvalidGraphicsContext
 cudaErrorUnknown</p></li>
 <li><p><strong>pCudaDeviceCount</strong> (<em>unsigned int</em>) – Returned number of CUDA devices corresponding to the current OpenGL
 context</p></li>
-<li><p><strong>pCudaDevices</strong> (<em>List[int]</em>) – Returned CUDA devices corresponding to the current OpenGL context</p></li>
+<li><p><strong>pCudaDevices</strong> (<em>list[int]</em>) – Returned CUDA devices corresponding to the current OpenGL context</p></li>
 </ul>
 </p>
 </dd>
@@ -10063,7 +10063,7 @@ read. NULL value dumps all logs.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddKernelNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddKernelNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaKernelNodeParams</span> <span class="pre">pNodeParams:</span> <span class="pre">Optional[cudaKernelNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddKernelNode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddKernelNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaKernelNodeParams</span> <span class="pre">pNodeParams:</span> <span class="pre">Optional[cudaKernelNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddKernelNode" title="Link to this definition">#</a></dt>
 <dd><p>Creates a kernel execution node and adds it to a graph.</p>
 <p>Creates a new kernel execution node and adds it to <cite>graph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite> and
@@ -10115,7 +10115,7 @@ points to, are copied during this call.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>pDependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>pDependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 <li><p><strong>pNodeParams</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaKernelNodeParams" title="cuda.bindings.runtime.cudaKernelNodeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernelNodeParams</span></code></a>) – Parameters for the GPU execution node</p></li>
 </ul>
@@ -10275,7 +10275,7 @@ corresponding member of <cite>value_out</cite>.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddMemcpyNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemcpyNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemcpy3DParms</span> <span class="pre">pCopyParams:</span> <span class="pre">Optional[cudaMemcpy3DParms]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemcpyNode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemcpyNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemcpy3DParms</span> <span class="pre">pCopyParams:</span> <span class="pre">Optional[cudaMemcpy3DParms]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemcpyNode" title="Link to this definition">#</a></dt>
 <dd><p>Creates a memcpy node and adds it to a graph.</p>
 <p>Creates a new memcpy node and adds it to <cite>graph</cite> with <cite>numDependencies</cite>
 dependencies specified via <cite>pDependencies</cite>. It is possible for
@@ -10293,7 +10293,7 @@ value for the device attribute
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>pDependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>pDependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 <li><p><strong>pCopyParams</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpy3DParms" title="cuda.bindings.runtime.cudaMemcpy3DParms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpy3DParms</span></code></a>) – Parameters for the memory copy</p></li>
 </ul>
@@ -10314,7 +10314,7 @@ value for the device attribute
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddMemcpyNode1D">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemcpyNode1D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">dst,</span> <span class="pre">src,</span> <span class="pre">size_t</span> <span class="pre">count,</span> <span class="pre">kind:</span> <span class="pre">cudaMemcpyKind</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemcpyNode1D" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemcpyNode1D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">dst,</span> <span class="pre">src,</span> <span class="pre">size_t</span> <span class="pre">count,</span> <span class="pre">kind:</span> <span class="pre">cudaMemcpyKind</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemcpyNode1D" title="Link to this definition">#</a></dt>
 <dd><p>Creates a 1D memcpy node and adds it to a graph.</p>
 <p>Creates a new 1D memcpy node and adds it to <cite>graph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite>. It is
@@ -10342,7 +10342,7 @@ value for the device attribute
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>pDependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>pDependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 <li><p><strong>dst</strong> (<em>Any</em>) – Destination memory address</p></li>
 <li><p><strong>src</strong> (<em>Any</em>) – Source memory address</p></li>
@@ -10465,7 +10465,7 @@ undefined behavior.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddMemsetNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemsetNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemsetParams</span> <span class="pre">pMemsetParams:</span> <span class="pre">Optional[cudaMemsetParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemsetNode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemsetNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemsetParams</span> <span class="pre">pMemsetParams:</span> <span class="pre">Optional[cudaMemsetParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemsetNode" title="Link to this definition">#</a></dt>
 <dd><p>Creates a memset node and adds it to a graph.</p>
 <p>Creates a new memset node and adds it to <cite>graph</cite> with <cite>numDependencies</cite>
 dependencies specified via <cite>pDependencies</cite>. It is possible for
@@ -10478,7 +10478,7 @@ the node will perform the memset described by <cite>pMemsetParams</cite>.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>pDependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>pDependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 <li><p><strong>pMemsetParams</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaMemsetParams" title="cuda.bindings.runtime.cudaMemsetParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemsetParams</span></code></a>) – Parameters for the memory set</p></li>
 </ul>
@@ -10547,7 +10547,7 @@ the node will perform the memset described by <cite>pMemsetParams</cite>.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddHostNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddHostNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaHostNodeParams</span> <span class="pre">pNodeParams:</span> <span class="pre">Optional[cudaHostNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddHostNode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddHostNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaHostNodeParams</span> <span class="pre">pNodeParams:</span> <span class="pre">Optional[cudaHostNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddHostNode" title="Link to this definition">#</a></dt>
 <dd><p>Creates a host execution node and adds it to a graph.</p>
 <p>Creates a new CPU execution node and adds it to <cite>graph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite> and
@@ -10561,7 +10561,7 @@ function. Host nodes are not supported under MPS with pre-Volta GPUs.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>pDependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>pDependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 <li><p><strong>pNodeParams</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaHostNodeParams" title="cuda.bindings.runtime.cudaHostNodeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaHostNodeParams</span></code></a>) – Parameters for the host node</p></li>
 </ul>
@@ -10630,7 +10630,7 @@ function. Host nodes are not supported under MPS with pre-Volta GPUs.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddChildGraphNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddChildGraphNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">childGraph</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddChildGraphNode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddChildGraphNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">childGraph</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddChildGraphNode" title="Link to this definition">#</a></dt>
 <dd><p>Creates a child graph node and adds it to a graph.</p>
 <p>Creates a new node which executes an embedded graph, and adds it to
 <cite>graph</cite> with <cite>numDependencies</cite> dependencies specified via
@@ -10646,7 +10646,7 @@ this call.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>pDependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>pDependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 <li><p><strong>childGraph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – The graph to clone into this node</p></li>
 </ul>
@@ -10694,7 +10694,7 @@ Attempting to do so will return an error.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddEmptyNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEmptyNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddEmptyNode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEmptyNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddEmptyNode" title="Link to this definition">#</a></dt>
 <dd><p>Creates an empty node and adds it to a graph.</p>
 <p>Creates a new node which performs no operation, and adds it to <cite>graph</cite>
 with <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite>. It
@@ -10711,7 +10711,7 @@ n^2 dependency edges.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>pDependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>pDependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 </ul>
 </dd>
@@ -10731,7 +10731,7 @@ n^2 dependency edges.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddEventRecordNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEventRecordNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">event</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddEventRecordNode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEventRecordNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">event</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddEventRecordNode" title="Link to this definition">#</a></dt>
 <dd><p>Creates an event record node and adds it to a graph.</p>
 <p>Creates a new event record node and adds it to <cite>hGraph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>dependencies</cite> and event
@@ -10746,7 +10746,7 @@ the node’s dependencies.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hGraph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>dependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>dependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 <li><p><strong>event</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUevent" title="cuda.bindings.driver.CUevent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUevent</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaEvent_t" title="cuda.bindings.runtime.cudaEvent_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEvent_t</span></code></a>) – Event for the node</p></li>
 </ul>
@@ -10815,7 +10815,7 @@ the node’s dependencies.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddEventWaitNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEventWaitNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">event</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddEventWaitNode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddEventWaitNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">event</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddEventWaitNode" title="Link to this definition">#</a></dt>
 <dd><p>Creates an event wait node and adds it to a graph.</p>
 <p>Creates a new event wait node and adds it to <cite>hGraph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>dependencies</cite> and event
@@ -10833,7 +10833,7 @@ the launch stream.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>hGraph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>dependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>dependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 <li><p><strong>event</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUevent" title="cuda.bindings.driver.CUevent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUevent</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaEvent_t" title="cuda.bindings.runtime.cudaEvent_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaEvent_t</span></code></a>) – Event for the node</p></li>
 </ul>
@@ -10902,7 +10902,7 @@ the launch stream.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddExternalSemaphoresSignalNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddExternalSemaphoresSignalNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaExternalSemaphoreSignalNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreSignalNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddExternalSemaphoresSignalNode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddExternalSemaphoresSignalNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaExternalSemaphoreSignalNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreSignalNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddExternalSemaphoresSignalNode" title="Link to this definition">#</a></dt>
 <dd><p>Creates an external semaphore signal node and adds it to a graph.</p>
 <p>Creates a new external semaphore signal node and adds it to <cite>graph</cite>
 with <cite>numDependencies</cite> dependencies specified via <cite>dependencies</cite> and
@@ -10917,7 +10917,7 @@ all of the node’s dependencies have completed.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>pDependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>pDependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 <li><p><strong>nodeParams</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphoreSignalNodeParams" title="cuda.bindings.runtime.cudaExternalSemaphoreSignalNodeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphoreSignalNodeParams</span></code></a>) – Parameters for the node</p></li>
 </ul>
@@ -10993,7 +10993,7 @@ the parameters of this node.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddExternalSemaphoresWaitNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddExternalSemaphoresWaitNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaExternalSemaphoreWaitNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreWaitNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddExternalSemaphoresWaitNode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddExternalSemaphoresWaitNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaExternalSemaphoreWaitNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaExternalSemaphoreWaitNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddExternalSemaphoresWaitNode" title="Link to this definition">#</a></dt>
 <dd><p>Creates an external semaphore wait node and adds it to a graph.</p>
 <p>Creates a new external semaphore wait node and adds it to <cite>graph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>dependencies</cite> and
@@ -11008,7 +11008,7 @@ launched until the wait operation has completed.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>pDependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>pDependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 <li><p><strong>nodeParams</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaExternalSemaphoreWaitNodeParams" title="cuda.bindings.runtime.cudaExternalSemaphoreWaitNodeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExternalSemaphoreWaitNodeParams</span></code></a>) – Parameters for the node</p></li>
 </ul>
@@ -11084,7 +11084,7 @@ the parameters of this node.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddMemAllocNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemAllocNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemAllocNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaMemAllocNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemAllocNode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemAllocNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaMemAllocNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaMemAllocNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemAllocNode" title="Link to this definition">#</a></dt>
 <dd><p>Creates an allocation node and adds it to a graph.</p>
 <p>Creates a new allocation node and adds it to <cite>graph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite> and
@@ -11130,7 +11130,7 @@ to the parent.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>pDependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>pDependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 <li><p><strong>nodeParams</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaMemAllocNodeParams" title="cuda.bindings.runtime.cudaMemAllocNodeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemAllocNodeParams</span></code></a>) – Parameters for the node</p></li>
 </ul>
@@ -11177,7 +11177,7 @@ returned parameters must not be modified.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddMemFreeNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemFreeNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">dptr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemFreeNode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddMemFreeNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">dptr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddMemFreeNode" title="Link to this definition">#</a></dt>
 <dd><p>Creates a memory free node and adds it to a graph.</p>
 <p>Creates a new memory free node and adds it to <cite>graph</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite> and
@@ -11205,7 +11205,7 @@ to the parent.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>pDependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>pDependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 <li><p><strong>dptr</strong> (<em>Any</em>) – Address of memory to free</p></li>
 </ul>
@@ -11464,7 +11464,7 @@ NULL, and the number of nodes actually obtained will be returned in
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
-<li><p><strong>nodes</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Pointer to return the nodes</p></li>
+<li><p><strong>nodes</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Pointer to return the nodes</p></li>
 <li><p><strong>numNodes</strong> (<em>int</em>) – See description</p></li>
 </ul>
 </p>
@@ -11496,7 +11496,7 @@ of nodes actually obtained will be returned in <cite>pNumRootNodes</cite>.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
-<li><p><strong>pRootNodes</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Pointer to return the root nodes</p></li>
+<li><p><strong>pRootNodes</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Pointer to return the root nodes</p></li>
 <li><p><strong>pNumRootNodes</strong> (<em>int</em>) – See description</p></li>
 </ul>
 </p>
@@ -11535,9 +11535,9 @@ and <cite>to</cite> must be as well.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorLossyQuery" title="cuda.bindings.runtime.cudaError_t.cudaErrorLossyQuery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorLossyQuery</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
-<li><p><strong>from</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Location to return edge endpoints</p></li>
-<li><p><strong>to</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Location to return edge endpoints</p></li>
-<li><p><strong>edgeData</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional location to return edge data</p></li>
+<li><p><strong>from</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Location to return edge endpoints</p></li>
+<li><p><strong>to</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Location to return edge endpoints</p></li>
+<li><p><strong>edgeData</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional location to return edge data</p></li>
 <li><p><strong>numEdges</strong> (<em>int</em>) – See description</p></li>
 </ul>
 </p>
@@ -11574,8 +11574,8 @@ NULL, and the number of nodes actually obtained will be returned in
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorLossyQuery" title="cuda.bindings.runtime.cudaError_t.cudaErrorLossyQuery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorLossyQuery</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
-<li><p><strong>pDependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Pointer to return the dependencies</p></li>
-<li><p><strong>edgeData</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional array to return edge data for each dependency</p></li>
+<li><p><strong>pDependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Pointer to return the dependencies</p></li>
+<li><p><strong>edgeData</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional array to return edge data for each dependency</p></li>
 <li><p><strong>pNumDependencies</strong> (<em>int</em>) – See description</p></li>
 </ul>
 </p>
@@ -11612,8 +11612,8 @@ returned in <cite>pNumDependentNodes</cite>.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorLossyQuery" title="cuda.bindings.runtime.cudaError_t.cudaErrorLossyQuery"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorLossyQuery</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p></li>
-<li><p><strong>pDependentNodes</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Pointer to return the dependent nodes</p></li>
-<li><p><strong>edgeData</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional pointer to return edge data for dependent nodes</p></li>
+<li><p><strong>pDependentNodes</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Pointer to return the dependent nodes</p></li>
+<li><p><strong>edgeData</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional pointer to return edge data for dependent nodes</p></li>
 <li><p><strong>pNumDependentNodes</strong> (<em>int</em>) – See description</p></li>
 </ul>
 </p>
@@ -11627,7 +11627,7 @@ returned in <cite>pNumDependentNodes</cite>.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddDependencies">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">from_:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">to:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">edgeData:</span> <span class="pre">Optional[Tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddDependencies" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">from_:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">to:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">edgeData:</span> <span class="pre">Optional[tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddDependencies" title="Link to this definition">#</a></dt>
 <dd><p>Adds dependency edges to a graph.</p>
 <p>The number of dependencies to be added is defined by <cite>numDependencies</cite>
 Elements in <cite>pFrom</cite> and <cite>pTo</cite> at corresponding indices define a
@@ -11638,9 +11638,9 @@ ignored. Specifying an existing dependency will return an error.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which dependencies are added</p></li>
-<li><p><strong>from</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Array of nodes that provide the dependencies</p></li>
-<li><p><strong>to</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Array of dependent nodes</p></li>
-<li><p><strong>edgeData</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional array of edge data. If NULL, default (zeroed) edge data is
+<li><p><strong>from</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Array of nodes that provide the dependencies</p></li>
+<li><p><strong>to</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Array of dependent nodes</p></li>
+<li><p><strong>edgeData</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional array of edge data. If NULL, default (zeroed) edge data is
 assumed.</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies to be added</p></li>
 </ul>
@@ -11660,7 +11660,7 @@ assumed.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphRemoveDependencies">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphRemoveDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">from_:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">to:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">edgeData:</span> <span class="pre">Optional[Tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphRemoveDependencies" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphRemoveDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">from_:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">to:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">edgeData:</span> <span class="pre">Optional[tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphRemoveDependencies" title="Link to this definition">#</a></dt>
 <dd><p>Removes dependency edges from a graph.</p>
 <p>The number of <cite>pDependencies</cite> to be removed is defined by
 <cite>numDependencies</cite>. Elements in <cite>pFrom</cite> and <cite>pTo</cite> at corresponding
@@ -11674,9 +11674,9 @@ is equivalent to passing default (zeroed) data for each edge.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph from which to remove dependencies</p></li>
-<li><p><strong>from</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Array of nodes that provide the dependencies</p></li>
-<li><p><strong>to</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Array of dependent nodes</p></li>
-<li><p><strong>edgeData</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional array of edge data. If NULL, edge data is assumed to be
+<li><p><strong>from</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Array of nodes that provide the dependencies</p></li>
+<li><p><strong>to</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Array of dependent nodes</p></li>
+<li><p><strong>edgeData</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional array of edge data. If NULL, edge data is assumed to be
 default (zeroed).</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies to be removed</p></li>
 </ul>
@@ -12945,7 +12945,7 @@ and not larger than INT_MAX.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaGraphAddNode">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[Tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphNode_t]],</span> <span class="pre">dependencyData:</span> <span class="pre">Optional[Tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">List[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaGraphNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaGraphNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddNode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaGraphAddNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">graph,</span> <span class="pre">pDependencies:</span> <span class="pre">Optional[tuple[cudaGraphNode_t]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphNode_t]],</span> <span class="pre">dependencyData:</span> <span class="pre">Optional[tuple[cudaGraphEdgeData]</span> <span class="pre">|</span> <span class="pre">list[cudaGraphEdgeData]],</span> <span class="pre">size_t</span> <span class="pre">numDependencies,</span> <span class="pre">cudaGraphNodeParams</span> <span class="pre">nodeParams:</span> <span class="pre">Optional[cudaGraphNodeParams]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaGraphAddNode" title="Link to this definition">#</a></dt>
 <dd><p>Adds a node of arbitrary type to a graph.</p>
 <p>Creates a new node in <cite>graph</cite> described by <cite>nodeParams</cite> with
 <cite>numDependencies</cite> dependencies specified via <cite>pDependencies</cite>.
@@ -12966,8 +12966,8 @@ parameters” which are modified during the call, such as
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to which to add the node</p></li>
-<li><p><strong>pDependencies</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
-<li><p><strong>dependencyData</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional edge data for the dependencies. If NULL, the data is
+<li><p><strong>pDependencies</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>]) – Dependencies of the node</p></li>
+<li><p><strong>dependencyData</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphEdgeData" title="cuda.bindings.runtime.cudaGraphEdgeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphEdgeData</span></code></a>]) – Optional edge data for the dependencies. If NULL, the data is
 assumed to be default (zeroed) for all dependencies.</p></li>
 <li><p><strong>numDependencies</strong> (<em>size_t</em>) – Number of dependencies</p></li>
 <li><p><strong>nodeParams</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNodeParams" title="cuda.bindings.runtime.cudaGraphNodeParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNodeParams</span></code></a>) – Specification of the node</p></li>
@@ -13282,7 +13282,7 @@ possible values.</p></li>
 <p>This section describes the library management functions of the CUDA runtime application programming interface.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaLibraryLoadData">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaLibraryLoadData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">code,</span> <span class="pre">jitOptions:</span> <span class="pre">Optional[Tuple[cudaJitOption]</span> <span class="pre">|</span> <span class="pre">List[cudaJitOption]],</span> <span class="pre">jitOptionsValues:</span> <span class="pre">Optional[Tuple[Any]</span> <span class="pre">|</span> <span class="pre">List[Any]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numJitOptions,</span> <span class="pre">libraryOptions:</span> <span class="pre">Optional[Tuple[cudaLibraryOption]</span> <span class="pre">|</span> <span class="pre">List[cudaLibraryOption]],</span> <span class="pre">libraryOptionValues:</span> <span class="pre">Optional[Tuple[Any]</span> <span class="pre">|</span> <span class="pre">List[Any]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numLibraryOptions</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaLibraryLoadData" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaLibraryLoadData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">code,</span> <span class="pre">jitOptions:</span> <span class="pre">Optional[tuple[cudaJitOption]</span> <span class="pre">|</span> <span class="pre">list[cudaJitOption]],</span> <span class="pre">jitOptionsValues:</span> <span class="pre">Optional[tuple[Any]</span> <span class="pre">|</span> <span class="pre">list[Any]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numJitOptions,</span> <span class="pre">libraryOptions:</span> <span class="pre">Optional[tuple[cudaLibraryOption]</span> <span class="pre">|</span> <span class="pre">list[cudaLibraryOption]],</span> <span class="pre">libraryOptionValues:</span> <span class="pre">Optional[tuple[Any]</span> <span class="pre">|</span> <span class="pre">list[Any]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numLibraryOptions</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaLibraryLoadData" title="Link to this definition">#</a></dt>
 <dd><p>Load a library with specified code and options.</p>
 <p>Takes a pointer <cite>code</cite> and loads the corresponding library <cite>library</cite>
 based on the application defined library loading mode:</p>
@@ -13318,11 +13318,11 @@ number of total library load options is supplied via
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>code</strong> (<em>Any</em>) – Code to load</p></li>
-<li><p><strong>jitOptions</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaJitOption" title="cuda.bindings.runtime.cudaJitOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaJitOption</span></code></a>]) – Options for JIT</p></li>
-<li><p><strong>jitOptionsValues</strong> (<em>List</em><em>[</em><em>Any</em><em>]</em>) – Option values for JIT</p></li>
+<li><p><strong>jitOptions</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaJitOption" title="cuda.bindings.runtime.cudaJitOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaJitOption</span></code></a>]) – Options for JIT</p></li>
+<li><p><strong>jitOptionsValues</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Option values for JIT</p></li>
 <li><p><strong>numJitOptions</strong> (<em>unsigned int</em>) – Number of options</p></li>
-<li><p><strong>libraryOptions</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaLibraryOption" title="cuda.bindings.runtime.cudaLibraryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLibraryOption</span></code></a>]) – Options for loading</p></li>
-<li><p><strong>libraryOptionValues</strong> (<em>List</em><em>[</em><em>Any</em><em>]</em>) – Option values for loading</p></li>
+<li><p><strong>libraryOptions</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaLibraryOption" title="cuda.bindings.runtime.cudaLibraryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLibraryOption</span></code></a>]) – Options for loading</p></li>
+<li><p><strong>libraryOptionValues</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Option values for loading</p></li>
 <li><p><strong>numLibraryOptions</strong> (<em>unsigned int</em>) – Number of options for loading</p></li>
 </ul>
 </dd>
@@ -13342,7 +13342,7 @@ number of total library load options is supplied via
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaLibraryLoadFromFile">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaLibraryLoadFromFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">char</span> <span class="pre">*fileName,</span> <span class="pre">jitOptions:</span> <span class="pre">Optional[Tuple[cudaJitOption]</span> <span class="pre">|</span> <span class="pre">List[cudaJitOption]],</span> <span class="pre">jitOptionsValues:</span> <span class="pre">Optional[Tuple[Any]</span> <span class="pre">|</span> <span class="pre">List[Any]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numJitOptions,</span> <span class="pre">libraryOptions:</span> <span class="pre">Optional[Tuple[cudaLibraryOption]</span> <span class="pre">|</span> <span class="pre">List[cudaLibraryOption]],</span> <span class="pre">libraryOptionValues:</span> <span class="pre">Optional[Tuple[Any]</span> <span class="pre">|</span> <span class="pre">List[Any]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numLibraryOptions</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaLibraryLoadFromFile" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaLibraryLoadFromFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">char</span> <span class="pre">*fileName,</span> <span class="pre">jitOptions:</span> <span class="pre">Optional[tuple[cudaJitOption]</span> <span class="pre">|</span> <span class="pre">list[cudaJitOption]],</span> <span class="pre">jitOptionsValues:</span> <span class="pre">Optional[tuple[Any]</span> <span class="pre">|</span> <span class="pre">list[Any]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numJitOptions,</span> <span class="pre">libraryOptions:</span> <span class="pre">Optional[tuple[cudaLibraryOption]</span> <span class="pre">|</span> <span class="pre">list[cudaLibraryOption]],</span> <span class="pre">libraryOptionValues:</span> <span class="pre">Optional[tuple[Any]</span> <span class="pre">|</span> <span class="pre">list[Any]],</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">numLibraryOptions</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaLibraryLoadFromFile" title="Link to this definition">#</a></dt>
 <dd><p>Load a library with specified file and options.</p>
 <p>Takes a pointer <cite>code</cite> and loads the corresponding library <cite>library</cite>
 based on the application defined library loading mode:</p>
@@ -13378,11 +13378,11 @@ number of total library load options is supplied via
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fileName</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – File to load from</p></li>
-<li><p><strong>jitOptions</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaJitOption" title="cuda.bindings.runtime.cudaJitOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaJitOption</span></code></a>]) – Options for JIT</p></li>
-<li><p><strong>jitOptionsValues</strong> (<em>List</em><em>[</em><em>Any</em><em>]</em>) – Option values for JIT</p></li>
+<li><p><strong>jitOptions</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaJitOption" title="cuda.bindings.runtime.cudaJitOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaJitOption</span></code></a>]) – Options for JIT</p></li>
+<li><p><strong>jitOptionsValues</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Option values for JIT</p></li>
 <li><p><strong>numJitOptions</strong> (<em>unsigned int</em>) – Number of options</p></li>
-<li><p><strong>libraryOptions</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaLibraryOption" title="cuda.bindings.runtime.cudaLibraryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLibraryOption</span></code></a>]) – Options for loading</p></li>
-<li><p><strong>libraryOptionValues</strong> (<em>List</em><em>[</em><em>Any</em><em>]</em>) – Option values for loading</p></li>
+<li><p><strong>libraryOptions</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaLibraryOption" title="cuda.bindings.runtime.cudaLibraryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLibraryOption</span></code></a>]) – Options for loading</p></li>
+<li><p><strong>libraryOptionValues</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Option values for loading</p></li>
 <li><p><strong>numLibraryOptions</strong> (<em>unsigned int</em>) – Number of options for loading</p></li>
 </ul>
 </dd>
@@ -13590,7 +13590,7 @@ library is unloaded.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>cudaError_t</em> – <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorCudartUnloading" title="cuda.bindings.runtime.cudaError_t.cudaErrorCudartUnloading"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorCudartUnloading</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInitializationError" title="cuda.bindings.runtime.cudaError_t.cudaErrorInitializationError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInitializationError</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidResourceHandle" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidResourceHandle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidResourceHandle</span></code></a></p></li>
-<li><p><strong>kernels</strong> (List[<a class="reference internal" href="#cuda.bindings.runtime.cudaKernel_t" title="cuda.bindings.runtime.cudaKernel_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernel_t</span></code></a>]) – Buffer where the kernel handles are returned to</p></li>
+<li><p><strong>kernels</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaKernel_t" title="cuda.bindings.runtime.cudaKernel_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernel_t</span></code></a>]) – Buffer where the kernel handles are returned to</p></li>
 </ul>
 </p>
 </dd>
@@ -13859,7 +13859,7 @@ EGLFrame</p>
 <dd><p>Reserved for future use</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -13899,7 +13899,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dd><p>CUDA EGL Plane Descriptor cudaEglPlaneDesc</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference internal" href="#cuda.bindings.runtime.cudaEglPlaneDesc" title="cuda.bindings.runtime.cudaEglPlaneDesc">cudaEglPlaneDesc</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference internal" href="#cuda.bindings.runtime.cudaEglPlaneDesc" title="cuda.bindings.runtime.cudaEglPlaneDesc">cudaEglPlaneDesc</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -14064,7 +14064,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaArraySparseProperties.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -14108,7 +14108,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaArrayMemoryRequirements.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -14389,7 +14389,7 @@ referring to linear memory</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -14968,7 +14968,7 @@ STREAMING.</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -15046,7 +15046,7 @@ pointer if an invalid pointer has been passed to CUDA.</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[long]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[long]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -15280,7 +15280,7 @@ cudaFuncSetAttribute</p>
 <dd><p>Reserved for future use.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -15992,7 +15992,7 @@ platforms</p>
 <dd><p>Maximum size of each dimension of a block</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16003,7 +16003,7 @@ platforms</p>
 <dd><p>Maximum size of each dimension of a grid</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16126,7 +16126,7 @@ cudaHostAlloc/cudaHostGetDevicePointer</p>
 <dd><p>Maximum 2D texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16137,7 +16137,7 @@ cudaHostAlloc/cudaHostGetDevicePointer</p>
 <dd><p>Maximum 2D mipmapped texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16149,7 +16149,7 @@ cudaHostAlloc/cudaHostGetDevicePointer</p>
 pitched memory</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16161,7 +16161,7 @@ pitched memory</p>
 be performed</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16172,7 +16172,7 @@ be performed</p>
 <dd><p>Maximum 3D texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16183,7 +16183,7 @@ be performed</p>
 <dd><p>Maximum alternate 3D texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16205,7 +16205,7 @@ be performed</p>
 <dd><p>Maximum 1D layered texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16216,7 +16216,7 @@ be performed</p>
 <dd><p>Maximum 2D layered texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16227,7 +16227,7 @@ be performed</p>
 <dd><p>Maximum Cubemap layered texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16249,7 +16249,7 @@ be performed</p>
 <dd><p>Maximum 2D surface dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16260,7 +16260,7 @@ be performed</p>
 <dd><p>Maximum 3D surface dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16271,7 +16271,7 @@ be performed</p>
 <dd><p>Maximum 1D layered surface dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16282,7 +16282,7 @@ be performed</p>
 <dd><p>Maximum 2D layered surface dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16304,7 +16304,7 @@ be performed</p>
 <dd><p>Maximum Cubemap layered surface dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16915,7 +16915,7 @@ multi-node system.</p>
 <dd><p>Reserved for future use</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17046,7 +17046,7 @@ multi-node system.</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17102,7 +17102,7 @@ multi-node system.</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17182,7 +17182,7 @@ cudaMallocMipmappedArray</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17237,7 +17237,7 @@ cudaMallocMipmappedArray</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17287,7 +17287,7 @@ all other types of cudaExternalSemaphore_t, flags must be zero.</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaExternalSemaphoreSignalParams.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17337,7 +17337,7 @@ all other types of cudaExternalSemaphore_t, flags must be zero.</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaExternalSemaphoreWaitParams.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17920,7 +17920,7 @@ to the parent.</p>
 <dd><p>Reserved. Must be zero.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17931,7 +17931,7 @@ to the parent.</p>
 <dd><p>Padding. Unused bytes must be zero.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[long long]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[long long]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -18661,7 +18661,7 @@ order to interpret this field.</p>
 <dd><p>Texture address mode for up to 3 dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference internal" href="#cuda.bindings.runtime.cudaTextureAddressMode" title="cuda.bindings.runtime.cudaTextureAddressMode">cudaTextureAddressMode</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference internal" href="#cuda.bindings.runtime.cudaTextureAddressMode" title="cuda.bindings.runtime.cudaTextureAddressMode">cudaTextureAddressMode</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -18705,7 +18705,7 @@ order to interpret this field.</p>
 <dd><p>Texture Border Color</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -23294,6 +23294,25 @@ individual copies specified in <a class="reference internal" href="#cuda.binding
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.runtime.cudaAtomicOperationCapability">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaAtomicOperationCapability</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.runtime.cudaAtomicOperationCapability" title="Link to this definition">#</a></dt>
+<dd><p>CUDA-valid Atomic Operation capabilities</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="cuda.bindings.runtime.cudaExternalMemoryHandleType">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.runtime.</span></span><span class="sig-name descname"><span class="pre">cudaExternalMemoryHandleType</span></span><span class="sig-paren">(</span>
 
@@ -24878,7 +24897,7 @@ EGLFrame</p>
 <dd><p>Reserved for future use</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -24918,7 +24937,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dd><p>CUDA EGL Plane Descriptor cudaEglPlaneDesc</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference internal" href="#cuda.bindings.runtime.cudaEglPlaneDesc" title="cuda.bindings.runtime.cudaEglPlaneDesc">cudaEglPlaneDesc</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference internal" href="#cuda.bindings.runtime.cudaEglPlaneDesc" title="cuda.bindings.runtime.cudaEglPlaneDesc">cudaEglPlaneDesc</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -28260,6 +28279,7 @@ order to interpret this field.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaAtomicOperation.cudaAtomicOperationFloatMax"><code class="docutils literal notranslate"><span class="pre">cudaAtomicOperationFloatMax</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaAtomicOperationCapability"><code class="docutils literal notranslate"><span class="pre">cudaAtomicOperationCapability</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaExternalMemoryHandleType"><code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryHandleType</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeOpaqueFd"><code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryHandleTypeOpaqueFd</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.runtime.cudaExternalMemoryHandleType.cudaExternalMemoryHandleTypeOpaqueWin32"><code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryHandleTypeOpaqueWin32</span></code></a></li>
