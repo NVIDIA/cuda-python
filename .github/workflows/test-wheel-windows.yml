@@ -72,16 +72,19 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
-    runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-1"
+    # TODO: switch to self-hosted runners once they are ready
+    # runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-1"
+    runs-on: 'cuda-python-windows-gpu-github'
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: 0
 
-      - name: Setup proxy cache
-        uses: nv-gha-runners/setup-proxy-cache@main
-        continue-on-error: true
+      # TODO: use setup-proxy-cache once we have self-hosted Windows runners
+      # - name: Setup proxy cache
+      #   uses: nv-gha-runners/setup-proxy-cache@main
+      #   continue-on-error: true
 
       - name: Update driver
         run: |
@@ -89,6 +92,21 @@ jobs:
 
       - name: Ensure GPU is working
         run: nvidia-smi
+
+      # TODO: remove this block once self-hosted runners are ready
+      - name: Install Git for Windows
+        # the GPU runner image does not have Git Bash pre-installed...
+        env:
+          # doesn't seem there's an easy way to avoid hard-coding it?
+          GFW_EXE_URL: https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/PortableGit-2.49.0-64-bit.7z.exe
+        run: |
+          Invoke-WebRequest -Uri "$env:GFW_EXE_URL" -OutFile "PortableGit.7z.exe"
+          # Self-extracting, see https://gitforwindows.org/zip-archives-extracting-the-released-archives.html
+          Start-Process .\PortableGit.7z.exe -Wait -Verbose -ArgumentList '-y -gm2'
+          ls -l PortableGit
+          echo "$((Get-Location).Path)\\PortableGit\\bin" >> $env:GITHUB_PATH
+          $env:Path += ";$((Get-Location).Path)\\PortableGit\\bin"
+          bash --version
 
       - name: Set environment variables
         env:
@@ -120,6 +138,22 @@ jobs:
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+
+      # TODO: remove this block once self-hosted runners are ready
+      - name: Install gh cli
+        # the GPU runner image does not have gh pre-installed...
+        env:
+          # doesn't seem there's an easy way to avoid hard-coding it?
+          GH_MSI_URL: https://github.com/cli/cli/releases/download/v2.67.0/gh_2.67.0_windows_amd64.msi
+        run: |
+          Invoke-WebRequest -Uri "$env:GH_MSI_URL" -OutFile "gh_installer.msi"
+          Start-Process msiexec.exe -Wait -Verbose -ArgumentList '/i "gh_installer.msi" /qn'
+          $GH_POSSIBLE_PATHS = "C:\\Program Files\\GitHub CLI", "C:\\Program Files (x86)\\GitHub CLI"
+          foreach ($p in $GH_POSSIBLE_PATHS) {
+              echo "$p" >> $env:GITHUB_PATH
+              $env:Path += ";$p"
+          }
+          gh --version
 
       - name: Install zstd
         # the GPU runner image does not have zstd pre-installed... and it's needed by actions/cache
