@@ -4852,9 +4852,7 @@ cdef class cudaStream_t(driver.CUstream):
     -------
     getPtr()
         Get memory address of class instance
-
     """
-    pass
 {{endif}}
 
 {{if 'cudaEvent_t' in found_types}}
@@ -4868,9 +4866,7 @@ cdef class cudaEvent_t(driver.CUevent):
     -------
     getPtr()
         Get memory address of class instance
-
     """
-    pass
 {{endif}}
 
 {{if 'cudaGraph_t' in found_types}}
@@ -4884,9 +4880,7 @@ cdef class cudaGraph_t(driver.CUgraph):
     -------
     getPtr()
         Get memory address of class instance
-
     """
-    pass
 {{endif}}
 
 {{if 'cudaGraphNode_t' in found_types}}
@@ -4900,9 +4894,7 @@ cdef class cudaGraphNode_t(driver.CUgraphNode):
     -------
     getPtr()
         Get memory address of class instance
-
     """
-    pass
 {{endif}}
 
 {{if 'cudaUserObject_t' in found_types}}
@@ -4916,9 +4908,7 @@ cdef class cudaUserObject_t(driver.CUuserObject):
     -------
     getPtr()
         Get memory address of class instance
-
     """
-    pass
 {{endif}}
 
 {{if 'cudaFunction_t' in found_types}}
@@ -4932,9 +4922,7 @@ cdef class cudaFunction_t(driver.CUfunction):
     -------
     getPtr()
         Get memory address of class instance
-
     """
-    pass
 {{endif}}
 
 {{if 'cudaMemPool_t' in found_types}}
@@ -4948,9 +4936,7 @@ cdef class cudaMemPool_t(driver.CUmemoryPool):
     -------
     getPtr()
         Get memory address of class instance
-
     """
-    pass
 {{endif}}
 
 {{if 'cudaGraphExec_t' in found_types}}
@@ -4964,9 +4950,7 @@ cdef class cudaGraphExec_t(driver.CUgraphExec):
     -------
     getPtr()
         Get memory address of class instance
-
     """
-    pass
 {{endif}}
 
 {{if True}}
@@ -4980,9 +4964,7 @@ cdef class cudaEglStreamConnection(driver.CUeglStreamConnection):
     -------
     getPtr()
         Get memory address of class instance
-
     """
-    pass
 {{endif}}
 
 {{if 'cudaGraphConditionalHandle' in found_types}}
