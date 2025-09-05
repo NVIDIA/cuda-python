@@ -57,7 +57,7 @@ jobs:
 
           # Read base matrix from JSON file for the specific architecture
           TEST_MATRIX=$(jq --arg arch "$ARCH" --arg matrix_type "$MATRIX_TYPE" '
-            .linux[$matrix_type] | 
+            .linux[$matrix_type] |
             map(select(.ARCH == $arch))
           ' ci/test-matrix.json)
 
