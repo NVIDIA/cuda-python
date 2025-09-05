@@ -50,10 +50,4 @@ def test_find_libname_nvshmem(info_summary_append):
         assert hdr_dir is not None
         if have_nvidia_nvshmem_package():
             hdr_dir_parts = hdr_dir.split(os.path.sep)
-            assert any(
-                sub_dir in hdr_dir_parts
-                for sub_dir in (
-                    "site-packages",  # pip install
-                    "dist-packages",  # apt install
-                )
-            ), hdr_dir
+            assert "site-packages" in hdr_dir_parts
