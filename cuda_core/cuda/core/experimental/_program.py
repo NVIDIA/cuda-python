@@ -9,8 +9,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, List, Tuple, Union
 from warnings import warn
 
-import list
-
 if TYPE_CHECKING:
     import cuda.bindings
 
