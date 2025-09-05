@@ -40,8 +40,6 @@ cdef extern from "windows.h" nogil:
 cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags):
     cdef uintptr_t result
     cdef wchar_t* wpath = PyUnicode_AsWideCharString(path, NULL)
-    if wpath == NULL:
-        raise
     with nogil:
         result = <uintptr_t>_LoadLibraryExW(
             wpath,
