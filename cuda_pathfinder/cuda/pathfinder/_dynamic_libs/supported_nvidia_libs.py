@@ -63,7 +63,7 @@ SUPPORTED_LIBNAMES_ALL = SUPPORTED_LIBNAMES_COMMON + SUPPORTED_LIBNAMES_LINUX_ON
 SUPPORTED_LIBNAMES = SUPPORTED_LIBNAMES_WINDOWS if IS_WINDOWS else SUPPORTED_LIBNAMES_LINUX
 
 # Based on ldd output for Linux x86_64 nvidia-*-cu12 wheels (12.8.1)
-DIRECT_DEPENDENCIES = {
+DIRECT_DEPENDENCIES_CTK = {
     "cublas": ("cublasLt",),
     "cufftw": ("cufft",),
     # "cufile_rdma": ("cufile",),
@@ -81,6 +81,11 @@ DIRECT_DEPENDENCIES = {
     "nppitc": ("nppc",),
     "npps": ("nppc",),
     "nvblas": ("cublas", "cublasLt"),
+}
+DIRECT_DEPENDENCIES = DIRECT_DEPENDENCIES_CTK | {
+    "mathdx": ("nvrtc",),
+    "cufftMp": ("nvshmem_host",),
+    "cudss": ("cublas", "cublasLt"),
 }
 
 # Based on these released files:
@@ -104,7 +109,8 @@ DIRECT_DEPENDENCIES = {
 #   cuda_12.9.1_575.57.08_linux.run
 #   cuda_13.0.0_580.65.06_linux.run
 # Generated with toolshed/build_pathfinder_sonames.py
-SUPPORTED_LINUX_SONAMES = {
+# Please keep in old → new sort order.
+SUPPORTED_LINUX_SONAMES_CTK = {
     "cublas": (
         "libcublas.so.11",
         "libcublas.so.12",
@@ -232,6 +238,15 @@ SUPPORTED_LINUX_SONAMES = {
         "libnvvm.so.4",
     ),
 }
+SUPPORTED_LINUX_SONAMES_OTHER = {
+    "cufftMp": ("libcufftMp.so.11",),
+    "mathdx": ("libmathdx.so.0",),
+    "cudss": ("libcudss.so.0",),
+    "nccl": ("libnccl.so.2",),
+    "nvpl_fftw": ("libnvpl_fftw.so.0",),
+    "nvshmem_host": ("libnvshmem_host.so.3",),
+}
+SUPPORTED_LINUX_SONAMES = SUPPORTED_LINUX_SONAMES_CTK | SUPPORTED_LINUX_SONAMES_OTHER
 
 # Based on these released files:
 #   cuda_11.0.3_451.82_win10.exe
@@ -254,7 +269,8 @@ SUPPORTED_LINUX_SONAMES = {
 #   cuda_12.9.1_576.57_windows.exe
 #   cuda_13.0.0_windows.exe
 # Generated with toolshed/build_pathfinder_dlls.py
-SUPPORTED_WINDOWS_DLLS = {
+# Please keep in old → new sort order.
+SUPPORTED_WINDOWS_DLLS_CTK = {
     "cublas": (
         "cublas64_11.dll",
         "cublas64_12.dll",
@@ -384,11 +400,93 @@ SUPPORTED_WINDOWS_DLLS = {
         "nvvm70.dll",
     ),
 }
+SUPPORTED_WINDOWS_DLLS_OTHER = {
+    "mathdx": ("mathdx64_0.dll",),
+    "cudss": ("cudss64_0.dll",),
+}
+SUPPORTED_WINDOWS_DLLS = SUPPORTED_WINDOWS_DLLS_CTK | SUPPORTED_WINDOWS_DLLS_OTHER
 
 LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY = (
     "cufft",
     "nvrtc",
 )
+
+LIBNAMES_REQUIRING_RTLD_DEEPBIND = ("cufftMp",)
+
+# Based on output of toolshed/make_site_packages_libdirs_linux.py
+SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
+    "cublas": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
+    "cublasLt": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
+    "cudart": ("nvidia/cu13/lib", "nvidia/cuda_runtime/lib"),
+    "cufft": ("nvidia/cu13/lib", "nvidia/cufft/lib"),
+    "cufftw": ("nvidia/cu13/lib", "nvidia/cufft/lib"),
+    "cufile": ("nvidia/cu13/lib", "nvidia/cufile/lib"),
+    # "cufile_rdma": ("nvidia/cu13/lib", "nvidia/cufile/lib"),
+    "curand": ("nvidia/cu13/lib", "nvidia/curand/lib"),
+    "cusolver": ("nvidia/cu13/lib", "nvidia/cusolver/lib"),
+    "cusolverMg": ("nvidia/cu13/lib", "nvidia/cusolver/lib"),
+    "cusparse": ("nvidia/cu13/lib", "nvidia/cusparse/lib"),
+    "nppc": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppial": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppicc": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppidei": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppif": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppig": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppim": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppist": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppisu": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nppitc": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "npps": ("nvidia/cu13/lib", "nvidia/npp/lib"),
+    "nvJitLink": ("nvidia/cu13/lib", "nvidia/nvjitlink/lib"),
+    "nvblas": ("nvidia/cu13/lib", "nvidia/cublas/lib"),
+    "nvfatbin": ("nvidia/cu13/lib", "nvidia/nvfatbin/lib"),
+    "nvjpeg": ("nvidia/cu13/lib", "nvidia/nvjpeg/lib"),
+    "nvrtc": ("nvidia/cu13/lib", "nvidia/cuda_nvrtc/lib"),
+    "nvvm": ("nvidia/cu13/lib", "nvidia/cuda_nvcc/nvvm/lib64"),
+}
+SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
+    "cudss": ("nvidia/cu12/lib",),
+    "cufftMp": ("nvidia/cufftmp/cu12/lib",),
+    "mathdx": ("nvidia/cu13/lib", "nvidia/cu12/lib"),
+    "nccl": ("nvidia/nccl/lib",),
+    "nvpl_fftw": ("nvpl/lib",),
+    "nvshmem_host": ("nvidia/nvshmem/lib",),
+}
+SITE_PACKAGES_LIBDIRS_LINUX = SITE_PACKAGES_LIBDIRS_LINUX_CTK | SITE_PACKAGES_LIBDIRS_LINUX_OTHER
+
+# Based on output of toolshed/make_site_packages_libdirs_windows.py
+SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = {
+    "cublas": ("nvidia/cu13/bin/x86_64", "nvidia/cublas/bin"),
+    "cublasLt": ("nvidia/cu13/bin/x86_64", "nvidia/cublas/bin"),
+    "cudart": ("nvidia/cu13/bin/x86_64", "nvidia/cuda_runtime/bin"),
+    "cufft": ("nvidia/cu13/bin/x86_64", "nvidia/cufft/bin"),
+    "cufftw": ("nvidia/cu13/bin/x86_64", "nvidia/cufft/bin"),
+    "curand": ("nvidia/cu13/bin/x86_64", "nvidia/curand/bin"),
+    "cusolver": ("nvidia/cu13/bin/x86_64", "nvidia/cusolver/bin"),
+    "cusolverMg": ("nvidia/cu13/bin/x86_64", "nvidia/cusolver/bin"),
+    "cusparse": ("nvidia/cu13/bin/x86_64", "nvidia/cusparse/bin"),
+    "nppc": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppial": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppicc": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppidei": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppif": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppig": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppim": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppist": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppisu": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nppitc": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "npps": ("nvidia/cu13/bin/x86_64", "nvidia/npp/bin"),
+    "nvJitLink": ("nvidia/cu13/bin/x86_64", "nvidia/nvjitlink/bin"),
+    "nvblas": ("nvidia/cu13/bin/x86_64", "nvidia/cublas/bin"),
+    "nvfatbin": ("nvidia/cu13/bin/x86_64", "nvidia/nvfatbin/bin"),
+    "nvjpeg": ("nvidia/cu13/bin/x86_64", "nvidia/nvjpeg/bin"),
+    "nvrtc": ("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvrtc/bin"),
+    "nvvm": ("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvcc/nvvm/bin"),
+}
+SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER = {
+    "mathdx": ("nvidia/cu13/bin/x86_64", "nvidia/cu12/bin"),
+}
+SITE_PACKAGES_LIBDIRS_WINDOWS = SITE_PACKAGES_LIBDIRS_WINDOWS_CTK | SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER
 
 
 def is_suppressed_dll_file(path_basename: str) -> bool:

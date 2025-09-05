@@ -3,7 +3,8 @@
 
 # This code was automatically generated with version 13.0.0. Do not modify it directly.
 cimport cuda.bindings.cydriver as cydriver
-cimport cuda.bindings._lib.utils as utils
+
+include "_lib/utils.pxd"
 
 {{if 'CUcontext' in found_types}}
 
@@ -825,7 +826,7 @@ cdef class CUstreamBatchMemOpParams_union:
         Params for CU_STREAM_MEM_OP_BARRIER operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.pad' in found_struct}}
-    pad : List[cuuint64_t]
+    pad : list[cuuint64_t]
 
     {{endif}}
 
@@ -1011,11 +1012,11 @@ cdef class CUdevprop_st:
         Maximum number of threads per block
     {{endif}}
     {{if 'CUdevprop_st.maxThreadsDim' in found_struct}}
-    maxThreadsDim : List[int]
+    maxThreadsDim : list[int]
         Maximum size of each dimension of a block
     {{endif}}
     {{if 'CUdevprop_st.maxGridSize' in found_struct}}
-    maxGridSize : List[int]
+    maxGridSize : list[int]
         Maximum size of each dimension of a grid
     {{endif}}
     {{if 'CUdevprop_st.sharedMemPerBlock' in found_struct}}
@@ -1164,7 +1165,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_st:
     cdef CUfunction _func
     {{endif}}
     {{if 'CUDA_KERNEL_NODE_PARAMS_st.kernelParams' in found_struct}}
-    cdef utils.HelperKernelParams _cykernelParams
+    cdef _HelperKernelParams _cykernelParams
     {{endif}}
 {{endif}}
 {{if 'CUDA_KERNEL_NODE_PARAMS_v2_st' in found_struct}}
@@ -1237,7 +1238,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v2_st:
     cdef CUfunction _func
     {{endif}}
     {{if 'CUDA_KERNEL_NODE_PARAMS_v2_st.kernelParams' in found_struct}}
-    cdef utils.HelperKernelParams _cykernelParams
+    cdef _HelperKernelParams _cykernelParams
     {{endif}}
     {{if 'CUDA_KERNEL_NODE_PARAMS_v2_st.kern' in found_struct}}
     cdef CUkernel _kern
@@ -1316,7 +1317,7 @@ cdef class CUDA_KERNEL_NODE_PARAMS_v3_st:
     cdef CUfunction _func
     {{endif}}
     {{if 'CUDA_KERNEL_NODE_PARAMS_v3_st.kernelParams' in found_struct}}
-    cdef utils.HelperKernelParams _cykernelParams
+    cdef _HelperKernelParams _cykernelParams
     {{endif}}
     {{if 'CUDA_KERNEL_NODE_PARAMS_v3_st.kern' in found_struct}}
     cdef CUkernel _kern
@@ -2722,7 +2723,7 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_st:
         CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL
     {{endif}}
     {{if 'CUDA_ARRAY_SPARSE_PROPERTIES_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -2754,7 +2755,7 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_st:
         alignment requirement
     {{endif}}
     {{if 'CUDA_ARRAY_MEMORY_REQUIREMENTS_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -2889,7 +2890,7 @@ cdef class anon_struct11:
     Attributes
     ----------
     {{if 'CUDA_RESOURCE_DESC_st.res.reserved.reserved' in found_struct}}
-    reserved : List[int]
+    reserved : list[int]
 
     {{endif}}
 
@@ -2990,7 +2991,7 @@ cdef class CUDA_TEXTURE_DESC_st:
     Attributes
     ----------
     {{if 'CUDA_TEXTURE_DESC_st.addressMode' in found_struct}}
-    addressMode : List[CUaddress_mode]
+    addressMode : list[CUaddress_mode]
         Address modes
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.filterMode' in found_struct}}
@@ -3022,11 +3023,11 @@ cdef class CUDA_TEXTURE_DESC_st:
         Mipmap maximum level clamp
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.borderColor' in found_struct}}
-    borderColor : List[float]
+    borderColor : list[float]
         Border Color
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.reserved' in found_struct}}
-    reserved : List[int]
+    reserved : list[int]
 
     {{endif}}
 
@@ -3079,7 +3080,7 @@ cdef class CUDA_RESOURCE_VIEW_DESC_st:
         Last layer index
     {{endif}}
     {{if 'CUDA_RESOURCE_VIEW_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -3101,7 +3102,7 @@ cdef class CUtensorMap_st:
     Attributes
     ----------
     {{if 'CUtensorMap_st.opaque' in found_struct}}
-    opaque : List[cuuint64_t]
+    opaque : list[cuuint64_t]
 
     {{endif}}
 
@@ -3201,7 +3202,7 @@ cdef class CUDA_LAUNCH_PARAMS_st:
     cdef CUstream _hStream
     {{endif}}
     {{if 'CUDA_LAUNCH_PARAMS_st.kernelParams' in found_struct}}
-    cdef utils.HelperKernelParams _cykernelParams
+    cdef _HelperKernelParams _cykernelParams
     {{endif}}
 {{endif}}
 {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.handle.win32' in found_struct}}
@@ -3280,7 +3281,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st:
         Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED
     {{endif}}
     {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -3316,7 +3317,7 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st:
         Flags reserved for future use. Must be zero.
     {{endif}}
     {{if 'CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -3350,7 +3351,7 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st:
         Total number of levels in the mipmap chain
     {{endif}}
     {{if 'CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -3437,7 +3438,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st:
         Flags reserved for the future. Must be zero.
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -3529,7 +3530,7 @@ cdef class anon_struct16:
 
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.params.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -3573,7 +3574,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st:
         For all other types of CUexternalSemaphore, flags must be zero.
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -3669,7 +3670,7 @@ cdef class anon_struct19:
 
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.params.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -3713,7 +3714,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st:
         For all other types of CUexternalSemaphore, flags must be zero.
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -4079,7 +4080,7 @@ cdef class CUarrayMapInfo_st:
         flags for future use, must be zero now.
     {{endif}}
     {{if 'CUarrayMapInfo_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Reserved for future use, must be zero now.
     {{endif}}
 
@@ -4864,11 +4865,11 @@ cdef class CUgraphNodeParams_st:
         Type of the node
     {{endif}}
     {{if 'CUgraphNodeParams_st.reserved0' in found_struct}}
-    reserved0 : List[int]
+    reserved0 : list[int]
         Reserved. Must be zero.
     {{endif}}
     {{if 'CUgraphNodeParams_st.reserved1' in found_struct}}
-    reserved1 : List[long long]
+    reserved1 : list[long long]
         Padding. Unused bytes must be zero.
     {{endif}}
     {{if 'CUgraphNodeParams_st.kernel' in found_struct}}
@@ -4993,7 +4994,7 @@ cdef class CUcheckpointLockArgs_st:
         Reserved for future use, must be zero
     {{endif}}
     {{if 'CUcheckpointLockArgs_st.reserved1' in found_struct}}
-    reserved1 : List[cuuint64_t]
+    reserved1 : list[cuuint64_t]
         Reserved for future use, must be zeroed
     {{endif}}
 
@@ -5014,7 +5015,7 @@ cdef class CUcheckpointCheckpointArgs_st:
     Attributes
     ----------
     {{if 'CUcheckpointCheckpointArgs_st.reserved' in found_struct}}
-    reserved : List[cuuint64_t]
+    reserved : list[cuuint64_t]
         Reserved for future use, must be zeroed
     {{endif}}
 
@@ -5066,7 +5067,7 @@ cdef class CUcheckpointUnlockArgs_st:
     Attributes
     ----------
     {{if 'CUcheckpointUnlockArgs_st.reserved' in found_struct}}
-    reserved : List[cuuint64_t]
+    reserved : list[cuuint64_t]
         Reserved for future use, must be zeroed
     {{endif}}
 
@@ -5207,11 +5208,11 @@ cdef class anon_union15:
     Attributes
     ----------
     {{if True}}
-    pArray : List[CUarray]
+    pArray : list[CUarray]
 
     {{endif}}
     {{if True}}
-    pPitch : List[Any]
+    pPitch : list[Any]
 
     {{endif}}
 
@@ -5538,7 +5539,7 @@ cdef class CUstreamBatchMemOpParams_v1(CUstreamBatchMemOpParams_union):
         Params for CU_STREAM_MEM_OP_BARRIER operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.pad' in found_struct}}
-    pad : List[cuuint64_t]
+    pad : list[cuuint64_t]
 
     {{endif}}
 
@@ -5581,7 +5582,7 @@ cdef class CUstreamBatchMemOpParams(CUstreamBatchMemOpParams_v1):
         Params for CU_STREAM_MEM_OP_BARRIER operations.
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.pad' in found_struct}}
-    pad : List[cuuint64_t]
+    pad : list[cuuint64_t]
 
     {{endif}}
 
@@ -5728,11 +5729,11 @@ cdef class CUdevprop_v1(CUdevprop_st):
         Maximum number of threads per block
     {{endif}}
     {{if 'CUdevprop_st.maxThreadsDim' in found_struct}}
-    maxThreadsDim : List[int]
+    maxThreadsDim : list[int]
         Maximum size of each dimension of a block
     {{endif}}
     {{if 'CUdevprop_st.maxGridSize' in found_struct}}
-    maxGridSize : List[int]
+    maxGridSize : list[int]
         Maximum size of each dimension of a grid
     {{endif}}
     {{if 'CUdevprop_st.sharedMemPerBlock' in found_struct}}
@@ -5784,11 +5785,11 @@ cdef class CUdevprop(CUdevprop_v1):
         Maximum number of threads per block
     {{endif}}
     {{if 'CUdevprop_st.maxThreadsDim' in found_struct}}
-    maxThreadsDim : List[int]
+    maxThreadsDim : list[int]
         Maximum size of each dimension of a block
     {{endif}}
     {{if 'CUdevprop_st.maxGridSize' in found_struct}}
-    maxGridSize : List[int]
+    maxGridSize : list[int]
         Maximum size of each dimension of a grid
     {{endif}}
     {{if 'CUdevprop_st.sharedMemPerBlock' in found_struct}}
@@ -8174,7 +8175,7 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES_v1(CUDA_ARRAY_SPARSE_PROPERTIES_st):
         CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL
     {{endif}}
     {{if 'CUDA_ARRAY_SPARSE_PROPERTIES_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -8211,7 +8212,7 @@ cdef class CUDA_ARRAY_SPARSE_PROPERTIES(CUDA_ARRAY_SPARSE_PROPERTIES_v1):
         CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL
     {{endif}}
     {{if 'CUDA_ARRAY_SPARSE_PROPERTIES_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -8239,7 +8240,7 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS_v1(CUDA_ARRAY_MEMORY_REQUIREMENTS_st):
         alignment requirement
     {{endif}}
     {{if 'CUDA_ARRAY_MEMORY_REQUIREMENTS_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -8267,7 +8268,7 @@ cdef class CUDA_ARRAY_MEMORY_REQUIREMENTS(CUDA_ARRAY_MEMORY_REQUIREMENTS_v1):
         alignment requirement
     {{endif}}
     {{if 'CUDA_ARRAY_MEMORY_REQUIREMENTS_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -8343,7 +8344,7 @@ cdef class CUDA_TEXTURE_DESC_v1(CUDA_TEXTURE_DESC_st):
     Attributes
     ----------
     {{if 'CUDA_TEXTURE_DESC_st.addressMode' in found_struct}}
-    addressMode : List[CUaddress_mode]
+    addressMode : list[CUaddress_mode]
         Address modes
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.filterMode' in found_struct}}
@@ -8375,11 +8376,11 @@ cdef class CUDA_TEXTURE_DESC_v1(CUDA_TEXTURE_DESC_st):
         Mipmap maximum level clamp
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.borderColor' in found_struct}}
-    borderColor : List[float]
+    borderColor : list[float]
         Border Color
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.reserved' in found_struct}}
-    reserved : List[int]
+    reserved : list[int]
 
     {{endif}}
 
@@ -8399,7 +8400,7 @@ cdef class CUDA_TEXTURE_DESC(CUDA_TEXTURE_DESC_v1):
     Attributes
     ----------
     {{if 'CUDA_TEXTURE_DESC_st.addressMode' in found_struct}}
-    addressMode : List[CUaddress_mode]
+    addressMode : list[CUaddress_mode]
         Address modes
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.filterMode' in found_struct}}
@@ -8431,11 +8432,11 @@ cdef class CUDA_TEXTURE_DESC(CUDA_TEXTURE_DESC_v1):
         Mipmap maximum level clamp
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.borderColor' in found_struct}}
-    borderColor : List[float]
+    borderColor : list[float]
         Border Color
     {{endif}}
     {{if 'CUDA_TEXTURE_DESC_st.reserved' in found_struct}}
-    reserved : List[int]
+    reserved : list[int]
 
     {{endif}}
 
@@ -8487,7 +8488,7 @@ cdef class CUDA_RESOURCE_VIEW_DESC_v1(CUDA_RESOURCE_VIEW_DESC_st):
         Last layer index
     {{endif}}
     {{if 'CUDA_RESOURCE_VIEW_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -8539,7 +8540,7 @@ cdef class CUDA_RESOURCE_VIEW_DESC(CUDA_RESOURCE_VIEW_DESC_v1):
         Last layer index
     {{endif}}
     {{if 'CUDA_RESOURCE_VIEW_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -8560,7 +8561,7 @@ cdef class CUtensorMap(CUtensorMap_st):
     Attributes
     ----------
     {{if 'CUtensorMap_st.opaque' in found_struct}}
-    opaque : List[cuuint64_t]
+    opaque : list[cuuint64_t]
 
     {{endif}}
 
@@ -8756,7 +8757,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_
         Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED
     {{endif}}
     {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -8792,7 +8793,7 @@ cdef class CUDA_EXTERNAL_MEMORY_HANDLE_DESC(CUDA_EXTERNAL_MEMORY_HANDLE_DESC_v1)
         Flags must either be zero or CUDA_EXTERNAL_MEMORY_DEDICATED
     {{endif}}
     {{if 'CUDA_EXTERNAL_MEMORY_HANDLE_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -8824,7 +8825,7 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1(CUDA_EXTERNAL_MEMORY_BUFFER_DESC_
         Flags reserved for future use. Must be zero.
     {{endif}}
     {{if 'CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -8856,7 +8857,7 @@ cdef class CUDA_EXTERNAL_MEMORY_BUFFER_DESC(CUDA_EXTERNAL_MEMORY_BUFFER_DESC_v1)
         Flags reserved for future use. Must be zero.
     {{endif}}
     {{if 'CUDA_EXTERNAL_MEMORY_BUFFER_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -8889,7 +8890,7 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_v1(CUDA_EXTERNAL_MEMORY_MIP
         Total number of levels in the mipmap chain
     {{endif}}
     {{if 'CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -8922,7 +8923,7 @@ cdef class CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC(CUDA_EXTERNAL_MEMORY_MIPMAP
         Total number of levels in the mipmap chain
     {{endif}}
     {{if 'CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -8954,7 +8955,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_v1(CUDA_EXTERNAL_SEMAPHORE_HANDLE
         Flags reserved for the future. Must be zero.
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -8986,7 +8987,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC(CUDA_EXTERNAL_SEMAPHORE_HANDLE_DE
         Flags reserved for the future. Must be zero.
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -9021,7 +9022,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_SIGN
         For all other types of CUexternalSemaphore, flags must be zero.
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -9056,7 +9057,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS(CUDA_EXTERNAL_SEMAPHORE_SIGNAL_
         For all other types of CUexternalSemaphore, flags must be zero.
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -9091,7 +9092,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_v1(CUDA_EXTERNAL_SEMAPHORE_WAIT_P
         For all other types of CUexternalSemaphore, flags must be zero.
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -9126,7 +9127,7 @@ cdef class CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS(CUDA_EXTERNAL_SEMAPHORE_WAIT_PARA
         For all other types of CUexternalSemaphore, flags must be zero.
     {{endif}}
     {{if 'CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -9375,7 +9376,7 @@ cdef class CUarrayMapInfo_v1(CUarrayMapInfo_st):
         flags for future use, must be zero now.
     {{endif}}
     {{if 'CUarrayMapInfo_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Reserved for future use, must be zero now.
     {{endif}}
 
@@ -9436,7 +9437,7 @@ cdef class CUarrayMapInfo(CUarrayMapInfo_v1):
         flags for future use, must be zero now.
     {{endif}}
     {{if 'CUarrayMapInfo_st.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Reserved for future use, must be zero now.
     {{endif}}
 
@@ -10418,11 +10419,11 @@ cdef class CUgraphNodeParams(CUgraphNodeParams_st):
         Type of the node
     {{endif}}
     {{if 'CUgraphNodeParams_st.reserved0' in found_struct}}
-    reserved0 : List[int]
+    reserved0 : list[int]
         Reserved. Must be zero.
     {{endif}}
     {{if 'CUgraphNodeParams_st.reserved1' in found_struct}}
-    reserved1 : List[long long]
+    reserved1 : list[long long]
         Padding. Unused bytes must be zero.
     {{endif}}
     {{if 'CUgraphNodeParams_st.kernel' in found_struct}}
@@ -10507,7 +10508,7 @@ cdef class CUcheckpointLockArgs(CUcheckpointLockArgs_st):
         Reserved for future use, must be zero
     {{endif}}
     {{if 'CUcheckpointLockArgs_st.reserved1' in found_struct}}
-    reserved1 : List[cuuint64_t]
+    reserved1 : list[cuuint64_t]
         Reserved for future use, must be zeroed
     {{endif}}
 
@@ -10527,7 +10528,7 @@ cdef class CUcheckpointCheckpointArgs(CUcheckpointCheckpointArgs_st):
     Attributes
     ----------
     {{if 'CUcheckpointCheckpointArgs_st.reserved' in found_struct}}
-    reserved : List[cuuint64_t]
+    reserved : list[cuuint64_t]
         Reserved for future use, must be zeroed
     {{endif}}
 
@@ -10571,7 +10572,7 @@ cdef class CUcheckpointUnlockArgs(CUcheckpointUnlockArgs_st):
     Attributes
     ----------
     {{if 'CUcheckpointUnlockArgs_st.reserved' in found_struct}}
-    reserved : List[cuuint64_t]
+    reserved : list[cuuint64_t]
         Reserved for future use, must be zeroed
     {{endif}}
 

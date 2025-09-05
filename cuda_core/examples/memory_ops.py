@@ -129,8 +129,8 @@ stream.close()
 cp.cuda.Stream.null.use()  # reset CuPy's current stream to the null stream
 
 # Verify buffers are properly closed
-assert device_buffer.handle == 0, "Device buffer should be closed"
-assert pinned_buffer.handle == 0, "Pinned buffer should be closed"
-assert new_device_buffer.handle == 0, "New device buffer should be closed"
+assert device_buffer.handle is None, "Device buffer should be closed"
+assert pinned_buffer.handle is None, "Pinned buffer should be closed"
+assert new_device_buffer.handle is None, "New device buffer should be closed"
 
 print("Memory management example completed!")

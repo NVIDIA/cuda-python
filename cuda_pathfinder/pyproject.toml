@@ -7,7 +7,7 @@ description = "Pathfinder for CUDA components"
 authors = [{ name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com" }]
 license = "Apache-2.0"
 requires-python = ">=3.9"
-dynamic = ["version"]
+dynamic = ["version", "readme"]
 dependencies = []
 
 [project.optional-dependencies]
@@ -15,35 +15,21 @@ test = [
     "pytest>=6.2.4",
 ]
 nvidia_wheels_cu12 = [
-    "nvidia-cublas-cu12",
-    "nvidia-cuda-nvcc-cu12",
-    "nvidia-cuda-nvrtc-cu12",
-    "nvidia-cuda-runtime-cu12",
-    "nvidia-cufft-cu12",
-    "nvidia-cufile-cu12; sys_platform != 'win32'",
-    "nvidia-curand-cu12",
-    "nvidia-cusolver-cu12",
-    "nvidia-cusparse-cu12",
-    "nvidia-npp-cu12",
-    "nvidia-nvfatbin-cu12",
-    "nvidia-nvjitlink-cu12",
-    "nvidia-nvjpeg-cu12",
+    "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg]==12.*",
+    "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
+    "nvidia-cudss-cu12",
+    "nvidia-cufftmp-cu12; sys_platform != 'win32'",
+    "nvidia-libmathdx-cu12",
+    "nvidia-nccl-cu12; sys_platform != 'win32'",
+    "nvidia-nvshmem-cu12; sys_platform != 'win32'",
 ]
 nvidia_wheels_cu13 = [
-    "nvidia-cublas",
-    "nvidia-cuda-nvcc",
-    "nvidia-cuda-nvrtc",
-    "nvidia-cuda-runtime",
-    "nvidia-cufft",
-    "nvidia-cufile; sys_platform != 'win32'",
-    "nvidia-curand",
-    "nvidia-cusolver",
-    "nvidia-cusparse",
-    "nvidia-npp",
-    "nvidia-nvfatbin",
-    "nvidia-nvjitlink",
-    "nvidia-nvjpeg",
-    "nvidia-nvvm",
+    "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,nvvm]==13.*",
+    "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
+    "nvidia-nvshmem-cu13; sys_platform != 'win32'",
+]
+nvidia_wheels_host = [
+    "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
 
 [project.urls]

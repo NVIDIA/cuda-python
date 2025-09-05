@@ -15,7 +15,6 @@ multiple components:
 - `numba.cuda`_: Numba's target for CUDA GPU programming by directly compiling a restricted subset of Python code into CUDA kernels and device functions following the CUDA execution model.
 * `nvmath-python`_: Pythonic access to NVIDIA CPU & GPU Math Libraries, with both *host* and *device* (through `nvmath.device`_) APIs. It also provides low-level Python bindings to host C APIs (through `nvmath.bindings`_).
 
-.. _cuda.pathfinder: https://github.com/NVIDIA/cuda-python/blob/main/cuda_pathfinder/cuda/pathfinder/README.md
 .. _nvmath-python: https://docs.nvidia.com/cuda/nvmath-python/latest
 .. _nvmath.device: https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#device-apis
 .. _nvmath.bindings: https://docs.nvidia.com/cuda/nvmath-python/latest/bindings/index.html
@@ -32,10 +31,10 @@ be available, please refer to the `cuda.bindings`_ documentation for installatio
    :maxdepth: 2
    :caption: Contents:
 
-   release.md
+   release
    cuda.core <https://nvidia.github.io/cuda-python/cuda-core/latest>
    cuda.bindings <https://nvidia.github.io/cuda-python/cuda-bindings/latest>
-   cuda.pathfinder <https://github.com/NVIDIA/cuda-python/blob/main/cuda_pathfinder/cuda/pathfinder/README.md>
+   cuda.pathfinder <https://nvidia.github.io/cuda-python/cuda-pathfinder/latest>
    cuda.cccl.cooperative <https://nvidia.github.io/cccl/python/cooperative>
    cuda.cccl.parallel <https://nvidia.github.io/cccl/python/parallel>
    numba.cuda <https://nvidia.github.io/numba-cuda/>

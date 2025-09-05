@@ -12,7 +12,7 @@ Released on July 2, 2025
 Highlights
 ----------
 
-- Add a :doc:`Getting Started <getting-started>` page.
+- Add a :doc:`Getting Started <../getting-started>` page.
 - :class:`Stream` and :class:`Event` creation and some operations are made faster.
 
 

@@ -18,7 +18,7 @@ runs:
   using: composite
   steps:
     # The steps below are executed only when testing in a PR.
-    # Note: the PR previews will be removed once merged to main (see below) 
+    # Note: the PR previews will be removed once merged to main (see below)
     - name: Deploy doc preview
       if: ${{ github.ref_name != 'main' }}
       uses: JamesIves/github-pages-deploy-action@6c2d9db40f9296374acc17b90404b6e8864128c8  # v4.7.3
@@ -28,7 +28,7 @@ runs:
         folder: ${{ inputs.source-folder }}
         target-folder: docs/pr-preview/pr-${{ inputs.pr-number }}/
         commit-message: "Deploy doc preview for PR ${{ inputs.pr-number }} (${{ github.sha }})"
-    
+
     - name: Leave a comment after deployment
       if: ${{ github.ref_name != 'main' }}
       uses: marocchino/sticky-pull-request-comment@67d0dec7b07ed060a405f9b2a64b8ab319fdd7db  # v2.9.2
@@ -41,10 +41,11 @@ runs:
           :---:
           | <p></p> :rocket: View preview at <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ inputs.pr-number }}/ <br>
           | <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ inputs.pr-number }}/cuda-core/ <br>
-          | <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ inputs.pr-number }}/cuda-bindings/ <br><br>
+          | <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ inputs.pr-number }}/cuda-bindings/ <br>
+          | <br> https://nvidia.github.io/cuda-python/pr-preview/pr-${{ inputs.pr-number }}/cuda-pathfinder/ <br><br>
           | <h6><br> Preview will be ready when the GitHub Pages deployment is complete. <br><br></h6>
-    
-    # The steps below are executed only when building on main.    
+
+    # The steps below are executed only when building on main.
     - name: Remove doc preview
       if: ${{ github.ref_name == 'main' }}
       uses: JamesIves/github-pages-deploy-action@6c2d9db40f9296374acc17b90404b6e8864128c8  # v4.7.3
@@ -54,7 +55,7 @@ runs:
         folder: ${{ inputs.source-folder }}
         target-folder: docs/pr-preview/pr-${{ inputs.pr-number }}/
         commit-message: "Clean up doc preview for PR ${{ inputs.pr-number }} (${{ github.sha }})"
-    
+
     - name: Leave a comment after removal
       if: ${{ github.ref_name == 'main' }}
       uses: marocchino/sticky-pull-request-comment@67d0dec7b07ed060a405f9b2a64b8ab319fdd7db  # v2.9.2

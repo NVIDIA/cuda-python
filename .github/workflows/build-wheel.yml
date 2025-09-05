@@ -96,7 +96,7 @@ jobs:
       - name: Check cuda.pathfinder wheel
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
         run: |
-          twine check cuda_pathfinder/*.whl
+          twine check --strict cuda_pathfinder/*.whl
 
       - name: Upload cuda.pathfinder build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
@@ -107,7 +107,7 @@ jobs:
           if-no-files-found: error
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@352e01339f0a173aa2a3eb57f01492e341e83865  # v3.1.3
+        uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6  # v3.1.4
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_ARCHS_LINUX: "native"
@@ -132,7 +132,7 @@ jobs:
 
       - name: Check cuda.core wheel
         run: |
-          twine check ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+          twine check --strict ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.core build artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
@@ -149,7 +149,7 @@ jobs:
           cuda-version: ${{ inputs.cuda-version }}
 
       - name: Build cuda.bindings wheel
-        uses: pypa/cibuildwheel@352e01339f0a173aa2a3eb57f01492e341e83865  # v3.1.3
+        uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6  # v3.1.4
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
           CIBW_ARCHS_LINUX: "native"
@@ -179,7 +179,7 @@ jobs:
 
       - name: Check cuda.bindings wheel
         run: |
-          twine check ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
+          twine check --strict ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.bindings build artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
@@ -194,7 +194,7 @@ jobs:
         run: |
           pushd cuda_python
           pip wheel -v --no-deps .
-          twine check *.whl
+          twine check --strict *.whl
           popd
 
       - name: List the cuda-python artifacts directory

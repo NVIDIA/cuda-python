@@ -50,9 +50,9 @@ cu11 = ["cuda-bindings[all]==11.8.*"]
 cu12 = ["cuda-bindings[all]==12.*"]
 cu13 = ["cuda-bindings[all]==13.*"]
 test = ["cython>=3.0", "setuptools", "pytest>=6.2.4"]
-test-cu11 = ["cuda-core[test]", "cupy-cuda11x", "nvidia-cuda-runtime-cu11"]  # runtime headers needed by CuPy
-test-cu12 = ["cuda-core[test]", "cupy-cuda12x", "nvidia-cuda-runtime-cu12"]  # runtime headers needed by CuPy
-# TODO add test-cu13 once CuPy is ready
+test-cu11 = ["cuda-core[test]", "cupy-cuda11x", "cuda-toolkit[cudart]==11.*"]  # runtime headers needed by CuPy
+test-cu12 = ["cuda-core[test]", "cupy-cuda12x", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
+test-cu13 = ["cuda-core[test]", "cupy-cuda13x", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
 
 [project.urls]
 homepage = "https://nvidia.github.io/cuda-python/"
@@ -97,10 +97,9 @@ select = [
 ]
 
 ignore = [
-    "UP006", 
-    "UP007", 
+    "UP007",
     "E741", # ambiguous variable name such as I
-    "B007", # rename unsued loop variable to _name 
+    "B007", # rename unsued loop variable to _name
     "UP035" # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
 ]
 

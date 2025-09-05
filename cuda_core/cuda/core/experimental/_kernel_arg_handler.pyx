@@ -215,7 +215,7 @@ cdef class ParamHolder:
                 if isinstance(arg.handle, int):
                     # see note below on handling int arguments
                     prepare_arg[intptr_t](self.data, self.data_addresses, arg.handle, i)
-                    continue              
+                    continue
                 else:
                     # it's a CUdeviceptr:
                     self.data_addresses[i] = <void*><intptr_t>(arg.handle.getPtr())

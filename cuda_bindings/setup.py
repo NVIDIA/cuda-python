@@ -219,9 +219,8 @@ path_list = [
     os.path.join("cuda"),
     os.path.join("cuda", "bindings"),
     os.path.join("cuda", "bindings", "_bindings"),
-    os.path.join("cuda", "bindings", "_lib"),
-    os.path.join("cuda", "bindings", "_lib", "cyruntime"),
     os.path.join("cuda", "bindings", "_internal"),
+    os.path.join("cuda", "bindings", "_lib"),
     os.path.join("cuda", "bindings", "utils"),
 ]
 input_files = []
@@ -249,12 +248,13 @@ if sys.platform != "win32":
         "-std=c++14",
         "-fpermissive",
         "-Wno-deprecated-declarations",
-        "-D _GLIBCXX_ASSERTIONS",
         "-fno-var-tracking-assignments",
     ]
     if "--debug" in sys.argv:
         extra_cythonize_kwargs["gdb_debug"] = True
         extra_compile_args += ["-g", "-O0"]
+        extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]  # libstdc++
+    # extra_compile_args += ["-D _LIBCPP_ENABLE_ASSERTIONS"] # Consider: if clang, use libc++ preprocessor macros.
     else:
         extra_compile_args += ["-O3"]
 
@@ -343,9 +343,6 @@ sources_list = [
     (["cuda/bindings/_bindings/cyruntime.pyx"], static_runtime_libraries),
     (["cuda/bindings/_bindings/cyruntime_ptds.pyx"], static_runtime_libraries),
     # utils
-    (["cuda/bindings/_lib/utils.pyx", "cuda/bindings/_lib/param_packer.cpp"], None),
-    (["cuda/bindings/_lib/cyruntime/cyruntime.pyx"], None),
-    (["cuda/bindings/_lib/cyruntime/utils.pyx"], None),
     (["cuda/bindings/utils/*.pyx"], None),
     # public
     *(([f], None) for f in cuda_bindings_files),

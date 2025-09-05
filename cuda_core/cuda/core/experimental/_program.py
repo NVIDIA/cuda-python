@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import weakref
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Tuple, Union
+from typing import TYPE_CHECKING, Union
 from warnings import warn
 
 if TYPE_CHECKING:
@@ -33,14 +33,14 @@ def _process_define_macro_inner(formatted_options, macro):
         return True
     if isinstance(macro, tuple):
         if len(macro) != 2 or any(not isinstance(val, str) for val in macro):
-            raise RuntimeError(f"Expected define_macro Tuple[str, str], got {macro}")
+            raise RuntimeError(f"Expected define_macro tuple[str, str], got {macro}")
         formatted_options.append(f"--define-macro={macro[0]}={macro[1]}")
         return True
     return False
 
 
 def _process_define_macro(formatted_options, macro):
-    union_type = "Union[str, Tuple[str, str]]"
+    union_type = "Union[str, tuple[str, str]]"
     if _process_define_macro_inner(formatted_options, macro):
         return
     if is_nested_sequence(macro):
@@ -48,7 +48,7 @@ def _process_define_macro(formatted_options, macro):
             if not _process_define_macro_inner(formatted_options, seq_macro):
                 raise RuntimeError(f"Expected define_macro {union_type}, got {seq_macro}")
         return
-    raise RuntimeError(f"Expected define_macro {union_type}, List[{union_type}], got {macro}")
+    raise RuntimeError(f"Expected define_macro {union_type}, list[{union_type}], got {macro}")
 
 
 @dataclass
@@ -79,7 +79,7 @@ class ProgramOptions:
         Enable device code optimization. When specified along with ‘-G’, enables limited debug information generation
         for optimized device code.
         Default: None
-    ptxas_options : Union[str, List[str]], optional
+    ptxas_options : Union[str, list[str]], optional
         Specify one or more options directly to ptxas, the PTX optimizing assembler. Options should be strings.
         For example ["-v", "-O2"].
         Default: None
@@ -113,17 +113,17 @@ class ProgramOptions:
     gen_opt_lto : bool, optional
         Run the optimizer passes before generating the LTO IR.
         Default: False
-    define_macro : Union[str, Tuple[str, str], List[Union[str, Tuple[str, str]]]], optional
+    define_macro : Union[str, tuple[str, str], list[Union[str, tuple[str, str]]]], optional
         Predefine a macro. Can be either a string, in which case that macro will be set to 1, a 2 element tuple of
         strings, in which case the first element is defined as the second, or a list of strings or tuples.
         Default: None
-    undefine_macro : Union[str, List[str]], optional
+    undefine_macro : Union[str, list[str]], optional
         Cancel any previous definition of a macro, or list of macros.
         Default: None
-    include_path : Union[str, List[str]], optional
+    include_path : Union[str, list[str]], optional
         Add the directory or directories to the list of directories to be searched for headers.
         Default: None
-    pre_include : Union[str, List[str]], optional
+    pre_include : Union[str, list[str]], optional
         Preinclude one or more headers during preprocessing. Can be either a string or a list of strings.
         Default: None
     no_source_include : bool, optional
@@ -156,13 +156,13 @@ class ProgramOptions:
     no_display_error_number : bool, optional
         Disable the display of a diagnostic number for warning messages.
         Default: False
-    diag_error : Union[int, List[int]], optional
+    diag_error : Union[int, list[int]], optional
         Emit error for a specified diagnostic message number or comma separated list of numbers.
         Default: None
-    diag_suppress : Union[int, List[int]], optional
+    diag_suppress : Union[int, list[int]], optional
         Suppress a specified diagnostic message number or comma separated list of numbers.
         Default: None
-    diag_warn : Union[int, List[int]], optional
+    diag_warn : Union[int, list[int]], optional
         Emit warning for a specified diagnostic message number or comma separated lis of numbers.
         Default: None
     brief_diagnostics : bool, optional
@@ -189,7 +189,7 @@ class ProgramOptions:
     debug: bool | None = None
     lineinfo: bool | None = None
     device_code_optimize: bool | None = None
-    ptxas_options: Union[str, List[str], Tuple[str]] | None = None
+    ptxas_options: Union[str, list[str], tuple[str]] | None = None
     max_register_count: int | None = None
     ftz: bool | None = None
     prec_sqrt: bool | None = None
@@ -200,11 +200,11 @@ class ProgramOptions:
     link_time_optimization: bool | None = None
     gen_opt_lto: bool | None = None
     define_macro: (
-        Union[str, Tuple[str, str], List[Union[str, Tuple[str, str]]], Tuple[Union[str, Tuple[str, str]]]] | None
+        Union[str, tuple[str, str], list[Union[str, tuple[str, str]]], tuple[Union[str, tuple[str, str]]]] | None
     ) = None
-    undefine_macro: Union[str, List[str], Tuple[str]] | None = None
-    include_path: Union[str, List[str], Tuple[str]] | None = None
-    pre_include: Union[str, List[str], Tuple[str]] | None = None
+    undefine_macro: Union[str, list[str], tuple[str]] | None = None
+    include_path: Union[str, list[str], tuple[str]] | None = None
+    pre_include: Union[str, list[str], tuple[str]] | None = None
     no_source_include: bool | None = None
     std: str | None = None
     builtin_move_forward: bool | None = None
@@ -215,9 +215,9 @@ class ProgramOptions:
     device_int128: bool | None = None
     optimization_info: str | None = None
     no_display_error_number: bool | None = None
-    diag_error: Union[int, List[int], Tuple[int]] | None = None
-    diag_suppress: Union[int, List[int], Tuple[int]] | None = None
-    diag_warn: Union[int, List[int], Tuple[int]] | None = None
+    diag_error: Union[int, list[int], tuple[int]] | None = None
+    diag_suppress: Union[int, list[int], tuple[int]] | None = None
+    diag_warn: Union[int, list[int], tuple[int]] | None = None
     brief_diagnostics: bool | None = None
     time: str | None = None
     split_compile: int | None = None
@@ -244,8 +244,8 @@ class ProgramOptions:
             self._formatted_options.append("--device-debug")
         if self.lineinfo is not None and self.lineinfo:
             self._formatted_options.append("--generate-line-info")
-        if self.device_code_optimize is not None:
-            self._formatted_options.append(f"--dopt={'on' if self.device_code_optimize else 'off'}")
+        if self.device_code_optimize is not None and self.device_code_optimize:
+            self._formatted_options.append("--dopt=on")
         if self.ptxas_options is not None:
             opt_name = "--ptxas-options"
             if isinstance(self.ptxas_options, str):
@@ -351,7 +351,7 @@ class ProgramOptions:
 
     def __repr__(self):
         # __TODO__ improve this
-        return self._formatted_options
+        return str(self._formatted_options)
 
 
 ProgramHandleT = Union["cuda.bindings.nvrtc.nvrtcProgram", LinkerHandleT]
@@ -453,7 +453,7 @@ class Program:
         target_type : Any
             String of the targeted compilation type.
             Supported options are "ptx", "cubin" and "ltoir".
-        name_expressions : Union[List, Tuple], optional
+        name_expressions : Union[list, tuple], optional
             List of explicit name expressions to become accessible.
             (Default to no expressions)
         logs : Any, optional
