@@ -46,8 +46,15 @@ def test_find_libname_nvshmem(info_summary_append):
     if IS_WINDOWS:
         assert hdr_dir is None
         pytest.skip("nvshmem has no Windows support.")
+    if hdr_dir:
+        assert os.path.isdir(hdr_dir)
+        assert os.path.isfile(os.path.join(hdr_dir, "nvshmem.h"))
     if STRICTNESS == "all_must_work" or have_nvidia_nvshmem_package():
         assert hdr_dir is not None
         if have_nvidia_nvshmem_package():
             hdr_dir_parts = hdr_dir.split(os.path.sep)
             assert "site-packages" in hdr_dir_parts
+        elif conda_prefix := os.getenv("CONDA_PREFIX"):
+            assert hdr_dir.startswith(conda_prefix)
+        else:
+            assert hdr_dir.startswith("/usr/include/nvshmem_")
