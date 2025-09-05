@@ -242,6 +242,7 @@ SUPPORTED_LINUX_SONAMES_OTHER = {
     "cufftMp": ("libcufftMp.so.11",),
     "mathdx": ("libmathdx.so.0",),
     "cudss": ("libcudss.so.0",),
+    "nccl": ("libnccl.so.2",),
     "nvpl_fftw": ("libnvpl_fftw.so.0",),
     "nvshmem_host": ("libnvshmem_host.so.3",),
 }
@@ -447,6 +448,7 @@ SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
     "cudss": ("nvidia/cu12/lib",),
     "cufftMp": ("nvidia/cufftmp/cu12/lib",),
     "mathdx": ("nvidia/cu13/lib", "nvidia/cu12/lib"),
+    "nccl": ("nvidia/nccl/lib",),
     "nvpl_fftw": ("nvpl/lib",),
     "nvshmem_host": ("nvidia/nvshmem/lib",),
 }
