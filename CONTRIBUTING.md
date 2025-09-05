@@ -11,7 +11,42 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
 2. You want to implement a feature, improvement, or bug fix:
     - Please refer to each component's guideline:
        - [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html)
-       - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)
+       - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)<sup>[1](#footnote1)</sup>
+       - [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/contribute.html)
+
+
+## CI infrastructure overview
+
+The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and releases multiple components across different platforms. This section provides a visual overview of our CI infrastructure to help contributors understand the build and release process.
+
+### CI Pipeline Flow
+
+![CUDA Python CI Pipeline Flow](ci/ci-pipeline.svg)
+
+### Branch-specific Artifact Flow
+
+#### Main Branch
+- **Build** → **Test** → **Documentation** → **Potential Release**
+- Artifacts stored as `{component}-python{version}-{platform}-{sha}`
+- Full test coverage across all platforms and CUDA versions
+- **Artifact flow out**: `cuda-pathfinder` artifacts → backport branches
+
+#### Backport Branches  
+- **Build** → **Test** → **Backport PR Creation**
+- Artifacts used for validation before creating backport pull requests
+- Maintains compatibility with older CUDA versions
+- **Artifact flow in**: `cuda-pathfinder` artifacts ← main branch
+- **Artifact flow out**: older `cuda-bindings` artifacts → main branch
+
+### Key Infrastructure Details
+
+- **Self-hosted runners**: Used for Linux builds and GPU testing (more resources, faster builds)
+- **GitHub-hosted runners**: Used for Windows builds and general tasks
+- **Artifact retention**: 30 days for GitHub Artifacts (wheels, docs, tests)
+- **Cache retention**: GitHub Cache for build dependencies and environments
+- **Security**: All commits must be signed, untrusted code blocked
+- **Parallel execution**: Matrix builds across Python versions and platforms
+- **Component isolation**: Each component (core, bindings, pathfinder, python) can be built/released independently
 
 
 ## Pre-commit
@@ -78,3 +113,7 @@ By making a contribution to this project, I certify that:
     maintained indefinitely and may be redistributed consistent with
     this project or the open source license(s) involved.
 ```
+
+---
+
+<a id="footnote1">1</a>: `cuda.bindings` follows the contributing guidelines from this repository (`cuda-python`).
