@@ -35,11 +35,7 @@ cdef extern from "windows.h" nogil:
         DWORD dwFlags
     )
 
-    HMODULE _LoadLibraryW "LoadLibraryW"(LPCWSTR lpLibFileName)
-
     FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, LPCSTR lpProcName)
-
-    HMODULE _GetModuleHandleW "GetModuleHandleW"(LPCWSTR lpModuleName)
 
 cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags):
     cdef uintptr_t result
@@ -55,20 +51,8 @@ cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags):
     PyMem_Free(wpath)
     return result
 
-cdef inline uintptr_t LoadLibraryW(str path) nogil:
-    cdef wchar_t* wpath
-    with gil:
-        wpath = PyUnicode_AsWideCharString(path, NULL)
-    return <uintptr_t>_LoadLibraryW(wpath)
-
 cdef inline void *GetProcAddress(uintptr_t hModule, const char* lpProcName) nogil:
     return _GetProcAddress(<HMODULE>hModule, lpProcName)
-
-cdef inline uintptr_t GetModuleHandleW(str path) nogil:
-    cdef wchar_t* wpath
-    with gil:
-        wpath = PyUnicode_AsWideCharString(path, NULL)
-    return <uintptr_t>_GetModuleHandleW(wpath)
 
 cdef int get_cuda_version():
     cdef int err, driver_ver = 0
