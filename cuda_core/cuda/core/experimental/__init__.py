@@ -14,7 +14,13 @@ from cuda.core.experimental._graph import (
 from cuda.core.experimental._launch_config import LaunchConfig
 from cuda.core.experimental._launcher import launch
 from cuda.core.experimental._linker import Linker, LinkerOptions
-from cuda.core.experimental._memory import Buffer, DeviceMemoryResource, LegacyPinnedMemoryResource, MemoryResource
+from cuda.core.experimental._memory import (
+    Buffer,
+    DeviceMemoryResource,
+    IPCChannel,
+    LegacyPinnedMemoryResource,
+    MemoryResource,
+)
 from cuda.core.experimental._module import Kernel, ObjectCode
 from cuda.core.experimental._program import Program, ProgramOptions
 from cuda.core.experimental._stream import Stream, StreamOptions
