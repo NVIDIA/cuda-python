@@ -75,7 +75,7 @@ declare i32 @llvm.nvvm.read.ptx.sreg.tid.x() nounwind readnone
 
 !nvvmir.version = !{{!1}}
 !1 = !{{i32 {major}, i32 0, i32 {debug_major}, i32 0}}
-""" # noqa: E501
+"""  # noqa: E501
 
         return nvvm_ir_template.format(major=major, debug_major=debug_major)
     except Exception:
@@ -108,7 +108,7 @@ declare i32 @llvm.nvvm.read.ptx.sreg.tid.x() nounwind readnone
 
 !nvvm.annotations = !{!0}
 !0 = !{void (i32*)* @simple, !"kernel", i32 1}
-""" # noqa: E501
+"""  # noqa: E501
 
 
 @pytest.fixture(scope="module")
