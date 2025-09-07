@@ -110,7 +110,7 @@ flowchart TD
     subgraph BUILD["🔨 BUILD STAGE"]
         subgraph BUILD_PLATFORMS["Parallel Platform Builds"]
             B1["linux-64<br/>(Self-hosted)"]
-            B2["linux-aarch64<br/>(Self-hosted)"] 
+            B2["linux-aarch64<br/>(Self-hosted)"]
             B3["win-64<br/>(GitHub-hosted)"]
         end
         BUILD_DETAILS["• Python versions: 3.9, 3.10, 3.11, 3.12, 3.13<br/>• CUDA version: 13.0.0 (build-time)<br/>• Components: cuda-core, cuda-bindings,<br/>  cuda-pathfinder, cuda-python"]
@@ -156,7 +156,7 @@ flowchart TD
 
     %% Artifact Flow Arrows (Cache Reuse)
     GITHUB_CACHE -.->|"mini CTK reuse"| BUILD
-    
+
     %% Artifact Flow Arrows (Wheel Fetch)
     GITHUB_ARTIFACTS -.->|"wheel fetch"| RELEASE
 
@@ -188,7 +188,7 @@ flowchart TD
 - Full test coverage across all platforms and CUDA versions
 - **Artifact flow out**: `cuda-pathfinder` artifacts → backport branches
 
-#### Backport Branches  
+#### Backport Branches
 - **Build** → **Test** → **Backport PR Creation**
 - Artifacts used for validation before creating backport pull requests
 - Maintains compatibility with older CUDA versions

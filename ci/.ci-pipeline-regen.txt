@@ -92,7 +92,7 @@ This file contains the prompt and requirements for regenerating ci-pipeline.svg 
 ## Recent Manual Adjustments Applied
 - Fixed arrow endpoint positioning to prevent overlap with stage boxes
 - Moved mini CTK reuse arrow endpoint from y=285 to y=295
-- Moved wheel fetch arrow endpoint from y=650 to y=645  
+- Moved wheel fetch arrow endpoint from y=650 to y=645
 - Repositioned text labels for better visual separation
 - Standardized all text to 12pt font size for consistency
 - Changed arrow heads from black to orange to match arrow color
