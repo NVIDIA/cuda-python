@@ -87,8 +87,6 @@ By making a contribution to this project, I certify that:
     this project or the open source license(s) involved.
 ```
 
----
-
 ## CI infrastructure overview
 
 The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and releases multiple components across different platforms. This section provides a visual overview of our CI infrastructure to help contributors understand the build and release process.
