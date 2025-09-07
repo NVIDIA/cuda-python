@@ -207,4 +207,4 @@ flowchart TD
 
 ---
 
-<a id="footnote1">1</a>: `cuda.bindings` follows the contributing guidelines from this repository (`cuda-python`).
+<a>1</a>: The `cuda-python` meta package shares the same license and the contributing guidelines as those of `cuda-bindings`.
