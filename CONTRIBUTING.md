@@ -14,45 +14,12 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
        - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)<sup>[1](#footnote1)</sup>
        - [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/contribute.html)
 
+## Table of Contents
 
-## CI infrastructure overview
-
-The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and releases multiple components across different platforms. This section provides a visual overview of our CI infrastructure to help contributors understand the build and release process.
-
-### CI Pipeline Flow
-
-![CUDA Python CI Pipeline Flow](ci/ci-pipeline.svg)
-
-### Pipeline Execution Details
-
-**Parallel Execution**: The CI pipeline leverages parallel execution to optimize build and test times:
-- **Build Stage**: Different architectures/operating systems (linux-64, linux-aarch64, win-64) are built in parallel across their respective runners
-- **Test Stage**: Different architectures/operating systems/CUDA versions are tested in parallel; documentation preview is also built in parallel with testing
-
-### Branch-specific Artifact Flow
-
-#### Main Branch
-- **Build** → **Test** → **Documentation** → **Potential Release**
-- Artifacts stored as `{component}-python{version}-{platform}-{sha}`
-- Full test coverage across all platforms and CUDA versions
-- **Artifact flow out**: `cuda-pathfinder` artifacts → backport branches
-
-#### Backport Branches  
-- **Build** → **Test** → **Backport PR Creation**
-- Artifacts used for validation before creating backport pull requests
-- Maintains compatibility with older CUDA versions
-- **Artifact flow in**: `cuda-pathfinder` artifacts ← main branch
-- **Artifact flow out**: older `cuda-bindings` artifacts → main branch
-
-### Key Infrastructure Details
-
-- **Self-hosted runners**: Used for Linux builds and GPU testing (more resources, faster builds)
-- **GitHub-hosted runners**: Used for Windows builds and general tasks
-- **Artifact retention**: 30 days for GitHub Artifacts (wheels, docs, tests)
-- **Cache retention**: GitHub Cache for build dependencies and environments
-- **Security**: All commits must be signed, untrusted code blocked
-- **Parallel execution**: Matrix builds across Python versions and platforms
-- **Component isolation**: Each component (core, bindings, pathfinder, python) can be built/released independently
+- [Pre-commit](#pre-commit)
+- [Code signing](#code-signing)
+- [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
+- [CI infrastructure overview](#ci-infrastructure-overview)
 
 
 ## Pre-commit
@@ -123,3 +90,43 @@ By making a contribution to this project, I certify that:
 ---
 
 <a id="footnote1">1</a>: `cuda.bindings` follows the contributing guidelines from this repository (`cuda-python`).
+
+
+## CI infrastructure overview
+
+The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and releases multiple components across different platforms. This section provides a visual overview of our CI infrastructure to help contributors understand the build and release process.
+
+### CI Pipeline Flow
+
+![CUDA Python CI Pipeline Flow](ci/ci-pipeline.svg)
+
+### Pipeline Execution Details
+
+**Parallel Execution**: The CI pipeline leverages parallel execution to optimize build and test times:
+- **Build Stage**: Different architectures/operating systems (linux-64, linux-aarch64, win-64) are built in parallel across their respective runners
+- **Test Stage**: Different architectures/operating systems/CUDA versions are tested in parallel; documentation preview is also built in parallel with testing
+
+### Branch-specific Artifact Flow
+
+#### Main Branch
+- **Build** → **Test** → **Documentation** → **Potential Release**
+- Artifacts stored as `{component}-python{version}-{platform}-{sha}`
+- Full test coverage across all platforms and CUDA versions
+- **Artifact flow out**: `cuda-pathfinder` artifacts → backport branches
+
+#### Backport Branches  
+- **Build** → **Test** → **Backport PR Creation**
+- Artifacts used for validation before creating backport pull requests
+- Maintains compatibility with older CUDA versions
+- **Artifact flow in**: `cuda-pathfinder` artifacts ← main branch
+- **Artifact flow out**: older `cuda-bindings` artifacts → main branch
+
+### Key Infrastructure Details
+
+- **Self-hosted runners**: Used for Linux builds and GPU testing (more resources, faster builds)
+- **GitHub-hosted runners**: Used for Windows builds and general tasks
+- **Artifact retention**: 30 days for GitHub Artifacts (wheels, docs, tests)
+- **Cache retention**: GitHub Cache for build dependencies and environments
+- **Security**: All commits must be signed, untrusted code blocked
+- **Parallel execution**: Matrix builds across Python versions and platforms
+- **Component isolation**: Each component (core, bindings, pathfinder, python) can be built/released independently
