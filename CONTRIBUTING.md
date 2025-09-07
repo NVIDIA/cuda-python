@@ -95,7 +95,9 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 
 ![CUDA Python CI Pipeline Flow](ci/ci-pipeline.svg)
 
-Alternative Mermaid diagram representation ([ci/ci-pipeline.mmd](ci/ci-pipeline.mmd)):
+Alternative Mermaid diagram representation:
+
+![ci-pipeline](ci/ci-pipeline.md)
 
 ### Pipeline Execution Details
 
