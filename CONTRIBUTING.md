@@ -23,6 +23,12 @@ The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and
 
 ![CUDA Python CI Pipeline Flow](ci/ci-pipeline.svg)
 
+### Pipeline Execution Details
+
+**Parallel Execution**: The CI pipeline leverages parallel execution to optimize build and test times:
+- **Build Stage**: Different architectures/operating systems (linux-64, linux-aarch64, win-64) are built in parallel across their respective runners
+- **Test Stage**: Different architectures/operating systems/CUDA versions are tested in parallel; documentation preview is also built in parallel with testing
+
 ### Branch-specific Artifact Flow
 
 #### Main Branch
