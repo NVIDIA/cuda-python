@@ -85,12 +85,12 @@
   <!-- Arrow from GitHub Cache (mini CTK) back to Build Stage -->
   <path d="M641,358 Q642,340 642,320 Q640,305 580,290 Q560,285 520,285" 
         stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)" stroke-dasharray="5,3"/>
-  <text x="690" y="310" font-family="Comic Sans MS, cursive, sans-serif" font-size="9" fill="#FF9800">mini CTK reuse</text>
+  <text x="690" y="310" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" fill="#FF9800">mini CTK reuse</text>
   
   <!-- Arrow from GitHub Artifacts (wheels) to Release Pipeline -->
-  <path d="M260,437 Q258,520 260,580 Q262,620 300,650 Q340,665 380,670" 
+  <path d="M260,437 Q258,520 260,580 Q262,620 300,650 Q340,650 380,650" 
         stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)" stroke-dasharray="5,3"/>
-  <text x="320" y="570" font-family="Comic Sans MS, cursive, sans-serif" font-size="9" fill="#FF9800">wheel fetch</text>
+  <text x="250" y="630" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" fill="#FF9800">wheel fetch</text>
   
   <!-- Test Stage - hand-drawn style -->
   <path d="M51,482 Q52,479 853,481 Q856,484 854,617 Q852,622 49,619 Q46,616 51,482 Z" 
