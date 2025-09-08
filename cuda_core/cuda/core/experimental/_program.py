@@ -520,6 +520,15 @@ class Program:
         elif options.device_code_optimize is True:
             nvvm_options.append("-opt=3")
 
+        if options.ftz is not None:
+            nvvm_options.append(f"-ftz={'true' if options.ftz else 'false'}")
+        if options.prec_sqrt is not None:
+            nvvm_options.append(f"-prec-sqrt={'true' if options.prec_sqrt else 'false'}")
+        if options.prec_div is not None:
+            nvvm_options.append(f"-prec-div={'true' if options.prec_div else 'false'}")
+        if options.fma is not None:
+            nvvm_options.append(f"-fma={'true' if options.fma else 'false'}")
+
         return nvvm_options
 
     def close(self):
@@ -603,10 +612,12 @@ class Program:
             return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping, name=self._options.name)
 
         elif self._backend == "NVVM":
-            if target_type != "ptx":
-                raise ValueError(f'NVVM backend only supports target_type="ptx", got "{target_type}"')
+            if target_type not in ("ptx", "ltoir"):
+                raise ValueError(f'NVVM backend only supports target_type="ptx", "ltoir", got "{target_type}"')
 
             nvvm_options = self._translate_program_options_to_nvvm(self._options)
+            if target_type == "ltoir" and "-gen-lto" not in nvvm_options:
+                nvvm_options.append("-gen-lto")
             nvvm = _get_nvvm_module()
             nvvm.verify_program(self._mnff.handle, len(nvvm_options), nvvm_options)
             nvvm.compile_program(self._mnff.handle, len(nvvm_options), nvvm_options)
