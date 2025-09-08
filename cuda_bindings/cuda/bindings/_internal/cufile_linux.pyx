@@ -18,8 +18,6 @@ import cython
 # Extern
 ###############################################################################
 
-from .utils import NotSupportedError
-
 cdef extern from "<dlfcn.h>" nogil:
     void* dlopen(const char*, int)
     char* dlerror()
