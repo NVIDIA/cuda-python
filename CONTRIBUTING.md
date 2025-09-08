@@ -106,7 +106,7 @@ flowchart TD
         T1 --- T2
     end
 
-    %% Build Stage
+    %% Build Stage  
     subgraph BUILD["🔨 BUILD STAGE"]
         subgraph BUILD_PLATFORMS["Parallel Platform Builds"]
             B1["linux-64<br/>(Self-hosted)"]
@@ -156,8 +156,10 @@ flowchart TD
 
     %% Artifact Flow Arrows (Cache Reuse)
     GITHUB_CACHE -.->|"mini CTK reuse"| BUILD
+    GITHUB_CACHE -.->|"mini CTK reuse"| TEST
 
     %% Artifact Flow Arrows (Wheel Fetch)
+    GITHUB_ARTIFACTS -.->|"wheel fetch"| TEST
     GITHUB_ARTIFACTS -.->|"wheel fetch"| RELEASE
 
     %% Styling

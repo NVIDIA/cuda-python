@@ -26,7 +26,6 @@
   <text x="251" y="82" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Push to main branch</text>
   <text x="451" y="82" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Pull request</text>
   <text x="651" y="82" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Manual workflow dispatch</text>
-
   <!-- Rough arrow down -->
   <path d="M449,112 Q451,125 452,132 M447,128 L452,134 L457,129" stroke="#333" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
 
@@ -92,6 +91,17 @@
   <path d="M260,437 Q258,520 260,580 Q262,615 300,625 Q310,630 350,642"
         stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)" stroke-dasharray="5,3"/>
   <text x="220" y="640" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" fill="#FF9800">wheel fetch</text>
+
+  <!-- Additional arrows to TEST STAGE -->
+  <!-- Arrow from GitHub Cache (mini CTK) to Test Stage -->
+  <path d="M641,434 Q642,450 630,465 Q620,475 580,480 Q540,485 520,488"
+        stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)" stroke-dasharray="5,3"/>
+  <text x="660" y="470" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" fill="#FF9800">mini CTK reuse</text>
+
+  <!-- Arrow from GitHub Artifacts (wheels) to Test Stage -->
+  <path d="M261,434 Q262,450 280,465 Q300,475 340,480 Q380,485 400,488"
+        stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)" stroke-dasharray="5,3"/>
+  <text x="180" y="470" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" fill="#FF9800">wheel fetch</text>
 
   <!-- Test Stage - hand-drawn style -->
   <path d="M51,482 Q52,479 853,481 Q856,484 854,617 Q852,622 49,619 Q46,616 51,482 Z"
