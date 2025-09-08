@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 # This code was automatically generated with version 13.0.0. Do not modify it directly.
-from typing import List, Tuple, Any, Optional
+from typing import Any, Optional
 from enum import IntEnum
 import cython
 import ctypes
@@ -211,7 +211,7 @@ def nvrtcGetSupportedArchs():
     nvrtcResult
         - :py:obj:`~.NVRTC_SUCCESS`
         - :py:obj:`~.NVRTC_ERROR_INVALID_INPUT`
-    supportedArchs : List[int]
+    supportedArchs : list[int]
         sorted array of supported architectures.
     """
     cdef vector[int] supportedArchs
@@ -228,7 +228,7 @@ def nvrtcGetSupportedArchs():
 {{if 'nvrtcCreateProgram' in found_functions}}
 
 @cython.embedsignature(True)
-def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional[Tuple[bytes] | List[bytes]], includeNames : Optional[Tuple[bytes] | List[bytes]]):
+def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional[tuple[bytes] | list[bytes]], includeNames : Optional[tuple[bytes] | list[bytes]]):
     """ nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter `prog` with it.
 
     Parameters
@@ -241,10 +241,10 @@ def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional
     numHeaders : int
         Number of headers used.  `numHeaders` must be greater than or equal
         to 0.
-    headers : List[bytes]
+    headers : list[bytes]
         Sources of the headers.  `headers` can be `NULL` when `numHeaders`
         is 0.
-    includeNames : List[bytes]
+    includeNames : list[bytes]
         Name of each header by which they can be included in the CUDA
         program source.  `includeNames` can be `NULL` when `numHeaders` is
         0. These headers must be included with the exact names specified
@@ -267,10 +267,10 @@ def nvrtcCreateProgram(char* src, char* name, int numHeaders, headers : Optional
     """
     includeNames = [] if includeNames is None else includeNames
     if not all(isinstance(_x, (bytes)) for _x in includeNames):
-        raise TypeError("Argument 'includeNames' is not instance of type (expected Tuple[bytes] or List[bytes]")
+        raise TypeError("Argument 'includeNames' is not instance of type (expected tuple[bytes] or list[bytes]")
     headers = [] if headers is None else headers
     if not all(isinstance(_x, (bytes)) for _x in headers):
-        raise TypeError("Argument 'headers' is not instance of type (expected Tuple[bytes] or List[bytes]")
+        raise TypeError("Argument 'headers' is not instance of type (expected tuple[bytes] or list[bytes]")
     cdef nvrtcProgram prog = nvrtcProgram()
     if numHeaders > len(headers): raise RuntimeError("List is too small: " + str(len(headers)) + " < " + str(numHeaders))
     if numHeaders > len(includeNames): raise RuntimeError("List is too small: " + str(len(includeNames)) + " < " + str(numHeaders))
@@ -322,7 +322,7 @@ def nvrtcDestroyProgram(prog):
 {{if 'nvrtcCompileProgram' in found_functions}}
 
 @cython.embedsignature(True)
-def nvrtcCompileProgram(prog, int numOptions, options : Optional[Tuple[bytes] | List[bytes]]):
+def nvrtcCompileProgram(prog, int numOptions, options : Optional[tuple[bytes] | list[bytes]]):
     """ nvrtcCompileProgram compiles the given program.
 
     It supports compile options listed in :py:obj:`~.Supported Compile
@@ -334,7 +334,7 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[Tuple[bytes] | 
         CUDA Runtime Compilation program.
     numOptions : int
         Number of compiler options passed.
-    options : List[bytes]
+    options : list[bytes]
         Compiler options in the form of C string array.  `options` can be
         `NULL` when `numOptions` is 0.
 
@@ -353,7 +353,7 @@ def nvrtcCompileProgram(prog, int numOptions, options : Optional[Tuple[bytes] | 
     """
     options = [] if options is None else options
     if not all(isinstance(_x, (bytes)) for _x in options):
-        raise TypeError("Argument 'options' is not instance of type (expected Tuple[bytes] or List[bytes]")
+        raise TypeError("Argument 'options' is not instance of type (expected tuple[bytes] or list[bytes]")
     cdef cynvrtc.nvrtcProgram cyprog
     if prog is None:
         pprog = 0

@@ -24,9 +24,10 @@ on:
         required: true
         type: string
       run-id:
-        description: "The GHA run ID that generated validated artifacts"
-        required: true
+        description: "The GHA run ID that generated validated artifacts (optional - will be auto-detected from git tag if not provided)"
+        required: false
         type: string
+        default: ""
       build-ctk-ver:
         type: string
         required: true
@@ -43,6 +44,32 @@ defaults:
     shell: bash --noprofile --norc -xeuo pipefail {0}
 
 jobs:
+  determine-run-id:
+    runs-on: ubuntu-latest
+    outputs:
+      run-id: ${{ steps.lookup-run-id.outputs.run-id }}
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        with:
+          # fetch-depth: 0 is required so the lookup-run-id script can access all git tags
+          fetch-depth: 0
+
+      - name: Determine Run ID
+        id: lookup-run-id
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ -n "${{ inputs.run-id }}" ]]; then
+            echo "Using provided run ID: ${{ inputs.run-id }}"
+            echo "run-id=${{ inputs.run-id }}" >> $GITHUB_OUTPUT
+          else
+            echo "Auto-detecting run ID for tag: ${{ inputs.git-tag }}"
+            RUN_ID=$(./ci/tools/lookup-run-id "${{ inputs.git-tag }}" "${{ github.repository }}")
+            echo "Auto-detected run ID: $RUN_ID"
+            echo "run-id=$RUN_ID" >> $GITHUB_OUTPUT
+          fi
+
   check-tag:
     runs-on: ubuntu-latest
     steps:
@@ -91,13 +118,14 @@ jobs:
       pull-requests: write
     needs:
       - check-tag
+      - determine-run-id
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
     with:
       build-ctk-ver: ${{ inputs.build-ctk-ver }}
       component: ${{ inputs.component }}
       git-tag: ${{ inputs.git-tag }}
-      run-id: ${{ inputs.run-id }}
+      run-id: ${{ needs.determine-run-id.outputs.run-id }}
       is-release: true
 
   upload-archive:
@@ -106,11 +134,12 @@ jobs:
       contents: write
     needs:
       - check-tag
+      - determine-run-id
     secrets: inherit
     uses: ./.github/workflows/release-upload.yml
     with:
       git-tag: ${{ inputs.git-tag }}
-      run-id: ${{ inputs.run-id }}
+      run-id: ${{ needs.determine-run-id.outputs.run-id }}
       component: ${{ inputs.component }}
 
   publish-wheels:
@@ -118,6 +147,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - check-tag
+      - determine-run-id
     environment:
       name: ${{ inputs.wheel-dst }}
       url: https://${{ (inputs.wheel-dst == 'testpypi' && 'test.') || '' }}pypi.org/p/${{ inputs.component }}/
@@ -131,7 +161,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./ci/tools/download-wheels "${{ inputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "dist"
+          ./ci/tools/download-wheels "${{ needs.determine-run-id.outputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "dist"
 
       - name: Publish package distributions to PyPI
         if: ${{ inputs.wheel-dst == 'pypi' }}

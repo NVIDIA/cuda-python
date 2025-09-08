@@ -123,7 +123,8 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
     Returns:
         A LoadedDL object if successful, None if the library cannot be loaded
     """
-    for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
+    # Reverse tabulated names to achieve new → old search order.
+    for dll_name in reversed(SUPPORTED_WINDOWS_DLLS.get(libname, ())):
         handle = kernel32.LoadLibraryExW(dll_name, None, 0)
         if handle:
             abs_path = abs_path_for_dynamic_library(libname, handle)
