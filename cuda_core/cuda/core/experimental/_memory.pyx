@@ -11,8 +11,7 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 )
 
 from dataclasses import dataclass
-from functools import wraps
-from typing import Tuple, TypeVar, Union, TYPE_CHECKING
+from typing import TypeVar, Union, TYPE_CHECKING
 import abc
 import array
 import cython
@@ -263,8 +262,6 @@ class MemoryResource(abc.ABC):
     memory resource's respective property.)
     """
 
-    __slots__ = ("_handle",)
-
     @abc.abstractmethod
     def __init__(self, *args, **kwargs):
         """Initialize the memory resource.
@@ -311,20 +308,17 @@ class MemoryResource(abc.ABC):
         """
         ...
 
-    @property
-    @abc.abstractmethod
+    @abc.abstractproperty
     def is_device_accessible(self) -> bool:
         """bool: True if buffers allocated by this resource can be accessed on the device."""
         ...
 
-    @property
-    @abc.abstractmethod
+    @abc.abstractproperty
     def is_host_accessible(self) -> bool:
         """bool: True if buffers allocated by this resource can be accessed on the host."""
         ...
 
-    @property
-    @abc.abstractmethod
+    @abc.abstractproperty
     def device_id(self) -> int:
         """int: The device ordinal for which this memory resource is responsible.
 
@@ -347,8 +341,8 @@ cdef class IPCBufferDescriptor:
     """Serializable object describing a buffer that can be shared between processes."""
 
     cdef:
-       bytes _reserved
-       size_t _size
+        bytes _reserved
+        size_t _size
 
     def __init__(self, *arg, **kwargs):
         raise RuntimeError("IPCBufferDescriptor objects cannot be instantiated directly. Please use MemoryResource APIs.")
@@ -411,14 +405,14 @@ cdef class IPCAllocationHandle:
 
     @property
     def handle(self) -> int:
-      return self._handle
+        return self._handle
 
 
 cdef class IPCChannel:
     """Communication channel for sharing IPC-enabled memory pools."""
 
     cdef:
-      object _proxy
+        object _proxy
 
     def __init__(self):
         if platform.system() == "Linux":
@@ -446,9 +440,10 @@ cdef class IPCChannelUnixSocket:
     cpdef _send_allocation_handle(self, alloc_handle: IPCAllocationHandle):
         """Sends over this channel an allocation handle for exporting a
         shared memory pool."""
-        self._sock_out.sendmsg([],
-            [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", [int(alloc_handle)]))
-        ])
+        self._sock_out.sendmsg(
+            [],
+            [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", [int(alloc_handle)]))]
+        )
 
     cpdef IPCAllocationHandle _receive_allocation_handle(self):
         """Receives over this channel an allocation handle for importing a
@@ -492,7 +487,9 @@ def _def_mempool_attr_property(scope: dict, name: str, property_type: type, doc:
     Returns:
         property: A property object that retrieves the attribute value.
     """
+
     attr_enum = getattr(driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{name.upper()}")
+
     def getter(self) -> property_type:
         err, value = driver.cuMemPoolGetAttribute(self.handle, attr_enum)
         raise_if_driver_error(err)
@@ -527,7 +524,7 @@ class DeviceMemoryResource(MemoryResource):
     """
     __slots__ = "_dev_id", "_mempool_handle", "_ipc_handle_type", "_mempool_owned"
 
-    def __init__(self, device_id: int | Device, options = None):
+    def __init__(self, device_id: int | Device, options=None):
         device_id = getattr(device_id, 'device_id', device_id)
         opts = check_or_create_options(
             DeviceMemoryResourceOptions, options, "DeviceMemoryResource options", keep_none=True
@@ -850,5 +847,6 @@ class _SynchronousMemoryResource(MemoryResource):
     @property
     def device_id(self) -> int:
         return self._dev_id
+
 
 del _def_mempool_attr_property

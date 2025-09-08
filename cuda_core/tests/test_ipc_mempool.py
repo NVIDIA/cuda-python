@@ -9,14 +9,15 @@ except ImportError:
 import ctypes
 import multiprocessing
 import platform
+
 import pytest
 
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, IPCChannel, MemoryResource
-from cuda.core.experimental._memory import DLDeviceType
 from cuda.core.experimental._utils.cuda_utils import get_binding_version, handle_return
 
 POOL_SIZE = 2097152  # 2MB size
 NBYTES = 64
+
 
 @pytest.fixture(scope="function")
 def ipc_device():
@@ -63,15 +64,15 @@ def test_ipc_mempool(ipc_device):
         # Verify that the buffer was modified.
         protocol.verify_buffer(flipped=True)
     finally:
-        if locals().get('buffer') is not None:
+        if locals().get("buffer") is not None:
             buffer.close()
-        if locals().get('process') is not None and process.is_alive():
+        if locals().get("process") is not None and process.is_alive():
             process.terminate()
             process.join(timeout=1)
-        if locals().get('queue') is not None:
+        if locals().get("queue") is not None:
             queue.close()
             queue.join_thread()
-        mr.allocate(NBYTES).close() # Flush any pending operations
+        mr.allocate(NBYTES).close()  # Flush any pending operations
 
 
 def child_main(channel, queue):
@@ -86,7 +87,7 @@ def child_main(channel, queue):
         protocol.verify_buffer(flipped=False)
         protocol.fill_buffer(flipped=True)
     finally:
-        if locals().get('buffer') is not None:
+        if locals().get("buffer") is not None:
             buffer.close()
 
 
@@ -146,4 +147,3 @@ class IPCBufferTestProtocol:
             assert ctypes.c_byte(ptr[i]).value == ctypes.c_byte(op(i)).value, (
                 f"Buffer contains incorrect data at index {i}"
             )
-
