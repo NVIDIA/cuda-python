@@ -57,7 +57,8 @@
   <text x="501" y="277" text-anchor="start" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">  cuda-pathfinder, cuda-python</text>
 
   <!-- Rough arrow down -->
-  <path d="M451,292 Q449,305 450,312 M446,308 L450,314 L455,309" stroke="#333" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+  <path d="M451,292 Q449,305 450,312 M446,308 L450,314 L455,309" stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)"/>
+  <text x="480" y="305" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" fill="#FF9800">wheel upload</text>
 
   <!-- Artifact Storage - hand-drawn style -->
   <path d="M52,322 Q53,319 851,321 Q854,324 853,447 Q851,452 50,449 Q47,446 52,322 Z"
@@ -79,7 +80,7 @@
   <text x="639" y="402" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="10" fill="#666">• Mini CTK cache</text>
 
   <!-- Rough arrow down to Test Stage -->
-  <path d="M449,452 Q451,465 452,472 M447,468 L452,474 L457,469" stroke="#333" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+  <path d="M449,452 Q451,465 452,472 M447,468 L452,474 L457,469" stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)"/>
 
   <!-- Artifact flow arrows -->
   <!-- Arrow from GitHub Cache (mini CTK) back to Build Stage -->

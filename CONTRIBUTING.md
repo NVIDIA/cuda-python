@@ -150,8 +150,8 @@ flowchart TD
 
     %% Main Flow
     TRIGGER --> BUILD
-    BUILD --> ARTIFACTS
-    ARTIFACTS --> TEST
+    BUILD -.->|"wheel upload"| ARTIFACTS
+    ARTIFACTS -.-> TEST
     TEST --> RELEASE
 
     %% Artifact Flow Arrows (Cache Reuse)
