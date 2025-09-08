@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 try:
     from cuda.bindings import driver
 except ImportError:
@@ -31,6 +34,7 @@ def ipc_device():
         pytest.skip("Device does not support mempool operations")
     return device
 
+
 def test_ipc_mempool(ipc_device):
     # Set up the IPC-enabled memory pool and share it.
     mr = DeviceMemoryResource(ipc_device, dict(max_size=POOL_SIZE, ipc_enabled=True))
@@ -48,7 +52,7 @@ def test_ipc_mempool(ipc_device):
         protocol = IPCBufferTestProtocol(ipc_device, buffer)
         protocol.fill_buffer(flipped=False)
 
-        # Export buffer via IPC.
+        # Export the buffer via IPC.
         handle = mr.export_buffer(buffer)
         queue.put(handle)
 
@@ -69,6 +73,7 @@ def test_ipc_mempool(ipc_device):
             queue.join_thread()
         mr.allocate(NBYTES).close() # Flush any pending operations
 
+
 def child_main(channel, queue):
     device = Device()
     device.set_current()
@@ -84,12 +89,10 @@ def child_main(channel, queue):
         if locals().get('buffer') is not None:
             buffer.close()
 
+
 class DummyUnifiedMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device
-
-    def __bool__(self):
-        return True
 
     def allocate(self, size, stream=None) -> Buffer:
         ptr = handle_return(driver.cuMemAllocManaged(size, driver.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
@@ -109,6 +112,7 @@ class DummyUnifiedMemoryResource(MemoryResource):
     @property
     def device_id(self) -> int:
         return self.device
+
 
 class IPCBufferTestProtocol:
     """The protocol for verifying IPC.
