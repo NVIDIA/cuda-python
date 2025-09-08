@@ -101,7 +101,7 @@ Alternative Mermaid diagram representation:
 flowchart TD
     %% Trigger Events
     subgraph TRIGGER["🔄 TRIGGER EVENTS"]
-        T1["• Push to main branch<br/>• Push to pull-request/* branches"]
+        T1["• Push to main branch"]
         T2["• Pull request<br/>• Manual workflow dispatch"]
         T1 --- T2
     end

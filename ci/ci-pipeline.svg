@@ -25,8 +25,7 @@
   <text x="452" y="62" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="14" font-weight="bold" fill="#1976D2">TRIGGER EVENTS</text>
   <text x="251" y="82" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Push to main branch</text>
   <text x="451" y="82" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Pull request</text>
-  <text x="252" y="97" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Push to pull-request/* branches</text>
-  <text x="449" y="97" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Manual workflow dispatch</text>
+  <text x="451" y="97" text-anchor="middle" font-family="Comic Sans MS, cursive, sans-serif" font-size="11" fill="#333">• Manual workflow dispatch</text>
 
   <!-- Rough arrow down -->
   <path d="M449,112 Q451,125 452,132 M447,128 L452,134 L457,129" stroke="#333" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
