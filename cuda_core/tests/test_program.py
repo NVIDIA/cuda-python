@@ -9,7 +9,9 @@ import pytest
 from cuda.core.experimental import _linker
 from cuda.core.experimental._module import Kernel, ObjectCode
 from cuda.core.experimental._program import Program, ProgramOptions
+from cuda.core.experimental._utils.cuda_utils import driver, handle_return
 
+cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
 
 
@@ -283,7 +285,13 @@ def test_nvvm_compile_invalid_target(nvvm_ir):
     [
         ProgramOptions(name="test1", arch="sm_90", device_code_optimize=False),
         ProgramOptions(name="test2", arch="sm_100", device_code_optimize=False),
-        ProgramOptions(name="test3", arch="sm_110", device_code_optimize=True),
+        pytest.param(
+            ProgramOptions(name="test3", arch="sm_110", device_code_optimize=True),
+            marks=pytest.mark.skipif(
+                12000 <= cuda_driver_version < 13000,
+                reason="Compute capability 110 not supported with CUDA 12.x",
+            ),
+        ),
     ],
 )
 def test_nvvm_program_options(init_cuda, nvvm_ir, options):

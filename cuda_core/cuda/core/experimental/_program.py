@@ -608,6 +608,7 @@ class Program:
 
             nvvm_options = self._translate_program_options_to_nvvm(self._options)
             nvvm = _get_nvvm_module()
+            nvvm.verify_program(self._mnff.handle, len(nvvm_options), nvvm_options)
             nvvm.compile_program(self._mnff.handle, len(nvvm_options), nvvm_options)
 
             size = nvvm.get_compiled_result_size(self._mnff.handle)
