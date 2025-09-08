@@ -106,7 +106,7 @@ flowchart TD
         T1 --- T2
     end
 
-    %% Build Stage  
+    %% Build Stage
     subgraph BUILD["🔨 BUILD STAGE"]
         subgraph BUILD_PLATFORMS["Parallel Platform Builds"]
             B1["linux-64<br/>(Self-hosted)"]

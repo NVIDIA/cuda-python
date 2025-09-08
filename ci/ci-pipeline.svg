@@ -94,12 +94,12 @@
 
   <!-- Additional arrows to TEST STAGE -->
   <!-- Arrow from GitHub Cache (mini CTK) to Test Stage -->
-  <path d="M641,434 Q642,450 630,465 Q620,475 580,480 Q540,485 520,488"
+  <path d="M641,434 Q642,434 630,435 Q620,445 580,450 Q540,465 520,472"
         stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)" stroke-dasharray="5,3"/>
   <text x="660" y="470" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" fill="#FF9800">mini CTK reuse</text>
 
   <!-- Arrow from GitHub Artifacts (wheels) to Test Stage -->
-  <path d="M261,434 Q262,450 280,465 Q300,475 340,480 Q380,485 400,488"
+  <path d="M261,434 Q262,435 280,437 Q300,445 340,450 Q380,465 400,473"
         stroke="#FF9800" stroke-width="2.5" fill="none" stroke-linejoin="round" marker-end="url(#orangearrow)" stroke-dasharray="5,3"/>
   <text x="180" y="470" font-family="Comic Sans MS, cursive, sans-serif" font-size="12" fill="#FF9800">wheel fetch</text>
 
