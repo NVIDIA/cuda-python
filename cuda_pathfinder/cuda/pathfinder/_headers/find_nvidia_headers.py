@@ -61,7 +61,7 @@ def _find_ctk_header_directory(libname: str) -> Optional[str]:
                 return idir
         else:
             idir = os.path.join(cuda_home, "include")
-            if libname in ("cub", "libcudacxx", "thrust"):
+            if libname in supported_nvidia_headers.CCCL_LIBNAMES:
                 cdir = os.path.join(idir, "cccl")
                 h_path = os.path.join(cdir, h_basename)
                 if os.path.isfile(h_path):

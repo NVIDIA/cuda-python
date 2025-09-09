@@ -40,3 +40,5 @@ SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK = {
     "nvvm": ("nvidia/cu13/include", "nvidia/cuda_nvcc/nvvm/include"),
     "thrust": ("cuda/cccl/headers/include",),
 }
+
+CCCL_LIBNAMES = ("cub", "libcudacxx", "thrust")
