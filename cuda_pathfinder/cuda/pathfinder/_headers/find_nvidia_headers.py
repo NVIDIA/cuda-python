@@ -40,6 +40,26 @@ def _find_nvshmem_header_directory() -> Optional[str]:
     return None
 
 
+def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) -> Optional[str]:
+    if libname == "nvvm":
+        idir = os.path.join(anchor_point, "nvvm", "include")
+        h_path = os.path.join(idir, h_basename)
+        if os.path.isfile(h_path):
+            return idir
+    else:
+        idir = os.path.join(anchor_point, "include")
+        if libname in supported_nvidia_headers.CCCL_LIBNAMES:
+            cdir = os.path.join(idir, "cccl")
+            h_path = os.path.join(cdir, h_basename)
+            if os.path.isfile(h_path):
+                return cdir
+        h_path = os.path.join(idir, h_basename)
+        if os.path.isfile(h_path):
+            return idir
+
+    return None
+
+
 def _find_ctk_header_directory(libname: str) -> Optional[str]:
     h_basename = supported_nvidia_headers.SUPPORTED_HEADERS_CTK[libname]
     candidate_dirs = supported_nvidia_headers.SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK[libname]
@@ -52,23 +72,15 @@ def _find_ctk_header_directory(libname: str) -> Optional[str]:
             if os.path.isfile(h_path):
                 return hdr_dir
 
+    conda_prefix = os.getenv("CONDA_PREFIX")
+    if conda_prefix:  # noqa: SIM102
+        if result := _find_based_on_ctk_layout(libname, h_basename, conda_prefix):
+            return result
+
     cuda_home = get_cuda_home_or_path()
-    if cuda_home:
-        if libname == "nvvm":
-            idir = os.path.join(cuda_home, "nvvm", "include")
-            h_path = os.path.join(idir, h_basename)
-            if os.path.isfile(h_path):
-                return idir
-        else:
-            idir = os.path.join(cuda_home, "include")
-            if libname in supported_nvidia_headers.CCCL_LIBNAMES:
-                cdir = os.path.join(idir, "cccl")
-                h_path = os.path.join(cdir, h_basename)
-                if os.path.isfile(h_path):
-                    return cdir
-            h_path = os.path.join(idir, h_basename)
-            if os.path.isfile(h_path):
-                return idir
+    if cuda_home:  # noqa: SIM102
+        if result := _find_based_on_ctk_layout(libname, h_basename, cuda_home):
+            return result
 
     return None
 
