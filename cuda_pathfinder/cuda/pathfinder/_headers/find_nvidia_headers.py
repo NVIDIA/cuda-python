@@ -7,15 +7,12 @@ import os
 from typing import Optional
 
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
+from cuda.pathfinder._headers import supported_nvidia_headers
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
 
-@functools.cache
-def find_nvidia_header_directory(libname: str) -> Optional[str]:
-    if libname != "nvshmem":
-        raise RuntimeError(f"UNKNOWN {libname=}")
-
-    if libname == "nvshmem" and IS_WINDOWS:
+def _find_nvshmem_header_directory() -> Optional[str]:
+    if IS_WINDOWS:
         # nvshmem has no Windows support.
         return None
 
@@ -40,3 +37,29 @@ def find_nvidia_header_directory(libname: str) -> Optional[str]:
             return hdr_dir
 
     return None
+
+
+def _find_ctk_header_directory(libname: str) -> Optional[str]:
+    h_basename = supported_nvidia_headers.SUPPORTED_HEADERS_CTK[libname]
+    candidate_dirs = supported_nvidia_headers.SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK[libname]
+
+    # Installed from a wheel
+    for cdir in candidate_dirs:
+        hdr_dir: str  # help mypy
+        for hdr_dir in find_sub_dirs_all_sitepackages(tuple(cdir.split("/"))):
+            h_path = os.path.join(hdr_dir, h_basename)
+            if os.path.isfile(h_path):
+                return hdr_dir
+
+    return None
+
+
+@functools.cache
+def find_nvidia_header_directory(libname: str) -> Optional[str]:
+    if libname == "nvshmem":
+        return _find_nvshmem_header_directory()
+
+    if libname in supported_nvidia_headers.SUPPORTED_HEADERS_CTK:
+        return _find_ctk_header_directory(libname)
+
+    raise RuntimeError(f"UNKNOWN {libname=}")
