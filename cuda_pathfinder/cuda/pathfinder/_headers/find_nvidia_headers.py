@@ -13,6 +13,10 @@ from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
 
+def _joined_isfile(dirpath: str, basename: str) -> bool:
+    return os.path.isfile(os.path.join(dirpath, basename))
+
+
 def _find_nvshmem_header_directory() -> Optional[str]:
     if IS_WINDOWS:
         # nvshmem has no Windows support.
@@ -22,20 +26,17 @@ def _find_nvshmem_header_directory() -> Optional[str]:
     nvidia_sub_dirs = ("nvidia", "nvshmem", "include")
     hdr_dir: str  # help mypy
     for hdr_dir in find_sub_dirs_all_sitepackages(nvidia_sub_dirs):
-        nvshmem_h_path = os.path.join(hdr_dir, "nvshmem.h")
-        if os.path.isfile(nvshmem_h_path):
+        if _joined_isfile(hdr_dir, "nvshmem.h"):
             return hdr_dir
 
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if conda_prefix and os.path.isdir(conda_prefix):
         hdr_dir = os.path.join(conda_prefix, "include")
-        nvshmem_h_path = os.path.join(hdr_dir, "nvshmem.h")
-        if os.path.isfile(nvshmem_h_path):
+        if _joined_isfile(hdr_dir, "nvshmem.h"):
             return hdr_dir
 
     for hdr_dir in sorted(glob.glob("/usr/include/nvshmem_*"), reverse=True):
-        nvshmem_h_path = os.path.join(hdr_dir, "nvshmem.h")
-        if os.path.isfile(nvshmem_h_path):
+        if _joined_isfile(hdr_dir, "nvshmem.h"):
             return hdr_dir
 
     return None
@@ -44,18 +45,15 @@ def _find_nvshmem_header_directory() -> Optional[str]:
 def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) -> Optional[str]:
     if libname == "nvvm":
         idir = os.path.join(anchor_point, "nvvm", "include")
-        h_path = os.path.join(idir, h_basename)
-        if os.path.isfile(h_path):
+        if _joined_isfile(idir, h_basename):
             return idir
     else:
         idir = os.path.join(anchor_point, "include")
         if libname in supported_nvidia_headers.CCCL_LIBNAMES:
             cdir = os.path.join(idir, "cccl")
-            h_path = os.path.join(cdir, h_basename)
-            if os.path.isfile(h_path):
+            if _joined_isfile(cdir, h_basename):
                 return cdir
-        h_path = os.path.join(idir, h_basename)
-        if os.path.isfile(h_path):
+        if _joined_isfile(idir, h_basename):
             return idir
 
     return None
@@ -81,8 +79,7 @@ def _find_ctk_header_directory(libname: str) -> Optional[str]:
     for cdir in candidate_dirs:
         hdr_dir: str  # help mypy
         for hdr_dir in find_sub_dirs_all_sitepackages(tuple(cdir.split("/"))):
-            h_path = os.path.join(hdr_dir, h_basename)
-            if os.path.isfile(h_path):
+            if _joined_isfile(hdr_dir, h_basename):
                 return hdr_dir
 
     conda_prefix = os.getenv("CONDA_PREFIX")
