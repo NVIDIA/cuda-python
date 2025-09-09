@@ -1,12 +1,15 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-SUPPORTED_HEADERS_CTK = {
+import sys
+
+IS_WINDOWS = sys.platform == "win32"
+
+SUPPORTED_HEADERS_CTK_COMMON = {
     "cccl": "cuda/std/version",
     "cublas": "cublas.h",
     "cudart": "cuda_runtime.h",
     "cufft": "cufft.h",
-    "cufile": "cufile.h",
     "curand": "curand.h",
     "cusolver": "cusolver_common.h",
     "cusparse": "cusparse.h",
@@ -18,6 +21,19 @@ SUPPORTED_HEADERS_CTK = {
     "nvrtc": "nvrtc.h",
     "nvvm": "nvvm.h",
 }
+
+SUPPORTED_HEADERS_CTK_LINUX_ONLY = {
+    "cufile": "cufile.h",
+}
+SUPPORTED_HEADERS_CTK_LINUX = SUPPORTED_HEADERS_CTK_COMMON | SUPPORTED_HEADERS_CTK_LINUX_ONLY
+
+SUPPORTED_HEADERS_CTK_WINDOWS_ONLY: dict[str, str] = {}
+SUPPORTED_HEADERS_CTK_WINDOWS = SUPPORTED_HEADERS_CTK_COMMON | SUPPORTED_HEADERS_CTK_WINDOWS_ONLY
+
+SUPPORTED_HEADERS_CTK_ALL = (
+    SUPPORTED_HEADERS_CTK_COMMON | SUPPORTED_HEADERS_CTK_LINUX_ONLY | SUPPORTED_HEADERS_CTK_WINDOWS_ONLY
+)
+SUPPORTED_HEADERS_CTK = SUPPORTED_HEADERS_CTK_WINDOWS if IS_WINDOWS else SUPPORTED_HEADERS_CTK_LINUX
 
 SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK = {
     "cccl": (

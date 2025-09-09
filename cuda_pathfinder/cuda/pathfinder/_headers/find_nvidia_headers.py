@@ -7,8 +7,8 @@ import os
 import shutil
 from typing import Optional
 
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
 from cuda.pathfinder._headers import supported_nvidia_headers
+from cuda.pathfinder._headers.supported_nvidia_headers import IS_WINDOWS
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
