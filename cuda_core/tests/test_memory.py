@@ -8,12 +8,28 @@ except ImportError:
 
 import ctypes
 
+import platform
 import pytest
 
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource
 from cuda.core.experimental._memory import DLDeviceType
 from cuda.core.experimental._utils.cuda_utils import get_binding_version, handle_return
 
+POOL_SIZE = 2097152  # 2MB size
+
+@pytest.fixture(scope="function")
+def mempool_device():
+    """Obtains a device suitable for mempool tests, or skips."""
+    if get_binding_version() < (12, 0):
+        pytest.skip("Test requires CUDA 12 or higher")
+
+    device = Device()
+    device.set_current()
+
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
+    return device
 
 class DummyDeviceMemoryResource(MemoryResource):
     def __init__(self, device):
@@ -288,19 +304,11 @@ def test_device_memory_resource_initialization():
         buffer.close()
 
 
-def test_mempool():
-    if get_binding_version() < (12, 0):
-        pytest.skip("Test requires CUDA 12 or higher")
-    device = Device()
-    device.set_current()
-
-    if not device.properties.memory_pools_supported:
-        pytest.skip("Device does not support mempool operations")
-
-    pool_size = 2097152  # 2MB size
+def test_mempool(mempool_device):
+    device = mempool_device
 
     # Test basic pool creation
-    mr = DeviceMemoryResource(device, dict(max_size=pool_size, ipc_enabled=False))
+    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=False))
     assert mr.device_id == device.device_id
     assert mr.is_device_accessible
     assert not mr.is_host_accessible
@@ -367,26 +375,19 @@ def test_mempool():
         ("used_mem_high", int),
     ],
 )
-def test_mempool_properties(property_name, expected_type):
+def test_mempool_attributes(mempool_device, property_name, expected_type):
     """Test all properties of the DeviceMemoryResource class."""
-    # skip test if cuda version is less than 12
-    if get_binding_version() < (12, 0):
-        pytest.skip("Test requires CUDA 12 or higher")
-
-    device = Device()
-    device.set_current()
-
-    if not device.properties.memory_pools_supported:
-        pytest.skip("Device does not support mempool operations")
-
-    pool_size = 2097152  # 2MB size
+    device = mempool_device
     for ipc_enabled in [True, False]:
-        mr = DeviceMemoryResource(device, dict(max_size=pool_size, ipc_enabled=ipc_enabled))
+        if platform.system() == "Windows":
+            continue # IPC not implemented for Windows
+
+        mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=ipc_enabled))
         assert mr.is_ipc_enabled == ipc_enabled
 
         try:
             # Get the property value
-            value = getattr(mr, property_name)
+            value = getattr(mr.attributes, property_name)
 
             # Test type
             assert isinstance(value, expected_type), f"{property_name} should return {expected_type}, got {type(value)}"
@@ -402,7 +403,7 @@ def test_mempool_properties(property_name, expected_type):
                 buffer = None
                 try:
                     buffer = mr.allocate(1024)
-                    new_value = getattr(mr, property_name)
+                    new_value = getattr(mr.attributes, property_name)
                     assert new_value >= initial_value, f"{property_name} should increase or stay same after allocation"
                 finally:
                     if buffer is not None:
@@ -412,10 +413,36 @@ def test_mempool_properties(property_name, expected_type):
             if property_name in ["reserved_mem_high", "used_mem_high"]:
                 # High watermark should never be less than current
                 current_prop = property_name.replace("_high", "_current")
-                current_value = getattr(mr, current_prop)
+                current_value = getattr(mr.attributes, current_prop)
                 assert value >= current_value, f"{property_name} should be >= {current_prop}"
 
         finally:
             # Ensure we allocate and deallocate a small buffer to flush any pending operations
             flush_buffer = mr.allocate(64)
             flush_buffer.close()
+
+def test_mempool_attributes_ownership(mempool_device):
+    """Ensure the attributes bundle handles references correctly."""
+    device = mempool_device
+    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
+    attributes = mr.attributes
+    old_handle = mr._mempool_handle
+    mr.close()
+    del mr
+
+    # After deleting the memory resource, the attributes suite is disconnected.
+    with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
+        attributes.used_mem_high
+
+    # Even when a new object is created (we found a case where the same
+    # mempool handle was really reused).
+    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
+    with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
+        attributes.used_mem_high
+
+    # Even if we stuff the original handle into a new class.
+    mr._mempool_handle, old_handle = old_handle, mr._mempool_handle
+    with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
+        attributes.used_mem_high
+    mr._mempool_handle = old_handle
+

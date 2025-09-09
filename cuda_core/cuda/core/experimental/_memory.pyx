@@ -17,6 +17,7 @@ import array
 import cython
 import os
 import platform
+import weakref
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
 from cuda.core.experimental._utils.cuda_utils import driver
@@ -476,27 +477,50 @@ cdef class DeviceMemoryResourceOptions:
     max_size : cython.int = 0
 
 
-def _def_mempool_attr_property(scope: dict, name: str, property_type: type, doc: str):
-    """Define a property in the supplied scope for accessing a memory pool attribute.
+class DeviceMemoryResourceAttributes:
+    def __init__(self, *args, **kwargs):
+        raise RuntimeError("DeviceMemoryResourceAttributes cannot be instantiated directly. Please use MemoryResource APIs.")
 
-    Args:
-        name: The name of the property (e.g., 'reuse_follow_event_dependencies').
-        doc: The docstring for the property.
-        property_type: The return type of the property (e.g., bool, int).
+    @classmethod
+    def _init(cls, mr : DeviceMemoryReference):
+        self = DeviceMemoryResourceAttributes.__new__(cls)
+        self._mr = mr
+        return self
 
-    Returns:
-        property: A property object that retrieves the attribute value.
-    """
+    def _defproperty(scope: dict, name: str, property_type: type, doc: str):
+        # Define a property in the supplied scope for accessing a memory pool attribute.
+        #
+        # Args:
+        #     name: The name of the property (e.g., 'reuse_follow_event_dependencies').
+        #     doc: The docstring for the property.
+        #     property_type: The return type of the property (e.g., bool, int).
+        #
+        # Returns:
+        #     property: A property object that retrieves the attribute value.
 
-    attr_enum = getattr(driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{name.upper()}")
+        attr_enum = getattr(driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{name.upper()}")
 
-    def getter(self) -> property_type:
-        err, value = driver.cuMemPoolGetAttribute(self.handle, attr_enum)
-        raise_if_driver_error(err)
-        return property_type(value)
+        def getter(self) -> property_type:
+            mr = self._mr()
+            if mr is None:
+              raise RuntimeError("DeviceMemoryResource is expired")
+            err, value = driver.cuMemPoolGetAttribute(mr._mempool_handle, attr_enum)
+            raise_if_driver_error(err)
+            return property_type(value)
 
-    getter.__doc__ = doc
-    scope[name] = property(getter)
+        getter.__doc__ = doc
+        scope[name] = property(getter)
+
+    _defproperty(locals(), "reuse_follow_event_dependencies", bool, "Allow memory to be reused when there are event dependencies between streams.")
+    _defproperty(locals(), "reuse_allow_opportunistic", bool, "Allow reuse of completed frees without dependencies.")
+    _defproperty(locals(), "reuse_allow_internal_dependencies", bool, "Allow insertion of new stream dependencies for memory reuse.")
+    _defproperty(locals(), "release_threshold", int, "Amount of reserved memory to hold before OS release.")
+    _defproperty(locals(), "reserved_mem_current", int, "Current amount of backing memory allocated.")
+    _defproperty(locals(), "reserved_mem_high", int, "High watermark of backing memory allocated.")
+    _defproperty(locals(), "used_mem_current", int, "Current amount of memory in use.")
+    _defproperty(locals(), "used_mem_high", int, "High watermark of memory in use.")
+
+    del _defproperty
 
 
 class DeviceMemoryResource(MemoryResource):
@@ -522,7 +546,7 @@ class DeviceMemoryResource(MemoryResource):
         device memory resource does not own the pool (`is_handle_owned` is
         `False`), and closing the resource has no effect.
     """
-    __slots__ = "_dev_id", "_mempool_handle", "_ipc_handle_type", "_mempool_owned"
+    __slots__ = "_dev_id", "_mempool_handle", "_attributes", "_ipc_handle_type", "_mempool_owned"
 
     def __init__(self, device_id: int | Device, options=None):
         device_id = getattr(device_id, 'device_id', device_id)
@@ -534,6 +558,7 @@ class DeviceMemoryResource(MemoryResource):
             # Get the current memory pool.
             self._dev_id = device_id
             self._mempool_handle = None
+            self._attributes = None
             self._ipc_handle_type = _NOIPC_HANDLE_TYPE
             self._mempool_owned = False
 
@@ -573,6 +598,7 @@ class DeviceMemoryResource(MemoryResource):
 
             self._dev_id = device_id
             self._mempool_handle = None
+            self._attributes = None
             self._ipc_handle_type = properties.handleTypes
             self._mempool_owned = True
 
@@ -590,6 +616,7 @@ class DeviceMemoryResource(MemoryResource):
 
             self._dev_id = None
             self._mempool_handle = None
+            self._attributes = None
             self._ipc_handle_type = _NOIPC_HANDLE_TYPE
             self._mempool_owned = False
 
@@ -626,6 +653,7 @@ class DeviceMemoryResource(MemoryResource):
         self = cls.__new__(cls)
         self._dev_id = device_id
         self._mempool_handle = None
+        self._attributes = None
         self._ipc_handle_type = _IPC_HANDLE_TYPE
         self._mempool_owned = True
 
@@ -715,6 +743,13 @@ class DeviceMemoryResource(MemoryResource):
         raise_if_driver_error(err)
 
     @property
+    def attributes(self) -> DeviceMemoryResourceAttributes:
+        if self._attributes is None:
+            ref = weakref.ref(self)
+            self._attributes = DeviceMemoryResourceAttributes._init(ref)
+        return self._attributes
+
+    @property
     def device_id(self) -> int:
         """The associated device ordinal."""
         return self._dev_id
@@ -743,16 +778,6 @@ class DeviceMemoryResource(MemoryResource):
     def is_ipc_enabled(self) -> bool:
         """Whether this memory resource has IPC enabled."""
         return self._ipc_handle_type != _NOIPC_HANDLE_TYPE
-
-    # Define additional properties corresponding to mempool attributes.
-    _def_mempool_attr_property(locals(), "reuse_follow_event_dependencies", bool, "Allow memory to be reused when there are event dependencies between streams.")
-    _def_mempool_attr_property(locals(), "reuse_allow_opportunistic", bool, "Allow reuse of completed frees without dependencies.")
-    _def_mempool_attr_property(locals(), "reuse_allow_internal_dependencies", bool, "Allow insertion of new stream dependencies for memory reuse.")
-    _def_mempool_attr_property(locals(), "release_threshold", int, "Amount of reserved memory to hold before OS release.")
-    _def_mempool_attr_property(locals(), "reserved_mem_current", int, "Current amount of backing memory allocated.")
-    _def_mempool_attr_property(locals(), "reserved_mem_high", int, "High watermark of backing memory allocated.")
-    _def_mempool_attr_property(locals(), "used_mem_current", int, "Current amount of memory in use.")
-    _def_mempool_attr_property(locals(), "used_mem_high", int, "High watermark of memory in use.")
 
 
 class LegacyPinnedMemoryResource(MemoryResource):
@@ -848,5 +873,3 @@ class _SynchronousMemoryResource(MemoryResource):
     def device_id(self) -> int:
         return self._dev_id
 
-
-del _def_mempool_attr_property
