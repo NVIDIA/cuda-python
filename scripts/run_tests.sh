@@ -7,19 +7,19 @@ set -euo pipefail
 
 # Simple, dependency-free orchestrator to run tests for all packages.
 # Usage:
-#   toolshed/run_all_tests.sh [ -v|--verbose ] [ --install | --no-install ] [ --with-cython | --skip-cython ]
-#   toolshed/run_all_tests.sh [ flags ]                   # pathfinder -> bindings -> core
-#   toolshed/run_all_tests.sh [ flags ] core              # only core
-#   toolshed/run_all_tests.sh [ flags ] bindings          # only bindings
-#   toolshed/run_all_tests.sh [ flags ] pathfinder        # only pathfinder
-#   toolshed/run_all_tests.sh [ flags ] smoke             # meta-level import smoke tests
+#   toolshed/run_tests.sh [ -v|--verbose ] [ --install | --no-install ] [ --with-cython | --skip-cython ]
+#   toolshed/run_tests.sh [ flags ]                   # pathfinder -> bindings -> core
+#   toolshed/run_tests.sh [ flags ] core              # only core
+#   toolshed/run_tests.sh [ flags ] bindings          # only bindings
+#   toolshed/run_tests.sh [ flags ] pathfinder        # only pathfinder
+#   toolshed/run_tests.sh [ flags ] smoke             # meta-level import smoke tests
 
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
 cd "${repo_root}"
 
 print_help() {
   cat <<'USAGE'
-Usage: toolshed/run_all_tests.sh [options] [target]
+Usage: toolshed/run_tests.sh [options] [target]
 
 Targets:
   all (default)   Run pathfinder → bindings → core
@@ -37,10 +37,10 @@ Options:
   -h, --help          Show this help and exit
 
 Examples:
-  toolshed/run_all_tests.sh --install
-  toolshed/run_all_tests.sh --no-install core
-  toolshed/run_all_tests.sh -v --with-cython bindings
-  toolshed/run_all_tests.sh smoke
+  toolshed/run_tests.sh --install
+  toolshed/run_tests.sh --no-install core
+  toolshed/run_tests.sh -v --with-cython bindings
+  toolshed/run_tests.sh smoke
 USAGE
 }
 
