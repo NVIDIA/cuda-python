@@ -23,7 +23,6 @@ import pytest
 from cuda.pathfinder import _find_nvidia_header_directory as find_nvidia_header_directory
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
 from cuda.pathfinder._headers.supported_nvidia_headers import (
-    CCCL_LIBNAMES,
     SUPPORTED_HEADERS_CTK,
     SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK,
 )
@@ -67,10 +66,6 @@ def test_find_libname_nvshmem(info_summary_append):
 
 def test_supported_headers_site_packages_ctk_consistency():
     assert tuple(sorted(SUPPORTED_HEADERS_CTK)) == tuple(sorted(SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK.keys()))
-
-
-def test_supported_headers_cccl_libnames_consistency():
-    assert set(CCCL_LIBNAMES).issubset(set(SUPPORTED_HEADERS_CTK.keys()))
 
 
 @pytest.mark.parametrize("libname", SUPPORTED_HEADERS_CTK.keys())

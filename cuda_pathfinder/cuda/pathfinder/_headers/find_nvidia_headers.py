@@ -55,7 +55,7 @@ def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) 
             return idir
     else:
         idir = os.path.join(anchor_point, "include")
-        if libname in supported_nvidia_headers.CCCL_LIBNAMES:
+        if libname == "cccl":
             cdir = os.path.join(idir, "cccl")
             if _joined_isfile(cdir, h_basename):
                 return cdir
