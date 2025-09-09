@@ -115,7 +115,7 @@ status_from_rc() {
 run_pytest() {
   # Run pytest safely under set -e and return its exit code
   set +e
-  pytest "${PYTEST_FLAGS[@]}" "$@"
+  python -m pytest "${PYTEST_FLAGS[@]}" "$@"
   local rc=$?
   set -e
   return ${rc}
