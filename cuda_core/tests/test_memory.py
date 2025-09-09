@@ -7,8 +7,8 @@ except ImportError:
     from cuda import cuda as driver
 
 import ctypes
-
 import platform
+
 import pytest
 
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource
@@ -16,6 +16,7 @@ from cuda.core.experimental._memory import DLDeviceType
 from cuda.core.experimental._utils.cuda_utils import get_binding_version, handle_return
 
 POOL_SIZE = 2097152  # 2MB size
+
 
 @pytest.fixture(scope="function")
 def mempool_device():
@@ -30,6 +31,7 @@ def mempool_device():
         pytest.skip("Device does not support mempool operations")
 
     return device
+
 
 class DummyDeviceMemoryResource(MemoryResource):
     def __init__(self, device):
@@ -380,7 +382,7 @@ def test_mempool_attributes(mempool_device, property_name, expected_type):
     device = mempool_device
     for ipc_enabled in [True, False]:
         if platform.system() == "Windows":
-            continue # IPC not implemented for Windows
+            continue  # IPC not implemented for Windows
 
         mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=ipc_enabled))
         assert mr.is_ipc_enabled == ipc_enabled
@@ -421,6 +423,7 @@ def test_mempool_attributes(mempool_device, property_name, expected_type):
             flush_buffer = mr.allocate(64)
             flush_buffer.close()
 
+
 def test_mempool_attributes_ownership(mempool_device):
     """Ensure the attributes bundle handles references correctly."""
     device = mempool_device
@@ -432,17 +435,16 @@ def test_mempool_attributes_ownership(mempool_device):
 
     # After deleting the memory resource, the attributes suite is disconnected.
     with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
-        attributes.used_mem_high
+        _ = attributes.used_mem_high
 
     # Even when a new object is created (we found a case where the same
     # mempool handle was really reused).
     mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
     with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
-        attributes.used_mem_high
+        _ = attributes.used_mem_high
 
     # Even if we stuff the original handle into a new class.
     mr._mempool_handle, old_handle = old_handle, mr._mempool_handle
     with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
-        attributes.used_mem_high
+        _ = attributes.used_mem_high
     mr._mempool_handle = old_handle
-
