@@ -13,6 +13,12 @@ from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
 
+def _abs_norm(path: Optional[str]) -> Optional[str]:
+    if path:
+        return os.path.normpath(os.path.abspath(path))
+    return None
+
+
 def _joined_isfile(dirpath: str, basename: str) -> bool:
     return os.path.isfile(os.path.join(dirpath, basename))
 
@@ -103,9 +109,9 @@ def _find_ctk_header_directory(libname: str) -> Optional[str]:
 @functools.cache
 def find_nvidia_header_directory(libname: str) -> Optional[str]:
     if libname == "nvshmem":
-        return _find_nvshmem_header_directory()
+        return _abs_norm(_find_nvshmem_header_directory())
 
     if libname in supported_nvidia_headers.SUPPORTED_HEADERS_CTK:
-        return _find_ctk_header_directory(libname)
+        return _abs_norm(_find_ctk_header_directory(libname))
 
     raise RuntimeError(f"UNKNOWN {libname=}")
