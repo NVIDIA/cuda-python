@@ -146,7 +146,6 @@ except Exception:
 p = pathlib.Path(getattr(m, "__file__", "")).resolve()
 root = pathlib.Path(r"${repo_root}").resolve()
 sub = pathlib.Path(r"${repo_root}/${subdir_name}").resolve()
-print(p)
 sys.exit(0 if str(p).startswith(str(sub)) else 3)
 PY
   rc=$?
