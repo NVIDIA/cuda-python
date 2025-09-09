@@ -8,6 +8,7 @@ from typing import Optional
 
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
 from cuda.pathfinder._headers import supported_nvidia_headers
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 
 
@@ -50,6 +51,24 @@ def _find_ctk_header_directory(libname: str) -> Optional[str]:
             h_path = os.path.join(hdr_dir, h_basename)
             if os.path.isfile(h_path):
                 return hdr_dir
+
+    cuda_home = get_cuda_home_or_path()
+    if cuda_home:
+        if libname == "nvvm":
+            idir = os.path.join(cuda_home, "nvvm", "include")
+            h_path = os.path.join(idir, h_basename)
+            if os.path.isfile(h_path):
+                return idir
+        else:
+            idir = os.path.join(cuda_home, "include")
+            if libname in ("cub", "libcudacxx", "thrust"):
+                cdir = os.path.join(idir, "cccl")
+                h_path = os.path.join(cdir, h_basename)
+                if os.path.isfile(h_path):
+                    return cdir
+            h_path = os.path.join(idir, h_basename)
+            if os.path.isfile(h_path):
+                return idir
 
     return None
 
