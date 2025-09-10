@@ -65,6 +65,14 @@ def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) 
     return None
 
 
+def _find_based_on_conda_layout(libname: str, h_basename: str, conda_prefix: str) -> Optional[str]:
+    targets_include_path = glob.glob(os.path.join(conda_prefix, "targets", "*", "include"))
+    if len(targets_include_path) != 1:
+        return None  # Conda does not support multiple architectures.
+    anchor_point = os.path.dirname(targets_include_path[0])
+    return _find_based_on_ctk_layout(libname, h_basename, anchor_point)
+
+
 @functools.cache
 def _get_nvcc_home() -> Optional[str]:
     # Fall back to the directory that owns nvcc (works for most local installs)
@@ -90,7 +98,7 @@ def _find_ctk_header_directory(libname: str) -> Optional[str]:
 
     conda_prefix = os.getenv("CONDA_PREFIX")
     if conda_prefix:  # noqa: SIM102
-        if result := _find_based_on_ctk_layout(libname, h_basename, conda_prefix):
+        if result := _find_based_on_conda_layout(libname, h_basename, conda_prefix):
             return result
 
     cuda_home = get_cuda_home_or_path()
