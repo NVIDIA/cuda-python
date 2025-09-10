@@ -9,10 +9,7 @@ ci:
     autoupdate_branch: ''
     autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
     autoupdate_schedule: quarterly
-    skip: [bandit]
     submodules: false
-
-gen_exclude: &gen_exclude '^cuda_bindings/cuda/bindings/.*\.in?$|cuda_bindings/docs/source/module/.*\.rst?$'
 
 # Please update the rev: SHAs below with this command:
 # pre-commit autoupdate --freeze
@@ -54,9 +51,8 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: *gen_exclude
+      exclude: &gen_exclude '^(?:cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?)$'
     - id: mixed-line-ending
-    - id: requirements-txt-fixer
     - id: trailing-whitespace
       exclude: *gen_exclude
 
@@ -69,7 +65,7 @@ repos:
     - id: rst-inline-touching-normal
 
   - repo: https://github.com/PyCQA/bandit
-    rev: 2d0b675b04c80ae42277e10500db06a0a37bae17  # frozen: 1.8.6
+    rev: "36fd65054fc8864b4037d0918904f9331512feb5"  # frozen: 1.7.10 KEEP IN SYNC WITH .github/workflows/bandit.yml
     hooks:
       - id: bandit
         args:
