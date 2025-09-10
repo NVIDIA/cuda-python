@@ -9,10 +9,6 @@ def pytest_configure(config):
     config.custom_info = []
 
 
-def pytest_terminal_summary(terminalreporter, exitstatus, config):  # noqa: ARG001
-    return
-
-
 @pytest.fixture
 def info_summary_append(request):
     def _append(message):
