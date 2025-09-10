@@ -75,8 +75,10 @@ class KernelAttributes:
 
     def _get_cached_attribute(self, device_id: int, attribute: driver.CUfunction_attribute) -> int:
         """Helper function to get a cached attribute or fetch and cache it if not present."""
-        if (device_id, attribute) in self._cache:
-            return self._cache[device_id, attribute]
+        cache_key = device_id, attribute
+        result = self._cache.get(cache_key, cache_key)
+        if result is not cache_key:
+            return result
         kernel = self._kernel()
         if kernel is None:
             raise RuntimeError("Cannot access kernel attributes for expired Kernel object")
@@ -89,7 +91,7 @@ class KernelAttributes:
                 stacklevel=2,
             )
             result = handle_return(self._loader["attribute"](attribute, kernel._handle))
-        self._cache[device_id, attribute] = result
+        self._cache[cache_key] = result
         return result
 
     def max_threads_per_block(self, device_id: int = None) -> int:
