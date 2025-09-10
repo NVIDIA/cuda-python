@@ -508,3 +508,149 @@ class _SynchronousMemoryResource(MemoryResource):
     @property
     def device_id(self) -> int:
         return self._dev_id
+
+@dataclass
+class VMMConfig:
+    """A configuration object for the VMMAllocatedMemoryResource
+       Stores configuration information which tells the resource how to use the CUDA VMM APIs
+    """
+    """
+    Configuration for CUDA VMM allocations.
+
+    Args:
+        handle_type: Export handle type for the physical allocation. Use
+            CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR on Linux if you plan to
+            import/export the allocation (required for cuMemRetainAllocationHandle).
+            Use CU_MEM_HANDLE_TYPE_NONE if you don't need an exportable handle.
+        gpu_direct_rdma: Hint that the allocation should be GDR-capable (if supported).
+        granularity: 'recommended' or 'minimum'. Controls granularity query and size rounding.
+        addr_hint: A (optional) virtual address hint to try to reserve at. 0 -> let CUDA choose.
+        addr_align: Alignment for the VA reservation. If None, use the queried granularity.
+        peers: Extra device IDs that should be granted access in addition to `device`.
+        self_access: Access flags for the owning device ('rw', 'r', or 'none').
+        peer_access: Access flags for peers ('rw' or 'r').
+    """
+    handle_type: int  # driver.CUmemAllocationHandleType
+    gpu_direct_rdma: bool = True
+    granularity: str = "recommended"  # or "minimum"
+    addr_hint: int = 0
+    addr_align: Optional[int] = None
+    peers: Iterable[int] = field(default_factory=tuple)
+    self_access: str = "rw"   # 'rw' | 'r' | 'none'
+    peer_access: str = "rw"   # 'rw' | 'r'
+
+    def _granularity_flag(self, driver) -> int:
+        # Prefer recommended granularity unless user asked for minimum
+        try:
+            flags = driver.CUmemAllocationGranularity_flags
+            return (flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM
+                    if self.granularity == "minimum"
+                    else flags.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED)
+        except AttributeError:
+            # Fallback if enum names differ in your bindings
+            return 0
+
+    @staticmethod
+    def _access_to_flags(driver, spec: str) -> int:
+        f = driver.CUmemAccess_flags
+        if spec == "rw":
+            return f.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+        if spec == "r":
+            return f.CU_MEM_ACCESS_FLAGS_PROT_READ
+        if spec == "none":
+            return 0
+        raise ValueError(f"Unknown access spec: {spec!r}")
+    
+
+class VMMAllocatedMemoryResource(MemoryResource):
+    """Create a device memory resource that uses the CUDA VMM APIs to allocate memory.
+
+    Parameters
+    ----------
+    device_id : int
+        Device ordinal for which a memory resource is constructed. The mempool that is
+        set to *current* on ``device_id`` is used. If no mempool is set to current yet,
+        the driver would use the *default* mempool on the device.
+    
+    config : VMMConfig
+    """
+
+    __slots__ = ("_dev_id",)
+
+    def __init__(self, device_id: int):
+        err, self._handle = driver.cuDeviceGetMemPool(device_id)
+        raise_if_driver_error(err)
+        self._dev_id = device_id
+
+        # Set a higher release threshold to improve performance when there are no active allocations.
+        # By default, the release threshold is 0, which means memory is immediately released back
+        # to the OS when there are no active suballocations, causing performance issues.
+        # Check current release threshold
+        err, current_threshold = driver.cuMemPoolGetAttribute(
+            self._handle, driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD
+        )
+        raise_if_driver_error(err)
+        # If threshold is 0 (default), set it to maximum to retain memory in the pool
+        if int(current_threshold) == 0:
+            err, = driver.cuMemPoolSetAttribute(
+                self._handle,
+                driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+                driver.cuuint64_t(0xFFFFFFFFFFFFFFFF),
+            )
+            raise_if_driver_error(err)
+
+    def allocate(self, size_t size, stream: Stream = None) -> Buffer:
+        """Allocate a buffer of the requested size.
+
+        Parameters
+        ----------
+        size : int
+            The size of the buffer to allocate, in bytes.
+        stream : Stream, optional
+            The stream on which to perform the allocation asynchronously.
+            If None, an internal stream is used.
+
+        Returns
+        -------
+        Buffer
+            The allocated buffer object, which is accessible on the device that this memory
+            resource was created for.
+        """
+        if stream is None:
+            stream = default_stream()
+        err, ptr = driver.cuMemAllocFromPoolAsync(size, self._handle, stream.handle)
+        raise_if_driver_error(err)
+        return Buffer._init(ptr, size, self)
+
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
+        """Deallocate a buffer previously allocated by this resource.
+
+        Parameters
+        ----------
+        ptr : :obj:`~_memory.DevicePointerT`
+            The pointer or handle to the buffer to deallocate.
+        size : int
+            The size of the buffer to deallocate, in bytes.
+        stream : Stream, optional
+            The stream on which to perform the deallocation asynchronously.
+            If None, an internal stream is used.
+        """
+        if stream is None:
+            stream = default_stream()
+        err, = driver.cuMemFreeAsync(ptr, stream.handle)
+        raise_if_driver_error(err)
+
+    @property
+    def is_device_accessible(self) -> bool:
+        """bool: this memory resource provides device-accessible buffers."""
+        return True
+
+    @property
+    def is_host_accessible(self) -> bool:
+        """bool: this memory resource does not provides host-accessible buffers."""
+        return False
+
+    @property
+    def device_id(self) -> int:
+        """int: the associated device ordinal."""
+        return self._dev_id
