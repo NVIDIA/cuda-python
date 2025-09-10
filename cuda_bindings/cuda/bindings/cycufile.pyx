@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.0.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.0.1. Do not modify it directly.
 
 from ._internal cimport cufile as _cufile
 
