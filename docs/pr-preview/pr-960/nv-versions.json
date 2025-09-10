@@ -1,0 +1,30 @@
+[
+    {
+        "version": "latest",
+        "url": "https://nvidia.github.io/cuda-python/latest/"
+    },
+    {
+        "version": "13.0.1",
+        "url": "https://nvidia.github.io/cuda-python/13.0.1/"
+    },
+    {
+        "version": "13.0.0",
+        "url": "https://nvidia.github.io/cuda-python/13.0.0/"
+    },
+    {
+        "version": "12.9.0",
+        "url": "https://nvidia.github.io/cuda-python/12.9.0/"
+    },
+    {
+        "version": "12.8.0",
+        "url": "https://nvidia.github.io/cuda-python/12.8.0/"
+    },
+    {
+        "version": "12.6.2",
+        "url": "https://nvidia.github.io/cuda-python/12.6.2/"
+    },
+    {
+        "version": "12.6.1",
+        "url": "https://nvidia.github.io/cuda-python/12.6.1/"
+    }
+]
