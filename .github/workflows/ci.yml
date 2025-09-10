@@ -70,7 +70,7 @@ jobs:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      matrix_filter: ".[] | select(([.CUDA_VER // empty | split(\".\")[] | tonumber] as $v | ($v[0] < 13)))"
+      matrix_filter: "map(select([.CUDA_VER // empty | split(\".\")[] | tonumber] as $v | ($v[0] < 13)))"
 
   test-windows:
     strategy:
@@ -91,7 +91,7 @@ jobs:
       build-type: pull-request
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-      matrix_filter: ".[] | select(([.CUDA_VER // empty | split(\".\")[] | tonumber] as $v | ($v[0] < 13)))"
+      matrix_filter: "map(select([.CUDA_VER // empty | split(\".\")[] | tonumber] as $v | ($v[0] < 13)))"
 
 #  doc:
 #    name: Docs
