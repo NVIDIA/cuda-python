@@ -46,22 +46,6 @@ jobs:
       - name: Compute Python Test Matrix
         id: compute-matrix
         run: |
-<<<<<<< HEAD
-          # Please keep the matrices sorted in ascending order by the following:
-          #
-          #     [PY_VER, CUDA_VER, LOCAL_CTK]
-          #
-          export MATRICES="
-            pull-request:
-              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0' }
-              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '1' }
-            nightly:
-              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '0' }
-              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.9.1', LOCAL_CTK: '1' }
-          "
-
-=======
->>>>>>> b4644f287 (CI: Consolidate test matrix configurations into ci/test-matrix.json with hard-coded values, optimized checkout, and prepared Windows self-hosted runner migration (#889))
           # Use the nightly matrix for branch tests
           MATRIX_TYPE="${BUILD_TYPE}"
           if [[ "${MATRIX_TYPE}" == "branch" ]]; then
@@ -99,14 +83,11 @@ jobs:
         with:
           fetch-depth: 0
 
-<<<<<<< HEAD
-=======
       # TODO: use setup-proxy-cache once we have self-hosted Windows runners
       # - name: Setup proxy cache
       #   uses: nv-gha-runners/setup-proxy-cache@main
       #   continue-on-error: true
 
->>>>>>> b4644f287 (CI: Consolidate test matrix configurations into ci/test-matrix.json with hard-coded values, optimized checkout, and prepared Windows self-hosted runner migration (#889))
       - name: Update driver
         run: |
           .github/workflows/install_gpu_driver.ps1
