@@ -21,7 +21,7 @@
 # Also update the CUDA Toolkit version number below.
 # Done.
 
-# CUDA Toolkit v12.9.0
+# CUDA Toolkit v12.9.1
 RUNTIME_CUDA_ERROR_EXPLANATIONS = {
     0: (
         "The API call returned with no errors. In the case of query calls, this also means that the operation"

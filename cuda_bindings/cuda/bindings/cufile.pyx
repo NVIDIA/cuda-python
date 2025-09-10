@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 12.9.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 12.9.1. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
