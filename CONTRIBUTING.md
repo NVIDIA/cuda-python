@@ -11,7 +11,15 @@ Thank you for your interest in contributing to CUDA Python! Based on the type of
 2. You want to implement a feature, improvement, or bug fix:
     - Please refer to each component's guideline:
        - [`cuda.core`](https://nvidia.github.io/cuda-python/cuda-core/latest/contribute.html)
-       - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)
+       - [`cuda.bindings`](https://nvidia.github.io/cuda-python/cuda-bindings/latest/contribute.html)<sup>[1](#footnote1)</sup>
+       - [`cuda.pathfinder`](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/contribute.html)
+
+## Table of Contents
+
+- [Pre-commit](#pre-commit)
+- [Code signing](#code-signing)
+- [Developer Certificate of Origin (DCO)](#developer-certificate-of-origin-dco)
+- [CI infrastructure overview](#ci-infrastructure-overview)
 
 
 ## Pre-commit
@@ -78,3 +86,127 @@ By making a contribution to this project, I certify that:
     maintained indefinitely and may be redistributed consistent with
     this project or the open source license(s) involved.
 ```
+
+## CI infrastructure overview
+
+The CUDA Python project uses a comprehensive CI pipeline that builds, tests, and releases multiple components across different platforms. This section provides a visual overview of our CI infrastructure to help contributors understand the build and release process.
+
+### CI Pipeline Flow
+
+![CUDA Python CI Pipeline Flow](ci/ci-pipeline.svg)
+
+Alternative Mermaid diagram representation:
+
+```mermaid
+flowchart TD
+    %% Trigger Events
+    subgraph TRIGGER["🔄 TRIGGER EVENTS"]
+        T1["• Push to main branch"]
+        T2["• Pull request<br/>• Manual workflow dispatch"]
+        T1 --- T2
+    end
+
+    %% Build Stage
+    subgraph BUILD["🔨 BUILD STAGE"]
+        subgraph BUILD_PLATFORMS["Parallel Platform Builds"]
+            B1["linux-64<br/>(Self-hosted)"]
+            B2["linux-aarch64<br/>(Self-hosted)"]
+            B3["win-64<br/>(GitHub-hosted)"]
+        end
+        BUILD_DETAILS["• Python versions: 3.9, 3.10, 3.11, 3.12, 3.13<br/>• CUDA version: 13.0.0 (build-time)<br/>• Components: cuda-core, cuda-bindings,<br/>  cuda-pathfinder, cuda-python"]
+    end
+
+    %% Artifact Storage
+    subgraph ARTIFACTS["📦 ARTIFACT STORAGE"]
+        subgraph GITHUB_ARTIFACTS["GitHub Artifacts"]
+            GA1["• Wheel files (.whl)<br/>• Test artifacts<br/>• Documentation<br/>(30-day retention)"]
+        end
+        subgraph GITHUB_CACHE["GitHub Cache"]
+            GC1["• Mini CTK cache"]
+        end
+    end
+
+    %% Test Stage
+    subgraph TEST["🧪 TEST STAGE"]
+        subgraph TEST_PLATFORMS["Parallel Platform Tests"]
+            TS1["linux-64<br/>(Self-hosted)"]
+            TS2["linux-aarch64<br/>(Self-hosted)"]
+            TS3["win-64<br/>(GitHub-hosted)"]
+        end
+        TEST_DETAILS["• Download wheels from artifacts<br/>• Test against multiple CUDA runtime versions<br/>• Run Python unit tests, Cython tests, examples"]
+        ARTIFACT_FLOWS["Artifact Flows:<br/>• cuda-pathfinder: main → backport<br/>• cuda-bindings: backport → main"]
+    end
+
+    %% Release Pipeline
+    subgraph RELEASE["🚀 RELEASE PIPELINE"]
+        subgraph RELEASE_STAGES["Sequential Release Steps"]
+            R1["Validation<br/>• Artifact integrity<br/>• Git tag verification"]
+            R2["Publishing<br/>• PyPI/TestPyPI<br/>• Component or all releases"]
+            R3["Documentation<br/>• GitHub Pages<br/>• Release notes"]
+            R1 --> R2 --> R3
+        end
+        RELEASE_DETAILS["• Manual workflow dispatch with run ID<br/>• Supports individual component or full releases"]
+    end
+
+    %% Main Flow
+    TRIGGER --> BUILD
+    BUILD -.->|"wheel upload"| ARTIFACTS
+    ARTIFACTS -.-> TEST
+    TEST --> RELEASE
+
+    %% Artifact Flow Arrows (Cache Reuse)
+    GITHUB_CACHE -.->|"mini CTK reuse"| BUILD
+    GITHUB_CACHE -.->|"mini CTK reuse"| TEST
+
+    %% Artifact Flow Arrows (Wheel Fetch)
+    GITHUB_ARTIFACTS -.->|"wheel fetch"| TEST
+    GITHUB_ARTIFACTS -.->|"wheel fetch"| RELEASE
+
+    %% Styling
+    classDef triggerStyle fill:#e8f4fd,stroke:#2196F3,stroke-width:2px,color:#1976D2
+    classDef buildStyle fill:#f3e5f5,stroke:#9C27B0,stroke-width:2px,color:#7B1FA2
+    classDef artifactStyle fill:#fff3e0,stroke:#FF9800,stroke-width:2px,color:#F57C00
+    classDef testStyle fill:#e8f5e8,stroke:#4CAF50,stroke-width:2px,color:#388E3C
+    classDef releaseStyle fill:#ffebee,stroke:#f44336,stroke-width:2px,color:#D32F2F
+
+    class TRIGGER,T1,T2 triggerStyle
+    class BUILD,BUILD_PLATFORMS,B1,B2,B3,BUILD_DETAILS buildStyle
+    class ARTIFACTS,GITHUB_ARTIFACTS,GITHUB_CACHE,GA1,GC1 artifactStyle
+    class TEST,TEST_PLATFORMS,TS1,TS2,TS3,TEST_DETAILS,ARTIFACT_FLOWS testStyle
+    class RELEASE,RELEASE_STAGES,R1,R2,R3,RELEASE_DETAILS releaseStyle
+```
+
+### Pipeline Execution Details
+
+**Parallel Execution**: The CI pipeline leverages parallel execution to optimize build and test times:
+- **Build Stage**: Different architectures/operating systems (linux-64, linux-aarch64, win-64) are built in parallel across their respective runners
+- **Test Stage**: Different architectures/operating systems/CUDA versions are tested in parallel; documentation preview is also built in parallel with testing
+
+### Branch-specific Artifact Flow
+
+#### Main Branch
+- **Build** → **Test** → **Documentation** → **Potential Release**
+- Artifacts stored as `{component}-python{version}-{platform}-{sha}`
+- Full test coverage across all platforms and CUDA versions
+- **Artifact flow out**: `cuda-pathfinder` artifacts → backport branches
+
+#### Backport Branches
+- **Build** → **Test** → **Backport PR Creation**
+- Artifacts used for validation before creating backport pull requests
+- Maintains compatibility with older CUDA versions
+- **Artifact flow in**: `cuda-pathfinder` artifacts ← main branch
+- **Artifact flow out**: older `cuda-bindings` artifacts → main branch
+
+### Key Infrastructure Details
+
+- **Self-hosted runners**: Used for Linux builds and GPU testing (more resources, faster builds)
+- **GitHub-hosted runners**: Used for Windows builds and general tasks
+- **Artifact retention**: 30 days for GitHub Artifacts (wheels, docs, tests)
+- **Cache retention**: GitHub Cache for build dependencies and environments
+- **Security**: All commits must be signed, untrusted code blocked
+- **Parallel execution**: Matrix builds across Python versions and platforms
+- **Component isolation**: Each component (core, bindings, pathfinder, python) can be built/released independently
+
+---
+
+<a>1</a>: The `cuda-python` meta package shares the same license and the contributing guidelines as those of `cuda-bindings`.

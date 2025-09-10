@@ -32,6 +32,11 @@ jobs:
     outputs:
       MATRIX: ${{ steps.compute-matrix.outputs.MATRIX }}
     steps:
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        with:
+          fetch-depth: 1
+
       - name: Validate Test Type
         run: |
           if [[ "$BUILD_TYPE" != "pull-request" ]] && [[ "$BUILD_TYPE" != "nightly" ]] && [[ "$BUILD_TYPE" != "branch" ]]; then
@@ -41,40 +46,27 @@ jobs:
       - name: Compute Python Test Matrix
         id: compute-matrix
         run: |
-          # Please keep the matrices sorted in ascending order by the following:
-          #
-          #     [PY_VER, CUDA_VER, LOCAL_CTK]
-          #
-          export MATRICES="
-            pull-request:
-              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.9.0', LOCAL_CTK: '0' }
-              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.9.0', LOCAL_CTK: '1' }
-              - { ARCH: ${ARCH}, PY_VER: '3.13',  CUDA_VER: '13.0.0', LOCAL_CTK: '0' }
-              - { ARCH: ${ARCH}, PY_VER: '3.13',  CUDA_VER: '13.0.0', LOCAL_CTK: '1' }
-            nightly:
-              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '11.8.0', LOCAL_CTK: '0' }
-              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '11.8.0', LOCAL_CTK: '1' }
-              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.9.0', LOCAL_CTK: '0' }
-              - { ARCH: ${ARCH}, PY_VER: '3.12',  CUDA_VER: '12.9.0', LOCAL_CTK: '1' }
-          "
-
           # Use the nightly matrix for branch tests
           MATRIX_TYPE="${BUILD_TYPE}"
           if [[ "${MATRIX_TYPE}" == "branch" ]]; then
             MATRIX_TYPE="nightly"
           fi
-          export MATRIX_TYPE
-          TEST_MATRIX=$(yq -n 'env(MATRICES) | .[strenv(MATRIX_TYPE)]')
-          export TEST_MATRIX
+
+          # Read base matrix from JSON file for the specific architecture
+          TEST_MATRIX=$(jq --arg arch "$ARCH" --arg matrix_type "$MATRIX_TYPE" '
+            .windows[$matrix_type] |
+            map(select(.ARCH == $arch))
+          ' ci/test-matrix.json)
 
           MATRIX="$(
-            yq -n -o json 'env(TEST_MATRIX)' | \
-            jq -c '${{ inputs.matrix_filter }} | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end'
+            jq -c '${{ inputs.matrix_filter }} | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end' <<< "$TEST_MATRIX"
           )"
 
           echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
 
   test:
+    # TODO: switch to this once the self-hosted runners are ready
+    # name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, GPU ${{ matrix.GPU }}
     name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}
     # The build stage could fail but we want the CI to keep moving.
     needs: compute-matrix
@@ -82,6 +74,8 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
+    # TODO: switch to self-hosted runners once they are ready
+    # runs-on: "windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-1"
     runs-on: 'cuda-python-windows-gpu-github'
     steps:
       - name: Checkout ${{ github.event.repository.name }}
@@ -90,6 +84,9 @@ jobs:
           fetch-depth: 0
 
       # TODO: use setup-proxy-cache once we have self-hosted Windows runners
+      # - name: Setup proxy cache
+      #   uses: nv-gha-runners/setup-proxy-cache@main
+      #   continue-on-error: true
 
       - name: Update driver
         run: |
@@ -98,6 +95,7 @@ jobs:
       - name: Ensure GPU is working
         run: nvidia-smi
 
+      # TODO: remove this block once self-hosted runners are ready
       - name: Install Git for Windows
         # the GPU runner image does not have Git Bash pre-installed...
         env:
@@ -143,6 +141,7 @@ jobs:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
+      # TODO: remove this block once self-hosted runners are ready
       - name: Install gh cli
         # the GPU runner image does not have gh pre-installed...
         env:
@@ -262,6 +261,7 @@ jobs:
       - name: Run cuda.pathfinder tests with see_what_works
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
+          CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests pathfinder
 
@@ -299,5 +299,6 @@ jobs:
       - name: Run cuda.pathfinder tests with all_must_work
         env:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: all_must_work
+          CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: all_must_work
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: run-tests pathfinder

@@ -248,12 +248,13 @@ if sys.platform != "win32":
         "-std=c++14",
         "-fpermissive",
         "-Wno-deprecated-declarations",
-        "-D _GLIBCXX_ASSERTIONS",
         "-fno-var-tracking-assignments",
     ]
     if "--debug" in sys.argv:
         extra_cythonize_kwargs["gdb_debug"] = True
         extra_compile_args += ["-g", "-O0"]
+        extra_compile_args += ["-D _GLIBCXX_ASSERTIONS"]  # libstdc++
+    # extra_compile_args += ["-D _LIBCPP_ENABLE_ASSERTIONS"] # Consider: if clang, use libc++ preprocessor macros.
     else:
         extra_compile_args += ["-O3"]
 
