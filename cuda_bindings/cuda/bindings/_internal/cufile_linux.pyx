@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 12.9.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 12.9.1. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 import threading
@@ -71,6 +71,7 @@ cdef void* __cuFileGetParameterString = NULL
 cdef void* __cuFileSetParameterSizeT = NULL
 cdef void* __cuFileSetParameterBool = NULL
 cdef void* __cuFileSetParameterString = NULL
+cdef void* __cuFileDriverClose = NULL
 
 
 cdef void* load_library(const int driver_ver) except* with gil:
@@ -314,6 +315,13 @@ cdef int _check_or_init_cufile() except -1 nogil:
                 handle = load_library(driver_ver)
             __cuFileSetParameterString = dlsym(handle, 'cuFileSetParameterString')
 
+        global __cuFileDriverClose
+        __cuFileDriverClose = dlsym(RTLD_DEFAULT, 'cuFileDriverClose')
+        if __cuFileDriverClose == NULL:
+            if handle == NULL:
+                handle = load_library(driver_ver)
+            __cuFileDriverClose = dlsym(handle, 'cuFileDriverClose')
+
         __py_cufile_init = True
         return 0
 
@@ -418,6 +426,9 @@ cpdef dict _inspect_function_pointers():
 
     global __cuFileSetParameterString
     data["__cuFileSetParameterString"] = <intptr_t>__cuFileSetParameterString
+
+    global __cuFileDriverClose
+    data["__cuFileDriverClose"] = <intptr_t>__cuFileDriverClose
 
     func_ptrs = data
     return data
@@ -734,3 +745,13 @@ cdef CUfileError_t _cuFileSetParameterString(CUFileStringConfigParameter_t param
             raise FunctionNotFoundError("function cuFileSetParameterString is not found")
     return (<CUfileError_t (*)(CUFileStringConfigParameter_t, const char*) noexcept nogil>__cuFileSetParameterString)(
         param, desc_str)
+
+
+cdef CUfileError_t _cuFileDriverClose() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileDriverClose
+    _check_or_init_cufile()
+    if __cuFileDriverClose == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileDriverClose is not found")
+    return (<CUfileError_t (*)() noexcept nogil>__cuFileDriverClose)(
+        )
