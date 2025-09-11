@@ -53,16 +53,62 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
 
 @functools.cache
 def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
-    """Load a NVIDIA dynamic library by name.
+    """Load an NVIDIA dynamic library by name.
 
     Args:
-        libname: The name of the library to load (e.g. "cudart", "nvvm", etc.)
+        libname (str): The short name of the library to load (e.g., ``"cudart"``,
+            ``"nvvm"``, etc.).
 
     Returns:
-        A LoadedDL object containing the library handle and path
+        LoadedDL: Object containing the OS library handle and absolute path.
 
     Raises:
-        RuntimeError: If the library cannot be found or loaded
+        DynamicLibNotFoundError: If the library cannot be found or loaded.
+        RuntimeError: If Python is not 64-bit.
+
+    Search order:
+        0. **Already loaded in the current process**
+
+           - If a matching library is already loaded by some other component,
+             return its absolute path and handle and skip the rest of the search.
+
+        1. **NVIDIA Python wheels**
+
+           - Scan installed distributions (``site-packages``) to find libraries
+             shipped in NVIDIA wheels.
+
+        2. **OS default mechanisms / Conda environments**
+
+           - Fall back to the native loader:
+
+             - Linux: ``dlopen()``
+
+             - Windows: ``LoadLibraryW()``
+
+           - Conda installations are commonly discovered via:
+
+             - Linux: ``$ORIGIN/../lib`` in the ``RPATH`` of the ``python`` binary
+               (note: this can take precedence over ``LD_LIBRARY_PATH`` and
+               ``/etc/ld.so.conf.d/``).
+
+             - Windows: ``%CONDA_PREFIX%\\Library\\bin`` on the system ``PATH``.
+
+           - CUDA Toolkit (CTK) system installs with system config updates are often
+             discovered via:
+
+             - Linux: ``/etc/ld.so.conf.d/*cuda*.conf``
+
+             - Windows: ``C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\vX.Y\\bin``
+               on the system ``PATH``.
+
+        3. **Environment variables**
+
+           - If set, use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
+
+    Notes:
+        The search is performed **per library**. There is currently no mechanism to
+        guarantee that multiple libraries are all resolved from the same location.
+
     """
     pointer_size_bits = struct.calcsize("P") * 8
     if pointer_size_bits != 64:

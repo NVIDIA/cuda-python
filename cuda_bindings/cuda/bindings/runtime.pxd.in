@@ -3,7 +3,8 @@
 
 # This code was automatically generated with version 13.0.0. Do not modify it directly.
 cimport cuda.bindings.cyruntime as cyruntime
-cimport cuda.bindings._lib.utils as utils
+
+include "_lib/utils.pxd"
 cimport cuda.bindings.driver as driver
 
 {{if 'cudaArray_t' in found_types}}
@@ -428,7 +429,7 @@ cdef class cudaArraySparseProperties:
         Flags will either be zero or cudaArraySparsePropertiesSingleMipTail
     {{endif}}
     {{if 'cudaArraySparseProperties.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -460,7 +461,7 @@ cdef class cudaArrayMemoryRequirements:
         Alignment necessary for mapping the array.
     {{endif}}
     {{if 'cudaArrayMemoryRequirements.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -647,7 +648,7 @@ cdef class cudaMemcpyNodeParams:
         Must be zero
     {{endif}}
     {{if 'cudaMemcpyNodeParams.reserved' in found_struct}}
-    reserved : List[int]
+    reserved : list[int]
         Must be zero
     {{endif}}
     {{if 'cudaMemcpyNodeParams.copyParams' in found_struct}}
@@ -1041,7 +1042,7 @@ cdef class anon_struct5:
     Attributes
     ----------
     {{if 'cudaResourceDesc.res.reserved.reserved' in found_struct}}
-    reserved : List[int]
+    reserved : list[int]
 
     {{endif}}
 
@@ -1174,7 +1175,7 @@ cdef class cudaResourceViewDesc:
         Last layer index
     {{endif}}
     {{if 'cudaResourceViewDesc.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Must be zero
     {{endif}}
 
@@ -1222,7 +1223,7 @@ cdef class cudaPointerAttributes:
         pointer if an invalid pointer has been passed to CUDA.
     {{endif}}
     {{if 'cudaPointerAttributes.reserved' in found_struct}}
-    reserved : List[long]
+    reserved : list[long]
         Must be zero
     {{endif}}
 
@@ -1344,7 +1345,7 @@ cdef class cudaFuncAttributes:
         cudaFuncSetAttribute
     {{endif}}
     {{if 'cudaFuncAttributes.reserved' in found_struct}}
-    reserved : List[int]
+    reserved : list[int]
         Reserved for future use.
     {{endif}}
 
@@ -1909,11 +1910,11 @@ cdef class cudaDeviceProp:
         Maximum number of threads per block
     {{endif}}
     {{if 'cudaDeviceProp.maxThreadsDim' in found_struct}}
-    maxThreadsDim : List[int]
+    maxThreadsDim : list[int]
         Maximum size of each dimension of a block
     {{endif}}
     {{if 'cudaDeviceProp.maxGridSize' in found_struct}}
-    maxGridSize : List[int]
+    maxGridSize : list[int]
         Maximum size of each dimension of a grid
     {{endif}}
     {{if 'cudaDeviceProp.totalConstMem' in found_struct}}
@@ -1959,29 +1960,29 @@ cdef class cudaDeviceProp:
         Maximum 1D mipmapped texture size
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture2D' in found_struct}}
-    maxTexture2D : List[int]
+    maxTexture2D : list[int]
         Maximum 2D texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture2DMipmap' in found_struct}}
-    maxTexture2DMipmap : List[int]
+    maxTexture2DMipmap : list[int]
         Maximum 2D mipmapped texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture2DLinear' in found_struct}}
-    maxTexture2DLinear : List[int]
+    maxTexture2DLinear : list[int]
         Maximum dimensions (width, height, pitch) for 2D textures bound to
         pitched memory
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture2DGather' in found_struct}}
-    maxTexture2DGather : List[int]
+    maxTexture2DGather : list[int]
         Maximum 2D texture dimensions if texture gather operations have to
         be performed
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture3D' in found_struct}}
-    maxTexture3D : List[int]
+    maxTexture3D : list[int]
         Maximum 3D texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture3DAlt' in found_struct}}
-    maxTexture3DAlt : List[int]
+    maxTexture3DAlt : list[int]
         Maximum alternate 3D texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTextureCubemap' in found_struct}}
@@ -1989,15 +1990,15 @@ cdef class cudaDeviceProp:
         Maximum Cubemap texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture1DLayered' in found_struct}}
-    maxTexture1DLayered : List[int]
+    maxTexture1DLayered : list[int]
         Maximum 1D layered texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTexture2DLayered' in found_struct}}
-    maxTexture2DLayered : List[int]
+    maxTexture2DLayered : list[int]
         Maximum 2D layered texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxTextureCubemapLayered' in found_struct}}
-    maxTextureCubemapLayered : List[int]
+    maxTextureCubemapLayered : list[int]
         Maximum Cubemap layered texture dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxSurface1D' in found_struct}}
@@ -2005,19 +2006,19 @@ cdef class cudaDeviceProp:
         Maximum 1D surface size
     {{endif}}
     {{if 'cudaDeviceProp.maxSurface2D' in found_struct}}
-    maxSurface2D : List[int]
+    maxSurface2D : list[int]
         Maximum 2D surface dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxSurface3D' in found_struct}}
-    maxSurface3D : List[int]
+    maxSurface3D : list[int]
         Maximum 3D surface dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxSurface1DLayered' in found_struct}}
-    maxSurface1DLayered : List[int]
+    maxSurface1DLayered : list[int]
         Maximum 1D layered surface dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxSurface2DLayered' in found_struct}}
-    maxSurface2DLayered : List[int]
+    maxSurface2DLayered : list[int]
         Maximum 2D layered surface dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxSurfaceCubemap' in found_struct}}
@@ -2025,7 +2026,7 @@ cdef class cudaDeviceProp:
         Maximum Cubemap surface dimensions
     {{endif}}
     {{if 'cudaDeviceProp.maxSurfaceCubemapLayered' in found_struct}}
-    maxSurfaceCubemapLayered : List[int]
+    maxSurfaceCubemapLayered : list[int]
         Maximum Cubemap layered surface dimensions
     {{endif}}
     {{if 'cudaDeviceProp.surfaceAlignment' in found_struct}}
@@ -2258,7 +2259,7 @@ cdef class cudaDeviceProp:
         multi-node system.
     {{endif}}
     {{if 'cudaDeviceProp.reserved' in found_struct}}
-    reserved : List[int]
+    reserved : list[int]
         Reserved for future use
     {{endif}}
 
@@ -2410,7 +2411,7 @@ cdef class cudaExternalMemoryHandleDesc:
         Flags must either be zero or cudaExternalMemoryDedicated
     {{endif}}
     {{if 'cudaExternalMemoryHandleDesc.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Must be zero
     {{endif}}
 
@@ -2446,7 +2447,7 @@ cdef class cudaExternalMemoryBufferDesc:
         Flags reserved for future use. Must be zero.
     {{endif}}
     {{if 'cudaExternalMemoryBufferDesc.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Must be zero
     {{endif}}
 
@@ -2489,7 +2490,7 @@ cdef class cudaExternalMemoryMipmappedArrayDesc:
         Total number of levels in the mipmap chain
     {{endif}}
     {{if 'cudaExternalMemoryMipmappedArrayDesc.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Must be zero
     {{endif}}
 
@@ -2579,7 +2580,7 @@ cdef class cudaExternalSemaphoreHandleDesc:
         Flags reserved for the future. Must be zero.
     {{endif}}
     {{if 'cudaExternalSemaphoreHandleDesc.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Must be zero
     {{endif}}
 
@@ -2671,7 +2672,7 @@ cdef class anon_struct12:
 
     {{endif}}
     {{if 'cudaExternalSemaphoreSignalParams.params.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -2715,7 +2716,7 @@ cdef class cudaExternalSemaphoreSignalParams:
         all other types of cudaExternalSemaphore_t, flags must be zero.
     {{endif}}
     {{if 'cudaExternalSemaphoreSignalParams.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -2811,7 +2812,7 @@ cdef class anon_struct15:
 
     {{endif}}
     {{if 'cudaExternalSemaphoreWaitParams.params.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -2855,7 +2856,7 @@ cdef class cudaExternalSemaphoreWaitParams:
         all other types of cudaExternalSemaphore_t, flags must be zero.
     {{endif}}
     {{if 'cudaExternalSemaphoreWaitParams.reserved' in found_struct}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
 
     {{endif}}
 
@@ -2948,7 +2949,7 @@ cdef class cudaKernelNodeParams:
     cdef dim3 _blockDim
     {{endif}}
     {{if 'cudaKernelNodeParams.kernelParams' in found_struct}}
-    cdef utils.HelperKernelParams _cykernelParams
+    cdef _HelperKernelParams _cykernelParams
     {{endif}}
 {{endif}}
 {{if 'cudaKernelNodeParamsV2' in found_struct}}
@@ -2998,7 +2999,7 @@ cdef class cudaKernelNodeParamsV2:
     cdef dim3 _blockDim
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.kernelParams' in found_struct}}
-    cdef utils.HelperKernelParams _cykernelParams
+    cdef _HelperKernelParams _cykernelParams
     {{endif}}
 {{endif}}
 {{if 'cudaExternalSemaphoreSignalNodeParams' in found_struct}}
@@ -3304,11 +3305,11 @@ cdef class cudaGraphNodeParams:
         Type of the node
     {{endif}}
     {{if 'cudaGraphNodeParams.reserved0' in found_struct}}
-    reserved0 : List[int]
+    reserved0 : list[int]
         Reserved. Must be zero.
     {{endif}}
     {{if 'cudaGraphNodeParams.reserved1' in found_struct}}
-    reserved1 : List[long long]
+    reserved1 : list[long long]
         Padding. Unused bytes must be zero.
     {{endif}}
     {{if 'cudaGraphNodeParams.kernel' in found_struct}}
@@ -4043,7 +4044,7 @@ cdef class cudaTextureDesc:
     Attributes
     ----------
     {{if 'cudaTextureDesc.addressMode' in found_struct}}
-    addressMode : List[cudaTextureAddressMode]
+    addressMode : list[cudaTextureAddressMode]
         Texture address mode for up to 3 dimensions
     {{endif}}
     {{if 'cudaTextureDesc.filterMode' in found_struct}}
@@ -4059,7 +4060,7 @@ cdef class cudaTextureDesc:
         Perform sRGB->linear conversion during texture read
     {{endif}}
     {{if 'cudaTextureDesc.borderColor' in found_struct}}
-    borderColor : List[float]
+    borderColor : list[float]
         Texture Border Color
     {{endif}}
     {{if 'cudaTextureDesc.normalizedCoords' in found_struct}}
@@ -4137,7 +4138,7 @@ cdef class cudaEglPlaneDesc_st:
         Channel Format Descriptor
     {{endif}}
     {{if True}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Reserved for future use
     {{endif}}
 
@@ -4159,11 +4160,11 @@ cdef class anon_union9:
     Attributes
     ----------
     {{if True}}
-    pArray : List[cudaArray_t]
+    pArray : list[cudaArray_t]
 
     {{endif}}
     {{if True}}
-    pPitch : List[cudaPitchedPtr]
+    pPitch : list[cudaPitchedPtr]
 
     {{endif}}
 
@@ -4194,7 +4195,7 @@ cdef class cudaEglFrame_st:
 
     {{endif}}
     {{if True}}
-    planeDesc : List[cudaEglPlaneDesc]
+    planeDesc : list[cudaEglPlaneDesc]
         CUDA EGL Plane Descriptor cudaEglPlaneDesc
     {{endif}}
     {{if True}}
@@ -4786,7 +4787,7 @@ cdef class cudaEglPlaneDesc(cudaEglPlaneDesc_st):
         Channel Format Descriptor
     {{endif}}
     {{if True}}
-    reserved : List[unsigned int]
+    reserved : list[unsigned int]
         Reserved for future use
     {{endif}}
 
@@ -4817,7 +4818,7 @@ cdef class cudaEglFrame(cudaEglFrame_st):
 
     {{endif}}
     {{if True}}
-    planeDesc : List[cudaEglPlaneDesc]
+    planeDesc : list[cudaEglPlaneDesc]
         CUDA EGL Plane Descriptor cudaEglPlaneDesc
     {{endif}}
     {{if True}}

@@ -169,7 +169,7 @@ def test_handle_register():
     file_path = "test_handle_register.bin"
 
     # Create file with POSIX operations
-    fd = os.open(file_path, os.O_CREAT | os.O_RDWR, 0o644)
+    fd = os.open(file_path, os.O_CREAT | os.O_RDWR, 0o600)
 
     # Write test data using POSIX write
     test_data = b"Test data for cuFile - POSIX write"
@@ -499,7 +499,7 @@ def test_cufile_read_write():
 
     try:
         # Create file with O_DIRECT
-        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
         # Register buffers with cuFile
         write_buf_int = int(write_buf)
@@ -598,7 +598,7 @@ def test_cufile_read_write_host_memory():
 
     try:
         # Create file with O_DIRECT
-        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
         # Register host buffers with cuFile
         write_buf_int = int(write_buf)
@@ -699,7 +699,7 @@ def test_cufile_read_write_large():
 
     try:
         # Create file with O_DIRECT
-        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
         # Register buffers with cuFile
         write_buf_int = int(write_buf)
@@ -790,7 +790,7 @@ def test_cufile_write_async(cufile_env_json):
 
     # Create test file
     file_path = "test_cufile_write_async.bin"
-    fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+    fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
     try:
         # Register file handle
@@ -885,7 +885,7 @@ def test_cufile_read_async(cufile_env_json):
     file_path = "test_cufile_read_async.bin"
 
     # First create and write test data without O_DIRECT
-    fd_temp = os.open(file_path, os.O_CREAT | os.O_RDWR, 0o644)
+    fd_temp = os.open(file_path, os.O_CREAT | os.O_RDWR, 0o600)
     # Create test data that's aligned to 4096 bytes
     test_string = b"Async read test data for cuFile!"
     test_string_len = len(test_string)
@@ -989,7 +989,7 @@ def test_cufile_async_read_write(cufile_env_json):
 
     # Create test file
     file_path = "test_cufile_async_rw.bin"
-    fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+    fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
     try:
         # Register file handle
@@ -1136,7 +1136,7 @@ def test_batch_io_basic():
 
     try:
         # Create file with O_DIRECT
-        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
         # Register buffers with cuFile
         for buf in buffers:
@@ -1350,7 +1350,7 @@ def test_batch_io_cancel():
 
     try:
         # Create file with O_DIRECT
-        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
         # Register buffers with cuFile
         for buf in buffers:
@@ -1460,7 +1460,7 @@ def test_batch_io_large_operations():
 
     try:
         # Create file with O_DIRECT
-        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o644)
+        fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
         # Register all buffers with cuFile
         all_buffers = write_buffers + read_buffers

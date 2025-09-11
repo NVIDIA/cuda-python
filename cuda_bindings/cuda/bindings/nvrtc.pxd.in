@@ -3,7 +3,8 @@
 
 # This code was automatically generated with version 13.0.0. Do not modify it directly.
 cimport cuda.bindings.cynvrtc as cynvrtc
-cimport cuda.bindings._lib.utils as utils
+
+include "_lib/utils.pxd"
 
 {{if 'nvrtcProgram' in found_types}}
 

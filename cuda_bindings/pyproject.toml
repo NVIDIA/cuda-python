@@ -28,16 +28,12 @@ dynamic = [
 ]
 dependencies = [
   "cuda-pathfinder ~=1.1",
-  "pywin32; sys_platform == 'win32'",
 ]
 
 [project.optional-dependencies]
 all = [
-    "nvidia-cuda-nvcc~=13.0",
-    "nvidia-cuda-nvrtc~=13.0",
-    "nvidia-nvjitlink~=13.0",
-    "nvidia-nvvm~=13.0",
-    "nvidia-cufile; sys_platform == 'linux'",
+    "cuda-toolkit[nvrtc,nvjitlink,nvvm]==13.*",
+    "cuda-toolkit[cufile]==13.*; sys_platform == 'linux'",
 ]
 
 test = [
@@ -87,10 +83,9 @@ select = [
 ]
 
 ignore = [
-    "UP006", 
-    "UP007", 
+    "UP007",
     "E741", # ambiguous variable name such as I
-    "B007", # rename unsued loop variable to _name 
+    "B007", # rename unsued loop variable to _name
     "UP035" # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
 ]
 
@@ -106,13 +101,13 @@ exclude = ["cuda/bindings/_version.py"]
   ]
 
 "tests/**/*" = [
-  "E722", 
+  "E722",
   "UP022",
   "E402", # module level import not at top of file
   "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
 
 "benchmarks/**/*" = [
-  "E722", 
+  "E722",
   "UP022",
   "E402", # module level import not at top of file
   "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)

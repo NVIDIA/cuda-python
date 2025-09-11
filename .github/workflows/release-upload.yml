@@ -78,7 +78,7 @@ jobs:
         run: |
           # Use the shared script to download wheels
           ./ci/tools/download-wheels "${{ inputs.run-id }}" "${{ inputs.component }}" "${{ github.repository }}" "release/wheels"
-          
+
           # Upload wheels to the release
           if [[ -d "release/wheels" && $(ls -A release/wheels 2>/dev/null | wc -l) -gt 0 ]]; then
             echo "Uploading wheels to release ${{ inputs.git-tag }}"

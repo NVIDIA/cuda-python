@@ -23,7 +23,7 @@ cdef extern from "utility.hpp":
 def test_get_cuda_native_handle():
     dev = Device(0)
     dev.set_current()
-    
+
     s = dev.create_stream()
     cdef pyCUstream s_py = s.handle
     cdef CUstream s_c = <CUstream>get_cuda_native_handle(s_py)

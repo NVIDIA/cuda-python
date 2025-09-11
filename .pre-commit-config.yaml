@@ -9,7 +9,6 @@ ci:
     autoupdate_branch: ''
     autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
     autoupdate_schedule: quarterly
-    skip: [bandit]
     submodules: false
 
 # Please update the rev: SHAs below with this command:
@@ -31,8 +30,42 @@ repos:
         additional_dependencies:
           - https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl
 
+      - id: no-markdown-in-docs-source
+        name: Prevent markdown files in docs/source directories
+        entry: bash -c
+        args: ['if find . -path "*/docs/source/*.md" -not -path "./docs/README.md" | grep -q .; then echo "ERROR: Markdown files found in docs/source/ directories. Use reST (.rst) instead."; exit 1; fi']
+        language: system
+        pass_filenames: false
+        always_run: true
+
+  # Standard hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: "v5.0.0"
+    hooks:
+    - id: check-added-large-files
+    - id: check-case-conflict
+    - id: check-docstring-first
+    - id: check-merge-conflict
+    - id: check-symlinks
+    - id: check-toml
+    - id: check-yaml
+    - id: debug-statements
+    - id: end-of-file-fixer
+      exclude: &gen_exclude '^(?:cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?)$'
+    - id: mixed-line-ending
+    - id: trailing-whitespace
+      exclude: *gen_exclude
+
+  # Checking for common mistakes
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: "v1.10.0"
+    hooks:
+    - id: rst-backticks
+    - id: rst-directive-colons
+    - id: rst-inline-touching-normal
+
   - repo: https://github.com/PyCQA/bandit
-    rev: 2d0b675b04c80ae42277e10500db06a0a37bae17  # frozen: 1.8.6
+    rev: "36fd65054fc8864b4037d0918904f9331512feb5"  # frozen: 1.7.10 KEEP IN SYNC WITH .github/workflows/bandit.yml
     hooks:
       - id: bandit
         args:

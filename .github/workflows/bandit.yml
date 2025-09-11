@@ -20,4 +20,9 @@ jobs:
       security-events: write
     steps:
       - name: Perform Bandit Analysis
-        uses: PyCQA/bandit-action@67a458d90fa11fb1463e91e7f4c8f068b5863c7f  # v1.0.1
+        # KEEP IN SYNC WITH bandit rev in .pre-commit-config.yaml
+        # Current runner uses Python 3.8, so the action installs bandit==1.7.10
+        # via `pip install bandit[sarif]`. If runner Python moves to >=3.9,
+        # the action will resolve to 1.8.x and you'll need to bump pre-commit.
+        # (Bandit >=1.8.0 dropped Python 3.8 via Requires-Python metadata.)
+        uses: PyCQA/bandit-action@8a1b30610f61f3f792fe7556e888c9d7dffa52de  # v1.0.0
