@@ -14,6 +14,7 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     SITE_PACKAGES_LIBDIRS_WINDOWS,
     is_suppressed_dll_file,
 )
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs, find_sub_dirs_all_sitepackages
 
 
@@ -79,15 +80,8 @@ def _find_dll_using_nvidia_bin_dirs(
     return None
 
 
-def _get_cuda_home() -> Optional[str]:
-    cuda_home = os.environ.get("CUDA_HOME")
-    if cuda_home is None:
-        cuda_home = os.environ.get("CUDA_PATH")
-    return cuda_home
-
-
 def _find_lib_dir_using_cuda_home(libname: str) -> Optional[str]:
-    cuda_home = _get_cuda_home()
+    cuda_home = get_cuda_home_or_path()
     if cuda_home is None:
         return None
     subdirs_list: tuple[tuple[str, ...], ...]
