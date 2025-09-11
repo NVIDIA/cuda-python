@@ -10,7 +10,7 @@ SUPPORTED_HEADERS_CTK_COMMON = {
     "cudart": "cuda_runtime.h",
     "cufft": "cufft.h",
     "curand": "curand.h",
-    "cusolver": "cusolver_common.h",
+    "cusolver": "cusolverDn.h",
     "cusparse": "cusparse.h",
     "npp": "npp.h",
     "nvcc": "fatbinary_section.h",
