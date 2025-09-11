@@ -61,10 +61,19 @@ def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) 
 
 
 def _find_based_on_conda_layout(libname: str, h_basename: str, conda_prefix: str) -> Optional[str]:
-    targets_include_path = glob.glob(os.path.join(conda_prefix, "targets", "*", "include"))
-    if len(targets_include_path) != 1:
-        return None  # Conda does not support multiple architectures.
-    anchor_point = os.path.dirname(targets_include_path[0])
+    if IS_WINDOWS:
+        anchor_point = os.path.join(conda_prefix, "Library")
+        if not os.path.isdir(anchor_point):
+            return None
+    else:
+        targets_include_path = glob.glob(os.path.join(conda_prefix, "targets", "*", "include"))
+        if not targets_include_path:
+            return None
+        if len(targets_include_path) != 1:
+            # Conda does not support multiple architectures.
+            # QUESTION(PR#956): Do we want to issue a warning?
+            return None
+        anchor_point = os.path.dirname(targets_include_path[0])
     return _find_based_on_ctk_layout(libname, h_basename, anchor_point)
 
 
