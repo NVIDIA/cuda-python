@@ -30,6 +30,24 @@ cdef extern from "<dlfcn.h>" nogil:
 
     const void* RTLD_DEFAULT 'RTLD_DEFAULT'
 
+cdef int get_cuda_version():
+    cdef void* handle = NULL
+    cdef int err, driver_ver = 0
+
+    # Load driver to check version
+    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
+    if handle == NULL:
+        err_msg = dlerror()
+        raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
+    cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
+    if cuDriverGetVersion == NULL:
+        raise RuntimeError('something went wrong')
+    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
+    if err != 0:
+        raise RuntimeError('something went wrong')
+
+    return driver_ver
+
 
 ###############################################################################
 # Wrapper init
@@ -37,7 +55,6 @@ cdef extern from "<dlfcn.h>" nogil:
 
 cdef object __symbol_lock = threading.Lock()
 cdef bint __py_nvjitlink_init = False
-cdef void* __cuDriverGetVersion = NULL
 
 cdef void* __nvJitLinkCreate = NULL
 cdef void* __nvJitLinkDestroy = NULL
@@ -66,24 +83,9 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
         return 0
 
     cdef void* handle = NULL
-    cdef int err, driver_ver = 0
 
     with gil, __symbol_lock:
-        # Load driver to check version
-        handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
-        if handle == NULL:
-            err_msg = dlerror()
-            raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
-        global __cuDriverGetVersion
-        if __cuDriverGetVersion == NULL:
-            __cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
-        if __cuDriverGetVersion == NULL:
-            raise RuntimeError('something went wrong')
-        err = (<int (*)(int*) noexcept nogil>__cuDriverGetVersion)(&driver_ver)
-        if err != 0:
-            raise RuntimeError('something went wrong')
-        #dlclose(handle)
-        handle = NULL
+        driver_ver = get_cuda_version()
 
         # Load function
         global __nvJitLinkCreate
