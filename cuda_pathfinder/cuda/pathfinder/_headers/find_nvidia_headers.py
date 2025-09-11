@@ -4,7 +4,6 @@
 import functools
 import glob
 import os
-import shutil
 from typing import Optional
 
 from cuda.pathfinder._headers import supported_nvidia_headers
@@ -73,18 +72,6 @@ def _find_based_on_conda_layout(libname: str, h_basename: str, conda_prefix: str
     return _find_based_on_ctk_layout(libname, h_basename, anchor_point)
 
 
-@functools.cache
-def _get_nvcc_home() -> Optional[str]:
-    # Fall back to the directory that owns nvcc (works for most local installs)
-    nvcc_path = shutil.which("nvcc")
-    if not nvcc_path:
-        return None
-    flds = nvcc_path.split(os.path.sep)
-    if len(flds) < 3:
-        return None
-    return os.path.sep.join(flds[:-2])
-
-
 def _find_ctk_header_directory(libname: str) -> Optional[str]:
     h_basename = supported_nvidia_headers.SUPPORTED_HEADERS_CTK[libname]
     candidate_dirs = supported_nvidia_headers.SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK[libname]
@@ -104,11 +91,6 @@ def _find_ctk_header_directory(libname: str) -> Optional[str]:
     cuda_home = get_cuda_home_or_path()
     if cuda_home:  # noqa: SIM102
         if result := _find_based_on_ctk_layout(libname, h_basename, cuda_home):
-            return result
-
-    nvcc_home = _get_nvcc_home()
-    if nvcc_home:  # noqa: SIM102
-        if result := _find_based_on_ctk_layout(libname, h_basename, nvcc_home):
             return result
 
     return None
