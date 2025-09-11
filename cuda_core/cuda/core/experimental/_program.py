@@ -20,11 +20,59 @@ from cuda.core.experimental._utils.cuda_utils import (
     _handle_boolean_option,
     check_or_create_options,
     driver,
+    get_binding_version,
     handle_return,
     is_nested_sequence,
     is_sequence,
     nvrtc,
 )
+
+_nvvm_module = None
+_nvvm_import_attempted = False
+
+
+def _get_nvvm_module():
+    """
+    Handles the import of NVVM module with version and availability checks.
+    NVVM bindings were added in CUDA 12.9.0, so we need to handle cases where:
+    1. cuda.bindings is not new enough (< 12.9.0)
+    2. libnvvm is not found in the Python environment
+
+    Returns:
+        The nvvm module if available and working
+
+    Raises:
+        ImportError: If NVVM is not available due to version or library issues
+    """
+    global _nvvm_module, _nvvm_import_attempted
+
+    if _nvvm_import_attempted:
+        if _nvvm_module is None:
+            raise ImportError("NVVM module is not available (previous import attempt failed)")
+        return _nvvm_module
+
+    _nvvm_import_attempted = True
+
+    try:
+        version = get_binding_version()
+        if version < (12, 9):
+            raise ImportError(
+                f"NVVM bindings require cuda-bindings >= 12.9.0, but found {version[0]}.{version[1]}.x. "
+                "Please update cuda-bindings to use NVVM features."
+            )
+
+        from cuda.bindings import nvvm
+        from cuda.bindings._internal.nvvm import _inspect_function_pointer
+
+        if _inspect_function_pointer("__nvvmCreateProgram") == 0:
+            raise ImportError("NVVM library (libnvvm) is not available in this Python environment. ")
+
+        _nvvm_module = nvvm
+        return _nvvm_module
+
+    except ImportError as e:
+        _nvvm_module = None
+        raise e
 
 
 def _process_define_macro_inner(formatted_options, macro):
@@ -370,28 +418,33 @@ class Program:
     code : Any
         String of the CUDA Runtime Compilation program.
     code_type : Any
-        String of the code type. Currently ``"ptx"`` and ``"c++"`` are supported.
+        String of the code type. Currently ``"ptx"``, ``"c++"``, and ``"nvvm"`` are supported.
     options : ProgramOptions, optional
         A ProgramOptions object to customize the compilation process.
         See :obj:`ProgramOptions` for more information.
     """
 
     class _MembersNeededForFinalize:
-        __slots__ = "handle"
+        __slots__ = "handle", "backend"
 
-        def __init__(self, program_obj, handle):
+        def __init__(self, program_obj, handle, backend):
             self.handle = handle
+            self.backend = backend
             weakref.finalize(program_obj, self.close)
 
         def close(self):
             if self.handle is not None:
-                handle_return(nvrtc.nvrtcDestroyProgram(self.handle))
+                if self.backend == "NVRTC":
+                    handle_return(nvrtc.nvrtcDestroyProgram(self.handle))
+                elif self.backend == "NVVM":
+                    nvvm = _get_nvvm_module()
+                    nvvm.destroy_program(self.handle)
                 self.handle = None
 
     __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options")
 
     def __init__(self, code, code_type, options: ProgramOptions = None):
-        self._mnff = Program._MembersNeededForFinalize(self, None)
+        self._mnff = Program._MembersNeededForFinalize(self, None, None)
 
         self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
         code_type = code_type.lower()
@@ -402,6 +455,7 @@ class Program:
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
 
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), options._name, 0, [], []))
+            self._mnff.backend = "NVRTC"
             self._backend = "NVRTC"
             self._linker = None
 
@@ -411,8 +465,22 @@ class Program:
                 ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
             self._backend = self._linker.backend
+
+        elif code_type == "nvvm":
+            if isinstance(code, str):
+                code = code.encode("utf-8")
+            elif not isinstance(code, (bytes, bytearray)):
+                raise TypeError("NVVM IR code must be provided as str, bytes, or bytearray")
+
+            nvvm = _get_nvvm_module()
+            self._mnff.handle = nvvm.create_program()
+            self._mnff.backend = "NVVM"
+            nvvm.add_module_to_program(self._mnff.handle, code, len(code), options._name.decode())
+            self._backend = "NVVM"
+            self._linker = None
+
         else:
-            supported_code_types = ("c++", "ptx")
+            supported_code_types = ("c++", "ptx", "nvvm")
             assert code_type not in supported_code_types, f"{code_type=}"
             raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
 
@@ -432,6 +500,36 @@ class Program:
             split_compile=options.split_compile,
             ptxas_options=options.ptxas_options,
         )
+
+    def _translate_program_options_to_nvvm(self, options: ProgramOptions) -> list[str]:
+        """Translate ProgramOptions to NVVM-specific compilation options."""
+        nvvm_options = []
+
+        if options.arch is not None:
+            arch = options.arch
+            if arch.startswith("sm_"):
+                arch = f"compute_{arch[3:]}"
+            nvvm_options.append(f"-arch={arch}")
+        else:
+            major, minor = Device().compute_capability
+            nvvm_options.append(f"-arch=compute_{major}{minor}")
+        if options.debug:
+            nvvm_options.append("-g")
+        if options.device_code_optimize is False:
+            nvvm_options.append("-opt=0")
+        elif options.device_code_optimize is True:
+            nvvm_options.append("-opt=3")
+
+        if options.ftz is not None:
+            nvvm_options.append(f"-ftz={'true' if options.ftz else 'false'}")
+        if options.prec_sqrt is not None:
+            nvvm_options.append(f"-prec-sqrt={'true' if options.prec_sqrt else 'false'}")
+        if options.prec_div is not None:
+            nvvm_options.append(f"-prec-div={'true' if options.prec_div else 'false'}")
+        if options.fma is not None:
+            nvvm_options.append(f"-fma={'true' if options.fma else 'false'}")
+
+        return nvvm_options
 
     def close(self):
         """Destroy this program."""
@@ -512,6 +610,31 @@ class Program:
                     logs.write(log.decode("utf-8", errors="backslashreplace"))
 
             return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping, name=self._options.name)
+
+        elif self._backend == "NVVM":
+            if target_type not in ("ptx", "ltoir"):
+                raise ValueError(f'NVVM backend only supports target_type="ptx", "ltoir", got "{target_type}"')
+
+            nvvm_options = self._translate_program_options_to_nvvm(self._options)
+            if target_type == "ltoir" and "-gen-lto" not in nvvm_options:
+                nvvm_options.append("-gen-lto")
+            nvvm = _get_nvvm_module()
+            nvvm.verify_program(self._mnff.handle, len(nvvm_options), nvvm_options)
+            nvvm.compile_program(self._mnff.handle, len(nvvm_options), nvvm_options)
+
+            size = nvvm.get_compiled_result_size(self._mnff.handle)
+            data = bytearray(size)
+            nvvm.get_compiled_result(self._mnff.handle, data)
+
+            if logs is not None:
+                logsize = nvvm.get_program_log_size(self._mnff.handle)
+                if logsize > 1:
+                    log = bytearray(logsize)
+                    nvvm.get_program_log(self._mnff.handle, log)
+                    logs.write(log.decode("utf-8", errors="backslashreplace"))
+
+            data_bytes = bytes(data)
+            return ObjectCode._init(data_bytes, target_type, name=self._options.name)
 
         supported_backends = ("nvJitLink", "driver")
         if self._backend not in supported_backends:
