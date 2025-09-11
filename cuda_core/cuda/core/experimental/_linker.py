@@ -398,7 +398,6 @@ class Linker:
         with _exception_manager(self):
             name_str = f"{object_code.name}"
             if _nvjitlink and isinstance(data, bytes):
-                # Handle bytes input with nvjitlink
                 _nvjitlink.add_data(
                     self._mnff.handle,
                     self._input_type_from_code_type(object_code._code_type),
@@ -407,14 +406,12 @@ class Linker:
                     name_str,
                 )
             elif _nvjitlink and isinstance(data, str):
-                # Handle file path input with nvjitlink
                 _nvjitlink.add_file(
                     self._mnff.handle,
                     self._input_type_from_code_type(object_code._code_type),
                     data,
                 )
-            elif isinstance(data, bytes):
-                # Handle bytes input with driver API
+            elif (not _nvjitlink) and isinstance(data, bytes):
                 name_bytes = name_str.encode()
                 handle_return(
                     _driver.cuLinkAddData(
@@ -429,8 +426,7 @@ class Linker:
                     )
                 )
                 self._mnff.const_char_keep_alive.append(name_bytes)
-            elif isinstance(data, str):
-                # Handle file path input with driver API
+            elif (not _nvjitlink) and isinstance(data, str):
                 name_bytes = name_str.encode()
                 handle_return(
                     _driver.cuLinkAddFile(
