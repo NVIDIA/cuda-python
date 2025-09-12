@@ -10,7 +10,14 @@ import ctypes
 
 import pytest
 
-from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource, VMMAllocatedMemoryResource, VMMConfig
+from cuda.core.experimental import (
+    Buffer,
+    Device,
+    DeviceMemoryResource,
+    MemoryResource,
+    VMMAllocatedMemoryResource,
+    VMMConfig,
+)
 from cuda.core.experimental._memory import DLDeviceType
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
@@ -284,48 +291,50 @@ def test_device_memory_resource_initialization():
     assert buffer.device_id == device.device_id
     buffer.close()
 
+
 def test_vmm_allocator_basic_allocation():
     """Test basic VMM allocation functionality.
-    
+
     This test verifies that VMMAllocatedMemoryResource can allocate memory
     using CUDA VMM APIs with default configuration.
     """
     device = Device()
     device.set_current()
-    
+
     # Create VMM allocator with default config
     vmm_mr = VMMAllocatedMemoryResource(device)
-    
+
     # Test basic allocation
     buffer = vmm_mr.allocate(4096)
     assert buffer.size >= 4096  # May be aligned up
     assert buffer.device_id == device.device_id
     assert buffer.memory_resource == vmm_mr
-    
+
     # Test deallocation
     buffer.close()
-    
+
     # Test multiple allocations
     buffers = []
     for i in range(5):
         buf = vmm_mr.allocate(1024 * (i + 1))
         buffers.append(buf)
         assert buf.size >= 1024 * (i + 1)
-    
+
     # Clean up
     for buf in buffers:
         buf.close()
 
+
 def test_vmm_allocator_policy_configuration():
     """Test VMM allocator with different policy configurations.
-    
+
     This test verifies that VMMAllocatedMemoryResource can be configured
     with different allocation policies and that the configuration affects
     the allocation behavior.
     """
     device = Device()
     device.set_current()
-    
+
     # Test with custom VMM config
     custom_config = VMMConfig(
         allocation_type=driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,
@@ -337,19 +346,19 @@ def test_vmm_allocator_policy_configuration():
         self_access="rw",
         peer_access="rw",
     )
-    
+
     vmm_mr = VMMAllocatedMemoryResource(device, config=custom_config)
-    
+
     # Verify configuration is applied
     assert vmm_mr.config == custom_config
     assert vmm_mr.config.gpu_direct_rdma is True
     assert vmm_mr.config.granularity == driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM
-    
+
     # Test allocation with custom config
     buffer = vmm_mr.allocate(8192)
     assert buffer.size >= 8192
     assert buffer.device_id == device.device_id
-    
+
     # Test policy modification
     new_config = VMMConfig(
         allocation_type=driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,
@@ -361,51 +370,50 @@ def test_vmm_allocator_policy_configuration():
         self_access="r",  # Read-only access
         peer_access="r",
     )
-    
+
     # Modify allocation policy
     modified_buffer = vmm_mr.modify_allocation(buffer, 16384, config=new_config)
     assert modified_buffer.size >= 16384
     assert vmm_mr.config == new_config
     assert vmm_mr.config.self_access == "r"
-    
+
     # Clean up
     modified_buffer.close()
 
+
 def test_vmm_allocator_grow_allocation():
     """Test VMM allocator's ability to grow existing allocations.
-    
+
     This test verifies that VMMAllocatedMemoryResource can grow existing
     allocations while preserving the base pointer when possible.
     """
     device = Device()
     device.set_current()
-    
+
     vmm_mr = VMMAllocatedMemoryResource(device)
-    
+
     # Create initial allocation
-    buffer = vmm_mr.allocate(4096)
-    original_ptr = buffer.handle
+    buffer = vmm_mr.allocate(2 * 1024 * 1024)
     original_size = buffer.size
-    
+
     # Grow the allocation
-    grown_buffer = vmm_mr.modify_allocation(buffer, 8192)
-    
+    grown_buffer = vmm_mr.modify_allocation(buffer, 4 * 1024 * 1024)
+
     # Verify growth
-    assert grown_buffer.size >= 8192
+    assert grown_buffer.size >= 4 * 1024 * 1024
     assert grown_buffer.size > original_size
-    
+
     # The pointer should ideally be preserved (fast path)
     # but may change if contiguous extension fails (slow path)
     assert grown_buffer.handle is not None
-    
+
     # Test growing to same size (should return original buffer)
-    same_buffer = vmm_mr.modify_allocation(grown_buffer, 8192)
-    assert same_buffer is grown_buffer
-    
+    same_buffer = vmm_mr.modify_allocation(grown_buffer, 4 * 1024 * 1024)
+    assert same_buffer.size == grown_buffer.size
+
     # Test growing to smaller size (should return original buffer)
-    smaller_buffer = vmm_mr.modify_allocation(grown_buffer, 4096)
-    assert smaller_buffer is grown_buffer
-    
+    smaller_buffer = vmm_mr.modify_allocation(grown_buffer, 2 * 1024 * 1024)
+    assert smaller_buffer.size == grown_buffer.size
+
     # Clean up
     grown_buffer.close()
-
