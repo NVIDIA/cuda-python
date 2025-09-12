@@ -553,7 +553,7 @@ class VMMConfig:
         if spec == "none":
             return 0
         raise ValueError(f"Unknown access spec: {spec!r}")
-    
+
 
 class VMMAllocatedMemoryResource(MemoryResource):
     """Create a device memory resource that uses the CUDA VMM APIs to allocate memory.
@@ -564,7 +564,7 @@ class VMMAllocatedMemoryResource(MemoryResource):
         Device ordinal for which a memory resource is constructed. The mempool that is
         set to *current* on ``device_id`` is used. If no mempool is set to current yet,
         the driver would use the *default* mempool on the device.
-    
+
     config : VMMConfig
         A configuration object for the VMMAllocatedMemoryResource
     """
@@ -581,10 +581,10 @@ class VMMAllocatedMemoryResource(MemoryResource):
     def modify_allocation(self, buf: Buffer, new_size: int, config: VMMConfig = None) -> Buffer:
         """
         Grow an existing allocation using CUDA VMM, with a configurable policy.
-        
+
         This implements true growing allocations that preserve the base pointer
         by extending the virtual address range and mapping additional physical memory.
-        
+
         Parameters
         ----------
         buf : Buffer
@@ -593,19 +593,19 @@ class VMMAllocatedMemoryResource(MemoryResource):
             The new total size for the allocation
         config : VMMConfig, optional
             Configuration for the new physical memory chunks. If None, uses current config.
-            
+
         Returns
         -------
         Buffer
             The same buffer with updated size, preserving the original pointer
-        """ 
+        """
         if config is not None:
             self.config = config
-        
+
         if new_size <= buf.size:
             # No growth needed, return original buffer
             return buf
-            
+
         # Build allocation properties for new chunks
         prop = driver.CUmemAllocationProp()
         prop.type = self.config.allocation_type
@@ -613,20 +613,20 @@ class VMMAllocatedMemoryResource(MemoryResource):
         prop.location.id = self.device.device_id
         prop.allocFlags.gpuDirectRDMACapable = 1 if self.config.gpu_direct_rdma else 0
         prop.requestedHandleTypes = self.config.handle_type
-        
+
         # Query granularity
         gran_flag = self.config.granularity
         res, gran = driver.cuMemGetAllocationGranularity(prop, gran_flag)
         if res != driver.CUresult.CUDA_SUCCESS:
             raise Exception(f"cuMemGetAllocationGranularity failed: {res}")
-            
+
         # Calculate sizes
         additional_size = new_size - buf.size
         aligned_additional_size = self._align_up(additional_size, gran)
         total_aligned_size = self._align_up(new_size, gran)
         aligned_prev_size = total_aligned_size - aligned_additional_size
         addr_align = self.config.addr_align or gran
-        
+
         # Try to extend the existing VA range first
         res, new_ptr = driver.cuMemAddressReserve(
             aligned_additional_size,
@@ -634,7 +634,7 @@ class VMMAllocatedMemoryResource(MemoryResource):
             int(buf.handle) + aligned_prev_size,  # fixedAddr hint - aligned end of current range
             0
         )
-        
+
         if res != driver.CUresult.CUDA_SUCCESS or new_ptr != (int(buf.handle) + aligned_prev_size):
             # Fallback: couldn't extend contiguously, need full remapping
             return self._grow_allocation_slow_path(buf, new_size, prop, aligned_additional_size, total_aligned_size, addr_align)
@@ -642,11 +642,11 @@ class VMMAllocatedMemoryResource(MemoryResource):
             # Success! We can extend the VA range contiguously
             return self._grow_allocation_fast_path(buf, new_size, prop, aligned_additional_size, new_ptr)
 
-    def _grow_allocation_fast_path(self, buf: Buffer, new_size: int, prop: driver.CUmemAllocationProp, 
+    def _grow_allocation_fast_path(self, buf: Buffer, new_size: int, prop: driver.CUmemAllocationProp,
                                    aligned_additional_size: int, new_ptr: int) -> Buffer:
         """
         Fast path: extend the VA range contiguously.
-        
+
         This preserves the original pointer by mapping new physical memory
         to the extended portion of the virtual address range.
         """
@@ -655,14 +655,14 @@ class VMMAllocatedMemoryResource(MemoryResource):
         if res != driver.CUresult.CUDA_SUCCESS:
             driver.cuMemAddressFree(new_ptr, aligned_additional_size)
             raise Exception(f"cuMemCreate failed: {res}")
-        
+
         # Map the new physical memory to the extended VA range
         res, = driver.cuMemMap(new_ptr, aligned_additional_size, 0, new_handle, 0)
         if res != driver.CUresult.CUDA_SUCCESS:
             driver.cuMemAddressFree(new_ptr, aligned_additional_size)
             driver.cuMemRelease(new_handle)
             raise Exception(f"cuMemMap failed: {res}")
-        
+
         # Set access permissions for the new portion
         descs = self._build_access_descriptors(prop)
         if descs:
@@ -672,17 +672,17 @@ class VMMAllocatedMemoryResource(MemoryResource):
                 driver.cuMemAddressFree(new_ptr, aligned_additional_size)
                 driver.cuMemRelease(new_handle)
                 raise Exception(f"cuMemSetAccess failed: {res}")
-        
+
         # Update the buffer size (pointer stays the same!)
         buf._size = new_size
-        
+
         return buf
 
     def _grow_allocation_slow_path(self, buf: Buffer, new_size: int, prop: driver.CUmemAllocationProp,
                                    aligned_additional_size: int, total_aligned_size: int, addr_align: int) -> Buffer:
         """
         Slow path: full remapping when contiguous extension fails.
-        
+
         This creates a new VA range and remaps both old and new physical memory.
         The buffer's pointer will change.
         """
@@ -690,13 +690,13 @@ class VMMAllocatedMemoryResource(MemoryResource):
         res, new_ptr = driver.cuMemAddressReserve(total_aligned_size, addr_align, 0, 0)
         if res != driver.CUresult.CUDA_SUCCESS:
             raise Exception(f"cuMemAddressReserve failed: {res}")
-        
+
         # Get the old allocation handle for remapping
         result, old_handle = driver.cuMemRetainAllocationHandle(buf.handle)
         if result != driver.CUresult.CUDA_SUCCESS:
             driver.cuMemAddressFree(new_ptr, total_aligned_size)
             raise Exception(f"Failed to retain old allocation handle: {result}")
-        
+
         # Unmap the old VA range (aligned previous size)
         aligned_prev_size = total_aligned_size - aligned_additional_size
         result, = driver.cuMemUnmap(int(buf.handle), aligned_prev_size)
@@ -704,14 +704,14 @@ class VMMAllocatedMemoryResource(MemoryResource):
             driver.cuMemAddressFree(new_ptr, total_aligned_size)
             driver.cuMemRelease(old_handle)
             raise Exception(f"Failed to unmap old allocation: {result}")
-        
+
         # Remap the old physical memory to the new VA range (aligned previous size)
         res, = driver.cuMemMap(int(new_ptr), aligned_prev_size, 0, old_handle, 0)
         if res != driver.CUresult.CUDA_SUCCESS:
             driver.cuMemAddressFree(new_ptr, total_aligned_size)
             driver.cuMemRelease(old_handle)
             raise Exception(f"cuMemMap failed for old memory: {res}")
-        
+
         # Create new physical memory for the additional size
         res, new_handle = driver.cuMemCreate(aligned_additional_size, prop, 0)
         if res != driver.CUresult.CUDA_SUCCESS:
@@ -719,7 +719,7 @@ class VMMAllocatedMemoryResource(MemoryResource):
             driver.cuMemAddressFree(new_ptr, total_aligned_size)
             driver.cuMemRelease(old_handle)
             raise Exception(f"cuMemCreate failed for new memory: {res}")
-        
+
         # Map the new physical memory to the extended portion (aligned offset)
         res, = driver.cuMemMap(int(new_ptr) + aligned_prev_size, aligned_additional_size, 0, new_handle, 0)
         if res != driver.CUresult.CUDA_SUCCESS:
@@ -728,7 +728,7 @@ class VMMAllocatedMemoryResource(MemoryResource):
             driver.cuMemRelease(old_handle)
             driver.cuMemRelease(new_handle)
             raise Exception(f"cuMemMap failed for new memory: {res}")
-        
+
         # Set access permissions for the entire new range
         descs = self._build_access_descriptors(prop)
         if descs:
@@ -739,7 +739,7 @@ class VMMAllocatedMemoryResource(MemoryResource):
                 driver.cuMemRelease(old_handle)
                 driver.cuMemRelease(new_handle)
                 raise Exception(f"cuMemSetAccess failed: {res}")
-        
+
         # Free the old VA range (aligned previous size)
         driver.cuMemAddressFree(int(buf.handle), aligned_prev_size)
 
@@ -756,14 +756,14 @@ class VMMAllocatedMemoryResource(MemoryResource):
     def _build_access_descriptors(self, prop: driver.CUmemAllocationProp) -> list:
         """
         Build access descriptors for memory access permissions.
-        
+
         Returns
         -------
         list
             List of CUmemAccessDesc objects for setting memory access
         """
         descs = []
-        
+
         # Owner access
         owner_flags = VMMConfig._access_to_flags(driver, self.config.self_access)
         if owner_flags:
@@ -772,7 +772,7 @@ class VMMAllocatedMemoryResource(MemoryResource):
             d.location.id = prop.location.id
             d.flags = owner_flags
             descs.append(d)
-        
+
         # Peer device access
         peer_flags = VMMConfig._access_to_flags(driver, self.config.peer_access)
         for peer_dev in self.config.peers:
@@ -782,9 +782,9 @@ class VMMAllocatedMemoryResource(MemoryResource):
                 d.location.id = int(peer_dev)
                 d.flags = peer_flags
                 descs.append(d)
-        
+
         return descs
-        
+
 
     def allocate(self, size: int, stream: Stream = None) -> Buffer:
         """
