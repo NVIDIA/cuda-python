@@ -530,25 +530,17 @@ class VMMConfig:
         self_access: Access flags for the owning device ('rw', 'r', or 'none').
         peer_access: Access flags for peers ('rw' or 'r').
     """
-    handle_type: int  # driver.CUmemAllocationHandleType
+    # TODO: for enums, do we re-expose them as cuda-core Enums or leave them as driver enums?
+    allocation_type: driver.CUmemAllocationType
+    location_type: driver.CUmemLocationType # Only supports CU_MEM_LOCATION_TYPE_DEVICE
+    handle_type: driver.CUmemAllocationHandleType
     gpu_direct_rdma: bool = True
-    granularity: str = "recommended"  # or "minimum"
-    addr_hint: int = 0
+    granularity: driver.CUmemAllocationGranularity_flags
+    addr_hint: Optional[int] = 0
     addr_align: Optional[int] = None
     peers: Iterable[int] = field(default_factory=tuple)
     self_access: str = "rw"   # 'rw' | 'r' | 'none'
     peer_access: str = "rw"   # 'rw' | 'r'
-
-    def _granularity_flag(self, driver) -> int:
-        # Prefer recommended granularity unless user asked for minimum
-        try:
-            flags = driver.CUmemAllocationGranularity_flags
-            return (flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM
-                    if self.granularity == "minimum"
-                    else flags.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED)
-        except AttributeError:
-            # Fallback if enum names differ in your bindings
-            return 0
 
     @staticmethod
     def _access_to_flags(driver, spec: str) -> int:
@@ -573,84 +565,368 @@ class VMMAllocatedMemoryResource(MemoryResource):
         the driver would use the *default* mempool on the device.
     
     config : VMMConfig
+        A configuration object for the VMMAllocatedMemoryResource
     """
-
-    __slots__ = ("_dev_id",)
-
-    def __init__(self, device_id: int):
-        err, self._handle = driver.cuDeviceGetMemPool(device_id)
-        raise_if_driver_error(err)
-        self._dev_id = device_id
-
-        # Set a higher release threshold to improve performance when there are no active allocations.
-        # By default, the release threshold is 0, which means memory is immediately released back
-        # to the OS when there are no active suballocations, causing performance issues.
-        # Check current release threshold
-        err, current_threshold = driver.cuMemPoolGetAttribute(
-            self._handle, driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD
-        )
-        raise_if_driver_error(err)
-        # If threshold is 0 (default), set it to maximum to retain memory in the pool
-        if int(current_threshold) == 0:
-            err, = driver.cuMemPoolSetAttribute(
-                self._handle,
-                driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
-                driver.cuuint64_t(0xFFFFFFFFFFFFFFFF),
+    def __init__(self, device, config: VMMConfig = None):
+        self.device = device
+        if config is None:
+            config = VMMConfig(
+                allocation_type=driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,
+                location_type=driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
+                handle_type=driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,
+                gpu_direct_rdma=True,
+                granularity=driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED,
+                addr_hint=0,
+                addr_align=None,
+                peers=(),
+                self_access="rw",
+                peer_access="rw",
             )
-            raise_if_driver_error(err)
+        self.config = config
 
-    def allocate(self, size_t size, stream: Stream = None) -> Buffer:
-        """Allocate a buffer of the requested size.
+    def _align_up(self, size: int, gran: int) -> int:
+        """
+        Align a size up to the nearest multiple of a granularity.
+        """
+        return (size + gran - 1) & ~(gran - 1)
 
+    def modify_allocation(self, buf: Buffer, new_size: int, config: VMMConfig = None) -> Buffer:
+        """
+        Grow an existing allocation using CUDA VMM, with a configurable policy.
+        
+        This implements true growing allocations that preserve the base pointer
+        by extending the virtual address range and mapping additional physical memory.
+        
         Parameters
         ----------
-        size : int
-            The size of the buffer to allocate, in bytes.
-        stream : Stream, optional
-            The stream on which to perform the allocation asynchronously.
-            If None, an internal stream is used.
-
+        buf : Buffer
+            The existing buffer to grow
+        new_size : int
+            The new total size for the allocation
+        config : VMMConfig, optional
+            Configuration for the new physical memory chunks. If None, uses current config.
+            
         Returns
         -------
         Buffer
-            The allocated buffer object, which is accessible on the device that this memory
-            resource was created for.
+            The same buffer with updated size, preserving the original pointer
         """
-        if stream is None:
-            stream = default_stream()
-        err, ptr = driver.cuMemAllocFromPoolAsync(size, self._handle, stream.handle)
-        raise_if_driver_error(err)
-        return Buffer._init(ptr, size, self)
+        if new_size <= buf.size:
+            # No growth needed, return original buffer
+            return buf
+            
+        if config is not None:
+            self.config = config
+            
+        # Build allocation properties for new chunks
+        prop = driver.CUmemAllocationProp()
+        prop.type = self.config.allocation_type
+        prop.location.type = self.config.location_type
+        prop.location.id = self.device.device_id
+        prop.allocFlags.gpuDirectRDMACapable = 1 if self.config.gpu_direct_rdma else 0
+        prop.requestedHandleTypes = self.config.handle_type
+        
+        # Query granularity
+        gran_flag = self.config.granularity
+        res, gran = driver.cuMemGetAllocationGranularity(prop, gran_flag)
+        if res != driver.CUresult.CUDA_SUCCESS:
+            raise Exception(f"cuMemGetAllocationGranularity failed: {res}")
+            
+        # Calculate sizes
+        additional_size = new_size - buf.size
+        aligned_additional_size = self._align_up(additional_size, gran)
+        total_aligned_size = self._align_up(new_size, gran)
+        addr_align = self.config.addr_align or gran
+        
+        # Try to extend the existing VA range first
+        res, new_ptr = driver.cuMemAddressReserve(
+            aligned_additional_size, 
+            addr_align, 
+            buf.ptr + buf.size,  # fixedAddr hint - try to extend at end of current range
+            0
+        )
+        
+        if res != driver.CUresult.CUDA_SUCCESS or new_ptr != (buf.ptr + buf.size):
+            # Fallback: couldn't extend contiguously, need full remapping
+            return self._grow_allocation_slow_path(buf, new_size, prop, aligned_additional_size, total_aligned_size, addr_align)
+        else:
+            # Success! We can extend the VA range contiguously
+            return self._grow_allocation_fast_path(buf, new_size, prop, aligned_additional_size, new_ptr)
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
-        """Deallocate a buffer previously allocated by this resource.
-
-        Parameters
-        ----------
-        ptr : :obj:`~_memory.DevicePointerT`
-            The pointer or handle to the buffer to deallocate.
-        size : int
-            The size of the buffer to deallocate, in bytes.
-        stream : Stream, optional
-            The stream on which to perform the deallocation asynchronously.
-            If None, an internal stream is used.
+    def _grow_allocation_fast_path(self, buf: Buffer, new_size: int, prop: driver.CUmemAllocationProp, 
+                                   aligned_additional_size: int, new_ptr: int) -> Buffer:
         """
-        if stream is None:
-            stream = default_stream()
-        err, = driver.cuMemFreeAsync(ptr, stream.handle)
-        raise_if_driver_error(err)
+        Fast path: extend the VA range contiguously.
+        
+        This preserves the original pointer by mapping new physical memory
+        to the extended portion of the virtual address range.
+        """
+        # Create new physical memory for the additional size
+        res, new_handle = driver.cuMemCreate(aligned_additional_size, prop, 0)
+        if res != driver.CUresult.CUDA_SUCCESS:
+            driver.cuMemAddressFree(new_ptr, aligned_additional_size)
+            raise Exception(f"cuMemCreate failed: {res}")
+        
+        # Map the new physical memory to the extended VA range
+        res, = driver.cuMemMap(new_ptr, aligned_additional_size, 0, new_handle, 0)
+        if res != driver.CUresult.CUDA_SUCCESS:
+            driver.cuMemAddressFree(new_ptr, aligned_additional_size)
+            driver.cuMemRelease(new_handle)
+            raise Exception(f"cuMemMap failed: {res}")
+        
+        # Set access permissions for the new portion
+        descs = self._build_access_descriptors(prop)
+        if descs:
+            res, = driver.cuMemSetAccess(new_ptr, aligned_additional_size, descs, len(descs))
+            if res != driver.CUresult.CUDA_SUCCESS:
+                driver.cuMemUnmap(new_ptr, aligned_additional_size)
+                driver.cuMemAddressFree(new_ptr, aligned_additional_size)
+                driver.cuMemRelease(new_handle)
+                raise Exception(f"cuMemSetAccess failed: {res}")
+        
+        # Update the buffer size (pointer stays the same!)
+        buf._size = new_size
+        
+        return buf
+
+    def _grow_allocation_slow_path(self, buf: Buffer, new_size: int, prop: driver.CUmemAllocationProp,
+                                   aligned_additional_size: int, total_aligned_size: int, addr_align: int) -> Buffer:
+        """
+        Slow path: full remapping when contiguous extension fails.
+        
+        This creates a new VA range and remaps both old and new physical memory.
+        The buffer's pointer will change.
+        """
+        # Reserve a completely new, larger VA range
+        res, new_ptr = driver.cuMemAddressReserve(total_aligned_size, addr_align, 0, 0)
+        if res != driver.CUresult.CUDA_SUCCESS:
+            raise Exception(f"cuMemAddressReserve failed: {res}")
+        
+        # Get the old allocation handle for remapping
+        result, old_handle = driver.cuMemRetainAllocationHandle(buf.ptr)
+        if result != driver.CUresult.CUDA_SUCCESS:
+            driver.cuMemAddressFree(new_ptr, total_aligned_size)
+            raise Exception(f"Failed to retain old allocation handle: {result}")
+        
+        # Unmap the old VA range
+        result, = driver.cuMemUnmap(buf.ptr, buf.size)
+        if result != driver.CUresult.CUDA_SUCCESS:
+            driver.cuMemAddressFree(new_ptr, total_aligned_size)
+            driver.cuMemRelease(old_handle)
+            raise Exception(f"Failed to unmap old allocation: {result}")
+        
+        # Remap the old physical memory to the new VA range
+        res, = driver.cuMemMap(new_ptr, buf.size, 0, old_handle, 0)
+        if res != driver.CUresult.CUDA_SUCCESS:
+            driver.cuMemAddressFree(new_ptr, total_aligned_size)
+            driver.cuMemRelease(old_handle)
+            raise Exception(f"cuMemMap failed for old memory: {res}")
+        
+        # Create new physical memory for the additional size
+        res, new_handle = driver.cuMemCreate(aligned_additional_size, prop, 0)
+        if res != driver.CUresult.CUDA_SUCCESS:
+            driver.cuMemUnmap(new_ptr, total_aligned_size)
+            driver.cuMemAddressFree(new_ptr, total_aligned_size)
+            driver.cuMemRelease(old_handle)
+            raise Exception(f"cuMemCreate failed for new memory: {res}")
+        
+        # Map the new physical memory to the extended portion
+        res, = driver.cuMemMap(new_ptr + buf.size, aligned_additional_size, 0, new_handle, 0)
+        if res != driver.CUresult.CUDA_SUCCESS:
+            driver.cuMemUnmap(new_ptr, total_aligned_size)
+            driver.cuMemAddressFree(new_ptr, total_aligned_size)
+            driver.cuMemRelease(old_handle)
+            driver.cuMemRelease(new_handle)
+            raise Exception(f"cuMemMap failed for new memory: {res}")
+        
+        # Set access permissions for the entire new range
+        descs = self._build_access_descriptors(prop)
+        if descs:
+            res, = driver.cuMemSetAccess(new_ptr, total_aligned_size, descs, len(descs))
+            if res != driver.CUresult.CUDA_SUCCESS:
+                driver.cuMemUnmap(new_ptr, total_aligned_size)
+                driver.cuMemAddressFree(new_ptr, total_aligned_size)
+                driver.cuMemRelease(old_handle)
+                driver.cuMemRelease(new_handle)
+                raise Exception(f"cuMemSetAccess failed: {res}")
+        
+        # Free the old VA range
+        driver.cuMemAddressFree(buf.ptr, buf.size)
+        
+        # Update the buffer with new pointer and size
+        buf._ptr = new_ptr
+        buf._size = total_aligned_size
+        buf._ptr_obj = new_ptr
+        
+        return buf
+
+    def _build_access_descriptors(self, prop: driver.CUmemAllocationProp) -> list:
+        """
+        Build access descriptors for memory access permissions.
+        
+        Returns
+        -------
+        list
+            List of CUmemAccessDesc objects for setting memory access
+        """
+        descs = []
+        
+        # Owner access
+        owner_flags = VMMConfig._access_to_flags(driver, self.config.self_access)
+        if owner_flags:
+            d = driver.CUmemAccessDesc()
+            d.location.type = prop.location.type
+            d.location.id = prop.location.id
+            d.flags = owner_flags
+            descs.append(d)
+        
+        # Peer device access
+        peer_flags = VMMConfig._access_to_flags(driver, self.config.peer_access)
+        for peer_dev in self.config.peers:
+            if peer_flags:
+                d = driver.CUmemAccessDesc()
+                d.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+                d.location.id = int(peer_dev)
+                d.flags = peer_flags
+                descs.append(d)
+        
+        return descs
+        
+
+    def allocate(self, size: int, stream: Stream = None) -> Buffer:
+        """
+        Allocate memory using CUDA VMM with a configurable policy.
+        """
+        config = self.config
+        # ---- Build allocation properties ----
+        prop = driver.CUmemAllocationProp()
+        prop.type = config.allocation_type
+        # TODO: Support host alloation if required
+        if config.location_type != driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE:
+            raise NotImplementedError(f"Location type must be CU_MEM_LOCATION_TYPE_DEVICE, got {config.location_type}")
+        prop.location.type = config.location_type
+        prop.location.id = self.device.device_id
+        prop.allocFlags.gpuDirectRDMACapable = 1 if config.gpu_direct_rdma else 0
+        prop.requestedHandleTypes = config.handle_type
+
+        # ---- Query and apply granularity ----
+        # Choose min vs recommended granularity per config
+        gran_flag = config.granularity
+        res, gran = driver.cuMemGetAllocationGranularity(prop, gran_flag)
+        if res != driver.CUresult.CUDA_SUCCESS:
+            raise Exception(f"cuMemGetAllocationGranularity failed: {res}")
+
+        aligned_size = self._align_up(size, gran)
+        addr_align = config.addr_align or gran
+
+        # ---- Create physical memory ----
+        res, handle = driver.cuMemCreate(aligned_size, prop, 0)
+        if res != driver.CUresult.CUDA_SUCCESS:
+            raise Exception(f"cuMemCreate failed: {res}")
+
+        # ---- Reserve VA space ----
+        # Potentially, use a separate size for the VA reservation from the physical allocation size
+        res, ptr = driver.cuMemAddressReserve(aligned_size, addr_align, config.addr_hint, 0)
+        if res != driver.CUresult.CUDA_SUCCESS:
+            # tidy up physical handle on failure
+            driver.cuMemRelease(handle)
+            raise Exception(f"cuMemAddressReserve failed: {res}")
+
+        # ---- Map physical memory into VA ----
+        res, = driver.cuMemMap(ptr, aligned_size, 0, handle, 0)
+        if res != driver.CUresult.CUDA_SUCCESS:
+            driver.cuMemAddressFree(ptr, aligned_size)
+            driver.cuMemRelease(handle)
+            raise Exception(f"cuMemMap failed: {res}")
+
+        # ---- Set access for owner + peers ----
+        descs = []
+
+        # Owner access
+        owner_flags = VMMAllocationConfig._access_to_flags(driver, config.self_access)
+        if owner_flags:
+            d = driver.CUmemAccessDesc()
+            d.location.type = prop.location.type
+            d.location.id = prop.location.id
+            d.flags = owner_flags
+            descs.append(d)
+
+        # Peer device access
+        peer_flags = VMMAllocationConfig._access_to_flags(driver, config.peer_access)
+        for peer_dev in config.peers:
+            if peer_flags:
+                d = driver.CUmemAccessDesc()
+                d.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+                d.location.id = int(peer_dev)
+                d.flags = peer_flags
+                descs.append(d)
+
+        if descs:
+            res, = driver.cuMemSetAccess(ptr, aligned_size, descs, len(descs))
+            if res != driver.CUresult.CUDA_SUCCESS:
+                # Try to unwind on failure
+                driver.cuMemUnmap(ptr, aligned_size)
+                driver.cuMemAddressFree(ptr, aligned_size)
+                driver.cuMemRelease(handle)
+                raise Exception(f"cuMemSetAccess failed: {res}")
+
+        # Done — return a Buffer that tracks this VA range
+        buf = Buffer.from_handle(ptr=ptr, size=aligned_size, mr=self)
+        return buf
+
+    def deallocate(self, ptr: int, size: int, stream: Stream=None) -> None:
+        """
+        Deallocate memory on the device using CUDA VMM APIs.
+        """
+        result, handle = driver.cuMemRetainAllocationHandle(ptr)
+        if result != driver.CUresult.CUDA_SUCCESS:
+            raise Exception(f"Failed to retain allocation handle: {result}")
+        result, = driver.cuMemUnmap(ptr, size)
+        if result != driver.CUresult.CUDA_SUCCESS:
+            raise Exception(f"Failed to unmap physical allocation: {result}")
+        result, = driver.cuMemAddressFree(ptr, size)
+        if result != driver.CUresult.CUDA_SUCCESS:
+            raise Exception(f"Failed to free address: {result}")
+        result, = driver.cuMemRelease(handle)
+        if result != driver.CUresult.CUDA_SUCCESS:
+            raise Exception(f"Failed to release physical allocation: {result}")
+
 
     @property
     def is_device_accessible(self) -> bool:
-        """bool: this memory resource provides device-accessible buffers."""
+        """
+        Indicates whether the allocated memory is accessible from the device.
+
+        Returns:
+            bool: Always True for NVSHMEM memory.
+        """
         return True
 
     @property
     def is_host_accessible(self) -> bool:
-        """bool: this memory resource does not provides host-accessible buffers."""
+        """
+        Indicates whether the allocated memory is accessible from the host.
+
+        Returns:
+            bool: Always False for NVSHMEM memory.
+        """
         return False
 
     @property
     def device_id(self) -> int:
-        """int: the associated device ordinal."""
-        return self._dev_id
+        """
+        Get the device ID associated with this memory resource.
+
+        Returns:
+            int: CUDA device ID.
+        """
+        return self.device.device_id
+
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the NvshmemResource.
+
+        Returns:
+            str: A string describing the object
+        """
+        return f"<VMMAllocatedMemoryResource device={self.device}>"
