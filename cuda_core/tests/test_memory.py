@@ -7,12 +7,30 @@ except ImportError:
     from cuda import cuda as driver
 
 import ctypes
+import platform
 
 import pytest
 
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource
 from cuda.core.experimental._memory import DLDeviceType
-from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core.experimental._utils.cuda_utils import get_binding_version, handle_return
+
+POOL_SIZE = 2097152  # 2MB size
+
+
+@pytest.fixture(scope="function")
+def mempool_device():
+    """Obtains a device suitable for mempool tests, or skips."""
+    if get_binding_version() < (12, 0):
+        pytest.skip("Test requires CUDA 12 or higher")
+
+    device = Device()
+    device.set_current()
+
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
+    return device
 
 
 class DummyDeviceMemoryResource(MemoryResource):
@@ -270,16 +288,163 @@ def test_device_memory_resource_initialization():
         pytest.skip("memory pools not supported")
     device.set_current()
 
-    # This should succeed and configure the memory pool release threshold
-    mr = DeviceMemoryResource(device.device_id)
+    # This should succeed and configure the memory pool release threshold.
+    # The resource can be constructed from either a device or device ordinal.
+    for device_arg in [device, device.device_id]:
+        mr = DeviceMemoryResource(device_arg)
 
-    # Verify basic properties
+        # Verify basic properties
+        assert mr.device_id == device.device_id
+        assert mr.is_device_accessible
+        assert not mr.is_host_accessible
+        assert not mr.is_ipc_enabled
+
+        # Test allocation/deallocation works
+        buffer = mr.allocate(1024)
+        assert buffer.size == 1024
+        assert buffer.device_id == device.device_id
+        buffer.close()
+
+
+def test_mempool(mempool_device):
+    device = mempool_device
+
+    # Test basic pool creation
+    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=False))
     assert mr.device_id == device.device_id
-    assert mr.is_device_accessible is True
-    assert mr.is_host_accessible is False
+    assert mr.is_device_accessible
+    assert not mr.is_host_accessible
+    assert not mr.is_ipc_enabled
 
-    # Test allocation/deallocation works
-    buffer = mr.allocate(1024)
-    assert buffer.size == 1024
-    assert buffer.device_id == device.device_id
+    # Test allocation and deallocation
+    buffer1 = mr.allocate(1024)
+    assert buffer1.handle != 0
+    assert buffer1.size == 1024
+    assert buffer1.memory_resource == mr
+    buffer1.close()
+
+    # Test multiple allocations
+    buffer1 = mr.allocate(1024)
+    buffer2 = mr.allocate(2048)
+    assert buffer1.handle != buffer2.handle
+    assert buffer1.size == 1024
+    assert buffer2.size == 2048
+    buffer1.close()
+    buffer2.close()
+
+    # Test stream-based allocation
+    stream = device.create_stream()
+    buffer = mr.allocate(1024, stream=stream)
+    assert buffer.handle != 0
     buffer.close()
+
+    # Test memory copying between buffers from same pool
+    src_buffer = mr.allocate(64)
+    dst_buffer = mr.allocate(64)
+    stream = device.create_stream()
+    src_buffer.copy_to(dst_buffer, stream=stream)
+    device.sync()
+    dst_buffer.close()
+    src_buffer.close()
+
+    # Test error cases
+    # Test IPC operations are disabled
+    buffer = mr.allocate(64)
+    ipc_error_msg = "Memory resource is not IPC-enabled"
+
+    with pytest.raises(RuntimeError, match=ipc_error_msg):
+        mr._get_allocation_handle()
+
+    with pytest.raises(RuntimeError, match=ipc_error_msg):
+        mr.export_buffer(buffer)
+
+    # with pytest.raises(RuntimeError, match=ipc_error_msg):
+    #     mr.import_buffer(None)
+
+    buffer.close()
+
+
+@pytest.mark.parametrize(
+    "property_name,expected_type",
+    [
+        ("reuse_follow_event_dependencies", bool),
+        ("reuse_allow_opportunistic", bool),
+        ("reuse_allow_internal_dependencies", bool),
+        ("release_threshold", int),
+        ("reserved_mem_current", int),
+        ("reserved_mem_high", int),
+        ("used_mem_current", int),
+        ("used_mem_high", int),
+    ],
+)
+def test_mempool_attributes(mempool_device, property_name, expected_type):
+    """Test all properties of the DeviceMemoryResource class."""
+    device = mempool_device
+    for ipc_enabled in [True, False]:
+        if platform.system() == "Windows":
+            continue  # IPC not implemented for Windows
+
+        mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=ipc_enabled))
+        assert mr.is_ipc_enabled == ipc_enabled
+
+        try:
+            # Get the property value
+            value = getattr(mr.attributes, property_name)
+
+            # Test type
+            assert isinstance(value, expected_type), f"{property_name} should return {expected_type}, got {type(value)}"
+
+            # Test value constraints
+            if expected_type is int:
+                assert value >= 0, f"{property_name} should be non-negative"
+
+            # Test memory usage properties with actual allocations
+            if property_name in ["reserved_mem_current", "used_mem_current"]:
+                # Allocate some memory and check if values increase
+                initial_value = value
+                buffer = None
+                try:
+                    buffer = mr.allocate(1024)
+                    new_value = getattr(mr.attributes, property_name)
+                    assert new_value >= initial_value, f"{property_name} should increase or stay same after allocation"
+                finally:
+                    if buffer is not None:
+                        buffer.close()
+
+            # Test high watermark properties
+            if property_name in ["reserved_mem_high", "used_mem_high"]:
+                # High watermark should never be less than current
+                current_prop = property_name.replace("_high", "_current")
+                current_value = getattr(mr.attributes, current_prop)
+                assert value >= current_value, f"{property_name} should be >= {current_prop}"
+
+        finally:
+            # Ensure we allocate and deallocate a small buffer to flush any pending operations
+            flush_buffer = mr.allocate(64)
+            flush_buffer.close()
+
+
+def test_mempool_attributes_ownership(mempool_device):
+    """Ensure the attributes bundle handles references correctly."""
+    device = mempool_device
+    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
+    attributes = mr.attributes
+    old_handle = mr._mempool_handle
+    mr.close()
+    del mr
+
+    # After deleting the memory resource, the attributes suite is disconnected.
+    with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
+        _ = attributes.used_mem_high
+
+    # Even when a new object is created (we found a case where the same
+    # mempool handle was really reused).
+    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
+    with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
+        _ = attributes.used_mem_high
+
+    # Even if we stuff the original handle into a new class.
+    mr._mempool_handle, old_handle = old_handle, mr._mempool_handle
+    with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
+        _ = attributes.used_mem_high
+    mr._mempool_handle = old_handle
