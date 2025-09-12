@@ -14,7 +14,7 @@ dependencies = []
 test = [
     "pytest>=6.2.4",
 ]
-nvidia_wheels_cu12 = [
+test_nvidia_wheels_cu12 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg]==12.*",
     "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
     "nvidia-cudss-cu12",
@@ -23,12 +23,13 @@ nvidia_wheels_cu12 = [
     "nvidia-nccl-cu12; sys_platform != 'win32'",
     "nvidia-nvshmem-cu12; sys_platform != 'win32'",
 ]
-nvidia_wheels_cu13 = [
+test_nvidia_wheels_cu13 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,nvvm]==13.*",
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
+    "nvidia-nccl-cu13; sys_platform != 'win32'",
     "nvidia-nvshmem-cu13; sys_platform != 'win32'",
 ]
-nvidia_wheels_host = [
+test_nvidia_wheels_host = [
     "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
 

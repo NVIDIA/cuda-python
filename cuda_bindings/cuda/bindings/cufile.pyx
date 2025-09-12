@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.0.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.0.1. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
@@ -1124,7 +1124,7 @@ cpdef driver_get_properties(intptr_t props):
     """Gets the Driver session properties.
 
     Args:
-        props (intptr_t): to set.
+        props (intptr_t): Properties to set.
 
     .. seealso:: `cuFileDriverGetProperties`
     """
