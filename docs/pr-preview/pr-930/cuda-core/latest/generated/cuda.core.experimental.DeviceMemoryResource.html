@@ -651,19 +651,6 @@ If None, an internal stream is used.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.export_buffer">
-<span class="sig-name descname"><span class="pre">export_buffer</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">Buffer</span> <span class="pre">buffer:</span> <span class="pre">Buffer</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental._memory.IPCBufferDescriptor.html#cuda.core.experimental._memory.IPCBufferDescriptor" title="cuda.core.experimental._memory.IPCBufferDescriptor"><span class="pre">IPCBufferDescriptor</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.export_buffer" title="Link to this definition">#</a></dt>
-<dd><p>Export a buffer allocated from this pool for sharing between processes.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.from_shared_channel">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_shared_channel</span></span><span class="sig-paren">(</span>
 
@@ -675,19 +662,6 @@ If None, an internal stream is used.</p></li>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.experimental.DeviceMemoryResource" title="cuda.core.experimental.DeviceMemoryResource"><span class="pre">DeviceMemoryResource</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.from_shared_channel" title="Link to this definition">#</a></dt>
 <dd><p>Create a device memory resource from a memory pool shared over an IPC channel.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.import_buffer">
-<span class="sig-name descname"><span class="pre">import_buffer</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">IPCBufferDescriptor</span> <span class="pre">ipc_buffer:</span> <span class="pre">IPCBufferDescriptor</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.import_buffer" title="Link to this definition">#</a></dt>
-<dd><p>Import a buffer that was exported from another process.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -736,6 +710,12 @@ If None, an internal stream is used.</p></li>
 <dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.is_host_accessible">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_host_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.is_host_accessible" title="Link to this definition">#</a></dt>
 <dd><p>Return False. This memory resource does not provide host-accessible buffers.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.is_imported">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_imported</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.is_imported" title="Link to this definition">#</a></dt>
+<dd><p>Whether the memory resource was imported from another process. If True, allocation is not permitted.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -802,9 +782,7 @@ If None, an internal stream is used.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.allocate"><code class="docutils literal notranslate"><span class="pre">allocate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.close"><code class="docutils literal notranslate"><span class="pre">close()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">deallocate()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.export_buffer"><code class="docutils literal notranslate"><span class="pre">export_buffer()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.from_shared_channel"><code class="docutils literal notranslate"><span class="pre">from_shared_channel()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.import_buffer"><code class="docutils literal notranslate"><span class="pre">import_buffer()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.share_to_channel"><code class="docutils literal notranslate"><span class="pre">share_to_channel()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.attributes"><code class="docutils literal notranslate"><span class="pre">attributes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">device_id</span></code></a></li>
@@ -812,6 +790,7 @@ If None, an internal stream is used.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">is_device_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.is_handle_owned"><code class="docutils literal notranslate"><span class="pre">is_handle_owned</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">is_host_accessible</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.is_imported"><code class="docutils literal notranslate"><span class="pre">is_imported</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.is_ipc_enabled"><code class="docutils literal notranslate"><span class="pre">is_ipc_enabled</span></code></a></li>
 </ul>
 </li>
