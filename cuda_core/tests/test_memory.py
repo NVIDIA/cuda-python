@@ -351,11 +351,11 @@ def test_mempool(mempool_device):
         mr._get_allocation_handle()
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        mr.export_buffer(buffer)
+        buffer.export()
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        desc = IPCBufferDescriptor._init(b"", 0)
-        mr.import_buffer(desc)
+        handle = IPCBufferDescriptor._init(b"", 0)
+        Buffer.import_(mr, handle)
 
     buffer.close()
 

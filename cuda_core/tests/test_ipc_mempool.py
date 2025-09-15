@@ -58,7 +58,7 @@ def test_ipc_mempool(ipc_device):
     stream.sync()
 
     # Export the buffer via IPC.
-    handle = mr.export_buffer(buffer)
+    handle = buffer.export()
     queue.put(handle)
 
     # Wait for the child process.
@@ -76,7 +76,7 @@ def child_main1(channel, queue):
 
     mr = DeviceMemoryResource.from_shared_channel(device, channel)
     handle = queue.get()  # Get exported buffer data
-    buffer = mr.import_buffer(handle)
+    buffer = Buffer.import_(mr, handle)
 
     protocol = IPCBufferTestProtocol(device, buffer, stream=stream)
     protocol.verify_buffer(flipped=False)

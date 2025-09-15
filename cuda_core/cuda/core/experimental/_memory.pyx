@@ -131,6 +131,25 @@ cdef class Buffer:
             return self._mr.device_id
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
+    def export(self) -> IPCBufferDescriptor:
+        """Export a buffer allocated for sharing between processes."""
+        if not self._mr.is_ipc_enabled:
+            raise RuntimeError("Memory resource is not IPC-enabled")
+        err, ptr = driver.cuMemPoolExportPointer(self.handle)
+        raise_if_driver_error(err)
+        return IPCBufferDescriptor._init(ptr.reserved, self.size)
+
+    @classmethod
+    def import_(cls, mr: MemoryResource, ipc_buffer: IPCBufferDescriptor) -> Buffer:
+        """Import a buffer that was exported from another process."""
+        if not mr.is_ipc_enabled:
+            raise RuntimeError("Memory resource is not IPC-enabled")
+        share_data = driver.CUmemPoolPtrExportData()
+        share_data.reserved = ipc_buffer._reserved
+        err, ptr = driver.cuMemPoolImportPointer(mr._mempool_handle, share_data)
+        raise_if_driver_error(err)
+        return Buffer.from_handle(ptr, ipc_buffer.size, mr)
+
     def copy_to(self, dst: Buffer = None, *, stream: Stream) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
@@ -683,24 +702,6 @@ class DeviceMemoryResource(MemoryResource):
         err, alloc_handle = driver.cuMemPoolExportToShareableHandle(self._mempool_handle, _IPC_HANDLE_TYPE, 0)
         raise_if_driver_error(err)
         return IPCAllocationHandle._init(alloc_handle)
-
-    def export_buffer(self, buffer: Buffer) -> IPCBufferDescriptor:
-        """Export a buffer allocated from this pool for sharing between processes."""
-        if not self.is_ipc_enabled:
-            raise RuntimeError("Memory resource is not IPC-enabled")
-        err, ptr = driver.cuMemPoolExportPointer(buffer.handle)
-        raise_if_driver_error(err)
-        return IPCBufferDescriptor._init(ptr.reserved, buffer.size)
-
-    def import_buffer(self, ipc_buffer: IPCBufferDescriptor) -> Buffer:
-        """Import a buffer that was exported from another process."""
-        if not self.is_ipc_enabled:
-            raise RuntimeError("Memory resource is not IPC-enabled")
-        share_data = driver.CUmemPoolPtrExportData()
-        share_data.reserved = ipc_buffer._reserved
-        err, ptr = driver.cuMemPoolImportPointer(self._mempool_handle, share_data)
-        raise_if_driver_error(err)
-        return Buffer.from_handle(ptr, ipc_buffer.size, self)
 
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
