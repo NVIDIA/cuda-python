@@ -13,9 +13,9 @@ Highlights
 ----------
 
 * Automatic CUDA library path detection based on ``CUDA_HOME``, eliminating the need to manually set ``LIBRARY_PATH`` environment variables for installation.
+* The Python overhead of calling functions in CUDA bindings in ``driver``, ``runtime`` and ``nvrtc`` has been reduced by approximately 30%.
+* Updated the ``cuda.bindings.runtime`` module to statically link against the CUDA Runtime library from CUDA Toolkit 12.9.1.
 
-* The Python overhead of calling functions in CUDA bindings in ``driver``,
-  ``runtime`` and ``nvrtc`` has been reduced by approximately 30%.
 
 Known issues
 ------------
