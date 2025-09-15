@@ -506,37 +506,53 @@ class DeviceMemoryResourceAttributes:
         self._mr = mr
         return self
 
-    def _getter(name: str, property_type: type):
-        # Define a property in the supplied scope for accessing a memory pool attribute.
-        #
-        # Args:
-        #     name: The name of the property (e.g., 'reuse_follow_event_dependencies').
-        #     property_type: The return type of the property (e.g., bool, int).
-        #
-        # Returns:
-        #     property: A property object that retrieves the attribute value.
+    def mempool_property(property_type: type):
+        def decorator(stub):
+            attr_enum = getattr(driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{stub.__name__.upper()}")
 
-        attr_enum = getattr(driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{name.upper()}")
+            def fget(self) -> property_type:
+                mr = self._mr()
+                if mr is None:
+                  raise RuntimeError("DeviceMemoryResource is expired")
+                err, value = driver.cuMemPoolGetAttribute(mr._mempool_handle, attr_enum)
+                raise_if_driver_error(err)
+                return property_type(value)
+            return property(fget=fget, doc=stub.__doc__)
+        return decorator
 
-        def impl(self) -> property_type:
-            mr = self._mr()
-            if mr is None:
-              raise RuntimeError("DeviceMemoryResource is expired")
-            err, value = driver.cuMemPoolGetAttribute(mr._mempool_handle, attr_enum)
-            raise_if_driver_error(err)
-            return property_type(value)
-        return impl
+    @mempool_property(bool)
+    def reuse_follow_event_dependencies(self):
+        """Allow memory to be reused when there are event dependencies between streams."""
 
-    reuse_follow_event_dependencies = property(fget=_getter("reuse_follow_event_dependencies", bool), doc="Allow memory to be reused when there are event dependencies between streams.")
-    reuse_allow_opportunistic = property(fget=_getter("reuse_allow_opportunistic", bool), doc="Allow reuse of completed frees without dependencies.")
-    reuse_allow_internal_dependencies = property(fget=_getter("reuse_allow_internal_dependencies", bool), doc="Allow insertion of new stream dependencies for memory reuse.")
-    release_threshold = property(fget=_getter("release_threshold", int), doc="Amount of reserved memory to hold before OS release.")
-    reserved_mem_current = property(fget=_getter("reserved_mem_current", int), doc="Current amount of backing memory allocated.")
-    reserved_mem_high = property(fget=_getter("reserved_mem_high", int), doc="High watermark of backing memory allocated.")
-    used_mem_current = property(fget=_getter("used_mem_current", int), doc="Current amount of memory in use.")
-    used_mem_high = property(fget=_getter("used_mem_high", int), doc="High watermark of memory in use.")
+    @mempool_property(bool)
+    def reuse_allow_opportunistic(self):
+        """Allow reuse of completed frees without dependencies."""
 
-    del _getter
+    @mempool_property(bool)
+    def reuse_allow_internal_dependencies(self):
+        """Allow insertion of new stream dependencies for memory reuse."""
+
+    @mempool_property(int)
+    def release_threshold(self):
+        """Amount of reserved memory to hold before OS release."""
+
+    @mempool_property(int)
+    def reserved_mem_current(self):
+        """Current amount of backing memory allocated."""
+
+    @mempool_property(int)
+    def reserved_mem_high(self):
+        """High watermark of backing memory allocated."""
+
+    @mempool_property(int)
+    def used_mem_current(self):
+        """Current amount of memory in use."""
+
+    @mempool_property(int)
+    def used_mem_high(self):
+        """High watermark of memory in use."""
+
+    del mempool_property
 
 
 class DeviceMemoryResource(MemoryResource):
