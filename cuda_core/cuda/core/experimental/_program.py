@@ -279,9 +279,7 @@ class ProgramOptions:
         if self.arch is not None:
             self._formatted_options.append(f"-arch={self.arch}")
         else:
-            self._formatted_options.append(
-                "-arch=sm_" + "".join(f"{i}" for i in Device().compute_capability)
-            )
+            self._formatted_options.append("-arch=sm_" + "".join(f"{i}" for i in Device().compute_capability))
         if self.relocatable_device_code is not None:
             self._formatted_options.append(
                 f"--relocatable-device-code={_handle_boolean_option(self.relocatable_device_code)}"
