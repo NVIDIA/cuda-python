@@ -1,0 +1,19 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. module:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.2.2 Release notes
+=======================================
+
+Released on Sep 8, 2025
+
+
+Highlights
+----------
+
+* Support nccl library (`PR #945 <https://github.com/NVIDIA/cuda-python/pull/945>`_)
+
+* Add experimental ``cuda.pathfinder._find_nvidia_headers`` API,
+  currently limited to supporting ``nvshmem``
+  (`PR #661 <https://github.com/NVIDIA/cuda-python/pull/661>`_)

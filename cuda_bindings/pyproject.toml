@@ -28,7 +28,6 @@ dynamic = [
 ]
 dependencies = [
   "cuda-pathfinder ~=1.1",
-  "pywin32; sys_platform == 'win32'",
 ]
 
 [project.optional-dependencies]
@@ -84,7 +83,6 @@ select = [
 ]
 
 ignore = [
-    "UP006",
     "UP007",
     "E741", # ambiguous variable name such as I
     "B007", # rename unsued loop variable to _name
