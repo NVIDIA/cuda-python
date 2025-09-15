@@ -30,6 +30,24 @@ cdef extern from "<dlfcn.h>" nogil:
 
     const void* RTLD_DEFAULT 'RTLD_DEFAULT'
 
+cdef int get_cuda_version():
+    cdef void* handle = NULL
+    cdef int err, driver_ver = 0
+
+    # Load driver to check version
+    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
+    if handle == NULL:
+        err_msg = dlerror()
+        raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
+    cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
+    if cuDriverGetVersion == NULL:
+        raise RuntimeError('Did not find cuDriverGetVersion symbol in libcuda.so.1')
+    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
+    if err != 0:
+        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
+
+    return driver_ver
+
 
 ###############################################################################
 # Wrapper init
