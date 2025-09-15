@@ -1898,10 +1898,14 @@ cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCa
     # Load
     with gil:
         lib = load_nvidia_dynamic_lib("cudart")
+        {{if 'Windows' == platform.system()}}
+        handle = lib._handle_uint
+        {{else}}
         handle = <void *><uintptr_t>lib._handle_uint
+        {{endif}}
 
     {{if 'Windows' == platform.system()}}
-    __cudaRuntimeGetVersion = windll.GetProcAddress(<uintptr_t>handle, b'cudaRuntimeGetVersion')
+    __cudaRuntimeGetVersion = windll.GetProcAddress(handle, b'cudaRuntimeGetVersion')
     {{else}}
     __cudaRuntimeGetVersion = dlfcn.dlsym(handle, 'cudaRuntimeGetVersion')
     {{endif}}
