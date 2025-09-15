@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.get\_parameter\_size\_t
-============================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: get_parameter_size_t
