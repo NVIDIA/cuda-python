@@ -77,7 +77,7 @@ def _get_libnvvm_version_for_tests():
         nvvm = _get_nvvm_module()
 
         try:
-            from cuda.bindings.utils import get_ptx_ver, get_minimal_required_cuda_ver_from_ptx_ver
+            from cuda.bindings.utils import get_minimal_required_cuda_ver_from_ptx_ver, get_ptx_ver
         except ImportError:
             _libnvvm_version = None
             return _libnvvm_version
