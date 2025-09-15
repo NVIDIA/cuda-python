@@ -508,3 +508,172 @@ class _SynchronousMemoryResource(MemoryResource):
     @property
     def device_id(self) -> int:
         return self._dev_id
+
+
+class VMMAllocatedMemoryResource(MemoryResource):
+    """Create a memory resource that uses CUDA's Virtual Memory Management APIs.
+
+    This memory resource uses cuMemCreate, cuMemAddressReserve, cuMemMap, and related
+    APIs to provide fine-grained control over memory allocation and mapping. This is
+    useful for:
+    
+    - NVSHMEM/NCCL external buffer registration
+    - Growing allocations without changing pointer addresses  
+    - EGM (Extended GPU Memory) on Grace-Hopper or Grace-Blackwell systems
+    - Custom memory access patterns and sharing between processes
+
+    Parameters
+    ----------
+    device_id : int
+        Device ordinal for which memory allocations will be created.
+    allocation_type : driver.CUmemAllocationType, optional
+        The type of memory allocation. Defaults to CU_MEM_ALLOCATION_TYPE_PINNED.
+    """
+
+    __slots__ = ("_dev_id", "_allocation_type", "_allocations")
+
+    def __init__(self, device_id: int, allocation_type=None):
+        if allocation_type is None:
+            allocation_type = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+        
+        self._dev_id = device_id
+        self._allocation_type = allocation_type
+        self._allocations = {}  # Track allocations: ptr -> (handle, reserved_ptr, size)
+        self._handle = None
+
+        # Check if device supports virtual memory management
+        err, vmm_supported = driver.cuDeviceGetAttribute(
+            driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED, 
+            device_id
+        )
+        raise_if_driver_error(err)
+        if not vmm_supported:
+            raise RuntimeError(f"Device {device_id} does not support virtual memory management")
+
+    def allocate(self, size_t size, stream: Stream = None) -> Buffer:
+        """Allocate a buffer using virtual memory management APIs.
+
+        Parameters
+        ----------
+        size : int
+            The size of the buffer to allocate, in bytes.
+        stream : Stream, optional
+            Currently ignored as VMM operations are synchronous.
+
+        Returns
+        -------
+        Buffer
+            The allocated buffer object, which is accessible on the device.
+        """
+        # Get allocation granularity
+        allocation_prop = driver.CUmemAllocationProp()
+        allocation_prop.type = self._allocation_type
+        allocation_prop.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        allocation_prop.location.id = self._dev_id
+        allocation_prop.requestedHandleTypes = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+
+        err, granularity = driver.cuMemGetAllocationGranularity(
+            allocation_prop, 
+            driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM
+        )
+        raise_if_driver_error(err)
+
+        # Round size up to granularity
+        aligned_size = ((size + granularity - 1) // granularity) * granularity
+
+        # Create the memory allocation
+        err, mem_handle = driver.cuMemCreate(aligned_size, allocation_prop, 0)
+        raise_if_driver_error(err)
+
+        # Reserve address space
+        err, reserved_ptr = driver.cuMemAddressReserve(aligned_size, 0, 0, 0)
+        raise_if_driver_error(err)
+
+        try:
+            # Map the allocation to the reserved address
+            err, = driver.cuMemMap(reserved_ptr, aligned_size, 0, mem_handle, 0)
+            raise_if_driver_error(err)
+
+            # Set access permissions
+            access_desc = driver.CUmemAccessDesc()
+            access_desc.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+            access_desc.location.id = self._dev_id
+            access_desc.flags = driver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+
+            err, = driver.cuMemSetAccess(reserved_ptr, aligned_size, [access_desc], 1)
+            raise_if_driver_error(err)
+
+            # Store allocation info for cleanup
+            self._allocations[int(reserved_ptr)] = (mem_handle, reserved_ptr, aligned_size)
+
+            return Buffer._init(reserved_ptr, size, self)
+
+        except Exception:
+            # Clean up on error
+            try:
+                driver.cuMemAddressFree(reserved_ptr, aligned_size)
+            except:
+                pass
+            try:
+                driver.cuMemRelease(mem_handle)
+            except:
+                pass
+            raise
+
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
+        """Deallocate a buffer previously allocated by this resource.
+
+        Parameters
+        ----------
+        ptr : DevicePointerT
+            The pointer to the buffer to deallocate.
+        size : int
+            The size of the buffer to deallocate, in bytes.
+        stream : Stream, optional
+            Currently ignored as VMM operations are synchronous.
+        """
+        ptr_int = int(ptr)
+        if ptr_int not in self._allocations:
+            raise ValueError(f"Pointer {ptr_int:x} was not allocated by this memory resource")
+
+        mem_handle, reserved_ptr, aligned_size = self._allocations.pop(ptr_int)
+
+        # Unmap the memory
+        err, = driver.cuMemUnmap(reserved_ptr, aligned_size)
+        raise_if_driver_error(err)
+
+        # Free the address reservation
+        err, = driver.cuMemAddressFree(reserved_ptr, aligned_size)
+        raise_if_driver_error(err)
+
+        # Release the memory handle
+        err, = driver.cuMemRelease(mem_handle)
+        raise_if_driver_error(err)
+
+    @property
+    def is_device_accessible(self) -> bool:
+        """bool: this memory resource provides device-accessible buffers."""
+        return True
+
+    @property
+    def is_host_accessible(self) -> bool:
+        """bool: this memory resource does not provide host-accessible buffers by default."""
+        # VMM allocations are typically device-only unless specifically configured for host access
+        return False
+
+    @property
+    def device_id(self) -> int:
+        """int: the associated device ordinal."""
+        return self._dev_id
+
+    def __del__(self):
+        """Clean up any remaining allocations."""
+        # Clean up any remaining allocations
+        for ptr_int, (mem_handle, reserved_ptr, aligned_size) in list(self._allocations.items()):
+            try:
+                driver.cuMemUnmap(reserved_ptr, aligned_size)
+                driver.cuMemAddressFree(reserved_ptr, aligned_size)
+                driver.cuMemRelease(mem_handle)
+            except:
+                pass  # Ignore errors during cleanup
+        self._allocations.clear()

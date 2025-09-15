@@ -1312,6 +1312,42 @@ class Device:
             stream = default_stream()
         return self._mr.allocate(size, stream)
 
+    def create_vmm_memory_resource(self, allocation_type=None) -> "VMMAllocatedMemoryResource":
+        """Create a VMMAllocatedMemoryResource for this device.
+
+        Creates a memory resource that uses CUDA's Virtual Memory Management APIs
+        for fine-grained control over memory allocation and mapping. This is useful for:
+        
+        - NVSHMEM/NCCL external buffer registration
+        - Growing allocations without changing pointer addresses  
+        - EGM (Extended GPU Memory) on Grace-Hopper or Grace-Blackwell systems
+        - Custom memory access patterns and sharing between processes
+
+        Parameters
+        ----------
+        allocation_type : driver.CUmemAllocationType, optional
+            The type of memory allocation. Defaults to CU_MEM_ALLOCATION_TYPE_PINNED.
+
+        Returns
+        -------
+        VMMAllocatedMemoryResource
+            A newly-created VMMAllocatedMemoryResource for this device.
+
+        Raises
+        ------
+        RuntimeError
+            If this device does not support virtual memory management.
+
+        Examples
+        --------
+        >>> device = Device()
+        >>> vmm_mr = device.create_vmm_memory_resource()
+        >>> device.memory_resource = vmm_mr  # Set as default for the device
+        >>> buffer = device.allocate(1024)  # Now uses VMM allocation
+        """
+        from cuda.core.experimental._memory import VMMAllocatedMemoryResource
+        return VMMAllocatedMemoryResource(self._id, allocation_type)
+
     def sync(self):
         """Synchronize the device.
 
