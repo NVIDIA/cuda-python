@@ -87,7 +87,7 @@ def _get_libnvvm_version_for_tests():
             precheck_ir_bytes = precheck_nvvm_ir.encode("utf-8")
             nvvm.add_module_to_program(program, precheck_ir_bytes, len(precheck_ir_bytes), "precheck.ll")
 
-            options = ["-arch=compute_70"]
+            options = ["-arch=compute_90"]
             nvvm.verify_program(program, len(options), options)
             nvvm.compile_program(program, len(options), options)
 
