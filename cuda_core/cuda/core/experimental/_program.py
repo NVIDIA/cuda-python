@@ -277,10 +277,10 @@ class ProgramOptions:
 
         self._formatted_options = []
         if self.arch is not None:
-            self._formatted_options.append(f"--gpu-architecture={self.arch}")
+            self._formatted_options.append(f"-arch={self.arch}")
         else:
             self._formatted_options.append(
-                "--gpu-architecture=sm_" + "".join(f"{i}" for i in Device().compute_capability)
+                "-arch=sm_" + "".join(f"{i}" for i in Device().compute_capability)
             )
         if self.relocatable_device_code is not None:
             self._formatted_options.append(
