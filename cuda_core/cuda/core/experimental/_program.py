@@ -34,7 +34,7 @@ _nvvm_import_attempted = False
 def _get_nvvm_module():
     """
     Handles the import of NVVM module with version and availability checks.
-    NVVM bindings were added in CUDA 12.9.0, so we need to handle cases where:
+    NVVM bindings were added in cuda-bindings 12.9.0, so we need to handle cases where:
     1. cuda.bindings is not new enough (< 12.9.0)
     2. libnvvm is not found in the Python environment
 
@@ -42,13 +42,13 @@ def _get_nvvm_module():
         The nvvm module if available and working
 
     Raises:
-        ImportError: If NVVM is not available due to version or library issues
+        RuntimeError: If NVVM is not available due to version or library issues
     """
     global _nvvm_module, _nvvm_import_attempted
 
     if _nvvm_import_attempted:
         if _nvvm_module is None:
-            raise ImportError("NVVM module is not available (previous import attempt failed)")
+            raise RuntimeError("NVVM module is not available (previous import attempt failed)")
         return _nvvm_module
 
     _nvvm_import_attempted = True
@@ -56,7 +56,7 @@ def _get_nvvm_module():
     try:
         version = get_binding_version()
         if version < (12, 9):
-            raise ImportError(
+            raise RuntimeError(
                 f"NVVM bindings require cuda-bindings >= 12.9.0, but found {version[0]}.{version[1]}.x. "
                 "Please update cuda-bindings to use NVVM features."
             )
@@ -65,12 +65,12 @@ def _get_nvvm_module():
         from cuda.bindings._internal.nvvm import _inspect_function_pointer
 
         if _inspect_function_pointer("__nvvmCreateProgram") == 0:
-            raise ImportError("NVVM library (libnvvm) is not available in this Python environment. ")
+            raise RuntimeError("NVVM library (libnvvm) is not available in this Python environment. ")
 
         _nvvm_module = nvvm
         return _nvvm_module
 
-    except ImportError as e:
+    except RuntimeError as e:
         _nvvm_module = None
         raise e
 
@@ -279,7 +279,8 @@ class ProgramOptions:
         if self.arch is not None:
             self._formatted_options.append(f"-arch={self.arch}")
         else:
-            self._formatted_options.append("-arch=sm_" + "".join(f"{i}" for i in Device().compute_capability))
+            self.arch = f"sm_{Device().arch}"
+            self._formatted_options.append(f"-arch={self.arch}")
         if self.relocatable_device_code is not None:
             self._formatted_options.append(
                 f"--relocatable-device-code={_handle_boolean_option(self.relocatable_device_code)}"
@@ -503,14 +504,11 @@ class Program:
         """Translate ProgramOptions to NVVM-specific compilation options."""
         nvvm_options = []
 
-        if options.arch is not None:
-            arch = options.arch
-            if arch.startswith("sm_"):
-                arch = f"compute_{arch[3:]}"
-            nvvm_options.append(f"-arch={arch}")
-        else:
-            major, minor = Device().compute_capability
-            nvvm_options.append(f"-arch=compute_{major}{minor}")
+        assert options.arch is not None
+        arch = options.arch
+        if arch.startswith("sm_"):
+            arch = f"compute_{arch[3:]}"
+        nvvm_options.append(f"-arch={arch}")
         if options.debug:
             nvvm_options.append("-g")
         if options.device_code_optimize is False:

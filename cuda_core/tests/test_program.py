@@ -22,7 +22,7 @@ def _is_nvvm_available():
 
         _get_nvvm_module()
         return True
-    except ImportError:
+    except RuntimeError:
         return False
 
 
