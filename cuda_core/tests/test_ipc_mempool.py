@@ -8,12 +8,11 @@ except ImportError:
 
 import ctypes
 import multiprocessing
-import platform
 
 import pytest
 
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, IPCChannel, MemoryResource
-from cuda.core.experimental._utils.cuda_utils import get_binding_version, handle_return
+from cuda.core.experimental._utils.cuda_utils import handle_return
 
 POOL_SIZE = 2097152  # 2MB size
 NBYTES = 64
@@ -22,73 +21,65 @@ NBYTES = 64
 @pytest.fixture(scope="function")
 def ipc_device():
     """Obtains a device suitable for IPC-enabled mempool tests, or skips."""
-    if get_binding_version() < (12, 0):
-        pytest.skip("Test requires CUDA 12 or higher")
-
-    if platform.system() == "Windows":
-        pytest.skip("IPC is not supported on Windows")
-
     # Check if IPC is supported on this platform/device
     device = Device()
     device.set_current()
+
     if not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
+
+    # Note: Linux specific. Once Windows support for IPC is implemented, this
+    # test should be updated.
+    if not device.properties.handle_type_posix_file_descriptor_supported:
+        pytest.skip("Device does not support IPC")
+
     return device
 
 
 def test_ipc_mempool(ipc_device):
     # Set up the IPC-enabled memory pool and share it.
+    stream = ipc_device.create_stream()
     mr = DeviceMemoryResource(ipc_device, dict(max_size=POOL_SIZE, ipc_enabled=True))
     assert mr.is_ipc_enabled
     channel = IPCChannel()
     mr.share_to_channel(channel)
-    try:
-        # Start the child process.
-        queue = multiprocessing.Queue()
-        process = multiprocessing.Process(target=child_main, args=(channel, queue))
-        process.start()
 
-        # Allocate and fill memory.
-        buffer = mr.allocate(NBYTES)
-        protocol = IPCBufferTestProtocol(ipc_device, buffer)
-        protocol.fill_buffer(flipped=False)
+    # Start the child process.
+    queue = multiprocessing.Queue()
+    process = multiprocessing.Process(target=child_main, args=(channel, queue))
+    process.start()
 
-        # Export the buffer via IPC.
-        handle = mr.export_buffer(buffer)
-        queue.put(handle)
+    # Allocate and fill memory.
+    buffer = mr.allocate(NBYTES, stream=stream)
+    protocol = IPCBufferTestProtocol(ipc_device, buffer, stream=stream)
+    protocol.fill_buffer(flipped=False)
+    stream.sync()
 
-        # Wait for the child process.
-        process.join(timeout=10)
-        assert process.exitcode == 0
+    # Export the buffer via IPC.
+    handle = mr.export_buffer(buffer)
+    queue.put(handle)
 
-        # Verify that the buffer was modified.
-        protocol.verify_buffer(flipped=True)
-    finally:
-        if locals().get("buffer") is not None:
-            buffer.close()
-        if locals().get("process") is not None and process.is_alive():
-            process.terminate()
-            process.join(timeout=1)
-        if locals().get("queue") is not None:
-            queue.close()
-            queue.join_thread()
-        mr.allocate(NBYTES).close()  # Flush any pending operations
+    # Wait for the child process.
+    process.join(timeout=10)
+    assert process.exitcode == 0
+
+    # Verify that the buffer was modified.
+    protocol.verify_buffer(flipped=True)
 
 
 def child_main(channel, queue):
     device = Device()
     device.set_current()
-    try:
-        mr = DeviceMemoryResource.from_shared_channel(device, channel)
-        handle = queue.get()  # Get exported buffer data
-        buffer = mr.import_buffer(handle)
+    stream = device.create_stream()
 
-        protocol = IPCBufferTestProtocol(device, buffer)
-        protocol.verify_buffer(flipped=False)
-        protocol.fill_buffer(flipped=True)
-    finally:
-        if locals().get("buffer") is not None:
-            buffer.close()
+    mr = DeviceMemoryResource.from_shared_channel(device, channel)
+    handle = queue.get()  # Get exported buffer data
+    buffer = mr.import_buffer(handle)
+
+    protocol = IPCBufferTestProtocol(device, buffer, stream=stream)
+    protocol.verify_buffer(flipped=False)
+    protocol.fill_buffer(flipped=True)
+    stream.sync()
 
 
 class DummyUnifiedMemoryResource(MemoryResource):
@@ -140,7 +131,7 @@ class IPCBufferTestProtocol:
     def verify_buffer(self, flipped=False):
         """Verify the buffer contents."""
         self.scratch_buffer.copy_from(self.buffer, stream=self.stream)
-        self.device.sync()
+        self.stream.sync()
         ptr = ctypes.cast(int(self.scratch_buffer.handle), ctypes.POINTER(ctypes.c_byte))
         op = (lambda i: 255 - i) if flipped else (lambda i: i)
         for i in range(self.nbytes):
