@@ -14,8 +14,9 @@ import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, IPCChannel, MemoryResource
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
-POOL_SIZE = 2097152  # 2MB size
+CHILD_TIMEOUT_SEC = 10
 NBYTES = 64
+POOL_SIZE = 2097152
 
 
 @pytest.fixture(scope="function")
@@ -37,6 +38,7 @@ def ipc_device():
 
 
 def test_ipc_mempool(ipc_device):
+    """Test IPC with memory pools."""
     # Set up the IPC-enabled memory pool and share it.
     stream = ipc_device.create_stream()
     mr = DeviceMemoryResource(ipc_device, dict(max_size=POOL_SIZE, ipc_enabled=True))
@@ -46,7 +48,7 @@ def test_ipc_mempool(ipc_device):
 
     # Start the child process.
     queue = multiprocessing.Queue()
-    process = multiprocessing.Process(target=child_main, args=(channel, queue))
+    process = multiprocessing.Process(target=child_main1, args=(channel, queue))
     process.start()
 
     # Allocate and fill memory.
@@ -60,14 +62,14 @@ def test_ipc_mempool(ipc_device):
     queue.put(handle)
 
     # Wait for the child process.
-    process.join(timeout=10)
+    process.join(timeout=CHILD_TIMEOUT_SEC)
     assert process.exitcode == 0
 
     # Verify that the buffer was modified.
     protocol.verify_buffer(flipped=True)
 
 
-def child_main(channel, queue):
+def child_main1(channel, queue):
     device = Device()
     device.set_current()
     stream = device.create_stream()
@@ -80,6 +82,43 @@ def child_main(channel, queue):
     protocol.verify_buffer(flipped=False)
     protocol.fill_buffer(flipped=True)
     stream.sync()
+
+
+def test_shared_pool_errors(ipc_device):
+    """Test expected errors with allocating from a shared IPC memory pool."""
+    # Set up the IPC-enabled memory pool and share it.
+    mr = DeviceMemoryResource(ipc_device, dict(max_size=POOL_SIZE, ipc_enabled=True))
+    channel = IPCChannel()
+    mr.share_to_channel(channel)
+
+    # Start a child process to generate error info.
+    queue = multiprocessing.Queue()
+    process = multiprocessing.Process(target=child_main2, args=(channel, queue))
+    process.start()
+
+    # Check the errors.
+    exc_type, exc_msg = queue.get(timeout=CHILD_TIMEOUT_SEC)
+    assert exc_type is TypeError
+    assert exc_msg == "Cannot allocate from shared memory pool imported via IPC"
+
+    # Wait for the child process.
+    process.join(timeout=CHILD_TIMEOUT_SEC)
+    assert process.exitcode == 0
+
+
+def child_main2(channel, queue):
+    """Child process that pushes IPC errors to a shared queue for testing."""
+    device = Device()
+    device.set_current()
+
+    mr = DeviceMemoryResource.from_shared_channel(device, channel)
+
+    # Allocating from an imported pool.
+    try:
+        mr.allocate(NBYTES)
+    except Exception as e:
+        exc_info = type(e), str(e)
+        queue.put(exc_info)
 
 
 class DummyUnifiedMemoryResource(MemoryResource):

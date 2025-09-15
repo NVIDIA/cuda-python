@@ -543,7 +543,7 @@ class DeviceMemoryResource(MemoryResource):
         device memory resource does not own the pool (`is_handle_owned` is
         `False`), and closing the resource has no effect.
     """
-    __slots__ = "_dev_id", "_mempool_handle", "_attributes", "_ipc_handle_type", "_mempool_owned"
+    __slots__ = "_dev_id", "_mempool_handle", "_attributes", "_ipc_handle_type", "_mempool_owned", "_is_imported"
 
     def __init__(self, device_id: int | Device, options=None):
         device_id = getattr(device_id, 'device_id', device_id)
@@ -558,6 +558,7 @@ class DeviceMemoryResource(MemoryResource):
             self._attributes = None
             self._ipc_handle_type = _NOIPC_HANDLE_TYPE
             self._mempool_owned = False
+            self._is_imported = False
 
             err, self._mempool_handle = driver.cuDeviceGetMemPool(self.device_id)
             raise_if_driver_error(err)
@@ -598,6 +599,7 @@ class DeviceMemoryResource(MemoryResource):
             self._attributes = None
             self._ipc_handle_type = properties.handleTypes
             self._mempool_owned = True
+            self._is_imported = False
 
             err, self._mempool_handle = driver.cuMemPoolCreate(properties)
             raise_if_driver_error(err)
@@ -616,6 +618,7 @@ class DeviceMemoryResource(MemoryResource):
             self._attributes = None
             self._ipc_handle_type = _NOIPC_HANDLE_TYPE
             self._mempool_owned = False
+            self._is_imported = False
 
     @classmethod
     def from_shared_channel(cls, device_id: int | Device, channel: IPCChannel) -> DeviceMemoryResource:
@@ -653,6 +656,7 @@ class DeviceMemoryResource(MemoryResource):
         self._attributes = None
         self._ipc_handle_type = _IPC_HANDLE_TYPE
         self._mempool_owned = True
+        self._is_imported = True
 
         err, self._mempool_handle = driver.cuMemPoolImportFromShareableHandle(int(alloc_handle), _IPC_HANDLE_TYPE, 0)
         raise_if_driver_error(err)
@@ -715,6 +719,8 @@ class DeviceMemoryResource(MemoryResource):
             The allocated buffer object, which is accessible on the device that this memory
             resource was created for.
         """
+        if self._is_imported:
+            raise TypeError("Cannot allocate from shared memory pool imported via IPC")
         if stream is None:
             stream = default_stream()
         err, ptr = driver.cuMemAllocFromPoolAsync(size, self._mempool_handle, stream.handle)
@@ -760,6 +766,11 @@ class DeviceMemoryResource(MemoryResource):
     def is_handle_owned(self) -> bool:
         """Whether the memory resource handle is owned. If False, ``close`` has no effect."""
         return self._mempool_owned
+
+    @property
+    def is_imported(self) -> bool:
+        """Whether the memory resource was imported from another process. If True, allocation is not permitted."""
+        return self._is_imported
 
     @property
     def is_device_accessible(self) -> bool:
