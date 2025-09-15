@@ -511,7 +511,7 @@ class _SynchronousMemoryResource(MemoryResource):
         return self._dev_id
 
 @dataclass
-class VMMConfig:
+class VMMAllocationOptions:
     """A configuration object for the VMMAllocatedMemoryResource
        Stores configuration information which tells the resource how to use the CUDA VMM APIs
     """
@@ -531,11 +531,11 @@ class VMMConfig:
         self_access: Access flags for the owning device ('rw', 'r', or 'none').
         peer_access: Access flags for peers ('rw' or 'r').
     """
-    # TODO: for enums, do we re-expose them as cuda-core Enums or leave them as driver enums?
-    allocation_type: driver.CUmemAllocationType = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-    location_type: driver.CUmemLocationType = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-    handle_type: driver.CUmemAllocationHandleType = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
-    granularity: driver.CUmemAllocationGranularity_flags = driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED
+    # Human-friendly strings; normalized in __post_init__
+    allocation_type: str = "pinned"          # pinned
+    location_type: str = "device"            # device
+    handle_type: str = "posix-fd"           # posix-fd | generic | none
+    granularity: str = "recommended"        # minimum | recommended
     gpu_direct_rdma: bool = True
     addr_hint: Optional[int] = 0
     addr_align: Optional[int] = None
@@ -544,7 +544,7 @@ class VMMConfig:
     peer_access: str = "rw"   # 'rw' | 'r'
 
     @staticmethod
-    def _access_to_flags(driver, spec: str):
+    def _access_to_flags(spec: str):
         f = driver.CUmemAccess_flags
         if spec == "rw":
             return f.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
@@ -553,6 +553,51 @@ class VMMConfig:
         if spec == "none":
             return 0
         raise ValueError(f"Unknown access spec: {spec!r}")
+
+    @staticmethod
+    def _allocation_type_to_driver(spec: str):
+        if spec == "pinned":
+            return driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+        if spec == "managed":
+            return driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
+        raise ValueError(f"Unsupported allocation_type: {spec!r}")
+
+    @staticmethod
+    def _location_type_to_driver(spec: str):
+        if spec == "device":
+            return driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        if spec == "host":
+            return driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
+        if spec == "host-numa":
+            return driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
+        if spec == "host-numa-current":
+            return driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT
+        raise ValueError(f"Unsupported location_type: {spec!r}")
+
+    @staticmethod
+    def _handle_type_to_driver(spec: str):
+        if spec == "posix-fd":
+            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
+        if spec == "generic":
+            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_GENERIC
+        if spec == "none":
+            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+        if spec == "win32":
+            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32
+        if spec == "win32-kmt":
+            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32_KMT
+        if spec == "fabric":
+            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_FABRIC
+        raise ValueError(f"Unsupported handle_type: {spec!r}")
+
+    @staticmethod
+    def _granularity_to_driver(spec: str):
+        f = driver.CUmemAllocationGranularity_flags
+        if spec == "minimum":
+            return f.CU_MEM_ALLOC_GRANULARITY_MINIMUM
+        if spec == "recommended":
+            return f.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED
+        raise ValueError(f"Unsupported granularity: {spec!r}")
 
 
 class VMMAllocatedMemoryResource(MemoryResource):
@@ -565,12 +610,12 @@ class VMMAllocatedMemoryResource(MemoryResource):
         set to *current* on ``device_id`` is used. If no mempool is set to current yet,
         the driver would use the *default* mempool on the device.
 
-    config : VMMConfig
+    config : VMMAllocationOptions
         A configuration object for the VMMAllocatedMemoryResource
     """
-    def __init__(self, device, config: VMMConfig = None):
+    def __init__(self, device, config: VMMAllocationOptions = None):
         self.device = device
-        self.config = config or VMMConfig()
+        self.config = config or VMMAllocationOptions()
 
     def _align_up(self, size: int, gran: int) -> int:
         """
@@ -578,7 +623,7 @@ class VMMAllocatedMemoryResource(MemoryResource):
         """
         return (size + gran - 1) & ~(gran - 1)
 
-    def modify_allocation(self, buf: Buffer, new_size: int, config: VMMConfig = None) -> Buffer:
+    def modify_allocation(self, buf: Buffer, new_size: int, config: VMMAllocationOptions = None) -> Buffer:
         """
         Grow an existing allocation using CUDA VMM, with a configurable policy.
 
@@ -591,7 +636,7 @@ class VMMAllocatedMemoryResource(MemoryResource):
             The existing buffer to grow
         new_size : int
             The new total size for the allocation
-        config : VMMConfig, optional
+        config : VMMAllocationOptions, optional
             Configuration for the new physical memory chunks. If None, uses current config.
 
         Returns
@@ -608,14 +653,14 @@ class VMMAllocatedMemoryResource(MemoryResource):
 
         # Build allocation properties for new chunks
         prop = driver.CUmemAllocationProp()
-        prop.type = self.config.allocation_type
-        prop.location.type = self.config.location_type
+        prop.type = VMMAllocationOptions._allocation_type_to_driver(self.config.allocation_type)
+        prop.location.type = VMMAllocationOptions._location_type_to_driver(self.config.location_type)
         prop.location.id = self.device.device_id
         prop.allocFlags.gpuDirectRDMACapable = 1 if self.config.gpu_direct_rdma else 0
-        prop.requestedHandleTypes = self.config.handle_type
+        prop.requestedHandleTypes = VMMAllocationOptions._handle_type_to_driver(self.config.handle_type)
 
         # Query granularity
-        gran_flag = self.config.granularity
+        gran_flag = VMMAllocationOptions._granularity_to_driver(self.config.granularity)
         res, gran = driver.cuMemGetAllocationGranularity(prop, gran_flag)
         if res != driver.CUresult.CUDA_SUCCESS:
             raise Exception(f"cuMemGetAllocationGranularity failed: {res}")
@@ -765,7 +810,7 @@ class VMMAllocatedMemoryResource(MemoryResource):
         descs = []
 
         # Owner access
-        owner_flags = VMMConfig._access_to_flags(driver, self.config.self_access)
+        owner_flags = VMMAllocationOptions._access_to_flags(self.config.self_access)
         if owner_flags:
             d = driver.CUmemAccessDesc()
             d.location.type = prop.location.type
@@ -774,7 +819,7 @@ class VMMAllocatedMemoryResource(MemoryResource):
             descs.append(d)
 
         # Peer device access
-        peer_flags = VMMConfig._access_to_flags(driver, self.config.peer_access)
+        peer_flags = VMMAllocationOptions._access_to_flags(self.config.peer_access)
         for peer_dev in self.config.peers:
             if peer_flags:
                 d = driver.CUmemAccessDesc()
@@ -793,18 +838,18 @@ class VMMAllocatedMemoryResource(MemoryResource):
         config = self.config
         # ---- Build allocation properties ----
         prop = driver.CUmemAllocationProp()
-        prop.type = config.allocation_type
+        prop.type = VMMAllocationOptions._allocation_type_to_driver(config.allocation_type)
         # TODO: Support host alloation if required
-        if config.location_type != driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE:
+        if  prop.type != driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE:
             raise NotImplementedError(f"Location type must be CU_MEM_LOCATION_TYPE_DEVICE, got {config.location_type}")
-        prop.location.type = config.location_type
+        prop.location.type = VMMAllocationOptions._location_type_to_driver(config.location_type)
         prop.location.id = self.device.device_id
         prop.allocFlags.gpuDirectRDMACapable = 1 if config.gpu_direct_rdma else 0
-        prop.requestedHandleTypes = config.handle_type
+        prop.requestedHandleTypes = VMMAllocationOptions._handle_type_to_driver(config.handle_type)
 
         # ---- Query and apply granularity ----
         # Choose min vs recommended granularity per config
-        gran_flag = config.granularity
+        gran_flag = VMMAllocationOptions._granularity_to_driver(config.granularity)
         res, gran = driver.cuMemGetAllocationGranularity(prop, gran_flag)
         if res != driver.CUresult.CUDA_SUCCESS:
             raise Exception(f"cuMemGetAllocationGranularity failed: {res}")
@@ -836,7 +881,7 @@ class VMMAllocatedMemoryResource(MemoryResource):
         descs = []
 
         # Owner access
-        owner_flags = VMMConfig._access_to_flags(driver, config.self_access)
+        owner_flags = VMMAllocationOptions._access_to_flags(config.self_access)
         if owner_flags:
             d = driver.CUmemAccessDesc()
             d.location.type = prop.location.type
@@ -845,7 +890,7 @@ class VMMAllocatedMemoryResource(MemoryResource):
             descs.append(d)
 
         # Peer device access
-        peer_flags = VMMConfig._access_to_flags(driver, config.peer_access)
+        peer_flags = VMMAllocationOptions._access_to_flags(config.peer_access)
         for peer_dev in config.peers:
             if peer_flags:
                 d = driver.CUmemAccessDesc()

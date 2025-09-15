@@ -1,6 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-# Dummy change
 try:
     from cuda.bindings import driver
 except ImportError:
@@ -16,7 +15,7 @@ from cuda.core.experimental import (
     DeviceMemoryResource,
     MemoryResource,
     VMMAllocatedMemoryResource,
-    VMMConfig,
+    VMMAllocationOptions,
 )
 from cuda.core.experimental._memory import DLDeviceType
 from cuda.core.experimental._utils.cuda_utils import handle_return
@@ -336,12 +335,12 @@ def test_vmm_allocator_policy_configuration():
     device.set_current()
 
     # Test with custom VMM config
-    custom_config = VMMConfig(
-        allocation_type=driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,
-        location_type=driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
-        granularity=driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM,
+    custom_config = VMMAllocationOptions(
+        allocation_type="pinned",
+        location_type="device",
+        granularity="minimum",
         gpu_direct_rdma=True,
-        handle_type=driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,
+        handle_type="posix-fd",
         peers=(),
         self_access="rw",
         peer_access="rw",
@@ -352,7 +351,7 @@ def test_vmm_allocator_policy_configuration():
     # Verify configuration is applied
     assert vmm_mr.config == custom_config
     assert vmm_mr.config.gpu_direct_rdma is True
-    assert vmm_mr.config.granularity == driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_MINIMUM
+    assert vmm_mr.config.granularity == "minimum"
 
     # Test allocation with custom config
     buffer = vmm_mr.allocate(8192)
@@ -360,12 +359,12 @@ def test_vmm_allocator_policy_configuration():
     assert buffer.device_id == device.device_id
 
     # Test policy modification
-    new_config = VMMConfig(
-        allocation_type=driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED,
-        location_type=driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE,
-        granularity=driver.CUmemAllocationGranularity_flags.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED,
+    new_config = VMMAllocationOptions(
+        allocation_type="pinned",
+        location_type="device",
+        granularity="recommended",
         gpu_direct_rdma=False,
-        handle_type=driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,
+        handle_type="posix-fd",
         peers=(),
         self_access="r",  # Read-only access
         peer_access="r",
