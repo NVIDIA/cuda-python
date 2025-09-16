@@ -1899,9 +1899,9 @@ cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCa
     with gil:
         loaded_dl = load_nvidia_dynamic_lib("cudart")
         {{if 'Windows' == platform.system()}}
-        handle = <uintptr_t>lib._handle_uint
+        handle = <uintptr_t>loaded_dl._handle_uint
         {{else}}
-        handle = <void *><uintptr_t>lib._handle_uint
+        handle = <void *><uintptr_t>loaded_dl._handle_uint
         {{endif}}
 
     {{if 'Windows' == platform.system()}}
