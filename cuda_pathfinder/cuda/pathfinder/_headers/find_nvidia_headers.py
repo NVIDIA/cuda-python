@@ -48,19 +48,17 @@ def _find_nvshmem_header_directory() -> Optional[str]:
 
 
 def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) -> Optional[str]:
+    parts = [anchor_point]
     if libname == "nvvm":
-        idir = os.path.join(anchor_point, "nvvm", "include")
-        if _joined_isfile(idir, h_basename):
-            return idir
-    else:
-        idir = os.path.join(anchor_point, "include")
-        if libname == "cccl":
-            cdir = os.path.join(idir, "cccl")
-            if _joined_isfile(cdir, h_basename):
-                return cdir
-        if _joined_isfile(idir, h_basename):
-            return idir
-
+        parts.append(libname)
+    parts.append("include")
+    idir = os.path.join(*parts)
+    if libname == "cccl":
+        cdir = os.path.join(idir, "cccl")  # CTK 13
+        if _joined_isfile(cdir, h_basename):
+            return cdir
+    if _joined_isfile(idir, h_basename):
+        return idir
     return None
 
 
