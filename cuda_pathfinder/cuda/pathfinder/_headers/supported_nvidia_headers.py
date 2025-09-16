@@ -37,7 +37,6 @@ SUPPORTED_HEADERS_CTK = SUPPORTED_HEADERS_CTK_WINDOWS if IS_WINDOWS else SUPPORT
 
 SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK = {
     "cccl": (
-        "cuda/cccl/headers/include",  # cuda-cccl
         "nvidia/cu13/include/cccl",  # cuda-toolkit[cccl]==13.*
         "nvidia/cuda_cccl/include",  # cuda-toolkit[cccl]==12.*
     ),
