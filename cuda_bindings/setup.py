@@ -150,7 +150,7 @@ def parse_headers(header_dict):
         "\\(enum ": "(",
         # Since we only support 64 bit architectures, we can inline the sizeof(T*) to 8 and then compute the
         # result in Python. The arithmetic expression is preserved to help with clarity and understanding
-        r'char reserved\[52 - sizeof\(CUcheckpointGpuPair \*\)\];' : rf'char reserved[{52 - 8}];',
+        r"char reserved\[52 - sizeof\(CUcheckpointGpuPair \*\)\];": rf"char reserved[{52 - 8}];",
     }
 
     print(f'Parsing headers in "{include_path_list}" (Caching = {PARSER_CACHING})')
