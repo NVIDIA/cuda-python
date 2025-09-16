@@ -18,9 +18,9 @@ To run these tests:
 
 Alternatively, from the repository root you can use a simple script:
 
-* `./scripts/run_all_tests.sh core` to run only `cuda_core` tests
-* `./scripts/run_all_tests.sh` to run all package tests (pathfinder → bindings → core)
-* `./scripts/run_all_tests.sh smoke` to run meta-level smoke tests under `tests/integration`
+* `./scripts/run_tests.sh core` to run only `cuda_core` tests
+* `./scripts/run_tests.sh` to run all package tests (pathfinder → bindings → core)
+* `./scripts/run_tests.sh smoke` to run meta-level smoke tests under `tests/integration`
 
 ### Cython Unit Tests
 
