@@ -105,6 +105,42 @@ def _find_ctk_header_directory(libname: str) -> Optional[str]:
 
 @functools.cache
 def find_nvidia_header_directory(libname: str) -> Optional[str]:
+    """Locate the header directory for a supported NVIDIA library.
+
+    Args:
+        libname (str): The short name of the library whose headers are needed
+            (e.g., ``"nvrtc"``, ``"cusolver"``, ``"nvshmem"``).
+
+    Returns:
+        str or None: Absolute path to the discovered header directory, or ``None``
+        if the headers cannot be found.
+
+    Raises:
+        RuntimeError: If ``libname`` is not in the supported set.
+
+    Search order:
+        1. **NVIDIA Python wheels**
+
+           - Scan installed distributions (``site-packages``) for header layouts
+             shipped in NVIDIA wheels (e.g., ``cuda-toolkit[nvrtc]``).
+
+        2. **Conda environments**
+
+           - Check Conda-style installation prefixes, which use platform-specific
+             include directory layouts.
+
+        3. **CUDA Toolkit environment variables**
+
+           - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
+
+    Notes:
+        - The ``SUPPORTED_HEADERS_CTK`` dictionary maps each supported CUDA Toolkit
+          (CTK) library to the name of its canonical header (e.g., ``"cublas" →
+          "cublas.h"``). This is used to verify that the located directory is valid.
+
+        - The only supported non-CTK library at present is ``nvshmem``.
+    """
+
     if libname == "nvshmem":
         return _abs_norm(_find_nvshmem_header_directory())
 
