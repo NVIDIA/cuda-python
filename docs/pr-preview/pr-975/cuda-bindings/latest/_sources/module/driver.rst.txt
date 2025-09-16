@@ -7347,6 +7347,7 @@ Checkpoint and restore capabilities are currently restricted to Linux.
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessGetState
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessLock
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessCheckpoint
+.. autofunction:: cuda.bindings.driver.cuCheckpointProcessRestore
 .. autofunction:: cuda.bindings.driver.cuCheckpointProcessUnlock
 
 EGL Interoperability
