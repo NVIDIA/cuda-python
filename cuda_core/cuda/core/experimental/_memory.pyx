@@ -328,17 +328,20 @@ class MemoryResource(abc.ABC):
         """
         ...
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def is_device_accessible(self) -> bool:
         """bool: True if buffers allocated by this resource can be accessed on the device."""
         ...
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def is_host_accessible(self) -> bool:
         """bool: True if buffers allocated by this resource can be accessed on the host."""
         ...
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def device_id(self) -> int:
         """int: The device ordinal for which this memory resource is responsible.
 
