@@ -10,4 +10,7 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
 from cuda.pathfinder._headers.find_nvidia_headers import (
     find_nvidia_header_directory as _find_nvidia_header_directory,  # noqa: F401
 )
+from cuda.pathfinder._headers.supported_nvidia_headers import (
+    SUPPORTED_HEADERS_CTK as _SUPPORTED_HEADERS_CTK,  # noqa: F401
+)
 from cuda.pathfinder._version import __version__ as __version__
