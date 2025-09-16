@@ -9,7 +9,6 @@ from libc.string cimport memcpy
 from enum import Enum as _Enum
 import ctypes as _ctypes
 cimport cuda.bindings.cydriver as cydriver
-import cuda.bindings.driver as _driver
 cimport cuda.bindings._lib.param_packer as param_packer
 
 cdef void* _callocWrapper(length, size):
@@ -135,7 +134,7 @@ cdef class _HelperInputVoidPtr:
         elif isinstance(ptr, (int)):
             # Easy run, user gave us an already configured void** address
             self._cptr = <void*><void_ptr>ptr
-        elif isinstance(ptr, (_driver.CUdeviceptr)):
+        elif isinstance(ptr, (_driver["CUdeviceptr"])):
             self._cptr = <void*><void_ptr>int(ptr)
         elif PyObject_CheckBuffer(ptr):
             # Easy run, get address from Python Buffer Protocol
@@ -172,7 +171,7 @@ cdef class _HelperCUmemPool_attribute:
                             {{if 'CU_MEMPOOL_ATTR_USED_MEM_CURRENT'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_CURRENT,{{endif}}
                             {{if 'CU_MEMPOOL_ATTR_USED_MEM_HIGH'}}cydriver.CUmemPool_attribute_enum.CU_MEMPOOL_ATTR_USED_MEM_HIGH,{{endif}}):
             if self._is_getter:
-                self._cuuint64_t_val = _driver.cuuint64_t()
+                self._cuuint64_t_val = _driver["cuuint64_t"]()
                 self._cptr = <void*><void_ptr>self._cuuint64_t_val.getPtr()
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
@@ -243,7 +242,7 @@ cdef class _HelperCUpointer_attribute:
         self._attr = attr.value
         if self._attr in ({{if 'CU_POINTER_ATTRIBUTE_CONTEXT'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_CONTEXT,{{endif}}):
             if self._is_getter:
-                self._ctx = _driver.CUcontext()
+                self._ctx = _driver["CUcontext"]()
                 self._cptr = <void*><void_ptr>self._ctx.getPtr()
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
@@ -257,7 +256,7 @@ cdef class _HelperCUpointer_attribute:
         elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_DEVICE_POINTER'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_POINTER,{{endif}}
                             {{if 'CU_POINTER_ATTRIBUTE_RANGE_START_ADDR'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_START_ADDR,{{endif}}):
             if self._is_getter:
-                self._devptr = _driver.CUdeviceptr()
+                self._devptr = _driver["CUdeviceptr"]()
                 self._cptr = <void*><void_ptr>self._devptr.getPtr()
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
@@ -266,7 +265,7 @@ cdef class _HelperCUpointer_attribute:
             self._cptr = <void*>&self._void
         elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_P2P_TOKENS'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_P2P_TOKENS,{{endif}}):
             if self._is_getter:
-                self._token = _driver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS()
+                self._token = _driver["CUDA_POINTER_ATTRIBUTE_P2P_TOKENS"]()
                 self._cptr = <void*><void_ptr>self._token.getPtr()
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
@@ -284,7 +283,7 @@ cdef class _HelperCUpointer_attribute:
             self._cptr = <void*>&self._size
         elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE,{{endif}}):
             if self._is_getter:
-                self._mempool = _driver.CUmemoryPool()
+                self._mempool = _driver["CUmemoryPool"]()
                 self._cptr = <void*><void_ptr>self._mempool.getPtr()
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
@@ -340,7 +339,7 @@ cdef class _HelperCUgraphMem_attribute:
                           {{if 'CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT' in found_values}}cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT,{{endif}}
                           {{if 'CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH' in found_values}}cydriver.CUgraphMem_attribute_enum.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH,{{endif}}):
             if self._is_getter:
-                self._cuuint64_t_val = _driver.cuuint64_t()
+                self._cuuint64_t_val = _driver["cuuint64_t"]()
                 self._cptr = <void*><void_ptr>self._cuuint64_t_val.getPtr()
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
@@ -553,7 +552,7 @@ cdef class _HelperCUmemAllocationHandleType:
         {{endif}}
         {{if 'CU_MEM_HANDLE_TYPE_FABRIC' in found_values}}
         elif self._type in (cydriver.CUmemAllocationHandleType_enum.CU_MEM_HANDLE_TYPE_FABRIC,):
-            self._mem_fabric_handle = _driver.CUmemFabricHandle()
+            self._mem_fabric_handle = _driver["CUmemFabricHandle"]()
             self._cptr = <void*><void_ptr>self._mem_fabric_handle.getPtr()
         {{endif}}
         else:

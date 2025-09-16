@@ -17,6 +17,8 @@ from cpython.bytes cimport PyBytes_FromStringAndSize
 import cuda.bindings.driver
 from libcpp.map cimport map
 
+import cuda.bindings.driver as _driver
+_driver = _driver.__dict__
 include "_lib/utils.pxi"
 
 ctypedef unsigned long long signed_char_ptr
