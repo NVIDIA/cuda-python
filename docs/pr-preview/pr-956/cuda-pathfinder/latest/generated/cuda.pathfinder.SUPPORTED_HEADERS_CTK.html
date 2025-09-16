@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.pathfinder._find_nvidia_header_directory &#8212; cuda.pathfinder</title>
+    <title>cuda.pathfinder.SUPPORTED_HEADERS_CTK &#8212; cuda.pathfinder</title>
   
   
   
@@ -42,25 +42,25 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=b316c20f"></script>
+    <script src="../_static/documentation_options.js?v=590429e0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.pathfinder._find_nvidia_header_directory';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.pathfinder.SUPPORTED_HEADERS_CTK';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.3a0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.3';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
-    <link rel="canonical" href="docs/generated/cuda.pathfinder._find_nvidia_header_directory.html" />
+    <link rel="canonical" href="docs/generated/cuda.pathfinder.SUPPORTED_HEADERS_CTK.html" />
     <link rel="icon" href="../_static/favicon.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Contributing" href="../contribute.html" />
-    <link rel="prev" title="cuda.pathfinder._SUPPORTED_HEADERS_CTK" href="cuda.pathfinder._SUPPORTED_HEADERS_CTK.html" />
+    <link rel="next" title="cuda.pathfinder.find_nvidia_header_directory" href="cuda.pathfinder.find_nvidia_header_directory.html" />
+    <link rel="prev" title="cuda.pathfinder.DynamicLibNotFoundError" href="cuda.pathfinder.DynamicLibNotFoundError.html" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -390,8 +390,8 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.load_nvidia_dynamic_lib.html">cuda.pathfinder.load_nvidia_dynamic_lib</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.LoadedDL.html">cuda.pathfinder.LoadedDL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.DynamicLibNotFoundError.html">cuda.pathfinder.DynamicLibNotFoundError</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder._SUPPORTED_HEADERS_CTK.html">cuda.pathfinder._SUPPORTED_HEADERS_CTK</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.pathfinder._find_nvidia_header_directory</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.pathfinder.SUPPORTED_HEADERS_CTK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.find_nvidia_header_directory.html">cuda.pathfinder.find_nvidia_header_directory</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
@@ -444,7 +444,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.pathfinder</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.pathfinder._find_nvidia_header_directory</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.pathfinder.SUPPORTED_HEADERS_CTK</span></li>
   </ul>
 </nav>
 </div>
@@ -461,57 +461,15 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-pathfinder-find-nvidia-header-directory">
-<h1>cuda.pathfinder._find_nvidia_header_directory<a class="headerlink" href="#cuda-pathfinder-find-nvidia-header-directory" title="Link to this heading">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="cuda.pathfinder._find_nvidia_header_directory">
-<span class="sig-prename descclassname"><span class="pre">cuda.pathfinder.</span></span><span class="sig-name descname"><span class="pre">_find_nvidia_header_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">libname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.pathfinder._find_nvidia_header_directory" title="Link to this definition">#</a></dt>
-<dd><p>Locate the header directory for a supported NVIDIA library.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>libname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The short name of the library whose headers are needed
-(e.g., <code class="docutils literal notranslate"><span class="pre">&quot;nvrtc&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cusolver&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;nvshmem&quot;</span></code>).</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Absolute path to the discovered header directory, or <code class="docutils literal notranslate"><span class="pre">None</span></code>
-if the headers cannot be found.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a> or None</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.13)"><strong>RuntimeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">libname</span></code> is not in the supported set.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Search order:</dt><dd><ol class="arabic simple">
-<li><p><strong>NVIDIA Python wheels</strong></p>
-<ul class="simple">
-<li><p>Scan installed distributions (<code class="docutils literal notranslate"><span class="pre">site-packages</span></code>) for header layouts
-shipped in NVIDIA wheels (e.g., <code class="docutils literal notranslate"><span class="pre">cuda-toolkit[nvrtc]</span></code>).</p></li>
-</ul>
-</li>
-<li><p><strong>Conda environments</strong></p>
-<ul class="simple">
-<li><p>Check Conda-style installation prefixes, which use platform-specific
-include directory layouts.</p></li>
-</ul>
-</li>
-<li><p><strong>CUDA Toolkit environment variables</strong></p>
-<ul class="simple">
-<li><p>Use <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code> or <code class="docutils literal notranslate"><span class="pre">CUDA_PATH</span></code> (in that order).</p></li>
-</ul>
-</li>
-</ol>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<ul class="simple">
-<li><p>The <code class="docutils literal notranslate"><span class="pre">SUPPORTED_HEADERS_CTK</span></code> dictionary maps each supported CUDA Toolkit
-(CTK) library to the name of its canonical header (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;cublas&quot;</span> <span class="pre">→</span>
-<span class="pre">&quot;cublas.h&quot;</span></code>). This is used to verify that the located directory is valid.</p></li>
-<li><p>The only supported non-CTK library at present is <code class="docutils literal notranslate"><span class="pre">nvshmem</span></code>.</p></li>
-</ul>
+  <section id="cuda-pathfinder-supported-headers-ctk">
+<h1>cuda.pathfinder.SUPPORTED_HEADERS_CTK<a class="headerlink" href="#cuda-pathfinder-supported-headers-ctk" title="Link to this heading">#</a></h1>
+<dl class="py data">
+<dt class="sig sig-object py" id="cuda.pathfinder.SUPPORTED_HEADERS_CTK">
+<span class="sig-prename descclassname"><span class="pre">cuda.pathfinder.</span></span><span class="sig-name descname"><span class="pre">SUPPORTED_HEADERS_CTK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'cccl':</span> <span class="pre">'cuda/std/version',</span> <span class="pre">'cublas':</span> <span class="pre">'cublas.h',</span> <span class="pre">'cudart':</span> <span class="pre">'cuda_runtime.h',</span> <span class="pre">'cufft':</span> <span class="pre">'cufft.h',</span> <span class="pre">'cufile':</span> <span class="pre">'cufile.h',</span> <span class="pre">'curand':</span> <span class="pre">'curand.h',</span> <span class="pre">'cusolver':</span> <span class="pre">'cusolverDn.h',</span> <span class="pre">'cusparse':</span> <span class="pre">'cusparse.h',</span> <span class="pre">'npp':</span> <span class="pre">'npp.h',</span> <span class="pre">'nvcc':</span> <span class="pre">'fatbinary_section.h',</span> <span class="pre">'nvfatbin':</span> <span class="pre">'nvFatbin.h',</span> <span class="pre">'nvjitlink':</span> <span class="pre">'nvJitLink.h',</span> <span class="pre">'nvjpeg':</span> <span class="pre">'nvjpeg.h',</span> <span class="pre">'nvrtc':</span> <span class="pre">'nvrtc.h',</span> <span class="pre">'nvvm':</span> <span class="pre">'nvvm.h'}</span></em><a class="headerlink" href="#cuda.pathfinder.SUPPORTED_HEADERS_CTK" title="Link to this definition">#</a></dt>
+<dd><p>Mapping from short CUDA Toolkit (CTK) library names to their canonical
+header basenames (used to validate a discovered include directory).
+Example: <code class="docutils literal notranslate"><span class="pre">&quot;cublas&quot;</span> <span class="pre">→</span> <span class="pre">&quot;cublas.h&quot;</span></code>. The key set is platform-aware
+(e.g., <code class="docutils literal notranslate"><span class="pre">&quot;cufile&quot;</span></code> may be Linux-only).</p>
 </dd></dl>
 
 </section>
@@ -527,20 +485,20 @@ include directory layouts.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.pathfinder._SUPPORTED_HEADERS_CTK.html"
+       href="cuda.pathfinder.DynamicLibNotFoundError.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.pathfinder._SUPPORTED_HEADERS_CTK</p>
+        <p class="prev-next-title">cuda.pathfinder.DynamicLibNotFoundError</p>
       </div>
     </a>
     <a class="right-next"
-       href="../contribute.html"
+       href="cuda.pathfinder.find_nvidia_header_directory.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Contributing</p>
+        <p class="prev-next-title">cuda.pathfinder.find_nvidia_header_directory</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -565,7 +523,7 @@ include directory layouts.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.pathfinder._find_nvidia_header_directory"><code class="docutils literal notranslate"><span class="pre">_find_nvidia_header_directory()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.pathfinder.SUPPORTED_HEADERS_CTK"><code class="docutils literal notranslate"><span class="pre">SUPPORTED_HEADERS_CTK</span></code></a></li>
 </ul>
   </nav></div>
 

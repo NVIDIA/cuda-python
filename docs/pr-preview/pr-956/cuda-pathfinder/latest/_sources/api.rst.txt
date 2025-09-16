@@ -20,5 +20,5 @@ Public API
    LoadedDL
    DynamicLibNotFoundError
 
-   _SUPPORTED_HEADERS_CTK
-   _find_nvidia_header_directory
+   SUPPORTED_HEADERS_CTK
+   find_nvidia_header_directory
