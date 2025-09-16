@@ -1897,7 +1897,7 @@ cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCa
     
     # Load
     with gil:
-        lib = load_nvidia_dynamic_lib("cudart")
+        loaded_dl = load_nvidia_dynamic_lib("cudart")
         {{if 'Windows' == platform.system()}}
         handle = <uintptr_t>lib._handle_uint
         {{else}}
@@ -1912,14 +1912,16 @@ cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCa
 
     if __cudaRuntimeGetVersion == NULL:
         with gil:
-            raise RuntimeError(f'Function "cudaRuntimeGetVersion" not found in {lib.abs_path}')
+            raise RuntimeError(f'Function "cudaRuntimeGetVersion" not found in {loaded_dl.abs_path}')
 
     # Call
     cdef cudaError_t err = cudaSuccess
     err = (<cudaError_t (*)(int*) except ?cudaErrorCallRequiresNewerDriver nogil> __cudaRuntimeGetVersion)(runtimeVersion)
 
     # Unload
-    {{if 'Windows' != platform.system()}}
+    {{if 'Windows' == platform.system()}}
+    windll.FreeLibrary(handle) 
+    {{else}}
     dlfcn.dlclose(handle)
     {{endif}}
 
