@@ -15,7 +15,7 @@ from typing import TypeVar, Union
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
-from cuda.core.experimental._utils.cuda_utils import driver
+from cuda.core.experimental._utils.cuda_utils import driver, is_shutting_down
 
 # TODO: define a memory property mixin class and make Buffer and
 # MemoryResource both inherit from it
@@ -59,7 +59,7 @@ cdef class Buffer:
     def __del__(self):
         self.close()
 
-    cpdef close(self, stream: Stream = None):
+    cpdef close(self, stream: Stream = None, is_shutting_down=is_shutting_down):
         """Deallocate this buffer asynchronously on the given stream.
 
         This buffer is released back to their memory resource
@@ -72,7 +72,8 @@ cdef class Buffer:
             the behavior depends on the underlying memory resource.
         """
         if self._ptr and self._mr is not None:
-            self._mr.deallocate(self._ptr, self._size, stream)
+            if not is_shutting_down():
+                self._mr.deallocate(self._ptr, self._size, stream)
             self._ptr = 0
             self._mr = None
             self._ptr_obj = None

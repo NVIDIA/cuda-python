@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import atexit
 import functools
 import importlib.metadata
 from collections import namedtuple
@@ -222,3 +223,25 @@ def get_binding_version():
     except importlib.metadata.PackageNotFoundError:
         major_minor = importlib.metadata.version("cuda-python").split(".")[:2]
     return tuple(int(v) for v in major_minor)
+
+# This code is to signal when the interpreter is in shutdown mode
+# to prevent using globals that could be already deleted in
+# objects `__del__` method
+#
+# This solution is taken from the Numba/llvmlite code
+_shutting_down = [False]
+
+
+@atexit.register
+def _at_shutdown():
+    _shutting_down[0] = True
+
+
+def is_shutting_down(_shutting_down=_shutting_down):
+    """
+    Whether the interpreter is currently shutting down.
+    For use in finalizers, __del__ methods, and similar; it is advised
+    to early bind this function rather than look it up when calling it,
+    since at shutdown module globals may be cleared.
+    """
+    return _shutting_down[0]

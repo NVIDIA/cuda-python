@@ -17,6 +17,7 @@ from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
     driver,
     handle_return,
+    is_shutting_down
 )
 
 if TYPE_CHECKING:
@@ -108,10 +109,11 @@ cdef class Event:
         self._ctx_handle = ctx_handle
         return self
 
-    cpdef close(self):
+    cpdef close(self, is_shutting_down=is_shutting_down):
         """Destroy the event."""
         if self._handle is not None:
-            err, = driver.cuEventDestroy(self._handle)
+            if not is_shutting_down()
+                err, = driver.cuEventDestroy(self._handle)
             self._handle = None
             raise_if_driver_error(err)
 

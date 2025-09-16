@@ -25,6 +25,7 @@ from cuda.core.experimental._utils.cuda_utils import (
     driver,
     get_device_from_ctx,
     handle_return,
+    is_shutting_down
 )
 
 
@@ -187,7 +188,7 @@ cdef class Stream:
     def __del__(self):
         self.close()
 
-    cpdef close(self):
+    cpdef close(self, is_shutting_down=is_shutting_down):
         """Destroy the stream.
 
         Destroy the stream if we own it. Borrowed foreign stream
@@ -196,7 +197,8 @@ cdef class Stream:
         """
         if self._owner is None:
             if self._handle and not self._builtin:
-                handle_return(driver.cuStreamDestroy(self._handle))
+                if not is_shutting_down():
+                    handle_return(driver.cuStreamDestroy(self._handle))
         else:
             self._owner = None
         self._handle = None
