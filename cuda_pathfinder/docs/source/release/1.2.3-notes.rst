@@ -6,7 +6,7 @@
 ``cuda-pathfinder`` 1.2.3 Release notes
 =======================================
 
-Released on Sep 18, 2025
+Released on Sep 17, 2025
 
 
 Highlights
