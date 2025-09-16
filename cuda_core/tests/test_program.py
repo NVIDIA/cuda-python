@@ -33,8 +33,7 @@ def _nvvm_exception_manager(nvvm, program_handle):
                 nvvm.get_program_log(program_handle, log)
                 error_log = log.decode("utf-8", errors="backslashreplace")
         except Exception:
-            # If we can't get the log, continue without it
-            pass
+            error_log = ""
 
         # Starting Python 3.11 we could also use Exception.add_note() for the same purpose, but
         # unfortunately we are still supporting Python 3.9/3.10...
