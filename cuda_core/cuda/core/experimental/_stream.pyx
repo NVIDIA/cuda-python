@@ -186,7 +186,16 @@ cdef class Stream:
         return self
 
     def __del__(self):
-        self.close()
+        self.safe_close()
+
+    cpdef safe_close(self, is_shutting_down=is_shutting_down):
+        if self._owner is None:
+            if self._handle and not self._builtin:
+                if not is_shutting_down():
+                    handle_return(driver.cuStreamDestroy(self._handle))
+        else:
+            self._owner = None
+        self._handle = None
 
     cpdef close(self, is_shutting_down=is_shutting_down):
         """Destroy the stream.
@@ -197,8 +206,7 @@ cdef class Stream:
         """
         if self._owner is None:
             if self._handle and not self._builtin:
-                if not is_shutting_down():
-                    handle_return(driver.cuStreamDestroy(self._handle))
+                handle_return(driver.cuStreamDestroy(self._handle))
         else:
             self._owner = None
         self._handle = None

@@ -57,9 +57,17 @@ cdef class Buffer:
         return self
 
     def __del__(self):
-        self.close()
+        self.safe_close()
 
-    cpdef close(self, stream: Stream = None, is_shutting_down=is_shutting_down):
+    cpdef safe_close(self, stream: Stream = None, is_shutting_down=is_shutting_down):
+        if self._ptr and self._mr is not None:
+            if not is_shutting_down():
+                self._mr.deallocate(self._ptr, self._size, stream)
+            self._ptr = 0
+            self._mr = None
+            self._ptr_obj = None
+
+    cpdef close(self, stream: Stream = None):
         """Deallocate this buffer asynchronously on the given stream.
 
         This buffer is released back to their memory resource
@@ -72,8 +80,7 @@ cdef class Buffer:
             the behavior depends on the underlying memory resource.
         """
         if self._ptr and self._mr is not None:
-            if not is_shutting_down():
-                self._mr.deallocate(self._ptr, self._size, stream)
+            self._mr.deallocate(self._ptr, self._size, stream)
             self._ptr = 0
             self._mr = None
             self._ptr_obj = None
