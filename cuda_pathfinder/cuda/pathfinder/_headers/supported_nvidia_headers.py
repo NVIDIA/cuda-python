@@ -6,6 +6,7 @@ import sys
 IS_WINDOWS = sys.platform == "win32"
 
 SUPPORTED_HEADERS_CTK_COMMON = {
+    "cccl": "cuda/std/version",
     "cublas": "cublas.h",
     "cudart": "cuda_runtime.h",
     "cufft": "cufft.h",
@@ -35,6 +36,11 @@ SUPPORTED_HEADERS_CTK_ALL = (
 SUPPORTED_HEADERS_CTK = SUPPORTED_HEADERS_CTK_WINDOWS if IS_WINDOWS else SUPPORTED_HEADERS_CTK_LINUX
 
 SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK = {
+    "cccl": (
+        "cuda/cccl/headers/include",  # cuda-cccl
+        "nvidia/cu13/include/cccl",  # cuda-toolkit[cccl]==13.*
+        "nvidia/cuda_cccl/include",  # cuda-toolkit[cccl]==12.*
+    ),
     "cublas": ("nvidia/cu13/include", "nvidia/cublas/include"),
     "cudart": ("nvidia/cu13/include", "nvidia/cuda_runtime/include"),
     "cufft": ("nvidia/cu13/include", "nvidia/cufft/include"),

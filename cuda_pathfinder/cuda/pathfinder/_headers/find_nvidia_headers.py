@@ -54,6 +54,10 @@ def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) 
             return idir
     else:
         idir = os.path.join(anchor_point, "include")
+        if libname == "cccl":
+            cdir = os.path.join(idir, "cccl")
+            if _joined_isfile(cdir, h_basename):
+                return cdir
         if _joined_isfile(idir, h_basename):
             return idir
 
