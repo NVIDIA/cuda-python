@@ -10,9 +10,38 @@ from cuda.core.experimental import _linker
 from cuda.core.experimental._module import Kernel, ObjectCode
 from cuda.core.experimental._program import Program, ProgramOptions
 from cuda.core.experimental._utils.cuda_utils import driver, handle_return
+from contextlib import contextmanager
 
 cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
+
+
+@contextmanager
+def _nvvm_exception_manager(nvvm, program_handle):
+    """
+    Taken from _linker.py
+    """
+    try:
+        yield
+    except Exception as e:
+        error_log = ""
+        try:
+            # Try to get the NVVM program log
+            logsize = nvvm.get_program_log_size(program_handle)
+            if logsize > 1:
+                log = bytearray(logsize)
+                nvvm.get_program_log(program_handle, log)
+                error_log = log.decode("utf-8", errors="backslashreplace")
+        except Exception:
+            # If we can't get the log, continue without it
+            pass
+
+        # Starting Python 3.11 we could also use Exception.add_note() for the same purpose, but
+        # unfortunately we are still supporting Python 3.9/3.10...
+        # Append the NVVM program log to the original exception message
+        if error_log:
+            e.args = (e.args[0] + f"\nNVVM program log: {error_log}", *e.args[1:])
+        raise e
 
 
 def _is_nvvm_available():
@@ -109,8 +138,9 @@ def _get_libnvvm_version_for_tests():
             nvvm.add_module_to_program(program, precheck_ir_bytes, len(precheck_ir_bytes), "precheck.ll")
 
             options = ["-arch=compute_90"]
-            nvvm.verify_program(program, len(options), options)
-            nvvm.compile_program(program, len(options), options)
+            with _nvvm_exception_manager(nvvm, program):
+                nvvm.verify_program(program, len(options), options)
+                nvvm.compile_program(program, len(options), options)
 
             ptx_size = nvvm.get_compiled_result_size(program)
             ptx_data = bytearray(ptx_size)
