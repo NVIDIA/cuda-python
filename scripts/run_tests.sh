@@ -7,7 +7,7 @@ set -euo pipefail
 
 # Simple, dependency-free orchestrator to run tests for all packages.
 # Usage:
-#   scripts/run_tests.sh [ -v|--verbose ] [ --install | --no-install ] [ --with-cython | --skip-cython ]
+#   scripts/run_tests.sh [ -v|--verbose ] [ --install | --no-install ] [ --with-cython | --skip-cython ] [ --with-examples | --skip-examples ] [ --with-ptds ]
 #   scripts/run_tests.sh [ flags ]                   # pathfinder -> bindings -> core
 #   scripts/run_tests.sh [ flags ] core              # only core
 #   scripts/run_tests.sh [ flags ] bindings          # only bindings
@@ -16,6 +16,7 @@ set -euo pipefail
 
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
 cd "${repo_root}"
+
 
 print_help() {
   cat <<'USAGE'
@@ -34,6 +35,9 @@ Options:
       --no-install    Skip install checks (assume environment is ready)
       --with-cython   Build and run cython tests (needs CUDA_HOME for core)
       --skip-cython   Skip cython tests (default)
+      --with-examples Run examples where applicable (e.g., cuda_bindings/examples)
+      --skip-examples Skip running examples (default)
+      --with-ptds     Re-run cuda_bindings tests with PTDS (CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM=1)
   -h, --help          Show this help and exit
 
 Examples:
@@ -47,6 +51,8 @@ USAGE
 # Parse optional flags
 VERBOSE=0
 RUN_CYTHON=0
+RUN_EXAMPLES=1
+RUN_PTDS=1
 INSTALL_MODE=auto  # auto|force|skip
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -72,6 +78,18 @@ while [[ $# -gt 0 ]]; do
       ;;
     --skip-cython)
       RUN_CYTHON=0
+      shift
+      ;;
+    --with-examples)
+      RUN_EXAMPLES=1
+      shift
+      ;;
+    --skip-examples)
+      RUN_EXAMPLES=0
+      shift
+      ;;
+    --with-ptds)
+      RUN_PTDS=1
       shift
       ;;
     *)
@@ -116,6 +134,15 @@ run_pytest() {
   # Run pytest safely under set -e and return its exit code
   set +e
   python -m pytest "${PYTEST_FLAGS[@]}" "$@"
+  local rc=$?
+  set -e
+  return ${rc}
+}
+
+run_pytest_ptds() {
+  # Run pytest with PTDS env set; safely return its exit code
+  set +e
+  CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM=1 python -m pytest "${PYTEST_FLAGS[@]}" "$@"
   local rc=$?
   set -e
   return ${rc}
@@ -170,6 +197,19 @@ run_bindings() {
   run_pytest tests/
   local rc=$?
   add_result "bindings" "${rc}"
+  if [ ${RUN_PTDS} -eq 1 ]; then
+    echo "[tests] cuda_bindings (PTDS)"
+    run_pytest_ptds tests/
+    local rc_ptds=$?
+    add_result "bindings-ptds" "${rc_ptds}"
+  fi
+  if [ ${RUN_EXAMPLES} -eq 1 ] && [ -d examples ]; then
+    # Bindings examples are pytest-based (contain their own pytest.ini)
+    echo "[examples] cuda_bindings/examples"
+    run_pytest examples/
+    local rc_ex=$?
+    add_result "bindings-examples" "${rc_ex}"
+  fi
   if [ ${RUN_CYTHON} -eq 1 ] && [ -d tests/cython ]; then
     if [ -x tests/cython/build_tests.sh ]; then
       echo "[build] cuda_bindings cython tests"
@@ -188,6 +228,13 @@ run_core() {
   run_pytest tests/
   local rc=$?
   add_result "core" "${rc}"
+  if [ ${RUN_EXAMPLES} -eq 1 ] && [ -d examples ] && [ -f examples/pytest.ini ]; then
+    # Only run examples under pytest if they are configured as tests
+    echo "[examples] cuda_core/examples"
+    run_pytest examples/
+    local rc_ex=$?
+    add_result "core-examples" "${rc_ex}"
+  fi
   if [ ${RUN_CYTHON} -eq 1 ] && [ -d tests/cython ]; then
     if [ -x tests/cython/build_tests.sh ]; then
       echo "[build] cuda_core cython tests"
