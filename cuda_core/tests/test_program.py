@@ -6,11 +6,11 @@ import warnings
 from contextlib import contextmanager
 
 import pytest
-from cuda.core.experimental._utils.cuda_utils import driver, handle_return
 
 from cuda.core.experimental import _linker
 from cuda.core.experimental._module import Kernel, ObjectCode
 from cuda.core.experimental._program import Program, ProgramOptions
+from cuda.core.experimental._utils.cuda_utils import driver, handle_return
 
 cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
