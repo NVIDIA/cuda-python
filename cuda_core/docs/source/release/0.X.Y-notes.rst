@@ -28,6 +28,8 @@ New features
 
 - Added :attr:`Device.arch` property that returns the compute capability as a string (e.g., '75' for CC 7.5), providing a convenient alternative to manually concatenating the compute capability tuple.
 - CUDA 13.x testing support through new ``test-cu13`` dependency group.
+- Added `NVVM IR` support for cuda_core frontend, which would allow cuda_python to take `NVVM IR` as an input format. New tests are added inside 
+ ```test_program.py```.
 
 
 New examples
