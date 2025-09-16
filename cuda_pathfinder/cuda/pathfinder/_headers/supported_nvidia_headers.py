@@ -34,10 +34,6 @@ SUPPORTED_HEADERS_CTK_WINDOWS = SUPPORTED_HEADERS_CTK_COMMON | SUPPORTED_HEADERS
 SUPPORTED_HEADERS_CTK_ALL = (
     SUPPORTED_HEADERS_CTK_COMMON | SUPPORTED_HEADERS_CTK_LINUX_ONLY | SUPPORTED_HEADERS_CTK_WINDOWS_ONLY
 )
-#: Mapping from short CUDA Toolkit (CTK) library names to their canonical
-#: header basenames (used to validate a discovered include directory).
-#: Example: ``"cublas" → "cublas.h"``. The key set is platform-aware
-#: (e.g., ``"cufile"`` may be Linux-only).
 SUPPORTED_HEADERS_CTK: Final[dict[str, str]] = (
     SUPPORTED_HEADERS_CTK_WINDOWS if IS_WINDOWS else SUPPORTED_HEADERS_CTK_LINUX
 )
