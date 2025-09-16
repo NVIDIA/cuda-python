@@ -2357,6 +2357,14 @@ cdef extern from "cuda.h":
 
     ctypedef CUcheckpointGpuPair_st CUcheckpointGpuPair
 
+    cdef struct CUcheckpointRestoreArgs_st:
+        CUcheckpointGpuPair* gpuPairs
+        unsigned int gpuPairsCount
+        char reserved[44]
+        cuuint64_t reserved1
+
+    ctypedef CUcheckpointRestoreArgs_st CUcheckpointRestoreArgs
+
     cdef struct CUcheckpointUnlockArgs_st:
         cuuint64_t reserved[8]
 

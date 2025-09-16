@@ -86,6 +86,7 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUcheckpointLockArgs_st
 .. autoclass:: cuda.bindings.driver.CUcheckpointCheckpointArgs_st
 .. autoclass:: cuda.bindings.driver.CUcheckpointGpuPair_st
+.. autoclass:: cuda.bindings.driver.CUcheckpointRestoreArgs_st
 .. autoclass:: cuda.bindings.driver.CUcheckpointUnlockArgs_st
 .. autoclass:: cuda.bindings.driver.CUeglFrame_st
 .. autoclass:: cuda.bindings.driver.CUipcMem_flags
@@ -6102,6 +6103,7 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUcheckpointLockArgs
 .. autoclass:: cuda.bindings.driver.CUcheckpointCheckpointArgs
 .. autoclass:: cuda.bindings.driver.CUcheckpointGpuPair
+.. autoclass:: cuda.bindings.driver.CUcheckpointRestoreArgs
 .. autoclass:: cuda.bindings.driver.CUcheckpointUnlockArgs
 .. autoclass:: cuda.bindings.driver.CUeglFrame_v1
 .. autoclass:: cuda.bindings.driver.CUeglFrame
