@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.StringConfigParameter
-==========================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autoenum:: StringConfigParameter
