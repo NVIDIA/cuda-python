@@ -463,6 +463,7 @@ cdef bint __cuPythonInit = False
 {{if 'cuCheckpointProcessGetState' in found_functions}}cdef void *__cuCheckpointProcessGetState = NULL{{endif}}
 {{if 'cuCheckpointProcessLock' in found_functions}}cdef void *__cuCheckpointProcessLock = NULL{{endif}}
 {{if 'cuCheckpointProcessCheckpoint' in found_functions}}cdef void *__cuCheckpointProcessCheckpoint = NULL{{endif}}
+{{if 'cuCheckpointProcessRestore' in found_functions}}cdef void *__cuCheckpointProcessRestore = NULL{{endif}}
 {{if 'cuCheckpointProcessUnlock' in found_functions}}cdef void *__cuCheckpointProcessUnlock = NULL{{endif}}
 {{if 'cuProfilerStart' in found_functions}}cdef void *__cuProfilerStart = NULL{{endif}}
 {{if 'cuProfilerStop' in found_functions}}cdef void *__cuProfilerStop = NULL{{endif}}
@@ -2666,6 +2667,10 @@ cdef int _cuPythonInit() except -1 nogil:
             {{if 'cuCheckpointProcessCheckpoint' in found_functions}}
             global __cuCheckpointProcessCheckpoint
             _F_cuGetProcAddress_v2('cuCheckpointProcessCheckpoint', &__cuCheckpointProcessCheckpoint, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuCheckpointProcessRestore' in found_functions}}
+            global __cuCheckpointProcessRestore
+            _F_cuGetProcAddress_v2('cuCheckpointProcessRestore', &__cuCheckpointProcessRestore, 12080, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
             {{if 'cuCheckpointProcessUnlock' in found_functions}}
             global __cuCheckpointProcessUnlock
@@ -4895,6 +4900,10 @@ cdef int _cuPythonInit() except -1 nogil:
         global __cuCheckpointProcessCheckpoint
         __cuCheckpointProcessCheckpoint = windll.GetProcAddress(handle, 'cuCheckpointProcessCheckpoint')
         {{endif}}
+        {{if 'cuCheckpointProcessRestore' in found_functions}}
+        global __cuCheckpointProcessRestore
+        __cuCheckpointProcessRestore = windll.GetProcAddress(handle, 'cuCheckpointProcessRestore')
+        {{endif}}
         {{if 'cuCheckpointProcessUnlock' in found_functions}}
         global __cuCheckpointProcessUnlock
         __cuCheckpointProcessUnlock = windll.GetProcAddress(handle, 'cuCheckpointProcessUnlock')
@@ -7119,6 +7128,10 @@ cdef int _cuPythonInit() except -1 nogil:
         {{if 'cuCheckpointProcessCheckpoint' in found_functions}}
         global __cuCheckpointProcessCheckpoint
         __cuCheckpointProcessCheckpoint = dlfcn.dlsym(handle, 'cuCheckpointProcessCheckpoint')
+        {{endif}}
+        {{if 'cuCheckpointProcessRestore' in found_functions}}
+        global __cuCheckpointProcessRestore
+        __cuCheckpointProcessRestore = dlfcn.dlsym(handle, 'cuCheckpointProcessRestore')
         {{endif}}
         {{if 'cuCheckpointProcessUnlock' in found_functions}}
         global __cuCheckpointProcessUnlock
@@ -12583,6 +12596,18 @@ cdef CUresult _cuCheckpointProcessCheckpoint(int pid, CUcheckpointCheckpointArgs
     return err
 {{endif}}
 
+{{if 'cuCheckpointProcessRestore' in found_functions}}
+
+cdef CUresult _cuCheckpointProcessRestore(int pid, CUcheckpointRestoreArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuCheckpointProcessRestore
+    cuPythonInit()
+    if __cuCheckpointProcessRestore == NULL:
+        with gil:
+            raise RuntimeError('Function "cuCheckpointProcessRestore" not found')
+    err = (<CUresult (*)(int, CUcheckpointRestoreArgs*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuCheckpointProcessRestore)(pid, args)
+    return err
+{{endif}}
+
 {{if 'cuCheckpointProcessUnlock' in found_functions}}
 
 cdef CUresult _cuCheckpointProcessUnlock(int pid, CUcheckpointUnlockArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -15984,6 +16009,13 @@ cpdef dict _inspect_function_pointers():
     data["__cuCheckpointProcessCheckpoint"] = <intptr_t>__cuCheckpointProcessCheckpoint
     {{else}}
     data["__cuCheckpointProcessCheckpoint"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuCheckpointProcessRestore' in found_functions}}
+    global __cuCheckpointProcessRestore
+    data["__cuCheckpointProcessRestore"] = <intptr_t>__cuCheckpointProcessRestore
+    {{else}}
+    data["__cuCheckpointProcessRestore"] = <intptr_t>0
     {{endif}}
 
     {{if 'cuCheckpointProcessUnlock' in found_functions}}

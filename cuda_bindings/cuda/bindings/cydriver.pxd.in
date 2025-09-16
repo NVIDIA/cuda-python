@@ -4915,6 +4915,11 @@ cdef CUresult cuCheckpointProcessLock(int pid, CUcheckpointLockArgs* args) excep
 cdef CUresult cuCheckpointProcessCheckpoint(int pid, CUcheckpointCheckpointArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuCheckpointProcessRestore' in found_functions}}
+
+cdef CUresult cuCheckpointProcessRestore(int pid, CUcheckpointRestoreArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuCheckpointProcessUnlock' in found_functions}}
 
 cdef CUresult cuCheckpointProcessUnlock(int pid, CUcheckpointUnlockArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil
