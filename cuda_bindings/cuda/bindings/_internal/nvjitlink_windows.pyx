@@ -99,8 +99,6 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
         return 0
 
     with gil, __symbol_lock:
-        driver_ver = get_cuda_version()
-
         # Load library
         handle = load_nvidia_dynamic_lib("nvJitLink")._handle_uint
 
