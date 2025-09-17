@@ -29,6 +29,7 @@ New features
 - Added :attr:`Device.arch` property that returns the compute capability as a string (e.g., '75' for CC 7.5), providing a convenient alternative to manually concatenating the compute capability tuple.
 - CUDA 13.x testing support through new ``test-cu13`` dependency group.
 - Stream-ordered memory allocation can now be shared on Linux via :class:`DeviceMemoryResource`.
+- Added NVVM IR support to :class:`Program`. NVVM IR is now understood with ``code_type="nvvm"``.
 
 
 New examples
