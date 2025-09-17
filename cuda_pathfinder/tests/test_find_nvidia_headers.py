@@ -20,8 +20,13 @@ import re
 
 import pytest
 
-from cuda.pathfinder import _find_nvidia_header_directory as find_nvidia_header_directory
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
+from cuda.pathfinder import find_nvidia_header_directory
+from cuda.pathfinder._headers.supported_nvidia_headers import (
+    IS_WINDOWS,
+    SUPPORTED_HEADERS_CTK,
+    SUPPORTED_HEADERS_CTK_ALL,
+    SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK,
+)
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
@@ -58,3 +63,19 @@ def test_find_libname_nvshmem(info_summary_append):
             assert hdr_dir.startswith(conda_prefix)
         else:
             assert hdr_dir.startswith("/usr/include/nvshmem_")
+
+
+def test_supported_headers_site_packages_ctk_consistency():
+    assert tuple(sorted(SUPPORTED_HEADERS_CTK_ALL)) == tuple(sorted(SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK.keys()))
+
+
+@pytest.mark.parametrize("libname", SUPPORTED_HEADERS_CTK.keys())
+def test_find_ctk_headers(info_summary_append, libname):
+    hdr_dir = find_nvidia_header_directory(libname)
+    info_summary_append(f"{hdr_dir=!r}")
+    if hdr_dir:
+        assert os.path.isdir(hdr_dir)
+        h_filename = SUPPORTED_HEADERS_CTK[libname]
+        assert os.path.isfile(os.path.join(hdr_dir, h_filename))
+    if STRICTNESS == "all_must_work":
+        assert hdr_dir is not None
