@@ -14,6 +14,7 @@ from cuda.core.experimental._utils.cuda_utils import driver, handle_return
 cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
 
+
 def _is_nvvm_available():
     """Check if NVVM is available."""
     try:

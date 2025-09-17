@@ -5,8 +5,8 @@
 from __future__ import annotations
 
 import weakref
-from dataclasses import dataclass
 from contextlib import contextmanager
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Union
 from warnings import warn
 
@@ -27,6 +27,7 @@ from cuda.core.experimental._utils.cuda_utils import (
     is_sequence,
     nvrtc,
 )
+
 
 @contextmanager
 def _nvvm_exception_manager(self):
@@ -51,6 +52,7 @@ def _nvvm_exception_manager(self):
         # unfortunately we are still supporting Python 3.9/3.10...
         e.args = (e.args[0] + (f"\nNVVM program log: {error_log}" if error_log else ""), *e.args[1:])
         raise e
+
 
 _nvvm_module = None
 _nvvm_import_attempted = False
