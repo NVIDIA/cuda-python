@@ -312,11 +312,13 @@ def test_nvvm_deferred_import():
 
 
 @nvvm_available
-def test_nvvm_program_creation(nvvm_ir):
+def test_nvvm_program_creation_compilation(nvvm_ir):
     """Test basic NVVM program creation"""
     program = Program(nvvm_ir, "nvvm")
     assert program.backend == "NVVM"
     assert program.handle is not None
+    obj = program.compile("ptx")
+    ker = obj.get_kernel("simple")  # noqa: F841
     program.close()
 
 

@@ -657,8 +657,7 @@ class Program:
                     nvvm.get_program_log(self._mnff.handle, log)
                     logs.write(log.decode("utf-8", errors="backslashreplace"))
 
-            data_bytes = bytes(data)
-            return ObjectCode._init(data_bytes, target_type, name=self._options.name)
+            return ObjectCode._init(data, target_type, name=self._options.name)
 
         supported_backends = ("nvJitLink", "driver")
         if self._backend not in supported_backends:
