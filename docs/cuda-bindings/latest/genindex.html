@@ -3088,7 +3088,13 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuCheckpointProcessLock">cuCheckpointProcessLock() (in module cuda.bindings.driver)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuCheckpointProcessRestore">cuCheckpointProcessRestore() (in module cuda.bindings.driver)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuCheckpointProcessUnlock">cuCheckpointProcessUnlock() (in module cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs">CUcheckpointRestoreArgs (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs_st">CUcheckpointRestoreArgs_st (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointUnlockArgs">CUcheckpointUnlockArgs (class in cuda.bindings.driver)</a>
 </li>
@@ -4283,12 +4289,12 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDriverEntryPointQueryResult.cudaDriverEntryPointSuccess">cudaDriverEntryPointSuccess (cuda.bindings.runtime.cudaDriverEntryPointQueryResult attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDriverEntryPointQueryResult.cudaDriverEntryPointSymbolNotFound">cudaDriverEntryPointSymbolNotFound (cuda.bindings.runtime.cudaDriverEntryPointQueryResult attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDriverEntryPointQueryResult.cudaDriverEntryPointVersionNotSufficent">cudaDriverEntryPointVersionNotSufficent (cuda.bindings.runtime.cudaDriverEntryPointQueryResult attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDriverGetVersion">cudaDriverGetVersion() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglColorFormat">cudaEglColorFormat (class in cuda.bindings.runtime)</a>
@@ -8656,6 +8662,10 @@
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointLockArgs_st.getPtr">(cuda.bindings.driver.CUcheckpointLockArgs_st method)</a>
 </li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs.getPtr">(cuda.bindings.driver.CUcheckpointRestoreArgs method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs_st.getPtr">(cuda.bindings.driver.CUcheckpointRestoreArgs_st method)</a>
+</li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointUnlockArgs.getPtr">(cuda.bindings.driver.CUcheckpointUnlockArgs method)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointUnlockArgs_st.getPtr">(cuda.bindings.driver.CUcheckpointUnlockArgs_st method)</a>
@@ -9359,6 +9369,18 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.gpuDirectRDMAWritesOrdering">gpuDirectRDMAWritesOrdering (cuda.bindings.runtime.cudaDeviceProp attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs.gpuPairs">gpuPairs (cuda.bindings.driver.CUcheckpointRestoreArgs attribute)</a>
+
+      <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs_st.gpuPairs">(cuda.bindings.driver.CUcheckpointRestoreArgs_st attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs.gpuPairsCount">gpuPairsCount (cuda.bindings.driver.CUcheckpointRestoreArgs attribute)</a>
+
+      <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs_st.gpuPairsCount">(cuda.bindings.driver.CUcheckpointRestoreArgs_st attribute)</a>
+</li>
+      </ul></li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.gpuPciDeviceID">gpuPciDeviceID (cuda.bindings.runtime.cudaDeviceProp attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.gpuPciSubsystemID">gpuPciSubsystemID (cuda.bindings.runtime.cudaDeviceProp attribute)</a>
@@ -10911,6 +10933,10 @@
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointCheckpointArgs_st.reserved">(cuda.bindings.driver.CUcheckpointCheckpointArgs_st attribute)</a>
 </li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs.reserved">(cuda.bindings.driver.CUcheckpointRestoreArgs attribute)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs_st.reserved">(cuda.bindings.driver.CUcheckpointRestoreArgs_st attribute)</a>
+</li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointUnlockArgs.reserved">(cuda.bindings.driver.CUcheckpointUnlockArgs attribute)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointUnlockArgs_st.reserved">(cuda.bindings.driver.CUcheckpointUnlockArgs_st attribute)</a>
@@ -11082,6 +11108,10 @@
 
       <ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointLockArgs_st.reserved1">(cuda.bindings.driver.CUcheckpointLockArgs_st attribute)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs.reserved1">(cuda.bindings.driver.CUcheckpointRestoreArgs attribute)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointRestoreArgs_st.reserved1">(cuda.bindings.driver.CUcheckpointRestoreArgs_st attribute)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY3D.reserved1">(cuda.bindings.driver.CUDA_MEMCPY3D attribute)</a>
 </li>
