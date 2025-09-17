@@ -88,7 +88,9 @@ def _get_libnvvm_version_for_tests():
         try:
             major, minor, debug_major, debug_minor = nvvm.ir_version()
             global precheck_nvvm_ir
-            precheck_nvvm_ir = precheck_nvvm_ir.format(major=major, minor=minor, debug_major=debug_major, debug_minor=debug_minor)
+            precheck_nvvm_ir = precheck_nvvm_ir.format(
+                major=major, minor=minor, debug_major=debug_major, debug_minor=debug_minor
+            )
             precheck_ir_bytes = precheck_nvvm_ir.encode("utf-8")
             nvvm.add_module_to_program(program, precheck_ir_bytes, len(precheck_ir_bytes), "precheck.ll")
 
@@ -120,13 +122,12 @@ def nvvm_ir():
     fallback assumes no version metadata will be present in
     the input nvvm ir
     """
-    try:
-        from cuda.core.experimental._program import _get_nvvm_module
+    from cuda.core.experimental._program import _get_nvvm_module
 
-        nvvm = _get_nvvm_module()
-        major, minor, debug_major, debug_minor = nvvm.ir_version()
+    nvvm = _get_nvvm_module()
+    major, minor, debug_major, debug_minor = nvvm.ir_version()
 
-        nvvm_ir_template = """target triple = "nvptx64-unknown-cuda"
+    nvvm_ir_template = """target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
 define i32 @ave(i32 %a, i32 %b) {{
@@ -159,39 +160,7 @@ declare i32 @llvm.nvvm.read.ptx.sreg.tid.x() nounwind readnone
 !nvvmir.version = !{{!1}}
 !1 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
 """  # noqa: E501
-
-        return nvvm_ir_template.format(major=major, minor=minor, debug_major=debug_major, debug_minor=debug_minor)
-    except Exception:
-        return """target triple = "nvptx64-unknown-cuda"
-target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
-
-define i32 @ave(i32 %a, i32 %b) {
-entry:
-  %add = add nsw i32 %a, %b
-  %div = sdiv i32 %add, 2
-  ret i32 %div
-}
-
-define void @simple(i32* %data) {
-entry:
-  %0 = call i32 @llvm.nvvm.read.ptx.sreg.ctaid.x()
-  %1 = call i32 @llvm.nvvm.read.ptx.sreg.ntid.x()
-  %mul = mul i32 %0, %1
-  %2 = call i32 @llvm.nvvm.read.ptx.sreg.tid.x()
-  %add = add i32 %mul, %2
-  %call = call i32 @ave(i32 %add, i32 %add)
-  %idxprom = sext i32 %add to i64
-  store i32 %call, i32* %data, align 4
-  ret void
-}
-
-declare i32 @llvm.nvvm.read.ptx.sreg.ctaid.x() nounwind readnone
-declare i32 @llvm.nvvm.read.ptx.sreg.ntid.x() nounwind readnone
-declare i32 @llvm.nvvm.read.ptx.sreg.tid.x() nounwind readnone
-
-!nvvm.annotations = !{!0}
-!0 = !{void (i32*)* @simple, !"kernel", i32 1}
-"""  # noqa: E501
+    return nvvm_ir_template.format(major=major, minor=minor, debug_major=debug_major, debug_minor=debug_minor)
 
 
 @pytest.fixture(scope="module")
