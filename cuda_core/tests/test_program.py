@@ -52,7 +52,7 @@ define void @dummy_kernel() {
 !0 = !{{void (i32*)* @simple, !"kernel", i32 1}}
 
 !nvvmir.version = !{{!1}}
-!1 = !{{i32 {major}, i32 0, i32 {debug_major}, i32 0}}
+!1 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
 """  # noqa: E501
 
 
@@ -86,6 +86,8 @@ def _get_libnvvm_version_for_tests():
 
         program = nvvm.create_program()
         try:
+            major, minor, debug_major, debug_minor = nvvm.ir_version()
+            precheck_nvvm_ir = precheck_nvvm_ir.format(major=major, minor=minor, debug_major=debug_major, debug_minor=debug_minor)
             precheck_ir_bytes = precheck_nvvm_ir.encode("utf-8")
             nvvm.add_module_to_program(program, precheck_ir_bytes, len(precheck_ir_bytes), "precheck.ll")
 
