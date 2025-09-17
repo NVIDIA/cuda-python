@@ -43,10 +43,10 @@ cdef int get_cuda_version():
         raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
     cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
     if cuDriverGetVersion == NULL:
-        raise RuntimeError('something went wrong')
+        raise RuntimeError('Did not find cuDriverGetVersion symbol in libcuda.so.1')
     err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
     if err != 0:
-        raise RuntimeError('something went wrong')
+        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
 
     return driver_ver
 
@@ -103,7 +103,7 @@ cdef void* __cuFileSetParameterPosixPoolSlabArray = NULL
 cdef void* __cuFileGetParameterPosixPoolSlabArray = NULL
 
 
-cdef void* load_library(const int driver_ver) except* with gil:
+cdef void* load_library() except* with gil:
     cdef uintptr_t handle = load_nvidia_dynamic_lib("cufile")._handle_uint
     return <void*>handle
 
@@ -116,308 +116,306 @@ cdef int _check_or_init_cufile() except -1 nogil:
     cdef void* handle = NULL
 
     with gil, __symbol_lock:
-        driver_ver = get_cuda_version()
-
         # Load function
         global __cuFileHandleRegister
         __cuFileHandleRegister = dlsym(RTLD_DEFAULT, 'cuFileHandleRegister')
         if __cuFileHandleRegister == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileHandleRegister = dlsym(handle, 'cuFileHandleRegister')
 
         global __cuFileHandleDeregister
         __cuFileHandleDeregister = dlsym(RTLD_DEFAULT, 'cuFileHandleDeregister')
         if __cuFileHandleDeregister == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileHandleDeregister = dlsym(handle, 'cuFileHandleDeregister')
 
         global __cuFileBufRegister
         __cuFileBufRegister = dlsym(RTLD_DEFAULT, 'cuFileBufRegister')
         if __cuFileBufRegister == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileBufRegister = dlsym(handle, 'cuFileBufRegister')
 
         global __cuFileBufDeregister
         __cuFileBufDeregister = dlsym(RTLD_DEFAULT, 'cuFileBufDeregister')
         if __cuFileBufDeregister == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileBufDeregister = dlsym(handle, 'cuFileBufDeregister')
 
         global __cuFileRead
         __cuFileRead = dlsym(RTLD_DEFAULT, 'cuFileRead')
         if __cuFileRead == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileRead = dlsym(handle, 'cuFileRead')
 
         global __cuFileWrite
         __cuFileWrite = dlsym(RTLD_DEFAULT, 'cuFileWrite')
         if __cuFileWrite == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileWrite = dlsym(handle, 'cuFileWrite')
 
         global __cuFileDriverOpen
         __cuFileDriverOpen = dlsym(RTLD_DEFAULT, 'cuFileDriverOpen')
         if __cuFileDriverOpen == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileDriverOpen = dlsym(handle, 'cuFileDriverOpen')
 
         global __cuFileDriverClose_v2
         __cuFileDriverClose_v2 = dlsym(RTLD_DEFAULT, 'cuFileDriverClose_v2')
         if __cuFileDriverClose_v2 == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileDriverClose_v2 = dlsym(handle, 'cuFileDriverClose_v2')
 
         global __cuFileUseCount
         __cuFileUseCount = dlsym(RTLD_DEFAULT, 'cuFileUseCount')
         if __cuFileUseCount == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileUseCount = dlsym(handle, 'cuFileUseCount')
 
         global __cuFileDriverGetProperties
         __cuFileDriverGetProperties = dlsym(RTLD_DEFAULT, 'cuFileDriverGetProperties')
         if __cuFileDriverGetProperties == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileDriverGetProperties = dlsym(handle, 'cuFileDriverGetProperties')
 
         global __cuFileDriverSetPollMode
         __cuFileDriverSetPollMode = dlsym(RTLD_DEFAULT, 'cuFileDriverSetPollMode')
         if __cuFileDriverSetPollMode == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileDriverSetPollMode = dlsym(handle, 'cuFileDriverSetPollMode')
 
         global __cuFileDriverSetMaxDirectIOSize
         __cuFileDriverSetMaxDirectIOSize = dlsym(RTLD_DEFAULT, 'cuFileDriverSetMaxDirectIOSize')
         if __cuFileDriverSetMaxDirectIOSize == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileDriverSetMaxDirectIOSize = dlsym(handle, 'cuFileDriverSetMaxDirectIOSize')
 
         global __cuFileDriverSetMaxCacheSize
         __cuFileDriverSetMaxCacheSize = dlsym(RTLD_DEFAULT, 'cuFileDriverSetMaxCacheSize')
         if __cuFileDriverSetMaxCacheSize == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileDriverSetMaxCacheSize = dlsym(handle, 'cuFileDriverSetMaxCacheSize')
 
         global __cuFileDriverSetMaxPinnedMemSize
         __cuFileDriverSetMaxPinnedMemSize = dlsym(RTLD_DEFAULT, 'cuFileDriverSetMaxPinnedMemSize')
         if __cuFileDriverSetMaxPinnedMemSize == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileDriverSetMaxPinnedMemSize = dlsym(handle, 'cuFileDriverSetMaxPinnedMemSize')
 
         global __cuFileBatchIOSetUp
         __cuFileBatchIOSetUp = dlsym(RTLD_DEFAULT, 'cuFileBatchIOSetUp')
         if __cuFileBatchIOSetUp == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileBatchIOSetUp = dlsym(handle, 'cuFileBatchIOSetUp')
 
         global __cuFileBatchIOSubmit
         __cuFileBatchIOSubmit = dlsym(RTLD_DEFAULT, 'cuFileBatchIOSubmit')
         if __cuFileBatchIOSubmit == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileBatchIOSubmit = dlsym(handle, 'cuFileBatchIOSubmit')
 
         global __cuFileBatchIOGetStatus
         __cuFileBatchIOGetStatus = dlsym(RTLD_DEFAULT, 'cuFileBatchIOGetStatus')
         if __cuFileBatchIOGetStatus == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileBatchIOGetStatus = dlsym(handle, 'cuFileBatchIOGetStatus')
 
         global __cuFileBatchIOCancel
         __cuFileBatchIOCancel = dlsym(RTLD_DEFAULT, 'cuFileBatchIOCancel')
         if __cuFileBatchIOCancel == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileBatchIOCancel = dlsym(handle, 'cuFileBatchIOCancel')
 
         global __cuFileBatchIODestroy
         __cuFileBatchIODestroy = dlsym(RTLD_DEFAULT, 'cuFileBatchIODestroy')
         if __cuFileBatchIODestroy == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileBatchIODestroy = dlsym(handle, 'cuFileBatchIODestroy')
 
         global __cuFileReadAsync
         __cuFileReadAsync = dlsym(RTLD_DEFAULT, 'cuFileReadAsync')
         if __cuFileReadAsync == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileReadAsync = dlsym(handle, 'cuFileReadAsync')
 
         global __cuFileWriteAsync
         __cuFileWriteAsync = dlsym(RTLD_DEFAULT, 'cuFileWriteAsync')
         if __cuFileWriteAsync == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileWriteAsync = dlsym(handle, 'cuFileWriteAsync')
 
         global __cuFileStreamRegister
         __cuFileStreamRegister = dlsym(RTLD_DEFAULT, 'cuFileStreamRegister')
         if __cuFileStreamRegister == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileStreamRegister = dlsym(handle, 'cuFileStreamRegister')
 
         global __cuFileStreamDeregister
         __cuFileStreamDeregister = dlsym(RTLD_DEFAULT, 'cuFileStreamDeregister')
         if __cuFileStreamDeregister == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileStreamDeregister = dlsym(handle, 'cuFileStreamDeregister')
 
         global __cuFileGetVersion
         __cuFileGetVersion = dlsym(RTLD_DEFAULT, 'cuFileGetVersion')
         if __cuFileGetVersion == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileGetVersion = dlsym(handle, 'cuFileGetVersion')
 
         global __cuFileGetParameterSizeT
         __cuFileGetParameterSizeT = dlsym(RTLD_DEFAULT, 'cuFileGetParameterSizeT')
         if __cuFileGetParameterSizeT == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileGetParameterSizeT = dlsym(handle, 'cuFileGetParameterSizeT')
 
         global __cuFileGetParameterBool
         __cuFileGetParameterBool = dlsym(RTLD_DEFAULT, 'cuFileGetParameterBool')
         if __cuFileGetParameterBool == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileGetParameterBool = dlsym(handle, 'cuFileGetParameterBool')
 
         global __cuFileGetParameterString
         __cuFileGetParameterString = dlsym(RTLD_DEFAULT, 'cuFileGetParameterString')
         if __cuFileGetParameterString == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileGetParameterString = dlsym(handle, 'cuFileGetParameterString')
 
         global __cuFileSetParameterSizeT
         __cuFileSetParameterSizeT = dlsym(RTLD_DEFAULT, 'cuFileSetParameterSizeT')
         if __cuFileSetParameterSizeT == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileSetParameterSizeT = dlsym(handle, 'cuFileSetParameterSizeT')
 
         global __cuFileSetParameterBool
         __cuFileSetParameterBool = dlsym(RTLD_DEFAULT, 'cuFileSetParameterBool')
         if __cuFileSetParameterBool == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileSetParameterBool = dlsym(handle, 'cuFileSetParameterBool')
 
         global __cuFileSetParameterString
         __cuFileSetParameterString = dlsym(RTLD_DEFAULT, 'cuFileSetParameterString')
         if __cuFileSetParameterString == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileSetParameterString = dlsym(handle, 'cuFileSetParameterString')
 
         global __cuFileDriverClose
         __cuFileDriverClose = dlsym(RTLD_DEFAULT, 'cuFileDriverClose')
         if __cuFileDriverClose == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileDriverClose = dlsym(handle, 'cuFileDriverClose')
 
         global __cuFileGetParameterMinMaxValue
         __cuFileGetParameterMinMaxValue = dlsym(RTLD_DEFAULT, 'cuFileGetParameterMinMaxValue')
         if __cuFileGetParameterMinMaxValue == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileGetParameterMinMaxValue = dlsym(handle, 'cuFileGetParameterMinMaxValue')
 
         global __cuFileSetStatsLevel
         __cuFileSetStatsLevel = dlsym(RTLD_DEFAULT, 'cuFileSetStatsLevel')
         if __cuFileSetStatsLevel == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileSetStatsLevel = dlsym(handle, 'cuFileSetStatsLevel')
 
         global __cuFileGetStatsLevel
         __cuFileGetStatsLevel = dlsym(RTLD_DEFAULT, 'cuFileGetStatsLevel')
         if __cuFileGetStatsLevel == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileGetStatsLevel = dlsym(handle, 'cuFileGetStatsLevel')
 
         global __cuFileStatsStart
         __cuFileStatsStart = dlsym(RTLD_DEFAULT, 'cuFileStatsStart')
         if __cuFileStatsStart == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileStatsStart = dlsym(handle, 'cuFileStatsStart')
 
         global __cuFileStatsStop
         __cuFileStatsStop = dlsym(RTLD_DEFAULT, 'cuFileStatsStop')
         if __cuFileStatsStop == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileStatsStop = dlsym(handle, 'cuFileStatsStop')
 
         global __cuFileStatsReset
         __cuFileStatsReset = dlsym(RTLD_DEFAULT, 'cuFileStatsReset')
         if __cuFileStatsReset == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileStatsReset = dlsym(handle, 'cuFileStatsReset')
 
         global __cuFileGetStatsL1
         __cuFileGetStatsL1 = dlsym(RTLD_DEFAULT, 'cuFileGetStatsL1')
         if __cuFileGetStatsL1 == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileGetStatsL1 = dlsym(handle, 'cuFileGetStatsL1')
 
         global __cuFileGetStatsL2
         __cuFileGetStatsL2 = dlsym(RTLD_DEFAULT, 'cuFileGetStatsL2')
         if __cuFileGetStatsL2 == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileGetStatsL2 = dlsym(handle, 'cuFileGetStatsL2')
 
         global __cuFileGetStatsL3
         __cuFileGetStatsL3 = dlsym(RTLD_DEFAULT, 'cuFileGetStatsL3')
         if __cuFileGetStatsL3 == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileGetStatsL3 = dlsym(handle, 'cuFileGetStatsL3')
 
         global __cuFileGetBARSizeInKB
         __cuFileGetBARSizeInKB = dlsym(RTLD_DEFAULT, 'cuFileGetBARSizeInKB')
         if __cuFileGetBARSizeInKB == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileGetBARSizeInKB = dlsym(handle, 'cuFileGetBARSizeInKB')
 
         global __cuFileSetParameterPosixPoolSlabArray
         __cuFileSetParameterPosixPoolSlabArray = dlsym(RTLD_DEFAULT, 'cuFileSetParameterPosixPoolSlabArray')
         if __cuFileSetParameterPosixPoolSlabArray == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileSetParameterPosixPoolSlabArray = dlsym(handle, 'cuFileSetParameterPosixPoolSlabArray')
 
         global __cuFileGetParameterPosixPoolSlabArray
         __cuFileGetParameterPosixPoolSlabArray = dlsym(RTLD_DEFAULT, 'cuFileGetParameterPosixPoolSlabArray')
         if __cuFileGetParameterPosixPoolSlabArray == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __cuFileGetParameterPosixPoolSlabArray = dlsym(handle, 'cuFileGetParameterPosixPoolSlabArray')
 
         __py_cufile_init = True

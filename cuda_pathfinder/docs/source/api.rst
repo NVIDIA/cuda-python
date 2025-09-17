@@ -6,10 +6,8 @@
 ``cuda.pathfinder`` API Reference
 =================================
 
-The ``cuda.pathfinder`` module provides utilities for loading NVIDIA dynamic libraries.
-
-Public API
------------
+The ``cuda.pathfinder`` module provides utilities for loading NVIDIA dynamic libraries,
+and experimental APIs for locating NVIDIA C/C++ header directories.
 
 .. autosummary::
    :toctree: generated/
@@ -18,3 +16,6 @@ Public API
    load_nvidia_dynamic_lib
    LoadedDL
    DynamicLibNotFoundError
+
+   SUPPORTED_HEADERS_CTK
+   find_nvidia_header_directory
