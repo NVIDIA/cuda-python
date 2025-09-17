@@ -43,13 +43,13 @@ _libnvvm_version_attempted = False
 precheck_nvvm_ir = """target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
-define void @dummy_kernel() {
+define void @dummy_kernel() {{
   entry:
     ret void
-}
+}}
 
 !nvvm.annotations = !{{!0}}
-!0 = !{{void (i32*)* @simple, !"kernel", i32 1}}
+!0 = !{{void ()* @dummy_kernel, !"kernel", i32 1}}
 
 !nvvmir.version = !{{!1}}
 !1 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
@@ -87,6 +87,7 @@ def _get_libnvvm_version_for_tests():
         program = nvvm.create_program()
         try:
             major, minor, debug_major, debug_minor = nvvm.ir_version()
+            global precheck_nvvm_ir
             precheck_nvvm_ir = precheck_nvvm_ir.format(major=major, minor=minor, debug_major=debug_major, debug_minor=debug_minor)
             precheck_ir_bytes = precheck_nvvm_ir.encode("utf-8")
             nvvm.add_module_to_program(program, precheck_ir_bytes, len(precheck_ir_bytes), "precheck.ll")
@@ -103,7 +104,6 @@ def _get_libnvvm_version_for_tests():
             cuda_version = get_minimal_required_cuda_ver_from_ptx_ver(ptx_version)
             _libnvvm_version = cuda_version
             return _libnvvm_version
-
         finally:
             nvvm.destroy_program(program)
 
