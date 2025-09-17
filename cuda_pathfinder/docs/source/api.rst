@@ -9,9 +9,6 @@
 The ``cuda.pathfinder`` module provides utilities for loading NVIDIA dynamic libraries,
 and experimental APIs for locating NVIDIA C/C++ header directories.
 
-Public API
------------
-
 .. autosummary::
    :toctree: generated/
 
