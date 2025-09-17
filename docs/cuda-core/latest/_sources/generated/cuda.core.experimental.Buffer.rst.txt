@@ -17,7 +17,9 @@ cuda.core.experimental.Buffer
    .. automethod:: close
    .. automethod:: copy_from
    .. automethod:: copy_to
+   .. automethod:: export
    .. automethod:: from_handle
+   .. automethod:: import_
 
    
    

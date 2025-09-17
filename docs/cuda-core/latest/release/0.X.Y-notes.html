@@ -573,6 +573,7 @@
 <ul class="simple">
 <li><p>Added <a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.arch" title="cuda.core.experimental.Device.arch"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.arch</span></code></a> property that returns the compute capability as a string (e.g., ‘75’ for CC 7.5), providing a convenient alternative to manually concatenating the compute capability tuple.</p></li>
 <li><p>CUDA 13.x testing support through new <code class="docutils literal notranslate"><span class="pre">test-cu13</span></code> dependency group.</p></li>
+<li><p>Stream-ordered memory allocation can now be shared on Linux via <a class="reference internal" href="../generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource" title="cuda.core.experimental.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>.</p></li>
 </ul>
 </section>
 <section id="new-examples">
@@ -587,6 +588,7 @@
 <li><p>Fix <a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig" title="cuda.core.experimental.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a> grid unit conversion when cluster is set (addresses issue #867).</p></li>
 <li><p>Fixed a bug in <a class="reference internal" href="../generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.add_child" title="cuda.core.experimental.GraphBuilder.add_child"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder.add_child</span></code></a> where dependencies extracted from capturing stream were passed inconsistently with num_dependencies parameter (addresses issue #843).</p></li>
 <li><p>Make <a class="reference internal" href="../generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> creation more performant.</p></li>
+<li><p>Enabled <a class="reference internal" href="../generated/cuda.core.experimental.MemoryResource.html#cuda.core.experimental.MemoryResource" title="cuda.core.experimental.MemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryResource</span></code></a> subclasses to accept <a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> objects, in addition to previously supported device ordinals.</p></li>
 </ul>
 </section>
 </section>
