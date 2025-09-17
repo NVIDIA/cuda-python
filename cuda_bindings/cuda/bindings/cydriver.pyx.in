@@ -2686,6 +2686,12 @@ cdef CUresult cuCheckpointProcessCheckpoint(int pid, CUcheckpointCheckpointArgs*
     return cydriver._cuCheckpointProcessCheckpoint(pid, args)
 {{endif}}
 
+{{if 'cuCheckpointProcessRestore' in found_functions}}
+
+cdef CUresult cuCheckpointProcessRestore(int pid, CUcheckpointRestoreArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuCheckpointProcessRestore(pid, args)
+{{endif}}
+
 {{if 'cuCheckpointProcessUnlock' in found_functions}}
 
 cdef CUresult cuCheckpointProcessUnlock(int pid, CUcheckpointUnlockArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil:
