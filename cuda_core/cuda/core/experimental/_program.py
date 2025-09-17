@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import weakref
 from dataclasses import dataclass
+from contextlib import contextmanager
 from typing import TYPE_CHECKING, Union
 from warnings import warn
 
@@ -26,6 +27,30 @@ from cuda.core.experimental._utils.cuda_utils import (
     is_sequence,
     nvrtc,
 )
+
+@contextmanager
+def _nvvm_exception_manager(self):
+    """
+    Taken from _linker.py
+    """
+    try:
+        yield
+    except Exception as e:
+        error_log = ""
+        if hasattr(self, "_mnff"):
+            try:
+                nvvm = _get_nvvm_module()
+                logsize = nvvm.get_program_log_size(self._mnff.handle)
+                if logsize > 1:
+                    log = bytearray(logsize)
+                    nvvm.get_program_log(self._mnff.handle, log)
+                    error_log = log.decode("utf-8", errors="backslashreplace")
+            except Exception:
+                error_log = ""
+        # Starting Python 3.11 we could also use Exception.add_note() for the same purpose, but
+        # unfortunately we are still supporting Python 3.9/3.10...
+        e.args = (e.args[0] + (f"\nNVVM program log: {error_log}" if error_log else ""), *e.args[1:])
+        raise e
 
 _nvvm_module = None
 _nvvm_import_attempted = False
@@ -615,8 +640,9 @@ class Program:
             if target_type == "ltoir" and "-gen-lto" not in nvvm_options:
                 nvvm_options.append("-gen-lto")
             nvvm = _get_nvvm_module()
-            nvvm.verify_program(self._mnff.handle, len(nvvm_options), nvvm_options)
-            nvvm.compile_program(self._mnff.handle, len(nvvm_options), nvvm_options)
+            with _nvvm_exception_manager(self):
+                nvvm.verify_program(self._mnff.handle, len(nvvm_options), nvvm_options)
+                nvvm.compile_program(self._mnff.handle, len(nvvm_options), nvvm_options)
 
             size = nvvm.get_compiled_result_size(self._mnff.handle)
             data = bytearray(size)

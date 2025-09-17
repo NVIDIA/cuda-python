@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import warnings
-from contextlib import contextmanager
 
 import pytest
 
@@ -14,34 +13,6 @@ from cuda.core.experimental._utils.cuda_utils import driver, handle_return
 
 cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
-
-
-@contextmanager
-def _nvvm_exception_manager(nvvm, program_handle):
-    """
-    Taken from _linker.py
-    """
-    try:
-        yield
-    except Exception as e:
-        error_log = ""
-        try:
-            # Try to get the NVVM program log
-            logsize = nvvm.get_program_log_size(program_handle)
-            if logsize > 1:
-                log = bytearray(logsize)
-                nvvm.get_program_log(program_handle, log)
-                error_log = log.decode("utf-8", errors="backslashreplace")
-        except Exception:
-            error_log = ""
-
-        # Starting Python 3.11 we could also use Exception.add_note() for the same purpose, but
-        # unfortunately we are still supporting Python 3.9/3.10...
-        # Append the NVVM program log to the original exception message
-        if error_log:
-            e.args = (e.args[0] + f"\nNVVM program log: {error_log}", *e.args[1:])
-        raise e
-
 
 def _is_nvvm_available():
     """Check if NVVM is available."""
@@ -71,29 +42,10 @@ _libnvvm_version_attempted = False
 precheck_nvvm_ir = """target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
-define i32 @ave(i32 %a, i32 %b) {{
-entry:
-  %add = add nsw i32 %a, %b
-  %div = sdiv i32 %add, 2
-  ret i32 %div
-}}
-
-define void @simple(i32* %data) {{
-entry:
-  %0 = call i32 @llvm.nvvm.read.ptx.sreg.ctaid.x()
-  %1 = call i32 @llvm.nvvm.read.ptx.sreg.ntid.x()
-  %mul = mul i32 %0, %1
-  %2 = call i32 @llvm.nvvm.read.ptx.sreg.tid.x()
-  %add = add i32 %mul, %2
-  %call = call i32 @ave(i32 %add, i32 %add)
-  %idxprom = sext i32 %add to i64
-  store i32 %call, i32* %data, align 4
-  ret void
-}}
-
-declare i32 @llvm.nvvm.read.ptx.sreg.ctaid.x() nounwind readnone
-declare i32 @llvm.nvvm.read.ptx.sreg.ntid.x() nounwind readnone
-declare i32 @llvm.nvvm.read.ptx.sreg.tid.x() nounwind readnone
+define void @dummy_kernel() {
+  entry:
+    ret void
+}
 
 !nvvm.annotations = !{{!0}}
 !0 = !{{void (i32*)* @simple, !"kernel", i32 1}}
@@ -137,9 +89,8 @@ def _get_libnvvm_version_for_tests():
             nvvm.add_module_to_program(program, precheck_ir_bytes, len(precheck_ir_bytes), "precheck.ll")
 
             options = ["-arch=compute_90"]
-            with _nvvm_exception_manager(nvvm, program):
-                nvvm.verify_program(program, len(options), options)
-                nvvm.compile_program(program, len(options), options)
+            nvvm.verify_program(program, len(options), options)
+            nvvm.compile_program(program, len(options), options)
 
             ptx_size = nvvm.get_compiled_result_size(program)
             ptx_data = bytearray(ptx_size)
