@@ -542,15 +542,15 @@ class Program:
             nvvm_options.append("-opt=0")
         elif options.device_code_optimize is True:
             nvvm_options.append("-opt=3")
-
+        # NVVM is not consistent with NVRTC, it uses 0/1 instead...
         if options.ftz is not None:
-            nvvm_options.append(f"-ftz={'true' if options.ftz else 'false'}")
+            nvvm_options.append(f"-ftz={'1' if options.ftz else '0'}")
         if options.prec_sqrt is not None:
-            nvvm_options.append(f"-prec-sqrt={'true' if options.prec_sqrt else 'false'}")
+            nvvm_options.append(f"-prec-sqrt={'1' if options.prec_sqrt else '0'}")
         if options.prec_div is not None:
-            nvvm_options.append(f"-prec-div={'true' if options.prec_div else 'false'}")
+            nvvm_options.append(f"-prec-div={'1' if options.prec_div else '0'}")
         if options.fma is not None:
-            nvvm_options.append(f"-fma={'true' if options.fma else 'false'}")
+            nvvm_options.append(f"-fma={'1' if options.fma else '0'}")
 
         return nvvm_options
 
