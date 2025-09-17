@@ -21,6 +21,12 @@ Highlights
 * ``cyruntime.getLocalRuntimeVersion`` now uses pathfinder to find the CUDA runtime.
 
 
+Bug fixes
+---------
+
+* Restoring the :func:`~driver.cuCheckpointProcessRestore` API removed by mistake.
+
+
 Known issues
 ------------
 
