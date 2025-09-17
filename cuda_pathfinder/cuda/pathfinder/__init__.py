@@ -20,5 +20,6 @@ from cuda.pathfinder._version import __version__ as __version__
 #: (e.g., ``"cufile"`` may be Linux-only).
 SUPPORTED_HEADERS_CTK = _SUPPORTED_HEADERS_CTK
 
-# Backward compatibility with release 1.2.2. To be removed in release 1.2.4.
+# Backward compatibility: _find_nvidia_header_directory was added in release 1.2.2.
+# It will be removed in release 1.2.4.
 _find_nvidia_header_directory = find_nvidia_header_directory
