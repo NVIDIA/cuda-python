@@ -18,6 +18,13 @@ Highlights
 * The Python overhead of calling functions in CUDA bindings in ``driver``, ``runtime`` and ``nvrtc`` has been reduced by approximately 30%.
 * On Windows, the ``pywin32`` dependency has been removed. The necessary Windows API functions are now accessed directly.
 * Updated the ``cuda.bindings.runtime`` module to statically link against the CUDA Runtime library from CUDA Toolkit 13.0.1.
+* ``cyruntime.getLocalRuntimeVersion`` now uses pathfinder to find the CUDA runtime.
+
+
+Bug fixes
+---------
+
+* Restoring the :func:`~driver.cuCheckpointProcessRestore` API removed by mistake.
 
 
 Known issues
