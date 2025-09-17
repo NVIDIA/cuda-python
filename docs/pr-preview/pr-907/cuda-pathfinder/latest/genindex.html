@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=fd7cadf9"></script>
+    <script src="_static/documentation_options.js?v=590429e0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -50,7 +50,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.3';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -383,6 +383,8 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.load_nvidia_dynamic_lib.html">cuda.pathfinder.load_nvidia_dynamic_lib</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.LoadedDL.html">cuda.pathfinder.LoadedDL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.DynamicLibNotFoundError.html">cuda.pathfinder.DynamicLibNotFoundError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.SUPPORTED_HEADERS_CTK.html">cuda.pathfinder.SUPPORTED_HEADERS_CTK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.pathfinder.find_nvidia_header_directory.html">cuda.pathfinder.find_nvidia_header_directory</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
@@ -390,6 +392,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/1.2.3-notes.html">1.2.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.2.2-notes.html">1.2.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.2.1-notes.html">1.2.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/1.2.0-notes.html">1.2.0</a></li>
@@ -431,6 +434,7 @@
  <a href="#_"><strong>_</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#F"><strong>F</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#S"><strong>S</strong></a>
@@ -451,7 +455,7 @@
     cuda.pathfinder
 
       <ul>
-        <li><a href="api.html#module-cuda.pathfinder">module</a>, <a href="release/1.0.0-notes.html#module-cuda.pathfinder">[1]</a>, <a href="release/1.1.0-notes.html#module-cuda.pathfinder">[2]</a>, <a href="release/1.2.0-notes.html#module-cuda.pathfinder">[3]</a>, <a href="release/1.2.1-notes.html#module-cuda.pathfinder">[4]</a>, <a href="release/1.2.2-notes.html#module-cuda.pathfinder">[5]</a>
+        <li><a href="api.html#module-cuda.pathfinder">module</a>, <a href="release/1.0.0-notes.html#module-cuda.pathfinder">[1]</a>, <a href="release/1.1.0-notes.html#module-cuda.pathfinder">[2]</a>, <a href="release/1.2.0-notes.html#module-cuda.pathfinder">[3]</a>, <a href="release/1.2.1-notes.html#module-cuda.pathfinder">[4]</a>, <a href="release/1.2.2-notes.html#module-cuda.pathfinder">[5]</a>, <a href="release/1.2.3-notes.html#module-cuda.pathfinder">[6]</a>
 </li>
       </ul></li>
   </ul></td>
@@ -461,6 +465,14 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.pathfinder.DynamicLibNotFoundError.html#cuda.pathfinder.DynamicLibNotFoundError">DynamicLibNotFoundError</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.pathfinder.find_nvidia_header_directory.html#cuda.pathfinder.find_nvidia_header_directory">find_nvidia_header_directory() (in module cuda.pathfinder)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -484,7 +496,7 @@
     module
 
       <ul>
-        <li><a href="api.html#module-cuda.pathfinder">cuda.pathfinder</a>, <a href="release/1.0.0-notes.html#module-cuda.pathfinder">[1]</a>, <a href="release/1.1.0-notes.html#module-cuda.pathfinder">[2]</a>, <a href="release/1.2.0-notes.html#module-cuda.pathfinder">[3]</a>, <a href="release/1.2.1-notes.html#module-cuda.pathfinder">[4]</a>, <a href="release/1.2.2-notes.html#module-cuda.pathfinder">[5]</a>
+        <li><a href="api.html#module-cuda.pathfinder">cuda.pathfinder</a>, <a href="release/1.0.0-notes.html#module-cuda.pathfinder">[1]</a>, <a href="release/1.1.0-notes.html#module-cuda.pathfinder">[2]</a>, <a href="release/1.2.0-notes.html#module-cuda.pathfinder">[3]</a>, <a href="release/1.2.1-notes.html#module-cuda.pathfinder">[4]</a>, <a href="release/1.2.2-notes.html#module-cuda.pathfinder">[5]</a>, <a href="release/1.2.3-notes.html#module-cuda.pathfinder">[6]</a>
 </li>
       </ul></li>
   </ul></td>
@@ -492,6 +504,10 @@
 
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.pathfinder.SUPPORTED_HEADERS_CTK.html#cuda.pathfinder.SUPPORTED_HEADERS_CTK">SUPPORTED_HEADERS_CTK (in module cuda.pathfinder)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES.html#cuda.pathfinder.SUPPORTED_NVIDIA_LIBNAMES">SUPPORTED_NVIDIA_LIBNAMES (in module cuda.pathfinder)</a>
 </li>
