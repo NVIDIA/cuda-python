@@ -20,7 +20,7 @@ import platform
 import weakref
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
-from cuda.core.experimental._utils.cuda_utils import driver
+from cuda.core.experimental._utils.cuda_utils import driver, is_shutting_down
 
 if platform.system() == "Linux":
     import socket
@@ -69,7 +69,15 @@ cdef class Buffer:
         return self
 
     def __del__(self):
-        self.close()
+        self.safe_close()
+
+    cpdef safe_close(self, stream: Stream = None, is_shutting_down=is_shutting_down):
+        if self._ptr and self._mr is not None:
+            if not is_shutting_down():
+                self._mr.deallocate(self._ptr, self._size, stream)
+            self._ptr = 0
+            self._mr = None
+            self._ptr_obj = None
 
     cpdef close(self, stream: Stream = None):
         """Deallocate this buffer asynchronously on the given stream.
