@@ -7,6 +7,8 @@ try:
     from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
+import multiprocessing
+
 import pytest
 
 from cuda.core.experimental import Device, _device
@@ -14,8 +16,12 @@ from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
 @pytest.fixture(scope="session", autouse=True)
-def always_init_cuda():
+def session_setup():
+    # Always init CUDA.
     handle_return(driver.cuInit(0))
+
+    # Never fork processes.
+    multiprocessing.set_start_method("spawn", force=True)
 
 
 @pytest.fixture(scope="function")
