@@ -227,7 +227,7 @@ jobs:
           python-version: ${{ matrix.python-version == '3.13' && '3.13.5' || matrix.python-version }}
 
       - name: verify free-threaded build
-        if: matrix.python-verison == '3.13t'
+        if: endsWith(matrix.python-verison, 't')
         run: python -c 'import sys; assert not sys._is_gil_enabled()'
 
       - name: Set up Python include paths
@@ -245,6 +245,7 @@ jobs:
           pip install cuda_pathfinder/*.whl
 
       - name: Build cuda.bindings Cython tests
+        if: ${{ !endsWith(matrix.python-version, 't') }}
         run: |
           pip install $(ls ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl)[test]
           pushd ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}
@@ -252,6 +253,7 @@ jobs:
           popd
 
       - name: Upload cuda.bindings Cython tests
+        if: ${{ !endsWith(matrix.python-version, 't') }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
