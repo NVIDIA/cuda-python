@@ -1,0 +1,70 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+try:
+    from cuda.bindings import driver
+except ImportError:
+    from cuda import cuda as driver
+
+import ctypes
+from cuda.core.experimental import Buffer, MemoryResource
+from cuda.core.experimental._utils.cuda_utils import handle_return
+
+class DummyUnifiedMemoryResource(MemoryResource):
+    def __init__(self, device):
+        self.device = device
+
+    def allocate(self, size, stream=None) -> Buffer:
+        ptr = handle_return(driver.cuMemAllocManaged(size, driver.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
+        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
+
+    def deallocate(self, ptr, size, stream=None):
+        handle_return(driver.cuMemFree(ptr))
+
+    @property
+    def is_device_accessible(self) -> bool:
+        return True
+
+    @property
+    def is_host_accessible(self) -> bool:
+        return True
+
+    @property
+    def device_id(self) -> int:
+        return self.device
+
+
+class IPCBufferTestHelper:
+    """A helper for manipulating memory buffers in IPC tests.
+
+    Provides methods to fill a buffer with one of two test patterns and verify
+    the expected values.
+    """
+
+    def __init__(self, device, buffer, nbytes):
+        self.device = device
+        self.buffer = buffer
+        self.nbytes = nbytes
+        self.scratch_buffer = DummyUnifiedMemoryResource(self.device).allocate(self.nbytes)
+        self.stream = device.create_stream()
+
+    def fill_buffer(self, flipped=False):
+        """Fill a device buffer with test pattern using unified memory."""
+        ptr = ctypes.cast(int(self.scratch_buffer.handle), ctypes.POINTER(ctypes.c_byte))
+        op = (lambda i: 255 - i) if flipped else (lambda i: i)
+        for i in range(self.nbytes):
+            ptr[i] = ctypes.c_byte(op(i))
+        self.buffer.copy_from(self.scratch_buffer, stream=self.stream)
+        self.device.sync()
+
+    def verify_buffer(self, flipped=False):
+        """Verify the buffer contents."""
+        self.scratch_buffer.copy_from(self.buffer, stream=self.stream)
+        self.device.sync()
+        ptr = ctypes.cast(int(self.scratch_buffer.handle), ctypes.POINTER(ctypes.c_byte))
+        op = (lambda i: 255 - i) if flipped else (lambda i: i)
+        for i in range(self.nbytes):
+            assert ctypes.c_byte(ptr[i]).value == ctypes.c_byte(op(i)).value, (
+                f"Buffer contains incorrect data at index {i}"
+            )
+
