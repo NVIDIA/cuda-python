@@ -11,10 +11,12 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 )
 
 from dataclasses import dataclass
-from typing import TypeVar, Union, TYPE_CHECKING
+from typing import Optional, TypeVar, Union, TYPE_CHECKING
 import abc
 import array
+import collections
 import cython
+import multiprocessing
 import os
 import platform
 import weakref
@@ -436,12 +438,34 @@ cdef class IPCChannel:
 
     cdef:
         object _proxy
+        object _queue
+        object _mr
 
     def __init__(self):
         if platform.system() == "Linux":
             self._proxy = IPCChannelUnixSocket._init()
         else:
             raise RuntimeError("IPC is not available on {platform.system()}")
+        self._queue = multiprocessing.Queue()
+        self._mr = None
+
+    def export(self, buffer: Buffer | collections.abc.Sequence):
+        if not isinstance(buffer, collections.abc.Sequence):
+            buffer = [buffer]
+
+        for buf in buffer:
+            handle = buf.export()
+            self._queue.put(handle)
+
+    def import_(self, device: Optional[Device] = None):
+        if self._mr is None:
+            if device is None:
+                from cuda.core.experimental._device import Device
+                device = Device()
+            self._mr = DeviceMemoryResource.from_shared_channel(device, self)
+
+        handle = self._queue.get()
+        return Buffer.import_(self._mr, handle)
 
 
 cdef class IPCChannelUnixSocket:
@@ -657,6 +681,12 @@ class DeviceMemoryResource(MemoryResource):
             self._ipc_handle_type = _NOIPC_HANDLE_TYPE
             self._mempool_owned = False
             self._is_imported = False
+
+    def create_ipc_channel(self):
+        """Create an IPC memory channel for sharing allocations."""
+        channel = IPCChannel()
+        self.share_to_channel(channel)
+        return channel
 
     @classmethod
     def from_shared_channel(cls, device_id: int | Device, channel: IPCChannel) -> DeviceMemoryResource:

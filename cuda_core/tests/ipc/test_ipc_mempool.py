@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, IPCChannel
+from cuda.core.experimental import Device
 from utility import IPCBufferTestHelper
 import multiprocessing
 import pytest
@@ -13,12 +13,10 @@ def test_ipc_mempool(device, ipc_memory_resource):
     """Test IPC with memory pools."""
     # Set up the IPC-enabled memory pool and share it.
     mr = ipc_memory_resource
-    channel = IPCChannel()
-    mr.share_to_channel(channel)
+    channel = mr.create_ipc_channel()
 
     # Start the child process.
-    queue = multiprocessing.Queue()
-    process = multiprocessing.Process(target=child_main, args=(channel, queue))
+    process = multiprocessing.Process(target=child_main, args=(channel,))
     process.start()
 
     # Allocate and fill memory.
@@ -27,8 +25,7 @@ def test_ipc_mempool(device, ipc_memory_resource):
     helper.fill_buffer(flipped=False)
 
     # Export the buffer via IPC.
-    handle = buffer.export()
-    queue.put(handle)
+    channel.export(buffer)
 
     # Wait for the child process.
     process.join(timeout=CHILD_TIMEOUT_SEC)
@@ -38,14 +35,10 @@ def test_ipc_mempool(device, ipc_memory_resource):
     helper.verify_buffer(flipped=True)
 
 
-def child_main(channel, queue):
+def child_main(channel):
     device = Device()
     device.set_current()
-
-    mr = DeviceMemoryResource.from_shared_channel(device, channel)
-    handle = queue.get()  # Get exported buffer data
-    buffer = Buffer.import_(mr, handle)
-
+    buffer = channel.import_()
     helper = IPCBufferTestHelper(device, buffer, NBYTES)
     helper.verify_buffer(flipped=False)
     helper.fill_buffer(flipped=True)
