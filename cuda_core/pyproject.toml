@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
-requires = ["setuptools>=77.0.0", "Cython>=3.0"]
+requires = ["setuptools>=77.0.0", "Cython>=3.1"]
 build-backend = "setuptools.build_meta"
 
 
@@ -49,7 +49,7 @@ dependencies = [
 cu11 = ["cuda-bindings[all]==11.8.*"]
 cu12 = ["cuda-bindings[all]==12.*"]
 cu13 = ["cuda-bindings[all]==13.*"]
-test = ["cython>=3.0", "setuptools", "pytest>=6.2.4"]
+test = ["cython>=3.1", "setuptools", "pytest>=6.2.4"]
 test-cu11 = ["cuda-core[test]", "cupy-cuda11x", "cuda-toolkit[cudart]==11.*"]  # runtime headers needed by CuPy
 test-cu12 = ["cuda-core[test]", "cupy-cuda12x", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
 test-cu13 = ["cuda-core[test]", "cupy-cuda13x", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
