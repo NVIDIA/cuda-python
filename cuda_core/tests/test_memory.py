@@ -10,7 +10,6 @@ import platform
 
 import pytest
 
-<<<<<<< HEAD
 from cuda.core.experimental import (
     Buffer,
     Device,
@@ -19,11 +18,8 @@ from cuda.core.experimental import (
     VMMAllocatedMemoryResource,
     VMMAllocationOptions,
 )
-from cuda.core.experimental._memory import DLDeviceType
-=======
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource
 from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
->>>>>>> d8b4acc1838845d08eaa3f7248246af5244617a8
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
 POOL_SIZE = 2097152  # 2MB size
