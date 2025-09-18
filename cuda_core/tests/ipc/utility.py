@@ -41,18 +41,17 @@ class IPCBufferTestHelper:
     the expected values.
     """
 
-    def __init__(self, device, buffer, nbytes):
+    def __init__(self, device, buffer):
         self.device = device
         self.buffer = buffer
-        self.nbytes = nbytes
-        self.scratch_buffer = DummyUnifiedMemoryResource(self.device).allocate(self.nbytes)
+        self.scratch_buffer = DummyUnifiedMemoryResource(self.device).allocate(self.buffer.size)
         self.stream = device.create_stream()
 
     def fill_buffer(self, flipped=False):
         """Fill a device buffer with test pattern using unified memory."""
         ptr = ctypes.cast(int(self.scratch_buffer.handle), ctypes.POINTER(ctypes.c_byte))
         op = (lambda i: 255 - i) if flipped else (lambda i: i)
-        for i in range(self.nbytes):
+        for i in range(self.buffer.size):
             ptr[i] = ctypes.c_byte(op(i))
         self.buffer.copy_from(self.scratch_buffer, stream=self.stream)
         self.device.sync()
@@ -63,7 +62,7 @@ class IPCBufferTestHelper:
         self.device.sync()
         ptr = ctypes.cast(int(self.scratch_buffer.handle), ctypes.POINTER(ctypes.c_byte))
         op = (lambda i: 255 - i) if flipped else (lambda i: i)
-        for i in range(self.nbytes):
+        for i in range(self.buffer.size):
             assert ctypes.c_byte(ptr[i]).value == ctypes.c_byte(op(i)).value, (
                 f"Buffer contains incorrect data at index {i}"
             )

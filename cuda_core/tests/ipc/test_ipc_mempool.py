@@ -21,7 +21,7 @@ def test_ipc_mempool(device, ipc_memory_resource):
 
     # Allocate and fill memory.
     buffer = mr.allocate(NBYTES)
-    helper = IPCBufferTestHelper(device, buffer, NBYTES)
+    helper = IPCBufferTestHelper(device, buffer)
     helper.fill_buffer(flipped=False)
 
     # Export the buffer via IPC.
@@ -39,6 +39,6 @@ def child_main(channel):
     device = Device()
     device.set_current()
     buffer = channel.import_()
-    helper = IPCBufferTestHelper(device, buffer, NBYTES)
+    helper = IPCBufferTestHelper(device, buffer)
     helper.verify_buffer(flipped=False)
     helper.fill_buffer(flipped=True)
