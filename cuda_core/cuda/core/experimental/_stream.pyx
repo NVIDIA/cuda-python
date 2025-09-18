@@ -9,6 +9,7 @@ from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
 )
 
+import cython
 import os
 import warnings
 from dataclasses import dataclass
@@ -42,7 +43,7 @@ cdef class StreamOptions:
 
     """
 
-    nonblocking: bool = True
+    nonblocking : cython.bint = True
     priority: Optional[int] = None
 
 

@@ -11,7 +11,7 @@ from cuda.core.experimental._launch_config import LaunchConfig, _to_native_launc
 from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.clear_error_support import (
     assert_type,
-    assert_type_str_or_bytes,
+    assert_type_str_or_bytes_like,
     raise_code_path_meant_to_be_unreachable,
 )
 from cuda.core.experimental._utils.cuda_utils import driver, get_binding_version, handle_return, precondition
@@ -615,14 +615,14 @@ class ObjectCode:
         if self._handle is not None:
             return
         module = self._module
-        assert_type_str_or_bytes(module)
+        assert_type_str_or_bytes_like(module)
         if isinstance(module, str):
             if self._backend_version == "new":
                 self._handle = handle_return(self._loader["file"](module.encode(), [], [], 0, [], [], 0))
             else:  # "old" backend
                 self._handle = handle_return(self._loader["file"](module.encode()))
             return
-        if isinstance(module, bytes):
+        if isinstance(module, (bytes, bytearray)):
             if self._backend_version == "new":
                 self._handle = handle_return(self._loader["data"](module, [], [], 0, [], [], 0))
             else:  # "old" backend

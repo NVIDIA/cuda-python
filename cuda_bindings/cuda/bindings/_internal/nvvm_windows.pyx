@@ -98,8 +98,6 @@ cdef int _check_or_init_nvvm() except -1 nogil:
         return 0
 
     with gil, __symbol_lock:
-        driver_ver = get_cuda_version()
-
         # Load library
         handle = load_nvidia_dynamic_lib("nvvm")._handle_uint
 
