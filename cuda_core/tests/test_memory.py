@@ -15,8 +15,8 @@ from cuda.core.experimental import (
     Device,
     DeviceMemoryResource,
     MemoryResource,
-    VMMAllocatedMemoryResource,
-    VMMAllocationOptions,
+    VirtualMemoryResource,
+    VirtualMemoryResourceOptions,
 )
 from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
@@ -310,14 +310,14 @@ def test_device_memory_resource_initialization(mempool_device, use_device_object
 def test_vmm_allocator_basic_allocation():
     """Test basic VMM allocation functionality.
 
-    This test verifies that VMMAllocatedMemoryResource can allocate memory
+    This test verifies that VirtualMemoryResource can allocate memory
     using CUDA VMM APIs with default configuration.
     """
     device = Device()
     device.set_current()
 
     # Create VMM allocator with default config
-    vmm_mr = VMMAllocatedMemoryResource(device)
+    vmm_mr = VirtualMemoryResource(device)
 
     # Test basic allocation
     buffer = vmm_mr.allocate(4096)
@@ -343,7 +343,7 @@ def test_vmm_allocator_basic_allocation():
 def test_vmm_allocator_policy_configuration():
     """Test VMM allocator with different policy configurations.
 
-    This test verifies that VMMAllocatedMemoryResource can be configured
+    This test verifies that VirtualMemoryResource can be configured
     with different allocation policies and that the configuration affects
     the allocation behavior.
     """
@@ -351,7 +351,7 @@ def test_vmm_allocator_policy_configuration():
     device.set_current()
 
     # Test with custom VMM config
-    custom_config = VMMAllocationOptions(
+    custom_config = VirtualMemoryResourceOptions(
         allocation_type="pinned",
         location_type="device",
         granularity="minimum",
@@ -362,7 +362,7 @@ def test_vmm_allocator_policy_configuration():
         peer_access="rw",
     )
 
-    vmm_mr = VMMAllocatedMemoryResource(device, config=custom_config)
+    vmm_mr = VirtualMemoryResource(device, config=custom_config)
 
     # Verify configuration is applied
     assert vmm_mr.config == custom_config
@@ -375,7 +375,7 @@ def test_vmm_allocator_policy_configuration():
     assert buffer.device_id == device.device_id
 
     # Test policy modification
-    new_config = VMMAllocationOptions(
+    new_config = VirtualMemoryResourceOptions(
         allocation_type="pinned",
         location_type="device",
         granularity="recommended",
@@ -399,13 +399,13 @@ def test_vmm_allocator_policy_configuration():
 def test_vmm_allocator_grow_allocation():
     """Test VMM allocator's ability to grow existing allocations.
 
-    This test verifies that VMMAllocatedMemoryResource can grow existing
+    This test verifies that VirtualMemoryResource can grow existing
     allocations while preserving the base pointer when possible.
     """
     device = Device()
     device.set_current()
 
-    vmm_mr = VMMAllocatedMemoryResource(device)
+    vmm_mr = VirtualMemoryResource(device)
 
     # Create initial allocation
     buffer = vmm_mr.allocate(2 * 1024 * 1024)

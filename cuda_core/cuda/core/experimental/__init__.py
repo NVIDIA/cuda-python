@@ -20,8 +20,8 @@ from cuda.core.experimental._memory import (
     IPCChannel,
     LegacyPinnedMemoryResource,
     MemoryResource,
-    VMMAllocatedMemoryResource,
-    VMMAllocationOptions,
+    VirtualMemoryResource,
+    VirtualMemoryResourceOptions,
 )
 from cuda.core.experimental._module import Kernel, ObjectCode
 from cuda.core.experimental._program import Program, ProgramOptions
