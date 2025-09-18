@@ -95,6 +95,7 @@ jobs:
           nvidia-smi -fdm 2
           pnputil /disable-device /class Display
           pnputil /enable-device /class Display
+          nvidia-smi
 
       - name: Set environment variables
         env:
