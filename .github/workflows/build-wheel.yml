@@ -30,6 +30,7 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+          - "3.13t"
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
@@ -222,6 +223,10 @@ jobs:
         with:
           # workaround for actions/runner-images#12377 (the cached 3.13.4 is buggy on Windows)
           python-version: ${{ matrix.python-version == '3.13' && '3.13.5' || matrix.python-version }}
+
+      - name: verify free-threaded build
+        if: matrix.python-verison == '3.13t'
+        run: python -c 'import sys; assert not sys._is_gil_enabled()'
 
       - name: Set up Python include paths
         run: |
