@@ -9,7 +9,7 @@ from libc.stdint cimport uintptr_t
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
 )
-
+import sys
 import abc
 from typing import TypeVar, Union
 
@@ -59,13 +59,10 @@ cdef class Buffer:
     def __del__(self):
         self.safe_close()
 
-    cpdef safe_close(self, stream: Stream = None, is_shutting_down=is_shutting_down):
+    cpdef safe_close(self, stream: Stream = None, is_shutting_down=sys.is_finalizing):
         if self._ptr and self._mr is not None:
             if not is_shutting_down():
                 self._mr.deallocate(self._ptr, self._size, stream)
-            self._ptr = 0
-            self._mr = None
-            self._ptr_obj = None
 
     cpdef close(self, stream: Stream = None):
         """Deallocate this buffer asynchronously on the given stream.

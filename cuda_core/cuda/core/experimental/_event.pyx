@@ -19,7 +19,7 @@ from cuda.core.experimental._utils.cuda_utils import (
     handle_return,
     is_shutting_down
 )
-
+import sys
 if TYPE_CHECKING:
     import cuda.bindings
     from cuda.core.experimental._device import Device
@@ -109,7 +109,7 @@ cdef class Event:
         self._ctx_handle = ctx_handle
         return self
 
-    cpdef safe_close(self, is_shutting_down=is_shutting_down):
+    cpdef safe_close(self, is_shutting_down=sys.is_finalizing):
         """Destroy the event."""
         if self._handle is not None:
             if not is_shutting_down():
