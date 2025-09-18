@@ -87,8 +87,14 @@ jobs:
         run: |
           .github/workflows/install_gpu_driver.ps1
 
-      - name: Ensure GPU is working
+      - name: Ensure GPU is working in factory mode
         run: nvidia-smi
+
+      - name: Switch to MCDM mode
+        run: |
+          nvidia-smi -fdm 2
+          pnputil /disable-device /class Display
+          pnputil /enable-device /class Display
 
       - name: Set environment variables
         env:
