@@ -45,7 +45,6 @@ test = [
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
-    "llvmlite"
 ]
 
 [project.urls]
