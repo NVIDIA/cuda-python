@@ -16,12 +16,15 @@ if [[ ${#} -ne 1 ]]; then
 fi
 
 PYTHON_VERSION_FORMATTED=$(echo "${PY_VER}" | tr -d '.')
+
+# platform is handled by the default value of platform (`auto`) in cibuildwheel
+# here we only need to specify the python version we want
+CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-*"
+
 if [[ "${HOST_PLATFORM}" == linux* ]]; then
-  CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-manylinux*"
   REPO_DIR=$(pwd)
   TOOLS_PATH="${REPO_DIR}/ci/tools"
 elif [[ "${HOST_PLATFORM}" == win* ]]; then
-  CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-win_amd64"
   PWD=$(pwd)
   REPO_DIR=$(cygpath -w ${PWD})
   TOOLS_PATH=$(cygpath -w ${PWD}/ci/tools)
