@@ -26,7 +26,7 @@ pushd ./cuda_pathfinder
 echo "Installing pathfinder wheel"
 pwd
 ls
-pip install $(ls *.whl)[test]
+pip install ./*.whl --group test
 popd
 
 if [[ "${test_module}" == "pathfinder" ]]; then
@@ -47,9 +47,9 @@ elif [[ "${test_module}" == "bindings" ]]; then
   ls
   if [[ "${LOCAL_CTK}" == 1 ]]; then
     ls "${CUDA_PATH}"
-    pip install $(ls *.whl)[test]
+    pip install ./*.whl --group test
   else
-    pip install $(ls *.whl)[all,test]
+    pip install $(ls ./*.whl)[all] --group test
   fi
   popd
   pushd ./cuda_bindings
@@ -69,9 +69,9 @@ elif [[ "${test_module}" == "core" ]]; then
     pwd
     ls
     if [[ "${LOCAL_CTK}" == 1 ]]; then
-      pip install *.whl
+      pip install ./*.whl
     else
-      pip install $(ls *.whl)[all]
+      pip install $(ls ./*.whl)[all]
     fi
     popd
   fi
@@ -89,9 +89,9 @@ elif [[ "${test_module}" == "core" ]]; then
   if [[ "${LOCAL_CTK}" == 1 ]]; then
     # We already installed cuda-bindings, and all CTK components exist locally,
     # so just install the test dependencies.
-    pip install $(ls *.whl)["test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"]
+    pip install ./*.whl --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
   else
-    pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}","test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"]
+    pip install $(ls ./*.whl)["cu${TEST_CUDA_MAJOR}"] --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
   fi
   popd
   pushd ./cuda_core
