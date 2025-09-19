@@ -114,12 +114,13 @@ exclude = ["cuda/bindings/_version.py"]
 [tool.cibuildwheel]
 enable = "cpython-freethreading"
 build-verbosity = 1
-environment-pass = ["CUDA_PYTHON_PARALLEL_LEVEL"]
+environment-pass = ["CUDA_PATH", "CUDA_PYTHON_PARALLEL_LEVEL"]
 
 [tool.cibuildwheel.linux]
 archs = "native"
 # CIBW mounts the host filesystem under /host
-environment = { CUDA_PATH = "/host/$CUDA_PATH" }
+environment-pass = ["CUDA_PATH"]
+environment = { CUDA_HOME = "/host/$CUDA_PATH" }
 
 [tool.cibuildwheel.windows]
 before-build = "pip install delvewheel"
