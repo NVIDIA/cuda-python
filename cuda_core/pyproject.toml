@@ -110,7 +110,7 @@ exclude = ["cuda/core/_version.py"]
 "setup.py" = ["F401"]
 
 [tool.cibuildwheel]
-skip = "musllinux_*"
+skip = "*-musllinux_*"
 enable = "cpython-freethreading"
 build-verbosity = 1
 environment-pass = ["CUDA_PYTHON_PARALLEL_LEVEL"]
