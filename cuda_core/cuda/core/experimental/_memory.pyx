@@ -10,7 +10,6 @@ from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
 )
 
-from dataclasses import dataclass
 from typing import TypeVar, Union, TYPE_CHECKING
 import abc
 from typing import TypeVar, Union, Optional, Iterable, Literal
