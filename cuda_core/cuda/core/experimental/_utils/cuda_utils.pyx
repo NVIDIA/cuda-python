@@ -3,9 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
+from functools import partial
 import importlib.metadata
 from collections import namedtuple
 from collections.abc import Sequence
+from contextlib import ExitStack
 from typing import Callable
 
 try:
@@ -222,3 +224,34 @@ def get_binding_version():
     except importlib.metadata.PackageNotFoundError:
         major_minor = importlib.metadata.version("cuda-python").split(".")[:2]
     return tuple(int(v) for v in major_minor)
+
+
+class Transaction:
+    def __init__(self):
+        self._stack = ExitStack()
+        self._entered = False
+
+    def __enter__(self):
+        self._stack.__enter__()
+        self._entered = True
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        # If exit callbacks remain, they'll run in LIFO order.
+        return self._stack.__exit__(exc_type, exc, tb)
+
+    def append(self, fn, /, *args, **kwargs):
+        """
+        Register an undo action (runs if the with-block exits without commit()).
+        Values are bound now via partial so late mutations don't bite you.
+        """
+        if not self._entered:
+            raise RuntimeError("Transaction must be entered before append()")
+        self._stack.callback(partial(fn, *args, **kwargs))
+
+    def commit(self):
+        """
+        Disarm all undo actions. After this, exiting the with-block does nothing.
+        """
+        # pop_all() empties this stack so no callbacks are triggered on exit.
+        self._stack.pop_all()
