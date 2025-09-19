@@ -14,7 +14,6 @@ from dataclasses import dataclass
 from typing import Optional, TypeVar, Union, TYPE_CHECKING
 import abc
 import array
-import collections
 import cython
 import multiprocessing
 import os
@@ -152,17 +151,12 @@ cdef class Buffer:
         raise_if_driver_error(err)
         return Buffer.from_handle(ptr, ipc_buffer.size, mr)
 
-    def export_to_channel(self, channel: IPCChannel | Sequence[IPCChannel]):
-        seq = channel if isinstance(channel, collections.abc.Sequence) else [channel]
-        for ch in seq:
-            ch.export(self);
+    def export_to_channel(self, channel: IPCChannel):
+        channel.export(self);
 
     @classmethod
-    def import_from_channel(cls, channel: IPCChannel | Sequence[IPCChannel]):
-        if isinstance(channel, collections.abc.Sequence):
-            return [ch.import_() for ch in channel]
-        else:
-            return channel.import_()
+    def import_from_channel(cls, channel: IPCChannel):
+        return channel.import_()
 
     def copy_to(self, dst: Buffer = None, *, stream: Stream) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
@@ -461,13 +455,9 @@ cdef class IPCChannel:
         self._queue = multiprocessing.Queue()
         self._mr = None
 
-    def export(self, buffer: Buffer | collections.abc.Sequence):
-        if not isinstance(buffer, collections.abc.Sequence):
-            buffer = [buffer]
-
-        for buf in buffer:
-            handle = buf.export()
-            self._queue.put(handle)
+    def export(self, buffer: Buffer):
+        handle = buffer.export()
+        self._queue.put(handle)
 
     def import_(self, device: Optional[Device] = None):
         if self._mr is None:

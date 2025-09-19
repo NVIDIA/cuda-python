@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+from cuda.core.experimental._utils.cuda_utils import CUDAError
 from cuda.core.experimental import Device, DeviceMemoryResource, IPCChannel
 import multiprocessing
 import pytest
@@ -8,7 +9,21 @@ import pytest
 CHILD_TIMEOUT_SEC = 10
 NBYTES = 64
 
-def test_ipc_errors(device, ipc_memory_resource):
+def test_share_to_wrong_channel(device, ipc_memory_resource):
+    mr1 = ipc_memory_resource
+    mr2 = DeviceMemoryResource(device, dict(ipc_enabled=True))
+
+    channel1 = mr1.create_ipc_channel()
+    buffer1 = mr1.allocate(NBYTES)
+    buffer2 = mr2.allocate(NBYTES)
+
+    channel1.export(buffer1) # ok
+
+    with pytest.raises(CUDAError):
+        channel1.export(buffer2)
+
+
+def test_ipc_child_errors(device, ipc_memory_resource):
     """Test expected errors with allocating from a shared IPC memory pool."""
     mr = ipc_memory_resource
     # Set up the IPC-enabled memory pool and share it.
