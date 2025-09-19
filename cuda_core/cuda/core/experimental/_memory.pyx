@@ -152,6 +152,18 @@ cdef class Buffer:
         raise_if_driver_error(err)
         return Buffer.from_handle(ptr, ipc_buffer.size, mr)
 
+    def export_to_channel(self, channel: IPCChannel | Sequence[IPCChannel]):
+        seq = channel if isinstance(channel, collections.abc.Sequence) else [channel]
+        for ch in seq:
+            ch.export(self);
+
+    @classmethod
+    def import_from_channel(cls, channel: IPCChannel | Sequence[IPCChannel]):
+        if isinstance(channel, collections.abc.Sequence):
+            return [ch.import_() for ch in channel]
+        else:
+            return channel.import_()
+
     def copy_to(self, dst: Buffer = None, *, stream: Stream) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
@@ -467,6 +479,16 @@ cdef class IPCChannel:
         handle = self._queue.get()
         return Buffer.import_(self._mr, handle)
 
+    def send_allocation_handle(self, alloc_handle: IPCAllocationHandle):
+        """Sends over this channel an allocation handle for exporting a
+        shared memory pool."""
+        self._proxy.send_allocation_handle(alloc_handle)
+
+    def receive_allocation_handle(self) -> IPCAllocationHandle:
+        """Receives over this channel an allocation handle for importing a
+        shared memory pool."""
+        return self._proxy.receive_allocation_handle()
+
 
 cdef class IPCChannelUnixSocket:
     """Unix-specific channel for sharing memory pools over sockets."""
@@ -484,7 +506,7 @@ cdef class IPCChannelUnixSocket:
         self._sock_out, self._sock_in = socket.socketpair(socket.AF_UNIX, socket.SOCK_SEQPACKET)
         return self
 
-    cpdef _send_allocation_handle(self, alloc_handle: IPCAllocationHandle):
+    cpdef send_allocation_handle(self, alloc_handle: IPCAllocationHandle):
         """Sends over this channel an allocation handle for exporting a
         shared memory pool."""
         self._sock_out.sendmsg(
@@ -492,7 +514,7 @@ cdef class IPCChannelUnixSocket:
             [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", [int(alloc_handle)]))]
         )
 
-    cpdef IPCAllocationHandle _receive_allocation_handle(self):
+    cpdef IPCAllocationHandle receive_allocation_handle(self):
         """Receives over this channel an allocation handle for importing a
         shared memory pool."""
         fds = array.array("i")
@@ -692,11 +714,11 @@ class DeviceMemoryResource(MemoryResource):
     def from_shared_channel(cls, device_id: int | Device, channel: IPCChannel) -> DeviceMemoryResource:
         """Create a device memory resource from a memory pool shared over an IPC channel."""
         device_id = getattr(device_id, 'device_id', device_id)
-        alloc_handle = channel._proxy._receive_allocation_handle()
-        return cls._from_allocation_handle(device_id, alloc_handle)
+        alloc_handle = channel.receive_allocation_handle()
+        return cls.from_allocation_handle(device_id, alloc_handle)
 
     @classmethod
-    def _from_allocation_handle(cls, device_id: int | Device, alloc_handle: IPCAllocationHandle) -> DeviceMemoryResource:
+    def from_allocation_handle(cls, device_id: int | Device, alloc_handle: IPCAllocationHandle) -> DeviceMemoryResource:
         """Create a device memory resource from an allocation handle.
 
         Construct a new `DeviceMemoryResource` instance that imports a memory
@@ -734,9 +756,9 @@ class DeviceMemoryResource(MemoryResource):
     def share_to_channel(self, channel : IPCChannel):
         if not self.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
-        channel._proxy._send_allocation_handle(self._get_allocation_handle())
+        channel.send_allocation_handle(self.get_allocation_handle())
 
-    def _get_allocation_handle(self) -> IPCAllocationHandle:
+    def get_allocation_handle(self) -> IPCAllocationHandle:
         """Export the memory pool handle to be shared (requires IPC).
 
         The handle can be used to share the memory pool with other processes.
