@@ -18,11 +18,11 @@ def test_ipc_mempool_multiple(device, ipc_memory_resource):
 
     # Allocate memory buffers and export them to each channel.
     buffer1 = mr.allocate(NBYTES)
-    ch1.export(buffer1)
-    ch2.export(buffer1)
+    ch1.send_buffer(buffer1)
+    ch2.send_buffer(buffer1)
     buffer2 = mr.allocate(NBYTES)
-    ch1.export(buffer2)
-    ch2.export(buffer2)
+    ch1.send_buffer(buffer2)
+    ch2.send_buffer(buffer2)
 
     # Start the child processes.
     p1 = multiprocessing.Process(target=child_main, args=(1, ch1))
@@ -44,8 +44,8 @@ def test_ipc_mempool_multiple(device, ipc_memory_resource):
 def child_main(idx, channel):
     device = Device()
     device.set_current()
-    buffer1 = channel.import_() # implicitly set up the shared memory pool
-    buffer2 = channel.import_()
+    buffer1 = channel.receive_buffer() # implicitly set up the shared memory pool
+    buffer2 = channel.receive_buffer()
     if idx == 1:
         IPCBufferTestHelper(device, buffer1).fill_buffer(flipped=False)
     elif idx == 2:

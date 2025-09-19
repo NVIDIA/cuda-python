@@ -83,8 +83,8 @@ def test_ipc_shared_allocation_handle2(device, ipc_memory_resource):
     # Allocate a share memory.
     buf1 = mr.allocate(NBYTES)
     buf2 = mr.allocate(NBYTES)
-    ch1.export(buf1)
-    ch2.export(buf2)
+    ch1.send_buffer(buf1)
+    ch2.send_buffer(buf2)
 
     # Wait for children.
     p1.join(timeout=CHILD_TIMEOUT_SEC)
@@ -101,6 +101,6 @@ def child_main2(idx, channel):
     """Fills a shared memory buffer."""
     device = Device()
     device.set_current()
-    buffer = channel.import_()
+    buffer = channel.receive_buffer()
     IPCBufferTestHelper(device, buffer).fill_buffer(starting_from=idx)
 

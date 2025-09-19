@@ -25,7 +25,7 @@ def test_ipc_mempool(device, ipc_memory_resource):
     helper.fill_buffer(flipped=False)
 
     # Export the buffer via IPC.
-    channel.export(buffer)
+    channel.send_buffer(buffer)
 
     # Wait for the child process.
     process.join(timeout=CHILD_TIMEOUT_SEC)
@@ -38,7 +38,7 @@ def test_ipc_mempool(device, ipc_memory_resource):
 def child_main(channel):
     device = Device()
     device.set_current()
-    buffer = channel.import_()
+    buffer = channel.receive_buffer()
     helper = IPCBufferTestHelper(device, buffer)
     helper.verify_buffer(flipped=False)
     helper.fill_buffer(flipped=True)

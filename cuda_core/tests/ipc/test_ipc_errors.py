@@ -17,10 +17,10 @@ def test_share_to_wrong_channel(device, ipc_memory_resource):
     buffer1 = mr1.allocate(NBYTES)
     buffer2 = mr2.allocate(NBYTES)
 
-    channel1.export(buffer1) # ok
+    channel1.send_buffer(buffer1) # ok
 
     with pytest.raises(CUDAError):
-        channel1.export(buffer2)
+        channel1.send_buffer(buffer2)
 
 
 def test_ipc_child_errors(device, ipc_memory_resource):

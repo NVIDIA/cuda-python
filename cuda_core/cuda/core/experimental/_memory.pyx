@@ -455,11 +455,11 @@ cdef class IPCChannel:
         self._queue = multiprocessing.Queue()
         self._mr = None
 
-    def export(self, buffer: Buffer):
+    def send_buffer(self, buffer: Buffer):
         handle = buffer.export()
         self._queue.put(handle)
 
-    def import_(self, device: Optional[Device] = None):
+    def receive_buffer(self, device: Optional[Device] = None):
         if self._mr is None:
             if device is None:
                 from cuda.core.experimental._device import Device
