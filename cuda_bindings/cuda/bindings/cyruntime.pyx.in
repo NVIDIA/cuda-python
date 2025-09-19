@@ -1894,7 +1894,6 @@ cimport cuda.bindings._lib.dlfcn as dlfcn
 {{endif}}
 
 cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil:
-    
     # Load
     with gil:
         loaded_dl = load_nvidia_dynamic_lib("cudart")
@@ -1920,7 +1919,7 @@ cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCa
 
     # Unload
     {{if 'Windows' == platform.system()}}
-    windll.FreeLibrary(handle) 
+    windll.FreeLibrary(handle)
     {{else}}
     dlfcn.dlclose(handle)
     {{endif}}
