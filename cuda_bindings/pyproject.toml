@@ -112,6 +112,7 @@ exclude = ["cuda/bindings/_version.py"]
   "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
 
 [tool.cibuildwheel]
+skip = "musllinux_*"
 enable = "cpython-freethreading"
 build-verbosity = 1
 environment-pass = ["CUDA_PATH", "CUDA_PYTHON_PARALLEL_LEVEL"]
