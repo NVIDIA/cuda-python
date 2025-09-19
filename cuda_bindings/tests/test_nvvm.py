@@ -131,6 +131,15 @@ MINIMAL_NVVMIR_BITCODE_STATIC = {
     "6e673e0000000000",
 }
 
+# CUDA 13 introduced two NVVM IR dialects:
+# * Legacy (LLVM 7.0.1) — used for all pre-Blackwell architectures.
+# * Modern (LLVM 20.1.x) — only supported for Blackwell (compute_100+) and newer.
+# With "-arch=compute_100" we're picking the Modern path, because it works with
+# newer versions of llvmlite. We only want to exercise the Python bindings
+# here, not libnvvm internals, therefore we don't need to exercise other
+# architectures.
+COMPILE_PROGRAM_OPTIONS = [["-arch=compute_100"] + opts for opts in [[], ["-opt=0"], ["-opt=3", "-g"]]]
+
 MINIMAL_NVVMIR_CACHE = {}
 
 
@@ -274,7 +283,7 @@ def test_get_buffer_empty(get_size, get_buffer):
         assert buffer == b"\x00"
 
 
-@pytest.mark.parametrize("options", [[], ["-opt=0"], ["-opt=3", "-g"]])
+@pytest.mark.parametrize("options", COMPILE_PROGRAM_OPTIONS)
 def test_compile_program_with_minimal_nvvm_ir(minimal_nvvmir, options):
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, minimal_nvvmir, len(minimal_nvvmir), "FileNameHere.ll")
@@ -294,7 +303,7 @@ def test_compile_program_with_minimal_nvvm_ir(minimal_nvvmir, options):
         assert ".visible .entry kernel()" in buffer.decode()
 
 
-@pytest.mark.parametrize("options", [[], ["-opt=0"], ["-opt=3", "-g"]])
+@pytest.mark.parametrize("options", COMPILE_PROGRAM_OPTIONS)
 def test_verify_program_with_minimal_nvvm_ir(minimal_nvvmir, options):
     with nvvm_program() as prog:
         nvvm.add_module_to_program(prog, minimal_nvvmir, len(minimal_nvvmir), "FileNameHere.ll")
