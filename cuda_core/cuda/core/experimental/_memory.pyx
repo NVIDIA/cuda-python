@@ -946,58 +946,47 @@ class VirtualMemoryResourceOptions:
     @staticmethod
     def _access_to_flags(spec: str):
         f = driver.CUmemAccess_flags
-        if spec == "rw":
-            return f.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
-        if spec == "r":
-            return f.CU_MEM_ACCESS_FLAGS_PROT_READ
-        if spec == "none":
-            return 0
-        raise ValueError(f"Unknown access spec: {spec!r}")
+        _access_flags = {"rw": f.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": f.CU_MEM_ACCESS_FLAGS_PROT_READ, "none": 0}
+        flags = _access_flags.get(string)
+        if not flags:
+            raise ValueError(f"Unknown access spec: {spec!r}")
+        return flags
 
     @staticmethod
     def _allocation_type_to_driver(spec: str):
-        if spec == "pinned":
-            return driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-        if spec == "managed":
-            return driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
-        raise ValueError(f"Unsupported allocation_type: {spec!r}")
+        f = driver.CUmemAllocationType
+        _allocation_type = {"pinned": f.CU_MEM_ALLOCATION_TYPE_PINNED, "managed": f.CU_MEM_ALLOCATION_TYPE_MANAGED}
+        alloc_type = _allocation_type.get(spec)
+        if not alloc_type:
+            raise ValueError(f"Unsupported allocation_type: {spec!r}")
+        return alloc_type
 
     @staticmethod
     def _location_type_to_driver(spec: str):
-        if spec == "device":
-            return driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-        if spec == "host":
-            return driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
-        if spec == "host_numa":
-            return driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
-        if spec == "host_numa_current":
-            return driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT
-        raise ValueError(f"Unsupported location_type: {spec!r}")
+        f = driver.CUmemLocationType
+        _location_type = {"device": f.CU_MEM_LOCATION_TYPE_DEVICE, "host": f.CU_MEM_LOCATION_TYPE_HOST, "host_numa": f.CU_MEM_LOCATION_TYPE_HOST_NUMA, "host_numa_current": f.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT}
+        loc_type = _location_type.get(spec)
+        if not loc_type:
+            raise ValueError(f"Unsupported location_type: {spec!r}")
+        return loc_type
 
     @staticmethod
     def _handle_type_to_driver(spec: str):
-        if spec == "posix_fd":
-            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
-        if spec == "generic":
-            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_GENERIC
-        if spec == "none":
-            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
-        if spec == "win32":
-            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32
-        if spec == "win32_kmt":
-            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_WIN32_KMT
-        if spec == "fabric":
-            return driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_FABRIC
-        raise ValueError(f"Unsupported handle_type: {spec!r}")
+        f = driver.CUmemAllocationHandleType
+        _handle_type = {"posix_fd": f.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, "generic": f.CU_MEM_HANDLE_TYPE_GENERIC, "none": f.CU_MEM_HANDLE_TYPE_NONE, "win32": f.CU_MEM_HANDLE_TYPE_WIN32, "win32_kmt": f.CU_MEM_HANDLE_TYPE_WIN32_KMT, "fabric": f.CU_MEM_HANDLE_TYPE_FABRIC}
+        handle_type = _handle_type.get(spec)
+        if not handle_type:
+            raise ValueError(f"Unsupported handle_type: {spec!r}")
+        return handle_type
 
     @staticmethod
     def _granularity_to_driver(spec: str):
         f = driver.CUmemAllocationGranularity_flags
-        if spec == "minimum":
-            return f.CU_MEM_ALLOC_GRANULARITY_MINIMUM
-        if spec == "recommended":
-            return f.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED
-        raise ValueError(f"Unsupported granularity: {spec!r}")
+        _granularity = {"minimum": f.CU_MEM_ALLOC_GRANULARITY_MINIMUM, "recommended": f.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED}
+        granularity = _granularity.get(spec)
+        if not granularity:
+            raise ValueError(f"Unsupported granularity: {spec!r}")
+        return granularity
 
 
 class VirtualMemoryResource(MemoryResource):
@@ -1015,7 +1004,9 @@ class VirtualMemoryResource(MemoryResource):
     """
     def __init__(self, device, config: VirtualMemoryResourceOptions = None):
         self.device = device
-        self.config = config or VirtualMemoryResourceOptions()
+        self.config = check_or_create_options(
+            VirtualMemoryResourceOptions, config, "VirtualMemoryResource options", keep_none=False
+        )
 
     def _align_up(self, size: int, gran: int) -> int:
         """
@@ -1047,10 +1038,6 @@ class VirtualMemoryResource(MemoryResource):
         if config is not None:
             self.config = config
 
-        if new_size <= buf.size:
-            # No growth needed, return original buffer
-            return buf
-
         # Build allocation properties for new chunks
         prop = driver.CUmemAllocationProp()
         prop.type = VirtualMemoryResourceOptions._allocation_type_to_driver(self.config.allocation_type)
@@ -1062,8 +1049,7 @@ class VirtualMemoryResource(MemoryResource):
         # Query granularity
         gran_flag = VirtualMemoryResourceOptions._granularity_to_driver(self.config.granularity)
         res, gran = driver.cuMemGetAllocationGranularity(prop, gran_flag)
-        if res != driver.CUresult.CUDA_SUCCESS:
-            raise Exception(f"cuMemGetAllocationGranularity failed: {res}")
+        raise_if_driver_error(res)
 
         # Calculate sizes
         additional_size = new_size - buf.size
@@ -1097,9 +1083,9 @@ class VirtualMemoryResource(MemoryResource):
         """
         # Create new physical memory for the additional size
         res, new_handle = driver.cuMemCreate(aligned_additional_size, prop, 0)
-        if res != driver.CUresult.CUDA_SUCCESS:
-            driver.cuMemAddressFree(new_ptr, aligned_additional_size)
-            raise Exception(f"cuMemCreate failed: {res}")
+            if res != driver.CUresult.CUDA_SUCCESS:
+                driver.cuMemAddressFree(new_ptr, aligned_additional_size)
+                raise Exception(f"cuMemCreate failed: {res}")
 
         # Map the new physical memory to the extended VA range
         res, = driver.cuMemMap(new_ptr, aligned_additional_size, 0, new_handle, 0)
@@ -1235,6 +1221,9 @@ class VirtualMemoryResource(MemoryResource):
         """
         Allocate memory using CUDA VMM with a configurable policy.
         """
+        if stream is not None:
+            raise NotImplementedError("Stream is not supported with VirtualMemoryResource")
+
         config = self.config
         # ---- Build allocation properties ----
         prop = driver.CUmemAllocationProp()
@@ -1242,6 +1231,7 @@ class VirtualMemoryResource(MemoryResource):
         # TODO: Support host alloation if required
         if  prop.type != driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE:
             raise NotImplementedError(f"Location type must be CU_MEM_LOCATION_TYPE_DEVICE, got {config.location_type}")
+
         prop.location.type = VirtualMemoryResourceOptions._location_type_to_driver(config.location_type)
         prop.location.id = self.device.device_id
         prop.allocFlags.gpuDirectRDMACapable = 1 if config.gpu_direct_rdma else 0
@@ -1251,8 +1241,7 @@ class VirtualMemoryResource(MemoryResource):
         # Choose min vs recommended granularity per config
         gran_flag = VirtualMemoryResourceOptions._granularity_to_driver(config.granularity)
         res, gran = driver.cuMemGetAllocationGranularity(prop, gran_flag)
-        if res != driver.CUresult.CUDA_SUCCESS:
-            raise Exception(f"cuMemGetAllocationGranularity failed: {res}")
+        raise_if_driver_error(res)
 
         aligned_size = self._align_up(size, gran)
         addr_align = config.addr_align or gran
@@ -1317,17 +1306,13 @@ class VirtualMemoryResource(MemoryResource):
         Deallocate memory on the device using CUDA VMM APIs.
         """
         result, handle = driver.cuMemRetainAllocationHandle(ptr)
-        if result != driver.CUresult.CUDA_SUCCESS:
-            raise Exception(f"Failed to retain allocation handle: {result}")
+        raise_if_driver_error(result)
         result, = driver.cuMemUnmap(ptr, size)
-        if result != driver.CUresult.CUDA_SUCCESS:
-            raise Exception(f"Failed to unmap physical allocation: {result}")
+        raise_if_driver_error(result)
         result, = driver.cuMemAddressFree(ptr, size)
-        if result != driver.CUresult.CUDA_SUCCESS:
-            raise Exception(f"Failed to free address: {result}")
+        raise_if_driver_error(result)
         result, = driver.cuMemRelease(handle)
-        if result != driver.CUresult.CUDA_SUCCESS:
-            raise Exception(f"Failed to release physical allocation: {result}")
+        raise_if_driver_error(result)
 
 
     @property
