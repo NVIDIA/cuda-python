@@ -1873,35 +1873,46 @@ cdef cudaError_t cudaGraphicsVDPAURegisterOutputSurface(cudaGraphicsResource** r
 
 {{if True}}
 
-{{if 'Windows' != platform.system()}}
+from libc.stdint cimport uintptr_t
+from cuda.pathfinder import load_nvidia_dynamic_lib
+{{if 'Windows' == platform.system()}}
+cimport cuda.bindings._lib.windll as windll
+{{else}}
 cimport cuda.bindings._lib.dlfcn as dlfcn
 {{endif}}
 
 cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCallRequiresNewerDriver nogil:
-    {{if 'Windows' == platform.system()}}
-    with gil:
-        raise NotImplementedError('"getLocalRuntimeVersion" is unsupported on Windows')
-    {{else}}
+    
     # Load
-    handle = dlfcn.dlopen('libcudart.so.12', dlfcn.RTLD_NOW)
-    if handle == NULL:
-        with gil:
-            raise RuntimeError(f'Failed to dlopen libcudart.so.12')
+    with gil:
+        loaded_dl = load_nvidia_dynamic_lib("cudart")
+        {{if 'Windows' == platform.system()}}
+        handle = <uintptr_t>loaded_dl._handle_uint
+        {{else}}
+        handle = <void *><uintptr_t>loaded_dl._handle_uint
+        {{endif}}
 
+    {{if 'Windows' == platform.system()}}
+    __cudaRuntimeGetVersion = windll.GetProcAddress(handle, b'cudaRuntimeGetVersion')
+    {{else}}
     __cudaRuntimeGetVersion = dlfcn.dlsym(handle, 'cudaRuntimeGetVersion')
+    {{endif}}
 
     if __cudaRuntimeGetVersion == NULL:
         with gil:
-            raise RuntimeError(f'Function "cudaRuntimeGetVersion" not found in libcudart.so.12')
+            raise RuntimeError(f'Function "cudaRuntimeGetVersion" not found in {loaded_dl.abs_path}')
 
     # Call
     cdef cudaError_t err = cudaSuccess
     err = (<cudaError_t (*)(int*) except ?cudaErrorCallRequiresNewerDriver nogil> __cudaRuntimeGetVersion)(runtimeVersion)
 
     # Unload
+    {{if 'Windows' == platform.system()}}
+    windll.FreeLibrary(handle)
+    {{else}}
     dlfcn.dlclose(handle)
+    {{endif}}
 
     # Return
     return err
-    {{endif}}
 {{endif}}

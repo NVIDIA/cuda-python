@@ -18271,7 +18271,7 @@ def cudaDeviceGetTexture1DLinearMaxWidth(fmtDesc : Optional[cudaChannelFormatDes
     :py:obj:`~.cuDeviceGetTexture1DLinearMaxWidth`
     """
     cdef size_t maxWidthInElements = 0
-    cdef cyruntime.cudaChannelFormatDesc* cyfmtDesc_ptr = fmtDesc._pvt_ptr if fmtDesc is not None else NULL
+    cdef cyruntime.cudaChannelFormatDesc* cyfmtDesc_ptr = fmtDesc._pvt_ptr if fmtDesc != None else NULL
     with nogil:
         err = cyruntime.cudaDeviceGetTexture1DLinearMaxWidth(&maxWidthInElements, cyfmtDesc_ptr, device)
     if err != cyruntime.cudaSuccess:
@@ -20201,7 +20201,7 @@ def cudaChooseDevice(prop : Optional[cudaDeviceProp]):
     :py:obj:`~.cudaGetDeviceCount`, :py:obj:`~.cudaGetDevice`, :py:obj:`~.cudaSetDevice`, :py:obj:`~.cudaGetDeviceProperties`, :py:obj:`~.cudaInitDevice`
     """
     cdef int device = 0
-    cdef cyruntime.cudaDeviceProp* cyprop_ptr = prop._pvt_ptr if prop is not None else NULL
+    cdef cyruntime.cudaDeviceProp* cyprop_ptr = prop._pvt_ptr if prop != None else NULL
     with nogil:
         err = cyruntime.cudaChooseDevice(&device, cyprop_ptr)
     if err != cyruntime.cudaSuccess:
@@ -20942,7 +20942,7 @@ def cudaStreamSetAttribute(hStream, attr not None : cudaStreamAttrID, value : Op
         phStream = int(cudaStream_t(hStream))
     cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
     cdef cyruntime.cudaStreamAttrID cyattr = attr.value
-    cdef cyruntime.cudaStreamAttrValue* cyvalue_ptr = value._pvt_ptr if value is not None else NULL
+    cdef cyruntime.cudaStreamAttrValue* cyvalue_ptr = value._pvt_ptr if value != None else NULL
     with nogil:
         err = cyruntime.cudaStreamSetAttribute(cyhStream, cyattr, cyvalue_ptr)
     return (_dict_cudaError_t[err],)
@@ -22670,7 +22670,7 @@ def cudaImportExternalMemory(memHandleDesc : Optional[cudaExternalMemoryHandleDe
     and Cache Control" chapter from Vulkan specification.
     """
     cdef cudaExternalMemory_t extMem_out = cudaExternalMemory_t()
-    cdef cyruntime.cudaExternalMemoryHandleDesc* cymemHandleDesc_ptr = memHandleDesc._pvt_ptr if memHandleDesc is not None else NULL
+    cdef cyruntime.cudaExternalMemoryHandleDesc* cymemHandleDesc_ptr = memHandleDesc._pvt_ptr if memHandleDesc != None else NULL
     with nogil:
         err = cyruntime.cudaImportExternalMemory(<cyruntime.cudaExternalMemory_t*>extMem_out._pvt_ptr, cymemHandleDesc_ptr)
     if err != cyruntime.cudaSuccess:
@@ -22738,7 +22738,7 @@ def cudaExternalMemoryGetMappedBuffer(extMem, bufferDesc : Optional[cudaExternal
         pextMem = int(cudaExternalMemory_t(extMem))
     cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>pextMem
     cdef void_ptr devPtr = 0
-    cdef cyruntime.cudaExternalMemoryBufferDesc* cybufferDesc_ptr = bufferDesc._pvt_ptr if bufferDesc is not None else NULL
+    cdef cyruntime.cudaExternalMemoryBufferDesc* cybufferDesc_ptr = bufferDesc._pvt_ptr if bufferDesc != None else NULL
     with nogil:
         err = cyruntime.cudaExternalMemoryGetMappedBuffer(<void**>&devPtr, cyextMem, cybufferDesc_ptr)
     if err != cyruntime.cudaSuccess:
@@ -22810,7 +22810,7 @@ def cudaExternalMemoryGetMappedMipmappedArray(extMem, mipmapDesc : Optional[cuda
         pextMem = int(cudaExternalMemory_t(extMem))
     cyextMem = <cyruntime.cudaExternalMemory_t><void_ptr>pextMem
     cdef cudaMipmappedArray_t mipmap = cudaMipmappedArray_t()
-    cdef cyruntime.cudaExternalMemoryMipmappedArrayDesc* cymipmapDesc_ptr = mipmapDesc._pvt_ptr if mipmapDesc is not None else NULL
+    cdef cyruntime.cudaExternalMemoryMipmappedArrayDesc* cymipmapDesc_ptr = mipmapDesc._pvt_ptr if mipmapDesc != None else NULL
     with nogil:
         err = cyruntime.cudaExternalMemoryGetMappedMipmappedArray(<cyruntime.cudaMipmappedArray_t*>mipmap._pvt_ptr, cyextMem, cymipmapDesc_ptr)
     if err != cyruntime.cudaSuccess:
@@ -22997,7 +22997,7 @@ def cudaImportExternalSemaphore(semHandleDesc : Optional[cudaExternalSemaphoreHa
     :py:obj:`~.cudaDestroyExternalSemaphore`, :py:obj:`~.cudaSignalExternalSemaphoresAsync`, :py:obj:`~.cudaWaitExternalSemaphoresAsync`
     """
     cdef cudaExternalSemaphore_t extSem_out = cudaExternalSemaphore_t()
-    cdef cyruntime.cudaExternalSemaphoreHandleDesc* cysemHandleDesc_ptr = semHandleDesc._pvt_ptr if semHandleDesc is not None else NULL
+    cdef cyruntime.cudaExternalSemaphoreHandleDesc* cysemHandleDesc_ptr = semHandleDesc._pvt_ptr if semHandleDesc != None else NULL
     with nogil:
         err = cyruntime.cudaImportExternalSemaphore(<cyruntime.cudaExternalSemaphore_t*>extSem_out._pvt_ptr, cysemHandleDesc_ptr)
     if err != cyruntime.cudaSuccess:
@@ -24166,7 +24166,7 @@ def cudaMallocArray(desc : Optional[cudaChannelFormatDesc], size_t width, size_t
     :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaFreeHost`, :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc3DArray`, :py:obj:`~.cudaHostAlloc`, :py:obj:`~.cuArrayCreate`
     """
     cdef cudaArray_t array = cudaArray_t()
-    cdef cyruntime.cudaChannelFormatDesc* cydesc_ptr = desc._pvt_ptr if desc is not None else NULL
+    cdef cyruntime.cudaChannelFormatDesc* cydesc_ptr = desc._pvt_ptr if desc != None else NULL
     with nogil:
         err = cyruntime.cudaMallocArray(<cyruntime.cudaArray_t*>array._pvt_ptr, cydesc_ptr, width, height, flags)
     if err != cyruntime.cudaSuccess:
@@ -24825,7 +24825,7 @@ def cudaMalloc3DArray(desc : Optional[cudaChannelFormatDesc], extent not None : 
     :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaFreeHost`, :py:obj:`~.cudaHostAlloc`, :py:obj:`~.make_cudaExtent`, :py:obj:`~.cuArray3DCreate`
     """
     cdef cudaArray_t array = cudaArray_t()
-    cdef cyruntime.cudaChannelFormatDesc* cydesc_ptr = desc._pvt_ptr if desc is not None else NULL
+    cdef cyruntime.cudaChannelFormatDesc* cydesc_ptr = desc._pvt_ptr if desc != None else NULL
     with nogil:
         err = cyruntime.cudaMalloc3DArray(<cyruntime.cudaArray_t*>array._pvt_ptr, cydesc_ptr, extent._pvt_ptr[0], flags)
     if err != cyruntime.cudaSuccess:
@@ -24951,7 +24951,7 @@ def cudaMallocMipmappedArray(desc : Optional[cudaChannelFormatDesc], extent not 
     :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc`, :py:obj:`~.cudaMallocPitch`, :py:obj:`~.cudaFree`, :py:obj:`~.cudaFreeArray`, :py:obj:`~.cudaMallocHost (C API)`, :py:obj:`~.cudaFreeHost`, :py:obj:`~.cudaHostAlloc`, :py:obj:`~.make_cudaExtent`, :py:obj:`~.cuMipmappedArrayCreate`
     """
     cdef cudaMipmappedArray_t mipmappedArray = cudaMipmappedArray_t()
-    cdef cyruntime.cudaChannelFormatDesc* cydesc_ptr = desc._pvt_ptr if desc is not None else NULL
+    cdef cyruntime.cudaChannelFormatDesc* cydesc_ptr = desc._pvt_ptr if desc != None else NULL
     with nogil:
         err = cyruntime.cudaMallocMipmappedArray(<cyruntime.cudaMipmappedArray_t*>mipmappedArray._pvt_ptr, cydesc_ptr, extent._pvt_ptr[0], numLevels, flags)
     if err != cyruntime.cudaSuccess:
@@ -25086,7 +25086,7 @@ def cudaMemcpy3D(p : Optional[cudaMemcpy3DParms]):
     --------
     :py:obj:`~.cudaMalloc3D`, :py:obj:`~.cudaMalloc3DArray`, :py:obj:`~.cudaMemset3D`, :py:obj:`~.cudaMemcpy3DAsync`, :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaMemcpy2D`, :py:obj:`~.cudaMemcpy2DToArray`, :py:obj:`~.cudaMemcpy2DFromArray`, :py:obj:`~.cudaMemcpy2DArrayToArray`, :py:obj:`~.cudaMemcpyToSymbol`, :py:obj:`~.cudaMemcpyFromSymbol`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpy2DAsync`, :py:obj:`~.cudaMemcpy2DToArrayAsync`, :py:obj:`~.cudaMemcpy2DFromArrayAsync`, :py:obj:`~.cudaMemcpyToSymbolAsync`, :py:obj:`~.cudaMemcpyFromSymbolAsync`, :py:obj:`~.make_cudaExtent`, :py:obj:`~.make_cudaPos`, :py:obj:`~.cuMemcpy3D`
     """
-    cdef cyruntime.cudaMemcpy3DParms* cyp_ptr = p._pvt_ptr if p is not None else NULL
+    cdef cyruntime.cudaMemcpy3DParms* cyp_ptr = p._pvt_ptr if p != None else NULL
     with nogil:
         err = cyruntime.cudaMemcpy3D(cyp_ptr)
     return (_dict_cudaError_t[err],)
@@ -25123,7 +25123,7 @@ def cudaMemcpy3DPeer(p : Optional[cudaMemcpy3DPeerParms]):
     --------
     :py:obj:`~.cudaMemcpy`, :py:obj:`~.cudaMemcpyPeer`, :py:obj:`~.cudaMemcpyAsync`, :py:obj:`~.cudaMemcpyPeerAsync`, :py:obj:`~.cudaMemcpy3DPeerAsync`, :py:obj:`~.cuMemcpy3DPeer`
     """
-    cdef cyruntime.cudaMemcpy3DPeerParms* cyp_ptr = p._pvt_ptr if p is not None else NULL
+    cdef cyruntime.cudaMemcpy3DPeerParms* cyp_ptr = p._pvt_ptr if p != None else NULL
     with nogil:
         err = cyruntime.cudaMemcpy3DPeer(cyp_ptr)
     return (_dict_cudaError_t[err],)
@@ -25228,7 +25228,7 @@ def cudaMemcpy3DAsync(p : Optional[cudaMemcpy3DParms], stream):
     else:
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
-    cdef cyruntime.cudaMemcpy3DParms* cyp_ptr = p._pvt_ptr if p is not None else NULL
+    cdef cyruntime.cudaMemcpy3DParms* cyp_ptr = p._pvt_ptr if p != None else NULL
     with nogil:
         err = cyruntime.cudaMemcpy3DAsync(cyp_ptr, cystream)
     return (_dict_cudaError_t[err],)
@@ -25268,7 +25268,7 @@ def cudaMemcpy3DPeerAsync(p : Optional[cudaMemcpy3DPeerParms], stream):
     else:
         pstream = int(cudaStream_t(stream))
     cystream = <cyruntime.cudaStream_t><void_ptr>pstream
-    cdef cyruntime.cudaMemcpy3DPeerParms* cyp_ptr = p._pvt_ptr if p is not None else NULL
+    cdef cyruntime.cudaMemcpy3DPeerParms* cyp_ptr = p._pvt_ptr if p != None else NULL
     with nogil:
         err = cyruntime.cudaMemcpy3DPeerAsync(cyp_ptr, cystream)
     return (_dict_cudaError_t[err],)
@@ -28553,7 +28553,7 @@ def cudaMemPoolGetAccess(memPool, location : Optional[cudaMemLocation]):
         pmemPool = int(cudaMemPool_t(memPool))
     cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     cdef cyruntime.cudaMemAccessFlags flags
-    cdef cyruntime.cudaMemLocation* cylocation_ptr = location._pvt_ptr if location is not None else NULL
+    cdef cyruntime.cudaMemLocation* cylocation_ptr = location._pvt_ptr if location != None else NULL
     with nogil:
         err = cyruntime.cudaMemPoolGetAccess(&flags, cymemPool, cylocation_ptr)
     if err != cyruntime.cudaSuccess:
@@ -28629,7 +28629,7 @@ def cudaMemPoolCreate(poolProps : Optional[cudaMemPoolProps]):
     Specifying cudaMemHandleTypeNone creates a memory pool that will not support IPC.
     """
     cdef cudaMemPool_t memPool = cudaMemPool_t()
-    cdef cyruntime.cudaMemPoolProps* cypoolProps_ptr = poolProps._pvt_ptr if poolProps is not None else NULL
+    cdef cyruntime.cudaMemPoolProps* cypoolProps_ptr = poolProps._pvt_ptr if poolProps != None else NULL
     with nogil:
         err = cyruntime.cudaMemPoolCreate(<cyruntime.cudaMemPool_t*>memPool._pvt_ptr, cypoolProps_ptr)
     if err != cyruntime.cudaSuccess:
@@ -28925,7 +28925,7 @@ def cudaMemPoolImportPointer(memPool, exportData : Optional[cudaMemPoolPtrExport
         pmemPool = int(cudaMemPool_t(memPool))
     cymemPool = <cyruntime.cudaMemPool_t><void_ptr>pmemPool
     cdef void_ptr ptr = 0
-    cdef cyruntime.cudaMemPoolPtrExportData* cyexportData_ptr = exportData._pvt_ptr if exportData is not None else NULL
+    cdef cyruntime.cudaMemPoolPtrExportData* cyexportData_ptr = exportData._pvt_ptr if exportData != None else NULL
     with nogil:
         err = cyruntime.cudaMemPoolImportPointer(<void**>&ptr, cymemPool, cyexportData_ptr)
     if err != cyruntime.cudaSuccess:
@@ -29816,9 +29816,9 @@ def cudaCreateTextureObject(pResDesc : Optional[cudaResourceDesc], pTexDesc : Op
     :py:obj:`~.cudaDestroyTextureObject`, :py:obj:`~.cuTexObjectCreate`
     """
     cdef cudaTextureObject_t pTexObject = cudaTextureObject_t()
-    cdef cyruntime.cudaResourceDesc* cypResDesc_ptr = pResDesc._pvt_ptr if pResDesc is not None else NULL
-    cdef cyruntime.cudaTextureDesc* cypTexDesc_ptr = pTexDesc._pvt_ptr if pTexDesc is not None else NULL
-    cdef cyruntime.cudaResourceViewDesc* cypResViewDesc_ptr = pResViewDesc._pvt_ptr if pResViewDesc is not None else NULL
+    cdef cyruntime.cudaResourceDesc* cypResDesc_ptr = pResDesc._pvt_ptr if pResDesc != None else NULL
+    cdef cyruntime.cudaTextureDesc* cypTexDesc_ptr = pTexDesc._pvt_ptr if pTexDesc != None else NULL
+    cdef cyruntime.cudaResourceViewDesc* cypResViewDesc_ptr = pResViewDesc._pvt_ptr if pResViewDesc != None else NULL
     with nogil:
         err = cyruntime.cudaCreateTextureObject(<cyruntime.cudaTextureObject_t*>pTexObject._pvt_ptr, cypResDesc_ptr, cypTexDesc_ptr, cypResViewDesc_ptr)
     if err != cyruntime.cudaSuccess:
@@ -30019,7 +30019,7 @@ def cudaCreateSurfaceObject(pResDesc : Optional[cudaResourceDesc]):
     :py:obj:`~.cudaDestroySurfaceObject`, :py:obj:`~.cuSurfObjectCreate`
     """
     cdef cudaSurfaceObject_t pSurfObject = cudaSurfaceObject_t()
-    cdef cyruntime.cudaResourceDesc* cypResDesc_ptr = pResDesc._pvt_ptr if pResDesc is not None else NULL
+    cdef cyruntime.cudaResourceDesc* cypResDesc_ptr = pResDesc._pvt_ptr if pResDesc != None else NULL
     with nogil:
         err = cyruntime.cudaCreateSurfaceObject(<cyruntime.cudaSurfaceObject_t*>pSurfObject._pvt_ptr, cypResDesc_ptr)
     if err != cyruntime.cudaSuccess:
@@ -30313,7 +30313,7 @@ def cudaGraphAddKernelNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
     elif len(pDependencies) == 1:
         cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    cdef cyruntime.cudaKernelNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
+    cdef cyruntime.cudaKernelNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphAddKernelNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cypNodeParams_ptr)
     if len(pDependencies) > 1 and cypDependencies is not NULL:
@@ -30404,7 +30404,7 @@ def cudaGraphKernelNodeSetParams(node, pNodeParams : Optional[cudaKernelNodePara
     else:
         pnode = int(cudaGraphNode_t(node))
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
-    cdef cyruntime.cudaKernelNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
+    cdef cyruntime.cudaKernelNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphKernelNodeSetParams(cynode, cypNodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -30537,7 +30537,7 @@ def cudaGraphKernelNodeSetAttribute(hNode, attr not None : cudaKernelNodeAttrID,
         phNode = int(cudaGraphNode_t(hNode))
     cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
     cdef cyruntime.cudaKernelNodeAttrID cyattr = attr.value
-    cdef cyruntime.cudaKernelNodeAttrValue* cyvalue_ptr = value._pvt_ptr if value is not None else NULL
+    cdef cyruntime.cudaKernelNodeAttrValue* cyvalue_ptr = value._pvt_ptr if value != None else NULL
     with nogil:
         err = cyruntime.cudaGraphKernelNodeSetAttribute(cyhNode, cyattr, cyvalue_ptr)
     return (_dict_cudaError_t[err],)
@@ -30609,7 +30609,7 @@ def cudaGraphAddMemcpyNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
     elif len(pDependencies) == 1:
         cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    cdef cyruntime.cudaMemcpy3DParms* cypCopyParams_ptr = pCopyParams._pvt_ptr if pCopyParams is not None else NULL
+    cdef cyruntime.cudaMemcpy3DParms* cypCopyParams_ptr = pCopyParams._pvt_ptr if pCopyParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphAddMemcpyNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cypCopyParams_ptr)
     if len(pDependencies) > 1 and cypDependencies is not NULL:
@@ -30786,7 +30786,7 @@ def cudaGraphMemcpyNodeSetParams(node, pNodeParams : Optional[cudaMemcpy3DParms]
     else:
         pnode = int(cudaGraphNode_t(node))
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
-    cdef cyruntime.cudaMemcpy3DParms* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
+    cdef cyruntime.cudaMemcpy3DParms* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphMemcpyNodeSetParams(cynode, cypNodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -30914,7 +30914,7 @@ def cudaGraphAddMemsetNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t
     elif len(pDependencies) == 1:
         cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    cdef cyruntime.cudaMemsetParams* cypMemsetParams_ptr = pMemsetParams._pvt_ptr if pMemsetParams is not None else NULL
+    cdef cyruntime.cudaMemsetParams* cypMemsetParams_ptr = pMemsetParams._pvt_ptr if pMemsetParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphAddMemsetNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cypMemsetParams_ptr)
     if len(pDependencies) > 1 and cypDependencies is not NULL:
@@ -30996,7 +30996,7 @@ def cudaGraphMemsetNodeSetParams(node, pNodeParams : Optional[cudaMemsetParams])
     else:
         pnode = int(cudaGraphNode_t(node))
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
-    cdef cyruntime.cudaMemsetParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
+    cdef cyruntime.cudaMemsetParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphMemsetNodeSetParams(cynode, cypNodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -31063,7 +31063,7 @@ def cudaGraphAddHostNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] 
     elif len(pDependencies) == 1:
         cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    cdef cyruntime.cudaHostNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
+    cdef cyruntime.cudaHostNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphAddHostNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cypNodeParams_ptr)
     if len(pDependencies) > 1 and cypDependencies is not NULL:
@@ -31145,7 +31145,7 @@ def cudaGraphHostNodeSetParams(node, pNodeParams : Optional[cudaHostNodeParams])
     else:
         pnode = int(cudaGraphNode_t(node))
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
-    cdef cyruntime.cudaHostNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
+    cdef cyruntime.cudaHostNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphHostNodeSetParams(cynode, cypNodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -31743,7 +31743,7 @@ def cudaGraphAddExternalSemaphoresSignalNode(graph, pDependencies : Optional[tup
     elif len(pDependencies) == 1:
         cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    cdef cyruntime.cudaExternalSemaphoreSignalNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cyruntime.cudaExternalSemaphoreSignalNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphAddExternalSemaphoresSignalNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cynodeParams_ptr)
     if len(pDependencies) > 1 and cypDependencies is not NULL:
@@ -31832,7 +31832,7 @@ def cudaGraphExternalSemaphoresSignalNodeSetParams(hNode, nodeParams : Optional[
     else:
         phNode = int(cudaGraphNode_t(hNode))
     cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
-    cdef cyruntime.cudaExternalSemaphoreSignalNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cyruntime.cudaExternalSemaphoreSignalNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphExternalSemaphoresSignalNodeSetParams(cyhNode, cynodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -31900,7 +31900,7 @@ def cudaGraphAddExternalSemaphoresWaitNode(graph, pDependencies : Optional[tuple
     elif len(pDependencies) == 1:
         cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    cdef cyruntime.cudaExternalSemaphoreWaitNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cyruntime.cudaExternalSemaphoreWaitNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphAddExternalSemaphoresWaitNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cynodeParams_ptr)
     if len(pDependencies) > 1 and cypDependencies is not NULL:
@@ -31989,7 +31989,7 @@ def cudaGraphExternalSemaphoresWaitNodeSetParams(hNode, nodeParams : Optional[cu
     else:
         phNode = int(cudaGraphNode_t(hNode))
     cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
-    cdef cyruntime.cudaExternalSemaphoreWaitNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cyruntime.cudaExternalSemaphoreWaitNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphExternalSemaphoresWaitNodeSetParams(cyhNode, cynodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -32096,7 +32096,7 @@ def cudaGraphAddMemAllocNode(graph, pDependencies : Optional[tuple[cudaGraphNode
     elif len(pDependencies) == 1:
         cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    cdef cyruntime.cudaMemAllocNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cyruntime.cudaMemAllocNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphAddMemAllocNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cynodeParams_ptr)
     if len(pDependencies) > 1 and cypDependencies is not NULL:
@@ -33838,7 +33838,7 @@ def cudaGraphInstantiateWithParams(graph, instantiateParams : Optional[cudaGraph
         pgraph = int(cudaGraph_t(graph))
     cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
     cdef cudaGraphExec_t pGraphExec = cudaGraphExec_t()
-    cdef cyruntime.cudaGraphInstantiateParams* cyinstantiateParams_ptr = instantiateParams._pvt_ptr if instantiateParams is not None else NULL
+    cdef cyruntime.cudaGraphInstantiateParams* cyinstantiateParams_ptr = instantiateParams._pvt_ptr if instantiateParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphInstantiateWithParams(<cyruntime.cudaGraphExec_t*>pGraphExec._pvt_ptr, cygraph, cyinstantiateParams_ptr)
     if err != cyruntime.cudaSuccess:
@@ -33965,7 +33965,7 @@ def cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
     cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
-    cdef cyruntime.cudaKernelNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
+    cdef cyruntime.cudaKernelNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecKernelNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -34030,7 +34030,7 @@ def cudaGraphExecMemcpyNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
     cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
-    cdef cyruntime.cudaMemcpy3DParms* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
+    cdef cyruntime.cudaMemcpy3DParms* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecMemcpyNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -34173,7 +34173,7 @@ def cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams : Optional[cu
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
     cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
-    cdef cyruntime.cudaMemsetParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
+    cdef cyruntime.cudaMemsetParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecMemsetNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -34228,7 +34228,7 @@ def cudaGraphExecHostNodeSetParams(hGraphExec, node, pNodeParams : Optional[cuda
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
     cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
-    cdef cyruntime.cudaHostNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams is not None else NULL
+    cdef cyruntime.cudaHostNodeParams* cypNodeParams_ptr = pNodeParams._pvt_ptr if pNodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecHostNodeSetParams(cyhGraphExec, cynode, cypNodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -34484,7 +34484,7 @@ def cudaGraphExecExternalSemaphoresSignalNodeSetParams(hGraphExec, hNode, nodePa
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
     cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
-    cdef cyruntime.cudaExternalSemaphoreSignalNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cyruntime.cudaExternalSemaphoreSignalNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecExternalSemaphoresSignalNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -34544,7 +34544,7 @@ def cudaGraphExecExternalSemaphoresWaitNodeSetParams(hGraphExec, hNode, nodePara
     else:
         phGraphExec = int(cudaGraphExec_t(hGraphExec))
     cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
-    cdef cyruntime.cudaExternalSemaphoreWaitNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cyruntime.cudaExternalSemaphoreWaitNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecExternalSemaphoresWaitNodeSetParams(cyhGraphExec, cyhNode, cynodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -35387,7 +35387,7 @@ def cudaGraphAddNode(graph, pDependencies : Optional[tuple[cudaGraphNode_t] | li
     elif len(pDependencies) == 1:
         cypDependencies = <cyruntime.cudaGraphNode_t*>(<cudaGraphNode_t>pDependencies[0])._pvt_ptr
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
-    cdef cyruntime.cudaGraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cyruntime.cudaGraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphAddNode(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, numDependencies, cynodeParams_ptr)
     if len(pDependencies) > 1 and cypDependencies is not NULL:
@@ -35483,7 +35483,7 @@ def cudaGraphAddNode_v2(graph, pDependencies : Optional[tuple[cudaGraphNode_t] |
         cydependencyData = (<cudaGraphEdgeData>dependencyData[0])._pvt_ptr
     if numDependencies > <size_t>len(pDependencies): raise RuntimeError("List is too small: " + str(len(pDependencies)) + " < " + str(numDependencies))
     if numDependencies > <size_t>len(dependencyData): raise RuntimeError("List is too small: " + str(len(dependencyData)) + " < " + str(numDependencies))
-    cdef cyruntime.cudaGraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cyruntime.cudaGraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphAddNode_v2(<cyruntime.cudaGraphNode_t*>pGraphNode._pvt_ptr, cygraph, cypDependencies, cydependencyData, numDependencies, cynodeParams_ptr)
     if len(pDependencies) > 1 and cypDependencies is not NULL:
@@ -35533,7 +35533,7 @@ def cudaGraphNodeSetParams(node, nodeParams : Optional[cudaGraphNodeParams]):
     else:
         pnode = int(cudaGraphNode_t(node))
     cynode = <cyruntime.cudaGraphNode_t><void_ptr>pnode
-    cdef cyruntime.cudaGraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cyruntime.cudaGraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphNodeSetParams(cynode, cynodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -35593,7 +35593,7 @@ def cudaGraphExecNodeSetParams(graphExec, node, nodeParams : Optional[cudaGraphN
     else:
         pgraphExec = int(cudaGraphExec_t(graphExec))
     cygraphExec = <cyruntime.cudaGraphExec_t><void_ptr>pgraphExec
-    cdef cyruntime.cudaGraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams is not None else NULL
+    cdef cyruntime.cudaGraphNodeParams* cynodeParams_ptr = nodeParams._pvt_ptr if nodeParams != None else NULL
     with nogil:
         err = cyruntime.cudaGraphExecNodeSetParams(cygraphExec, cynode, cynodeParams_ptr)
     return (_dict_cudaError_t[err],)
@@ -36487,7 +36487,7 @@ def cudaKernelSetAttributeForDevice(kernel, attr not None : cudaFuncAttribute, i
 def cudaGetExportTable(pExportTableId : Optional[cudaUUID_t]):
     """"""
     cdef void_ptr ppExportTable = 0
-    cdef cyruntime.cudaUUID_t* cypExportTableId_ptr = pExportTableId._pvt_ptr if pExportTableId is not None else NULL
+    cdef cyruntime.cudaUUID_t* cypExportTableId_ptr = pExportTableId._pvt_ptr if pExportTableId != None else NULL
     with nogil:
         err = cyruntime.cudaGetExportTable(<const void**>&ppExportTable, cypExportTableId_ptr)
     if err != cyruntime.cudaSuccess:
@@ -37190,7 +37190,7 @@ def cudaEGLStreamProducerReturnFrame(conn, eglframe : Optional[cudaEglFrame], pS
         cyconn = <cyruntime.cudaEglStreamConnection*><void_ptr>conn
     else:
         raise TypeError("Argument 'conn' is not instance of type (expected <class 'int, runtime.cudaEglStreamConnection'>, found " + str(type(conn)))
-    cdef cyruntime.cudaEglFrame* cyeglframe_ptr = eglframe._pvt_ptr if eglframe is not None else NULL
+    cdef cyruntime.cudaEglFrame* cyeglframe_ptr = eglframe._pvt_ptr if eglframe != None else NULL
     with nogil:
         err = cyruntime.cudaEGLStreamProducerReturnFrame(cyconn, cyeglframe_ptr, cypStream)
     return (_dict_cudaError_t[err],)
