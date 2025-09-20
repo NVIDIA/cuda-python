@@ -167,7 +167,7 @@ class _FindNvidiaDynamicLib:
                     self.attachments,
                 )
 
-    def retry_with_cuda_home_priority_last(self) -> None:
+    def try_with_cuda_home(self) -> None:
         cuda_home_lib_dir = _find_lib_dir_using_cuda_home(self.libname)
         if cuda_home_lib_dir is not None:
             if IS_WINDOWS:

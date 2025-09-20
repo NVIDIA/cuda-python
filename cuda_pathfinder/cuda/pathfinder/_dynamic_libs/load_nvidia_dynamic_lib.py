@@ -44,7 +44,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
         loaded = load_with_system_search(libname)
         if loaded is not None:
             return loaded
-        found.retry_with_cuda_home_priority_last()
+        found.try_with_cuda_home()
         found.raise_if_abs_path_is_None()
 
     assert found.abs_path is not None  # for mypy
