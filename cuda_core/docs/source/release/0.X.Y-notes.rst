@@ -28,6 +28,8 @@ New features
 
 - Added :attr:`Device.arch` property that returns the compute capability as a string (e.g., '75' for CC 7.5), providing a convenient alternative to manually concatenating the compute capability tuple.
 - CUDA 13.x testing support through new ``test-cu13`` dependency group.
+- Stream-ordered memory allocation can now be shared on Linux via :class:`DeviceMemoryResource`.
+- Added NVVM IR support to :class:`Program`. NVVM IR is now understood with ``code_type="nvvm"``.
 
 
 New examples
@@ -44,3 +46,4 @@ Fixes and enhancements
 - Fix :class:`LaunchConfig` grid unit conversion when cluster is set (addresses issue #867).
 - Fixed a bug in :class:`GraphBuilder.add_child` where dependencies extracted from capturing stream were passed inconsistently with num_dependencies parameter (addresses issue #843).
 - Make :class:`Buffer` creation more performant.
+- Enabled :class:`MemoryResource` subclasses to accept :class:`Device` objects, in addition to previously supported device ordinals.

@@ -17,6 +17,7 @@ from cpython.bytes cimport PyBytes_FromStringAndSize
 import cuda.bindings.driver
 from libcpp.map cimport map
 
+_driver = globals()
 include "_lib/utils.pxi"
 
 ctypedef unsigned long long signed_char_ptr
@@ -22057,6 +22058,154 @@ cdef class CUcheckpointGpuPair_st:
     @newUuid.setter
     def newUuid(self, newUuid not None : CUuuid):
         string.memcpy(&self._pvt_ptr[0].newUuid, <cydriver.CUuuid*><void_ptr>newUuid.getPtr(), sizeof(self._pvt_ptr[0].newUuid))
+    {{endif}}
+{{endif}}
+{{if 'CUcheckpointRestoreArgs_st' in found_struct}}
+
+cdef class CUcheckpointRestoreArgs_st:
+    """
+    CUDA checkpoint optional restore arguments
+
+    Attributes
+    ----------
+    {{if 'CUcheckpointRestoreArgs_st.gpuPairs' in found_struct}}
+    gpuPairs : CUcheckpointGpuPair
+        Pointer to array of gpu pairs that indicate how to remap GPUs
+        during restore
+    {{endif}}
+    {{if 'CUcheckpointRestoreArgs_st.gpuPairsCount' in found_struct}}
+    gpuPairsCount : unsigned int
+        Number of gpu pairs to remap
+    {{endif}}
+    {{if 'CUcheckpointRestoreArgs_st.reserved' in found_struct}}
+    reserved : bytes
+        Reserved for future use, must be zeroed
+    {{endif}}
+    {{if 'CUcheckpointRestoreArgs_st.reserved1' in found_struct}}
+    reserved1 : cuuint64_t
+        Reserved for future use, must be zeroed
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cydriver.CUcheckpointRestoreArgs_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+        {{if 'CUcheckpointRestoreArgs_st.reserved1' in found_struct}}
+        self._reserved1 = cuuint64_t(_ptr=<void_ptr>&self._pvt_ptr[0].reserved1)
+        {{endif}}
+    def __dealloc__(self):
+        pass
+        {{if 'CUcheckpointRestoreArgs_st.gpuPairs' in found_struct}}
+        if self._gpuPairs is not NULL:
+            free(self._gpuPairs)
+        {{endif}}
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+            {{if 'CUcheckpointRestoreArgs_st.gpuPairs' in found_struct}}
+            try:
+                str_list += ['gpuPairs : ' + str(self.gpuPairs)]
+            except ValueError:
+                str_list += ['gpuPairs : <ValueError>']
+            {{endif}}
+            {{if 'CUcheckpointRestoreArgs_st.gpuPairsCount' in found_struct}}
+            try:
+                str_list += ['gpuPairsCount : ' + str(self.gpuPairsCount)]
+            except ValueError:
+                str_list += ['gpuPairsCount : <ValueError>']
+            {{endif}}
+            {{if 'CUcheckpointRestoreArgs_st.reserved' in found_struct}}
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
+            {{endif}}
+            {{if 'CUcheckpointRestoreArgs_st.reserved1' in found_struct}}
+            try:
+                str_list += ['reserved1 : ' + str(self.reserved1)]
+            except ValueError:
+                str_list += ['reserved1 : <ValueError>']
+            {{endif}}
+            return '\n'.join(str_list)
+        else:
+            return ''
+    {{if 'CUcheckpointRestoreArgs_st.gpuPairs' in found_struct}}
+    @property
+    def gpuPairs(self):
+        arrs = [<void_ptr>self._pvt_ptr[0].gpuPairs + x*sizeof(cydriver.CUcheckpointGpuPair) for x in range(self._gpuPairs_length)]
+        return [CUcheckpointGpuPair(_ptr=arr) for arr in arrs]
+    @gpuPairs.setter
+    def gpuPairs(self, val):
+        if len(val) == 0:
+            free(self._gpuPairs)
+            self._gpuPairs_length = 0
+            self._pvt_ptr[0].gpuPairs = NULL
+        else:
+            if self._gpuPairs_length != <size_t>len(val):
+                free(self._gpuPairs)
+                self._gpuPairs = <cydriver.CUcheckpointGpuPair*> calloc(len(val), sizeof(cydriver.CUcheckpointGpuPair))
+                if self._gpuPairs is NULL:
+                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUcheckpointGpuPair)))
+                self._gpuPairs_length = <size_t>len(val)
+                self._pvt_ptr[0].gpuPairs = self._gpuPairs
+            for idx in range(len(val)):
+                string.memcpy(&self._gpuPairs[idx], (<CUcheckpointGpuPair>val[idx])._pvt_ptr, sizeof(cydriver.CUcheckpointGpuPair))
+
+    {{endif}}
+    {{if 'CUcheckpointRestoreArgs_st.gpuPairsCount' in found_struct}}
+    @property
+    def gpuPairsCount(self):
+        return self._pvt_ptr[0].gpuPairsCount
+    @gpuPairsCount.setter
+    def gpuPairsCount(self, unsigned int gpuPairsCount):
+        self._pvt_ptr[0].gpuPairsCount = gpuPairsCount
+    {{endif}}
+    {{if 'CUcheckpointRestoreArgs_st.reserved' in found_struct}}
+    @property
+    def reserved(self):
+        return PyBytes_FromStringAndSize(self._pvt_ptr[0].reserved, 44)
+    @reserved.setter
+    def reserved(self, reserved):
+        if len(reserved) != 44:
+            raise ValueError("reserved length must be 44, is " + str(len(reserved)))
+        if CHAR_MIN == 0:
+            for i, b in enumerate(reserved):
+                if b < 0 and b > -129:
+                    b = b + 256
+                self._pvt_ptr[0].reserved[i] = b
+        else:
+            for i, b in enumerate(reserved):
+                if b > 127 and b < 256:
+                    b = b - 256
+                self._pvt_ptr[0].reserved[i] = b
+    {{endif}}
+    {{if 'CUcheckpointRestoreArgs_st.reserved1' in found_struct}}
+    @property
+    def reserved1(self):
+        return self._reserved1
+    @reserved1.setter
+    def reserved1(self, reserved1):
+        cdef cydriver.cuuint64_t cyreserved1
+        if reserved1 is None:
+            cyreserved1 = <cydriver.cuuint64_t><void_ptr>0
+        elif isinstance(reserved1, (cuuint64_t)):
+            preserved1 = int(reserved1)
+            cyreserved1 = <cydriver.cuuint64_t><void_ptr>preserved1
+        else:
+            preserved1 = int(cuuint64_t(reserved1))
+            cyreserved1 = <cydriver.cuuint64_t><void_ptr>preserved1
+        self._reserved1._pvt_ptr[0] = cyreserved1
+
     {{endif}}
 {{endif}}
 {{if 'CUcheckpointUnlockArgs_st' in found_struct}}
@@ -51890,6 +52039,47 @@ def cuCheckpointProcessCheckpoint(int pid, args : Optional[CUcheckpointCheckpoin
     return (_dict_CUresult[err],)
 {{endif}}
 
+{{if 'cuCheckpointProcessRestore' in found_functions}}
+
+@cython.embedsignature(True)
+def cuCheckpointProcessRestore(int pid, args : Optional[CUcheckpointRestoreArgs]):
+    """ Restore a CUDA process's GPU memory contents from its last checkpoint.
+
+    Restores a CUDA process specified by `pid` from its last checkpoint.
+    Process must be in the CHECKPOINTED state to restore.
+
+    GPU UUID pairs can be specified in `args` to remap the process old GPUs
+    onto new GPUs. The GPU to restore onto needs to have enough memory and
+    be of the same chip type as the old GPU. If an array of GPU UUID pairs
+    is specified, it must contain every checkpointed GPU.
+
+    Upon successful return the process will be in the LOCKED state.
+
+    CUDA process restore requires persistence mode to be enabled or
+    :py:obj:`~.cuInit` to have been called before execution.
+
+    Parameters
+    ----------
+    pid : int
+        The process ID of the CUDA process
+    args : :py:obj:`~.CUcheckpointRestoreArgs`
+        Optional restore operation arguments
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE` :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED` :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE` :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+
+    See Also
+    --------
+    :py:obj:`~.cuInit`
+    """
+    cdef cydriver.CUcheckpointRestoreArgs* cyargs_ptr = args._pvt_ptr if args is not None else NULL
+    with nogil:
+        err = cydriver.cuCheckpointProcessRestore(pid, cyargs_ptr)
+    return (_dict_CUresult[err],)
+{{endif}}
+
 {{if 'cuCheckpointProcessUnlock' in found_functions}}
 
 @cython.embedsignature(True)
@@ -53868,6 +54058,12 @@ def sizeof(objType):
     {{if 'CUcheckpointGpuPair' in found_types}}
     if objType == CUcheckpointGpuPair:
         return sizeof(cydriver.CUcheckpointGpuPair){{endif}}
+    {{if 'CUcheckpointRestoreArgs_st' in found_struct}}
+    if objType == CUcheckpointRestoreArgs_st:
+        return sizeof(cydriver.CUcheckpointRestoreArgs_st){{endif}}
+    {{if 'CUcheckpointRestoreArgs' in found_types}}
+    if objType == CUcheckpointRestoreArgs:
+        return sizeof(cydriver.CUcheckpointRestoreArgs){{endif}}
     {{if 'CUcheckpointUnlockArgs_st' in found_struct}}
     if objType == CUcheckpointUnlockArgs_st:
         return sizeof(cydriver.CUcheckpointUnlockArgs_st){{endif}}

@@ -10,6 +10,7 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 )
 import sys
 
+import cython
 import os
 import warnings
 from dataclasses import dataclass
@@ -43,7 +44,7 @@ cdef class StreamOptions:
 
     """
 
-    nonblocking: bool = True
+    nonblocking : cython.bint = True
     priority: Optional[int] = None
 
 
@@ -191,7 +192,7 @@ cdef class Stream:
     cpdef safe_close(self, is_shutting_down=sys.is_finalizing):
         if self._owner is None:
             if self._handle and not self._builtin:
-                if not is_shutting_down:
+                if not is_shutting_down():
                     handle_return(driver.cuStreamDestroy(self._handle))
 
     cpdef close(self):

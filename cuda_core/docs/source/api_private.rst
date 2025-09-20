@@ -18,6 +18,7 @@ CUDA runtime
 
    _memory.PyCapsule
    _memory.DevicePointerT
+   _memory.IPCBufferDescriptor
    _device.DeviceProperties
    _module.KernelAttributes
    _module.KernelOccupancy

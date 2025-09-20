@@ -5,17 +5,30 @@
 from __future__ import annotations
 
 from libc.stdint cimport uintptr_t
-
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
+    check_or_create_options,
 )
 import sys
-import abc
-from typing import TypeVar, Union
 
+from dataclasses import dataclass
+from typing import TypeVar, Union, TYPE_CHECKING
+import abc
+import array
+import cython
+import os
+import platform
+import weakref
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
-from cuda.core.experimental._utils.cuda_utils import driver, is_shutting_down
+from cuda.core.experimental._utils.cuda_utils import driver
+
+if platform.system() == "Linux":
+    import socket
+
+if TYPE_CHECKING:
+    import cuda.bindings.driver
+    from cuda.core.experimental._device import Device
 
 # TODO: define a memory property mixin class and make Buffer and
 # MemoryResource both inherit from it
@@ -123,6 +136,25 @@ cdef class Buffer:
         if self._mr is not None:
             return self._mr.device_id
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
+
+    def export(self) -> IPCBufferDescriptor:
+        """Export a buffer allocated for sharing between processes."""
+        if not self._mr.is_ipc_enabled:
+            raise RuntimeError("Memory resource is not IPC-enabled")
+        err, ptr = driver.cuMemPoolExportPointer(self.handle)
+        raise_if_driver_error(err)
+        return IPCBufferDescriptor._init(ptr.reserved, self.size)
+
+    @classmethod
+    def import_(cls, mr: MemoryResource, ipc_buffer: IPCBufferDescriptor) -> Buffer:
+        """Import a buffer that was exported from another process."""
+        if not mr.is_ipc_enabled:
+            raise RuntimeError("Memory resource is not IPC-enabled")
+        share_data = driver.CUmemPoolPtrExportData()
+        share_data.reserved = ipc_buffer._reserved
+        err, ptr = driver.cuMemPoolImportPointer(mr._mempool_handle, share_data)
+        raise_if_driver_error(err)
+        return Buffer.from_handle(ptr, ipc_buffer.size, mr)
 
     def copy_to(self, dst: Buffer = None, *, stream: Stream) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
@@ -256,8 +288,6 @@ class MemoryResource(abc.ABC):
     memory resource's respective property.)
     """
 
-    __slots__ = ("_handle",)
-
     @abc.abstractmethod
     def __init__(self, *args, **kwargs):
         """Initialize the memory resource.
@@ -329,40 +359,374 @@ class MemoryResource(abc.ABC):
         ...
 
 
+# IPC is currently only supported on Linux. On other platforms, the IPC handle
+# type is set equal to the no-IPC handle type.
+
+_NOIPC_HANDLE_TYPE = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+_IPC_HANDLE_TYPE = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR \
+    if platform.system() == "Linux" else _NOIPC_HANDLE_TYPE
+
+cdef class IPCBufferDescriptor:
+    """Serializable object describing a buffer that can be shared between processes."""
+
+    cdef:
+        bytes _reserved
+        size_t _size
+
+    def __init__(self, *arg, **kwargs):
+        raise RuntimeError("IPCBufferDescriptor objects cannot be instantiated directly. Please use MemoryResource APIs.")
+
+    @classmethod
+    def _init(cls, reserved: bytes, size: int):
+        cdef IPCBufferDescriptor self = IPCBufferDescriptor.__new__(cls)
+        self._reserved = reserved
+        self._size = size
+        return self
+
+    def __reduce__(self):
+        # This is subject to change if the CUmemPoolPtrExportData struct/object changes.
+        return (self._reconstruct, (self._reserved, self._size))
+
+    @property
+    def size(self):
+        return self._size
+
+    @classmethod
+    def _reconstruct(cls, reserved, size):
+        instance = cls._init(reserved, size)
+        return instance
+
+
+cdef class IPCAllocationHandle:
+    """Shareable handle to an IPC-enabled device memory pool."""
+
+    cdef:
+        int _handle
+
+    def __init__(self, *arg, **kwargs):
+        raise RuntimeError("IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.")
+
+    @classmethod
+    def _init(cls, handle: int):
+        cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)
+        assert handle >= 0
+        self._handle = handle
+        return self
+
+    cpdef close(self):
+        """Close the handle."""
+        if self._handle >= 0:
+            try:
+                os.close(self._handle)
+            finally:
+                self._handle = -1
+
+    def __del__(self):
+        """Close the handle."""
+        self.close()
+
+    def __int__(self) -> int:
+        if self._handle < 0:
+            raise ValueError(
+                f"Cannot convert IPCAllocationHandle to int: the handle (id={id(self)}) is closed."
+            )
+        return self._handle
+
+    @property
+    def handle(self) -> int:
+        return self._handle
+
+
+cdef class IPCChannel:
+    """Communication channel for sharing IPC-enabled memory pools."""
+
+    cdef:
+        object _proxy
+
+    def __init__(self):
+        if platform.system() == "Linux":
+            self._proxy = IPCChannelUnixSocket._init()
+        else:
+            raise RuntimeError("IPC is not available on {platform.system()}")
+
+
+cdef class IPCChannelUnixSocket:
+    """Unix-specific channel for sharing memory pools over sockets."""
+
+    cdef:
+        object _sock_out
+        object _sock_in
+
+    def __init__(self, *arg, **kwargs):
+        raise RuntimeError("IPCChannelUnixSocket objects cannot be instantiated directly. Please use MemoryResource APIs.")
+
+    @classmethod
+    def _init(cls):
+        cdef IPCChannelUnixSocket self = IPCChannelUnixSocket.__new__(cls)
+        self._sock_out, self._sock_in = socket.socketpair(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+        return self
+
+    cpdef _send_allocation_handle(self, alloc_handle: IPCAllocationHandle):
+        """Sends over this channel an allocation handle for exporting a
+        shared memory pool."""
+        self._sock_out.sendmsg(
+            [],
+            [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", [int(alloc_handle)]))]
+        )
+
+    cpdef IPCAllocationHandle _receive_allocation_handle(self):
+        """Receives over this channel an allocation handle for importing a
+        shared memory pool."""
+        fds = array.array("i")
+        _, ancillary_data, _, _ = self._sock_in.recvmsg(0, socket.CMSG_LEN(fds.itemsize))
+        assert len(ancillary_data) == 1
+        cmsg_level, cmsg_type, cmsg_data = ancillary_data[0]
+        assert cmsg_level == socket.SOL_SOCKET and cmsg_type == socket.SCM_RIGHTS
+        fds.frombytes(cmsg_data[: len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
+        return IPCAllocationHandle._init(int(fds[0]))
+
+
+@dataclass
+cdef class DeviceMemoryResourceOptions:
+    """Customizable :obj:`~_memory.DeviceMemoryResource` options.
+
+    Attributes
+    ----------
+    ipc_enabled : bool, optional
+        Specifies whether to create an IPC-enabled memory pool. When set to
+        True, the memory pool and its allocations can be shared with other
+        processes. (Default to False)
+
+    max_size : int, optional
+        Maximum pool size. When set to 0, defaults to a system-dependent value.
+        (Default to 0)
+    """
+    ipc_enabled : cython.bint = False
+    max_size : cython.int = 0
+
+
+class DeviceMemoryResourceAttributes:
+    def __init__(self, *args, **kwargs):
+        raise RuntimeError("DeviceMemoryResourceAttributes cannot be instantiated directly. Please use MemoryResource APIs.")
+
+    @classmethod
+    def _init(cls, mr : DeviceMemoryReference):
+        self = DeviceMemoryResourceAttributes.__new__(cls)
+        self._mr = mr
+        return self
+
+    def mempool_property(property_type: type):
+        def decorator(stub):
+            attr_enum = getattr(driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{stub.__name__.upper()}")
+
+            def fget(self) -> property_type:
+                mr = self._mr()
+                if mr is None:
+                  raise RuntimeError("DeviceMemoryResource is expired")
+                err, value = driver.cuMemPoolGetAttribute(mr._mempool_handle, attr_enum)
+                raise_if_driver_error(err)
+                return property_type(value)
+            return property(fget=fget, doc=stub.__doc__)
+        return decorator
+
+    @mempool_property(bool)
+    def reuse_follow_event_dependencies(self):
+        """Allow memory to be reused when there are event dependencies between streams."""
+
+    @mempool_property(bool)
+    def reuse_allow_opportunistic(self):
+        """Allow reuse of completed frees without dependencies."""
+
+    @mempool_property(bool)
+    def reuse_allow_internal_dependencies(self):
+        """Allow insertion of new stream dependencies for memory reuse."""
+
+    @mempool_property(int)
+    def release_threshold(self):
+        """Amount of reserved memory to hold before OS release."""
+
+    @mempool_property(int)
+    def reserved_mem_current(self):
+        """Current amount of backing memory allocated."""
+
+    @mempool_property(int)
+    def reserved_mem_high(self):
+        """High watermark of backing memory allocated."""
+
+    @mempool_property(int)
+    def used_mem_current(self):
+        """Current amount of memory in use."""
+
+    @mempool_property(int)
+    def used_mem_high(self):
+        """High watermark of memory in use."""
+
+    del mempool_property
+
+
 class DeviceMemoryResource(MemoryResource):
-    """Create a device memory resource that uses the driver's stream-ordered memory pool.
+    """Create a device memory resource managing a stream-ordered memory pool.
 
     Parameters
     ----------
-    device_id : int
-        Device ordinal for which a memory resource is constructed. The mempool that is
-        set to *current* on ``device_id`` is used. If no mempool is set to current yet,
-        the driver would use the *default* mempool on the device.
+    device_id : int | Device
+        Device or Device ordinal for which a memory resource is constructed.
+
+    options : DeviceMemoryResourceOptions
+        Memory resource creation options.
+
+        If set to `None`, the memory resource uses the driver's current
+        stream-ordered memory pool for the specified `device_id`. If no memory
+        pool is set as current, the driver's default memory pool for the device
+        is used.
+
+        If not set to `None`, a new memory pool is created, which is owned by
+        the memory resource.
+
+        When using an existing (current or default) memory pool, the returned
+        device memory resource does not own the pool (`is_handle_owned` is
+        `False`), and closing the resource has no effect.
     """
+    __slots__ = "_dev_id", "_mempool_handle", "_attributes", "_ipc_handle_type", "_mempool_owned", "_is_imported"
 
-    __slots__ = ("_dev_id",)
-
-    def __init__(self, device_id: int):
-        err, self._handle = driver.cuDeviceGetMemPool(device_id)
-        raise_if_driver_error(err)
-        self._dev_id = device_id
-
-        # Set a higher release threshold to improve performance when there are no active allocations.
-        # By default, the release threshold is 0, which means memory is immediately released back
-        # to the OS when there are no active suballocations, causing performance issues.
-        # Check current release threshold
-        err, current_threshold = driver.cuMemPoolGetAttribute(
-            self._handle, driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD
+    def __init__(self, device_id: int | Device, options=None):
+        device_id = getattr(device_id, 'device_id', device_id)
+        opts = check_or_create_options(
+            DeviceMemoryResourceOptions, options, "DeviceMemoryResource options", keep_none=True
         )
-        raise_if_driver_error(err)
-        # If threshold is 0 (default), set it to maximum to retain memory in the pool
-        if int(current_threshold) == 0:
-            err, = driver.cuMemPoolSetAttribute(
-                self._handle,
-                driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
-                driver.cuuint64_t(0xFFFFFFFFFFFFFFFF),
+
+        if opts is None:
+            # Get the current memory pool.
+            self._dev_id = device_id
+            self._mempool_handle = None
+            self._attributes = None
+            self._ipc_handle_type = _NOIPC_HANDLE_TYPE
+            self._mempool_owned = False
+            self._is_imported = False
+
+            err, self._mempool_handle = driver.cuDeviceGetMemPool(self.device_id)
+            raise_if_driver_error(err)
+
+            # Set a higher release threshold to improve performance when there are no active allocations.
+            # By default, the release threshold is 0, which means memory is immediately released back
+            # to the OS when there are no active suballocations, causing performance issues.
+            # Check current release threshold
+            err, current_threshold = driver.cuMemPoolGetAttribute(
+                self._mempool_handle, driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD
             )
             raise_if_driver_error(err)
+            # If threshold is 0 (default), set it to maximum to retain memory in the pool
+            if int(current_threshold) == 0:
+                err, = driver.cuMemPoolSetAttribute(
+                    self._mempool_handle,
+                    driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+                    driver.cuuint64_t(0xFFFFFFFFFFFFFFFF),
+                )
+                raise_if_driver_error(err)
+        else:
+            # Create a new memory pool.
+            if opts.ipc_enabled and _IPC_HANDLE_TYPE == _NOIPC_HANDLE_TYPE:
+                raise RuntimeError("IPC is not available on {platform.system()}")
+
+            properties = driver.CUmemPoolProps()
+            properties.allocType = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+            properties.handleTypes = _IPC_HANDLE_TYPE if opts.ipc_enabled else _NOIPC_HANDLE_TYPE
+            properties.location = driver.CUmemLocation()
+            properties.location.id = device_id
+            properties.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+            properties.maxSize = opts.max_size
+            properties.win32SecurityAttributes = 0
+            properties.usage = 0
+
+            self._dev_id = device_id
+            self._mempool_handle = None
+            self._attributes = None
+            self._ipc_handle_type = properties.handleTypes
+            self._mempool_owned = True
+            self._is_imported = False
+
+            err, self._mempool_handle = driver.cuMemPoolCreate(properties)
+            raise_if_driver_error(err)
+
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        """Close the device memory resource and destroy the associated memory pool if owned."""
+        if self._mempool_handle is not None and self._mempool_owned:
+            err, = driver.cuMemPoolDestroy(self._mempool_handle)
+            raise_if_driver_error(err)
+
+            self._dev_id = None
+            self._mempool_handle = None
+            self._attributes = None
+            self._ipc_handle_type = _NOIPC_HANDLE_TYPE
+            self._mempool_owned = False
+            self._is_imported = False
+
+    @classmethod
+    def from_shared_channel(cls, device_id: int | Device, channel: IPCChannel) -> DeviceMemoryResource:
+        """Create a device memory resource from a memory pool shared over an IPC channel."""
+        device_id = getattr(device_id, 'device_id', device_id)
+        alloc_handle = channel._proxy._receive_allocation_handle()
+        return cls._from_allocation_handle(device_id, alloc_handle)
+
+    @classmethod
+    def _from_allocation_handle(cls, device_id: int | Device, alloc_handle: IPCAllocationHandle) -> DeviceMemoryResource:
+        """Create a device memory resource from an allocation handle.
+
+        Construct a new `DeviceMemoryResource` instance that imports a memory
+        pool from a shareable handle. The memory pool is marked as owned, and
+        the resource is associated with the specified `device_id`.
+
+        Parameters
+        ----------
+        device_id : int | Device
+            The ID of the device or a Device object for which the memory
+            resource is created.
+
+        alloc_handle : int
+            The shareable handle of the device memory resource to import.
+
+        Returns
+        -------
+            A new device memory resource instance with the imported handle.
+        """
+        device_id = getattr(device_id, 'device_id', device_id)
+
+        self = cls.__new__(cls)
+        self._dev_id = device_id
+        self._mempool_handle = None
+        self._attributes = None
+        self._ipc_handle_type = _IPC_HANDLE_TYPE
+        self._mempool_owned = True
+        self._is_imported = True
+
+        err, self._mempool_handle = driver.cuMemPoolImportFromShareableHandle(int(alloc_handle), _IPC_HANDLE_TYPE, 0)
+        raise_if_driver_error(err)
+
+        return self
+
+    def share_to_channel(self, channel : IPCChannel):
+        if not self.is_ipc_enabled:
+            raise RuntimeError("Memory resource is not IPC-enabled")
+        channel._proxy._send_allocation_handle(self._get_allocation_handle())
+
+    def _get_allocation_handle(self) -> IPCAllocationHandle:
+        """Export the memory pool handle to be shared (requires IPC).
+
+        The handle can be used to share the memory pool with other processes.
+        The handle is cached in this `MemoryResource` and owned by it.
+
+        Returns
+        -------
+            The shareable handle for the memory pool.
+        """
+        if not self.is_ipc_enabled:
+            raise RuntimeError("Memory resource is not IPC-enabled")
+        err, alloc_handle = driver.cuMemPoolExportToShareableHandle(self._mempool_handle, _IPC_HANDLE_TYPE, 0)
+        raise_if_driver_error(err)
+        return IPCAllocationHandle._init(alloc_handle)
 
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
@@ -381,9 +745,11 @@ class DeviceMemoryResource(MemoryResource):
             The allocated buffer object, which is accessible on the device that this memory
             resource was created for.
         """
+        if self._is_imported:
+            raise TypeError("Cannot allocate from shared memory pool imported via IPC")
         if stream is None:
             stream = default_stream()
-        err, ptr = driver.cuMemAllocFromPoolAsync(size, self._handle, stream.handle)
+        err, ptr = driver.cuMemAllocFromPoolAsync(size, self._mempool_handle, stream.handle)
         raise_if_driver_error(err)
         return Buffer._init(ptr, size, self)
 
@@ -406,19 +772,46 @@ class DeviceMemoryResource(MemoryResource):
         raise_if_driver_error(err)
 
     @property
+    def attributes(self) -> DeviceMemoryResourceAttributes:
+        if self._attributes is None:
+            ref = weakref.ref(self)
+            self._attributes = DeviceMemoryResourceAttributes._init(ref)
+        return self._attributes
+
+    @property
+    def device_id(self) -> int:
+        """The associated device ordinal."""
+        return self._dev_id
+
+    @property
+    def handle(self) -> cuda.bindings.driver.CUmemoryPool:
+        """Handle to the underlying memory pool."""
+        return self._mempool_handle
+
+    @property
+    def is_handle_owned(self) -> bool:
+        """Whether the memory resource handle is owned. If False, ``close`` has no effect."""
+        return self._mempool_owned
+
+    @property
+    def is_imported(self) -> bool:
+        """Whether the memory resource was imported from another process. If True, allocation is not permitted."""
+        return self._is_imported
+
+    @property
     def is_device_accessible(self) -> bool:
-        """bool: this memory resource provides device-accessible buffers."""
+        """Return True. This memory resource provides device-accessible buffers."""
         return True
 
     @property
     def is_host_accessible(self) -> bool:
-        """bool: this memory resource does not provides host-accessible buffers."""
+        """Return False. This memory resource does not provide host-accessible buffers."""
         return False
 
     @property
-    def device_id(self) -> int:
-        """int: the associated device ordinal."""
-        return self._dev_id
+    def is_ipc_enabled(self) -> bool:
+        """Whether this memory resource has IPC enabled."""
+        return self._ipc_handle_type != _NOIPC_HANDLE_TYPE
 
 
 class LegacyPinnedMemoryResource(MemoryResource):
@@ -486,9 +879,9 @@ class LegacyPinnedMemoryResource(MemoryResource):
 class _SynchronousMemoryResource(MemoryResource):
     __slots__ = ("_dev_id",)
 
-    def __init__(self, device_id):
+    def __init__(self, device_id : int | Device):
         self._handle = None
-        self._dev_id = device_id
+        self._dev_id = getattr(device_id, 'device_id', device_id)
 
     def allocate(self, size, stream=None) -> Buffer:
         err, ptr = driver.cuMemAlloc(size)

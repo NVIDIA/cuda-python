@@ -2357,6 +2357,14 @@ cdef extern from "cuda.h":
 
     ctypedef CUcheckpointGpuPair_st CUcheckpointGpuPair
 
+    cdef struct CUcheckpointRestoreArgs_st:
+        CUcheckpointGpuPair* gpuPairs
+        unsigned int gpuPairsCount
+        char reserved[44]
+        cuuint64_t reserved1
+
+    ctypedef CUcheckpointRestoreArgs_st CUcheckpointRestoreArgs
+
     cdef struct CUcheckpointUnlockArgs_st:
         cuuint64_t reserved[8]
 
@@ -4905,6 +4913,11 @@ cdef CUresult cuCheckpointProcessLock(int pid, CUcheckpointLockArgs* args) excep
 {{if 'cuCheckpointProcessCheckpoint' in found_functions}}
 
 cdef CUresult cuCheckpointProcessCheckpoint(int pid, CUcheckpointCheckpointArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuCheckpointProcessRestore' in found_functions}}
+
+cdef CUresult cuCheckpointProcessRestore(int pid, CUcheckpointRestoreArgs* args) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuCheckpointProcessUnlock' in found_functions}}

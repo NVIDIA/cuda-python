@@ -12,6 +12,7 @@ cdef extern from "windows.h" nogil:
     ctypedef unsigned long DWORD
     ctypedef const wchar_t *LPCWSTR
     ctypedef const char *LPCSTR
+    ctypedef int BOOL
 
     cdef DWORD LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
 
@@ -22,6 +23,8 @@ cdef extern from "windows.h" nogil:
     )
 
     FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, LPCSTR lpProcName)
+
+    BOOL _FreeLibrary "FreeLibrary"(HMODULE hLibModule)
 
 cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags):
     cdef uintptr_t result
@@ -37,3 +40,6 @@ cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags):
 
 cdef inline FARPROC GetProcAddress(uintptr_t hModule, const char* lpProcName) nogil:
     return _GetProcAddress(<HMODULE>hModule, lpProcName)
+
+cdef inline BOOL FreeLibrary(uintptr_t hLibModule) nogil:
+    return _FreeLibrary(<HMODULE>hLibModule)

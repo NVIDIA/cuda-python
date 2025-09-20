@@ -9,10 +9,10 @@ def assert_type(obj, expected_type):
         raise TypeError(f"Expected type {expected_type.__name__}, but got {type(obj).__name__}")
 
 
-def assert_type_str_or_bytes(obj):
+def assert_type_str_or_bytes_like(obj):
     """Ensure obj is of type str or bytes, else raise AssertionError with a clear message."""
-    if not isinstance(obj, (str, bytes)):
-        raise TypeError(f"Expected type str or bytes, but got {type(obj).__name__}")
+    if not isinstance(obj, (str, bytes, bytearray)):
+        raise TypeError(f"Expected type str or bytes or bytearray, but got {type(obj).__name__}")
 
 
 def raise_code_path_meant_to_be_unreachable():
