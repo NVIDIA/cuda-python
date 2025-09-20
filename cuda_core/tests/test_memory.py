@@ -418,7 +418,7 @@ def test_vmm_allocator_grow_allocation():
     assert grown_buffer.size >= 4 * 1024 * 1024
     assert grown_buffer.size > original_size
     # Because of the slow path, the pointer may change
-    # We cannot assert that the new pointer is the same, 
+    # We cannot assert that the new pointer is the same,
     # but we can assert that a new pointer was assigned
     assert grown_buffer.handle is not None
 
