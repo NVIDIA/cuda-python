@@ -417,9 +417,9 @@ def test_vmm_allocator_grow_allocation():
     # Verify growth
     assert grown_buffer.size >= 4 * 1024 * 1024
     assert grown_buffer.size > original_size
-
-    # The pointer should ideally be preserved (fast path)
-    # but may change if contiguous extension fails (slow path)
+    # Because of the slow path, the pointer may change
+    # We cannot assert that the new pointer is the same, 
+    # but we can assert that a new pointer was assigned
     assert grown_buffer.handle is not None
 
     # Test growing to same size (should return original buffer)
