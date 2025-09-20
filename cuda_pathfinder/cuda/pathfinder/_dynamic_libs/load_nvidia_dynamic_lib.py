@@ -77,21 +77,19 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
            - Scan installed distributions (``site-packages``) to find libraries
              shipped in NVIDIA wheels.
 
-        2. **OS default mechanisms / Conda environments**
+        2. **Conda environment**
+
+           - Conda installations are discovered via ``CONDA_PREFIX``, which is
+             predefined in activated conda environments (see
+             https://docs.conda.io/projects/conda-build/en/stable/user-guide/environment-variables.html).
+
+        3. **OS default mechanisms**
 
            - Fall back to the native loader:
 
              - Linux: ``dlopen()``
 
              - Windows: ``LoadLibraryW()``
-
-           - Conda installations are commonly discovered via:
-
-             - Linux: ``$ORIGIN/../lib`` in the ``RPATH`` of the ``python`` binary
-               (note: this can take precedence over ``LD_LIBRARY_PATH`` and
-               ``/etc/ld.so.conf.d/``).
-
-             - Windows: ``%CONDA_PREFIX%\\Library\\bin`` on the system ``PATH``.
 
            - CUDA Toolkit (CTK) system installs with system config updates are often
              discovered via:
@@ -101,7 +99,7 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
              - Windows: ``C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\vX.Y\\bin``
                on the system ``PATH``.
 
-        3. **Environment variables**
+        4. **Environment variables**
 
            - If set, use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
 
