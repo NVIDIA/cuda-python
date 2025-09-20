@@ -356,7 +356,7 @@ def test_vmm_allocator_policy_configuration():
         location_type="device",
         granularity="minimum",
         gpu_direct_rdma=True,
-        handle_type="posix-fd",
+        handle_type="posix_fd",
         peers=(),
         self_access="rw",
         peer_access="rw",
@@ -380,7 +380,7 @@ def test_vmm_allocator_policy_configuration():
         location_type="device",
         granularity="recommended",
         gpu_direct_rdma=False,
-        handle_type="posix-fd",
+        handle_type="posix_fd",
         peers=(),
         self_access="r",  # Read-only access
         peer_access="r",

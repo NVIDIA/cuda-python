@@ -23,7 +23,7 @@ import weakref
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
-from cuda.core.experimental._utils.cuda_utils import driver, Transaction
+from cuda.core.experimental._utils.cuda_utils import driver, Transaction, get_binding_version
 
 if platform.system() == "Linux":
     import socket
@@ -914,9 +914,6 @@ VirtualMemoryAllocationTypeT = Literal["pinned", "managed"]
 class VirtualMemoryResourceOptions:
     """A configuration object for the VirtualMemoryResource
        Stores configuration information which tells the resource how to use the CUDA VMM APIs
-    """
-    """
-    Configuration for CUDA VMM allocations.
 
     Args:
         handle_type: Export handle type for the physical allocation. Use
@@ -948,16 +945,20 @@ class VirtualMemoryResourceOptions:
         f = driver.CUmemAccess_flags
         _access_flags = {"rw": f.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": f.CU_MEM_ACCESS_FLAGS_PROT_READ, "none": 0}
         flags = _access_flags.get(spec)
-        if not flags:
+        if flags is None:
             raise ValueError(f"Unknown access spec: {spec!r}")
         return flags
 
     @staticmethod
     def _allocation_type_to_driver(spec: str):
         f = driver.CUmemAllocationType
-        _allocation_type = {"pinned": f.CU_MEM_ALLOCATION_TYPE_PINNED, "managed": f.CU_MEM_ALLOCATION_TYPE_MANAGED}
+        # CUDA 13+ exposes MANAGED in CUmemAllocationType; older 12.x does not
+        _allocation_type = {"pinned": f.CU_MEM_ALLOCATION_TYPE_PINNED}
+        ver_major, ver_minor = get_binding_version()
+        if ver_major >= 13:
+            _allocation_type["managed"] = f.CU_MEM_ALLOCATION_TYPE_MANAGED
         alloc_type = _allocation_type.get(spec)
-        if not alloc_type:
+        if alloc_type is None:
             raise ValueError(f"Unsupported allocation_type: {spec!r}")
         return alloc_type
 
@@ -966,16 +967,22 @@ class VirtualMemoryResourceOptions:
         f = driver.CUmemLocationType
         _location_type = {"device": f.CU_MEM_LOCATION_TYPE_DEVICE, "host": f.CU_MEM_LOCATION_TYPE_HOST, "host_numa": f.CU_MEM_LOCATION_TYPE_HOST_NUMA, "host_numa_current": f.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT}
         loc_type = _location_type.get(spec)
-        if not loc_type:
+        if loc_type is None:
             raise ValueError(f"Unsupported location_type: {spec!r}")
         return loc_type
 
     @staticmethod
     def _handle_type_to_driver(spec: str):
         f = driver.CUmemAllocationHandleType
-        _handle_type = {"posix_fd": f.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, "generic": f.CU_MEM_HANDLE_TYPE_GENERIC, "none": f.CU_MEM_HANDLE_TYPE_NONE, "win32": f.CU_MEM_HANDLE_TYPE_WIN32, "win32_kmt": f.CU_MEM_HANDLE_TYPE_WIN32_KMT, "fabric": f.CU_MEM_HANDLE_TYPE_FABRIC}
+        _handle_type = {
+            "none": f.CU_MEM_HANDLE_TYPE_NONE,
+            "posix_fd": f.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,
+            "win32": f.CU_MEM_HANDLE_TYPE_WIN32,
+            "win32_kmt": f.CU_MEM_HANDLE_TYPE_WIN32_KMT,
+            "fabric": f.CU_MEM_HANDLE_TYPE_FABRIC,
+        }
         handle_type = _handle_type.get(spec)
-        if not handle_type:
+        if handle_type is None:
             raise ValueError(f"Unsupported handle_type: {spec!r}")
         return handle_type
 
@@ -984,7 +991,7 @@ class VirtualMemoryResourceOptions:
         f = driver.CUmemAllocationGranularity_flags
         _granularity = {"minimum": f.CU_MEM_ALLOC_GRANULARITY_MINIMUM, "recommended": f.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED}
         granularity = _granularity.get(spec)
-        if not granularity:
+        if granularity is None:
             raise ValueError(f"Unsupported granularity: {spec!r}")
         return granularity
 
@@ -1037,6 +1044,10 @@ class VirtualMemoryResource(MemoryResource):
         """
         if config is not None:
             self.config = config
+
+        # No-op if new size is less than or equal to the current size
+        if new_size <= buf.size:
+            return buf
 
         # Build allocation properties for new chunks
         prop = driver.CUmemAllocationProp()
