@@ -1028,6 +1028,9 @@ class VirtualMemoryResource(MemoryResource):
         This implements true growing allocations that preserve the base pointer
         by extending the virtual address range and mapping additional physical memory.
 
+        This function uses transactional allocation: if any step fails, the original buffer is not modified and
+        all steps the function took are rolled back so a new allocation is not created.
+
         Parameters
         ----------
         buf : Buffer
@@ -1040,14 +1043,10 @@ class VirtualMemoryResource(MemoryResource):
         Returns
         -------
         Buffer
-            The same buffer with updated size, preserving the original pointer
+            The same buffer with updated size and properties, preserving the original pointer
         """
         if config is not None:
             self.config = config
-
-        # No-op if new size is less than or equal to the current size
-        if new_size <= buf.size:
-            return buf
 
         # Build allocation properties for new chunks
         prop = driver.CUmemAllocationProp()
@@ -1064,6 +1063,14 @@ class VirtualMemoryResource(MemoryResource):
 
         # Calculate sizes
         additional_size = new_size - buf.size
+        if additional_size <= 0:
+            # Same size: only update access policy if needed; avoid zero-sized driver calls
+            descs = self._build_access_descriptors(prop)
+            if descs:
+                res, = driver.cuMemSetAccess(int(buf.handle), buf.size, descs, len(descs))
+                raise_if_driver_error(res)
+            return buf
+
         aligned_additional_size = self._align_up(additional_size, gran)
         total_aligned_size = self._align_up(new_size, gran)
         aligned_prev_size = total_aligned_size - aligned_additional_size
@@ -1087,10 +1094,22 @@ class VirtualMemoryResource(MemoryResource):
     def _grow_allocation_fast_path(self, buf: Buffer, new_size: int, prop: driver.CUmemAllocationProp,
                                    aligned_additional_size: int, new_ptr: int) -> Buffer:
         """
-        Fast path: extend the VA range contiguously.
+        Fast path for growing a virtual memory allocation when the new region can be
+        reserved contiguously after the existing buffer.
 
-        This preserves the original pointer by mapping new physical memory
-        to the extended portion of the virtual address range.
+        This function creates and maps new physical memory for the additional size,
+        sets access permissions, and updates the buffer size in place (the pointer
+        remains unchanged).
+
+        Args:
+            buf (Buffer): The buffer to grow.
+            new_size (int): The new total size in bytes.
+            prop (driver.CUmemAllocationProp): Allocation properties for the new memory.
+            aligned_additional_size (int): The size of the new region to allocate, aligned to granularity.
+            new_ptr (int): The address of the newly reserved contiguous VA region (should be at the end of the current buffer).
+
+        Returns:
+            Buffer: The same buffer object with its size updated to `new_size`.
         """
         with Transaction() as trans:
             # Create new physical memory for the additional size
@@ -1122,10 +1141,24 @@ class VirtualMemoryResource(MemoryResource):
     def _grow_allocation_slow_path(self, buf: Buffer, new_size: int, prop: driver.CUmemAllocationProp,
                                    aligned_additional_size: int, total_aligned_size: int, addr_align: int) -> Buffer:
         """
-        Slow path: full remapping when contiguous extension fails.
+        Slow path for growing a virtual memory allocation when the new region cannot be
+        reserved contiguously after the existing buffer.
 
-        This creates a new VA range and remaps both old and new physical memory.
-        The buffer's pointer will change.
+        This function reserves a new, larger virtual address (VA) range, remaps the old
+        physical memory to the beginning of the new VA range, creates and maps new physical
+        memory for the additional size, sets access permissions, and updates the buffer's
+        pointer and size.
+
+        Args:
+            buf (Buffer): The buffer to grow.
+            new_size (int): The new total size in bytes.
+            prop (driver.CUmemAllocationProp): Allocation properties for the new memory.
+            aligned_additional_size (int): The size of the new region to allocate, aligned to granularity.
+            total_aligned_size (int): The total new size to reserve, aligned to granularity.
+            addr_align (int): The required address alignment for the new VA range.
+
+        Returns:
+            Buffer: The buffer object updated with the new pointer and size.
         """
         with Transaction() as trans:
             # Reserve a completely new, larger VA range
@@ -1231,7 +1264,33 @@ class VirtualMemoryResource(MemoryResource):
 
     def allocate(self, size: int, stream: Stream = None) -> Buffer:
         """
-        Allocate memory using CUDA VMM with a configurable policy.
+        Allocate a buffer of the given size using CUDA virtual memory.
+
+        Parameters
+        ----------
+        size : int
+            The size in bytes of the buffer to allocate.
+        stream : Stream, optional
+            CUDA stream to associate with the allocation (not currently supported).
+
+        Returns
+        -------
+        Buffer
+            A Buffer object representing the allocated virtual memory.
+
+        Raises
+        ------
+        NotImplementedError
+            If a stream is provided or if the location type is not device memory.
+        CUDAError
+            If any CUDA driver API call fails during allocation.
+
+        Notes
+        -----
+        This method uses transactional allocation: if any step fails, all resources
+        allocated so far are automatically cleaned up. The allocation is performed
+        with the configured granularity, access permissions, and peer access as
+        specified in the resource's configuration.
         """
         if stream is not None:
             raise NotImplementedError("Stream is not supported with VirtualMemoryResource")
@@ -1279,27 +1338,7 @@ class VirtualMemoryResource(MemoryResource):
             raise_if_driver_error(res)
 
             # ---- Set access for owner + peers ----
-            descs = []
-
-            # Owner access
-            owner_flags = VirtualMemoryResourceOptions._access_to_flags(config.self_access)
-            if owner_flags:
-                d = driver.CUmemAccessDesc()
-                d.location.type = prop.location.type
-                d.location.id = prop.location.id
-                d.flags = owner_flags
-                descs.append(d)
-
-            # Peer device access
-            peer_flags = VirtualMemoryResourceOptions._access_to_flags(config.peer_access)
-            for peer_dev in config.peers:
-                if peer_flags:
-                    d = driver.CUmemAccessDesc()
-                    d.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-                    d.location.id = int(peer_dev)
-                    d.flags = peer_flags
-                    descs.append(d)
-
+            descs = self._build_access_descriptors(prop)
             if descs:
                 res, = driver.cuMemSetAccess(ptr, aligned_size, descs, len(descs))
             trans.commit()

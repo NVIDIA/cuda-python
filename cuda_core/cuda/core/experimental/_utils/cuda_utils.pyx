@@ -227,6 +227,23 @@ def get_binding_version():
 
 
 class Transaction:
+    """
+    A context manager for transactional operations with undo capability.
+
+    The Transaction class allows you to register undo actions (callbacks) that will be executed
+    if the transaction is not committed before exiting the context. This is useful for managing
+    resources or operations that need to be rolled back in case of errors or early exits.
+
+    Usage:
+        with Transaction() as txn:
+            txn.append(some_cleanup_function, arg1, arg2)
+            # ... perform operations ...
+            txn.commit()  # Disarm undo actions; nothing will be rolled back on exit
+
+    Methods:
+        append(fn, *args, **kwargs): Register an undo action to be called on rollback.
+        commit(): Disarm all undo actions; nothing will be rolled back on exit.
+    """
     def __init__(self):
         self._stack = ExitStack()
         self._entered = False
