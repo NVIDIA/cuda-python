@@ -80,10 +80,7 @@ def _find_dll_using_nvidia_bin_dirs(
     return None
 
 
-def _find_lib_dir_using_cuda_home(libname: str) -> Optional[str]:
-    cuda_home = get_cuda_home_or_path()
-    if cuda_home is None:
-        return None
+def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str) -> Optional[str]:
     subdirs_list: tuple[tuple[str, ...], ...]
     if IS_WINDOWS:
         if libname == "nvvm":  # noqa: SIM108
@@ -106,9 +103,23 @@ def _find_lib_dir_using_cuda_home(libname: str) -> Optional[str]:
             )
     for sub_dirs in subdirs_list:
         dirname: str  # work around bug in mypy
-        for dirname in find_sub_dirs((cuda_home,), sub_dirs):
+        for dirname in find_sub_dirs((anchor_point,), sub_dirs):
             return dirname
     return None
+
+
+def _find_lib_dir_using_cuda_home(libname: str) -> Optional[str]:
+    cuda_home = get_cuda_home_or_path()
+    if cuda_home is None:
+        return None
+    return _find_lib_dir_using_anchor_point(libname, cuda_home)
+
+
+def _find_lib_dir_using_conda_prefix(libname: str) -> Optional[str]:
+    conda_prefix = os.getenv("CONDA_PREFIX")
+    if not conda_prefix:
+        return None
+    return _find_lib_dir_using_anchor_point(libname, conda_prefix)
 
 
 def _find_so_using_lib_dir(
@@ -146,44 +157,56 @@ class _FindNvidiaDynamicLib:
         self.libname = libname
         self.error_messages: list[str] = []
         self.attachments: list[str] = []
-        self.abs_path = None
+        self.abs_path: Optional[str] = None
 
+        self._try_site_packages()
+        self._try_with_conda_prefix()
+
+    def _try_site_packages(self) -> None:
         if IS_WINDOWS:
-            self.lib_searched_for = f"{libname}*.dll"
+            self.lib_searched_for = f"{self.libname}*.dll"
             if self.abs_path is None:
                 self.abs_path = _find_dll_using_nvidia_bin_dirs(
-                    libname,
+                    self.libname,
                     self.lib_searched_for,
                     self.error_messages,
                     self.attachments,
                 )
         else:
-            self.lib_searched_for = f"lib{libname}.so"
+            self.lib_searched_for = f"lib{self.libname}.so"
             if self.abs_path is None:
                 self.abs_path = _find_so_using_nvidia_lib_dirs(
-                    libname,
+                    self.libname,
                     self.lib_searched_for,
                     self.error_messages,
                     self.attachments,
                 )
 
+    def _try_with_conda_prefix(self) -> None:
+        conda_lib_dir = _find_lib_dir_using_conda_prefix(self.libname)
+        if conda_lib_dir is not None:
+            self._find_using_lib_dir(conda_lib_dir)
+
     def try_with_cuda_home(self) -> None:
         cuda_home_lib_dir = _find_lib_dir_using_cuda_home(self.libname)
         if cuda_home_lib_dir is not None:
-            if IS_WINDOWS:
-                self.abs_path = _find_dll_using_lib_dir(
-                    cuda_home_lib_dir,
-                    self.libname,
-                    self.error_messages,
-                    self.attachments,
-                )
-            else:
-                self.abs_path = _find_so_using_lib_dir(
-                    cuda_home_lib_dir,
-                    self.lib_searched_for,
-                    self.error_messages,
-                    self.attachments,
-                )
+            self._find_using_lib_dir(cuda_home_lib_dir)
+
+    def _find_using_lib_dir(self, lib_dir: str) -> None:
+        if IS_WINDOWS:
+            self.abs_path = _find_dll_using_lib_dir(
+                lib_dir,
+                self.libname,
+                self.error_messages,
+                self.attachments,
+            )
+        else:
+            self.abs_path = _find_so_using_lib_dir(
+                lib_dir,
+                self.lib_searched_for,
+                self.error_messages,
+                self.attachments,
+            )
 
     def raise_if_abs_path_is_None(self) -> str:  # noqa: N802
         if self.abs_path:
