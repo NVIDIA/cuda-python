@@ -100,7 +100,7 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     result = spawned_process_runner.run_in_spawned_child_process(child_process_func, args=(libname,), timeout=timeout)
     if result.returncode == 0:
         info_summary_append(f"abs_path={result.stdout.rstrip()}")
-    elif STRICTNESS == "see_what_works" or "DynamicLibNotFoundError: Failure finding " in result.stderr:
+    elif STRICTNESS == "see_what_works" and "DynamicLibNotFoundError: Failure finding " in result.stderr:
         info_summary_append(f"Not found: {libname=!r}")
     else:
         raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
