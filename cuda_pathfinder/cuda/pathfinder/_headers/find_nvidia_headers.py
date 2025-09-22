@@ -90,7 +90,7 @@ def _find_ctk_header_directory(libname: str) -> Optional[str]:
             if _joined_isfile(hdr_dir, h_basename):
                 return hdr_dir
 
-    conda_prefix = os.getenv("CONDA_PREFIX")
+    conda_prefix = os.environ.get("CONDA_PREFIX")
     if conda_prefix:  # noqa: SIM102
         if result := _find_based_on_conda_layout(libname, h_basename, conda_prefix):
             return result

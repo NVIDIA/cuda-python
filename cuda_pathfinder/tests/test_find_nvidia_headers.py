@@ -59,7 +59,7 @@ def test_find_libname_nvshmem(info_summary_append):
         if have_nvidia_nvshmem_package():
             hdr_dir_parts = hdr_dir.split(os.path.sep)
             assert "site-packages" in hdr_dir_parts
-        elif conda_prefix := os.getenv("CONDA_PREFIX"):
+        elif conda_prefix := os.environ.get("CONDA_PREFIX"):
             assert hdr_dir.startswith(conda_prefix)
         else:
             assert hdr_dir.startswith("/usr/include/nvshmem_")

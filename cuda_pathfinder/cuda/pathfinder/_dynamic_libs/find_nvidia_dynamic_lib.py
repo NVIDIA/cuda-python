@@ -113,7 +113,7 @@ def _find_lib_dir_using_cuda_home(libname: str) -> Optional[str]:
 
 
 def _find_lib_dir_using_conda_prefix(libname: str) -> Optional[str]:
-    conda_prefix = os.getenv("CONDA_PREFIX")
+    conda_prefix = os.environ.get("CONDA_PREFIX")
     if not conda_prefix:
         return None
     return _find_lib_dir_using_anchor_point(
