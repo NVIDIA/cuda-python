@@ -109,12 +109,27 @@ jobs:
 
   checks:
     name: Check job status
+    runs-on: ubuntu-latest
     permissions:
       checks: read
-    needs:
-      - build
-      - test-linux
-      - test-windows
-      - doc
-    secrets: inherit
-    uses: ./.github/workflows/status-check.yml
+    steps:
+      - name: GitHub Checks
+        uses: poseidon/wait-for-status-checks@899c768d191b56eef585c18f8558da19e1f3e707  # v0.6.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          match_pattern: "CI*"
+
+  skip-checks:
+    name: Skip checking job status
+    runs-on: ubuntu-latest
+    # branch name does not start with 'pull-request/'not a PR or commit message title does not contain '[skip ci]'
+    if: ${{ !startsWith(github.ref_name, 'pull-request/') || contains(github.event.push.head_commit.message, '[skip ci]') }}
+    permissions:
+      checks: read
+    steps:
+      - name: GitHub Checks
+        uses: poseidon/wait-for-status-checks@899c768d191b56eef585c18f8558da19e1f3e707  # v0.6.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # ignore all checks if skipping CI
+          ignore_pattern: ".*"
