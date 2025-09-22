@@ -32,6 +32,7 @@ jobs:
           - "3.13"
           - "3.13t"
           - "3.14"
+          - "3.14t"
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
