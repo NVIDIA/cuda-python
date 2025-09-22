@@ -80,7 +80,7 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
         2. **Conda environment**
 
            - Conda installations are discovered via ``CONDA_PREFIX``, which is
-             predefined in activated conda environments (see
+             defined automatically in activated conda environments (see
              https://docs.conda.io/projects/conda-build/en/stable/user-guide/environment-variables.html).
 
         3. **OS default mechanisms**
