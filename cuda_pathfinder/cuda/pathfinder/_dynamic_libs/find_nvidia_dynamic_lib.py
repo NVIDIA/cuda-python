@@ -80,7 +80,7 @@ def _find_dll_using_nvidia_bin_dirs(
     return None
 
 
-def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str) -> Optional[str]:
+def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str, linux_lib_dir: str) -> Optional[str]:
     subdirs_list: tuple[tuple[str, ...], ...]
     if IS_WINDOWS:
         if libname == "nvvm":  # noqa: SIM108
@@ -97,10 +97,7 @@ def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str) -> Optiona
         if libname == "nvvm":  # noqa: SIM108
             subdirs_list = (("nvvm", "lib64"),)
         else:
-            subdirs_list = (
-                ("lib64",),  # CTK
-                ("lib",),  # Conda
-            )
+            subdirs_list = ((linux_lib_dir,),)
     for sub_dirs in subdirs_list:
         dirname: str  # work around bug in mypy
         for dirname in find_sub_dirs((anchor_point,), sub_dirs):
@@ -112,7 +109,7 @@ def _find_lib_dir_using_cuda_home(libname: str) -> Optional[str]:
     cuda_home = get_cuda_home_or_path()
     if cuda_home is None:
         return None
-    return _find_lib_dir_using_anchor_point(libname, cuda_home)
+    return _find_lib_dir_using_anchor_point(libname, anchor_point=cuda_home, linux_lib_dir="lib64")
 
 
 def _find_lib_dir_using_conda_prefix(libname: str) -> Optional[str]:
@@ -120,7 +117,7 @@ def _find_lib_dir_using_conda_prefix(libname: str) -> Optional[str]:
     if not conda_prefix:
         return None
     return _find_lib_dir_using_anchor_point(
-        libname, os.path.join(conda_prefix, "Library") if IS_WINDOWS else conda_prefix
+        libname, anchor_point=os.path.join(conda_prefix, "Library") if IS_WINDOWS else conda_prefix, linux_lib_dir="lib"
     )
 
 
