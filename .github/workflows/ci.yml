@@ -123,7 +123,7 @@ jobs:
   skip-checks:
     name: Skip checking job status
     runs-on: ubuntu-latest
-    # branch name does not start with 'pull-request/'not a PR or commit message title does not contain '[skip ci]'
+    # we can only skip if we're checking against a PR **and** its head commit says to skip ci
     if: ${{ startsWith(github.ref_name, 'pull-request/') && contains(github.event.push.head_commit.message, '[skip ci]') }}
     permissions:
       checks: read
