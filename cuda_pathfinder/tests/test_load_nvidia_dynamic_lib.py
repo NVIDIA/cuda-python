@@ -4,6 +4,8 @@
 import functools
 import json
 import os
+import shlex
+from subprocess import list2cmdline  # nosec B404
 from unittest.mock import patch
 
 import pytest
@@ -91,6 +93,12 @@ def _get_libnames_for_test_load_nvidia_dynamic_lib():
     return tuple(result)
 
 
+def _quote_for_shell_copypaste(s):
+    if os.name == "nt":
+        return list2cmdline([s])
+    return shlex.quote(s)
+
+
 @pytest.mark.parametrize("libname", _get_libnames_for_test_load_nvidia_dynamic_lib())
 def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     # We intentionally run each dynamic library operation in a child process
@@ -112,5 +120,5 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
         info_summary_append(f"Not found: {libname=!r}")
     else:
         abs_path = json.loads(result.stdout.rstrip())
-        info_summary_append(f"{abs_path=}")
+        info_summary_append(f"abs_path={_quote_for_shell_copypaste(abs_path)}")
         assert os.path.isfile(abs_path)  # double-check the abs_path
