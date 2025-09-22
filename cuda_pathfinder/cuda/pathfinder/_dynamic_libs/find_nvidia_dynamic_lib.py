@@ -119,7 +119,9 @@ def _find_lib_dir_using_conda_prefix(libname: str) -> Optional[str]:
     conda_prefix = os.getenv("CONDA_PREFIX")
     if not conda_prefix:
         return None
-    return _find_lib_dir_using_anchor_point(libname, conda_prefix)
+    return _find_lib_dir_using_anchor_point(
+        libname, os.path.join(conda_prefix, "Library") if IS_WINDOWS else conda_prefix
+    )
 
 
 def _find_so_using_lib_dir(
