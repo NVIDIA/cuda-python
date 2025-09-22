@@ -4,8 +4,6 @@
 import functools
 import json
 import os
-import shlex
-from subprocess import list2cmdline  # nosec B404
 from unittest.mock import patch
 
 import pytest
@@ -16,6 +14,7 @@ from cuda.pathfinder import SUPPORTED_NVIDIA_LIBNAMES, load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
 from cuda.pathfinder._utils.find_site_packages_dll import find_all_dll_files_via_metadata
 from cuda.pathfinder._utils.find_site_packages_so import find_all_so_files_via_metadata
+from cuda.pathfinder._utils.platform_aware import quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
@@ -93,12 +92,6 @@ def _get_libnames_for_test_load_nvidia_dynamic_lib():
     return tuple(result)
 
 
-def _quote_for_shell_copypaste(s):
-    if os.name == "nt":
-        return list2cmdline([s])
-    return shlex.quote(s)
-
-
 @pytest.mark.parametrize("libname", _get_libnames_for_test_load_nvidia_dynamic_lib())
 def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     # We intentionally run each dynamic library operation in a child process
@@ -120,5 +113,5 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
         info_summary_append(f"Not found: {libname=!r}")
     else:
         abs_path = json.loads(result.stdout.rstrip())
-        info_summary_append(f"abs_path={_quote_for_shell_copypaste(abs_path)}")
+        info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
         assert os.path.isfile(abs_path)  # double-check the abs_path
