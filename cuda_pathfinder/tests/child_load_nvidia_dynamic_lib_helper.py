@@ -29,10 +29,10 @@ def child_process_func(libname):
     from cuda.pathfinder import DynamicLibNotFoundError, load_nvidia_dynamic_lib
     from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import _load_lib_no_cache
     from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
-        IS_WINDOWS,
         SUPPORTED_LINUX_SONAMES,
         SUPPORTED_WINDOWS_DLLS,
     )
+    from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
     try:
         loaded_dl_fresh = load_nvidia_dynamic_lib(libname)

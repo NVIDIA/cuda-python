@@ -7,9 +7,9 @@ import os
 from typing import Optional
 
 from cuda.pathfinder._headers import supported_nvidia_headers
-from cuda.pathfinder._headers.supported_nvidia_headers import IS_WINDOWS
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
 def _abs_norm(path: Optional[str]) -> Optional[str]:

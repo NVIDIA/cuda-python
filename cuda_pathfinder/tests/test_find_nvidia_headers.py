@@ -22,11 +22,11 @@ import pytest
 
 from cuda.pathfinder import find_nvidia_header_directory
 from cuda.pathfinder._headers.supported_nvidia_headers import (
-    IS_WINDOWS,
     SUPPORTED_HEADERS_CTK,
     SUPPORTED_HEADERS_CTK_ALL,
     SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK,
 )
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")

@@ -7,7 +7,7 @@ import sys
 
 from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _FindNvidiaDynamicLib
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if IS_WINDOWS:
     from cuda.pathfinder._dynamic_libs.load_dl_windows import (
