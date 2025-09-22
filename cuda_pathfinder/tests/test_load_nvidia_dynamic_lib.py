@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
+import json
 import os
 from unittest.mock import patch
 
@@ -98,9 +99,18 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     # interfere across test cases and lead to nondeterministic or platform-specific failures.
     timeout = 120 if supported_nvidia_libs.IS_WINDOWS else 30
     result = spawned_process_runner.run_in_spawned_child_process(child_process_func, args=(libname,), timeout=timeout)
-    if result.returncode == 0:
-        info_summary_append(f"abs_path={result.stdout.rstrip()}")
-    elif STRICTNESS == "see_what_works" and "DynamicLibNotFoundError: Failure finding " in result.stderr:
+
+    def raise_child_process_failed():
+        raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
+
+    if result.returncode != 0:
+        raise_child_process_failed()
+    assert not result.stderr
+    if result.stdout.startswith("CHILD_LOAD_NVIDIA_DYNAMIC_LIB_HELPER_DYNAMIC_LIB_NOT_FOUND_ERROR:"):
+        if STRICTNESS == "all_must_work":
+            raise_child_process_failed()
         info_summary_append(f"Not found: {libname=!r}")
     else:
-        raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
+        abs_path = json.loads(result.stdout.rstrip())
+        info_summary_append(f"{abs_path=}")
+        assert os.path.isfile(abs_path)  # double-check the abs_path
