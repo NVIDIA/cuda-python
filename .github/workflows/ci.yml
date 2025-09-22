@@ -110,6 +110,7 @@ jobs:
   checks:
     name: Check job status
     runs-on: ubuntu-latest
+    # run the checks if we're either 1) not a PR or 2) a PR but the head commit doesn't say to skip
     if: ${{ !startsWith(github.ref_name, 'pull-request/') || !contains(github.event.push.head_commit.message, '[skip ci]') }}
     permissions:
       checks: read
