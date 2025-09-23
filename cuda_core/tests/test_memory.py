@@ -348,7 +348,7 @@ def test_mempool(mempool_device):
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        mr._get_allocation_handle()
+        mr.get_allocation_handle()
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         buffer.export()

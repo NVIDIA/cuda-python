@@ -1160,6 +1160,16 @@ class Device:
     def __repr__(self):
         return f"<Device {self._id} ({self.name})>"
 
+    def __reduce__(self):
+        return Device._reconstruct, (self.device_id,)
+
+    @staticmethod
+    def _reconstruct(device_id):
+        device = Device(device_id)
+        if not device._has_inited:
+            device.set_current()
+        return device
+
     def set_current(self, ctx: Context = None) -> Union[Context, None]:
         """Set device to be used for GPU executions.
 

@@ -7,8 +7,10 @@ except ImportError:
     from cuda import cuda as driver
 
 import ctypes
+
 from cuda.core.experimental import Buffer, MemoryResource
 from cuda.core.experimental._utils.cuda_utils import handle_return
+
 
 class DummyUnifiedMemoryResource(MemoryResource):
     def __init__(self, device):
@@ -66,4 +68,3 @@ class IPCBufferTestHelper:
             assert ctypes.c_byte(ptr[i]).value == ctypes.c_byte(op(starting_from + i)).value, (
                 f"Buffer contains incorrect data at index {i}"
             )
-

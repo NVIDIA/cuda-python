@@ -16,8 +16,10 @@ import abc
 import array
 import cython
 import multiprocessing
+import multiprocessing.reduction
 import os
 import platform
+import sys
 import weakref
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
@@ -28,7 +30,7 @@ if platform.system() == "Linux":
 
 if TYPE_CHECKING:
     import cuda.bindings.driver
-    from cuda.core.experimental._device import Device
+    from ._device import Device
 
 # TODO: define a memory property mixin class and make Buffer and
 # MemoryResource both inherit from it
@@ -71,6 +73,13 @@ cdef class Buffer:
 
     def __del__(self):
         self.close()
+
+    def __reduce__(self):
+        return Buffer._reconstruct, (self.memory_resource, self.export())
+
+    @staticmethod
+    def _reconstruct(mr, desc):
+        return Buffer.import_(mr, desc)
 
     cpdef close(self, stream: Stream = None):
         """Deallocate this buffer asynchronously on the given stream.
@@ -427,12 +436,26 @@ cdef class IPCAllocationHandle:
         """Close the handle."""
         self.close()
 
+    def __reduce__(self):
+        df = multiprocessing.reduction.DupFd(self.handle)
+        return IPCAllocationHandle._reconstruct, (df,)
+
+    @staticmethod
+    def _reconstruct(df):
+        self = IPCAllocationHandle._init(df.detach())
+        return self
+
     def __int__(self) -> int:
         if self._handle < 0:
             raise ValueError(
                 f"Cannot convert IPCAllocationHandle to int: the handle (id={id(self)}) is closed."
             )
         return self._handle
+
+    def detach(self):
+      handle = self._handle
+      self._handle = -1
+      return handle
 
     @property
     def handle(self) -> int:
@@ -462,7 +485,7 @@ cdef class IPCChannel:
     def receive_buffer(self, device: Optional[Device] = None):
         if self._mr is None:
             if device is None:
-                from cuda.core.experimental._device import Device
+                from ._device import Device
                 device = Device()
             self._mr = DeviceMemoryResource.from_shared_channel(device, self)
 
@@ -678,6 +701,9 @@ class DeviceMemoryResource(MemoryResource):
             err, self._mempool_handle = driver.cuMemPoolCreate(properties)
             raise_if_driver_error(err)
 
+            if opts.ipc_enabled:
+                self.get_allocation_handle() # enables Buffer.export
+
     def __del__(self):
         self.close()
 
@@ -693,6 +719,18 @@ class DeviceMemoryResource(MemoryResource):
             self._ipc_handle_type = _NOIPC_HANDLE_TYPE
             self._mempool_owned = False
             self._is_imported = False
+
+    def __reduce__(self):
+        from ._device import Device
+        device = Device(self.device_id)
+        alloc_handle = self.get_allocation_handle()
+        df = multiprocessing.reduction.DupFd(alloc_handle.detach())
+        return DeviceMemoryResource._reconstruct, (device, df)
+
+    @staticmethod
+    def _reconstruct(device, df):
+        alloc_handle = IPCAllocationHandle._init(df.detach())
+        return DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
 
     def create_ipc_channel(self):
         """Create an IPC memory channel for sharing allocations."""
@@ -740,7 +778,6 @@ class DeviceMemoryResource(MemoryResource):
 
         err, self._mempool_handle = driver.cuMemPoolImportFromShareableHandle(int(alloc_handle), _IPC_HANDLE_TYPE, 0)
         raise_if_driver_error(err)
-
         return self
 
     def share_to_channel(self, channel : IPCChannel):
