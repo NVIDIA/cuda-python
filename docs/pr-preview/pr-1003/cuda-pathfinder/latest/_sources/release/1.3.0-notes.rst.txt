@@ -1,0 +1,17 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. module:: cuda.pathfinder
+
+``cuda-pathfinder`` 1.3.0 Release notes
+=======================================
+
+Released on Sep 25, 2025
+
+
+Highlights
+----------
+
+* Add a Conda-specific search into ``load_nvidia_dynamic_lib()``.
+  This makes the search more intuitive and predictable.
+  (`PR #1003 <https://github.com/NVIDIA/cuda-python/pull/1003>`_)
