@@ -14,7 +14,7 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     is_suppressed_dll_file,
 )
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
-from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs, find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
@@ -81,27 +81,30 @@ def _find_dll_using_nvidia_bin_dirs(
 
 
 def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str, linux_lib_dir: str) -> Optional[str]:
-    subdirs_list: tuple[tuple[str, ...], ...]
+    # Resolve paths for the four cases:
+    #    Windows/Linux x nvvm yes/no
     if IS_WINDOWS:
         if libname == "nvvm":  # noqa: SIM108
-            subdirs_list = (
-                ("nvvm", "bin", "*"),  # CTK 13
-                ("nvvm", "bin"),  # CTK 12
-            )
+            rel_paths = [
+                "nvvm/bin/*",  # CTK 13
+                "nvvm/bin",  # CTK 12
+            ]
         else:
-            subdirs_list = (
-                ("bin", "x64"),  # CTK 13
-                ("bin",),  # CTK 12
-            )
+            rel_paths = [
+                "bin/x64",  # CTK 13
+                "bin",  # CTK 12
+            ]
     else:
         if libname == "nvvm":  # noqa: SIM108
-            subdirs_list = (("nvvm", "lib64"),)
+            rel_paths = ["nvvm/lib64"]
         else:
-            subdirs_list = ((linux_lib_dir,),)
-    for sub_dirs in subdirs_list:
-        dirname: str  # work around bug in mypy
-        for dirname in find_sub_dirs((anchor_point,), sub_dirs):
-            return dirname
+            rel_paths = [linux_lib_dir]
+
+    for rel_path in rel_paths:
+        for dirname in sorted(glob.glob(os.path.join(anchor_point, rel_path))):
+            if os.path.isdir(dirname):
+                return dirname
+
     return None
 
 
