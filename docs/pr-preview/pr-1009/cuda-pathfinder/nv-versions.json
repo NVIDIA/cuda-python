@@ -1,0 +1,22 @@
+[
+    {
+        "version": "latest",
+        "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/"
+    },
+    {
+        "version": "1.2.3",
+        "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.2.3/"
+    },
+    {
+        "version": "1.2.2",
+        "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.2.2/"
+    },
+    {
+        "version": "1.2.1",
+        "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.2.1/"
+    },
+    {
+        "version": "1.2.0",
+        "url": "https://nvidia.github.io/cuda-python/cuda-pathfinder/1.2.0/"
+    }
+]
