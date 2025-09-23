@@ -1411,3 +1411,14 @@ def test_getLocalRuntimeVersion():
     else:
         assertSuccess(err)
         assert version >= 12000  # CUDA 12.0
+
+
+def test_getLocalRuntimeVersion_can_be_called_multiple_times():
+    try:
+        cudart.getLocalRuntimeVersion()
+        err, version = cudart.getLocalRuntimeVersion()
+    except pathfinder.DynamicLibNotFoundError:
+        pytest.skip("cudart dynamic lib not available")
+    else:
+        assertSuccess(err)
+        assert version >= 12000  # CUDA 12.0
