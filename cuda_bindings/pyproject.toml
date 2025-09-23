@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 [build-system]
-requires = ["setuptools>=77.0.0", "cython>=3.0,<3.1.0", "pyclibrary>=0.1.7"]
+requires = ["setuptools>=77.0.0", "cython>=3.1,<3.2", "pyclibrary>=0.1.7"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -28,19 +28,16 @@ dynamic = [
 ]
 dependencies = [
   "cuda-pathfinder ~=1.1",
-  "pywin32; sys_platform == 'win32'",
 ]
 
 [project.optional-dependencies]
 all = [
-    "nvidia-cuda-nvcc-cu12",
-    "nvidia-cuda-nvrtc-cu12",
-    "nvidia-nvjitlink-cu12>=12.3",
-    "nvidia-cufile-cu12; sys_platform == 'linux'",
+    "cuda-toolkit[nvrtc,nvjitlink,nvvm]==13.*",
+    "cuda-toolkit[cufile]==13.*; sys_platform == 'linux'",
 ]
 
 test = [
-    "cython>=3.0,<3.1.0",
+    "cython>=3.1,<3.2",
     "setuptools>=77.0.0",
     "numpy>=1.21.1",
     "pytest>=6.2.4",
@@ -85,9 +82,9 @@ select = [
 ]
 
 ignore = [
-    "UP007", 
+    "UP007",
     "E741", # ambiguous variable name such as I
-    "B007", # rename unsued loop variable to _name 
+    "B007", # rename unsued loop variable to _name
     "UP035" # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
 ]
 
@@ -103,13 +100,31 @@ exclude = ["cuda/bindings/_version.py"]
   ]
 
 "tests/**/*" = [
-  "E722", 
+  "E722",
   "UP022",
   "E402", # module level import not at top of file
   "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
 
 "benchmarks/**/*" = [
-  "E722", 
+  "E722",
   "UP022",
   "E402", # module level import not at top of file
   "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
+
+[tool.cibuildwheel]
+skip = "*-musllinux_*"
+enable = "cpython-freethreading"
+build-verbosity = 1
+environment-pass = ["CUDA_PATH", "CUDA_PYTHON_PARALLEL_LEVEL"]
+
+[tool.cibuildwheel.linux]
+archs = "native"
+# CIBW mounts the host filesystem under /host
+environment-pass = ["CUDA_PATH"]
+environment = { CUDA_HOME = "/host/$CUDA_PATH" }
+
+[tool.cibuildwheel.windows]
+archs = "AMD64"
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
+environment = { CUDA_HOME = "$(cygpath -w $CUDA_PATH)" }
