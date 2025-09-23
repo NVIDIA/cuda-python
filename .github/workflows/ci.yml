@@ -125,11 +125,15 @@ jobs:
     name: Skip checking job status
     runs-on: ubuntu-latest
     # we can only skip if we're checking against a PR **and** its head commit says to skip ci
-    if: ${{ startsWith(github.ref_name, 'pull-request/') && contains(github.event.push.head_commit.message, '[skip ci]') }}
+    if: startsWith(github.ref_name, 'pull-request/')
     permissions:
       checks: read
     steps:
+      - name: Get PR title
+        id: get-pr-title
+        run: echo "pr_title=$(gh pr view "$(grep -Po '(\d+)$' <<< '${{ github.ref_name }}')" --json title --jq '.title')" >> "$GITHUB_OUTPUT"
       - name: GitHub Checks
+        if: contains(steps.get-pr-title.outputs.pr_title, '[skip ci]')
         uses: poseidon/wait-for-status-checks@899c768d191b56eef585c18f8558da19e1f3e707  # v0.6.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
