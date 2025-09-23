@@ -1404,21 +1404,12 @@ def test_struct_pointer_comparison(target):
 
 
 def test_getLocalRuntimeVersion():
-    try:
-        err, version = cudart.getLocalRuntimeVersion()
-    except pathfinder.DynamicLibNotFoundError:
-        pytest.skip("cudart dynamic lib not available")
-    else:
-        assertSuccess(err)
-        assert version >= 12000  # CUDA 12.0
-
-
-def test_getLocalRuntimeVersion_can_be_called_multiple_times():
-    try:
-        cudart.getLocalRuntimeVersion()
-        err, version = cudart.getLocalRuntimeVersion()
-    except pathfinder.DynamicLibNotFoundError:
-        pytest.skip("cudart dynamic lib not available")
-    else:
-        assertSuccess(err)
-        assert version >= 12000  # CUDA 12.0
+    # verify that successive calls do not segfault the interpreter
+    for _ in range(10):
+        try:
+            err, version = cudart.getLocalRuntimeVersion()
+        except pathfinder.DynamicLibNotFoundError:
+            pytest.skip("cudart dynamic lib not available")
+        else:
+            assertSuccess(err)
+            assert version >= 12000  # CUDA 12.0
