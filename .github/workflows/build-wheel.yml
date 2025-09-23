@@ -31,6 +31,8 @@ jobs:
           - "3.12"
           - "3.13"
           - "3.13t"
+          - "3.14"
+          - "3.14t"
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
@@ -225,6 +227,8 @@ jobs:
         with:
           # workaround for actions/runner-images#12377 (the cached 3.13.4 is buggy on Windows)
           python-version: ${{ matrix.python-version == '3.13' && '3.13.5' || matrix.python-version }}
+          # allow prereleases only fetches prereleases for unreleased versions of Python
+          allow-prereleases: true
 
       - name: verify free-threaded build
         if: endsWith(matrix.python-verison, 't')
