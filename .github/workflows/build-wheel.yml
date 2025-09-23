@@ -111,8 +111,6 @@ jobs:
 
       - name: Build cuda.core wheel
         uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6  # v3.1.4
-        env:
-          CIBW_BUILD: ${{ env.CIBW_BUILD }}
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -147,8 +145,6 @@ jobs:
 
       - name: Build cuda.bindings wheel
         uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6  # v3.1.4
-        env:
-          CIBW_BUILD: ${{ env.CIBW_BUILD }}
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
