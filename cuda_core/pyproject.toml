@@ -114,3 +114,17 @@ exclude = ["cuda/core/_version.py"]
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "setup.py" = ["F401"]
+
+[tool.cibuildwheel]
+skip = "*-musllinux_*"
+enable = "cpython-freethreading"
+build-verbosity = 1
+environment-pass = ["CUDA_PYTHON_PARALLEL_LEVEL"]
+
+[tool.cibuildwheel.linux]
+archs = "native"
+
+[tool.cibuildwheel.windows]
+archs = "AMD64"
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
