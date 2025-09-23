@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
-requires = ["setuptools>=77.0.0", "Cython>=3.0"]
+requires = ["setuptools>=77.0.0", "Cython>=3.1"]
 build-backend = "setuptools.build_meta"
 
 
@@ -48,9 +48,17 @@ dependencies = [
 [project.optional-dependencies]
 cu11 = ["cuda-bindings[all]==11.8.*"]
 cu12 = ["cuda-bindings[all]==12.*"]
-test = ["cython>=3.0", "setuptools", "pytest>=6.2.4"]
-test-cu11 = ["cuda-core[test]", "cupy-cuda11x", "nvidia-cuda-runtime-cu11"]  # runtime headers needed by CuPy
-test-cu12 = ["cuda-core[test]", "cupy-cuda12x", "nvidia-cuda-runtime-cu12"]  # runtime headers needed by CuPy
+cu13 = ["cuda-bindings[all]==13.*"]
+# TODO: these should all be in development dependencies; optional dependencies
+# are for features exposed to *users*, not a dumping ground for all tooling
+# needed to build and test the project
+test = ["cython>=3.1", "setuptools", "pytest>=6.2.4"]
+test-cu11 = ["cuda-core[test]", "cupy-cuda11x; python_version < '3.14'", "cuda-toolkit[cudart]==11.*"]  # runtime headers needed by CuPy
+test-cu12 = ["cuda-core[test]", "cupy-cuda12x; python_version < '3.14'", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
+test-cu13 = ["cuda-core[test]", "cupy-cuda13x; python_version < '3.14'", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
+# free threaded build, cupy doesn't support free-threaded builds yet, so avoid installing it for now
+# TODO: cupy should support free threaded builds
+test-cu13-ft = ["cuda-core[test]", "cuda-toolkit[cudart]==13.*"]
 
 [project.urls]
 homepage = "https://nvidia.github.io/cuda-python/"
@@ -95,9 +103,9 @@ select = [
 ]
 
 ignore = [
-    "UP007", 
+    "UP007",
     "E741", # ambiguous variable name such as I
-    "B007", # rename unsued loop variable to _name 
+    "B007", # rename unsued loop variable to _name
     "UP035" # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
 ]
 
@@ -106,3 +114,17 @@ exclude = ["cuda/core/_version.py"]
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "setup.py" = ["F401"]
+
+[tool.cibuildwheel]
+skip = "*-musllinux_*"
+enable = "cpython-freethreading"
+build-verbosity = 1
+environment-pass = ["CUDA_PYTHON_PARALLEL_LEVEL"]
+
+[tool.cibuildwheel.linux]
+archs = "native"
+
+[tool.cibuildwheel.windows]
+archs = "AMD64"
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
