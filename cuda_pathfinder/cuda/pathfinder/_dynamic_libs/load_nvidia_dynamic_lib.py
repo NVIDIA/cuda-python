@@ -1,9 +1,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import ctypes
 import functools
 import struct
 import sys
+import weakref
 
 from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _FindNvidiaDynamicLib
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
@@ -14,12 +16,14 @@ if IS_WINDOWS:
         check_if_already_loaded_from_elsewhere,
         load_with_abs_path,
         load_with_system_search,
+        unload_dl,
     )
 else:
     from cuda.pathfinder._dynamic_libs.load_dl_linux import (
         check_if_already_loaded_from_elsewhere,
         load_with_abs_path,
         load_with_system_search,
+        unload_dl,
     )
 
 
@@ -117,4 +121,13 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
             f" Currently running: {pointer_size_bits}-bit Python"
             f" {sys.version_info.major}.{sys.version_info.minor}"
         )
-    return _load_lib_no_cache(libname)
+
+    library = _load_lib_no_cache(libname)
+
+    # Ensure that the library is unloaded after GC runs on `library`
+    #
+    # We only need the address, so the rest of whatever is in `library` is free
+    # to be cleaned up. The integer address is immutable, so it gets copied
+    # upon being referenced here
+    weakref.finalize(library, unload_dl, ctypes.c_void_p(library._handle_uint))
+    return library

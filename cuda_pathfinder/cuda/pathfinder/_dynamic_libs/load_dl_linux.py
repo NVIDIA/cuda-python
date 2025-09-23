@@ -38,9 +38,18 @@ LIBDL.dlinfo.restype = ctypes.c_int
 LIBDL.dlerror.argtypes = []
 LIBDL.dlerror.restype = ctypes.c_char_p
 
+LIBDL.dlclose.argtypes = [ctypes.c_void_p]
+LIBDL.dlclose.restype = ctypes.c_int
+
 # First appeared in 2004-era glibc. Universally correct on Linux for all practical purposes.
 RTLD_DI_LINKMAP = 2
 RTLD_DI_ORIGIN = 6
+
+
+def unload_dl(handle: ctypes.c_void_p) -> None:
+    result = LIBDL.dlclose(handle)
+    if result:
+        raise RuntimeError(LIBDL.dlerror())
 
 
 class _LinkMapLNameView(ctypes.Structure):
