@@ -37,7 +37,7 @@ def child_process_func(libname):
     try:
         loaded_dl_fresh = load_nvidia_dynamic_lib(libname)
     except DynamicLibNotFoundError:
-        sys.stdout.write("CHILD_LOAD_NVIDIA_DYNAMIC_LIB_HELPER_DYNAMIC_LIB_NOT_FOUND_ERROR:\n")
+        print("CHILD_LOAD_NVIDIA_DYNAMIC_LIB_HELPER_DYNAMIC_LIB_NOT_FOUND_ERROR:")  # noqa: T201
         traceback.print_exc(file=sys.stdout)
         return
     if loaded_dl_fresh.was_already_loaded_from_elsewhere:
@@ -57,4 +57,4 @@ def child_process_func(libname):
         raise RuntimeError(f"not os.path.samefile({loaded_dl_no_cache.abs_path=!r}, {loaded_dl_fresh.abs_path=!r})")
     validate_abs_path(loaded_dl_no_cache.abs_path)
 
-    sys.stdout.write(json.dumps(loaded_dl_fresh.abs_path) + "\n")
+    print(json.dumps(loaded_dl_fresh.abs_path))  # noqa: T201
