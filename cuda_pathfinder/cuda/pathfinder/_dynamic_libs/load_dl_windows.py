@@ -46,9 +46,6 @@ kernel32.GetModuleFileNameW.restype = ctypes.wintypes.DWORD
 kernel32.AddDllDirectory.argtypes = [ctypes.wintypes.LPCWSTR]
 kernel32.AddDllDirectory.restype = ctypes.c_void_p  # DLL_DIRECTORY_COOKIE
 
-kernel32.FreeLibrary.argtypes = [ctypes.wintypes.HMODULE]
-kernel32.FreeLibrary.restype = ctypes.c_bool
-
 
 def ctypes_handle_to_unsigned_int(handle: ctypes.wintypes.HMODULE) -> int:
     """Convert ctypes HMODULE to unsigned int."""
@@ -160,9 +157,3 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
         raise RuntimeError(f"Failed to load DLL at {found_path}: Windows error {error_code}")
 
     return LoadedDL(found_path, False, ctypes_handle_to_unsigned_int(handle))
-
-
-def unload_dl(handle: ctypes.c_void_p) -> None:
-    result = kernel32.FreeLibrary(handle)
-    if not result:
-        raise RuntimeError(f"Failed to load windows DLL with error code: {ctypes.GetLastError()}")
