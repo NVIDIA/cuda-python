@@ -16,6 +16,7 @@ import abc
 import array
 import cython
 import multiprocessing
+import multiprocessing.context
 import multiprocessing.reduction
 import os
 import platform
@@ -437,7 +438,9 @@ cdef class IPCAllocationHandle:
         self.close()
 
     def __reduce__(self):
-        df = multiprocessing.reduction.DupFd(self.handle)
+        multiprocessing.context.assert_spawning(self)
+        fd = os.dup(self.handle)
+        df = multiprocessing.reduction.DupFd(fd)
         return IPCAllocationHandle._reconstruct, (df,)
 
     @staticmethod
@@ -617,6 +620,12 @@ class DeviceMemoryResourceAttributes:
     del mempool_property
 
 
+# Holds DeviceMemoryResource objects imported by this process.
+# This enables buffer serialization, as buffers can reduce to a pair
+# of comprising the memory resource `remote_id` (the key into this registry)
+# and the serialized buffer descriptor.
+_ipc_registry = {}
+
 class DeviceMemoryResource(MemoryResource):
     """Create a device memory resource managing a stream-ordered memory pool.
 
@@ -640,7 +649,7 @@ class DeviceMemoryResource(MemoryResource):
         device memory resource does not own the pool (`is_handle_owned` is
         `False`), and closing the resource has no effect.
     """
-    __slots__ = "_dev_id", "_mempool_handle", "_attributes", "_ipc_handle_type", "_mempool_owned", "_is_imported"
+    __slots__ = "_dev_id", "_mempool_handle", "_attributes", "_ipc_handle_type", "_mempool_owned", "_is_imported", "_remote_id"
 
     def __init__(self, device_id: int | Device, options=None):
         device_id = getattr(device_id, 'device_id', device_id)
@@ -656,6 +665,7 @@ class DeviceMemoryResource(MemoryResource):
             self._ipc_handle_type = _NOIPC_HANDLE_TYPE
             self._mempool_owned = False
             self._is_imported = False
+            self._remote_id = None
 
             err, self._mempool_handle = driver.cuDeviceGetMemPool(self.device_id)
             raise_if_driver_error(err)
@@ -697,6 +707,7 @@ class DeviceMemoryResource(MemoryResource):
             self._ipc_handle_type = properties.handleTypes
             self._mempool_owned = True
             self._is_imported = False
+            self._remote_id = None
 
             err, self._mempool_handle = driver.cuMemPoolCreate(properties)
             raise_if_driver_error(err)
@@ -709,28 +720,57 @@ class DeviceMemoryResource(MemoryResource):
 
     def close(self):
         """Close the device memory resource and destroy the associated memory pool if owned."""
-        if self._mempool_handle is not None and self._mempool_owned:
-            err, = driver.cuMemPoolDestroy(self._mempool_handle)
-            raise_if_driver_error(err)
+        if self._mempool_handle is not None:
+            try:
+                if self._mempool_owned:
+                    err, = driver.cuMemPoolDestroy(self._mempool_handle)
+                    raise_if_driver_error(err)
+            finally:
+                self._dev_id = None
+                self._mempool_handle = None
+                self._attributes = None
+                self._ipc_handle_type = _NOIPC_HANDLE_TYPE
+                self._mempool_owned = False
+                self._is_imported = False
+                self._remote_id = None
 
-            self._dev_id = None
-            self._mempool_handle = None
-            self._attributes = None
-            self._ipc_handle_type = _NOIPC_HANDLE_TYPE
-            self._mempool_owned = False
-            self._is_imported = False
 
     def __reduce__(self):
-        from ._device import Device
-        device = Device(self.device_id)
-        alloc_handle = self.get_allocation_handle()
-        df = multiprocessing.reduction.DupFd(alloc_handle.detach())
-        return DeviceMemoryResource._reconstruct, (device, df)
+        # If spawning a new process, serialize the resources; otherwise, just
+        # send the remote_id, using the registry on the receiving end.
+        is_spawning = multiprocessing.context.get_spawning_popen() is not None
+        if is_spawning:
+            from ._device import Device
+            device = Device(self.device_id)
+            alloc_handle = self.get_allocation_handle()
+            return DeviceMemoryResource._reconstruct, (device, alloc_handle, self.remote_id)
+        else:
+            return DeviceMemoryResource.from_registry, (self.remote_id,)
 
     @staticmethod
-    def _reconstruct(device, df):
-        alloc_handle = IPCAllocationHandle._init(df.detach())
-        return DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
+    def _reconstruct(device, alloc_handle, remote_id):
+        self = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
+        self.register(remote_id)
+        return self
+
+    @staticmethod
+    def from_registry(remote_id):
+        try:
+            return _ipc_registry[remote_id]
+        except KeyError:
+            raise RuntimeError(f"Memory resource with {remote_id=} was not found")
+
+    def register(self, remote_id: int):
+        if remote_id not in _ipc_registry:
+            assert self._remote_id is None or self._remote_id == remote_id
+            _ipc_registry[remote_id] = self
+            self._remote_id = remote_id
+
+    @property
+    def remote_id(self):
+        if self._remote_id is None and not self._is_imported:
+            self._remote_id = int(self._mempool_handle)
+        return self._remote_id
 
     def create_ipc_channel(self):
         """Create an IPC memory channel for sharing allocations."""
@@ -746,7 +786,7 @@ class DeviceMemoryResource(MemoryResource):
         return cls.from_allocation_handle(device_id, alloc_handle)
 
     @classmethod
-    def from_allocation_handle(cls, device_id: int | Device, alloc_handle: IPCAllocationHandle) -> DeviceMemoryResource:
+    def from_allocation_handle(cls, device_id: int | Device, alloc_handle: int | IPCAllocationHandle) -> DeviceMemoryResource:
         """Create a device memory resource from an allocation handle.
 
         Construct a new `DeviceMemoryResource` instance that imports a memory
@@ -759,7 +799,7 @@ class DeviceMemoryResource(MemoryResource):
             The ID of the device or a Device object for which the memory
             resource is created.
 
-        alloc_handle : int
+        alloc_handle : int | IPCAllocationHandle
             The shareable handle of the device memory resource to import.
 
         Returns
@@ -775,6 +815,7 @@ class DeviceMemoryResource(MemoryResource):
         self._ipc_handle_type = _IPC_HANDLE_TYPE
         self._mempool_owned = True
         self._is_imported = True
+        self._remote_id = None
 
         err, self._mempool_handle = driver.cuMemPoolImportFromShareableHandle(int(alloc_handle), _IPC_HANDLE_TYPE, 0)
         raise_if_driver_error(err)
@@ -797,6 +838,8 @@ class DeviceMemoryResource(MemoryResource):
         """
         if not self.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
+        if self._is_imported:
+            raise RuntimeError("Imported memory resource cannot be exported")
         err, alloc_handle = driver.cuMemPoolExportToShareableHandle(self._mempool_handle, _IPC_HANDLE_TYPE, 0)
         raise_if_driver_error(err)
         return IPCAllocationHandle._init(alloc_handle)

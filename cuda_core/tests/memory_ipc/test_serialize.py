@@ -1,79 +1,133 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import multiprocessing
+import multiprocessing as mp
+import multiprocessing.reduction
+import os
 
-import pytest
 from utility import IPCBufferTestHelper
 
-from cuda.core.experimental import Buffer, DeviceMemoryResource
+from cuda.core.experimental import Buffer, Device, DeviceMemoryResource
 
-CHILD_TIMEOUT_SEC = 10
+CHILD_TIMEOUT_SEC = 4
 NBYTES = 64
 POOL_SIZE = 2097152
 
 
-class TestObjectSerialization:
-    @pytest.mark.parametrize("use_alloc_handle", [True, False])
-    def test_main(self, use_alloc_handle, device, ipc_memory_resource):
-        """Test sending IPC memory objects to a child through a queue."""
+class TestObjectSerializationDirect:
+    """
+    Test the low-level interface for sharing memory resources.
+
+    Send a memory resource over a connection via Python's `send_handle`. Reconstruct
+    it on the other end and demonstrate buffer sharing.
+    """
+
+    def test_main(self, device, ipc_memory_resource):
         mr = ipc_memory_resource
 
         # Start the child process.
-        pipe = [multiprocessing.Queue() for _ in range(2)]
-        process = multiprocessing.Process(target=self.child_main, args=(pipe, use_alloc_handle))
+        parent_conn, child_conn = mp.Pipe()
+        process = mp.Process(target=self.child_main, args=(child_conn,))
         process.start()
 
-        # Send a device description.
-        pipe[0].put(device)
-        device_id = pipe[1].get()
-        assert device_id == device.device_id
-
-        # Send a memory resource directly or by allocation handle.
-        # Note: there is no apparent way to check the ID between processes.
-        if use_alloc_handle:
-            # Send MR by a handle.
-            alloc_handle = mr.get_allocation_handle()
-            pipe[0].put(alloc_handle)
-        else:
-            # Send MR directly.
-            pipe[0].put(mr)
+        # Send a memory resource by allocation handle.
+        alloc_handle = mr.get_allocation_handle()
+        mp.reduction.send_handle(parent_conn, alloc_handle.handle, process.pid)
+        parent_conn.send(mr.remote_id)
 
         # Send a buffer.
-        buffer = mr.allocate(NBYTES)
-        helper = IPCBufferTestHelper(device, buffer)
-        helper.fill_buffer(flipped=False)
-        pipe[0].put(buffer)
-        pipe[1].get()  # signal done
-        helper.verify_buffer(flipped=True)
+        buffer1 = mr.allocate(NBYTES)
+        parent_conn.send(buffer1)  # directly
+
+        buffer2 = mr.allocate(NBYTES)
+        parent_conn.send(buffer2.export())  # by descriptor
 
         # Wait for the child process.
         process.join(timeout=CHILD_TIMEOUT_SEC)
         assert process.exitcode == 0
 
-    def child_main(self, pipe, use_alloc_handle):
+        # Confirm buffers were modified.
+        IPCBufferTestHelper(device, buffer1).verify_buffer(flipped=True)
+        IPCBufferTestHelper(device, buffer2).verify_buffer(flipped=True)
+
+    def child_main(self, conn):
+        # Set up the device.
+        device = Device()
+        device.set_current()
+
+        # Receive the memory resource.
+        handle = mp.reduction.recv_handle(conn)
+        remote_id = conn.recv()
+        mr = DeviceMemoryResource.from_allocation_handle(device, handle)
+        mr.register(remote_id)
+        os.close(handle)
+
+        # Receive the buffers.
+        buffer1 = conn.recv()  # directly
+        buffer_desc = conn.recv()
+        buffer2 = Buffer.import_(mr, buffer_desc)  # by descriptor
+
+        # Modify the buffers.
+        IPCBufferTestHelper(device, buffer1).fill_buffer(flipped=True)
+        IPCBufferTestHelper(device, buffer2).fill_buffer(flipped=True)
+
+
+class TestObjectSerializationWithMR:
+    def test_main(self, device, ipc_memory_resource):
+        """Test sending IPC memory objects to a child through a queue."""
+        mr = ipc_memory_resource
+
+        # Start the child process.
+        pipe = [mp.Queue() for _ in range(2)]
+        process = mp.Process(target=self.child_main, args=(pipe, mr))
+        process.start()
+
+        # Send a device description.
+        pipe[0].put(device)
+        device_id = pipe[1].get(timeout=CHILD_TIMEOUT_SEC)
+        assert device_id == device.device_id
+
+        # Send a memory resource directly. This relies on the mr already
+        # being passed when spawning the child.
+        pipe[0].put(mr)
+        remote_id = pipe[1].get(timeout=CHILD_TIMEOUT_SEC)
+        assert remote_id == mr.remote_id
+
+        # Send a buffer.
+        buffer = mr.allocate(NBYTES)
+        pipe[0].put(buffer)
+
+        # Wait for the child process.
+        process.join(timeout=CHILD_TIMEOUT_SEC)
+        assert process.exitcode == 0
+
+        # Confirm buffer was modified.
+        IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
+
+    def child_main(self, pipe, _):
         # Device.
-        device = pipe[0].get()
+        device = pipe[0].get(timeout=CHILD_TIMEOUT_SEC)
         pipe[1].put(device.device_id)
 
         # Memory resource.
-        if use_alloc_handle:
-            alloc_handle = pipe[0].get()
-            mr = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
-        else:
-            mr = pipe[0].get()
+        mr = pipe[0].get(timeout=CHILD_TIMEOUT_SEC)
+        pipe[1].put(mr.remote_id)
 
         # Buffer.
-        buffer = pipe[0].get()
+        buffer = pipe[0].get(timeout=CHILD_TIMEOUT_SEC)
         assert buffer.memory_resource.handle == mr.handle
-        helper = IPCBufferTestHelper(device, buffer)
-        helper.verify_buffer(flipped=False)
-        helper.fill_buffer(flipped=True)
-        pipe[1].put(None)
+        IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
 
 
 def test_object_passing(device, ipc_memory_resource):
-    """Test sending objects as arguments when starting a process."""
+    """
+    Test sending objects as arguments when starting a process.
+
+    True pickling of allocation handles and memory resources is enabled only
+    when spawning a process. This is similar to the way sockets and various objects
+    in multiprocessing (e.g., Queue) work.
+    """
+
     # Define the objects.
     mr = ipc_memory_resource
     alloc_handle = mr.get_allocation_handle()
@@ -84,7 +138,7 @@ def test_object_passing(device, ipc_memory_resource):
     helper.fill_buffer(flipped=False)
 
     # Start the child process.
-    process = multiprocessing.Process(target=child_main, args=(device, alloc_handle, mr, buffer_desc, buffer))
+    process = mp.Process(target=child_main, args=(device, alloc_handle, mr, buffer_desc, buffer))
     process.start()
     process.join(timeout=CHILD_TIMEOUT_SEC)
     assert process.exitcode == 0
@@ -95,8 +149,8 @@ def test_object_passing(device, ipc_memory_resource):
 def child_main(device, alloc_handle, mr1, buffer_desc, buffer1):
     mr2 = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
 
-    # OK to build the buffer from either mr and descriptor.
-    # These all point to the same buffer.
+    # OK to build the buffer from either mr and the descriptor.
+    # All buffer* objects point to the same memory.
     buffer2 = Buffer.import_(mr1, buffer_desc)
     buffer3 = Buffer.import_(mr2, buffer_desc)
 
@@ -108,18 +162,21 @@ def child_main(device, alloc_handle, mr1, buffer_desc, buffer1):
     helper2.verify_buffer(flipped=False)
     helper3.verify_buffer(flipped=False)
 
+    # Modify 1.
     helper1.fill_buffer(flipped=True)
 
     helper1.verify_buffer(flipped=True)
     helper2.verify_buffer(flipped=True)
     helper3.verify_buffer(flipped=True)
 
+    # Modify 2.
     helper2.fill_buffer(flipped=False)
 
     helper1.verify_buffer(flipped=False)
     helper2.verify_buffer(flipped=False)
     helper3.verify_buffer(flipped=False)
 
+    # Modify 3.
     helper3.fill_buffer(flipped=True)
 
     helper1.verify_buffer(flipped=True)

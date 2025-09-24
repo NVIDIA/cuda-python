@@ -6,7 +6,7 @@ import multiprocessing
 from cuda.core.experimental import Buffer, DeviceMemoryResource
 from cuda.core.experimental._utils.cuda_utils import CUDAError
 
-CHILD_TIMEOUT_SEC = 10
+CHILD_TIMEOUT_SEC = 4
 NBYTES = 64
 POOL_SIZE = 2097152
 
@@ -24,7 +24,7 @@ class ChildErrorHarness:
 
         # Start a child process to generate error info.
         pipe = [multiprocessing.Queue() for _ in range(2)]
-        process = multiprocessing.Process(target=self.child_main, args=(pipe,))
+        process = multiprocessing.Process(target=self.child_main, args=(pipe, self.device, self.mr))
         process.start()
 
         # Interact.
@@ -38,8 +38,10 @@ class ChildErrorHarness:
         process.join(timeout=CHILD_TIMEOUT_SEC)
         assert process.exitcode == 0
 
-    def child_main(self, pipe):
+    def child_main(self, pipe, device, mr):
         """Child process that pushes IPC errors to a shared pipe for testing."""
+        self.device = device
+        self.mr = mr
         try:
             self.CHILD_ACTION(pipe[0])
         except Exception as e:
@@ -56,7 +58,7 @@ class TestAllocFromImportedMr(ChildErrorHarness):
         queue.put(self.mr)
 
     def CHILD_ACTION(self, queue):
-        mr = queue.get()
+        mr = queue.get(timeout=CHILD_TIMEOUT_SEC)
         mr.allocate(NBYTES)
 
     def ASSERT(self, exc_type, exc_msg):
@@ -73,9 +75,42 @@ class TestImportWrongMR(ChildErrorHarness):
         queue.put([self.mr, buffer.export()])  # Note: mr does not own this buffer
 
     def CHILD_ACTION(self, queue):
-        mr, buffer_desc = queue.get()
+        mr, buffer_desc = queue.get(timeout=CHILD_TIMEOUT_SEC)
         Buffer.import_(mr, buffer_desc)
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is CUDAError
         assert "CUDA_ERROR_INVALID_VALUE" in exc_msg
+
+
+class TestExportImportedMR(ChildErrorHarness):
+    """Error when exporting a memory resource that was imported."""
+
+    def PARENT_ACTION(self, queue):
+        queue.put(self.mr)
+
+    def CHILD_ACTION(self, queue):
+        mr = queue.get(timeout=CHILD_TIMEOUT_SEC)
+        mr.get_allocation_handle()
+
+    def ASSERT(self, exc_type, exc_msg):
+        assert exc_type is RuntimeError
+        assert exc_msg == "Imported memory resource cannot be exported"
+
+
+class TestImportBuffer(ChildErrorHarness):
+    """Error when using a buffer as a buffer descriptor."""
+
+    def PARENT_ACTION(self, queue):
+        # Note: if the buffer is not attached to something to prolong its life,
+        # CUDA_ERROR_INVALID_CONTEXT is raised from Buffer.__del__
+        self.buffer = self.mr.allocate(NBYTES)
+        queue.put(self.buffer)
+
+    def CHILD_ACTION(self, queue):
+        buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
+        Buffer.import_(self.mr, buffer)
+
+    def ASSERT(self, exc_type, exc_msg):
+        assert exc_type is TypeError
+        assert exc_msg.startswith("Argument 'ipc_buffer' has incorrect type")

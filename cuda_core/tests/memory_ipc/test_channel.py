@@ -7,7 +7,7 @@ from utility import IPCBufferTestHelper
 
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, IPCChannel
 
-CHILD_TIMEOUT_SEC = 10
+CHILD_TIMEOUT_SEC = 4
 NBYTES = 64
 NWORKERS = 2
 NTASKS = 2
@@ -134,7 +134,7 @@ def child_main3(idx, channel, queue):
     device.set_current()
     alloc_handle = channel.receive_allocation_handle()
     mr = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
-    buffer_descriptor = queue.get()
+    buffer_descriptor = queue.get(timeout=CHILD_TIMEOUT_SEC)
     buffer = Buffer.import_(mr, buffer_descriptor)
     IPCBufferTestHelper(device, buffer).fill_buffer(starting_from=idx)
 

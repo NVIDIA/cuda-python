@@ -1,16 +1,19 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.core.experimental import Device, DeviceMemoryResource
-from itertools import cycle
-from utility import IPCBufferTestHelper
 import multiprocessing
+from itertools import cycle
 
-CHILD_TIMEOUT_SEC = 10
+from utility import IPCBufferTestHelper
+
+from cuda.core.experimental import Device, DeviceMemoryResource
+
+CHILD_TIMEOUT_SEC = 4
 NBYTES = 64
 NMRS = 3
 NTASKS = 7
 POOL_SIZE = 2097152
+
 
 def test_ipc_send_buffers(device, ipc_memory_resource):
     """Test passing buffers directly to a child separately from a memory resource."""
@@ -34,6 +37,7 @@ def test_ipc_send_buffers(device, ipc_memory_resource):
     for buffer in buffers:
         helper = IPCBufferTestHelper(device, buffer)
         helper.verify_buffer(flipped=True)
+
 
 def test_ipc_send_buffers_multi(device, ipc_memory_resource):
     """Test passing buffers sourced from multiple memory resources."""
