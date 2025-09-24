@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.handle\_register
-=====================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: handle_register
