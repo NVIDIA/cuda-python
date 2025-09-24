@@ -16,6 +16,11 @@ mkdir -p ~/.git-hooks
 ---
 
 ## 2. Create the Pre‑Push Hook
+
+Before adding this new hook, check if ~/.git-hooks/pre-push already exists.
+If it does, do not overwrite it — instead, add the branch‑protection logic to your current hook so both sets of checks run.
+
+Open your existing hook:
 ```bash
 vim ~/.git-hooks/pre-push
 ```
