@@ -1,9 +1,9 @@
 # 🔒 Prevent Accidental Pushes to `main`/`master` — With Emergency Override
 
-This guide sets up a **global Git pre‑push hook** that blocks pushes to protected branches (`main` and `master`) unless you explicitly use the override flag:
+This guide sets up a **global Git pre‑push hook** that blocks pushes to protected branches (`main` and `master`) unless you explicitly set an environment variable override:
 
 ```
---break_glass_to_push_main
+BREAK_GLASS_MAIN_PUSH=1
 ```
 
 ---
@@ -17,31 +17,29 @@ mkdir -p ~/.git-hooks
 
 ## 2. Create the Pre‑Push Hook
 
-Before adding this new hook, check if ~/.git-hooks/pre-push already exists.
-If it does, do not overwrite it — instead, add the branch‑protection logic to your current hook so both sets of checks run.
+Before adding this new hook, check if `~/.git-hooks/pre-push` already exists.
+If it does, **do not overwrite it** — instead, merge the branch‑protection logic into your current hook so both sets of checks run.
 
 Open your existing hook:
 ```bash
-vim ~/.git-hooks/pre-push
+my-favorite-text-editor ~/.git-hooks/pre-push
 ```
 
 Paste in:
 ```bash
 #!/bin/sh
 branch="$(git symbolic-ref --short HEAD)"
-override_flag="--break_glass_to_push_main"
 
 if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
-    case "$*" in
-        *"$override_flag"* )
-            echo "⚠️ Override used: pushing to '$branch'..."
-            ;;
-        *)
-            echo "❌ Push to '$branch' is disabled locally."
-            echo "   If you **really** need to, use: git push $override_flag"
-            exit 1
-            ;;
-    esac
+    if [ "$BREAK_GLASS_MAIN_PUSH" = "1" ]; then
+        echo "⚠️ Override used: pushing to '$branch'..."
+        # allow push
+    else
+        echo "❌ Push to '$branch' is disabled locally."
+        echo "   If you REALLY need to, run:"
+        echo "      BREAK_GLASS_MAIN_PUSH=1 git push origin $branch"
+        exit 1
+    fi
 fi
 ```
 
@@ -68,14 +66,14 @@ git config --global core.hooksPath ~/.git-hooks
     ```
 2. Try to push:
     ```bash
-    git push
+    git push origin main
     ```
-   ➡  Should be **blocked**.
+   ➡ Should be **blocked**.
 
 3. Use the override (emergency only):
     ```bash
-    git push --break_glass_to_push_main
+    BREAK_GLASS_MAIN_PUSH=1 git push origin main
     ```
-   ➡  Allowed with a warning.
+   ➡ Allowed with a warning.
 
 ---
