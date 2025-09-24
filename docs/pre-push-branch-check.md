@@ -74,27 +74,3 @@ git config --global core.hooksPath ~/.git-hooks
    ➡  Allowed with a warning.
 
 ---
-
-## Quick Install Script
-```bash
-mkdir -p ~/.git-hooks && \
-cat > ~/.git-hooks/pre-push <<'EOF'
-#!/bin/sh
-branch="$(git symbolic-ref --short HEAD)"
-override_flag="--break_glass_to_push_main"
-
-if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
-    case "$*" in
-        *"$override_flag"* )
-            echo "⚠️ Override used: pushing to '$branch'..."
-            ;;
-        *)
-            echo "❌ Push to '$branch' is disabled locally."
-            echo "   If you **really** need to, use: git push $override_flag"
-            exit 1
-            ;;
-    esac
-fi
-EOF
-chmod +x ~/.git-hooks/pre-push
-git config --global core.hooksPath ~/.git-hooks
