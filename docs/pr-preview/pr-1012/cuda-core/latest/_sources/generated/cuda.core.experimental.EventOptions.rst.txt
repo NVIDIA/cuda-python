@@ -1,6 +1,0 @@
-﻿cuda.core.experimental.EventOptions
-===================================
-
-.. currentmodule:: cuda.core.experimental
-
-.. autoclass:: EventOptions
