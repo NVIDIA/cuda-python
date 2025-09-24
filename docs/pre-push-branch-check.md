@@ -1,31 +1,20 @@
 # 🔒 Prevent Accidental Pushes to `main`/`master` — With Emergency Override
 
-This guide sets up a **global Git pre‑push hook** that blocks pushes to protected branches (`main` and `master`) unless you explicitly set an environment variable override:
+This guide shows you how to install a **Git pre‑push hook** that blocks pushes to branches (`main` or `master`) unless you explicitly set a noisy environment variable:
 
 ```
 BREAK_GLASS_MAIN_PUSH=1
 ```
 
----
-
-## 1. Create a Global Git Hooks Directory
-```bash
-mkdir -p ~/.git-hooks
-```
+You can install this hook **globally** (affecting all your repos) or **per repo** (only in the specific repo you choose).
+Pick the option that best fits your workflow.
 
 ---
 
-## 2. Create the Pre‑Push Hook
+## 🛠 The Hook Script
 
-Before adding this new hook, check if `~/.git-hooks/pre-push` already exists.
-If it does, **do not overwrite it** — instead, merge the branch‑protection logic into your current hook so both sets of checks run.
+Both installation methods use the same script:
 
-Open your existing hook:
-```bash
-my-favorite-text-editor ~/.git-hooks/pre-push
-```
-
-Paste in:
 ```bash
 #!/bin/sh
 branch="$(git symbolic-ref --short HEAD)"
@@ -33,7 +22,6 @@ branch="$(git symbolic-ref --short HEAD)"
 if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
     if [ "$BREAK_GLASS_MAIN_PUSH" = "1" ]; then
         echo "⚠️ Override used: pushing to '$branch'..."
-        # allow push
     else
         echo "❌ Push to '$branch' is disabled locally."
         echo "   If you REALLY need to, run:"
@@ -45,35 +33,67 @@ fi
 
 ---
 
-## 3. Make the Hook Executable
-```bash
-chmod +x ~/.git-hooks/pre-push
-```
+## Option 1 — Install Globally (All Repos)
 
----
+This will protect every repo on your machine by default.
 
-## 4. Tell Git to Use It Globally
-```bash
-git config --global core.hooksPath ~/.git-hooks
-```
-
----
-
-## 5. Test It
-1. Switch to `main`:
+1. Create a global hooks directory:
     ```bash
-    git checkout main
+    mkdir -p ~/.git-hooks
     ```
-2. Try to push:
+
+2. Create the pre‑push hook:
+    ```bash
+    vim ~/.git-hooks/pre-push
+    ```
+    Paste the script above.
+
+3. Make it executable:
+    ```bash
+    chmod +x ~/.git-hooks/pre-push
+    ```
+
+4. Tell Git to use it globally:
+    ```bash
+    git config --global core.hooksPath ~/.git-hooks
+    ```
+
+---
+
+## Option 2 — Install Per Repo (Only One Project)
+
+This will protect only the repo you set it up in.
+
+1. Go to your repo:
+    ```bash
+    cd /path/to/your-repo
+    ```
+
+2. Create the pre‑push hook:
+    ```bash
+    vim .git/hooks/pre-push
+    ```
+    Paste the script above.
+
+3. Make it executable:
+    ```bash
+    chmod +x .git/hooks/pre-push
+    ```
+
+---
+
+## ✅ Testing
+
+1. Try pushing to `main` without override:
     ```bash
     git push origin main
     ```
-   ➡ Should be **blocked**.
+    ➡ Should be **blocked**.
 
-3. Use the override (emergency only):
+2. Try with override:
     ```bash
     BREAK_GLASS_MAIN_PUSH=1 git push origin main
     ```
-   ➡ Allowed with a warning.
+    ➡ Allowed with warning.
 
 ---
