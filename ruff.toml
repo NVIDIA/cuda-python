@@ -33,6 +33,7 @@ ignore = [
   "E741",  # ambiguous variable name such as I
   "B007",  # rename unused loop variable to _name
   "UP035", # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
+  "SIM108", # ternary if/else
 ]
 
 exclude = ["**/_version.py"]
