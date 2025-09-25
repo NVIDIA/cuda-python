@@ -81,7 +81,7 @@ repos:
         args: [--config-file=cuda_pathfinder/pyproject.toml]
 
   - repo: https://github.com/rhysd/actionlint
-    rev: "03d0035246f3e81f36aed592ffb4bebf33a03106"
+    rev: "03d0035246f3e81f36aed592ffb4bebf33a03106"  # frozen: v1.7.7
     hooks:
       - id: actionlint
 
