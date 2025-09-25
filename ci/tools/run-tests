@@ -26,6 +26,8 @@ FREE_THREADING=""
 if python -c 'import sys; assert not sys._is_gil_enabled()' 2> /dev/null; then
   FREE_THREADING+="-ft"
   PYTEST_ARGS+=("--require-gil-disabled" "--threads" "${FREE_THREADING_TEST_THREADS}" "--iterations" "${FREE_THREADING_TEST_ITERATIONS}")
+else
+  PYTEST_ARGS+=("-p" "no:freethreaded")
 fi
 
 
