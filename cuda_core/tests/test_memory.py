@@ -1,6 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-
 try:
     from cuda.bindings import driver
 except ImportError:
@@ -11,7 +10,14 @@ import platform
 
 import pytest
 
-from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource
+from cuda.core.experimental import (
+    Buffer,
+    Device,
+    DeviceMemoryResource,
+    MemoryResource,
+    VirtualMemoryResource,
+    VirtualMemoryResourceOptions,
+)
 from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
@@ -299,6 +305,133 @@ def test_device_memory_resource_initialization(mempool_device, use_device_object
     assert buffer.size == 1024
     assert buffer.device_id == device.device_id
     buffer.close()
+
+
+def test_vmm_allocator_basic_allocation():
+    """Test basic VMM allocation functionality.
+
+    This test verifies that VirtualMemoryResource can allocate memory
+    using CUDA VMM APIs with default configuration.
+    """
+    device = Device()
+    device.set_current()
+
+    # Create VMM allocator with default config
+    vmm_mr = VirtualMemoryResource(device)
+
+    # Test basic allocation
+    buffer = vmm_mr.allocate(4096)
+    assert buffer.size >= 4096  # May be aligned up
+    assert buffer.device_id == device.device_id
+    assert buffer.memory_resource == vmm_mr
+
+    # Test deallocation
+    buffer.close()
+
+    # Test multiple allocations
+    buffers = []
+    for i in range(5):
+        buf = vmm_mr.allocate(1024 * (i + 1))
+        buffers.append(buf)
+        assert buf.size >= 1024 * (i + 1)
+
+    # Clean up
+    for buf in buffers:
+        buf.close()
+
+
+def test_vmm_allocator_policy_configuration():
+    """Test VMM allocator with different policy configurations.
+
+    This test verifies that VirtualMemoryResource can be configured
+    with different allocation policies and that the configuration affects
+    the allocation behavior.
+    """
+    device = Device()
+    device.set_current()
+
+    # Test with custom VMM config
+    custom_config = VirtualMemoryResourceOptions(
+        allocation_type="pinned",
+        location_type="device",
+        granularity="minimum",
+        gpu_direct_rdma=True,
+        handle_type="posix_fd",
+        peers=(),
+        self_access="rw",
+        peer_access="rw",
+    )
+
+    vmm_mr = VirtualMemoryResource(device, config=custom_config)
+
+    # Verify configuration is applied
+    assert vmm_mr.config == custom_config
+    assert vmm_mr.config.gpu_direct_rdma is True
+    assert vmm_mr.config.granularity == "minimum"
+
+    # Test allocation with custom config
+    buffer = vmm_mr.allocate(8192)
+    assert buffer.size >= 8192
+    assert buffer.device_id == device.device_id
+
+    # Test policy modification
+    new_config = VirtualMemoryResourceOptions(
+        allocation_type="pinned",
+        location_type="device",
+        granularity="recommended",
+        gpu_direct_rdma=False,
+        handle_type="posix_fd",
+        peers=(),
+        self_access="r",  # Read-only access
+        peer_access="r",
+    )
+
+    # Modify allocation policy
+    modified_buffer = vmm_mr.modify_allocation(buffer, 16384, config=new_config)
+    assert modified_buffer.size >= 16384
+    assert vmm_mr.config == new_config
+    assert vmm_mr.config.self_access == "r"
+
+    # Clean up
+    modified_buffer.close()
+
+
+def test_vmm_allocator_grow_allocation():
+    """Test VMM allocator's ability to grow existing allocations.
+
+    This test verifies that VirtualMemoryResource can grow existing
+    allocations while preserving the base pointer when possible.
+    """
+    device = Device()
+    device.set_current()
+
+    vmm_mr = VirtualMemoryResource(device)
+
+    # Create initial allocation
+    buffer = vmm_mr.allocate(2 * 1024 * 1024)
+    original_size = buffer.size
+
+    # Grow the allocation
+    grown_buffer = vmm_mr.modify_allocation(buffer, 4 * 1024 * 1024)
+
+    # Verify growth
+    assert grown_buffer.size >= 4 * 1024 * 1024
+    assert grown_buffer.size > original_size
+    # Because of the slow path, the pointer may change
+    # We cannot assert that the new pointer is the same,
+    # but we can assert that a new pointer was assigned
+    assert grown_buffer.handle is not None
+
+    # Test growing to same size (should return original buffer)
+    same_buffer = vmm_mr.modify_allocation(grown_buffer, 4 * 1024 * 1024)
+    assert same_buffer.size == grown_buffer.size
+
+    # Test growing to smaller size (should return original buffer)
+    smaller_buffer = vmm_mr.modify_allocation(grown_buffer, 2 * 1024 * 1024)
+    assert smaller_buffer.size == grown_buffer.size
+
+    # Clean up
+    grown_buffer.close()
 
 
 def test_mempool(mempool_device):
