@@ -32,6 +32,7 @@ jobs:
           cuda_build_ver=$(jq -r .cuda.build.version ci/versions.json)
           echo "cuda_build_ver=$cuda_build_ver" >> $GITHUB_OUTPUT
 
+  # WARNING: make sure all of the build jobs are in sync
   build-linux-64:
     needs:
       - ci-vars
@@ -48,6 +49,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
 
+  # WARNING: make sure all of the build jobs are in sync
   build-linux-aarch64:
     needs:
       - ci-vars
@@ -64,6 +66,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
 
+  # WARNING: make sure all of the build jobs are in sync
   build-windows:
     needs:
       - ci-vars
@@ -80,6 +83,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
 
+  # WARNING: make sure both Linux test jobs are in sync
   test-linux-64:
     strategy:
       fail-fast: false
@@ -100,6 +104,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
 
+  # WARNING: make sure both Linux test jobs are in sync
   test-linux-aarch64:
     strategy:
       fail-fast: false
@@ -151,8 +156,6 @@ jobs:
     needs:
       - ci-vars
       - build-linux-64
-      - build-linux-aarch64
-      - build-windows
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
     with:
