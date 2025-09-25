@@ -74,24 +74,15 @@ def dict_literal(d: Dict[str, Set[str]]) -> str:
     lines = ["{"]
     for k in sorted(d):
         dirs = sorted(d[k])
-        tup = (
-            "("
-            + ", ".join(repr(x) for x in dirs)
-            + ("," if len(dirs) == 1 else "")
-            + ")"
-        )
+        tup = "(" + ", ".join(repr(x) for x in dirs) + ("," if len(dirs) == 1 else "") + ")"
         lines.append(f"    {k!r}: {tup},")
     lines.append("}")
     return "\n".join(lines)
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(
-        description="Convert a list of site-packages library paths into {name: (dirs, ...)}"
-    )
-    ap.add_argument(
-        "platform", choices=["linux", "windows"], help="Target platform to parse"
-    )
+    ap = argparse.ArgumentParser(description="Convert a list of site-packages library paths into {name: (dirs, ...)}")
+    ap.add_argument("platform", choices=["linux", "windows"], help="Target platform to parse")
     ap.add_argument("path", help="Text file with one library path per line")
     args = ap.parse_args()
 
