@@ -95,7 +95,7 @@ def main() -> None:
     ap.add_argument("path", help="Text file with one library path per line")
     args = ap.parse_args()
 
-    with open(args.path, "r", encoding="utf-8") as f:
+    with open(args.path, encoding="utf-8") as f:
         lines = f.read().splitlines()
 
     if args.platform == "linux":
