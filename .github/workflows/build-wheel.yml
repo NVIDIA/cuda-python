@@ -208,7 +208,7 @@ jobs:
           allow-prereleases: true
 
       - name: verify free-threaded build
-        if: endsWith(matrix.python-verison, 't')
+        if: endsWith(matrix.python-version, 't')
         run: python -c 'import sys; assert not sys._is_gil_enabled()'
 
       - name: Set up Python include paths
