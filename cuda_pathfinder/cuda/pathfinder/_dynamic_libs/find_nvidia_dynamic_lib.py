@@ -160,10 +160,7 @@ class _FindNvidiaDynamicLib:
         self.attachments: list[str] = []
         self.abs_path: Optional[str] = None
 
-        self._try_site_packages()
-        self._try_with_conda_prefix()
-
-    def _try_site_packages(self) -> None:
+    def try_site_packages(self) -> None:
         if IS_WINDOWS:
             self.lib_searched_for = f"{self.libname}*.dll"
             if self.abs_path is None:
@@ -183,7 +180,7 @@ class _FindNvidiaDynamicLib:
                     self.attachments,
                 )
 
-    def _try_with_conda_prefix(self) -> None:
+    def try_with_conda_prefix(self) -> None:
         conda_lib_dir = _find_lib_dir_using_conda_prefix(self.libname)
         if conda_lib_dir is not None:
             self._find_using_lib_dir(conda_lib_dir)
