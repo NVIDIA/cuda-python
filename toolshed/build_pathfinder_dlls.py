@@ -11,6 +11,7 @@
 
 import collections
 import sys
+from pathlib import Path
 
 # ATTENTION: Ambiguous shorter names need to appear after matching longer names
 #            (e.g. "cufft" after "cufftw")
@@ -61,7 +62,7 @@ def is_suppressed_dll(libname, dll):
 def run(args):
     dlls_from_files = set()
     for filename in args:
-        lines_iter = iter(open(filename).read().splitlines())
+        lines_iter = iter(Path(filename).read_text().splitlines())
         for line in lines_iter:
             if line.startswith("-------------------"):
                 break
