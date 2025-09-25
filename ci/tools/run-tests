@@ -26,8 +26,10 @@ FREE_THREADING=""
 if python -c 'import sys; assert not sys._is_gil_enabled()' 2> /dev/null; then
   FREE_THREADING+="-ft"
   PYTEST_ARGS+=("--require-gil-disabled" "--threads" "${FREE_THREADING_TEST_THREADS}" "--iterations" "${FREE_THREADING_TEST_ITERATIONS}")
+  PYTHON_GIL=0
 else
   PYTEST_ARGS+=("-p" "no:freethreaded")
+  PYTHON_GIL=1
 fi
 
 
@@ -43,7 +45,7 @@ if [[ "${test_module}" == "pathfinder" ]]; then
   echo "Running pathfinder tests with " \
       "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
       "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS}"
-  pytest "${PYTEST_ARGS[@]}" -ra -s -v tests/ |& tee /tmp/pathfinder_test_log.txt
+  PYTHON_GIL="$PYTHON_GIL" pytest "${PYTEST_ARGS[@]}" -ra -s -v tests/ |& tee /tmp/pathfinder_test_log.txt
   # Fail if no "INFO test_" lines are found; capture line count otherwise
   line_count=$(grep '^INFO test_' /tmp/pathfinder_test_log.txt | wc -l)
   echo "Number of \"INFO test_\" lines: $line_count"
@@ -58,9 +60,10 @@ elif [[ "${test_module}" == "bindings" ]]; then
   fi
   popd
   pushd ./cuda_bindings
-  ${SANITIZER_CMD} pytest "${PYTEST_ARGS[@]}" -rxXs -v tests/
+  echo "Running bindings tests"
+  PYTHON_GIL="$PYTHON_GIL" ${SANITIZER_CMD} pytest "${PYTEST_ARGS[@]}" -rxXs -v tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest "${PYTEST_ARGS[@]}" -rxXs -v tests/cython
+    PYTHON_GIL="$PYTHON_GIL" ${SANITIZER_CMD} pytest "${PYTEST_ARGS[@]}" -rxXs -v tests/cython
   fi
   popd
 elif [[ "${test_module}" == "core" ]]; then
@@ -90,11 +93,11 @@ elif [[ "${test_module}" == "core" ]]; then
   popd
   pushd ./cuda_core
   echo "Running core tests"
-  ${SANITIZER_CMD} pytest "${PYTEST_ARGS[@]}" -rxXs -v tests/
+  PYTHON_GIL="$PYTHON_GIL" ${SANITIZER_CMD} pytest "${PYTEST_ARGS[@]}" -rxXs -v tests/
   # Currently our CI always installs the latest bindings (from either major version).
   # This is not compatible with the test requirements.
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest "${PYTEST_ARGS[@]}" -rxXs -v tests/cython
+    PYTHON_GIL="$PYTHON_GIL" ${SANITIZER_CMD} pytest "${PYTEST_ARGS[@]}" -rxXs -v tests/cython
   fi
   popd
 fi
