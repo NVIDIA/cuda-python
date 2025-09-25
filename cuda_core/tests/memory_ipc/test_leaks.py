@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+import contextlib
 import gc
 import multiprocessing as mp
 
@@ -59,14 +63,13 @@ def exec_reduce_failure(obj, number=1):
     """
     for _ in range(number):
         fails_to_reduce = Irreducible()
-        try:
+        with contextlib.suppress(RuntimeError):
             mp.Process(target=child_main, args=(obj, fails_to_reduce)).start()
-        except RuntimeError:
-            pass
 
 
 class Irreducible:
     """A class that cannot be serialized."""
+
     def __reduce__(self):
         raise RuntimeError("Irreducible")
 
@@ -82,9 +85,7 @@ class Irreducible:
     ],
     ids=["alloc_handle", "mr", "buffer", "buffer_desc"],
 )
-@pytest.mark.parametrize(
-    "launcher", [exec_with_object, exec_launch_failure, exec_reduce_failure]
-)
+@pytest.mark.parametrize("launcher", [exec_with_object, exec_launch_failure, exec_reduce_failure])
 def test_pass_object(ipc_memory_resource, launcher, getobject):
     """Check for fd leaks when an object is sent as a subprocess argument."""
     mr = ipc_memory_resource
@@ -106,7 +107,7 @@ class CheckFDLeaks:
         self.process = psutil.Process()
 
     def __enter__(self):
-        self.prime()
+        prime()
         gc.collect()
         self.initial_fds = self.process.num_fds()
         return self
@@ -118,12 +119,17 @@ class CheckFDLeaks:
             assert final_fds == self.initial_fds
         return False
 
-    def prime(self, latch=[]):
-        """Multiprocessing consumes a file descriptor on first launch."""
-        assert mp.get_start_method() == "spawn"
-        if not latch:
-            process = mp.Process()
-            process.start()
-            process.join()
-            assert process.exitcode == 0
-            latch.append(None)
+
+prime_was_run = False
+
+
+def prime():
+    """Multiprocessing consumes a file descriptor on first launch."""
+    assert mp.get_start_method() == "spawn"
+    global prime_was_run
+    if not prime_was_run:
+        process = mp.Process()
+        process.start()
+        process.join()
+        assert process.exitcode == 0
+        prime_was_run = True

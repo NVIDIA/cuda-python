@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing
+import re
 
-from cuda.core.experimental import Buffer, DeviceMemoryResource
+from cuda.core.experimental import Buffer, Device, DeviceMemoryResource
 from cuda.core.experimental._utils.cuda_utils import CUDAError
 
 CHILD_TIMEOUT_SEC = 4
@@ -114,3 +115,23 @@ class TestImportBuffer(ChildErrorHarness):
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is TypeError
         assert exc_msg.startswith("Argument 'ipc_buffer' has incorrect type")
+
+
+class TestDanglingBuffer(ChildErrorHarness):
+    """
+    Error when importing a buffer object without registering its memory
+    resource.
+    """
+
+    def PARENT_ACTION(self, queue):
+        mr2 = DeviceMemoryResource(self.device, dict(max_size=POOL_SIZE, ipc_enabled=True))
+        self.buffer = mr2.allocate(NBYTES)
+        queue.put(self.buffer)  # Note: mr2 not sent
+
+    def CHILD_ACTION(self, queue):
+        Device().set_current()
+        queue.get(timeout=CHILD_TIMEOUT_SEC)
+
+    def ASSERT(self, exc_type, exc_msg):
+        assert exc_type is RuntimeError
+        assert re.match(r"Memory resource [a-z0-9-]+ was not found", exc_msg)

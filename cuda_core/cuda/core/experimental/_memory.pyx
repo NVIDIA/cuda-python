@@ -77,11 +77,7 @@ cdef class Buffer:
         self.close()
 
     def __reduce__(self):
-        return Buffer._reconstruct, (self.memory_resource, self.export())
-
-    @staticmethod
-    def _reconstruct(mr, desc):
-        return Buffer.import_(mr, desc)
+        return Buffer.import_, (self.memory_resource, self.export())
 
     cpdef close(self, stream: Stream = None):
         """Deallocate this buffer asynchronously on the given stream.
@@ -390,17 +386,11 @@ cdef class IPCBufferDescriptor:
         return self
 
     def __reduce__(self):
-        # This is subject to change if the CUmemPoolPtrExportData struct/object changes.
-        return (self._reconstruct, (self._reserved, self._size))
+        return self._init, (self._reserved, self._size)
 
     @property
     def size(self):
         return self._size
-
-    @classmethod
-    def _reconstruct(cls, reserved, size):
-        instance = cls._init(reserved, size)
-        return instance
 
 
 cdef class IPCAllocationHandle:
@@ -408,15 +398,17 @@ cdef class IPCAllocationHandle:
 
     cdef:
         int _handle
+        object _uuid
 
     def __init__(self, *arg, **kwargs):
         raise RuntimeError("IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, handle: int):
+    def _init(cls, handle: int, uuid: uuid_module.UUID):
         cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)
         assert handle >= 0
         self._handle = handle
+        self._uuid = uuid
         return self
 
     cpdef close(self):
@@ -426,6 +418,7 @@ cdef class IPCAllocationHandle:
                 os.close(self._handle)
             finally:
                 self._handle = -1
+                self._uuid = None
 
     def __del__(self):
         """Close the handle."""
@@ -434,12 +427,11 @@ cdef class IPCAllocationHandle:
     def __reduce__(self):
         multiprocessing.context.assert_spawning(self)
         df = multiprocessing.reduction.DupFd(self.handle)
-        return IPCAllocationHandle._reconstruct, (df,)
+        return self._reconstruct, (df, self._uuid)
 
-    @staticmethod
-    def _reconstruct(df):
-        self = IPCAllocationHandle._init(df.detach())
-        return self
+    @classmethod
+    def _reconstruct(cls, df, uuid):
+        return cls._init(df.detach(), uuid)
 
     def __int__(self) -> int:
         if self._handle < 0:
@@ -449,13 +441,18 @@ cdef class IPCAllocationHandle:
         return self._handle
 
     def detach(self):
-      handle = self._handle
-      self._handle = -1
-      return handle
+        handle = self._handle
+        self._handle = -1
+        self._uuid = None
+        return handle
 
     @property
     def handle(self) -> int:
         return self._handle
+
+    @property
+    def uuid(self) -> uuid_module.UUID:
+        return self._uuid
 
 
 @dataclass
@@ -663,22 +660,16 @@ class DeviceMemoryResource(MemoryResource):
             from ._device import Device
             device = Device(self.device_id)
             alloc_handle = self.get_allocation_handle()
-            return DeviceMemoryResource._reconstruct, (device, alloc_handle, self.uuid)
+            return DeviceMemoryResource.from_allocation_handle, (device, alloc_handle)
         else:
             return DeviceMemoryResource.from_registry, (self.uuid,)
-
-    @staticmethod
-    def _reconstruct(device, alloc_handle, uuid):
-        self = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
-        self.register(uuid)
-        return self
 
     @staticmethod
     def from_registry(uuid: uuid_module.UUID):
         try:
             return _ipc_registry[uuid]
         except KeyError:
-            raise RuntimeError(f"Memory resource with {uuid=} was not found")
+            raise RuntimeError(f"Memory resource {uuid} was not found")
 
     def register(self, uuid: uuid_module.UUID):
         if uuid not in _ipc_registry:
@@ -725,6 +716,9 @@ class DeviceMemoryResource(MemoryResource):
 
         err, self._mempool_handle = driver.cuMemPoolImportFromShareableHandle(int(alloc_handle), _IPC_HANDLE_TYPE, 0)
         raise_if_driver_error(err)
+        uuid = getattr(alloc_handle, 'uuid', None)
+        if uuid is not None:
+            self.register(uuid)
         return self
 
     def get_allocation_handle(self) -> IPCAllocationHandle:
@@ -744,9 +738,13 @@ class DeviceMemoryResource(MemoryResource):
                 raise RuntimeError("Imported memory resource cannot be exported")
             err, alloc_handle = driver.cuMemPoolExportToShareableHandle(self._mempool_handle, _IPC_HANDLE_TYPE, 0)
             raise_if_driver_error(err)
-            self._alloc_handle = IPCAllocationHandle._init(alloc_handle)
-            assert self._uuid is None
-            self._uuid = uuid_module.uuid4()
+            try:
+                assert self._uuid is None
+                self._uuid = uuid_module.uuid4()
+                self._alloc_handle = IPCAllocationHandle._init(alloc_handle, self._uuid)
+            except:
+                os.close(alloc_handle)
+                raise
         return self._alloc_handle
 
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:

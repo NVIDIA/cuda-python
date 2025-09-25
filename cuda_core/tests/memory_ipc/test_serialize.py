@@ -77,7 +77,8 @@ class TestObjectSerializationWithMR:
         """Test sending IPC memory objects to a child through a queue."""
         mr = ipc_memory_resource
 
-        # Start the child process.
+        # Start the child process. Sending the memory resource registers it so
+        # that buffers can be handled automatically.
         pipe = [mp.Queue() for _ in range(2)]
         process = mp.Process(target=self.child_main, args=(pipe, mr))
         process.start()

@@ -8,7 +8,7 @@ from cuda.core.experimental import Device, DeviceMemoryResource
 POOL_SIZE = 2097152
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def device():
     """Obtains a device suitable for IPC-enabled mempool tests, or skips."""
     # Check if IPC is supported on this platform/device
@@ -26,7 +26,7 @@ def device():
     return device
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def ipc_memory_resource(device):
     mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=True))
     assert mr.is_ipc_enabled
