@@ -42,7 +42,7 @@ test = [
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
-    "pytest-freethreaded"
+    "pytest-freethreaded; python_version >= '3.13'"
 ]
 
 [project.urls]
