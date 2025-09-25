@@ -53,9 +53,8 @@ def is_suppressed_dll(libname, dll):
             return True
         if dll.startswith("nvrtc-builtins"):
             return True
-    elif libname == "nvvm":
-        if dll == "nvvm32.dll":
-            return True
+    elif libname == "nvvm" and dll == "nvvm32.dll":
+        return True
     return False
 
 
