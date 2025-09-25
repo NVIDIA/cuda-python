@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import functools
 import glob
 import os
 from collections.abc import Sequence
@@ -216,8 +215,3 @@ class _FindNvidiaDynamicLib:
         err = ", ".join(self.error_messages)
         att = "\n".join(self.attachments)
         raise DynamicLibNotFoundError(f'Failure finding "{self.lib_searched_for}": {err}\n{att}')
-
-
-@functools.cache
-def find_nvidia_dynamic_lib(libname: str) -> str:
-    return _FindNvidiaDynamicLib(libname).raise_if_abs_path_is_None()
