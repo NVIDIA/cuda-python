@@ -5,9 +5,8 @@ import ctypes
 import pickle  # nosec B403, B301
 import warnings
 
-import pytest
-
 import cuda.core.experimental
+import pytest
 from cuda.core.experimental import Device, ObjectCode, Program, ProgramOptions, system
 from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 

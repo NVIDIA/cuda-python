@@ -5,7 +5,6 @@
 import warnings
 
 import pytest
-
 from cuda.core.experimental import _linker
 from cuda.core.experimental._module import Kernel, ObjectCode
 from cuda.core.experimental._program import Program, ProgramOptions

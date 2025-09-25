@@ -11,9 +11,8 @@ import tempfile
 from contextlib import suppress
 from functools import cache
 
-import pytest
-
 import cuda.bindings.driver as cuda
+import pytest
 
 # Configure logging to show INFO level and above
 logging.basicConfig(
