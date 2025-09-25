@@ -439,8 +439,7 @@ cdef class IPCAllocationHandle:
 
     def __reduce__(self):
         multiprocessing.context.assert_spawning(self)
-        fd = os.dup(self.handle)
-        df = multiprocessing.reduction.DupFd(fd)
+        df = multiprocessing.reduction.DupFd(self.handle)
         return IPCAllocationHandle._reconstruct, (df,)
 
     @staticmethod
@@ -649,7 +648,8 @@ class DeviceMemoryResource(MemoryResource):
         device memory resource does not own the pool (`is_handle_owned` is
         `False`), and closing the resource has no effect.
     """
-    __slots__ = "_dev_id", "_mempool_handle", "_attributes", "_ipc_handle_type", "_mempool_owned", "_is_imported", "_remote_id"
+    __slots__ = ("_dev_id", "_mempool_handle", "_attributes", "_ipc_handle_type",
+                 "_mempool_owned", "_is_imported", "_remote_id", "_alloc_handle")
 
     def __init__(self, device_id: int | Device, options=None):
         device_id = getattr(device_id, 'device_id', device_id)
@@ -666,6 +666,7 @@ class DeviceMemoryResource(MemoryResource):
             self._mempool_owned = False
             self._is_imported = False
             self._remote_id = None
+            self._alloc_handle = None
 
             err, self._mempool_handle = driver.cuDeviceGetMemPool(self.device_id)
             raise_if_driver_error(err)
@@ -708,6 +709,7 @@ class DeviceMemoryResource(MemoryResource):
             self._mempool_owned = True
             self._is_imported = False
             self._remote_id = None
+            self._alloc_handle = None
 
             err, self._mempool_handle = driver.cuMemPoolCreate(properties)
             raise_if_driver_error(err)
@@ -733,6 +735,7 @@ class DeviceMemoryResource(MemoryResource):
                 self._mempool_owned = False
                 self._is_imported = False
                 self._remote_id = None
+                self._alloc_handle = None
 
 
     def __reduce__(self):
@@ -816,6 +819,7 @@ class DeviceMemoryResource(MemoryResource):
         self._mempool_owned = True
         self._is_imported = True
         self._remote_id = None
+        self._alloc_handle = None # only used for non-imported
 
         err, self._mempool_handle = driver.cuMemPoolImportFromShareableHandle(int(alloc_handle), _IPC_HANDLE_TYPE, 0)
         raise_if_driver_error(err)
@@ -836,13 +840,15 @@ class DeviceMemoryResource(MemoryResource):
         -------
             The shareable handle for the memory pool.
         """
-        if not self.is_ipc_enabled:
-            raise RuntimeError("Memory resource is not IPC-enabled")
-        if self._is_imported:
-            raise RuntimeError("Imported memory resource cannot be exported")
-        err, alloc_handle = driver.cuMemPoolExportToShareableHandle(self._mempool_handle, _IPC_HANDLE_TYPE, 0)
-        raise_if_driver_error(err)
-        return IPCAllocationHandle._init(alloc_handle)
+        if self._alloc_handle is None:
+            if not self.is_ipc_enabled:
+                raise RuntimeError("Memory resource is not IPC-enabled")
+            if self._is_imported:
+                raise RuntimeError("Imported memory resource cannot be exported")
+            err, alloc_handle = driver.cuMemPoolExportToShareableHandle(self._mempool_handle, _IPC_HANDLE_TYPE, 0)
+            raise_if_driver_error(err)
+            self._alloc_handle = IPCAllocationHandle._init(alloc_handle)
+        return self._alloc_handle
 
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.

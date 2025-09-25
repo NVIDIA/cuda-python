@@ -1,0 +1,129 @@
+import gc
+import multiprocessing as mp
+
+import psutil
+import pytest
+
+from cuda.core.experimental import _memory
+from cuda.core.experimental._utils.cuda_utils import driver
+
+CHILD_TIMEOUT_SEC = 4
+NBYTES = 64
+
+USING_FDS = _memory._IPC_HANDLE_TYPE == driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
+skip_unless_using_fds = pytest.mark.skipif(not USING_FDS, reason="mempool allocation handle is not using fds")
+
+
+@skip_unless_using_fds
+def test_alloc_handle(ipc_memory_resource):
+    """Check for fd leaks in get_allocation_handle."""
+    mr = ipc_memory_resource
+    with CheckFDLeaks():
+        [mr.get_allocation_handle() for _ in range(10)]
+
+
+def exec_with_object(obj, number=1):
+    """Succesfully run a child process."""
+    for _ in range(number):
+        process = mp.Process(target=child_main, args=(obj,))
+        process.start()
+        process.join()
+        assert process.exitcode == 0
+
+
+def child_main(obj, *args):
+    pass
+
+
+def exec_launch_failure(obj, number=1):
+    """
+    Unsuccesfully try to launch a child process. This fails when
+    after the child starts.
+    """
+    for _ in range(number):
+        process = mp.Process(target=child_main_bad, args=(obj,))
+        process.start()
+        process.join()
+        assert process.exitcode != 0
+
+
+def child_main_bad():
+    """Fails when passed arguments."""
+    pass
+
+
+def exec_reduce_failure(obj, number=1):
+    """
+    Unsuccesfully try to launch a child process. This fails before
+    the child starts but after the resource-owning object is serialized.
+    """
+    for _ in range(number):
+        fails_to_reduce = Irreducible()
+        try:
+            mp.Process(target=child_main, args=(obj, fails_to_reduce)).start()
+        except RuntimeError:
+            pass
+
+
+class Irreducible:
+    """A class that cannot be serialized."""
+    def __reduce__(self):
+        raise RuntimeError("Irreducible")
+
+
+@skip_unless_using_fds
+@pytest.mark.parametrize(
+    "getobject",
+    [
+        lambda mr: mr.get_allocation_handle(),
+        lambda mr: mr,
+        lambda mr: mr.allocate(NBYTES),
+        lambda mr: mr.allocate(NBYTES).export(),
+    ],
+    ids=["alloc_handle", "mr", "buffer", "buffer_desc"],
+)
+@pytest.mark.parametrize(
+    "launcher", [exec_with_object, exec_launch_failure, exec_reduce_failure]
+)
+def test_pass_object(ipc_memory_resource, launcher, getobject):
+    """Check for fd leaks when an object is sent as a subprocess argument."""
+    mr = ipc_memory_resource
+    with CheckFDLeaks():
+        obj = getobject(mr)
+        try:
+            launcher(obj, number=2)
+        finally:
+            del obj
+
+
+class CheckFDLeaks:
+    """
+    Context manager to check for file descriptor leaks.
+    Ensures the number of open file descriptors is the same before and after the block.
+    """
+
+    def __init__(self):
+        self.process = psutil.Process()
+
+    def __enter__(self):
+        self.prime()
+        gc.collect()
+        self.initial_fds = self.process.num_fds()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is not None:
+            gc.collect()
+            final_fds = self.process.num_fds()
+            assert final_fds == self.initial_fds
+        return False
+
+    def prime(self, latch=[]):
+        """Multiprocessing consumes a file descriptor on first launch."""
+        assert mp.get_start_method() == "spawn"
+        if not latch:
+            process = mp.Process()
+            process.start()
+            process.join()
+            assert process.exitcode == 0
+            latch.append(None)
