@@ -21,6 +21,7 @@ import multiprocessing.reduction
 import os
 import platform
 import sys
+import uuid as uuid_module
 import weakref
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
@@ -537,7 +538,7 @@ class DeviceMemoryResourceAttributes:
 
 # Holds DeviceMemoryResource objects imported by this process.
 # This enables buffer serialization, as buffers can reduce to a pair
-# of comprising the memory resource `remote_id` (the key into this registry)
+# of comprising the memory resource UUID (the key into this registry)
 # and the serialized buffer descriptor.
 _ipc_registry = {}
 
@@ -565,7 +566,7 @@ class DeviceMemoryResource(MemoryResource):
         `False`), and closing the resource has no effect.
     """
     __slots__ = ("_dev_id", "_mempool_handle", "_attributes", "_ipc_handle_type",
-                 "_mempool_owned", "_is_imported", "_remote_id", "_alloc_handle")
+                 "_mempool_owned", "_is_imported", "_uuid", "_alloc_handle")
 
     def __init__(self, device_id: int | Device, options=None):
         device_id = getattr(device_id, 'device_id', device_id)
@@ -581,7 +582,7 @@ class DeviceMemoryResource(MemoryResource):
             self._ipc_handle_type = _NOIPC_HANDLE_TYPE
             self._mempool_owned = False
             self._is_imported = False
-            self._remote_id = None
+            self._uuid = None
             self._alloc_handle = None
 
             err, self._mempool_handle = driver.cuDeviceGetMemPool(self.device_id)
@@ -624,14 +625,14 @@ class DeviceMemoryResource(MemoryResource):
             self._ipc_handle_type = properties.handleTypes
             self._mempool_owned = True
             self._is_imported = False
-            self._remote_id = None
+            self._uuid = None
             self._alloc_handle = None
 
             err, self._mempool_handle = driver.cuMemPoolCreate(properties)
             raise_if_driver_error(err)
 
             if opts.ipc_enabled:
-                self.get_allocation_handle() # enables Buffer.export
+                self.get_allocation_handle() # enables Buffer.export, sets uuid
 
     def __del__(self):
         self.close()
@@ -650,46 +651,44 @@ class DeviceMemoryResource(MemoryResource):
                 self._ipc_handle_type = _NOIPC_HANDLE_TYPE
                 self._mempool_owned = False
                 self._is_imported = False
-                self._remote_id = None
+                self._uuid = None
                 self._alloc_handle = None
 
 
     def __reduce__(self):
         # If spawning a new process, serialize the resources; otherwise, just
-        # send the remote_id, using the registry on the receiving end.
+        # send the UUID, using the registry on the receiving end.
         is_spawning = multiprocessing.context.get_spawning_popen() is not None
         if is_spawning:
             from ._device import Device
             device = Device(self.device_id)
             alloc_handle = self.get_allocation_handle()
-            return DeviceMemoryResource._reconstruct, (device, alloc_handle, self.remote_id)
+            return DeviceMemoryResource._reconstruct, (device, alloc_handle, self.uuid)
         else:
-            return DeviceMemoryResource.from_registry, (self.remote_id,)
+            return DeviceMemoryResource.from_registry, (self.uuid,)
 
     @staticmethod
-    def _reconstruct(device, alloc_handle, remote_id):
+    def _reconstruct(device, alloc_handle, uuid):
         self = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
-        self.register(remote_id)
+        self.register(uuid)
         return self
 
     @staticmethod
-    def from_registry(remote_id):
+    def from_registry(uuid: uuid_module.UUID):
         try:
-            return _ipc_registry[remote_id]
+            return _ipc_registry[uuid]
         except KeyError:
-            raise RuntimeError(f"Memory resource with {remote_id=} was not found")
+            raise RuntimeError(f"Memory resource with {uuid=} was not found")
 
-    def register(self, remote_id: int):
-        if remote_id not in _ipc_registry:
-            assert self._remote_id is None or self._remote_id == remote_id
-            _ipc_registry[remote_id] = self
-            self._remote_id = remote_id
+    def register(self, uuid: uuid_module.UUID):
+        if uuid not in _ipc_registry:
+            assert self._uuid is None or self._uuid == uuid
+            _ipc_registry[uuid] = self
+            self._uuid = uuid
 
     @property
-    def remote_id(self):
-        if self._remote_id is None and not self._is_imported:
-            self._remote_id = int(self._mempool_handle)
-        return self._remote_id
+    def uuid(self):
+        return self._uuid
 
     @classmethod
     def from_allocation_handle(cls, device_id: int | Device, alloc_handle: int | IPCAllocationHandle) -> DeviceMemoryResource:
@@ -721,7 +720,7 @@ class DeviceMemoryResource(MemoryResource):
         self._ipc_handle_type = _IPC_HANDLE_TYPE
         self._mempool_owned = True
         self._is_imported = True
-        self._remote_id = None
+        self._uuid = None
         self._alloc_handle = None # only used for non-imported
 
         err, self._mempool_handle = driver.cuMemPoolImportFromShareableHandle(int(alloc_handle), _IPC_HANDLE_TYPE, 0)
@@ -746,6 +745,8 @@ class DeviceMemoryResource(MemoryResource):
             err, alloc_handle = driver.cuMemPoolExportToShareableHandle(self._mempool_handle, _IPC_HANDLE_TYPE, 0)
             raise_if_driver_error(err)
             self._alloc_handle = IPCAllocationHandle._init(alloc_handle)
+            assert self._uuid is None
+            self._uuid = uuid_module.uuid4()
         return self._alloc_handle
 
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:

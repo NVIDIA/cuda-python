@@ -149,8 +149,8 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
 
         # Start children.
         q1, q2 = (mp.Queue() for _ in range(2))
-        p1 = mp.Process(target=self.child_main, args=(alloc_handle, mr.remote_id, 1, q1))
-        p2 = mp.Process(target=self.child_main, args=(alloc_handle, mr.remote_id, 2, q2))
+        p1 = mp.Process(target=self.child_main, args=(alloc_handle, mr.uuid, 1, q1))
+        p2 = mp.Process(target=self.child_main, args=(alloc_handle, mr.uuid, 2, q2))
         p1.start()
         p2.start()
 
@@ -171,12 +171,12 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         IPCBufferTestHelper(device, buf2).verify_buffer(starting_from=2)
 
 
-    def child_main(self, alloc_handle, remote_id, idx, queue):
+    def child_main(self, alloc_handle, uuid, idx, queue):
         """Fills a shared memory buffer."""
         device = Device()
         device.set_current()
         mr = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
-        mr.register(remote_id)
+        mr.register(uuid)
         buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
         IPCBufferTestHelper(device, buffer).fill_buffer(starting_from=idx)
 

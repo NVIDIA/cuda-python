@@ -67,7 +67,7 @@ class TestIpcWorkerPool:
     Test buffer sharing without using export handles.
 
     The memory resources need to be passed to subprocesses at startup. Buffers
-    are serialized with the `remote_id` of the corresponding mr, and the
+    are serialized with the `uuid` of the corresponding mr, and the
     import/export is handled automatically.
     """
 

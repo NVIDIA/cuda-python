@@ -33,7 +33,7 @@ class TestObjectSerializationDirect:
         # Send a memory resource by allocation handle.
         alloc_handle = mr.get_allocation_handle()
         mp.reduction.send_handle(parent_conn, alloc_handle.handle, process.pid)
-        parent_conn.send(mr.remote_id)
+        parent_conn.send(mr.uuid)
 
         # Send a buffer.
         buffer1 = mr.allocate(NBYTES)
@@ -57,9 +57,9 @@ class TestObjectSerializationDirect:
 
         # Receive the memory resource.
         handle = mp.reduction.recv_handle(conn)
-        remote_id = conn.recv()
+        uuid = conn.recv()
         mr = DeviceMemoryResource.from_allocation_handle(device, handle)
-        mr.register(remote_id)
+        mr.register(uuid)
         os.close(handle)
 
         # Receive the buffers.
@@ -90,8 +90,8 @@ class TestObjectSerializationWithMR:
         # Send a memory resource directly. This relies on the mr already
         # being passed when spawning the child.
         pipe[0].put(mr)
-        remote_id = pipe[1].get(timeout=CHILD_TIMEOUT_SEC)
-        assert remote_id == mr.remote_id
+        uuid = pipe[1].get(timeout=CHILD_TIMEOUT_SEC)
+        assert uuid == mr.uuid
 
         # Send a buffer.
         buffer = mr.allocate(NBYTES)
@@ -111,7 +111,7 @@ class TestObjectSerializationWithMR:
 
         # Memory resource.
         mr = pipe[0].get(timeout=CHILD_TIMEOUT_SEC)
-        pipe[1].put(mr.remote_id)
+        pipe[1].put(mr.uuid)
 
         # Buffer.
         buffer = pipe[0].get(timeout=CHILD_TIMEOUT_SEC)
