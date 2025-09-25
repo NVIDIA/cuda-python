@@ -164,53 +164,47 @@ class _FindNvidiaDynamicLib:
         self.attachments: list[str] = []
         self.abs_path: Optional[str] = None
 
-    def try_site_packages(self) -> None:
+    def try_site_packages(self) -> Optional[str]:
         if IS_WINDOWS:
-            if self.abs_path is None:
-                self.abs_path = _find_dll_using_nvidia_bin_dirs(
-                    self.libname,
-                    self.lib_searched_for,
-                    self.error_messages,
-                    self.attachments,
-                )
+            return _find_dll_using_nvidia_bin_dirs(
+                self.libname,
+                self.lib_searched_for,
+                self.error_messages,
+                self.attachments,
+            )
         else:
-            if self.abs_path is None:
-                self.abs_path = _find_so_using_nvidia_lib_dirs(
-                    self.libname,
-                    self.lib_searched_for,
-                    self.error_messages,
-                    self.attachments,
-                )
+            return _find_so_using_nvidia_lib_dirs(
+                self.libname,
+                self.lib_searched_for,
+                self.error_messages,
+                self.attachments,
+            )
 
-    def try_with_conda_prefix(self) -> None:
-        conda_lib_dir = _find_lib_dir_using_conda_prefix(self.libname)
-        if conda_lib_dir is not None:
-            self._find_using_lib_dir(conda_lib_dir)
+    def try_with_conda_prefix(self) -> Optional[str]:
+        return self._find_using_lib_dir(_find_lib_dir_using_conda_prefix(self.libname))
 
-    def try_with_cuda_home(self) -> None:
-        cuda_home_lib_dir = _find_lib_dir_using_cuda_home(self.libname)
-        if cuda_home_lib_dir is not None:
-            self._find_using_lib_dir(cuda_home_lib_dir)
+    def try_with_cuda_home(self) -> Optional[str]:
+        return self._find_using_lib_dir(_find_lib_dir_using_cuda_home(self.libname))
 
-    def _find_using_lib_dir(self, lib_dir: str) -> None:
+    def _find_using_lib_dir(self, lib_dir: Optional[str]) -> Optional[str]:
+        if lib_dir is None:
+            return None
         if IS_WINDOWS:
-            self.abs_path = _find_dll_using_lib_dir(
+            return _find_dll_using_lib_dir(
                 lib_dir,
                 self.libname,
                 self.error_messages,
                 self.attachments,
             )
         else:
-            self.abs_path = _find_so_using_lib_dir(
+            return _find_so_using_lib_dir(
                 lib_dir,
                 self.lib_searched_for,
                 self.error_messages,
                 self.attachments,
             )
 
-    def raise_if_abs_path_is_None(self) -> str:  # noqa: N802
-        if self.abs_path:
-            return self.abs_path
+    def raise_not_found_error(self) -> None:
         err = ", ".join(self.error_messages)
         att = "\n".join(self.attachments)
         raise DynamicLibNotFoundError(f'Failure finding "{self.lib_searched_for}": {err}\n{att}')

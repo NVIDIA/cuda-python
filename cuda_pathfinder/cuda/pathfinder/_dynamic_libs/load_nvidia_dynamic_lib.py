@@ -25,15 +25,14 @@ else:
 
 def _load_lib_no_cache(libname: str) -> LoadedDL:
     finder = _FindNvidiaDynamicLib(libname)
-    finder.try_site_packages()
-    if finder.abs_path is None:
-        finder.try_with_conda_prefix()
-    have_abs_path = finder.abs_path is not None
+    abs_path = finder.try_site_packages()
+    if abs_path is None:
+        abs_path = finder.try_with_conda_prefix()
 
     # If the library was already loaded by someone else, reproduce any OS-specific
     # side-effects we would have applied on a direct absolute-path load (e.g.,
     # AddDllDirectory on Windows for libs that require it).
-    loaded = check_if_already_loaded_from_elsewhere(libname, have_abs_path)
+    loaded = check_if_already_loaded_from_elsewhere(libname, abs_path is not None)
 
     # Load dependencies regardless of who loaded the primary lib first.
     # Doing this *after* the side-effect ensures dependencies resolve consistently
@@ -43,15 +42,15 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
     if loaded is not None:
         return loaded
 
-    if not have_abs_path:
+    if abs_path is None:
         loaded = load_with_system_search(libname)
         if loaded is not None:
             return loaded
-        finder.try_with_cuda_home()
-        finder.raise_if_abs_path_is_None()
+        abs_path = finder.try_with_cuda_home()
+        if abs_path is None:
+            finder.raise_not_found_error()
 
-    assert finder.abs_path is not None  # for mypy
-    return load_with_abs_path(libname, finder.abs_path)
+    return load_with_abs_path(libname, abs_path)
 
 
 @functools.cache
