@@ -17,7 +17,6 @@ from cuda.core.experimental._linker import Linker, LinkerOptions
 from cuda.core.experimental._memory import (
     Buffer,
     DeviceMemoryResource,
-    IPCChannel,
     LegacyPinnedMemoryResource,
     MemoryResource,
 )
