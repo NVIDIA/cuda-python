@@ -62,6 +62,18 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
     Returns:
         LoadedDL: Object containing the OS library handle and absolute path.
 
+        **Important:**
+
+        **Never close the returned handle.** Do **not** call ``dlclose`` (Linux) or
+        ``FreeLibrary`` (Windows) on the ``LoadedDL._handle_uint``.
+
+        **Why:** the return value is cached (``functools.cache``) and shared across the
+        process. Closing the handle can unload the module while other code still uses
+        it, leading to crashes or subtle failures.
+
+        This applies to Linux and Windows. For context, see issue #1011:
+        https://github.com/NVIDIA/cuda-python/issues/1011
+
     Raises:
         DynamicLibNotFoundError: If the library cannot be found or loaded.
         RuntimeError: If Python is not 64-bit.
