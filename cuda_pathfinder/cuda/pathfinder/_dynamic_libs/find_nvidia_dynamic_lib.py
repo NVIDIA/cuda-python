@@ -156,13 +156,16 @@ def _find_dll_using_lib_dir(
 class _FindNvidiaDynamicLib:
     def __init__(self, libname: str):
         self.libname = libname
+        if IS_WINDOWS:
+            self.lib_searched_for = f"{libname}*.dll"
+        else:
+            self.lib_searched_for = f"lib{libname}.so"
         self.error_messages: list[str] = []
         self.attachments: list[str] = []
         self.abs_path: Optional[str] = None
 
     def try_site_packages(self) -> None:
         if IS_WINDOWS:
-            self.lib_searched_for = f"{self.libname}*.dll"
             if self.abs_path is None:
                 self.abs_path = _find_dll_using_nvidia_bin_dirs(
                     self.libname,
@@ -171,7 +174,6 @@ class _FindNvidiaDynamicLib:
                     self.attachments,
                 )
         else:
-            self.lib_searched_for = f"lib{self.libname}.so"
             if self.abs_path is None:
                 self.abs_path = _find_so_using_nvidia_lib_dirs(
                     self.libname,
