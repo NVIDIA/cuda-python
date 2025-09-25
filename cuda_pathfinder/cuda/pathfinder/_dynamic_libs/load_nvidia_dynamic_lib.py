@@ -26,7 +26,8 @@ else:
 def _load_lib_no_cache(libname: str) -> LoadedDL:
     finder = _FindNvidiaDynamicLib(libname)
     finder.try_site_packages()
-    finder.try_with_conda_prefix()
+    if finder.abs_path is None:
+        finder.try_with_conda_prefix()
     have_abs_path = finder.abs_path is not None
 
     # If the library was already loaded by someone else, reproduce any OS-specific
