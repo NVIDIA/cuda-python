@@ -47,7 +47,7 @@ elif [[ "${test_module}" == "bindings" ]]; then
   fi
   popd
   pushd ./cuda_bindings
-  echo "Running bindinds tests"
+  echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rxXs -v tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
     ${SANITIZER_CMD} pytest -rxXs -v tests/cython
