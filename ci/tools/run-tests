@@ -42,6 +42,7 @@ if [[ "${test_module}" == "pathfinder" ]]; then
   popd
 elif [[ "${test_module}" == "bindings" ]]; then
   bindings_dir="${PWD}/cuda_bindings"
+  ls "${bindings_dir}"
   pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
   echo "Installing bindings wheel"
   pwd
