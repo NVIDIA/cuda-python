@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import ast
+
 from setuptools import setup
 
 # We want to keep the version in sync with cuda.bindings, but setuptools would not let

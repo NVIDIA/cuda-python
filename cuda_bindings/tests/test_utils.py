@@ -8,7 +8,6 @@ import sys
 from pathlib import Path
 
 import pytest
-
 from cuda.bindings import driver, runtime
 from cuda.bindings.utils import get_cuda_native_handle, get_minimal_required_cuda_ver_from_ptx_ver, get_ptx_ver
 
