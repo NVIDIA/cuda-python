@@ -4,9 +4,9 @@
 import random
 
 import pytest
-from conftest import ASSERT_DRV
-
 from cuda.bindings import driver as cuda
+
+from conftest import ASSERT_DRV
 
 random.seed(0)
 

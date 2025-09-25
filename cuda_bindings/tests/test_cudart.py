@@ -4,11 +4,10 @@
 import ctypes
 import math
 
-import numpy as np
-import pytest
-
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
+import numpy as np
+import pytest
 from cuda import pathfinder
 from cuda.bindings import runtime
 

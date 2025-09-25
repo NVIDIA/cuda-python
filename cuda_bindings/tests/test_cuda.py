@@ -5,11 +5,10 @@ import platform
 import shutil
 import textwrap
 
-import numpy as np
-import pytest
-
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
+import numpy as np
+import pytest
 from cuda.bindings import driver
 
 

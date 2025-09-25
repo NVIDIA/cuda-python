@@ -5,10 +5,10 @@
 
 # For usage see top of collect_site_packages_*_files.*
 
+import argparse
 import os
 import re
-import argparse
-from typing import Optional, Dict, Set
+from typing import Dict, Optional, Set
 
 _SITE_PACKAGES_RE = re.compile(r"(?i)^.*?/site-packages/")
 

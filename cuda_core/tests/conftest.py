@@ -10,7 +10,6 @@ except ImportError:
 import multiprocessing
 
 import pytest
-
 from cuda.core.experimental import Device, _device
 from cuda.core.experimental._utils.cuda_utils import handle_return
 

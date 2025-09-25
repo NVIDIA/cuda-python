@@ -8,7 +8,6 @@ import textwrap
 from contextlib import contextmanager
 
 import pytest
-
 from cuda.bindings import nvvm
 
 MINIMAL_NVVMIR_FIXTURE_PARAMS = ["txt", "bitcode_static"]
