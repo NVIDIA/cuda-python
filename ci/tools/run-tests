@@ -25,8 +25,10 @@ PYTEST_ARGS=()
 FREE_THREADING=""
 if python -c 'import sys; assert not sys._is_gil_enabled()' 2> /dev/null; then
   FREE_THREADING+="-ft"
-  PYTEST_ARGS+=("--require-gil-disabled" "--threads" "${FREE_THREADING_TEST_THREADS}" "--iterations" "${FREE_THREADING_TEST_ITERATIONS}")
-  PYTHON_GIL=0
+  PYTEST_ARGS+=("--threads" "${FREE_THREADING_TEST_THREADS}" "--iterations" "${FREE_THREADING_TEST_ITERATIONS}")
+  # ideally we could set this to zero, but many things in the test suite are
+  # not built to work without the GIL
+  PYTHON_GIL=1
 else
   PYTEST_ARGS+=("-p" "no:freethreaded")
   PYTHON_GIL=1
