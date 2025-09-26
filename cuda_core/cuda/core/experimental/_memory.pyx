@@ -70,12 +70,16 @@ cdef class Buffer:
         return self
 
     def __del__(self):
-        self.safe_close()
+        self._shutdown_safe_close()
 
-    cpdef safe_close(self, stream: Stream = None, is_shutting_down=sys.is_finalizing):
+    cdef _shutdown_safe_close(self, stream: Stream = None, is_shutting_down=sys.is_finalizing):
+        if is_shutting_down and is_shutting_down():
+            return
         if self._ptr and self._mr is not None:
-            if not is_shutting_down():
-                self._mr.deallocate(self._ptr, self._size, stream)
+            self._mr.deallocate(self._ptr, self._size, stream)
+            self._ptr = 0
+            self._mr = None
+            self._ptr_obj = None
 
     cpdef close(self, stream: Stream = None):
         """Deallocate this buffer asynchronously on the given stream.
@@ -89,11 +93,7 @@ cdef class Buffer:
             The stream object to use for asynchronous deallocation. If None,
             the behavior depends on the underlying memory resource.
         """
-        if self._ptr and self._mr is not None:
-            self._mr.deallocate(self._ptr, self._size, stream)
-            self._ptr = 0
-            self._mr = None
-            self._ptr_obj = None
+        self._shutdown_safe_close(stream, is_shutting_down=None)
 
     @property
     def handle(self) -> DevicePointerT:

@@ -108,22 +108,20 @@ cdef class Event:
         self._ctx_handle = ctx_handle
         return self
 
-    cpdef safe_close(self, is_shutting_down=sys.is_finalizing):
-        """Destroy the event."""
-        if self._handle is not None:
-            if not is_shutting_down():
-                err, = driver.cuEventDestroy(self._handle)
-                raise_if_driver_error(err)
-
-    cpdef close(self):
-        """Destroy the event."""
+    cdef _shutdown_safe_close(self, is_shutting_down=sys.is_finalizing):
+        if is_shutting_down and is_shutting_down():
+            return
         if self._handle is not None:
             err, = driver.cuEventDestroy(self._handle)
             self._handle = None
             raise_if_driver_error(err)
 
+    cpdef close(self):
+        """Destroy the event."""
+        self._shutdown_safe_close(is_shutting_down=None)
+
     def __del__(self):
-        self.safe_close()
+        self._shutdown_safe_close()
 
     def __isub__(self, other):
         return NotImplemented

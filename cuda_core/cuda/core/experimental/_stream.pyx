@@ -187,13 +187,18 @@ cdef class Stream:
         return self
 
     def __del__(self):
-        self.safe_close()
+        self._shutdown_safe_close()
 
-    cpdef safe_close(self, is_shutting_down=sys.is_finalizing):
+    cdef _shutdown_safe_close(self, is_shutting_down=sys.is_finalizing):
+        if is_shutting_down and is_shutting_down():
+            return
+
         if self._owner is None:
             if self._handle and not self._builtin:
-                if not is_shutting_down():
-                    handle_return(driver.cuStreamDestroy(self._handle))
+                handle_return(driver.cuStreamDestroy(self._handle))
+        else:
+            self._owner = None
+        self._handle = None
 
     cpdef close(self):
         """Destroy the stream.
@@ -202,12 +207,7 @@ cdef class Stream:
         object will instead have their references released.
 
         """
-        if self._owner is None:
-            if self._handle and not self._builtin:
-                handle_return(driver.cuStreamDestroy(self._handle))
-        else:
-            self._owner = None
-        self._handle = None
+        self._shutdown_safe_close(is_shutting_down=None)
 
     def __cuda_stream__(self) -> tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
