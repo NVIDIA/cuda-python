@@ -19,7 +19,6 @@ import os
 import re
 
 import pytest
-
 from cuda.pathfinder import find_nvidia_header_directory
 from cuda.pathfinder._headers.supported_nvidia_headers import (
     SUPPORTED_HEADERS_CTK,
