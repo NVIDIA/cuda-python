@@ -186,8 +186,15 @@ else
 
     # Create a git worktree for gh-pages branch
     TEMP_DIR="./gh-pages-cleanup"
-    rm -rf ${TEMP_DIR}
-    mkdir ${TEMP_DIR}
+    
+    # Safely remove any existing worktree and directory
+    if [[ -d "$TEMP_DIR" ]]; then
+        echo -e "${YELLOW}[INFO]${NC} Cleaning up existing worktree at $TEMP_DIR..."
+        # Try to remove existing worktree first (if it's registered)
+        git worktree remove "$TEMP_DIR" --force >/dev/null 2>&1 || true
+        # Now remove the directory
+        rm -rf "$TEMP_DIR"
+    fi
 
     # Cleanup function to properly remove worktree and temp directory
     cleanup_worktree() {
@@ -211,8 +218,22 @@ else
     echo -e "${YELLOW}[INFO]${NC} Creating git worktree for gh-pages branch..."
     if ! git worktree add "$TEMP_DIR" gh-pages >/dev/null 2>&1; then
         echo -e "${RED}[ERROR]${NC} Failed to create git worktree for gh-pages branch" >&2
-        echo "Make sure the gh-pages branch exists and is accessible" >&2
-        exit 1
+        
+        # Check if the issue might be a leftover worktree registration
+        if git worktree list | grep -q "$TEMP_DIR" 2>/dev/null; then
+            echo -e "${YELLOW}[INFO]${NC} Found existing worktree registration, attempting to clean up..." >&2
+            git worktree remove "$TEMP_DIR" --force >/dev/null 2>&1 || true
+            rm -rf "$TEMP_DIR" >/dev/null 2>&1 || true
+            
+            # Try again
+            if ! git worktree add "$TEMP_DIR" gh-pages >/dev/null 2>&1; then
+                echo -e "${RED}[ERROR]${NC} Still unable to create worktree after cleanup" >&2
+                exit 1
+            fi
+        else
+            echo "Make sure the gh-pages branch exists and is accessible" >&2
+            exit 1
+        fi
     fi
 
     cd "$TEMP_DIR"
