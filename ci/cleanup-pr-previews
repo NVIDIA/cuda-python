@@ -192,10 +192,16 @@ else
     # Cleanup function to properly remove worktree and temp directory
     cleanup_worktree() {
         cd - >/dev/null 2>&1 || true  # Go back to original directory
-        if [[ -n "$TEMP_DIR" && -d "$TEMP_DIR" ]]; then
-            git worktree remove "$TEMP_DIR" --force >/dev/null 2>&1 || true
+        # Only cleanup if changes have been pushed or if no changes were made
+        if [[ "${CHANGES_PUSHED:-false}" == "true" ]] || [[ "${REMOVED_COUNT:-0}" -eq 0 ]]; then
+            if [[ -n "$TEMP_DIR" && -d "$TEMP_DIR" ]]; then
+                git worktree remove "$TEMP_DIR" --force >/dev/null 2>&1 || true
+            fi
+            rm -rf "$TEMP_DIR" >/dev/null 2>&1 || true
+        else
+            echo -e "${YELLOW}[INFO]${NC} Worktree preserved at $TEMP_DIR for manual verification" >&2
+            echo -e "${YELLOW}[INFO]${NC} Remove manually with: git worktree remove $TEMP_DIR && rm -rf $TEMP_DIR" >&2
         fi
-        rm -rf "$TEMP_DIR" >/dev/null 2>&1 || true
     }
     trap cleanup_worktree EXIT
 
@@ -241,12 +247,16 @@ $(if [[ ${#FOLDERS_TO_REMOVE[@]} -gt 20 ]]; then echo "... and $((${#FOLDERS_TO_
         if [[ "$PUSH_CHANGES" == "true" ]]; then
             echo -e "${YELLOW}[INFO]${NC} Pushing to gh-pages branch..."
             git push origin gh-pages
+            CHANGES_PUSHED="true"
             echo -e "${GREEN}[SUCCESS]${NC} Cleanup completed! Removed ${REMOVED_COUNT} PR preview folders and pushed changes"
         else
+            CHANGES_PUSHED="false"
             echo -e "${GREEN}[SUCCESS]${NC} Cleanup completed! Removed ${REMOVED_COUNT} PR preview folders"
             echo -e "${YELLOW}[INFO]${NC} Changes have been committed locally but not pushed. Use 'git push origin gh-pages' to push manually."
+            echo -e "${YELLOW}[WARNING]${NC} Worktree will be preserved for manual verification."
         fi
     else
+        CHANGES_PUSHED="true"  # No changes made, safe to cleanup
         echo -e "${YELLOW}[INFO]${NC} No folders were actually removed (they may have been cleaned up already)"
     fi
 fi
