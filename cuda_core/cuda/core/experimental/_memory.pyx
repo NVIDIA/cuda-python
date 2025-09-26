@@ -55,17 +55,19 @@ cdef class Buffer:
         size_t _size
         object _mr
         object _ptr_obj
+        object _alloc_stream
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError("Buffer objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None):
+    def _init(cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None, stream: Stream | None = None):
         cdef Buffer self = Buffer.__new__(cls)
         self._ptr = <uintptr_t>(int(ptr))
         self._ptr_obj = ptr
         self._size = size
         self._mr = mr
+        self._alloc_stream = stream
         return self
 
     def __del__(self):
@@ -81,13 +83,16 @@ cdef class Buffer:
         ----------
         stream : Stream, optional
             The stream object to use for asynchronous deallocation. If None,
-            the behavior depends on the underlying memory resource.
+            the allocation stream is used.
         """
         if self._ptr and self._mr is not None:
+            if stream is None:
+                stream = self._alloc_stream
             self._mr.deallocate(self._ptr, self._size, stream)
             self._ptr = 0
             self._mr = None
             self._ptr_obj = None
+            self._alloc_stream = None
 
     @property
     def handle(self) -> DevicePointerT:
@@ -745,9 +750,9 @@ class DeviceMemoryResource(MemoryResource):
             stream = default_stream()
         err, ptr = driver.cuMemAllocFromPoolAsync(size, self._mempool_handle, stream.handle)
         raise_if_driver_error(err)
-        return Buffer._init(ptr, size, self)
+        return Buffer._init(ptr, size, self, stream)
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -756,12 +761,11 @@ class DeviceMemoryResource(MemoryResource):
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : Stream, optional
+        stream : Stream
             The stream on which to perform the deallocation asynchronously.
-            If None, an internal stream is used.
+            When the buffer destructor is invoked by the gc instead of explicitly destroyed
+            via the :meth:`Buffer.close` method, the allocation stream is used.
         """
-        if stream is None:
-            stream = default_stream()
         err, = driver.cuMemFreeAsync(ptr, stream.handle)
         raise_if_driver_error(err)
 
@@ -832,11 +836,13 @@ class LegacyPinnedMemoryResource(MemoryResource):
         Buffer
             The allocated buffer object, which is accessible on both host and device.
         """
+        if stream is None:
+            stream = default_stream()
         err, ptr = driver.cuMemAllocHost(size)
         raise_if_driver_error(err)
-        return Buffer._init(ptr, size, self)
+        return Buffer._init(ptr, size, self, stream)
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -847,10 +853,8 @@ class LegacyPinnedMemoryResource(MemoryResource):
             The size of the buffer to deallocate, in bytes.
         stream : Stream, optional
             The stream on which to perform the deallocation asynchronously.
-            If None, no synchronization would happen.
         """
-        if stream:
-            stream.sync()
+        stream.sync()
         err, = driver.cuMemFreeHost(ptr)
         raise_if_driver_error(err)
 
@@ -877,14 +881,14 @@ class _SynchronousMemoryResource(MemoryResource):
         self._handle = None
         self._dev_id = getattr(device_id, 'device_id', device_id)
 
-    def allocate(self, size, stream=None) -> Buffer:
-        err, ptr = driver.cuMemAlloc(size)
-        raise_if_driver_error(err)
-        return Buffer._init(ptr, size, self)
-
-    def deallocate(self, ptr, size, stream=None):
+    def allocate(self, size, stream: Stream = None) -> Buffer:
         if stream is None:
             stream = default_stream()
+        err, ptr = driver.cuMemAlloc(size)
+        raise_if_driver_error(err)
+        return Buffer._init(ptr, size, self, stream)
+
+    def deallocate(self, ptr, size, stream: Stream):
         stream.sync()
         err, = driver.cuMemFree(ptr)
         raise_if_driver_error(err)
