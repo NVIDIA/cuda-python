@@ -185,7 +185,9 @@ else
     echo -e "${RED}[CLEANUP]${NC} Proceeding to remove ${#FOLDERS_TO_REMOVE[@]} folders..."
 
     # Create a git worktree for gh-pages branch
-    TEMP_DIR=$(mktemp -d)
+    TEMP_DIR="./gh-pages-cleanup"
+    rm -rf ${TEMP_DIR}
+    mkdir ${TEMP_DIR}
 
     # Cleanup function to properly remove worktree and temp directory
     cleanup_worktree() {
@@ -196,6 +198,9 @@ else
         rm -rf "$TEMP_DIR" >/dev/null 2>&1 || true
     }
     trap cleanup_worktree EXIT
+
+    # Ensure the local gh-pages branch is up-to-date
+    git fetch origin gh-pages:gh-pages
 
     echo -e "${YELLOW}[INFO]${NC} Creating git worktree for gh-pages branch..."
     if ! git worktree add "$TEMP_DIR" gh-pages >/dev/null 2>&1; then
