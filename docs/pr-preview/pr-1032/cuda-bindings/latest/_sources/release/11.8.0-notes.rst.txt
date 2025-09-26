@@ -1,0 +1,48 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+CUDA Python 11.8.0 Release notes
+================================
+
+Released on October 3, 2022
+
+Highlights
+----------
+- Support CUDA Toolkit 11.8
+- Source builds allow for missing types and APIs
+- Resolves source builds for mobile platforms
+- Resolves `issue #24 <https://github.com/NVIDIA/cuda-python/issues/24>`_
+
+Source Builds
+^^^^^^^^^^^^^
+
+CUDA Python source builds now parse CUDA headers located in $CUDA_HOME directory, enabling/disabling types and APIs if defined. Therefore this removes the need for CTK headers to have all types defined. By allowing minor variations, previous `11.7.1 mobile platform workaround <https://nvidia.github.io/cuda-python/release/11.7.1-notes.html#source-builds>`_ is no longer needed.
+
+It's still required that source builds use the latest CTK headers (i.e. “$CUDA_HOME/include” has latest CTK headers).
+
+Limitations
+-----------
+
+CUDA Functions Not Supported in this Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Symbol APIs
+    - cudaGraphExecMemcpyNodeSetParamsFromSymbol
+    - cudaGraphExecMemcpyNodeSetParamsToSymbol
+    - cudaGraphAddMemcpyNodeToSymbol
+    - cudaGraphAddMemcpyNodeFromSymbol
+    - cudaGraphMemcpyNodeSetParamsToSymbol
+    - cudaGraphMemcpyNodeSetParamsFromSymbol
+    - cudaMemcpyToSymbol
+    - cudaMemcpyFromSymbol
+    - cudaMemcpyToSymbolAsync
+    - cudaMemcpyFromSymbolAsync
+    - cudaGetSymbolAddress
+    - cudaGetSymbolSize
+    - cudaGetFuncBySymbol
+- Launch Options
+    - cudaLaunchKernel
+    - cudaLaunchCooperativeKernel
+    - cudaLaunchCooperativeKernelMultiDevice
+- cudaSetValidDevices
+- cudaVDPAUSetVDPAUDevice
