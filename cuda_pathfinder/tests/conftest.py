@@ -9,14 +9,12 @@ def pytest_configure(config):
     config.custom_info = []
 
 
-def _cli_has_flag(args, flag):
-    return any(arg == flag or arg.startswith(flag + "=") for arg in args)
-
-
 def pytest_terminal_summary(terminalreporter, exitstatus, config):  # noqa: ARG001
     if not config.getoption("verbose"):
         return
-    if _cli_has_flag(config.invocation_params.args, "--iterations"):
+    if hasattr(config.option, "iterations"):  # pytest-freethreaded runs all tests at least twice
+        return
+    if getattr(config.option, "count", 1) > 1:  # pytest-repeat
         return
 
     if config.custom_info:
