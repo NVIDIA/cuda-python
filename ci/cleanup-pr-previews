@@ -101,7 +101,7 @@ while IFS= read -r folder; do
     TOTAL_FOLDERS=$((TOTAL_FOLDERS + 1))
     
     # Extract PR number from folder name (pr-XXXXX -> XXXXX)
-    PR_NUMBER=$(echo "$folder" | sed 's/^pr-//')
+    PR_NUMBER="${folder#pr-}"
     
     echo -e "${YELLOW}[CHECK]${NC} Checking PR #${PR_NUMBER}..."
     
@@ -145,7 +145,7 @@ fi
 echo ""
 echo -e "${YELLOW}[FOLDERS TO REMOVE]${NC}"
 for folder in "${FOLDERS_TO_REMOVE[@]}"; do
-    pr_num=$(echo "$folder" | sed 's/^pr-//')
+    pr_num="${folder#pr-}"
     echo "  - $folder (PR #${pr_num})"
 done
 
@@ -172,7 +172,7 @@ else
     # Remove each folder
     REMOVED_COUNT=0
     for folder in "${FOLDERS_TO_REMOVE[@]}"; do
-        pr_num=$(echo "$folder" | sed 's/^pr-//')
+        pr_num="${folder#pr-}"
         folder_path="docs/pr-preview/$folder"
         
         if [[ -d "$folder_path" ]]; then

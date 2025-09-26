@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# Simple test script for cleanup-pr-previews
+# This tests the basic argument parsing and help functionality
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CLEANUP_SCRIPT="${SCRIPT_DIR}/cleanup-pr-previews"
+
+echo "Testing PR preview cleanup script..."
+
+# Test 1: Help functionality
+echo "Test 1: Help functionality"
+help_output=$($CLEANUP_SCRIPT --help 2>&1 || true)
+if echo "$help_output" | grep -q "Usage:"; then
+    echo "✓ Help functionality works"
+else
+    echo "✗ Help functionality failed"
+    exit 1
+fi
+
+# Test 2: Script is executable
+echo "Test 2: Script executability"
+if [[ -x "$CLEANUP_SCRIPT" ]]; then
+    echo "✓ Script is executable"
+else
+    echo "✗ Script is not executable"
+    exit 1
+fi
+
+# Test 3: Script handles missing GH_TOKEN
+echo "Test 3: Missing GH_TOKEN handling"
+error_output=$($CLEANUP_SCRIPT 2>&1 || true)
+if echo "$error_output" | grep -q "GH_TOKEN environment variable is required"; then
+    echo "✓ Missing GH_TOKEN handled correctly"
+else
+    echo "✗ Missing GH_TOKEN not handled correctly"
+    exit 1
+fi
+
+# Test 4: Check shebang and basic shell syntax
+echo "Test 4: Shell syntax validation"
+if bash -n "$CLEANUP_SCRIPT"; then
+    echo "✓ Shell syntax is valid"
+else
+    echo "✗ Shell syntax errors detected"
+    exit 1
+fi
+
+echo ""
+echo "All tests passed! ✓"
+echo ""
+echo "To actually test the script functionality, run:"
+echo "  export GH_TOKEN=your_token"
+echo "  $CLEANUP_SCRIPT NVIDIA/cuda-python true"
