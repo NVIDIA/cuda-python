@@ -1,10 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import sys
 from typing import Final
 
-IS_WINDOWS = sys.platform == "win32"
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 SUPPORTED_HEADERS_CTK_COMMON = {
     "cccl": "cuda/std/version",
