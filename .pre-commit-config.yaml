@@ -65,14 +65,6 @@ repos:
     - id: rst-directive-colons
     - id: rst-inline-touching-normal
 
-  - repo: https://github.com/PyCQA/bandit
-    rev: "36fd65054fc8864b4037d0918904f9331512feb5"  # frozen: 1.7.10 KEEP IN SYNC WITH .github/workflows/bandit.yml
-    hooks:
-      - id: bandit
-        args:
-          - --ini
-          - .bandit
-
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: 0f86793af5ef5f6dc63c8d04a3cabfa3ea8f9c6a  # frozen: v1.16.1
     hooks:
