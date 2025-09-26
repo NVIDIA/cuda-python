@@ -3,6 +3,7 @@
 
 import functools
 import json
+import logging
 import os
 from unittest.mock import patch
 
@@ -93,7 +94,7 @@ def _get_libnames_for_test_load_nvidia_dynamic_lib():
 
 
 @pytest.mark.parametrize("libname", _get_libnames_for_test_load_nvidia_dynamic_lib())
-def test_load_nvidia_dynamic_lib(info_summary_append, libname):
+def test_load_nvidia_dynamic_lib(libname):
     # We intentionally run each dynamic library operation in a child process
     # to ensure isolation of global dynamic linking state (e.g., dlopen handles).
     # Without child processes, loading/unloading libraries during testing could
@@ -110,8 +111,8 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     if result.stdout.startswith("CHILD_LOAD_NVIDIA_DYNAMIC_LIB_HELPER_DYNAMIC_LIB_NOT_FOUND_ERROR:"):
         if STRICTNESS == "all_must_work":
             raise_child_process_failed()
-        info_summary_append(f"Not found: {libname=!r}")
+        logging.info(f"Not found: {libname=!r}")
     else:
         abs_path = json.loads(result.stdout.rstrip())
-        info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
+        logging.info(f"abs_path={quote_for_shell(abs_path)}")
         assert os.path.isfile(abs_path)  # double-check the abs_path
