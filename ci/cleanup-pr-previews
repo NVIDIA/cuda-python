@@ -22,13 +22,6 @@ usage() {
     cat << EOF
 PR Preview Cleanup Script - Clean up stale PR preview documentation folders
 
-PROBLEM:
-The doc_preview action has limitations that result in stale preview folders:
-- Cleanup steps only run when target branch is 'main' (PRs targeting feature branches aren't cleaned up)
-- Canceled/interrupted documentation jobs don't run cleanup steps
-- Other edge cases where cleanup logic isn't executed
-
-SOLUTION:
 This script fetches all pr-XXXXX folders from docs/pr-preview/ in the gh-pages branch,
 checks PR status via GitHub API, and removes folders for closed/merged/deleted PRs.
 
@@ -49,7 +42,6 @@ REQUIREMENTS:
     - GH_TOKEN environment variable must be set with appropriate permissions
     - 'gh' (GitHub CLI) must be installed and authenticated
     - 'jq' must be installed for JSON parsing
-    - 'git' must be available
 
 SAFETY:
 Always run with --dry-run first to verify expected behavior before actual cleanup.
