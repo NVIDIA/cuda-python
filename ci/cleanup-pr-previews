@@ -45,7 +45,7 @@ REQUIREMENTS:
 
 SAFETY:
 Always run with --dry-run first to verify expected behavior before actual cleanup.
-The script will show a summary of what would be removed. Use --push to automatically 
+The script will show a summary of what would be removed. Use --push to automatically
 commit and push changes, otherwise manual git operations are required.
 
 This script is specifically designed for the NVIDIA/cuda-python repository structure.
@@ -125,19 +125,19 @@ while IFS= read -r folder; do
     if [[ -z "$folder" ]]; then
         continue
     fi
-    
+
     TOTAL_FOLDERS=$((TOTAL_FOLDERS + 1))
-    
+
     # Extract PR number from folder name (pr-XXXXX -> XXXXX)
     PR_NUMBER="${folder#pr-}"
-    
+
     echo -e "${YELLOW}[CHECK]${NC} Checking PR #${PR_NUMBER}..."
-    
+
     # Check PR status using GitHub API
     PR_STATUS=$(gh api repos/"${REPOSITORY}"/pulls/"${PR_NUMBER}" \
         --header "Accept: application/vnd.github+json" \
         --jq '.state' 2>/dev/null || echo "not_found")
-    
+
     case "$PR_STATUS" in
         "open")
             echo -e "${GREEN}[KEEP]${NC} PR #${PR_NUMBER} is still open"
@@ -183,10 +183,10 @@ if [[ "$DRY_RUN" == "true" ]]; then
     echo -e "${YELLOW}[DRY RUN]${NC} Would remove ${#FOLDERS_TO_REMOVE[@]} folders (run without --dry-run to actually remove)"
 else
     echo -e "${RED}[CLEANUP]${NC} Proceeding to remove ${#FOLDERS_TO_REMOVE[@]} folders..."
-    
+
     # Create a git worktree for gh-pages branch
     TEMP_DIR=$(mktemp -d)
-    
+
     # Cleanup function to properly remove worktree and temp directory
     cleanup_worktree() {
         cd - >/dev/null 2>&1 || true  # Go back to original directory
@@ -196,22 +196,22 @@ else
         rm -rf "$TEMP_DIR" >/dev/null 2>&1 || true
     }
     trap cleanup_worktree EXIT
-    
+
     echo -e "${YELLOW}[INFO]${NC} Creating git worktree for gh-pages branch..."
     if ! git worktree add "$TEMP_DIR" gh-pages >/dev/null 2>&1; then
         echo -e "${RED}[ERROR]${NC} Failed to create git worktree for gh-pages branch" >&2
         echo "Make sure the gh-pages branch exists and is accessible" >&2
         exit 1
     fi
-    
+
     cd "$TEMP_DIR"
-    
+
     # Remove each folder
     REMOVED_COUNT=0
     for folder in "${FOLDERS_TO_REMOVE[@]}"; do
         pr_num="${folder#pr-}"
         folder_path="docs/pr-preview/$folder"
-        
+
         if [[ -d "$folder_path" ]]; then
             echo -e "${YELLOW}[REMOVE]${NC} Removing $folder_path"
             rm -rf "$folder_path"
@@ -221,7 +221,7 @@ else
             echo -e "${YELLOW}[SKIP]${NC} Folder $folder_path not found locally"
         fi
     done
-    
+
     if [[ $REMOVED_COUNT -gt 0 ]]; then
         # Commit and push changes
         commit_message="Clean up PR preview folders for ${REMOVED_COUNT} closed/merged PRs
@@ -229,10 +229,10 @@ else
 Removed preview folders for the following PRs:
 $(printf '%s\n' "${FOLDERS_TO_REMOVE[@]}" | sed 's/^pr-/- PR #/' | head -20)
 $(if [[ ${#FOLDERS_TO_REMOVE[@]} -gt 20 ]]; then echo "... and $((${#FOLDERS_TO_REMOVE[@]} - 20)) more"; fi)"
-        
+
         echo -e "${YELLOW}[INFO]${NC} Committing changes..."
         git commit -m "$commit_message"
-        
+
         if [[ "$PUSH_CHANGES" == "true" ]]; then
             echo -e "${YELLOW}[INFO]${NC} Pushing to gh-pages branch..."
             git push origin gh-pages
