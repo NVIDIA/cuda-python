@@ -11,10 +11,6 @@
 
 set -euo pipefail
 
-# Configuration
-REPOSITORY="${1:-NVIDIA/cuda-python}"
-DRY_RUN="${2:-false}"
-
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -36,14 +32,18 @@ SOLUTION:
 This script fetches all pr-XXXXX folders from docs/pr-preview/ in the gh-pages branch,
 checks PR status via GitHub API, and removes folders for closed/merged/deleted PRs.
 
-USAGE: $0 [repository] [dry-run]
-    repository: GitHub repository (default: NVIDIA/cuda-python)
-    dry-run: Set to 'true' to preview what would be deleted without actually deleting (default: false)
+USAGE: $0 [OPTIONS]
+
+OPTIONS:
+    -n, --dry-run    Preview what would be deleted without actually deleting
+    --push           Commit and push changes to gh-pages (default: false, requires manual push)
+    -h, --help       Show this help message
 
 EXAMPLES:
-    $0                                    # Clean up NVIDIA/cuda-python with actual deletions
-    $0 NVIDIA/cuda-python true            # Preview what would be cleaned up (RECOMMENDED FIRST)
-    $0 myorg/my-repo false                # Clean up a different repository
+    $0 -n                     # Preview what would be cleaned up (RECOMMENDED FIRST)
+    $0                        # Clean up folders locally (no push)
+    $0 --push                 # Clean up folders and push to gh-pages branch
+    $0 --dry-run --push       # Invalid combination (dry-run takes precedence)
 
 REQUIREMENTS:
     - GH_TOKEN environment variable must be set with appropriate permissions
@@ -52,16 +52,41 @@ REQUIREMENTS:
     - 'git' must be available
 
 SAFETY:
-Always run with dry-run=true first to verify expected behavior before actual cleanup.
-The script will show a summary of what would be removed and requires confirmation.
+Always run with --dry-run first to verify expected behavior before actual cleanup.
+The script will show a summary of what would be removed. Use --push to automatically 
+commit and push changes, otherwise manual git operations are required.
+
+This script is specifically designed for the NVIDIA/cuda-python repository structure.
 EOF
     exit 1
 }
 
-# Check for help flag
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-    usage
-fi
+# Configuration - hardcoded for this specific repository
+REPOSITORY="NVIDIA/cuda-python"
+DRY_RUN="false"
+PUSH_CHANGES="false"
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -n|--dry-run)
+            DRY_RUN="true"
+            shift
+            ;;
+        --push)
+            PUSH_CHANGES="true"
+            shift
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            echo -e "${RED}[ERROR]${NC} Unknown option: $1" >&2
+            echo "Use --help for usage information" >&2
+            exit 1
+            ;;
+    esac
+done
 
 # Validate required tools and environment
 echo -e "${YELLOW}[INFO]${NC} Checking prerequisites..."
@@ -71,18 +96,8 @@ if [[ -z "${GH_TOKEN:-}" ]]; then
     exit 1
 fi
 
-if ! command -v jq >/dev/null 2>&1; then
-    echo -e "${RED}[ERROR]${NC} jq is required but not installed" >&2
-    exit 1
-fi
-
 if ! command -v gh >/dev/null 2>&1; then
     echo -e "${RED}[ERROR]${NC} GitHub CLI (gh) is required but not installed" >&2
-    exit 1
-fi
-
-if ! command -v git >/dev/null 2>&1; then
-    echo -e "${RED}[ERROR]${NC} git is required but not installed" >&2
     exit 1
 fi
 
@@ -168,7 +183,7 @@ done
 # Perform cleanup or show what would be done
 echo ""
 if [[ "$DRY_RUN" == "true" ]]; then
-    echo -e "${YELLOW}[DRY RUN]${NC} Would remove ${#FOLDERS_TO_REMOVE[@]} folders (use dry-run=false to actually remove)"
+    echo -e "${YELLOW}[DRY RUN]${NC} Would remove ${#FOLDERS_TO_REMOVE[@]} folders (run without --dry-run to actually remove)"
 else
     echo -e "${RED}[CLEANUP]${NC} Proceeding to remove ${#FOLDERS_TO_REMOVE[@]} folders..."
     
@@ -180,10 +195,6 @@ else
     git clone --depth 1 --branch gh-pages "https://github.com/${REPOSITORY}.git" "$TEMP_DIR" >/dev/null 2>&1
     
     cd "$TEMP_DIR"
-    
-    # Configure git for the cleanup commit
-    git config user.name "cuda-python-bot"
-    git config user.email "cuda-python-bot@users.noreply.github.com"
     
     # Remove each folder
     REMOVED_COUNT=0
@@ -212,10 +223,14 @@ $(if [[ ${#FOLDERS_TO_REMOVE[@]} -gt 20 ]]; then echo "... and $((${#FOLDERS_TO_
         echo -e "${YELLOW}[INFO]${NC} Committing changes..."
         git commit -m "$commit_message"
         
-        echo -e "${YELLOW}[INFO]${NC} Pushing to gh-pages branch..."
-        git push origin gh-pages
-        
-        echo -e "${GREEN}[SUCCESS]${NC} Cleanup completed! Removed ${REMOVED_COUNT} PR preview folders"
+        if [[ "$PUSH_CHANGES" == "true" ]]; then
+            echo -e "${YELLOW}[INFO]${NC} Pushing to gh-pages branch..."
+            git push origin gh-pages
+            echo -e "${GREEN}[SUCCESS]${NC} Cleanup completed! Removed ${REMOVED_COUNT} PR preview folders and pushed changes"
+        else
+            echo -e "${GREEN}[SUCCESS]${NC} Cleanup completed! Removed ${REMOVED_COUNT} PR preview folders"
+            echo -e "${YELLOW}[INFO]${NC} Changes have been committed locally but not pushed. Use 'git push origin gh-pages' to push manually."
+        fi
     else
         echo -e "${YELLOW}[INFO]${NC} No folders were actually removed (they may have been cleaned up already)"
     fi
