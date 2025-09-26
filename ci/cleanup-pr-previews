@@ -88,6 +88,11 @@ if [[ -z "${GH_TOKEN:-}" ]]; then
     exit 1
 fi
 
+if ! command -v jq >/dev/null 2>&1; then
+    echo -e "${RED}[ERROR]${NC} jq is required but not installed" >&2
+    exit 1
+fi
+
 if ! command -v gh >/dev/null 2>&1; then
     echo -e "${RED}[ERROR]${NC} GitHub CLI (gh) is required but not installed" >&2
     exit 1
@@ -179,12 +184,25 @@ if [[ "$DRY_RUN" == "true" ]]; then
 else
     echo -e "${RED}[CLEANUP]${NC} Proceeding to remove ${#FOLDERS_TO_REMOVE[@]} folders..."
     
-    # Clone gh-pages branch to a temporary directory
+    # Create a git worktree for gh-pages branch
     TEMP_DIR=$(mktemp -d)
-    trap 'rm -rf "$TEMP_DIR"' EXIT
     
-    echo -e "${YELLOW}[INFO]${NC} Cloning gh-pages branch to temporary directory..."
-    git clone --depth 1 --branch gh-pages "https://github.com/${REPOSITORY}.git" "$TEMP_DIR" >/dev/null 2>&1
+    # Cleanup function to properly remove worktree and temp directory
+    cleanup_worktree() {
+        cd - >/dev/null 2>&1 || true  # Go back to original directory
+        if [[ -n "$TEMP_DIR" && -d "$TEMP_DIR" ]]; then
+            git worktree remove "$TEMP_DIR" --force >/dev/null 2>&1 || true
+        fi
+        rm -rf "$TEMP_DIR" >/dev/null 2>&1 || true
+    }
+    trap cleanup_worktree EXIT
+    
+    echo -e "${YELLOW}[INFO]${NC} Creating git worktree for gh-pages branch..."
+    if ! git worktree add "$TEMP_DIR" gh-pages >/dev/null 2>&1; then
+        echo -e "${RED}[ERROR]${NC} Failed to create git worktree for gh-pages branch" >&2
+        echo "Make sure the gh-pages branch exists and is accessible" >&2
+        exit 1
+    fi
     
     cd "$TEMP_DIR"
     
