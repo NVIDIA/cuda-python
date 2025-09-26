@@ -4,6 +4,8 @@
 import os
 import pathlib
 import sys
+import threading
+import uuid
 import warnings
 
 import pytest
@@ -16,14 +18,26 @@ skip_symlink_tests = pytest.mark.skipif(
 )
 
 
+@pytest.fixture
+def tmp_path_t(tmp_path):
+    path = tmp_path / str(threading.current_thread().ident)
+    path.mkdir(exist_ok=True)
+    return path
+
+
+def guid():
+    return uuid.uuid4()
+
+
+@pytest.fixture
 def unset_env(monkeypatch):
     """Helper to clear both env vars for each test."""
     monkeypatch.delenv("CUDA_HOME", raising=False)
     monkeypatch.delenv("CUDA_PATH", raising=False)
 
 
-def test_returns_none_when_unset(monkeypatch):
-    unset_env(monkeypatch)
+@pytest.mark.usefixtures("unset_env")
+def test_returns_none_when_unset():
     assert get_cuda_home_or_path() is None
 
 
@@ -34,10 +48,11 @@ def test_empty_cuda_home_preserved(monkeypatch):
     assert get_cuda_home_or_path() == ""
 
 
-def test_prefers_cuda_home_over_cuda_path(monkeypatch, tmp_path):
-    unset_env(monkeypatch)
-    home = tmp_path / "home"
-    path = tmp_path / "path"
+@pytest.mark.usefixtures("unset_env")
+def test_prefers_cuda_home_over_cuda_path(monkeypatch, tmp_path_t):
+    uid = guid()
+    home = tmp_path_t / f"home-{uid}"
+    path = tmp_path_t / f"path-{uid}"
     home.mkdir()
     path.mkdir()
 
@@ -50,21 +65,22 @@ def test_prefers_cuda_home_over_cuda_path(monkeypatch, tmp_path):
     assert pathlib.Path(result) == home
 
 
-def test_uses_cuda_path_if_home_missing(monkeypatch, tmp_path):
-    unset_env(monkeypatch)
-    only_path = tmp_path / "path"
+@pytest.mark.usefixtures("unset_env")
+def test_uses_cuda_path_if_home_missing(monkeypatch, tmp_path_t):
+    uid = guid()
+    only_path = tmp_path_t / f"path-{uid}"
     only_path.mkdir()
     monkeypatch.setenv("CUDA_PATH", str(only_path))
     assert pathlib.Path(get_cuda_home_or_path()) == only_path
 
 
-def test_no_warning_when_textually_equal_after_normalization(monkeypatch, tmp_path):
+@pytest.mark.usefixtures("unset_env")
+def test_no_warning_when_textually_equal_after_normalization(monkeypatch, tmp_path_t):
     """
     Trailing slashes should not trigger a warning, thanks to normpath.
     This works cross-platform.
     """
-    unset_env(monkeypatch)
-    d = tmp_path / "cuda"
+    d = tmp_path_t / f"cuda-{guid()}"
     d.mkdir()
 
     with_slash = str(d) + ("/" if os.sep == "/" else "\\")
@@ -79,12 +95,12 @@ def test_no_warning_when_textually_equal_after_normalization(monkeypatch, tmp_pa
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows-specific case-folding check")
-def test_no_warning_on_windows_case_only_difference(monkeypatch, tmp_path):
+@pytest.mark.usefixtures("unset_env")
+def test_no_warning_on_windows_case_only_difference(monkeypatch, tmp_path_t):
     """
     On Windows, paths differing only by case should not warn because normcase collapses case.
     """
-    unset_env(monkeypatch)
-    d = tmp_path / "Cuda"
+    d = tmp_path_t / f"Cuda-{guid()}"
     d.mkdir()
 
     upper = str(d).upper()
@@ -99,10 +115,11 @@ def test_no_warning_on_windows_case_only_difference(monkeypatch, tmp_path):
     assert len(record) == 0
 
 
-def test_warning_when_both_exist_and_are_different(monkeypatch, tmp_path):
-    unset_env(monkeypatch)
-    a = tmp_path / "a"
-    b = tmp_path / "b"
+@pytest.mark.usefixtures("unset_env")
+def test_warning_when_both_exist_and_are_different(monkeypatch, tmp_path_t):
+    uid = guid()
+    a = tmp_path_t / f"a-{uid}"
+    b = tmp_path_t / f"b-{uid}"
     a.mkdir()
     b.mkdir()
 
@@ -115,14 +132,14 @@ def test_warning_when_both_exist_and_are_different(monkeypatch, tmp_path):
     assert pathlib.Path(result) == a
 
 
-def test_nonexistent_paths_fall_back_to_text_comparison(monkeypatch, tmp_path):
+@pytest.mark.usefixtures("unset_env")
+def test_nonexistent_paths_fall_back_to_text_comparison(monkeypatch, tmp_path_t):
     """
     If one or both paths don't exist, we compare normalized strings.
     Different strings should warn.
     """
-    unset_env(monkeypatch)
-    a = tmp_path / "does_not_exist_a"
-    b = tmp_path / "does_not_exist_b"
+    a = tmp_path_t / "does_not_exist_a"
+    b = tmp_path_t / "does_not_exist_b"
 
     monkeypatch.setenv("CUDA_HOME", str(a))
     monkeypatch.setenv("CUDA_PATH", str(b))
@@ -133,15 +150,16 @@ def test_nonexistent_paths_fall_back_to_text_comparison(monkeypatch, tmp_path):
 
 
 @skip_symlink_tests
-def test_samefile_equivalence_via_symlink_when_possible(monkeypatch, tmp_path):
+@pytest.mark.usefixtures("unset_env")
+def test_samefile_equivalence_via_symlink_when_possible(monkeypatch, tmp_path_t):
     """
     If both paths exist and one is a symlink/junction to the other, we should NOT warn.
     """
-    unset_env(monkeypatch)
-    real_dir = tmp_path / "real"
+    uid = guid()
+    real_dir = tmp_path_t / f"real-{uid}"
     real_dir.mkdir()
 
-    link_dir = tmp_path / "alias"
+    link_dir = tmp_path_t / f"alias-{uid}"
 
     os.symlink(str(real_dir), str(link_dir), target_is_directory=True)
 
@@ -160,21 +178,22 @@ def test_samefile_equivalence_via_symlink_when_possible(monkeypatch, tmp_path):
 # --- unit tests for the helper itself (optional but nice to have) ---
 
 
-def test_paths_differ_text_only(tmp_path):
-    a = tmp_path / "x"
-    b = tmp_path / "x" / ".." / "x"  # normalizes to same
+def test_paths_differ_text_only(tmp_path_t):
+    a = tmp_path_t / "x"
+    b = tmp_path_t / "x" / ".." / "x"  # normalizes to same
     assert _paths_differ(str(a), str(b)) is False
 
-    a = tmp_path / "x"
-    b = tmp_path / "y"
+    a = tmp_path_t / "x"
+    b = tmp_path_t / "y"
     assert _paths_differ(str(a), str(b)) is True
 
 
 @skip_symlink_tests
-def test_paths_differ_samefile(tmp_path):
-    real_dir = tmp_path / "r"
+def test_paths_differ_samefile(tmp_path_t):
+    uid = guid()
+    real_dir = tmp_path_t / f"r-{uid}"
     real_dir.mkdir()
-    alias = tmp_path / "alias"
+    alias = tmp_path_t / f"alias-{uid}"
     os.symlink(str(real_dir), str(alias), target_is_directory=True)
 
     # Should detect equivalence via samefile

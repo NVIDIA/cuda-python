@@ -20,6 +20,10 @@ on:
         type: string
         default: "."
 
+env:
+  FREE_THREADING_TEST_ITERATIONS: 10
+  FREE_THREADING_TEST_THREADS: 10
+
 jobs:
   compute-matrix:
     runs-on: ubuntu-latest
