@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from libc.stdint cimport uintptr_t
+from libc.stdint cimport intptr_t
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
     check_or_create_options,
@@ -51,7 +51,7 @@ cdef class Buffer:
     """
 
     cdef:
-        uintptr_t _ptr
+        intptr_t _ptr
         size_t _size
         object _mr
         object _ptr_obj
@@ -63,7 +63,7 @@ cdef class Buffer:
     @classmethod
     def _init(cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None, stream: Stream | None = None):
         cdef Buffer self = Buffer.__new__(cls)
-        self._ptr = <uintptr_t>(int(ptr))
+        self._ptr = <intptr_t>(int(ptr))
         self._ptr_obj = ptr
         self._size = size
         self._mr = mr
@@ -71,7 +71,7 @@ cdef class Buffer:
         return self
 
     def __del__(self):
-        self.close()
+        self.close(self._alloc_stream)
 
     cpdef close(self, stream: Stream = None):
         """Deallocate this buffer asynchronously on the given stream.
@@ -86,7 +86,7 @@ cdef class Buffer:
             the allocation stream is used.
         """
         if self._ptr and self._mr is not None:
-            if stream is None:
+            if stream is None and self._alloc_stream is not None:
                 stream = self._alloc_stream
             self._mr.deallocate(self._ptr, self._size, stream)
             self._ptr = 0
@@ -763,8 +763,8 @@ class DeviceMemoryResource(MemoryResource):
             The size of the buffer to deallocate, in bytes.
         stream : Stream
             The stream on which to perform the deallocation asynchronously.
-            When the buffer destructor is invoked by the gc instead of explicitly destroyed
-            via the :meth:`Buffer.close` method, the allocation stream is used.
+            If the buffer is deallocated without an explicit stream, the allocation stream
+            is used.
         """
         err, = driver.cuMemFreeAsync(ptr, stream.handle)
         raise_if_driver_error(err)
