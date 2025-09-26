@@ -24,20 +24,36 @@ NC='\033[0m' # No Color
 # Usage information
 usage() {
     cat << EOF
-Usage: $0 [repository] [dry-run]
+PR Preview Cleanup Script - Clean up stale PR preview documentation folders
+
+PROBLEM:
+The doc_preview action has limitations that result in stale preview folders:
+- Cleanup steps only run when target branch is 'main' (PRs targeting feature branches aren't cleaned up)
+- Canceled/interrupted documentation jobs don't run cleanup steps
+- Other edge cases where cleanup logic isn't executed
+
+SOLUTION:
+This script fetches all pr-XXXXX folders from docs/pr-preview/ in the gh-pages branch,
+checks PR status via GitHub API, and removes folders for closed/merged/deleted PRs.
+
+USAGE: $0 [repository] [dry-run]
     repository: GitHub repository (default: NVIDIA/cuda-python)
     dry-run: Set to 'true' to preview what would be deleted without actually deleting (default: false)
 
-Examples:
+EXAMPLES:
     $0                                    # Clean up NVIDIA/cuda-python with actual deletions
-    $0 NVIDIA/cuda-python true            # Preview what would be cleaned up
+    $0 NVIDIA/cuda-python true            # Preview what would be cleaned up (RECOMMENDED FIRST)
     $0 myorg/my-repo false                # Clean up a different repository
 
-Requirements:
-    - GH_TOKEN environment variable must be set
+REQUIREMENTS:
+    - GH_TOKEN environment variable must be set with appropriate permissions
     - 'gh' (GitHub CLI) must be installed and authenticated
     - 'jq' must be installed for JSON parsing
     - 'git' must be available
+
+SAFETY:
+Always run with dry-run=true first to verify expected behavior before actual cleanup.
+The script will show a summary of what would be removed and requires confirmation.
 EOF
     exit 1
 }
