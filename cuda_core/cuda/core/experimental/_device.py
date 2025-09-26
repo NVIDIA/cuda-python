@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import multiprocessing
 import threading
 from typing import Optional, Union
 
@@ -1160,18 +1161,6 @@ class Device:
     def __repr__(self):
         return f"<Device {self._id} ({self.name})>"
 
-    def __reduce__(self):
-        import multiprocessing
-        multiprocessing.context.assert_spawning(self)
-        return Device._reconstruct, (self.device_id,)
-
-    @staticmethod
-    def _reconstruct(device_id):
-        device = Device(device_id)
-        if not device._has_inited:
-            device.set_current()
-        return device
-
     def set_current(self, ctx: Context = None) -> Union[Context, None]:
         """Set device to be used for GPU executions.
 
@@ -1346,3 +1335,16 @@ class Device:
         """
         self._check_context_initialized()
         return GraphBuilder._init(stream=self.create_stream(), is_stream_owner=True)
+
+
+def _reconstruct_device(device_id):
+    device = Device(device_id)
+    if not device._has_inited:
+        device.set_current()
+    return device
+
+def _reduce_device(device):
+    return _reconstruct_device, (device.device_id,)
+
+multiprocessing.reduction.register(Device, _reduce_device)
+
