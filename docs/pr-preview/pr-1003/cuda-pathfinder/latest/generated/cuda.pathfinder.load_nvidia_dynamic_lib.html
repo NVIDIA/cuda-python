@@ -480,7 +480,16 @@
 <code class="docutils literal notranslate"><span class="pre">&quot;nvvm&quot;</span></code>, etc.).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Object containing the OS library handle and absolute path.</p>
+<dd class="field-even"><p><p>Object containing the OS library handle and absolute path.</p>
+<p><strong>Important:</strong></p>
+<p><strong>Never close the returned handle.</strong> Do <strong>not</strong> call <code class="docutils literal notranslate"><span class="pre">dlclose</span></code> (Linux) or
+<code class="docutils literal notranslate"><span class="pre">FreeLibrary</span></code> (Windows) on the <code class="docutils literal notranslate"><span class="pre">LoadedDL._handle_uint</span></code>.</p>
+<p><strong>Why:</strong> the return value is cached (<code class="docutils literal notranslate"><span class="pre">functools.cache</span></code>) and shared across the
+process. Closing the handle can unload the module while other code still uses
+it, leading to crashes or subtle failures.</p>
+<p>This applies to Linux and Windows. For context, see issue #1011:
+<a class="github reference external" href="https://github.com/NVIDIA/cuda-python/issues/1011">NVIDIA/cuda-python#1011</a></p>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.pathfinder.LoadedDL.html#cuda.pathfinder.LoadedDL" title="cuda.pathfinder.LoadedDL">LoadedDL</a></p>
