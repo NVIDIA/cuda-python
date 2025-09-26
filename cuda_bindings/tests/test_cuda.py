@@ -663,8 +663,10 @@ def test_device_get_name():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     p = subprocess.check_output(
-        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], shell=False, stderr=subprocess.PIPE
-    )  # nosec B603, B607
+        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"],  # noqa: S607
+        shell=False,
+        stderr=subprocess.PIPE,
+    )
 
     delimiter = b"\r\n" if platform.system() == "Windows" else b"\n"
     expect = p.split(delimiter)

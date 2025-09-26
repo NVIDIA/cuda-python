@@ -72,7 +72,7 @@ def test_ptx_utils(kernel, actual_ptx_ver, min_cuda_ver):
     ),
 )
 def test_get_handle(target):
-    ptr = random.randint(1, 1024)
+    ptr = random.randint(1, 1024)  # noqa: S311
     obj = target(ptr)
     handle = get_cuda_native_handle(obj)
     assert handle == ptr
@@ -105,6 +105,6 @@ def test_get_handle_error(target):
     ],
 )
 def test_cyclical_imports(module):
-    subprocess.check_call(  # nosec B603
+    subprocess.check_call(  # noqa: S603
         [sys.executable, Path(__file__).parent / "utils" / "check_cyclical_import.py", f"cuda.bindings.{module}"],
     )
