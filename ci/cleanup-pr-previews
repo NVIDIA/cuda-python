@@ -104,10 +104,10 @@ echo -e "${GREEN}[INFO]${NC} All prerequisites satisfied"
 echo -e "${YELLOW}[INFO]${NC} Fetching PR preview folders from gh-pages branch..."
 
 # Get the list of pr-XXXXX folders from gh-pages branch
-PR_FOLDERS=$(gh api repos/"${REPOSITORY}"/contents/docs/pr-preview \
+PR_FOLDERS=$(gh api repos/"${REPOSITORY}"/contents/docs/pr-preview?ref=gh-pages \
     --header "Accept: application/vnd.github+json" \
     --jq '.[] | select(.type == "dir" and (.name | test("^pr-[0-9]+$"))) | .name' \
-    --field ref=gh-pages 2>/dev/null || true)
+    2>/dev/null || true)
 
 if [[ -z "$PR_FOLDERS" ]]; then
     echo -e "${YELLOW}[INFO]${NC} No PR preview folders found in gh-pages branch"
