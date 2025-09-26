@@ -83,7 +83,7 @@ cdef class Buffer:
         ----------
         stream : Stream, optional
             The stream object to use for asynchronous deallocation. If None,
-            the allocation stream is used.
+            the behavior depends on the underlying memory resource.
         """
         if self._ptr and self._mr is not None:
             if stream is None and self._alloc_stream is not None:
