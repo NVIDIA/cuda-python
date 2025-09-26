@@ -1161,6 +1161,8 @@ class Device:
         return f"<Device {self._id} ({self.name})>"
 
     def __reduce__(self):
+        import multiprocessing
+        multiprocessing.context.assert_spawning(self)
         return Device._reconstruct, (self.device_id,)
 
     @staticmethod

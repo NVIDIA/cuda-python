@@ -16,13 +16,9 @@ import abc
 import array
 import contextlib
 import cython
-import multiprocessing
-import multiprocessing.context
-import multiprocessing.reduction
 import os
 import platform
 import sys
-import uuid as uuid_module
 import weakref
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
@@ -32,8 +28,9 @@ if platform.system() == "Linux":
     import socket
 
 if TYPE_CHECKING:
-    import cuda.bindings.driver
     from ._device import Device
+    import cuda.bindings.driver
+    import uuid
 
 # TODO: define a memory property mixin class and make Buffer and
 # MemoryResource both inherit from it
@@ -405,7 +402,7 @@ cdef class IPCAllocationHandle:
         raise RuntimeError("IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, handle: int, uuid: uuid_module.UUID):
+    def _init(cls, handle: int, uuid: uuid.UUID):
         cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)
         assert handle >= 0
         self._handle = handle
@@ -426,6 +423,7 @@ cdef class IPCAllocationHandle:
         self.close()
 
     def __reduce__(self):
+        import multiprocessing
         multiprocessing.context.assert_spawning(self)
         df = multiprocessing.reduction.DupFd(self.handle)
         return self._reconstruct, (df, self._uuid)
@@ -446,7 +444,7 @@ cdef class IPCAllocationHandle:
         return self._handle
 
     @property
-    def uuid(self) -> uuid_module.UUID:
+    def uuid(self) -> uuid.UUID:
         return self._uuid
 
 
@@ -526,7 +524,6 @@ class DeviceMemoryResourceAttributes:
         """High watermark of memory in use."""
 
     del mempool_property
-
 
 # Holds DeviceMemoryResource objects imported by this process.
 # This enables buffer serialization, as buffers can reduce to a pair
@@ -651,6 +648,7 @@ class DeviceMemoryResource(MemoryResource):
     def __reduce__(self):
         # If spawning a new process, serialize the resources; otherwise, just
         # send the UUID, using the registry on the receiving end.
+        import multiprocessing
         is_spawning = multiprocessing.context.get_spawning_popen() is not None
         if is_spawning:
             from ._device import Device
@@ -661,13 +659,13 @@ class DeviceMemoryResource(MemoryResource):
             return DeviceMemoryResource.from_registry, (self.uuid,)
 
     @staticmethod
-    def from_registry(uuid: uuid_module.UUID):
+    def from_registry(uuid: uuid.UUID):
         try:
             return _ipc_registry[uuid]
         except KeyError:
             raise RuntimeError(f"Memory resource {uuid} was not found") from None
 
-    def register(self, uuid: uuid_module.UUID):
+    def register(self, uuid: uuid.UUID):
         if uuid not in _ipc_registry:
             assert self._uuid is None or self._uuid == uuid
             _ipc_registry[uuid] = self
@@ -740,7 +738,8 @@ class DeviceMemoryResource(MemoryResource):
             raise_if_driver_error(err)
             try:
                 assert self._uuid is None
-                self._uuid = uuid_module.uuid4()
+                import uuid as uuid
+                self._uuid = uuid.uuid4()
                 self._alloc_handle = IPCAllocationHandle._init(alloc_handle, self._uuid)
             except:
                 os.close(alloc_handle)

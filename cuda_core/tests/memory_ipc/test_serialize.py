@@ -82,11 +82,6 @@ class TestObjectSerializationWithMR:
         process = mp.Process(target=self.child_main, args=(pipe, mr))
         process.start()
 
-        # Send a device description.
-        pipe[0].put(device)
-        device_id = pipe[1].get(timeout=CHILD_TIMEOUT_SEC)
-        assert device_id == device.device_id
-
         # Send a memory resource directly. This relies on the mr already
         # being passed when spawning the child.
         pipe[0].put(mr)
@@ -105,9 +100,8 @@ class TestObjectSerializationWithMR:
         IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
 
     def child_main(self, pipe, _):
-        # Device.
-        device = pipe[0].get(timeout=CHILD_TIMEOUT_SEC)
-        pipe[1].put(device.device_id)
+        device = Device()
+        device.set_current()
 
         # Memory resource.
         mr = pipe[0].get(timeout=CHILD_TIMEOUT_SEC)
