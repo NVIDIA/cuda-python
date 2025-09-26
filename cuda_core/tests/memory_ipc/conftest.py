@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-
 from cuda.core.experimental import Device, DeviceMemoryResource
 
 POOL_SIZE = 2097152

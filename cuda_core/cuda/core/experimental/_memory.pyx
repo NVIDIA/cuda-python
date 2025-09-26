@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from typing import Optional, TypeVar, Union, TYPE_CHECKING
 import abc
 import array
+import contextlib
 import cython
 import multiprocessing
 import multiprocessing.context
@@ -440,12 +441,6 @@ cdef class IPCAllocationHandle:
             )
         return self._handle
 
-    def detach(self):
-        handle = self._handle
-        self._handle = -1
-        self._uuid = None
-        return handle
-
     @property
     def handle(self) -> int:
         return self._handle
@@ -642,6 +637,7 @@ class DeviceMemoryResource(MemoryResource):
                     err, = driver.cuMemPoolDestroy(self._mempool_handle)
                     raise_if_driver_error(err)
             finally:
+                self.unregister()
                 self._dev_id = None
                 self._mempool_handle = None
                 self._attributes = None
@@ -669,13 +665,17 @@ class DeviceMemoryResource(MemoryResource):
         try:
             return _ipc_registry[uuid]
         except KeyError:
-            raise RuntimeError(f"Memory resource {uuid} was not found")
+            raise RuntimeError(f"Memory resource {uuid} was not found") from None
 
     def register(self, uuid: uuid_module.UUID):
         if uuid not in _ipc_registry:
             assert self._uuid is None or self._uuid == uuid
             _ipc_registry[uuid] = self
             self._uuid = uuid
+
+    def unregister(self):
+        with contextlib.suppress(KeyError):
+            del _ipc_registry[self.uuid]
 
     @property
     def uuid(self):

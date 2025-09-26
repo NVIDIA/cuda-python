@@ -7,7 +7,6 @@ import multiprocessing as mp
 
 import psutil
 import pytest
-
 from cuda.core.experimental import _memory
 from cuda.core.experimental._utils.cuda_utils import driver
 

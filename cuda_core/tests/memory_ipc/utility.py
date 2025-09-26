@@ -1,15 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-try:
-    from cuda.bindings import driver
-except ImportError:
-    from cuda import cuda as driver
-
 import ctypes
 
 from cuda.core.experimental import Buffer, MemoryResource
-from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core.experimental._utils.cuda_utils import driver, handle_return
 
 
 class DummyUnifiedMemoryResource(MemoryResource):

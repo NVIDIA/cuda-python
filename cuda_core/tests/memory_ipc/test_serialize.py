@@ -5,9 +5,8 @@ import multiprocessing as mp
 import multiprocessing.reduction
 import os
 
-from utility import IPCBufferTestHelper
-
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource
+from utility import IPCBufferTestHelper
 
 CHILD_TIMEOUT_SEC = 4
 NBYTES = 64
