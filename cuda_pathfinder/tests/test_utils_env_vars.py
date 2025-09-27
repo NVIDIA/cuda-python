@@ -7,7 +7,6 @@ import sys
 import warnings
 
 import pytest
-
 from cuda.pathfinder._utils.env_vars import _paths_differ, get_cuda_home_or_path
 
 skip_symlink_tests = pytest.mark.skipif(
