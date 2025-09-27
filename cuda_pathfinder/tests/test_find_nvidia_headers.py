@@ -15,6 +15,7 @@
 
 import functools
 import importlib.metadata
+import logging
 import os
 import re
 
@@ -45,9 +46,9 @@ def test_unknown_libname():
         find_nvidia_header_directory("unknown-libname")
 
 
-def test_find_libname_nvshmem(info_summary_append):
+def test_find_libname_nvshmem():
     hdr_dir = find_nvidia_header_directory("nvshmem")
-    info_summary_append(f"{hdr_dir=!r}")
+    logging.info(f"{hdr_dir=!r}")
     if IS_WINDOWS:
         assert hdr_dir is None
         pytest.skip("nvshmem has no Windows support.")
@@ -70,9 +71,9 @@ def test_supported_headers_site_packages_ctk_consistency():
 
 
 @pytest.mark.parametrize("libname", SUPPORTED_HEADERS_CTK.keys())
-def test_find_ctk_headers(info_summary_append, libname):
+def test_find_ctk_headers(libname):
     hdr_dir = find_nvidia_header_directory(libname)
-    info_summary_append(f"{hdr_dir=!r}")
+    logging.info(f"{hdr_dir=!r}")
     if hdr_dir:
         assert os.path.isdir(hdr_dir)
         h_filename = SUPPORTED_HEADERS_CTK[libname]
