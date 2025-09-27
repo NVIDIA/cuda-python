@@ -7,7 +7,7 @@ import ctypes.util
 import os
 from typing import Optional, cast
 
-from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
+from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, Distribution
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     LIBNAMES_REQUIRING_RTLD_DEEPBIND,
     SUPPORTED_LINUX_SONAMES,
@@ -170,7 +170,7 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
             abs_path = abs_path_for_dynamic_library(libname, handle)
             if abs_path is None:
                 raise RuntimeError(f"No expected symbol for {libname=!r}")
-            return LoadedDL(abs_path, False, handle._handle)
+            return LoadedDL(abs_path, False, handle._handle, Distribution("system", None))
     return None
 
 
@@ -194,21 +194,11 @@ def _work_around_known_bugs(libname: str, found_path: str) -> None:
 
 
 def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
-    """Load a dynamic library from the given path.
 
-    Args:
-        libname: The name of the library to load
-        found_path: The absolute path to the library file
-
-    Returns:
-        A LoadedDL object representing the loaded library
-
-    Raises:
-        RuntimeError: If the library cannot be loaded
-    """
     _work_around_known_bugs(libname, found_path)
     try:
         handle = _load_lib(libname, found_path)
     except OSError as e:
         raise RuntimeError(f"Failed to dlopen {found_path}: {e}") from e
     return LoadedDL(found_path, False, handle._handle)
+

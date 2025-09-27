@@ -7,6 +7,7 @@ from collections.abc import Sequence
 from typing import Optional
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
+from cuda.pathfinder._dynamic_libs.load_dl_linux import get_candidate_sonames, _load_lib, abs_path_for_dynamic_library  
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     SITE_PACKAGES_LIBDIRS_LINUX,
     SITE_PACKAGES_LIBDIRS_WINDOWS,
@@ -163,6 +164,7 @@ class _FindNvidiaDynamicLib:
         self.error_messages: list[str] = []
         self.attachments: list[str] = []
         self.abs_path: Optional[str] = None
+        self.distribution: Optional[str] = None
 
     def try_site_packages(self) -> Optional[str]:
         if IS_WINDOWS:
@@ -186,6 +188,21 @@ class _FindNvidiaDynamicLib:
     def try_with_cuda_home(self) -> Optional[str]:
         return self._find_using_lib_dir(_find_lib_dir_using_cuda_home(self.libname))
 
+    def try_with_system_search(self) -> Optional[str]:
+
+        for soname in get_candidate_sonames(self.libname):
+            try:
+                handle = _load_lib(self.libname, soname)
+            except OSError:
+                pass
+            else:
+                abs_path = abs_path_for_dynamic_library(self.libname, handle)
+                if abs_path is None:
+                    raise RuntimeError(f"No expected symbol for {libname=!r}")
+                return abs_path
+        return None
+
+
     def _find_using_lib_dir(self, lib_dir: Optional[str]) -> Optional[str]:
         if lib_dir is None:
             return None
@@ -203,6 +220,8 @@ class _FindNvidiaDynamicLib:
                 self.error_messages,
                 self.attachments,
             )
+        if self.abs_path is not None:
+            self.distribution = "CUDA_HOME"
 
     def raise_not_found_error(self) -> None:
         err = ", ".join(self.error_messages)

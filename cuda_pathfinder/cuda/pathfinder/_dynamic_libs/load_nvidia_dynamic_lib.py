@@ -6,7 +6,7 @@ import struct
 import sys
 
 from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _FindNvidiaDynamicLib
-from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
+from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies, Distribution
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if IS_WINDOWS:
@@ -25,9 +25,9 @@ else:
 
 def _load_lib_no_cache(libname: str) -> LoadedDL:
     finder = _FindNvidiaDynamicLib(libname)
-    abs_path = finder.try_site_packages()
+    abs_path, distname = finder.try_site_packages(), 'site-packages'
     if abs_path is None:
-        abs_path = finder.try_with_conda_prefix()
+        abs_path, distname = finder.try_with_conda_prefix(), 'conda '
 
     # If the library was already loaded by someone else, reproduce any OS-specific
     # side-effects we would have applied on a direct absolute-path load (e.g.,
@@ -43,14 +43,16 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
         return loaded
 
     if abs_path is None:
-        loaded = load_with_system_search(libname)
-        if loaded is not None:
-            return loaded
-        abs_path = finder.try_with_cuda_home()
-        if abs_path is None:
-            finder.raise_not_found_error()
+        abs_path, distname = finder.try_with_system_search(), 'system'
+    if abs_path is None:
+        abs_path, distname = finder.try_with_cuda_home(), 'CUDA_HOME'
+    if abs_path is None:
+        finder.raise_not_found_error()
 
-    return load_with_abs_path(libname, abs_path)
+    dl = load_with_abs_path(libname, abs_path)
+    dl.distribution = Distribution(name=distname, version='unknown')
+    return dl
+
 
 
 @functools.cache
