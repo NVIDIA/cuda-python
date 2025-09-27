@@ -4,7 +4,8 @@
 
 [build-system]
 requires = ["setuptools>=77.0.0", "Cython>=3.1"]
-build-backend = "setuptools.build_meta"
+build-backend = "build_hooks"
+backend-path = ["."]
 
 
 [project]
