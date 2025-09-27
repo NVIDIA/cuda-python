@@ -6,23 +6,25 @@
 # - https://peps.python.org/pep-0517/
 # - https://setuptools.pypa.io/en/latest/build_meta.html#dynamic-build-dependencies-and-other-build-meta-tweaks
 # Specifically, there are 5 APIs required to create a proper build backend, see below.
-# For now it's mostly a pass-through to setuptools, except that we need to determine
-# some dependencies at build time.
 #
 # TODO: also implement PEP-660 API hooks
 
+import functools
+import glob
 import os
 import re
 import subprocess  # nosec: B404
 
+from Cython.Build import cythonize
+from setuptools import Extension
 from setuptools import build_meta as _build_meta
 
 prepare_metadata_for_build_wheel = _build_meta.prepare_metadata_for_build_wheel
-build_wheel = _build_meta.build_wheel
 build_sdist = _build_meta.build_sdist
 get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 
 
+@functools.cache
 def _get_proper_cuda_bindings_major_version() -> str:
     # for local development (with/without build isolation)
     try:
@@ -51,8 +53,40 @@ def _get_proper_cuda_bindings_major_version() -> str:
     return "13"
 
 
-# Note: this function returns a list of *build-time* dependencies, so it's not affected
-# by "--no-deps" based on the PEP-517 design.
+# used later by setup()
+_extensions = None
+
+
+def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
+    # Customizing this hook is needed because we must defer cythonization until cuda-bindings,
+    # now a required build-time dependency that's dynamically installed via the other hook below,
+    # is installed. Otherwise, cimport any cuda.bindings modules would fail!
+
+    # It seems setuptools' wildcard support has problems for namespace packages,
+    # so we explicitly spell out all Extension instances.
+    root_module = "cuda.core.experimental"
+    root_path = f"{os.path.sep}".join(root_module.split(".")) + os.path.sep
+    ext_files = glob.glob(f"{root_path}/**/*.pyx", recursive=True)
+
+    def strip_prefix_suffix(filename):
+        return filename[len(root_path) : -4]
+
+    module_names = (strip_prefix_suffix(f) for f in ext_files)
+    ext_modules = tuple(
+        Extension(
+            f"cuda.core.experimental.{mod.replace(os.path.sep, '.')}",
+            sources=[f"cuda/core/experimental/{mod}.pyx"],
+            language="c++",
+        )
+        for mod in module_names
+    )
+
+    global _extensions
+    _extensions = cythonize(ext_modules, verbose=True, language_level=3, compiler_directives={"embedsignature": True})
+
+    return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
+
+
 def get_requires_for_build_wheel(config_settings=None):
     cuda_major = _get_proper_cuda_bindings_major_version()
     cuda_bindings_require = [f"cuda-bindings=={cuda_major}.*"]
