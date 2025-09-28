@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 #!/usr/bin/env python3
 """
 Script to merge CUDA-specific wheels into a single multi-CUDA wheel.
@@ -10,27 +14,27 @@ and the associated bindings. This script merges these directories into a single 
 that supports both CUDA versions, i.e., containing both `cuda/core/experimental/cu12`
 and `cuda/core/experimental/cu13`. At runtime, the code in `cuda/core/experimental/__init__.py`
 is used to import the appropriate CUDA-specific bindings.
+
+This script is based on the one in NVIDIA/CCCL.
 """
 
 import argparse
 import os
 import shutil
-import subprocess
+import subprocess  # nosec: B404
 import sys
 import tempfile
 from pathlib import Path
 from typing import List
 
 
-def run_command(
-    cmd: List[str], cwd: Path = None, env: dict = None
-) -> subprocess.CompletedProcess:
+def run_command(cmd: List[str], cwd: Path = None, env: dict = os.environ) -> subprocess.CompletedProcess:
     """Run a command with error handling."""
     print(f"Running: {' '.join(cmd)}")
     if cwd:
         print(f"  Working directory: {cwd}")
 
-    result = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True)
+    result = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True)  # nosec: B603
 
     if result.returncode != 0:
         print(f"Command failed with return code {result.returncode}")
@@ -77,9 +81,7 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
                     break
 
             if not extract_dir:
-                raise RuntimeError(
-                    f"Could not find extracted wheel directory for {wheel.name}"
-                )
+                raise RuntimeError(f"Could not find extracted wheel directory for {wheel.name}")
 
             # Rename to our expected name
             expected_name = temp_path / f"wheel_{i}"
@@ -95,11 +97,7 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
         # into the appropriate place in the base wheel
         for i, wheel_dir in enumerate(extracted_wheels):
             cuda_version = wheels[i].name.split(".cu")[1].split(".")[0]
-            base_dir = (
-                Path("cuda")
-                / "core"
-                / "experimental"
-            )
+            base_dir = Path("cuda") / "core" / "experimental"
             # Copy from other wheels
             print(f"  Copying {wheel_dir} to {base_wheel}")
             shutil.copytree(wheel_dir / base_dir, base_wheel / base_dir / f"cu{cuda_version}")
@@ -151,15 +149,9 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
 
 def main():
     """Main merge script."""
-    parser = argparse.ArgumentParser(
-        description="Merge CUDA-specific wheels into a single multi-CUDA wheel"
-    )
-    parser.add_argument(
-        "wheels", nargs="+", help="Paths to the CUDA-specific wheels to merge"
-    )
-    parser.add_argument(
-        "--output-dir", "-o", default="dist", help="Output directory for merged wheel"
-    )
+    parser = argparse.ArgumentParser(description="Merge CUDA-specific wheels into a single multi-CUDA wheel")
+    parser.add_argument("wheels", nargs="+", help="Paths to the CUDA-specific wheels to merge")
+    parser.add_argument("--output-dir", "-o", default="dist", help="Output directory for merged wheel")
 
     args = parser.parse_args()
 

@@ -4,14 +4,15 @@
 
 try:
     import cuda.bindings
-except ImportError as e:
-    raise ImportError("cuda.bindings 12.x or 13.x must be installed")
+except ImportError:
+    raise ImportError("cuda.bindings 12.x or 13.x must be installed") from None
 else:
     cuda_major, cuda_minor = cuda.bindings.__version__.split(".")[:2]
     if cuda_major not in ("12", "13"):
         raise ImportError("cuda.bindings 12.x or 13.x must be installed")
 
 import importlib
+
 subdir = f"cu{cuda_major}"
 try:
     verioned_mod = importlib.import_module(f".{subdir}", __package__)
@@ -25,29 +26,29 @@ else:
 finally:
     del cuda.bindings, importlib, subdir, cuda_major, cuda_minor
 
-from cuda.core.experimental import utils
-from cuda.core.experimental._device import Device
-from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._graph import (
+from cuda.core.experimental import utils  # noqa: E402
+from cuda.core.experimental._device import Device  # noqa: E402
+from cuda.core.experimental._event import Event, EventOptions  # noqa: E402
+from cuda.core.experimental._graph import (  # noqa: E402
     Graph,
     GraphBuilder,
     GraphCompleteOptions,
     GraphDebugPrintOptions,
 )
-from cuda.core.experimental._launch_config import LaunchConfig
-from cuda.core.experimental._launcher import launch
-from cuda.core.experimental._linker import Linker, LinkerOptions
-from cuda.core.experimental._memory import (
+from cuda.core.experimental._launch_config import LaunchConfig  # noqa: E402
+from cuda.core.experimental._launcher import launch  # noqa: E402
+from cuda.core.experimental._linker import Linker, LinkerOptions  # noqa: E402
+from cuda.core.experimental._memory import (  # noqa: E402
     Buffer,
     DeviceMemoryResource,
     IPCChannel,
     LegacyPinnedMemoryResource,
     MemoryResource,
 )
-from cuda.core.experimental._module import Kernel, ObjectCode
-from cuda.core.experimental._program import Program, ProgramOptions
-from cuda.core.experimental._stream import Stream, StreamOptions
-from cuda.core.experimental._system import System
+from cuda.core.experimental._module import Kernel, ObjectCode  # noqa: E402
+from cuda.core.experimental._program import Program, ProgramOptions  # noqa: E402
+from cuda.core.experimental._stream import Stream, StreamOptions  # noqa: E402
+from cuda.core.experimental._system import System  # noqa: E402
 
 system = System()
 __import__("sys").modules[__spec__.name + ".system"] = system
