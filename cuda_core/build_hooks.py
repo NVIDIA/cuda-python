@@ -24,7 +24,6 @@ build_sdist = _build_meta.build_sdist
 get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 
 
-@functools.cache
 def _get_proper_cuda_bindings_major_version() -> str:
     # for local development (with/without build isolation)
     try:
@@ -72,10 +71,21 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
         return filename[len(root_path) : -4]
 
     module_names = (strip_prefix_suffix(f) for f in ext_files)
+
+    @functools.cache
+    def get_cuda_paths():
+        CUDA_PATH = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
+        if not CUDA_PATH:
+            raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
+        CUDA_PATH = CUDA_PATH.split(os.pathsep)
+        print("CUDA paths:", CUDA_PATH)
+        return CUDA_PATH
+
     ext_modules = tuple(
         Extension(
             f"cuda.core.experimental.{mod.replace(os.path.sep, '.')}",
             sources=[f"cuda/core/experimental/{mod}.pyx"],
+            include_dirs=list(os.path.join(root, "include") for root in get_cuda_paths()),
             language="c++",
         )
         for mod in module_names
