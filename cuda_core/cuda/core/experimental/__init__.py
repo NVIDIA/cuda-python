@@ -2,6 +2,29 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+try:
+    import cuda.bindings
+except ImportError as e:
+    raise ImportError("cuda.bindings 12.x or 13.x must be installed")
+else:
+    cuda_major, cuda_minor = cuda.bindings.__version__.split(".")[:2]
+    if cuda_major not in ("12", "13"):
+        raise ImportError("cuda.bindings 12.x or 13.x must be installed")
+
+import importlib
+subdir = f"cu{cuda_major}"
+try:
+    verioned_mod = importlib.import_module(f".{subdir}", __package__)
+    # Import all symbols from the module
+    globals().update(verioned_mod.__dict__)
+except ImportError:
+    # This is not a wheel build, but a conda or local build, do nothing
+    pass
+else:
+    del verioned_mod
+finally:
+    del cuda.bindings, importlib, subdir, cuda_major, cuda_minor
+
 from cuda.core.experimental import utils
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._event import Event, EventOptions
