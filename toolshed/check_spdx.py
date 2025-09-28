@@ -18,7 +18,7 @@ SPDX_IGNORE_FILENAME = ".spdx-ignore"
 
 def load_spdx_ignore():
     if os.path.exists(SPDX_IGNORE_FILENAME):
-        with open(SPDX_IGNORE_FILENAME, "r", encoding="utf-8") as f:
+        with open(SPDX_IGNORE_FILENAME, encoding="utf-8") as f:
             lines = f.readlines()
     else:
         lines = []

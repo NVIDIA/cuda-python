@@ -10,7 +10,6 @@ import ctypes
 import multiprocessing
 
 import pytest
-
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, IPCChannel, MemoryResource
 from cuda.core.experimental._utils.cuda_utils import handle_return
 

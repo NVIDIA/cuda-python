@@ -31,6 +31,8 @@ jobs:
           - "3.12"
           - "3.13"
           - "3.13t"
+          - "3.14"
+          - "3.14t"
     name: py${{ matrix.python-version }}
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
@@ -109,15 +111,6 @@ jobs:
 
       - name: Build cuda.core wheel
         uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6  # v3.1.4
-        env:
-          CIBW_BUILD: ${{ env.CIBW_BUILD }}
-          CIBW_ARCHS_LINUX: "native"
-          CIBW_BUILD_VERBOSITY: 1
-          CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
-          CIBW_ENVIRONMENT: >
-            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-          CIBW_ENABLE: "cpython-freethreading"
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -152,20 +145,6 @@ jobs:
 
       - name: Build cuda.bindings wheel
         uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6  # v3.1.4
-        env:
-          CIBW_BUILD: ${{ env.CIBW_BUILD }}
-          CIBW_ARCHS_LINUX: "native"
-          CIBW_BUILD_VERBOSITY: 1
-          # CIBW mounts the host filesystem under /host
-          CIBW_ENVIRONMENT_LINUX: >
-            CUDA_PATH=/host/${{ env.CUDA_PATH }}
-            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-          CIBW_ENVIRONMENT_WINDOWS: >
-            CUDA_HOME="$(cygpath -w ${{ env.CUDA_PATH }})"
-            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-          CIBW_BEFORE_BUILD_WINDOWS: "pip install delvewheel"
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
-          CIBW_ENABLE: "cpython-freethreading"
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -225,9 +204,11 @@ jobs:
         with:
           # workaround for actions/runner-images#12377 (the cached 3.13.4 is buggy on Windows)
           python-version: ${{ matrix.python-version == '3.13' && '3.13.5' || matrix.python-version }}
+          # allow prereleases only fetches prereleases for unreleased versions of Python
+          allow-prereleases: true
 
       - name: verify free-threaded build
-        if: endsWith(matrix.python-verison, 't')
+        if: endsWith(matrix.python-version, 't')
         run: python -c 'import sys; assert not sys._is_gil_enabled()'
 
       - name: Set up Python include paths

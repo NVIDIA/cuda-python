@@ -18,7 +18,7 @@ from cuda.core.experimental._utils.cuda_utils import (
     driver,
     handle_return,
 )
-
+import sys
 if TYPE_CHECKING:
     import cuda.bindings
     from cuda.core.experimental._device import Device
@@ -108,15 +108,20 @@ cdef class Event:
         self._ctx_handle = ctx_handle
         return self
 
-    cpdef close(self):
-        """Destroy the event."""
+    cdef _shutdown_safe_close(self, is_shutting_down=sys.is_finalizing):
+        if is_shutting_down and is_shutting_down():
+            return
         if self._handle is not None:
             err, = driver.cuEventDestroy(self._handle)
             self._handle = None
             raise_if_driver_error(err)
 
+    cpdef close(self):
+        """Destroy the event."""
+        self._shutdown_safe_close(is_shutting_down=None)
+
     def __del__(self):
-        self.close()
+        self._shutdown_safe_close()
 
     def __isub__(self, other):
         return NotImplemented
