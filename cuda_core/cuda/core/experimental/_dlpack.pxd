@@ -14,7 +14,7 @@ from libc.stdint cimport uint64_t
 from libc.stdint cimport intptr_t
 
 
-cdef extern from "dlpack.h" nogil:
+cdef extern from "include/dlpack.h" nogil:
     """
     #define DLPACK_TENSOR_UNUSED_NAME "dltensor"
     #define DLPACK_VERSIONED_TENSOR_UNUSED_NAME "dltensor_versioned"
