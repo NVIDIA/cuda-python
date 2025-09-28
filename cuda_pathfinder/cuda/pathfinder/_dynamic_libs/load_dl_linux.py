@@ -173,6 +173,18 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
             return LoadedDL(abs_path, False, handle._handle, Distribution("system", None))
     return None
 
+def find_with_system_search_linux(libname: str) -> Optional[str]:
+    for soname in get_candidate_sonames(libname):
+        try:
+            handle = _load_lib(libname, soname)
+        except OSError:
+            pass
+        else:
+            abs_path = abs_path_for_dynamic_library(libname, handle)
+            if abs_path is None:
+                raise RuntimeError(f"No expected symbol for {libname=!r}")
+            return abs_path
+    return None
 
 def _work_around_known_bugs(libname: str, found_path: str) -> None:
     if libname == "nvrtc":
