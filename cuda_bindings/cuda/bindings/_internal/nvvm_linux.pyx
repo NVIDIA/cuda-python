@@ -30,6 +30,24 @@ cdef extern from "<dlfcn.h>" nogil:
 
     const void* RTLD_DEFAULT 'RTLD_DEFAULT'
 
+cdef int get_cuda_version():
+    cdef void* handle = NULL
+    cdef int err, driver_ver = 0
+
+    # Load driver to check version
+    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
+    if handle == NULL:
+        err_msg = dlerror()
+        raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
+    cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
+    if cuDriverGetVersion == NULL:
+        raise RuntimeError('Did not find cuDriverGetVersion symbol in libcuda.so.1')
+    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
+    if err != 0:
+        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
+
+    return driver_ver
+
 
 ###############################################################################
 # Wrapper init
@@ -54,130 +72,118 @@ cdef void* __nvvmGetProgramLogSize = NULL
 cdef void* __nvvmGetProgramLog = NULL
 
 
-cdef void* load_library(const int driver_ver) except* with gil:
+cdef void* load_library() except* with gil:
     cdef uintptr_t handle = load_nvidia_dynamic_lib("nvvm")._handle_uint
     return <void*>handle
 
 
-cdef int _check_or_init_nvvm() except -1 nogil:
+cdef int __check_or_init_nvvm() except -1 nogil:
     global __py_nvvm_init
-    if __py_nvvm_init:
-        return 0
 
     cdef void* handle = NULL
-    cdef int err, driver_ver = 0
 
     with gil, __symbol_lock:
-        # Load driver to check version
-        handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
-        if handle == NULL:
-            err_msg = dlerror()
-            raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
-        global __cuDriverGetVersion
-        if __cuDriverGetVersion == NULL:
-            __cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
-        if __cuDriverGetVersion == NULL:
-            raise RuntimeError('something went wrong')
-        err = (<int (*)(int*) noexcept nogil>__cuDriverGetVersion)(&driver_ver)
-        if err != 0:
-            raise RuntimeError('something went wrong')
-        #dlclose(handle)
-        handle = NULL
-
         # Load function
         global __nvvmGetErrorString
         __nvvmGetErrorString = dlsym(RTLD_DEFAULT, 'nvvmGetErrorString')
         if __nvvmGetErrorString == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __nvvmGetErrorString = dlsym(handle, 'nvvmGetErrorString')
 
         global __nvvmVersion
         __nvvmVersion = dlsym(RTLD_DEFAULT, 'nvvmVersion')
         if __nvvmVersion == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __nvvmVersion = dlsym(handle, 'nvvmVersion')
 
         global __nvvmIRVersion
         __nvvmIRVersion = dlsym(RTLD_DEFAULT, 'nvvmIRVersion')
         if __nvvmIRVersion == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __nvvmIRVersion = dlsym(handle, 'nvvmIRVersion')
 
         global __nvvmCreateProgram
         __nvvmCreateProgram = dlsym(RTLD_DEFAULT, 'nvvmCreateProgram')
         if __nvvmCreateProgram == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __nvvmCreateProgram = dlsym(handle, 'nvvmCreateProgram')
 
         global __nvvmDestroyProgram
         __nvvmDestroyProgram = dlsym(RTLD_DEFAULT, 'nvvmDestroyProgram')
         if __nvvmDestroyProgram == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __nvvmDestroyProgram = dlsym(handle, 'nvvmDestroyProgram')
 
         global __nvvmAddModuleToProgram
         __nvvmAddModuleToProgram = dlsym(RTLD_DEFAULT, 'nvvmAddModuleToProgram')
         if __nvvmAddModuleToProgram == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __nvvmAddModuleToProgram = dlsym(handle, 'nvvmAddModuleToProgram')
 
         global __nvvmLazyAddModuleToProgram
         __nvvmLazyAddModuleToProgram = dlsym(RTLD_DEFAULT, 'nvvmLazyAddModuleToProgram')
         if __nvvmLazyAddModuleToProgram == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __nvvmLazyAddModuleToProgram = dlsym(handle, 'nvvmLazyAddModuleToProgram')
 
         global __nvvmCompileProgram
         __nvvmCompileProgram = dlsym(RTLD_DEFAULT, 'nvvmCompileProgram')
         if __nvvmCompileProgram == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __nvvmCompileProgram = dlsym(handle, 'nvvmCompileProgram')
 
         global __nvvmVerifyProgram
         __nvvmVerifyProgram = dlsym(RTLD_DEFAULT, 'nvvmVerifyProgram')
         if __nvvmVerifyProgram == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __nvvmVerifyProgram = dlsym(handle, 'nvvmVerifyProgram')
 
         global __nvvmGetCompiledResultSize
         __nvvmGetCompiledResultSize = dlsym(RTLD_DEFAULT, 'nvvmGetCompiledResultSize')
         if __nvvmGetCompiledResultSize == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __nvvmGetCompiledResultSize = dlsym(handle, 'nvvmGetCompiledResultSize')
 
         global __nvvmGetCompiledResult
         __nvvmGetCompiledResult = dlsym(RTLD_DEFAULT, 'nvvmGetCompiledResult')
         if __nvvmGetCompiledResult == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __nvvmGetCompiledResult = dlsym(handle, 'nvvmGetCompiledResult')
 
         global __nvvmGetProgramLogSize
         __nvvmGetProgramLogSize = dlsym(RTLD_DEFAULT, 'nvvmGetProgramLogSize')
         if __nvvmGetProgramLogSize == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __nvvmGetProgramLogSize = dlsym(handle, 'nvvmGetProgramLogSize')
 
         global __nvvmGetProgramLog
         __nvvmGetProgramLog = dlsym(RTLD_DEFAULT, 'nvvmGetProgramLog')
         if __nvvmGetProgramLog == NULL:
             if handle == NULL:
-                handle = load_library(driver_ver)
+                handle = load_library()
             __nvvmGetProgramLog = dlsym(handle, 'nvvmGetProgramLog')
 
         __py_nvvm_init = True
         return 0
+
+
+cdef int _check_or_init_nvvm() except -1 nogil:
+    if __py_nvvm_init:
+        return 0
+
+    return __check_or_init_nvvm()
 
 
 cdef dict func_ptrs = None
