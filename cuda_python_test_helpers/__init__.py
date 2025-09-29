@@ -1,12 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import functools
 import os
 from contextlib import suppress
 from typing import Union
 
 import pytest
-import functools
 
 
 def _detect_wsl() -> bool:
@@ -19,6 +19,7 @@ def _detect_wsl() -> bool:
 
 
 IS_WSL: bool = _detect_wsl()
+
 
 @functools.cache
 def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
