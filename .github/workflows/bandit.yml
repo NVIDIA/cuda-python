@@ -34,7 +34,7 @@ jobs:
       - name: Perform Bandit Analysis using Ruff
         uses: astral-sh/ruff-action@57714a7c8a2e59f32539362ba31877a1957dded1  # v3.5.1
         with:
-          args: "--select S --ignore ${{ steps.ignore-codes.outputs.codes }} --output-format sarif --output-file results.sarif"
+          args: "check --select S --ignore ${{ steps.ignore-codes.outputs.codes }} --output-format sarif --output-file results.sarif"
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
         with:
