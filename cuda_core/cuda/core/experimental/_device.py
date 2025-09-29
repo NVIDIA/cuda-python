@@ -974,7 +974,6 @@ class DeviceProperties:
             self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_STREAM_PRIORITIES_SUPPORTED)
         )
 
-
     @property
     def cooperative_multi_device_launch(self) -> bool:
         """
@@ -1004,7 +1003,9 @@ class DeviceProperties:
         bool: True if device supports virtual address management, False if not.
         """
         return bool(
-            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED)
+            self._get_cached_attribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED
+            )
         )
 
     @property
@@ -1013,7 +1014,9 @@ class DeviceProperties:
         bool: True if device supports timeline semaphore interop, False if not.
         """
         return bool(
-            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TIMELINE_SEMAPHORE_INTEROP_SUPPORTED)
+            self._get_cached_attribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TIMELINE_SEMAPHORE_INTEROP_SUPPORTED
+            )
         )
 
     @property
@@ -1177,7 +1180,9 @@ class DeviceProperties:
         """
         bool: True if device supports host memory pools, False if not.
         """
-        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_MEMORY_POOLS_SUPPORTED))
+        return bool(
+            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_MEMORY_POOLS_SUPPORTED)
+        )
 
     @property
     def host_virtual_memory_management_supported(self) -> bool:
@@ -1185,7 +1190,9 @@ class DeviceProperties:
         bool: True if device supports host virtual memory management, False if not.
         """
         return bool(
-            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED)
+            self._get_cached_attribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED
+            )
         )
 
     @property
@@ -1207,7 +1214,6 @@ class DeviceProperties:
                 driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED
             )
         )
-
 
 
 _SUCCESS = driver.CUresult.CUDA_SUCCESS
