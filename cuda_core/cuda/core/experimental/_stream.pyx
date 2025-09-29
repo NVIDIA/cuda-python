@@ -122,7 +122,7 @@ cdef class Stream:
         object _device_id
         object _ctx_handle
 
-    def __cinit__(self, *args, **kwargs):
+    def __cinit__(self):
         self._handle = <cydriver.CUstream>(NULL)
 
     def __init__(self, *args, **kwargs):
@@ -235,7 +235,7 @@ cdef class Stream:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(Stream.handle)``.
         """
-        return driver.CUstream(<uintptr_t><void*>(self._handle))
+        return driver.CUstream(<uintptr_t>(self._handle))
 
     @property
     def is_nonblocking(self) -> bool:
