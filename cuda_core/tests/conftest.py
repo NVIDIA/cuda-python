@@ -19,10 +19,11 @@ def _detect_wsl() -> bool:
     try:
         with open("/proc/sys/kernel/osrelease") as f:
             data = f.read().lower()
+    except OSError:
+        pass
+    else:
         if "microsoft" in data or "wsl" in data:
             return True
-    except Exception:
-        pass
     # Fallback: env hints sometimes present in CI or shells
     return any(map(os.environ.get, ("WSL_DISTRO_NAME", "WSL_INTEROP")))
 
