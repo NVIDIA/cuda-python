@@ -1,17 +1,35 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import multiprocessing
+import os
+
 import helpers
+import pytest
 
 try:
     from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-import multiprocessing
-
-import pytest
 from cuda.core.experimental import Device, _device
 from cuda.core.experimental._utils.cuda_utils import handle_return
+
+
+def _detect_wsl() -> bool:
+    try:
+        with open("/proc/sys/kernel/osrelease") as f:
+            data = f.read().lower()
+        if "microsoft" in data or "wsl" in data:
+            return True
+    except Exception:
+        pass
+    # Fallback: env hints sometimes present in CI or shells
+    if any(os.environ.get(k) for k in ("WSL_DISTRO_NAME", "WSL_INTEROP")):
+        return True
+    return False
+
+
+IS_WSL = _detect_wsl()
 
 
 @pytest.fixture(scope="session", autouse=True)

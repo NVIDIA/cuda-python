@@ -11,6 +11,7 @@ import multiprocessing
 
 import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, IPCChannel, MemoryResource
+from conftest import IS_WSL
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
 CHILD_TIMEOUT_SEC = 10
@@ -33,9 +34,12 @@ def ipc_device():
     if not device.properties.handle_type_posix_file_descriptor_supported:
         pytest.skip("Device does not support IPC")
 
+    # On WSL, this test is skipped via decorator; on other platforms it runs.
+
     return device
 
 
+@pytest.mark.skipif(IS_WSL, reason="WSL does not support CUDA IPC mempool sharing")
 def test_ipc_mempool(ipc_device):
     """Test IPC with memory pools."""
     # Set up the IPC-enabled memory pool and share it.
@@ -83,6 +87,7 @@ def child_main1(channel, queue):
     stream.sync()
 
 
+@pytest.mark.skipif(IS_WSL, reason="WSL does not support CUDA IPC mempool sharing")
 def test_shared_pool_errors(ipc_device):
     """Test expected errors with allocating from a shared IPC memory pool."""
     # Set up the IPC-enabled memory pool and share it.
