@@ -11,8 +11,9 @@ import multiprocessing
 
 import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, IPCChannel, MemoryResource
-from cuda_python_test_helpers import supports_ipc_mempool
 from cuda.core.experimental._utils.cuda_utils import handle_return
+
+from cuda_python_test_helpers import supports_ipc_mempool
 
 CHILD_TIMEOUT_SEC = 10
 NBYTES = 64
