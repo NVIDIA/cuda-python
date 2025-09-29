@@ -36,7 +36,7 @@ class TestIpcWorkerPoolUsingExport:
         mr = ipc_memory_resource
         buffers = [mr.allocate(NBYTES) for _ in range(NTASKS)]
         with multiprocessing.Pool(processes=NWORKERS, initializer=self.init_worker, initargs=([mr],)) as pool:
-            pool.starmap(self.process_buffer, [(0, buffer.export()) for buffer in buffers])
+            pool.starmap(self.process_buffer, [(0, buffer.get_ipc_descriptor()) for buffer in buffers])
 
         for buffer in buffers:
             IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
@@ -49,7 +49,8 @@ class TestIpcWorkerPoolUsingExport:
         buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
         with multiprocessing.Pool(processes=NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
             pool.starmap(
-                self.process_buffer, [(mrs.index(buffer.memory_resource), buffer.export()) for buffer in buffers]
+                self.process_buffer,
+                [(mrs.index(buffer.memory_resource), buffer.get_ipc_descriptor()) for buffer in buffers],
             )
 
         for buffer in buffers:
@@ -57,7 +58,7 @@ class TestIpcWorkerPoolUsingExport:
 
     def process_buffer(self, mr_idx, buffer_desc):
         device = Device()
-        buffer = Buffer.import_(g_mrs[mr_idx], buffer_desc)
+        buffer = Buffer.from_ipc_descriptor(g_mrs[mr_idx], buffer_desc)
         IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
 
 

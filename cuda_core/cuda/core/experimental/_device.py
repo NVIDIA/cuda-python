@@ -1343,8 +1343,9 @@ def _reconstruct_device(device_id):
         device.set_current()
     return device
 
+
 def _reduce_device(device):
     return _reconstruct_device, (device.device_id,)
 
-multiprocessing.reduction.register(Device, _reduce_device)
 
+multiprocessing.reduction.register(Device, _reduce_device)

@@ -73,11 +73,11 @@ class TestImportWrongMR(ChildErrorHarness):
     def PARENT_ACTION(self, queue):
         mr2 = DeviceMemoryResource(self.device, dict(max_size=POOL_SIZE, ipc_enabled=True))
         buffer = mr2.allocate(NBYTES)
-        queue.put([self.mr, buffer.export()])  # Note: mr does not own this buffer
+        queue.put([self.mr, buffer.get_ipc_descriptor()])  # Note: mr does not own this buffer
 
     def CHILD_ACTION(self, queue):
         mr, buffer_desc = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        Buffer.import_(mr, buffer_desc)
+        Buffer.from_ipc_descriptor(mr, buffer_desc)
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is CUDAError
@@ -110,7 +110,7 @@ class TestImportBuffer(ChildErrorHarness):
 
     def CHILD_ACTION(self, queue):
         buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        Buffer.import_(self.mr, buffer)
+        Buffer.from_ipc_descriptor(self.mr, buffer)
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is TypeError

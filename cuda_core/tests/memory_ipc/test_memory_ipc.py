@@ -109,8 +109,8 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         # Allocate and share memory.
         buf1 = mr.allocate(NBYTES)
         buf2 = mr.allocate(NBYTES)
-        q1.put(buf1.export())
-        q2.put(buf2.export())
+        q1.put(buf1.get_ipc_descriptor())
+        q2.put(buf2.get_ipc_descriptor())
 
         # Wait for children.
         p1.join(timeout=CHILD_TIMEOUT_SEC)
@@ -130,7 +130,7 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         device.set_current()
         mr = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
         buffer_descriptor = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        buffer = Buffer.import_(mr, buffer_descriptor)
+        buffer = Buffer.from_ipc_descriptor(mr, buffer_descriptor)
         IPCBufferTestHelper(device, buffer).fill_buffer(starting_from=idx)
 
 

@@ -39,7 +39,7 @@ class TestObjectSerializationDirect:
         parent_conn.send(buffer1)  # directly
 
         buffer2 = mr.allocate(NBYTES)
-        parent_conn.send(buffer2.export())  # by descriptor
+        parent_conn.send(buffer2.get_ipc_descriptor())  # by descriptor
 
         # Wait for the child process.
         process.join(timeout=CHILD_TIMEOUT_SEC)
@@ -64,7 +64,7 @@ class TestObjectSerializationDirect:
         # Receive the buffers.
         buffer1 = conn.recv()  # directly
         buffer_desc = conn.recv()
-        buffer2 = Buffer.import_(mr, buffer_desc)  # by descriptor
+        buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc)  # by descriptor
 
         # Modify the buffers.
         IPCBufferTestHelper(device, buffer1).fill_buffer(flipped=True)
@@ -126,7 +126,7 @@ def test_object_passing(device, ipc_memory_resource):
     mr = ipc_memory_resource
     alloc_handle = mr.get_allocation_handle()
     buffer = mr.allocate(NBYTES)
-    buffer_desc = buffer.export()
+    buffer_desc = buffer.get_ipc_descriptor()
 
     helper = IPCBufferTestHelper(device, buffer)
     helper.fill_buffer(flipped=False)
@@ -145,8 +145,8 @@ def child_main(device, alloc_handle, mr1, buffer_desc, buffer1):
 
     # OK to build the buffer from either mr and the descriptor.
     # All buffer* objects point to the same memory.
-    buffer2 = Buffer.import_(mr1, buffer_desc)
-    buffer3 = Buffer.import_(mr2, buffer_desc)
+    buffer2 = Buffer.from_ipc_descriptor(mr1, buffer_desc)
+    buffer3 = Buffer.from_ipc_descriptor(mr2, buffer_desc)
 
     helper1 = IPCBufferTestHelper(device, buffer1)
     helper2 = IPCBufferTestHelper(device, buffer2)

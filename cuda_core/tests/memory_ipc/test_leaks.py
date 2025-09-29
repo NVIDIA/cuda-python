@@ -80,7 +80,7 @@ class Irreducible:
         lambda mr: mr.get_allocation_handle(),
         lambda mr: mr,
         lambda mr: mr.allocate(NBYTES),
-        lambda mr: mr.allocate(NBYTES).export(),
+        lambda mr: mr.allocate(NBYTES).get_ipc_descriptor(),
     ],
     ids=["alloc_handle", "mr", "buffer", "buffer_desc"],
 )

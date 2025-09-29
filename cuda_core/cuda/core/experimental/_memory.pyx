@@ -29,7 +29,6 @@ if platform.system() == "Linux":
 
 if TYPE_CHECKING:
     from ._device import Device
-    import cuda.bindings.driver
     import uuid
 
 # TODO: define a memory property mixin class and make Buffer and
@@ -75,7 +74,7 @@ cdef class Buffer:
         self.close()
 
     def __reduce__(self):
-        return Buffer.import_, (self.memory_resource, self.export())
+        return Buffer.from_ipc_descriptor, (self.memory_resource, self.get_ipc_descriptor())
 
     cpdef close(self, stream: Stream = None):
         """Deallocate this buffer asynchronously on the given stream.
@@ -137,7 +136,7 @@ cdef class Buffer:
             return self._mr.device_id
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
-    def export(self) -> IPCBufferDescriptor:
+    def get_ipc_descriptor(self) -> IPCBufferDescriptor:
         """Export a buffer allocated for sharing between processes."""
         if not self._mr.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
@@ -146,7 +145,7 @@ cdef class Buffer:
         return IPCBufferDescriptor._init(ptr.reserved, self.size)
 
     @classmethod
-    def import_(cls, mr: MemoryResource, ipc_buffer: IPCBufferDescriptor) -> Buffer:
+    def from_ipc_descriptor(cls, mr: MemoryResource, ipc_buffer: IPCBufferDescriptor) -> Buffer:
         """Import a buffer that was exported from another process."""
         if not mr.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
@@ -621,7 +620,7 @@ class DeviceMemoryResource(MemoryResource):
             raise_if_driver_error(err)
 
             if opts.ipc_enabled:
-                self.get_allocation_handle() # enables Buffer.export, sets uuid
+                self.get_allocation_handle() # enables Buffer.get_ipc_descriptor, sets uuid
 
     def __del__(self):
         self.close()
@@ -675,8 +674,9 @@ class DeviceMemoryResource(MemoryResource):
         return self
 
     def unregister(self):
-        with contextlib.suppress(KeyError):
-            del _ipc_registry[self.uuid]
+        if _ipc_registry is not None:
+            with contextlib.suppress(KeyError):
+                del _ipc_registry[self.uuid]
 
     @property
     def uuid(self):
