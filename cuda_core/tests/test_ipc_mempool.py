@@ -34,8 +34,6 @@ def ipc_device():
     if not device.properties.handle_type_posix_file_descriptor_supported:
         pytest.skip("Device does not support IPC")
 
-    # On WSL, this test is skipped via decorator; on other platforms it runs.
-
     # Final driver capability probe: skip if the driver rejects IPC mempool creation.
     if not supports_ipc_mempool(device):
         pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
