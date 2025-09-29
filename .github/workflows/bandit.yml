@@ -34,7 +34,7 @@ jobs:
         run: |
           set -euxo pipefail
 
-          echo "codes=$(uvx toml2json ./ruff.toml | jq '[.lint.ignore[] | select(test("^S\\d+"))] | join(",")' -r)" >> "$GITHUB_OUTPUT"
+          echo "codes=$(uvx toml2json ./ruff.toml | jq -r '.lint.ignore | map(select(test("^S\\d+"))) | join(",")')" >> "$GITHUB_OUTPUT"
       - name: Perform Bandit Analysis using Ruff
         uses: astral-sh/ruff-action@57714a7c8a2e59f32539362ba31877a1957dded1  # v3.5.1
         with:
