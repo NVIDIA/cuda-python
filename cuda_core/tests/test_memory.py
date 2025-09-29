@@ -13,7 +13,7 @@ import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource
 from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
-from conftest import IS_WSL
+from cuda_python_test_helpers import supports_ipc_mempool
 
 POOL_SIZE = 2097152  # 2MB size
 
@@ -360,13 +360,7 @@ def test_mempool(mempool_device):
     buffer.close()
 
 
-@pytest.mark.parametrize(
-    "ipc_enabled",
-    [
-        pytest.param(True, marks=pytest.mark.skipif(IS_WSL, reason="WSL does not support CUDA IPC mempool sharing")),
-        False,
-    ],
-)
+@pytest.mark.parametrize("ipc_enabled", [True, False])
 @pytest.mark.parametrize(
     "property_name,expected_type",
     [
@@ -385,6 +379,9 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
     device = mempool_device
     if platform.system() == "Windows":
         return  # IPC not implemented for Windows
+
+    if ipc_enabled and not supports_ipc_mempool(device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
     mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=ipc_enabled))
     assert mr.is_ipc_enabled == ipc_enabled
