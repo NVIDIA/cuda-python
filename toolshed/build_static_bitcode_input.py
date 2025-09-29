@@ -14,6 +14,7 @@ current NVVM IR version detected at runtime.
 """
 
 import binascii
+import os
 import sys
 import textwrap
 
@@ -24,28 +25,20 @@ except Exception:
 
 from cuda.bindings import nvvm
 
-# Keep this template in sync with test_nvvm.py
-MINIMAL_NVVMIR_TXT = b"""\
-target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
-target triple = "nvptx64-nvidia-cuda"
+def get_minimal_nvvmir_txt_template():
+    cuda_bindings_tests_dir = os.path.normpath("cuda_bindings/tests")
+    if not os.path.isdir(cuda_bindings_tests_dir):
+        raise RuntimeError("Please run this helper script from the cuda-python top-level directory.")
+    sys.path.insert(0, os.path.abspath(cuda_bindings_tests_dir))
+    import test_nvvm
 
-define void @kernel() {
-entry:
-  ret void
-}
-
-!nvvm.annotations = !{!0}
-!0 = !{void ()* @kernel, !"kernel", i32 1}
-
-!nvvmir.version = !{!1}
-!1 = !{i32 %d, i32 0, i32 %d, i32 0}
-"""  # noqa: E501
+    return test_nvvm.MINIMAL_NVVMIR_TXT
 
 
 def main():
     major, _minor, debug_major, _debug_minor = nvvm.ir_version()
-    txt = MINIMAL_NVVMIR_TXT % (major, debug_major)
+    txt = get_minimal_nvvmir_txt_template() % (major, debug_major)
     bitcode_dynamic = llvmlite.binding.parse_assembly(txt.decode()).as_bitcode()
     bitcode_hex = binascii.hexlify(bitcode_dynamic).decode("ascii")
     print("\n\nMINIMAL_NVVMIR_BITCODE_STATIC = { # PLEASE ADD TO test_nvvm.py")
