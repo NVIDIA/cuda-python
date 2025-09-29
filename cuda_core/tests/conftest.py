@@ -24,9 +24,7 @@ def _detect_wsl() -> bool:
     except Exception:
         pass
     # Fallback: env hints sometimes present in CI or shells
-    if any(os.environ.get(k) for k in ("WSL_DISTRO_NAME", "WSL_INTEROP")):
-        return True
-    return False
+    return any(map(os.environ.get, ("WSL_DISTRO_NAME", "WSL_INTEROP")))
 
 
 IS_WSL = _detect_wsl()
