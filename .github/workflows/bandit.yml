@@ -21,10 +21,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - name: Get ignore codes
+        id: ignore-codes
+        # This are computed so that we can run only the `S` (bandit)
+        # checks. Passing --select to ruff overrides any config files
+        # (ruff.toml, pyproject.toml, etc), so to avoid having keep everything
+        # in sync we grab them from the TOML programmatically
+        run: |
+          echo "codes=$(yj -tj < ./ruff.toml | jq '[.lint.ignore[] | select(test("^S\\d+"))] | join(",")' -r)" >> "$GITHUB_OUTPUT"
       - name: Perform Bandit Analysis using Ruff
         uses: astral-sh/ruff-action@57714a7c8a2e59f32539362ba31877a1957dded1  # v3.5.1
         with:
-          args: "--select S --ignore S101,S311,S404 --config ruff.toml --output-format sarif --output-file results.sarif"
+          args: "--select S --ignore ${{ steps.ignore-codes.outputs.codes }} --output-format sarif --output-file results.sarif"
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
         with:
