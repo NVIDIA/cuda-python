@@ -12,6 +12,7 @@ Released on TBD
 Highlights
 ----------
 
+- This is the last release that officially supports Python 3.9.
 - Fix for :class:`LaunchConfig` grid parameter unit conversion when thread block clusters are used.
 
 
