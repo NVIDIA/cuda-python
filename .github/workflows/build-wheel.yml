@@ -320,8 +320,8 @@ jobs:
           gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
           rm -rf ${OLD_BASENAME}-tests  # exclude cython test artifacts
           ls -al $OLD_BASENAME
-          mkdir -p "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
-          mv $OLD_BASENAME/*.whl "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
+          mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
+          mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
           rmdir $OLD_BASENAME
 
       - name: Build cuda.core wheel
