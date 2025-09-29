@@ -4,6 +4,7 @@
 import os
 
 import pytest
+
 from cuda.pathfinder._utils.find_sub_dirs import (
     find_sub_dirs,
     find_sub_dirs_all_sitepackages,

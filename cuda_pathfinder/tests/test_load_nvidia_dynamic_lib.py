@@ -9,6 +9,7 @@ from unittest.mock import patch
 import pytest
 import spawned_process_runner
 from child_load_nvidia_dynamic_lib_helper import build_child_process_failed_for_libname_message, child_process_func
+
 from cuda.pathfinder import SUPPORTED_NVIDIA_LIBNAMES, load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
 from cuda.pathfinder._utils.find_site_packages_dll import find_all_dll_files_via_metadata
