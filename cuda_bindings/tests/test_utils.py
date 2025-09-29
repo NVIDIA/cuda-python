@@ -3,7 +3,7 @@
 
 import platform
 import random
-import subprocess  # nosec B404
+import subprocess
 import sys
 from pathlib import Path
 

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
-import pickle  # nosec B403, B301
+import pickle
 import warnings
 
 import cuda.core.experimental
