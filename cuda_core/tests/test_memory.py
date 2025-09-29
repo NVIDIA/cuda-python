@@ -5,7 +5,10 @@ try:
     from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-
+try:
+    import cupy
+except ImportError:
+    cupy = None
 import ctypes
 import platform
 
@@ -13,6 +16,7 @@ import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource
 from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core.experimental.utils import StridedMemoryView
 
 POOL_SIZE = 2097152  # 2MB size
 
@@ -437,3 +441,11 @@ def test_mempool_attributes_ownership(mempool_device):
     with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
         _ = attributes.used_mem_high
     mr._mempool_handle = old_handle
+
+
+# Ensure that memory views dellocate their reference to dlpack/cupy tensors
+@pytest.mark.skipif(cupy is None, reason="cupy is not installed")
+def test_strided_memory_view_leak(benchmark):
+    for idx in range(1000):
+        arr = cupy.zeros((1024, 1024, 1024), dtype=cupy.uint8)
+        StridedMemoryView(arr, stream_ptr=-1)
