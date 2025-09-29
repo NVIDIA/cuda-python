@@ -666,10 +666,13 @@ class DeviceMemoryResource(MemoryResource):
             raise RuntimeError(f"Memory resource {uuid} was not found") from None
 
     def register(self, uuid: uuid.UUID):
-        if uuid not in _ipc_registry:
-            assert self._uuid is None or self._uuid == uuid
-            _ipc_registry[uuid] = self
-            self._uuid = uuid
+        existing = _ipc_registry.get(uuid)
+        if existing is not None:
+            return existing
+        assert self._uuid is None or self._uuid == uuid
+        _ipc_registry[uuid] = self
+        self._uuid = uuid
+        return self
 
     def unregister(self):
         with contextlib.suppress(KeyError):
@@ -716,7 +719,7 @@ class DeviceMemoryResource(MemoryResource):
         raise_if_driver_error(err)
         uuid = getattr(alloc_handle, 'uuid', None)
         if uuid is not None:
-            self.register(uuid)
+            self = self.register(uuid)
         return self
 
     def get_allocation_handle(self) -> IPCAllocationHandle:
