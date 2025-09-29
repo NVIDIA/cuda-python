@@ -33,7 +33,7 @@ def get_minimal_nvvmir_txt_template():
     sys.path.insert(0, os.path.abspath(cuda_bindings_tests_dir))
     import test_nvvm
 
-    return test_nvvm.MINIMAL_NVVMIR_TXT
+    return test_nvvm.MINIMAL_NVVMIR_TXT_TEMPLATE
 
 
 def main():

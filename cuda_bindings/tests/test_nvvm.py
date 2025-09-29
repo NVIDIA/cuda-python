@@ -9,7 +9,7 @@ from contextlib import contextmanager
 import pytest
 from cuda.bindings import nvvm
 
-MINIMAL_NVVMIR_TXT = b"""\
+MINIMAL_NVVMIR_TXT_TEMPLATE = b"""\
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
 target triple = "nvptx64-nvidia-cuda"
@@ -127,7 +127,7 @@ def minimal_nvvmir(request):
     major, minor, debug_major, debug_minor = nvvm.ir_version()
 
     if request.param == "txt":
-        return MINIMAL_NVVMIR_TXT % (major, debug_major)
+        return MINIMAL_NVVMIR_TXT_TEMPLATE % (major, debug_major)
 
     bitcode_static_binascii = MINIMAL_NVVMIR_BITCODE_STATIC.get((major, debug_major))
     if bitcode_static_binascii:
