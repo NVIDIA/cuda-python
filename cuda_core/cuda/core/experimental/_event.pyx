@@ -10,8 +10,8 @@ from libc.stdint cimport uintptr_t
 from cuda.bindings cimport cydriver
 
 from cuda.core.experimental._utils.cuda_utils cimport (
-    _check_driver_error as raise_if_driver_error,
     check_or_create_options,
+    HANDLE_RETURN
 )
 
 from dataclasses import dataclass
@@ -110,8 +110,7 @@ cdef class Event:
             self._busy_waited = True
         if opts.support_ipc:
             raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
-        # TODO: use HANDLE_RETURN
-        err = cydriver.cuEventCreate(&self._handle, flags)
+        HANDLE_RETURN(cydriver.cuEventCreate(&self._handle, flags))
         self._device_id = device_id
         self._ctx_handle = ctx_handle
         return self
@@ -120,8 +119,7 @@ cdef class Event:
         if is_shutting_down and is_shutting_down():
             return
         if self._handle != NULL:
-            # TODO: use HANDLE_RETURN
-            err = cydriver.cuEventDestroy(self._handle)
+            HANDLE_RETURN(cydriver.cuEventDestroy(self._handle))
             self._handle = <cydriver.CUevent>(NULL)
 
     cpdef close(self):
@@ -190,8 +188,7 @@ cdef class Event:
         has been completed.
 
         """
-        # TODO: use HANDLE_RETURN
-        err = cydriver.cuEventSynchronize(self._handle)
+        HANDLE_RETURN(cydriver.cuEventSynchronize(self._handle))
 
     @property
     def is_done(self) -> bool:
@@ -201,7 +198,7 @@ cdef class Event:
             return True
         if result == cydriver.CUresult.CUDA_ERROR_NOT_READY:
             return False
-        # TODO: use HANDLE_RETURN
+        HANDLE_RETURN(result)
 
     @property
     def handle(self) -> cuda.bindings.driver.CUevent:
