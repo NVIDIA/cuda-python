@@ -12,6 +12,7 @@ try:
 except ImportError:
     skip_tests = True
 
+from cuda.core.experimental.utils import StridedMemoryView
 from kernels import kernel_string
 
 
@@ -197,3 +198,11 @@ def test_launch_latency_small_kernel_16_args(benchmark):
     with stream:
         benchmark(launch, kernel, args)
         stream.synchronize()
+
+
+# Ensure that memory views dellocate their reference to dlpack/cupy tensors
+@pytest.mark.skipif(skip_tests, reason="cupy is not installed")
+def test_strided_memory_view_leak(benchmark):
+    for idx in range(1000):
+        arr = cupy.zeros((1024, 1024, 1024), dtype=cupy.uint8)
+        view = StridedMemoryView(arr, stream_ptr=-1)
