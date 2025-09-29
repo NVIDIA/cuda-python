@@ -20,7 +20,11 @@ jobs:
       security-events: write
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
       - name: Get ignore codes
         id: ignore-codes
         # This are computed so that we can run only the `S` (bandit)
