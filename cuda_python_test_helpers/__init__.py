@@ -6,6 +6,7 @@ from contextlib import suppress
 from typing import Union
 
 import pytest
+import functools
 
 
 def _detect_wsl() -> bool:
