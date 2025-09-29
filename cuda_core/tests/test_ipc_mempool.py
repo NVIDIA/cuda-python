@@ -35,7 +35,6 @@ def ipc_device():
         pytest.skip("Device does not support IPC")
 
     # On WSL, this test is skipped via decorator; on other platforms it runs.
-
     return device
 
 
