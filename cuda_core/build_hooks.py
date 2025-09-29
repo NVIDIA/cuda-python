@@ -91,8 +91,12 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
         for mod in module_names
     )
 
+    nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
+
     global _extensions
-    _extensions = cythonize(ext_modules, verbose=True, language_level=3, compiler_directives={"embedsignature": True})
+    _extensions = cythonize(
+        ext_modules, verbose=True, language_level=3, nthreads=nthreads, compiler_directives={"embedsignature": True}
+    )
 
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
 
