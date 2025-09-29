@@ -930,6 +930,285 @@ class DeviceProperties:
         """
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED))
 
+    @property
+    def surface_alignment(self) -> int:
+        """
+        int: Surface alignment requirement in bytes.
+        """
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SURFACE_ALIGNMENT)
+
+    @property
+    def async_engine_count(self) -> int:
+        """
+        int: Number of asynchronous engines.
+        """
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ASYNC_ENGINE_COUNT)
+
+    @property
+    def can_tex2d_gather(self) -> bool:
+        """
+        bool: True if device supports 2D texture gather operations, False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_TEX2D_GATHER))
+
+    @property
+    def maximum_texture2d_gather_width(self) -> int:
+        """
+        int: Maximum 2D texture gather width.
+        """
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_WIDTH)
+
+    @property
+    def maximum_texture2d_gather_height(self) -> int:
+        """
+        int: Maximum 2D texture gather height.
+        """
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_GATHER_HEIGHT)
+
+    @property
+    def stream_priorities_supported(self) -> bool:
+        """
+        bool: True if device supports stream priorities, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_STREAM_PRIORITIES_SUPPORTED)
+        )
+
+
+    @property
+    def cooperative_multi_device_launch(self) -> bool:
+        """
+        bool: True if device supports cooperative multi-device launch, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COOPERATIVE_MULTI_DEVICE_LAUNCH)
+        )
+
+    @property
+    def can_flush_remote_writes(self) -> bool:
+        """
+        bool: True if device can flush remote writes, False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_FLUSH_REMOTE_WRITES))
+
+    @property
+    def host_register_supported(self) -> bool:
+        """
+        bool: True if device supports host memory registration, False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_REGISTER_SUPPORTED))
+
+    @property
+    def virtual_address_management_supported(self) -> bool:
+        """
+        bool: True if device supports virtual address management, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED)
+        )
+
+    @property
+    def timeline_semaphore_interop_supported(self) -> bool:
+        """
+        bool: True if device supports timeline semaphore interop, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TIMELINE_SEMAPHORE_INTEROP_SUPPORTED)
+        )
+
+    @property
+    def cluster_launch(self) -> bool:
+        """
+        bool: True if device supports cluster launch, False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CLUSTER_LAUNCH))
+
+    @property
+    def can_use_64_bit_stream_mem_ops(self) -> bool:
+        """
+        bool: True if device supports 64-bit stream memory operations, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_64_BIT_STREAM_MEM_OPS)
+        )
+
+    @property
+    def can_use_stream_wait_value_nor(self) -> bool:
+        """
+        bool: True if device supports stream wait value NOR operations, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_USE_STREAM_WAIT_VALUE_NOR)
+        )
+
+    @property
+    def dma_buf_supported(self) -> bool:
+        """
+        bool: True if device supports DMA buffer operations, False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_DMA_BUF_SUPPORTED))
+
+    @property
+    def ipc_event_supported(self) -> bool:
+        """
+        bool: True if device supports IPC event operations, False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_IPC_EVENT_SUPPORTED))
+
+    @property
+    def mem_sync_domain_count(self) -> int:
+        """
+        int: Number of memory synchronization domains.
+        """
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_SYNC_DOMAIN_COUNT)
+
+    @property
+    def tensor_map_access_supported(self) -> bool:
+        """
+        bool: True if device supports tensor map access, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TENSOR_MAP_ACCESS_SUPPORTED)
+        )
+
+    @property
+    def handle_type_fabric_supported(self) -> bool:
+        """
+        bool: True if device supports fabric handle type, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_FABRIC_SUPPORTED)
+        )
+
+    @property
+    def unified_function_pointers(self) -> bool:
+        """
+        bool: True if device supports unified function pointers, False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_FUNCTION_POINTERS))
+
+    @property
+    def mps_enabled(self) -> bool:
+        """
+        bool: True if MPS (Multi-Process Service) is enabled, False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MPS_ENABLED))
+
+    @property
+    def host_numa_id(self) -> int:
+        """
+        int: Host NUMA node ID.
+        """
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID)
+
+    @property
+    def d3d12_cig_supported(self) -> bool:
+        """
+        bool: True if device supports D3D12 CIG (Compute Interop Graphics), False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_D3D12_CIG_SUPPORTED))
+
+    @property
+    def mem_decompress_algorithm_mask(self) -> int:
+        """
+        int: Memory decompression algorithm mask.
+        """
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_DECOMPRESS_ALGORITHM_MASK)
+
+    @property
+    def mem_decompress_maximum_length(self) -> int:
+        """
+        int: Maximum length for memory decompression.
+        """
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_DECOMPRESS_MAXIMUM_LENGTH)
+
+    @property
+    def vulkan_cig_supported(self) -> bool:
+        """
+        bool: True if device supports Vulkan CIG (Compute Interop Graphics), False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VULKAN_CIG_SUPPORTED))
+
+    @property
+    def gpu_pci_device_id(self) -> int:
+        """
+        int: GPU PCI device ID.
+        """
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_DEVICE_ID)
+
+    @property
+    def gpu_pci_subsystem_id(self) -> int:
+        """
+        int: GPU PCI subsystem ID.
+        """
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_SUBSYSTEM_ID)
+
+    @property
+    def host_numa_virtual_memory_management_supported(self) -> bool:
+        """
+        bool: True if device supports host NUMA virtual memory management, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED
+            )
+        )
+
+    @property
+    def host_numa_memory_pools_supported(self) -> bool:
+        """
+        bool: True if device supports host NUMA memory pools, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_MEMORY_POOLS_SUPPORTED)
+        )
+
+    @property
+    def host_numa_multinode_ipc_supported(self) -> bool:
+        """
+        bool: True if device supports host NUMA multinode IPC, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_MULTINODE_IPC_SUPPORTED)
+        )
+
+    @property
+    def host_memory_pools_supported(self) -> bool:
+        """
+        bool: True if device supports host memory pools, False if not.
+        """
+        return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_MEMORY_POOLS_SUPPORTED))
+
+    @property
+    def host_virtual_memory_management_supported(self) -> bool:
+        """
+        bool: True if device supports host virtual memory management, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED)
+        )
+
+    @property
+    def host_alloc_dma_buf_supported(self) -> bool:
+        """
+        bool: True if device supports host allocation DMA buffer operations, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED)
+        )
+
+    @property
+    def only_partial_host_native_atomic_supported(self) -> bool:
+        """
+        bool: True if device supports only partial host native atomic operations, False if not.
+        """
+        return bool(
+            self._get_cached_attribute(
+                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED
+            )
+        )
+
+
 
 _SUCCESS = driver.CUresult.CUDA_SUCCESS
 _INVALID_CTX = driver.CUresult.CUDA_ERROR_INVALID_CONTEXT
