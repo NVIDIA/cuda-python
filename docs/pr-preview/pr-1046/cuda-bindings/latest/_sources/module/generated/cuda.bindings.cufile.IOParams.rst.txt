@@ -1,0 +1,35 @@
+﻿cuda.bindings.cufile.IOParams
+=============================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autoclass:: IOParams
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~IOParams.__init__
+      ~IOParams.from_data
+      ~IOParams.from_ptr
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~IOParams.cookie
+      ~IOParams.fh
+      ~IOParams.mode
+      ~IOParams.opcode
+      ~IOParams.ptr
+      ~IOParams.u
+   
+   
