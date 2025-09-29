@@ -19,7 +19,7 @@ def _detect_wsl() -> bool:
 
 IS_WSL: bool = _detect_wsl()
 
-
+@functools.cache
 def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
     """Return True if the driver accepts creating an IPC-enabled mempool.
 
