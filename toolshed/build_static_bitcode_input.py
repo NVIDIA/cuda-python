@@ -18,18 +18,15 @@ import os
 import sys
 import textwrap
 
-try:
-    import llvmlite.binding
-except Exception:
-    sys.exit("HINT: pip install llvmlite")
-
+import llvmlite.binding  # HINT: pip install llvmlite
 from cuda.bindings import nvvm
 
 
 def get_minimal_nvvmir_txt_template():
     cuda_bindings_tests_dir = os.path.normpath("cuda_bindings/tests")
-    if not os.path.isdir(cuda_bindings_tests_dir):
-        raise RuntimeError("Please run this helper script from the cuda-python top-level directory.")
+    assert os.path.isdir(cuda_bindings_tests_dir), (
+        "Please run this helper script from the cuda-python top-level directory."
+    )
     sys.path.insert(0, os.path.abspath(cuda_bindings_tests_dir))
     import test_nvvm
 
