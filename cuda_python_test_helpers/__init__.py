@@ -19,8 +19,6 @@ def _detect_wsl() -> bool:
 
 IS_WSL: bool = _detect_wsl()
 
-skip_on_wsl = pytest.mark.skipif(IS_WSL, reason="WSL does not support this test")
-
 
 def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
     """Return True if the driver accepts creating an IPC-enabled mempool.
