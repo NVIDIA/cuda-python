@@ -9,7 +9,6 @@ import ctypes
 import platform
 
 import pytest
-
 from cuda.core.experimental import (
     Buffer,
     Device,
