@@ -4,12 +4,12 @@
 #
 # This code was automatically generated across versions from 12.0.1 to 13.0.1. Do not modify it directly.
 
-from libc.stdint cimport intptr_t
+from libc.stdint cimport intptr_t, uintptr_t
 
 import threading
 from .utils import FunctionNotFoundError, NotSupportedError
 
-from cuda.pathfinder import load_nvidia_dynamic_lib
+from cuda.pathfinder import load_nvidia_dynamic_lib, DynamicLibNotFoundError
 
 from libc.stddef cimport wchar_t
 from libc.stdint cimport uintptr_t
@@ -95,9 +95,14 @@ cdef void* __nvvmGetProgramLog = NULL
 cdef int __check_or_init_nvvm() except -1 nogil:
     global __py_nvvm_init
 
+    cdef uintptr_t handle
+
     with gil, __symbol_lock:
         # Load library
-        handle = load_nvidia_dynamic_lib("nvvm")._handle_uint
+        try:
+            handle = load_nvidia_dynamic_lib("nvvm")._handle_uint
+        except DynamicLibNotFoundError:
+            handle = 0
 
         # Load function
         global __nvvmGetErrorString

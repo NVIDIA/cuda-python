@@ -1,6 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import subprocess
+import sys
+import textwrap
+
 import pytest
 from cuda.bindings import nvjitlink, nvrtc
 
@@ -175,3 +179,29 @@ def test_package_version():
     ver = nvjitlink.version()
     assert len(ver) == 2
     assert ver >= (12, 0)
+
+
+def test_nvjitlink_fallback():
+    # If nvjitlink isn't present, we should not raise an exception.
+    # This test just monkeypatches load_nvidia_dynamic_lib to always
+    # return a NULL handle.
+    # See issue #951.
+
+    code = textwrap.dedent("""
+        from cuda import pathfinder
+
+        def load_nvidia_dynamic_lib(libname):
+            class Dummy:
+                _handle_uint = 0
+            return Dummy()
+
+        pathfinder.load_nvidia_dynamic_lib = load_nvidia_dynamic_lib
+
+        from cuda.bindings._internal import nvjitlink
+        assert nvjitlink._inspect_function_pointer("__nvJitLinkVersion") == 0
+    """)
+
+    subprocess.run(  # noqa: S603
+        [sys.executable, "-c", code],
+        check=True,
+    )

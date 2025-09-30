@@ -9,7 +9,7 @@ from libc.stdint cimport intptr_t, uintptr_t
 import threading
 from .utils import FunctionNotFoundError, NotSupportedError
 
-from cuda.pathfinder import load_nvidia_dynamic_lib
+from cuda.pathfinder import load_nvidia_dynamic_lib, DynamicLibNotFoundError
 
 
 ###############################################################################
@@ -72,7 +72,11 @@ cdef void* __nvvmGetProgramLog = NULL
 
 
 cdef void* load_library() except* with gil:
-    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvvm")._handle_uint
+    cdef uintptr_t handle
+    try:
+        handle = load_nvidia_dynamic_lib("nvvm")._handle_uint
+    except DynamicLibNotFoundError:
+        handle = 0
     return <void*>handle
 
 
@@ -178,7 +182,7 @@ cdef int __check_or_init_nvvm() except -1 nogil:
         return 0
 
 
-cdef inline int _check_or_init_nvvm() except -1 nogil:
+cdef int _check_or_init_nvvm() except -1 nogil:
     if __py_nvvm_init:
         return 0
 

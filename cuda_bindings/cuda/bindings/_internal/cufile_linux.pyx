@@ -9,7 +9,7 @@ import threading
 
 from .utils import FunctionNotFoundError, NotSupportedError
 
-from cuda.pathfinder import load_nvidia_dynamic_lib
+from cuda.pathfinder import load_nvidia_dynamic_lib, DynamicLibNotFoundError
 
 import cython
 
@@ -104,7 +104,11 @@ cdef void* __cuFileGetParameterPosixPoolSlabArray = NULL
 
 
 cdef void* load_library() except* with gil:
-    cdef uintptr_t handle = load_nvidia_dynamic_lib("cufile")._handle_uint
+    cdef uintptr_t handle
+    try:
+        handle = load_nvidia_dynamic_lib("cufile")._handle_uint
+    except DynamicLibNotFoundError:
+        handle = 0
     return <void*>handle
 
 
