@@ -50,4 +50,5 @@ Fixes and enhancements
 - Make :class:`Buffer` creation more performant.
 - Enabled :class:`MemoryResource` subclasses to accept :class:`Device` objects, in addition to previously supported device ordinals.
 - Fixed a bug in :class:`Stream` and other classes where object cleanup would error during interpreter shutdown.
+- :class:`StridedMemoryView` of an underlying array using the DLPack protocol will no longer leak memory.
 - General performance improvement.
