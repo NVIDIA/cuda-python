@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# TODO: how about cuda.bindings < 12.6.2?
 from cuda.bindings cimport cydriver
 
 

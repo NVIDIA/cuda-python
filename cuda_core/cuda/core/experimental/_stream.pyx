@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from libc.stdint cimport uintptr_t
 
-# TODO: how about cuda.bindings < 12.6.2?
 from cuda.bindings cimport cydriver
 
 from cuda.core.experimental._utils.cuda_utils cimport (

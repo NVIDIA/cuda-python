@@ -5,7 +5,6 @@
 cimport cpython
 from libc.stdint cimport int64_t
 
-# TODO: how about cuda.bindings < 12.6.2?
 from cuda.bindings cimport cydriver
 
 
