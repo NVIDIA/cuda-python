@@ -1,14 +1,16 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
+
 try:
     from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
 try:
-    import cupy
+    import numpy as np
 except ImportError:
-    cupy = None
+    np = None
 import ctypes
 import platform
 
@@ -444,8 +446,11 @@ def test_mempool_attributes_ownership(mempool_device):
 
 
 # Ensure that memory views dellocate their reference to dlpack/cupy tensors
-@pytest.mark.skipif(cupy is None, reason="cupy is not installed")
-def test_strided_memory_view_leak(benchmark):
-    for idx in range(1000):
-        arr = cupy.zeros((1024, 1024, 1024), dtype=cupy.uint8)
+@pytest.mark.skipif(np is None, reason="numpy is not installed")
+def test_strided_memory_view_leak():
+    arr = np.zeros(1048576, dtype=np.uint8)
+    before = sys.getrefcount(arr)
+    for idx in range(10):
         StridedMemoryView(arr, stream_ptr=-1)
+    after = sys.getrefcount(arr)
+    assert before == after
