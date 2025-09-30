@@ -5,6 +5,8 @@
 from __future__ import annotations
 
 import ctypes
+import importlib
+import sys
 import weakref
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -37,28 +39,34 @@ def _decide_nvjitlink_or_driver() -> bool:
 
     _driver_ver = handle_return(driver.cuDriverGetVersion())
     _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
-    try:
-        from cuda.bindings import nvjitlink as _nvjitlink
-        from cuda.bindings._internal import nvjitlink as inner_nvjitlink
-    except ImportError:
-        # binding is not available
-        _nvjitlink = None
-    else:
-        if inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion") == 0:
-            # binding is available, but nvJitLink is not installed
-            _nvjitlink = None
 
-    if _nvjitlink is None:
-        warn(
-            "nvJitLink is not installed or too old (<12.3). Therefore it is not usable "
-            "and the culink APIs will be used instead.",
-            stacklevel=3,
-            category=RuntimeWarning,
-        )
-        _driver = driver
-        return True
+    def libname():
+        return "nvJitLink*.dll" if sys.platform == "win32" else "libnvJitLink.so*"
+
+    therefore_not_usable = ". Therefore cuda.bindings.nvjitlink is not usable and"
+
+    try:
+        _nvjitlink = importlib.import_module("cuda.bindings.nvjitlink")
+    except ModuleNotFoundError:
+        problem = "cuda.bindings.nvjitlink is not available, therefore"
+    except RuntimeError:
+        problem = libname() + " is not available" + therefore_not_usable
     else:
-        return False
+        from cuda.bindings._internal import nvjitlink as inner_nvjitlink
+
+        if inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion"):
+            return False  # Use nvjitlink
+
+        problem = libname() + " is is too old (<12.3)" + therefore_not_usable
+        _nvjitlink = None
+
+    warn(
+        problem + " the culink APIs will be used instead.",
+        stacklevel=2,
+        category=RuntimeWarning,
+    )
+    _driver = driver
+    return True
 
 
 def _lazy_init():
