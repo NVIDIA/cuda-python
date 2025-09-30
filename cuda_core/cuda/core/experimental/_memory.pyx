@@ -24,7 +24,7 @@ import weakref
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
-from cuda.core.experimental._utils.cuda_utils import ( driver, Transaction, get_binding_version, 
+from cuda.core.experimental._utils.cuda_utils import ( driver, Transaction, get_binding_version,
                                                        handle_return,
                                                      )
 
