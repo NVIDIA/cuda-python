@@ -945,12 +945,20 @@ class VirtualMemoryResourceOptions:
     peers: Iterable[int] = field(default_factory=tuple)
     self_access: VirtualMemoryAccessTypeT = "rw"
     peer_access: VirtualMemoryAccessTypeT = "rw"
+    _access_flags = {"rw": f.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": f.CU_MEM_ACCESS_FLAGS_PROT_READ, "none": 0}
+    _handle_types = {"none": f.CU_MEM_HANDLE_TYPE_NONE, "posix_fd": f.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, "win32": f.CU_MEM_HANDLE_TYPE_WIN32, "win32_kmt": f.CU_MEM_HANDLE_TYPE_WIN32_KMT, "fabric": f.CU_MEM_HANDLE_TYPE_FABRIC}
+    _granularity = {"recommended": f.CU_MEM_ALLOCATION_GRANULARITY_RECOMMENDED, "minimum": f.CU_MEM_ALLOCATION_GRANULARITY_MINIMUM}
+    _location_type = {"device": f.CU_MEM_LOCATION_TYPE_DEVICE, "host": f.CU_MEM_LOCATION_TYPE_HOST, "host_numa": f.CU_MEM_LOCATION_TYPE_HOST_NUMA, "host_numa_current": f.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT}
+    # CUDA 13+ exposes MANAGED in CUmemAllocationType; older 12.x does not
+    _allocation_type = {"pinned": f.CU_MEM_ALLOCATION_TYPE_PINNED}
+    ver_major, ver_minor = get_binding_version()
+    if ver_major >= 13:
+        _allocation_type["managed"] = f.CU_MEM_ALLOCATION_TYPE_MANAGED
 
     @staticmethod
     def _access_to_flags(spec: str):
         f = driver.CUmemAccess_flags
-        _access_flags = {"rw": f.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": f.CU_MEM_ACCESS_FLAGS_PROT_READ, "none": 0}
-        flags = _access_flags.get(spec)
+        flags = VirtualMemoryResourceOptions._access_flags.get(spec)
         if flags is None:
             raise ValueError(f"Unknown access spec: {spec!r}")
         return flags
@@ -958,12 +966,7 @@ class VirtualMemoryResourceOptions:
     @staticmethod
     def _allocation_type_to_driver(spec: str):
         f = driver.CUmemAllocationType
-        # CUDA 13+ exposes MANAGED in CUmemAllocationType; older 12.x does not
-        _allocation_type = {"pinned": f.CU_MEM_ALLOCATION_TYPE_PINNED}
-        ver_major, ver_minor = get_binding_version()
-        if ver_major >= 13:
-            _allocation_type["managed"] = f.CU_MEM_ALLOCATION_TYPE_MANAGED
-        alloc_type = _allocation_type.get(spec)
+        alloc_type = VirtualMemoryResourceOptions._allocation_type.get(spec)
         if alloc_type is None:
             raise ValueError(f"Unsupported allocation_type: {spec!r}")
         return alloc_type
@@ -971,8 +974,7 @@ class VirtualMemoryResourceOptions:
     @staticmethod
     def _location_type_to_driver(spec: str):
         f = driver.CUmemLocationType
-        _location_type = {"device": f.CU_MEM_LOCATION_TYPE_DEVICE, "host": f.CU_MEM_LOCATION_TYPE_HOST, "host_numa": f.CU_MEM_LOCATION_TYPE_HOST_NUMA, "host_numa_current": f.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT}
-        loc_type = _location_type.get(spec)
+        loc_type = VirtualMemoryResourceOptions._location_type.get(spec)
         if loc_type is None:
             raise ValueError(f"Unsupported location_type: {spec!r}")
         return loc_type
@@ -980,14 +982,7 @@ class VirtualMemoryResourceOptions:
     @staticmethod
     def _handle_type_to_driver(spec: str):
         f = driver.CUmemAllocationHandleType
-        _handle_type = {
-            "none": f.CU_MEM_HANDLE_TYPE_NONE,
-            "posix_fd": f.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,
-            "win32": f.CU_MEM_HANDLE_TYPE_WIN32,
-            "win32_kmt": f.CU_MEM_HANDLE_TYPE_WIN32_KMT,
-            "fabric": f.CU_MEM_HANDLE_TYPE_FABRIC,
-        }
-        handle_type = _handle_type.get(spec)
+        handle_type = VirtualMemoryResourceOptions._handle_types.get(spec)
         if handle_type is None:
             raise ValueError(f"Unsupported handle_type: {spec!r}")
         return handle_type
@@ -995,8 +990,7 @@ class VirtualMemoryResourceOptions:
     @staticmethod
     def _granularity_to_driver(spec: str):
         f = driver.CUmemAllocationGranularity_flags
-        _granularity = {"minimum": f.CU_MEM_ALLOC_GRANULARITY_MINIMUM, "recommended": f.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED}
-        granularity = _granularity.get(spec)
+        granularity = VirtualMemoryResourceOptions._granularity.get(spec)
         if granularity is None:
             raise ValueError(f"Unsupported granularity: {spec!r}")
         return granularity
@@ -1008,9 +1002,7 @@ class VirtualMemoryResource(MemoryResource):
     Parameters
     ----------
     device_id : int
-        Device ordinal for which a memory resource is constructed. The mempool that is
-        set to *current* on ``device_id`` is used. If no mempool is set to current yet,
-        the driver would use the *default* mempool on the device.
+        Device ordinal for which a memory resource is constructed.
 
     config : VirtualMemoryResourceOptions
         A configuration object for the VirtualMemoryResource
@@ -1021,6 +1013,7 @@ class VirtualMemoryResource(MemoryResource):
             VirtualMemoryResourceOptions, config, "VirtualMemoryResource options", keep_none=False
         )
 
+    @staticmethod
     def _align_up(self, size: int, gran: int) -> int:
         """
         Align a size up to the nearest multiple of a granularity.
@@ -1077,8 +1070,8 @@ class VirtualMemoryResource(MemoryResource):
                 raise_if_driver_error(res)
             return buf
 
-        aligned_additional_size = self._align_up(additional_size, gran)
-        total_aligned_size = self._align_up(new_size, gran)
+        aligned_additional_size = VirtualMemoryResource._align_up(additional_size, gran)
+        total_aligned_size = VirtualMemoryResource._align_up(new_size, gran)
         aligned_prev_size = total_aligned_size - aligned_additional_size
         addr_align = self.config.addr_align or gran
 
@@ -1223,7 +1216,8 @@ class VirtualMemoryResource(MemoryResource):
             trans.commit()
 
         # Free the old VA range (aligned previous size)
-        driver.cuMemAddressFree(int(buf.handle), aligned_prev_size)
+        result, = driver.cuMemAddressFree(int(buf.handle), aligned_prev_size)
+        raise_if_driver_error(result)
 
         # Invalidate the old buffer so its destructor won't try to free again
         buf._ptr = 0
@@ -1257,8 +1251,8 @@ class VirtualMemoryResource(MemoryResource):
 
         # Peer device access
         peer_flags = VirtualMemoryResourceOptions._access_to_flags(self.config.peer_access)
-        for peer_dev in self.config.peers:
-            if peer_flags:
+        if peer_flags:
+            for peer_dev in self.config.peers:
                 d = driver.CUmemAccessDesc()
                 d.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
                 d.location.id = int(peer_dev)
@@ -1305,8 +1299,8 @@ class VirtualMemoryResource(MemoryResource):
         # ---- Build allocation properties ----
         prop = driver.CUmemAllocationProp()
         prop.type = VirtualMemoryResourceOptions._allocation_type_to_driver(config.allocation_type)
-        # TODO: Support host alloation if required
-        if  prop.type != driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE:
+        
+        if prop.type != driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE:
             raise NotImplementedError(f"Location type must be CU_MEM_LOCATION_TYPE_DEVICE, got {config.location_type}")
 
         prop.location.type = VirtualMemoryResourceOptions._location_type_to_driver(config.location_type)
@@ -1320,7 +1314,7 @@ class VirtualMemoryResource(MemoryResource):
         res, gran = driver.cuMemGetAllocationGranularity(prop, gran_flag)
         raise_if_driver_error(res)
 
-        aligned_size = self._align_up(size, gran)
+        aligned_size = VirtualMemoryResource._align_up(size, gran)
         addr_align = config.addr_align or gran
 
         # ---- Transactional allocation ----
@@ -1347,6 +1341,8 @@ class VirtualMemoryResource(MemoryResource):
             descs = self._build_access_descriptors(prop)
             if descs:
                 res, = driver.cuMemSetAccess(ptr, aligned_size, descs, len(descs))
+                raise_if_driver_error(res)
+
             trans.commit()
 
         # Done — return a Buffer that tracks this VA range
@@ -1371,9 +1367,6 @@ class VirtualMemoryResource(MemoryResource):
     def is_device_accessible(self) -> bool:
         """
         Indicates whether the allocated memory is accessible from the device.
-
-        Returns:
-            bool: Always True for NVSHMEM memory.
         """
         return True
 
@@ -1381,9 +1374,6 @@ class VirtualMemoryResource(MemoryResource):
     def is_host_accessible(self) -> bool:
         """
         Indicates whether the allocated memory is accessible from the host.
-
-        Returns:
-            bool: Always False for NVSHMEM memory.
         """
         return False
 
@@ -1399,7 +1389,7 @@ class VirtualMemoryResource(MemoryResource):
 
     def __repr__(self) -> str:
         """
-        Return a string representation of the NvshmemResource.
+        Return a string representation of the VirtualMemoryResource.
 
         Returns:
             str: A string describing the object
