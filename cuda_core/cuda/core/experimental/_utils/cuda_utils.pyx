@@ -225,6 +225,14 @@ def get_binding_version():
         major_minor = importlib.metadata.version("cuda-python").split(".")[:2]
     return tuple(int(v) for v in major_minor)
 
+def wrap_driver_function_with_error_handling(func):
+    """
+    A wrapper that handles driver errors and raises a CUDAError.
+    """
+    def wrapper(*args, **kwargs):
+        res, = func(*args, **kwargs)
+        _check_driver_error(res)
+    return wrapper
 
 class Transaction:
     """
