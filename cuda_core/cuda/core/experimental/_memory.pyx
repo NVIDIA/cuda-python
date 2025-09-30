@@ -16,6 +16,7 @@ import abc
 import array
 import contextlib
 import cython
+import multiprocessing
 import os
 import platform
 import sys
@@ -421,16 +422,6 @@ cdef class IPCAllocationHandle:
         """Close the handle."""
         self.close()
 
-    def __reduce__(self):
-        import multiprocessing
-        multiprocessing.context.assert_spawning(self)
-        df = multiprocessing.reduction.DupFd(self.handle)
-        return self._reconstruct, (df, self._uuid)
-
-    @classmethod
-    def _reconstruct(cls, df, uuid):
-        return cls._init(df.detach(), uuid)
-
     def __int__(self) -> int:
         if self._handle < 0:
             raise ValueError(
@@ -445,6 +436,17 @@ cdef class IPCAllocationHandle:
     @property
     def uuid(self) -> uuid.UUID:
         return self._uuid
+
+
+def _reduce_allocation_handle(alloc_handle):
+    df = multiprocessing.reduction.DupFd(alloc_handle.handle)
+    return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)
+
+def _reconstruct_allocation_handle(cls, df, uuid):
+    return cls._init(df.detach(), uuid)
+
+
+multiprocessing.reduction.register(IPCAllocationHandle, _reduce_allocation_handle)
 
 
 @dataclass

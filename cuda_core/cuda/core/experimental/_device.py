@@ -1337,15 +1337,15 @@ class Device:
         return GraphBuilder._init(stream=self.create_stream(), is_stream_owner=True)
 
 
+def _reduce_device(device):
+    return _reconstruct_device, (device.device_id,)
+
+
 def _reconstruct_device(device_id):
     device = Device(device_id)
     if not device._has_inited:
         device.set_current()
     return device
-
-
-def _reduce_device(device):
-    return _reconstruct_device, (device.device_id,)
 
 
 multiprocessing.reduction.register(Device, _reduce_device)
