@@ -25,6 +25,7 @@ Bug fixes
 ---------
 
 * Restoring the :func:`~driver.cuCheckpointProcessRestore` API removed by mistake.
+* If a library isn't found, its methods will not be callable, rather than immediately raising a ``pathfinder.DynamicLibNotFoundError``.
 
 
 Known issues
