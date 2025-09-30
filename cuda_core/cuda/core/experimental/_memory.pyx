@@ -7,7 +7,7 @@ from __future__ import annotations
 from libc.stdint cimport uintptr_t
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
-    check_or_create_options,
+    check_or_create_options, wrap_driver_function_with_error_handling,
 )
 import sys
 
