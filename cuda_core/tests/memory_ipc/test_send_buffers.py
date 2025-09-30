@@ -4,7 +4,7 @@
 import multiprocessing
 from itertools import cycle
 
-from cuda.core.experimental import Device, DeviceMemoryResource
+from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from utility import IPCBufferTestHelper
 
 CHILD_TIMEOUT_SEC = 4
@@ -41,9 +41,8 @@ def test_ipc_send_buffers(device, ipc_memory_resource):
 def test_ipc_send_buffers_multi(device, ipc_memory_resource):
     """Test passing buffers sourced from multiple memory resources."""
     # Set up several IPC-enabled memory pools.
-    mrs = [ipc_memory_resource] + [
-        DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=True)) for _ in range(NMRS - 1)
-    ]
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+    mrs = [ipc_memory_resource] + [DeviceMemoryResource(device, options=options) for _ in range(NMRS - 1)]
 
     # Allocate and fill memory.
     buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]

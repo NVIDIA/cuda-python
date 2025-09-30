@@ -4,7 +4,7 @@
 import multiprocessing
 import re
 
-from cuda.core.experimental import Buffer, Device, DeviceMemoryResource
+from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from cuda.core.experimental._utils.cuda_utils import CUDAError
 
 CHILD_TIMEOUT_SEC = 4
@@ -71,7 +71,8 @@ class TestImportWrongMR(ChildErrorHarness):
     """Error when importing a buffer from the wrong memory resource."""
 
     def PARENT_ACTION(self, queue):
-        mr2 = DeviceMemoryResource(self.device, dict(max_size=POOL_SIZE, ipc_enabled=True))
+        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        mr2 = DeviceMemoryResource(self.device, options=options)
         buffer = mr2.allocate(NBYTES)
         queue.put([self.mr, buffer.get_ipc_descriptor()])  # Note: mr does not own this buffer
 
@@ -124,7 +125,8 @@ class TestDanglingBuffer(ChildErrorHarness):
     """
 
     def PARENT_ACTION(self, queue):
-        mr2 = DeviceMemoryResource(self.device, dict(max_size=POOL_SIZE, ipc_enabled=True))
+        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        mr2 = DeviceMemoryResource(self.device, options=options)
         self.buffer = mr2.allocate(NBYTES)
         queue.put(self.buffer)  # Note: mr2 not sent
 

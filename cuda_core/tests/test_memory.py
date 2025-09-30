@@ -10,7 +10,7 @@ import ctypes
 import platform
 
 import pytest
-from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource
+from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions, MemoryResource
 from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
@@ -304,7 +304,8 @@ def test_mempool(mempool_device):
     device = mempool_device
 
     # Test basic pool creation
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=False))
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
+    mr = DeviceMemoryResource(device, options=options)
     assert mr.device_id == device.device_id
     assert mr.is_device_accessible
     assert not mr.is_host_accessible
@@ -379,7 +380,8 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
     if platform.system() == "Windows":
         return  # IPC not implemented for Windows
 
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=ipc_enabled))
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=ipc_enabled)
+    mr = DeviceMemoryResource(device, options=options)
     assert mr.is_ipc_enabled == ipc_enabled
 
     # Get the property value

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from cuda.core.experimental import Device, DeviceMemoryResource
+from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 
 POOL_SIZE = 2097152
 
@@ -27,6 +27,7 @@ def device():
 
 @pytest.fixture
 def ipc_memory_resource(device):
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=True))
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+    mr = DeviceMemoryResource(device, options=options)
     assert mr.is_ipc_enabled
     return mr

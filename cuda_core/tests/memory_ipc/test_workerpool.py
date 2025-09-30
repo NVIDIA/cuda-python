@@ -4,7 +4,7 @@
 import multiprocessing
 from itertools import cycle
 
-from cuda.core.experimental import Buffer, Device, DeviceMemoryResource
+from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from utility import IPCBufferTestHelper
 
 CHILD_TIMEOUT_SEC = 4
@@ -43,9 +43,8 @@ class TestIpcWorkerPoolUsingExport:
 
     def test_ipc_workerpool_multi_mr(self, device, ipc_memory_resource):
         """Test IPC with a worker pool using multiple memory resources."""
-        mrs = [ipc_memory_resource] + [
-            DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=True)) for _ in range(NMRS - 1)
-        ]
+        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        mrs = [ipc_memory_resource] + [DeviceMemoryResource(device, options=options) for _ in range(NMRS - 1)]
         buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
         with multiprocessing.Pool(processes=NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
             pool.starmap(
@@ -88,9 +87,8 @@ class TestIpcWorkerPool:
 
     def test_ipc_workerpool_multi_mr(self, device, ipc_memory_resource):
         """Test IPC with a worker pool using multiple memory resources."""
-        mrs = [ipc_memory_resource] + [
-            DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=True)) for _ in range(NMRS - 1)
-        ]
+        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        mrs = [ipc_memory_resource] + [DeviceMemoryResource(device, options=options) for _ in range(NMRS - 1)]
         buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
         with multiprocessing.Pool(processes=NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
             pool.map(self.process_buffer, buffers)
