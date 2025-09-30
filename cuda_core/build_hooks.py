@@ -13,7 +13,7 @@ import functools
 import glob
 import os
 import re
-import subprocess  # nosec: B404
+import subprocess
 
 from Cython.Build import cythonize
 from setuptools import Extension
@@ -41,7 +41,7 @@ def _get_proper_cuda_bindings_major_version() -> str:
 
     # also for local development
     try:
-        out = subprocess.run("nvidia-smi", env=os.environ, capture_output=True, check=True)  # nosec: B603, B607
+        out = subprocess.run("nvidia-smi", env=os.environ, capture_output=True, check=True)  # noqa: S603, S607
         m = re.search(r"CUDA Version:\s*([\d\.]+)", out.stdout.decode())
         if m:
             return m.group(1).split(".")[0]
@@ -97,9 +97,12 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
     global _extensions
     _extensions = cythonize(
-        ext_modules, verbose=True, language_level=3, nthreads=nthreads,
+        ext_modules,
+        verbose=True,
+        language_level=3,
+        nthreads=nthreads,
         compiler_directives={"embedsignature": True, "warn.deprecated.IF": False},
-        compile_time_env=compile_time_env
+        compile_time_env=compile_time_env,
     )
 
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
