@@ -5,7 +5,13 @@ import contextlib
 import gc
 import multiprocessing as mp
 
-import psutil
+try:
+    import psutil
+except ImportError:
+    HAVE_PSUTIL = False
+else:
+    HAVE_PSUTIL = True
+
 import pytest
 from cuda.core.experimental import _memory
 from cuda.core.experimental._utils.cuda_utils import driver
@@ -14,10 +20,12 @@ CHILD_TIMEOUT_SEC = 4
 NBYTES = 64
 
 USING_FDS = _memory._IPC_HANDLE_TYPE == driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
-skip_unless_using_fds = pytest.mark.skipif(not USING_FDS, reason="mempool allocation handle is not using fds")
+skip_if_unrunnable = pytest.mark.skipif(
+    not USING_FDS or not HAVE_PSUTIL, reason="mempool allocation handle is not using fds or psutil is unavailable"
+)
 
 
-@skip_unless_using_fds
+@skip_if_unrunnable
 def test_alloc_handle(ipc_memory_resource):
     """Check for fd leaks in get_allocation_handle."""
     mr = ipc_memory_resource
@@ -73,7 +81,7 @@ class Irreducible:
         raise RuntimeError("Irreducible")
 
 
-@skip_unless_using_fds
+@skip_if_unrunnable
 @pytest.mark.parametrize(
     "getobject",
     [
