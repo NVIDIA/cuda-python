@@ -24,6 +24,7 @@ build_sdist = _build_meta.build_sdist
 get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 
 
+@functools.cache
 def _get_proper_cuda_bindings_major_version() -> str:
     # for local development (with/without build isolation)
     try:
@@ -92,10 +93,13 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     )
 
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
+    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": _get_proper_cuda_bindings_major_version()}
 
     global _extensions
     _extensions = cythonize(
-        ext_modules, verbose=True, language_level=3, nthreads=nthreads, compiler_directives={"embedsignature": True}
+        ext_modules, verbose=True, language_level=3, nthreads=nthreads,
+        compiler_directives={"embedsignature": True, "warn.deprecated.IF": False},
+        compile_time_env=compile_time_env
     )
 
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
