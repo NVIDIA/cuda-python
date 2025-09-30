@@ -445,7 +445,7 @@ def test_mempool_attributes_ownership(mempool_device):
     mr._mempool_handle = old_handle
 
 
-# Ensure that memory views dellocate their reference to dlpack/cupy tensors
+# Ensure that memory views dellocate their reference to dlpack tensors
 @pytest.mark.skipif(np is None, reason="numpy is not installed")
 def test_strided_memory_view_leak():
     arr = np.zeros(1048576, dtype=np.uint8)
