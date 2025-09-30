@@ -9,6 +9,7 @@ from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
     check_or_create_options,
 )
+import sys
 
 from dataclasses import dataclass
 from typing import Optional, TypeVar, Union, TYPE_CHECKING
@@ -72,7 +73,16 @@ cdef class Buffer:
         return self
 
     def __del__(self):
-        self.close()
+        self._shutdown_safe_close()
+
+    cdef _shutdown_safe_close(self, stream: Stream = None, is_shutting_down=sys.is_finalizing):
+        if is_shutting_down and is_shutting_down():
+            return
+        if self._ptr and self._mr is not None:
+            self._mr.deallocate(self._ptr, self._size, stream)
+            self._ptr = 0
+            self._mr = None
+            self._ptr_obj = None
 
     def __reduce__(self):
         return Buffer.from_ipc_descriptor, (self.memory_resource, self.get_ipc_descriptor())
@@ -89,11 +99,7 @@ cdef class Buffer:
             The stream object to use for asynchronous deallocation. If None,
             the behavior depends on the underlying memory resource.
         """
-        if self._ptr and self._mr is not None:
-            self._mr.deallocate(self._ptr, self._size, stream)
-            self._ptr = 0
-            self._mr = None
-            self._ptr_obj = None
+        self._shutdown_safe_close(stream, is_shutting_down=None)
 
     @property
     def handle(self) -> DevicePointerT:
