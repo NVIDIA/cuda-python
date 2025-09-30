@@ -21,7 +21,8 @@ class TestObjectSerializationDirect:
     it on the other end and demonstrate buffer sharing.
     """
 
-    def test_main(self, device, ipc_memory_resource):
+    def test_main(self, ipc_device, ipc_memory_resource):
+        device = ipc_device
         mr = ipc_memory_resource
 
         # Start the child process.
@@ -72,8 +73,9 @@ class TestObjectSerializationDirect:
 
 
 class TestObjectSerializationWithMR:
-    def test_main(self, device, ipc_memory_resource):
+    def test_main(self, ipc_device, ipc_memory_resource):
         """Test sending IPC memory objects to a child through a queue."""
+        device = ipc_device
         mr = ipc_memory_resource
 
         # Start the child process. Sending the memory resource registers it so
@@ -113,7 +115,7 @@ class TestObjectSerializationWithMR:
         IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
 
 
-def test_object_passing(device, ipc_memory_resource):
+def test_object_passing(ipc_device, ipc_memory_resource):
     """
     Test sending objects as arguments when starting a process.
 
@@ -123,6 +125,7 @@ def test_object_passing(device, ipc_memory_resource):
     """
 
     # Define the objects.
+    device = ipc_device
     mr = ipc_memory_resource
     alloc_handle = mr.get_allocation_handle()
     buffer = mr.allocate(NBYTES)

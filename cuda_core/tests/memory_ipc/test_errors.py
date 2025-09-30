@@ -16,11 +16,11 @@ class ChildErrorHarness:
     """Test harness for checking errors in child processes. Subclasses override
     PARENT_ACTION, CHILD_ACTION, and ASSERT (see below for examples)."""
 
-    def test_main(self, device, ipc_memory_resource):
+    def test_main(self, ipc_device, ipc_memory_resource):
         """Parent process that checks child errors."""
         # Attach fixtures to this object for convenience. These can be accessed
         # from PARENT_ACTION.
-        self.device = device
+        self.device = ipc_device
         self.mr = ipc_memory_resource
 
         # Start a child process to generate error info.

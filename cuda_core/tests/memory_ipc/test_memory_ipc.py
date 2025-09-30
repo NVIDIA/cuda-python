@@ -13,9 +13,10 @@ NTASKS = 2
 
 
 class TestIpcMempool:
-    def test_main(self, device, ipc_memory_resource):
+    def test_main(self, ipc_device, ipc_memory_resource):
         """Test IPC with memory pools."""
         # Set up the IPC-enabled memory pool and share it.
+        device = ipc_device
         mr = ipc_memory_resource
 
         # Start the child process.
@@ -47,9 +48,10 @@ class TestIpcMempool:
 
 
 class TestIPCMempoolMultiple:
-    def test_main(self, device, ipc_memory_resource):
+    def test_main(self, ipc_device, ipc_memory_resource):
         """Test IPC with memory pools using multiple processes."""
         # Construct an IPC-enabled memory resource and share it with two children.
+        device = ipc_device
         mr = ipc_memory_resource
         q1, q2 = (mp.Queue() for _ in range(2))
 
@@ -90,12 +92,13 @@ class TestIPCMempoolMultiple:
 
 
 class TestIPCSharedAllocationHandleAndBufferDescriptors:
-    def test_main(self, device, ipc_memory_resource):
+    def test_main(self, ipc_device, ipc_memory_resource):
         """
         Demonstrate that a memory pool allocation handle can be reused for IPC
         with multiple processes. Uses buffer descriptors.
         """
         # Set up the IPC-enabled memory pool and share it using one handle.
+        device = ipc_device
         mr = ipc_memory_resource
         alloc_handle = mr.get_allocation_handle()
 
@@ -135,11 +138,12 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
 
 
 class TestIPCSharedAllocationHandleAndBufferObjects:
-    def test_main(self, device, ipc_memory_resource):
+    def test_main(self, ipc_device, ipc_memory_resource):
         """
         Demonstrate that a memory pool allocation handle can be reused for IPC
         with multiple processes. Uses buffer objects (not descriptors).
         """
+        device = ipc_device
         mr = ipc_memory_resource
         alloc_handle = mr.get_allocation_handle()
 

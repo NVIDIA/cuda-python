@@ -31,8 +31,9 @@ class TestIpcWorkerPoolUsingExport:
         global g_mrs
         g_mrs = mrs
 
-    def test_ipc_workerpool(self, device, ipc_memory_resource):
+    def test_ipc_workerpool(self, ipc_device, ipc_memory_resource):
         """Test IPC with a worker pool."""
+        device = ipc_device
         mr = ipc_memory_resource
         buffers = [mr.allocate(NBYTES) for _ in range(NTASKS)]
         with multiprocessing.Pool(processes=NWORKERS, initializer=self.init_worker, initargs=([mr],)) as pool:
@@ -41,8 +42,9 @@ class TestIpcWorkerPoolUsingExport:
         for buffer in buffers:
             IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
 
-    def test_ipc_workerpool_multi_mr(self, device, ipc_memory_resource):
+    def test_ipc_workerpool_multi_mr(self, ipc_device, ipc_memory_resource):
         """Test IPC with a worker pool using multiple memory resources."""
+        device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [ipc_memory_resource] + [DeviceMemoryResource(device, options=options) for _ in range(NMRS - 1)]
         buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
@@ -75,8 +77,9 @@ class TestIpcWorkerPool:
         global g_mrs
         g_mrs = mrs
 
-    def test_ipc_workerpool(self, device, ipc_memory_resource):
+    def test_ipc_workerpool(self, ipc_device, ipc_memory_resource):
         """Test IPC with a worker pool."""
+        device = ipc_device
         mr = ipc_memory_resource
         buffers = [mr.allocate(NBYTES) for _ in range(NTASKS)]
         with multiprocessing.Pool(processes=NWORKERS, initializer=self.init_worker, initargs=([mr],)) as pool:
@@ -85,8 +88,9 @@ class TestIpcWorkerPool:
         for buffer in buffers:
             IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
 
-    def test_ipc_workerpool_multi_mr(self, device, ipc_memory_resource):
+    def test_ipc_workerpool_multi_mr(self, ipc_device, ipc_memory_resource):
         """Test IPC with a worker pool using multiple memory resources."""
+        device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [ipc_memory_resource] + [DeviceMemoryResource(device, options=options) for _ in range(NMRS - 1)]
         buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]

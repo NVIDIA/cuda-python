@@ -14,8 +14,9 @@ NTASKS = 7
 POOL_SIZE = 2097152
 
 
-def test_ipc_send_buffers(device, ipc_memory_resource):
+def test_ipc_send_buffers(ipc_device, ipc_memory_resource):
     """Test passing buffers directly to a child separately from a memory resource."""
+    device = ipc_device
     mr = ipc_memory_resource
 
     # Allocate and fill memory.
@@ -38,9 +39,10 @@ def test_ipc_send_buffers(device, ipc_memory_resource):
         helper.verify_buffer(flipped=True)
 
 
-def test_ipc_send_buffers_multi(device, ipc_memory_resource):
+def test_ipc_send_buffers_multi(ipc_device, ipc_memory_resource):
     """Test passing buffers sourced from multiple memory resources."""
     # Set up several IPC-enabled memory pools.
+    device = ipc_device
     options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
     mrs = [ipc_memory_resource] + [DeviceMemoryResource(device, options=options) for _ in range(NMRS - 1)]
 
