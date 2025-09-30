@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+cimport cpython
 from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
@@ -1083,8 +1084,7 @@ class Device:
             HANDLE_RETURN(cydriver.cuDeviceGetUuid_v2(&uuid, self._id))
         ELSE:  # 13.0+
             HANDLE_RETURN(cydriver.cuDeviceGetUuid(&uuid, self._id))
-        cdef bytearray uuid_b = bytearray(sizeof(uuid.bytes))
-        uuid_b[:] = uuid.bytes
+        cdef bytes uuid_b = cpython.PyBytes_FromStringAndSize(uuid.bytes, sizeof(uuid.bytes))
         cdef str uuid_hex = uuid_b.hex()
         # 8-4-4-4-12
         return f"{uuid_hex[:8]}-{uuid_hex[8:12]}-{uuid_hex[12:16]}-{uuid_hex[16:20]}-{uuid_hex[20:]}"
