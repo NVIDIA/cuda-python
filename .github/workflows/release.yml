@@ -4,7 +4,7 @@
 
 name: "CI: Release"
 
-description: Manually-triggered release workflow. Creates a release draft if one doesn't exist for the given tag, or uses existing draft.
+# Manually-triggered release workflow. Creates a release draft if one doesn't exist for the given tag, or uses existing draft.
 
 on:
   workflow_dispatch:

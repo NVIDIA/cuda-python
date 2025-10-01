@@ -10,6 +10,13 @@ def pytest_configure(config):
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):  # noqa: ARG001
+    if not config.getoption("verbose"):
+        return
+    if hasattr(config.option, "iterations"):  # pytest-freethreaded runs all tests at least twice
+        return
+    if getattr(config.option, "count", 1) > 1:  # pytest-repeat
+        return
+
     if config.custom_info:
         terminalreporter.write_sep("=", "INFO summary")
         for msg in config.custom_info:

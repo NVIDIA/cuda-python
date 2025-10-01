@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import pytest
-
 from cuda.bindings import nvjitlink, nvrtc
 
 # Establish a handful of compatible architectures and PTX versions to test with

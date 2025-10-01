@@ -5,10 +5,10 @@
 
 # For usage see top of collect_site_packages_*_files.*
 
+import argparse
 import os
 import re
-import argparse
-from typing import Optional, Dict, Set
+from typing import Dict, Optional, Set
 
 _SITE_PACKAGES_RE = re.compile(r"(?i)^.*?/site-packages/")
 
@@ -74,28 +74,19 @@ def dict_literal(d: Dict[str, Set[str]]) -> str:
     lines = ["{"]
     for k in sorted(d):
         dirs = sorted(d[k])
-        tup = (
-            "("
-            + ", ".join(repr(x) for x in dirs)
-            + ("," if len(dirs) == 1 else "")
-            + ")"
-        )
+        tup = "(" + ", ".join(repr(x) for x in dirs) + ("," if len(dirs) == 1 else "") + ")"
         lines.append(f"    {k!r}: {tup},")
     lines.append("}")
     return "\n".join(lines)
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(
-        description="Convert a list of site-packages library paths into {name: (dirs, ...)}"
-    )
-    ap.add_argument(
-        "platform", choices=["linux", "windows"], help="Target platform to parse"
-    )
+    ap = argparse.ArgumentParser(description="Convert a list of site-packages library paths into {name: (dirs, ...)}")
+    ap.add_argument("platform", choices=["linux", "windows"], help="Target platform to parse")
     ap.add_argument("path", help="Text file with one library path per line")
     args = ap.parse_args()
 
-    with open(args.path, "r", encoding="utf-8") as f:
+    with open(args.path, encoding="utf-8") as f:
         lines = f.read().splitlines()
 
     if args.platform == "linux":

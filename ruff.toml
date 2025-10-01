@@ -1,0 +1,68 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+line-length = 120
+respect-gitignore = true
+target-version = "py39"
+
+[format]
+docstring-code-format = true
+docstring-code-line-length = 120
+exclude = ["**/_version.py"]
+
+[lint]
+select = [
+  # pycodestyle Error
+  "E",
+  # Pyflakes
+  "F",
+  # pycodestyle Warning
+  "W",
+  # pyupgrade
+  "UP",
+  # flake8-bugbear
+  "B",
+  # flake8-simplify
+  "SIM",
+  # isort
+  "I",
+  # flake8 bandit
+  "S",
+]
+
+ignore = [
+  "UP007",
+  "E741",   # ambiguous variable name such as I
+  "B007",   # rename unused loop variable to _name
+  "UP035",  # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
+  "UP006",  # leave old-style typing as-is, e.g., Dict is allowed instead of requiring dict
+  "SIM108", # ternary if/else
+  "S101",   # asserts
+  "S311",   # allow use of the random.* even though many are not cryptographically secure
+  "S404",   # allow importing the subprocess module
+]
+
+exclude = ["**/_version.py"]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"setup.py" = ["F401"]
+
+"cuda_bindings/examples/**" = [
+  "E722",
+  "E501", # line too long
+]
+
+"cuda_bindings/tests/**" = [
+  "E722",
+  "UP022",
+  "E402",  # module level import not at top of file
+  "F841",
+] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
+
+"cuda_bindings/benchmarks/**" = [
+  "E722",
+  "UP022",
+  "E402",  # module level import not at top of file
+  "F841",
+] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)

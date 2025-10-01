@@ -13,6 +13,7 @@ from functools import cache
 import pytest
 import cuda.bindings.driver as cuda
 
+
 # Configure logging to show INFO level and above
 logging.basicConfig(
     level=logging.INFO,

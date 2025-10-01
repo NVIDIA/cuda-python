@@ -10,10 +10,9 @@ try:
     from numba import cuda as numba_cuda
 except ImportError:
     numba_cuda = None
+import cuda.core.experimental
 import numpy as np
 import pytest
-
-import cuda.core.experimental
 from cuda.core.experimental import Device
 from cuda.core.experimental._memoryview import view_as_cai
 from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory

@@ -6,9 +6,8 @@ try:
 except ImportError:
     from cuda import cuda as driver
     from cuda import cudart as runtime
-import pytest
-
 import cuda.core.experimental
+import pytest
 from cuda.core.experimental import Device
 from cuda.core.experimental._utils.cuda_utils import ComputeCapability, get_binding_version, handle_return
 

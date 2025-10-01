@@ -23,7 +23,6 @@ except ImportError:
     print("cupy is not installed, the GPU example will be skipped", file=sys.stderr)
     cp = None
 import numpy as np
-
 from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
 from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
 

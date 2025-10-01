@@ -77,10 +77,8 @@ cdef void* load_library() except* with gil:
     return <void*>handle
 
 
-cdef int _check_or_init_nvjitlink() except -1 nogil:
+cdef int __check_or_init_nvjitlink() except -1 nogil:
     global __py_nvjitlink_init
-    if __py_nvjitlink_init:
-        return 0
 
     cdef void* handle = NULL
 
@@ -187,6 +185,12 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
         __py_nvjitlink_init = True
         return 0
 
+
+cdef inline int _check_or_init_nvjitlink() except -1 nogil:
+    if __py_nvjitlink_init:
+        return 0
+
+    return __check_or_init_nvjitlink()
 
 cdef dict func_ptrs = None
 

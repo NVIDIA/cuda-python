@@ -11,7 +11,6 @@ import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors
 from common.helper_string import checkCmdLineFlag, getCmdLineArgumentInt
-
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 

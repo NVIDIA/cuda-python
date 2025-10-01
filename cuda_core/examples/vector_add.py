@@ -10,7 +10,6 @@
 # ################################################################################
 
 import cupy as cp
-
 from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
 
 # compute c = a + b

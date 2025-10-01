@@ -1,7 +1,7 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. module:: cuda.pathfinder
+.. py:currentmodule:: cuda.pathfinder
 
 ``cuda-pathfinder`` 1.2.3 Release notes
 =======================================
@@ -12,6 +12,7 @@ Released on Sep 17, 2025
 Highlights
 ----------
 
-* Extend experimental ``cuda.pathfinder._find_nvidia_headers`` API
-  to support CTK library headers
+* Make the ``cuda.pathfinder._find_nvidia_header_directory`` API public
+  (by removing the leading underscore) and extend the function
+  to also support CTK library headers
   (`PR #956 <https://github.com/NVIDIA/cuda-python/pull/956>`_)

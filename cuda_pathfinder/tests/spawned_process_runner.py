@@ -53,7 +53,7 @@ class ChildProcessWrapper:
             sys.stderr = old_stderr
             try:  # noqa: SIM105
                 self.result_queue.put((returncode, stdout, stderr))
-            except Exception:  # nosec B110
+            except Exception:  # noqa: S110
                 # If the queue is broken (e.g., parent gone), best effort logging
                 pass
 
@@ -120,7 +120,7 @@ def run_in_spawned_child_process(
         try:
             result_queue.close()
             result_queue.join_thread()
-        except Exception:  # nosec B110
+        except Exception:  # noqa: S110
             pass
         if process.is_alive():
             process.kill()

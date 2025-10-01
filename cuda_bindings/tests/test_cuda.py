@@ -5,11 +5,10 @@ import platform
 import shutil
 import textwrap
 
-import numpy as np
-import pytest
-
 import cuda.bindings.driver as cuda
 import cuda.bindings.runtime as cudart
+import numpy as np
+import pytest
 from cuda.bindings import driver
 
 
@@ -654,7 +653,7 @@ def test_get_error_name_and_string():
 @pytest.mark.skipif(not callableBinary("nvidia-smi"), reason="Binary existance needed")
 def test_device_get_name():
     # TODO: Refactor this test once we have nvml bindings to avoid the use of subprocess
-    import subprocess  # nosec B404
+    import subprocess
 
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -664,8 +663,10 @@ def test_device_get_name():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     p = subprocess.check_output(
-        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], shell=False, stderr=subprocess.PIPE
-    )  # nosec B603, B607
+        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"],  # noqa: S607
+        shell=False,
+        stderr=subprocess.PIPE,
+    )
 
     delimiter = b"\r\n" if platform.system() == "Windows" else b"\n"
     expect = p.split(delimiter)

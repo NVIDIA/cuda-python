@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
+from pathlib import Path
 
 
 def extract_enum_block(header_file_lines):
@@ -101,7 +102,7 @@ def run(args):
         )
         sys.exit(1)
 
-    header_file_text = open(sys.argv[1]).read().splitlines()
+    header_file_text = Path(sys.argv[1]).read_text().splitlines()
     python_dict_name, enum_block = extract_enum_block(header_file_text)
     entries = parse_enum_doc_and_value_pairs(enum_block)
     emit_python_dict(python_dict_name, entries)
