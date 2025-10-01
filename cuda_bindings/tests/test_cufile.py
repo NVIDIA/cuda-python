@@ -1412,7 +1412,6 @@ def test_batch_io_cancel():
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
 
-
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_batch_io_large_operations():
     """Test batch IO with large buffer operations."""
@@ -1458,15 +1457,12 @@ def test_batch_io_large_operations():
     try:
         # Create file with O_DIRECT
         fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
+
         # Register all buffers with cuFile
         all_buffers = write_buffers + read_buffers
-        for i, buf in enumerate(all_buffers):
+        for buf in all_buffers:
             buf_int = int(buf)
-            try:
-                cufile.buf_register(buf_int, buf_size, 0)
-            except Exception as e:
-                print(f"*** Buffer {i} registration FAILED: {e} ***")
-                raise
+            cufile.buf_register(buf_int, buf_size, 0)
 
         # Create file descriptor
         descr = cufile.Descr()
@@ -1474,16 +1470,15 @@ def test_batch_io_large_operations():
         descr.handle.fd = fd
         descr.fs_ops = 0
 
-
         # Register file handle
         handle = cufile.handle_register(descr.ptr)
 
         # Set up batch IO
-        batch_handle = cufile.batch_io_set_up(num_operations * 2)  # 2 writes + 2 reads
+        batch_handle = cufile.batch_io_set_up(num_operations)  # Only for writes
 
         # Create IOParams array for batch operations
-        io_params = cufile.IOParams(num_operations * 2)
-        io_events = cufile.IOEvents(num_operations * 2)
+        io_params = cufile.IOParams(num_operations)
+        io_events = cufile.IOEvents(num_operations)
 
         # Prepare test data
         test_strings = [
@@ -1513,33 +1508,10 @@ def test_batch_io_large_operations():
             io_params[i].u.batch.dev_ptr_offset = 0
             io_params[i].u.batch.size_ = buf_size
 
-        # Set up read operations
-        for i in range(num_operations):
-            idx = i + num_operations
-            io_params[idx].mode = cufile.BatchMode.BATCH  # Batch mode
-            io_params[idx].fh = handle
-            io_params[idx].opcode = cufile.Opcode.READ  # Read opcode
-            io_params[idx].cookie = i + 100
-            io_params[idx].u.batch.dev_ptr_base = int(read_buffers[i])
-            io_params[idx].u.batch.file_offset = i * buf_size
-            io_params[idx].u.batch.dev_ptr_offset = 0
-            io_params[idx].u.batch.size_ = buf_size
+        # Submit writes
+        cufile.batch_io_submit(batch_handle, num_operations, io_params.ptr, 0)
 
-          
-
-  
-        for i in range(num_operations):
-            print(f"  Op {i}: cookie={io_params[i].cookie}, opcode={io_params[i].opcode}, offset={io_params[i].u.batch.file_offset}")
-
-        for i in range(num_operations):
-            idx = i + num_operations
-            print(f"  Op {idx}: cookie={io_params[idx].cookie}, opcode={io_params[idx].opcode}, offset={io_params[idx].u.batch.file_offset}")
-
-
-        # Submit writes first
-        cufile.batch_io_submit(batch_handle, num_operations, io_params.ptr, 0)  # Only writes
-
-     
+        # Wait for writes to complete
         nr_completed_writes = ctypes.c_uint(num_operations)
         timeout = ctypes.c_int(10000)
         cufile.batch_io_get_status(
@@ -1547,24 +1519,24 @@ def test_batch_io_large_operations():
             io_events.ptr, ctypes.addressof(timeout)
         )
 
-
         # Verify writes succeeded
         for i in range(nr_completed_writes.value):
-            if io_events[i].status != cufile.Status.COMPLETE:
-                raise RuntimeError(f"Write {i} failed: {io_events[i].status}")
-            print(f"Write {io_events[i].cookie}: {io_events[i].ret} bytes")
+            assert io_events[i].status == cufile.Status.COMPLETE, (
+                f"Write {i} failed with status {io_events[i].status}"
+            )
 
         # Force file sync
         os.fsync(fd)
-        print("File sync after writes completed")
+
+        # Clean up write batch
+        cufile.batch_io_destroy(batch_handle)
 
         # Now submit reads separately
-        print("Submitting reads...")
         read_batch_handle = cufile.batch_io_set_up(num_operations)
         read_io_params = cufile.IOParams(num_operations)
         read_io_events = cufile.IOEvents(num_operations)
 
-        # Set up read operations in separate array
+        # Set up read operations
         for i in range(num_operations):
             read_io_params[i].mode = cufile.BatchMode.BATCH
             read_io_params[i].fh = handle
@@ -1579,155 +1551,43 @@ def test_batch_io_large_operations():
         cufile.batch_io_submit(read_batch_handle, num_operations, read_io_params.ptr, 0)
 
         # Wait for reads
-        nr_completed_reads = ctypes.c_uint(num_operations)
+        nr_completed = ctypes.c_uint(num_operations)
         cufile.batch_io_get_status(
-            read_batch_handle, num_operations, ctypes.addressof(nr_completed_reads),
+            read_batch_handle, num_operations, ctypes.addressof(nr_completed),
             read_io_events.ptr, ctypes.addressof(timeout)
         )
 
-
-        # Check read results
-        for i in range(nr_completed_reads.value):
-            print(f"Read {read_io_events[i].cookie}: {read_io_events[i].ret} bytes")
-
-        # Use read_io_events for verification instead of io_events
-        io_events = read_io_events  # Replace for rest of test
-        nr_completed = nr_completed_reads
-
-        # Clean up read batch
-        cufile.batch_io_destroy(read_batch_handle)
-
-        # Enhanced operation analysis
-        print("=== Detailed Operation Results ===")
-        # Check each operation's detailed status
-        write_ops = []
-        read_ops = []
-
-        for i in range(nr_completed.value):
-            event = io_events[i]
-            status_name = "UNKNOWN"
-            try:
-                status_name = cufile.Status(event.status).name
-            except:
-                pass
-
-            print(f"Operation {i}:")
-            print(f"  Cookie: {event.cookie}")
-            print(f"  Status: {event.status} ({status_name})")
-            print(f"  Result: {event.ret}")
-
-            # Categorize operations by cookie
-            if event.cookie < 100:  # Write operations (cookies 0, 1)
-                write_ops.append({
-                    'index': i,
-                    'cookie': event.cookie,
-                    'result': event.ret,
-                    'status': event.status
-                })
-                print(f"  -> WRITE operation: {event.ret} bytes")
-            else:  # Read operations (cookies 100, 101)
-                read_ops.append({
-                    'index': i,
-                    'cookie': event.cookie,
-                    'result': event.ret,
-                    'status': event.status
-                })
-                print(f"  -> READ operation: {event.ret} bytes")
-
-            # Check if operation failed
-            if event.status != cufile.Status.COMPLETE:
-                print(f"  *** OPERATION {i} FAILED ***")
-                if event.status == cufile.Status.FAILED:
-                    print(f"  Error code: {event.ret}")
-
-        print("=== Operation Analysis ===")
-        print(f"Write operations completed: {len(write_ops)}")
-        print(f"Read operations completed: {len(read_ops)}")
-
-        # Check if all writes succeeded before analyzing reads
-        all_writes_success = all(op['result'] > 0 for op in write_ops)
-        print(f"All writes successful: {all_writes_success}")
-
-        if all_writes_success:
-            print("Writes completed successfully, reads should now work")
-        else:
-            print("Some writes failed - this could explain read failures")
-
-        # Show operation completion order
-        print("=== Operation Completion Order ===")
-        for i, event in enumerate([(io_events[j].cookie, io_events[j].ret) for j in range(nr_completed.value)]):
-            cookie, result = event
-            op_type = "WRITE" if cookie < 100 else "READ"
-            print(f"Position {i}: {op_type} (cookie {cookie}) -> {result} bytes")
-
-        # Write completion check
-        print("=== Write Completion Check ===")
-        # Check if writes actually completed by reading file size
-        file_stat = os.fstat(fd)
-        print(f"File size after batch: {file_stat.st_size}")
-
-        # Try a small direct read to verify data is in file
-        try:
-            test_buf_size = 1024
-            err, test_buf = cuda.cuMemAlloc(test_buf_size)
-            cufile.buf_register(int(test_buf), test_buf_size, 0)
-
-            # Try reading first 1KB directly
-            cufile.read(handle, int(test_buf), test_buf_size, 0, 0)
-
-            # Copy back and check
-            test_host_buf = ctypes.create_string_buffer(test_buf_size)
-            cuda.cuMemcpyDtoH(test_host_buf, test_buf, test_buf_size)
-            test_data = test_host_buf.value
-
-            print(f"Direct read test: {len(test_data)} bytes")
-            print(f"First 50 bytes: {test_data[:50]!r}")
-
-            # Cleanup test buffer
-            cufile.buf_deregister(int(test_buf))
-            cuda.cuMemFree(test_buf)
-
-        except Exception as e:
-            print(f"Direct read test failed: {e}")
-
         # Verify all operations completed successfully
         assert nr_completed.value == num_operations, (
-            f"Expected {num_operations} read operations, got {nr_completed.value}"
+            f"Expected {num_operations} operations, got {nr_completed.value}"
         )
 
         # Collect all returned cookies
         returned_cookies = set()
         for i in range(num_operations):
-            if io_events[i].status != cufile.Status.COMPLETE:
-                print(f"*** Operation {i} with cookie {io_events[i].cookie} failed with status {io_events[i].status} ***")
-            assert io_events[i].status == cufile.Status.COMPLETE, (
-                f"Operation {i} failed with status {io_events[i].status}"
+            assert read_io_events[i].status == cufile.Status.COMPLETE, (
+                f"Operation {i} failed with status {read_io_events[i].status}"
             )
-            returned_cookies.add(io_events[i].cookie)
+            returned_cookies.add(read_io_events[i].cookie)
 
         # Verify all expected cookies are present
-        expected_cookies = set(range(100, 100 + num_operations))  # read cookies 100,101
+        expected_cookies = set(range(100, 100 + num_operations))
         assert returned_cookies == expected_cookies, (
             f"Cookie mismatch. Expected {expected_cookies}, got {returned_cookies}"
         )
 
         # Verify the read data matches the written data
         for i in range(num_operations):
-
             # Copy read data back to host
             cuda.cuMemcpyDtoHAsync(host_buf, read_buffers[i], buf_size, 0)
             cuda.cuStreamSynchronize(0)
             read_data = host_buf.value
-
 
             # Prepare expected data
             test_string = test_strings[i]
             test_string_len = len(test_string)
             repetitions = buf_size // test_string_len
             expected_data = (test_string * repetitions)[:buf_size]
-
-           
-
 
             if read_data != expected_data:
                 n = 100  # Show first n bytes
@@ -1738,58 +1598,33 @@ def test_batch_io_large_operations():
                     f"expected {expected_data[:n]!r}"
                 )
 
-        print("=== Test Completed Successfully ===")
+        # Clean up batch IO
+        cufile.batch_io_destroy(read_batch_handle)
+
+        # Deregister file handle
+        cufile.handle_deregister(handle)
+
+        # Deregister buffers
+        for buf in all_buffers:
+            buf_int = int(buf)
+            cufile.buf_deregister(buf_int)
 
     finally:
-        # Cleanup
+        # Close file
+        os.close(fd)
+        # Free CUDA memory
+        for buf in all_buffers:
+            cuda.cuMemFree(buf)
+        # Clean up test file
         try:
-            if 'all_buffers' in locals():
-                for buf in all_buffers:
-                    cufile.buf_deregister(int(buf))
-                    cuda.cuMemFree(buf)
-        except Exception as e:
-            print(f"Cleanup error: {e}")
-
-        try:
-            if 'handle' in locals():
-                cufile.handle_deregister(handle)
-        except Exception as e:
-            print(f"Handle deregister error: {e}")
-
-        try:
-            if 'batch_handle' in locals():
-                cufile.batch_io_destroy(batch_handle)
-        except Exception as e:
-            print(f"Batch destroy error: {e}")
-
-        try:
-            if 'read_batch_handle' in locals():
-                cufile.batch_io_destroy(read_batch_handle)
-        except Exception as e:
-            print(f"Read batch destroy error: {e}")
-
-        try:
-            if 'fd' in locals():
-                os.close(fd)
-        except Exception as e:
-            print(f"File close error: {e}")
-
-        try:
-            if os.path.exists(file_path):
-                os.remove(file_path)
-        except Exception as e:
-            print(f"File remove error: {e}")
-
-        try:
-            cufile.driver_close()
-        except Exception as e:
-            print(f"Driver close error: {e}")
-
-        try:
-            cuda.cuDevicePrimaryCtxRelease(device)
-        except Exception as e:
-            print(f"Context release error: {e}")
-
+            os.unlink(file_path)
+        except OSError as e:
+            if e.errno != errno.ENOENT:
+                raise
+        # Close cuFile driver
+        cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
+        
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
@@ -1984,7 +1819,7 @@ def test_set_get_parameter_bool():
 
     finally:
         cuda.cuDevicePrimaryCtxRelease(device)
-        
+
 def test_set_get_parameter_string():
     """Test setting and getting string parameters with cuFile validation."""
 
