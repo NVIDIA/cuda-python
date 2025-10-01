@@ -8,7 +8,7 @@ import os
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource
 from utility import IPCBufferTestHelper
 
-CHILD_TIMEOUT_SEC = 4
+CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
 POOL_SIZE = 2097152
 

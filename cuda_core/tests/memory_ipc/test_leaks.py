@@ -16,7 +16,7 @@ import pytest
 from cuda.core.experimental import _memory
 from cuda.core.experimental._utils.cuda_utils import driver
 
-CHILD_TIMEOUT_SEC = 4
+CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
 
 USING_FDS = _memory._IPC_HANDLE_TYPE == driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR

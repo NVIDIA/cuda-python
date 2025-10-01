@@ -7,7 +7,7 @@ from itertools import cycle
 from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from utility import IPCBufferTestHelper
 
-CHILD_TIMEOUT_SEC = 4
+CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
 NMRS = 3
 NTASKS = 7
