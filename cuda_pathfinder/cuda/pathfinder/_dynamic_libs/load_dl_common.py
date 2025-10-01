@@ -10,17 +10,20 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import DIRECT_DEPENDENC
 class DynamicLibNotFoundError(RuntimeError):
     pass
 
+
 @dataclass
-class Distribution:
+class FoundVia:
     name: str
-    version: str
+    version: Optional[str] = None
+
 
 @dataclass
 class LoadedDL:
     abs_path: Optional[str]
     was_already_loaded_from_elsewhere: bool
     _handle_uint: int  # Platform-agnostic unsigned pointer value
-    distribution: Optional[Distribution] = None
+    foundvia: Optional[FoundVia] = None
+
 
 def load_dependencies(libname: str, load_func: Callable[[str], LoadedDL]) -> None:
     for dep in DIRECT_DEPENDENCIES.get(libname, ()):

@@ -132,24 +132,6 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
 
     return None
 
-def find_with_system_search_windows(libname: str) -> Optional[str]:
-    """Try to find a DLL using system search paths.
-
-    Args:
-        libname: The name of the library to find
-
-    Returns:
-        The absolute path to the DLL if found, None otherwise
-    """
-    # Reverse tabulated names to achieve new → old search order.
-    for dll_name in reversed(SUPPORTED_WINDOWS_DLLS.get(libname, ())):
-        handle = kernel32.GetModuleHandleW(dll_name)
-        if handle:
-            abs_path = abs_path_for_dynamic_library(libname, handle)
-            return abs_path
-
-    return None
-
 
 def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
     """Load a dynamic library from the given path.

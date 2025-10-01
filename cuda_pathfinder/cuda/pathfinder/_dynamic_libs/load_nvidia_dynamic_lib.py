@@ -6,7 +6,7 @@ import struct
 import sys
 
 from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _FindNvidiaDynamicLib
-from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
+from cuda.pathfinder._dynamic_libs.load_dl_common import FoundVia, LoadedDL, load_dependencies
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if IS_WINDOWS:
@@ -166,20 +166,16 @@ class _LoadNvidiaDynamicLib:
         return load_with_abs_path(self.libname, abs_path)
 
     def load_lib(self) -> LoadedDL:
-        dl = self.load_with_site_packages()
-        if dl is not None:
+        if dl := self.load_with_site_packages():
+            dl.foundvia = FoundVia("site-packages")
             return dl
-
-        dl = self.load_with_conda_prefix()
-        if dl is not None:
+        if dl := self.load_with_conda_prefix():
+            dl.foundvia = FoundVia("conda")
             return dl
-
-        dl = self.load_with_system_search()
-        if dl is not None:
+        if dl := self.load_with_system_search():
+            dl.foundvia = FoundVia("system")
             return dl
-
-        dl = self.load_with_cuda_home()
-        if dl is not None:
+        if dl := self.load_with_cuda_home():
+            dl.foundvia = FoundVia("CUDA_HOME")
             return dl
-
         self.finder.raise_not_found_error()

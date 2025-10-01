@@ -7,7 +7,6 @@ from collections.abc import Sequence
 from typing import Optional
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
-from cuda.pathfinder._dynamic_libs.load_dl_linux import get_candidate_sonames, _load_lib, abs_path_for_dynamic_library
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     SITE_PACKAGES_LIBDIRS_LINUX,
     SITE_PACKAGES_LIBDIRS_WINDOWS,
@@ -17,10 +16,6 @@ from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
-if IS_WINDOWS:
-  from cuda.pathfinder._dynamic_libs.load_dl_windows import find_with_system_search_windows as find_with_system_search  
-else:
-    from cuda.pathfinder._dynamic_libs.load_dl_linux import find_with_system_search_linux as find_with_system_search
 
 def _no_such_file_in_sub_dirs(
     sub_dirs: Sequence[str], file_wild: str, error_messages: list[str], attachments: list[str]
@@ -191,10 +186,6 @@ class _FindNvidiaDynamicLib:
 
     def try_with_cuda_home(self) -> Optional[str]:
         return self._find_using_lib_dir(_find_lib_dir_using_cuda_home(self.libname))
-
-    def try_with_system_search(self) -> Optional[str]:
-        return find_with_system_search(self.libname)
-
 
     def _find_using_lib_dir(self, lib_dir: Optional[str]) -> Optional[str]:
         if lib_dir is None:
