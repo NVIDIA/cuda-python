@@ -8,8 +8,8 @@ IS_WINDOWS = sys.platform == "win32"
 
 def quote_for_shell(s: str) -> str:
     if IS_WINDOWS:
-        # This is a relatively heavy import; keep pathfinder if possible.
-        from subprocess import list2cmdline  # nosec B404
+        # This is a relatively heavy import; keep pathfinder lean if possible.
+        from subprocess import list2cmdline
 
         return list2cmdline([s])
     else:
