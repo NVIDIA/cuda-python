@@ -175,8 +175,8 @@
     <elf-symbol name='PyCapsule_IsValid' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyCapsule_New' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyCode_NewEmpty' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyDict_GetItem' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyDict_GetItemString' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
+    <elf-symbol name='PyDict_GetItemStringRef' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyDict_New' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyDict_SetItem' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyDict_SetItemString' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
@@ -190,7 +190,6 @@
     <elf-symbol name='PyExc_ImportError' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyExc_NameError' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyExc_RuntimeError' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyExc_SystemError' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyExc_TypeError' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyException_SetTraceback' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyFrame_New' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
@@ -204,37 +203,32 @@
     <elf-symbol name='PyInterpreterState_GetID' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyMem_Malloc' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyMem_Realloc' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
+    <elf-symbol name='PyMethod_Type' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyModuleDef_Init' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyModule_AddObject' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyModule_GetDict' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyModule_GetName' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyModule_NewObject' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyOS_snprintf' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyObject_Call' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_GetAttr' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_GetAttrString' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_GetOptionalAttr' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_Hash' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_IsTrue' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyObject_Not' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_SetAttr' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_SetAttrString' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
+    <elf-symbol name='PyObject_Vectorcall' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyThreadState_Get' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyThreadState_GetUnchecked' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyTraceBack_Here' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyTuple_New' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyTuple_Pack' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyUnicode_AsUTF8' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyUnicode_Decode' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyUnicode_FromFormat' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyUnicode_FromStringAndSize' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyUnicode_InternFromString' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='Py_EnterRecursiveCall' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='Py_LeaveRecursiveCall' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='Py_Version' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='_ITM_deregisterTMCloneTable' type='no-type' binding='weak-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='_ITM_registerTMCloneTable' type='no-type' binding='weak-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='_PyObject_GetDictPtr' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
+    <elf-symbol name='_PyDict_GetItem_KnownHash' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='_Py_Dealloc' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='_Py_FalseStruct' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='_Py_NoneStruct' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>

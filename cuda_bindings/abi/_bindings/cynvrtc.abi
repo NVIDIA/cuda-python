@@ -15,24 +15,27 @@
     <elf-symbol name='strrchr' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
   </undefined-elf-function-symbols>
   <undefined-elf-variable-symbols>
+    <elf-symbol name='PyArg_ValidateKeywordArguments' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyBaseObject_Type' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
+    <elf-symbol name='PyBytes_AsString' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyBytes_FromStringAndSize' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyCFunction_Type' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyCapsule_New' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyCode_NewEmpty' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyDict_GetItem' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
+    <elf-symbol name='PyDict_GetItemRef' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyDict_GetItemString' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyDict_GetItemWithError' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyDict_New' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyDict_Next' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
+    <elf-symbol name='PyDict_SetDefault' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
+    <elf-symbol name='PyDict_SetDefaultRef' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyDict_SetItem' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyDict_SetItemString' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyDict_Size' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
+    <elf-symbol name='PyDict_Type' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyErr_Clear' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyErr_ExceptionMatches' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyErr_Format' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyErr_NoMemory' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyErr_NormalizeException' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyErr_Occurred' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyErr_SetObject' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyErr_SetString' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
@@ -75,7 +78,6 @@
     <elf-symbol name='PyOS_snprintf' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_Call' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_ClearWeakRefs' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyObject_Free' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_GC_Del' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_GC_Track' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_GC_UnTrack' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
@@ -84,8 +86,6 @@
     <elf-symbol name='PyObject_GetOptionalAttr' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_Hash' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_IsTrue' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyObject_Not' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyObject_RichCompare' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_RichCompareBool' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_SetAttr' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyObject_SetAttrString' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
@@ -97,9 +97,8 @@
     <elf-symbol name='PyTuple_GetSlice' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyTuple_New' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyTuple_Pack' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyType_Ready' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyUnicode_AsUTF8' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyUnicode_Compare' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
+    <elf-symbol name='PyType_FromMetaclass' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
+    <elf-symbol name='PyType_Type' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyUnicode_Concat' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyUnicode_Decode' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyUnicode_FromFormat' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
@@ -108,14 +107,13 @@
     <elf-symbol name='PyUnicode_InternFromString' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyUnicode_Type' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='PyUnstable_Code_NewWithPosOnlyArgs' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='PyVectorcall_Function' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='Py_EnterRecursiveCall' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='Py_LeaveRecursiveCall' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='Py_Version' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='_ITM_deregisterTMCloneTable' type='no-type' binding='weak-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='_ITM_registerTMCloneTable' type='no-type' binding='weak-binding' visibility='default-visibility' is-defined='no'/>
+    <elf-symbol name='_PyDict_GetItem_KnownHash' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='_PyObject_GC_New' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
-    <elf-symbol name='_PyObject_GetDictPtr' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='_PyType_Lookup' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='_Py_Dealloc' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
     <elf-symbol name='_Py_FalseStruct' type='no-type' binding='global-binding' visibility='default-visibility' is-defined='no'/>
