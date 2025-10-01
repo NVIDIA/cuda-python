@@ -268,7 +268,7 @@ jobs:
           echo `which pytest`
           echo `which python`
           cat `which pytest`
-          if [[ $(abicheck.py check cuda.bindings cuda/bindings/abi/) ]]; then
+          if [[ $(python ci/tools/abicheck.py check cuda.bindings cuda/bindings/abi/) ]]; then
             echo "ABI check passed"
           else
             echo "ABI check failed"

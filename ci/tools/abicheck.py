@@ -68,6 +68,8 @@ def check(build_dir, abi_dir):
 
 
 if __name__ == "__main__":
+    print(f"Python executable: {sys.executable}")
+
     parser = argparse.ArgumentParser(description="Check or regenerate ABI files for a package")
     parser.add_argument("action", choices=["regenerate", "check"])
     parser.add_argument("package", help="Python package path containing .so files to check")
