@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
+
 # SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
-#!/usr/bin/env python3
 """
 Script to merge CUDA-specific wheels into a single multi-CUDA wheel.
 

@@ -155,7 +155,6 @@ jobs:
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
           if-no-files-found: error
 
-      # TODO: ideally we want to build against public cuda-bindings
       - name: Build cuda.core wheel
         uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6  # v3.1.4
         with:
@@ -289,7 +288,6 @@ jobs:
           cuda-version: ${{ inputs.prev-cuda-version }}
           cuda-path: "./cuda_toolkit_prev"
 
-      # TODO: ideally we want to build against public cuda-bindings
       - name: Download cuda.bindings build artifacts from the prior branch
         if: ${{ matrix.python-version == '3.13t'
                 || matrix.python-version == '3.14'

@@ -15,14 +15,14 @@ import importlib
 
 subdir = f"cu{cuda_major}"
 try:
-    verioned_mod = importlib.import_module(f".{subdir}", __package__)
+    versioned_mod = importlib.import_module(f".{subdir}", __package__)
     # Import all symbols from the module
-    globals().update(verioned_mod.__dict__)
+    globals().update(versioned_mod.__dict__)
 except ImportError:
     # This is not a wheel build, but a conda or local build, do nothing
     pass
 else:
-    del verioned_mod
+    del versioned_mod
 finally:
     del cuda.bindings, importlib, subdir, cuda_major, cuda_minor
 
