@@ -6,21 +6,23 @@ import struct
 import sys
 
 from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _FindNvidiaDynamicLib
-from cuda.pathfinder._dynamic_libs.load_dl_common import Distribution, LoadedDL, load_dependencies
+from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if IS_WINDOWS:
     from cuda.pathfinder._dynamic_libs.load_dl_windows import (
         check_if_already_loaded_from_elsewhere,
         load_with_abs_path,
+        load_with_system_search,
     )
 else:
     from cuda.pathfinder._dynamic_libs.load_dl_linux import (
         check_if_already_loaded_from_elsewhere,
         load_with_abs_path,
+        load_with_system_search,
     )
 
-from typing import Callable, Optional
+from typing import Optional
 
 
 def _load_lib_no_cache(libname: str) -> LoadedDL:
@@ -113,52 +115,55 @@ class _LoadNvidiaDynamicLib:
         self.finder = _FindNvidiaDynamicLib(libname)
         self.libname = self.finder.libname
 
-    def _load_with_dependencies(
-        self, get_path_func: Callable[[], Optional[LoadedDL]], dist_name: str
-    ) -> Optional[LoadedDL]:
+    def _maybe_return_loaded(self, check_if_loaded_from_elsewhere: bool = True) -> Optional[LoadedDL]:
         # If the library was already loaded by someone else, reproduce any OS-specific
         # side-effects we would have applied on a direct absolute-path load (e.g.,
-        # AddDllDirectory on Windows for libs that require it).
-        loaded = check_if_already_loaded_from_elsewhere(self.libname, True)
+        # AddDllDirectory on Windows for libs that re
+        loaded = check_if_already_loaded_from_elsewhere(self.libname, check_if_loaded_from_elsewhere)
 
         # Load dependencies regardless of who loaded the primary lib first.
         # Doing this *after* the side-effect ensures dependencies resolve consistently
         # relative to the actually loaded location.
         load_dependencies(self.libname, load_nvidia_dynamic_lib)
 
-        abs_path = get_path_func()
-        if abs_path is None:
-            return None
-
-        dist = Distribution(name=dist_name, version="unknown")
         if loaded is not None:
-            loaded.distribution = dist
             return loaded
-
-        dl = load_with_abs_path(self.libname, abs_path)
-        dl.distribution = dist
-        return dl
-
-    def _load_simple(self, get_path_func: Callable[[], Optional[LoadedDL]], dist_name: str) -> Optional[LoadedDL]:
-        abs_path = get_path_func()
-        if abs_path is None:
-            return None
-
-        dl = load_with_abs_path(self.libname, abs_path)
-        dl.distribution = Distribution(name=dist_name, version="unknown")
-        return dl
+        return None
 
     def load_with_site_packages(self) -> Optional[LoadedDL]:
-        return self._load_simple(self.finder.try_site_packages, "site-packages")
+        if loaded := self._maybe_return_loaded(True):
+            return loaded
+
+        abs_path = self.finder.try_site_packages()
+        if abs_path is None:
+            return None
+        return load_with_abs_path(self.libname, abs_path)
 
     def load_with_conda_prefix(self) -> Optional[LoadedDL]:
-        return self._load_simple(self.finder.try_with_conda_prefix, "conda")
+        if loaded := self._maybe_return_loaded(True):
+            return loaded
+
+        abs_path = self.finder.try_with_conda_prefix()
+        if abs_path is None:
+            return None
+        return load_with_abs_path(self.libname, abs_path)
 
     def load_with_system_search(self) -> Optional[LoadedDL]:
-        return self._load_with_dependencies(self.finder.try_with_system_search, "system")
+        if loaded := self._maybe_return_loaded(False):
+            return loaded
+        loaded = load_with_system_search(self.libname)
+        if loaded is not None:
+            return loaded
+        return None
 
     def load_with_cuda_home(self) -> Optional[LoadedDL]:
-        return self._load_with_dependencies(self.finder.try_with_cuda_home, "CUDA_HOME")
+        if loaded := self._maybe_return_loaded(False):
+            return loaded
+
+        abs_path = self.finder.try_with_cuda_home()
+        if abs_path is None:
+            return None
+        return load_with_abs_path(self.libname, abs_path)
 
     def load_lib(self) -> LoadedDL:
         dl = self.load_with_site_packages()
