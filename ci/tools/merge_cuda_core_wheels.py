@@ -48,8 +48,8 @@ def run_command(cmd: List[str], cwd: Path = None, env: dict = os.environ) -> sub
 
 def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
     """Merge multiple wheels into a single wheel with version-specific binaries."""
-    print("\n=== Merging wheels ===")
-    print(f"Input wheels: {[w.name for w in wheels]}")
+    print("\n=== Merging wheels ===", file=sys.stderr)
+    print(f"Input wheels: {[w.name for w in wheels]}", file=sys.stderr)
 
     if len(wheels) == 1:
         raise RuntimeError("only one wheel is provided, nothing to merge")
@@ -60,11 +60,11 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
         extracted_wheels = []
 
         for i, wheel in enumerate(wheels):
-            print(f"Extracting wheel {i + 1}/{len(wheels)}: {wheel.name}")
+            print(f"Extracting wheel {i + 1}/{len(wheels)}: {wheel.name}", file=sys.stderr)
             # Extract wheel - wheel unpack creates the directory itself
             run_command(
                 [
-                    "python",
+                    sys.executable,
                     "-m",
                     "wheel",
                     "unpack",
@@ -100,18 +100,18 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
             cuda_version = wheels[i].name.split(".cu")[1].split(".")[0]
             base_dir = Path("cuda") / "core" / "experimental"
             # Copy from other wheels
-            print(f"  Copying {wheel_dir} to {base_wheel}")
+            print(f"  Copying {wheel_dir} to {base_wheel}", file=sys.stderr)
             shutil.copytree(wheel_dir / base_dir, base_wheel / base_dir / f"cu{cuda_version}")
 
             # Overwrite the __init__.py in versioned dirs
-            open(base_wheel / base_dir / f"cu{cuda_version}" / "__init__.py", "w").close()
+            os.truncate(base_wheel / base_dir / f"cu{cuda_version}" / "__init__.py", 0)
 
         # The base dir should only contain __init__.py, the include dir, and the versioned dirs
-        files_to_remove = os.listdir(base_wheel / base_dir)
+        files_to_remove = os.scandir(base_wheel / base_dir)
         for f in files_to_remove:
-            f_abspath = base_wheel / base_dir / f
-            if f not in ("__init__.py", "cu12", "cu13", "include"):
-                if os.path.isdir(f_abspath):
+            f_abspath = f.path
+            if f.name not in ("__init__.py", "cu12", "cu13", "include"):
+                if f.is_dir():
                     shutil.rmtree(f_abspath)
                 else:
                     os.remove(f_abspath)
@@ -120,15 +120,12 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Create a clean wheel name without CUDA version suffixes
-        base_wheel_name = wheels[0].name
-        # Remove any .cu* suffix from the wheel name
-        if ".cu" in base_wheel_name:
-            base_wheel_name = base_wheel_name.split(".cu")[0] + ".whl"
+        base_wheel_name = wheels[0].with_suffix(".whl").name
 
-        print(f"Repacking merged wheel as: {base_wheel_name}")
+        print(f"Repacking merged wheel as: {base_wheel_name}", file=sys.stderr)
         run_command(
             [
-                "python",
+                sys.executable,
                 "-m",
                 "wheel",
                 "pack",
@@ -144,7 +141,7 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
             raise RuntimeError("Failed to create merged wheel")
 
         merged_wheel = output_wheels[0]
-        print(f"Successfully merged wheel: {merged_wheel}")
+        print(f"Successfully merged wheel: {merged_wheel}", file=sys.stderr)
         return merged_wheel
 
 
@@ -156,32 +153,32 @@ def main():
 
     args = parser.parse_args()
 
-    print("cuda.core Wheel Merger")
-    print("======================")
+    print("cuda.core Wheel Merger", file=sys.stderr)
+    print("======================", file=sys.stderr)
 
     # Convert wheel paths to Path objects and validate
     wheels = []
     for wheel_path in args.wheels:
         wheel = Path(wheel_path)
         if not wheel.exists():
-            print(f"Error: Wheel not found: {wheel}")
+            print(f"Error: Wheel not found: {wheel}", file=sys.stderr)
             sys.exit(1)
         if not wheel.name.endswith(".whl"):
-            print(f"Error: Not a wheel file: {wheel}")
+            print(f"Error: Not a wheel file: {wheel}", file=sys.stderr)
             sys.exit(1)
         wheels.append(wheel)
 
     if not wheels:
-        print("Error: No wheels provided")
+        print("Error: No wheels provided", file=sys.stderr)
         sys.exit(1)
 
     output_dir = Path(args.output_dir)
 
     # Check that we have wheel tool available
     try:
-        run_command(["python", "-m", "wheel", "--help"])
-    except Exception:
-        print("Error: wheel package not available. Install with: pip install wheel")
+        import wheel
+    except ImportError:
+        print("Error: wheel package not available. Install with: pip install wheel", file=sys.stderr)
         sys.exit(1)
 
     # Merge the wheels
