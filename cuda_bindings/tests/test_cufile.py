@@ -10,9 +10,8 @@ import platform
 import tempfile
 from contextlib import suppress
 from functools import cache
-
-import cuda.bindings.driver as cuda
 import pytest
+import cuda.bindings.driver as cuda
 
 # Configure logging to show INFO level and above
 logging.basicConfig(
@@ -1444,17 +1443,14 @@ def test_batch_io_large_operations():
     read_buffers = []
     all_buffers = []  # Initialize all_buffers to avoid UnboundLocalError
 
-    print("=== CUDA Memory Allocation ===")
     for i in range(num_operations):
         err, buf = cuda.cuMemAlloc(buf_size)
         assert err == cuda.CUresult.CUDA_SUCCESS
         write_buffers.append(buf)
-        print(f"Write buffer {i}: {hex(int(buf))} (4K aligned: {int(buf) % 4096 == 0})")
 
         err, buf = cuda.cuMemAlloc(buf_size)
         assert err == cuda.CUresult.CUDA_SUCCESS
         read_buffers.append(buf)
-        print(f"Read buffer {i}: {hex(int(buf))} (4K aligned: {int(buf) % 4096 == 0})")
 
     # Allocate host memory for data verification
     host_buf = ctypes.create_string_buffer(buf_size)
@@ -1797,8 +1793,8 @@ def test_batch_io_large_operations():
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
-def test_get_parameter_bool():
-    """Test setting and getting boolean parameters with cuFile validation."""
+def test_set_get_parameter_size_t():
+    """Test setting and getting size_t parameters with cuFile validation."""
 
     # Initialize CUDA
     (err,) = cuda.cuInit(0)
@@ -1813,67 +1809,92 @@ def test_get_parameter_bool():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
     try:
-        # Test setting and getting various boolean parameters
+        # Test setting and getting various size_t parameters
 
-        # Test poll mode
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE)
-        assert retrieved_value is True, f"Poll mode mismatch: set True, got {retrieved_value}"
+        # Test poll threshold size (in KB)
+        poll_threshold_kb = 64  # 64KB threshold
+        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.POLLTHRESHOLD_SIZE_KB, poll_threshold_kb)
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.POLLTHRESHOLD_SIZE_KB)
+        assert retrieved_value == poll_threshold_kb, (
+            f"Poll threshold mismatch: set {poll_threshold_kb}, got {retrieved_value}"
+        )
 
-        # Test compatibility mode
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE, False)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE)
-        assert retrieved_value is False, f"Compatibility mode mismatch: set False, got {retrieved_value}"
+        # Test max direct IO size (in KB)
+        max_direct_io_kb = 1024  # 1MB max direct IO size
+        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DIRECT_IO_SIZE_KB, max_direct_io_kb)
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DIRECT_IO_SIZE_KB)
+        assert retrieved_value == max_direct_io_kb, (
+            f"Max direct IO size mismatch: set {max_direct_io_kb}, got {retrieved_value}"
+        )
 
-        # Test force compatibility mode
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.FORCE_COMPAT_MODE, False)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_COMPAT_MODE)
-        assert retrieved_value is False, f"Force compatibility mode mismatch: set False, got {retrieved_value}"
+        # Test max device cache size (in KB)
+        max_cache_kb = 512  # 512KB max cache size
+        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB, max_cache_kb)
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB)
+        assert retrieved_value == max_cache_kb, f"Max cache size mismatch: set {max_cache_kb}, got {retrieved_value}"
 
-        # Test aggressive API check
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE)
-        assert retrieved_value is True, f"Aggressive API check mismatch: set True, got {retrieved_value}"
+        # Test per buffer cache size (in KB)
+        per_buffer_cache_kb = 128  # 128KB per buffer cache
+        cufile.set_parameter_size_t(
+            cufile.SizeTConfigParameter.PROPERTIES_PER_BUFFER_CACHE_SIZE_KB, per_buffer_cache_kb
+        )
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_PER_BUFFER_CACHE_SIZE_KB)
+        assert retrieved_value == per_buffer_cache_kb, (
+            f"Per buffer cache size mismatch: set {per_buffer_cache_kb}, got {retrieved_value}"
+        )
 
-        # Test parallel IO
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.EXECUTION_PARALLEL_IO, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.EXECUTION_PARALLEL_IO)
-        assert retrieved_value is True, f"Parallel IO mismatch: set True, got {retrieved_value}"
+        # Test max device pinned memory size (in KB)
+        max_pinned_kb = 2048  # 2MB max pinned memory
+        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB, max_pinned_kb)
+        retrieved_value = cufile.get_parameter_size_t(
+            cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB
+        )
+        assert retrieved_value == max_pinned_kb, (
+            f"Max pinned memory size mismatch: set {max_pinned_kb}, got {retrieved_value}"
+        )
 
-        # Test NVTX profiling
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROFILE_NVTX, False)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROFILE_NVTX)
-        assert retrieved_value is False, f"NVTX profiling mismatch: set False, got {retrieved_value}"
+        # Test IO batch size
+        batch_size = 16  # 16 operations per batch
+        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_IO_BATCHSIZE, batch_size)
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_IO_BATCHSIZE)
+        assert retrieved_value == batch_size, f"IO batch size mismatch: set {batch_size}, got {retrieved_value}"
 
-        # Test system memory allowance
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY)
-        assert retrieved_value is True, f"System memory allowance mismatch: set True, got {retrieved_value}"
+        # Test batch IO timeout (in milliseconds)
+        timeout_ms = 5000  # 5 second timeout
+        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_BATCH_IO_TIMEOUT_MS, timeout_ms)
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_BATCH_IO_TIMEOUT_MS)
+        assert retrieved_value == timeout_ms, f"Batch IO timeout mismatch: set {timeout_ms}, got {retrieved_value}"
 
-        # Test PCI P2P DMA
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.USE_PCIP2PDMA, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.USE_PCIP2PDMA)
-        assert retrieved_value is True, f"PCI P2P DMA mismatch: set True, got {retrieved_value}"
+        # Test execution parameters
+        max_io_queue_depth = 32  # Max 32 operations in queue
+        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_QUEUE_DEPTH, max_io_queue_depth)
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_QUEUE_DEPTH)
+        assert retrieved_value == max_io_queue_depth, (
+            f"Max IO queue depth mismatch: set {max_io_queue_depth}, got {retrieved_value}"
+        )
 
-        # Test IO uring preference
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.PREFER_IO_URING, False)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PREFER_IO_URING)
-        assert retrieved_value is False, f"IO uring preference mismatch: set False, got {retrieved_value}"
+        max_io_threads = 8  # Max 8 IO threads
+        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_THREADS, max_io_threads)
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_THREADS)
+        assert retrieved_value == max_io_threads, (
+            f"Max IO threads mismatch: set {max_io_threads}, got {retrieved_value}"
+        )
 
-        # Test force O_DIRECT mode
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.FORCE_ODIRECT_MODE, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_ODIRECT_MODE)
-        assert retrieved_value is True, f"Force O_DIRECT mode mismatch: set True, got {retrieved_value}"
+        min_io_threshold_kb = 4  # 4KB minimum IO threshold
+        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MIN_IO_THRESHOLD_SIZE_KB, min_io_threshold_kb)
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MIN_IO_THRESHOLD_SIZE_KB)
+        assert retrieved_value == min_io_threshold_kb, (
+            f"Min IO threshold mismatch: set {min_io_threshold_kb}, got {retrieved_value}"
+        )
 
-        # Test topology detection skip
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION, False)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION)
-        assert retrieved_value is False, f"Topology detection skip mismatch: set False, got {retrieved_value}"
-
-        # Test stream memops bypass
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS)
-        assert retrieved_value is True, f"Stream memops bypass mismatch: set True, got {retrieved_value}"
+        max_request_parallelism = 4  # Max 4 parallel requests
+        cufile.set_parameter_size_t(
+            cufile.SizeTConfigParameter.EXECUTION_MAX_REQUEST_PARALLELISM, max_request_parallelism
+        )
+        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_REQUEST_PARALLELISM)
+        assert retrieved_value == max_request_parallelism, (
+            f"Max request parallelism mismatch: set {max_request_parallelism}, got {retrieved_value}"
+        )
 
     finally:
         cuda.cuDevicePrimaryCtxRelease(device)
@@ -1882,7 +1903,8 @@ def test_get_parameter_bool():
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
-def test_get_parameter_string():
+
+def test_set_get_parameter_string():
     """Test setting and getting string parameters with cuFile validation."""
 
     # Initialize CUDA
@@ -1963,7 +1985,6 @@ def test_get_parameter_string():
 
     finally:
         cuda.cuDevicePrimaryCtxRelease(device)
-
 
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
