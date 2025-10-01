@@ -261,14 +261,18 @@ jobs:
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
         run: run-tests pathfinder
 
+      - name: Run cuda.bindings tests
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
+        env:
+          CUDA_VER: ${{ matrix.CUDA_VER }}
+          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
+        run: run-tests bindings
+
       - name: Check cuda.bindings ABI compatibility
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' && matrix.PY_VER == '3.13' }}
         id: abicheck
         run: |
-          echo `which pytest`
-          echo `which python`
-          cat `which pytest`
-          if [[ $(python ci/tools/abicheck.py check cuda.bindings cuda/bindings/abi/) ]]; then
+          if [ python ci/tools/abicheck.py check cuda.bindings cuda/bindings/abi/ ]; then
             echo "ABI check passed"
           else
             echo "ABI check failed"
@@ -286,13 +290,6 @@ jobs:
           name: cuda_bindings_abi
           path: new-abi
           if-no-files-found: error
-
-      - name: Run cuda.bindings tests
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
-        env:
-          CUDA_VER: ${{ matrix.CUDA_VER }}
-          LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
-        run: run-tests bindings
 
       - name: Run cuda.core tests
         env:
