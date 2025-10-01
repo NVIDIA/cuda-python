@@ -272,14 +272,14 @@ jobs:
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' && matrix.PY_VER == '3.13' }}
         id: abicheck
         run: |
-          if [ python ci/tools/abicheck.py check cuda.bindings cuda/bindings/abi/ ]; then
+          if (python ci/tools/abicheck.py check cuda.bindings cuda/bindings/abi/); then
             echo "ABI check passed"
           else
             echo "ABI check failed"
             echo "The changed ABI data from this PR is in the cuda_bindings_abi artifact."
             echo "If these changes are expected, copy the files in that artifact to cuda/bindings/abi/"
             echo "and commit the changes."
-            abicheck.py regenerate cuda.bindings new-abi
+            python ci/tools/abicheck.py regenerate cuda.bindings new-abi/
             exit 1
           fi
 
