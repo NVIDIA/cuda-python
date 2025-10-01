@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import ctypes
-import importlib
 import sys
 import weakref
 from contextlib import contextmanager
@@ -41,7 +40,7 @@ def _decide_nvjitlink_or_driver() -> bool:
     _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
 
     try:
-        _nvjitlink = importlib.import_module("cuda.bindings.nvjitlink")
+        import cuda.bindings.nvjitlink as _nvjitlink
     except ModuleNotFoundError:
         warn_txt = "cuda.bindings.nvjitlink is not available, therefore"
     else:
