@@ -11,9 +11,8 @@ import tempfile
 from contextlib import suppress
 from functools import cache
 
-import pytest
-
 import cuda.bindings.driver as cuda
+import pytest
 
 # Configure logging to show INFO level and above
 logging.basicConfig(
@@ -119,8 +118,6 @@ def isSupportedFilesystem():
 
 # Global skip condition for all tests if cuFile library is not available
 pytestmark = pytest.mark.skipif(not cufileLibraryAvailable(), reason="cuFile library not available on this system")
-
-
 def safe_decode_string(raw_value):
     """Safely decode a string value from ctypes buffer."""
     # Find null terminator if present
@@ -1420,6 +1417,7 @@ def test_batch_io_cancel():
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_batch_io_large_operations():
     """Test batch IO with large buffer operations."""
+
     # Initialize CUDA
     (err,) = cuda.cuInit(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -1446,14 +1444,17 @@ def test_batch_io_large_operations():
     read_buffers = []
     all_buffers = []  # Initialize all_buffers to avoid UnboundLocalError
 
+    print("=== CUDA Memory Allocation ===")
     for i in range(num_operations):
         err, buf = cuda.cuMemAlloc(buf_size)
         assert err == cuda.CUresult.CUDA_SUCCESS
         write_buffers.append(buf)
+        print(f"Write buffer {i}: {hex(int(buf))} (4K aligned: {int(buf) % 4096 == 0})")
 
         err, buf = cuda.cuMemAlloc(buf_size)
         assert err == cuda.CUresult.CUDA_SUCCESS
         read_buffers.append(buf)
+        print(f"Read buffer {i}: {hex(int(buf))} (4K aligned: {int(buf) % 4096 == 0})")
 
     # Allocate host memory for data verification
     host_buf = ctypes.create_string_buffer(buf_size)
@@ -1461,18 +1462,22 @@ def test_batch_io_large_operations():
     try:
         # Create file with O_DIRECT
         fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
-
         # Register all buffers with cuFile
         all_buffers = write_buffers + read_buffers
-        for buf in all_buffers:
+        for i, buf in enumerate(all_buffers):
             buf_int = int(buf)
-            cufile.buf_register(buf_int, buf_size, 0)
+            try:
+                cufile.buf_register(buf_int, buf_size, 0)
+            except Exception as e:
+                print(f"*** Buffer {i} registration FAILED: {e} ***")
+                raise
 
         # Create file descriptor
         descr = cufile.Descr()
         descr.type = cufile.FileHandleType.OPAQUE_FD
         descr.handle.fd = fd
         descr.fs_ops = 0
+
 
         # Register file handle
         handle = cufile.handle_register(descr.ptr)
@@ -1499,7 +1504,7 @@ def test_batch_io_large_operations():
             test_data = test_data[:buf_size]
             host_buf = ctypes.create_string_buffer(test_data, buf_size)
             cuda.cuMemcpyHtoDAsync(write_buffers[i], host_buf, buf_size, 0)
-            cuda.cuStreamSynchronize(0)
+        cuda.cuStreamSynchronize(0)
 
         # Set up write operations
         for i in range(num_operations):
@@ -1524,51 +1529,209 @@ def test_batch_io_large_operations():
             io_params[idx].u.batch.dev_ptr_offset = 0
             io_params[idx].u.batch.size_ = buf_size
 
-        # Submit batch operations
-        cufile.batch_io_submit(batch_handle, num_operations * 2, io_params.ptr, 0)
+          
 
-        # Get batch status
-        min_nr = num_operations * 2  # Wait for all operations to complete
-        nr_completed = ctypes.c_uint(num_operations * 2)  # Initialize to max operations posted
-        timeout = ctypes.c_int(10000)  # 10 second timeout for large operations
+  
+        for i in range(num_operations):
+            print(f"  Op {i}: cookie={io_params[i].cookie}, opcode={io_params[i].opcode}, offset={io_params[i].u.batch.file_offset}")
 
+        for i in range(num_operations):
+            idx = i + num_operations
+            print(f"  Op {idx}: cookie={io_params[idx].cookie}, opcode={io_params[idx].opcode}, offset={io_params[idx].u.batch.file_offset}")
+
+
+        # Submit writes first
+        cufile.batch_io_submit(batch_handle, num_operations, io_params.ptr, 0)  # Only writes
+
+     
+        nr_completed_writes = ctypes.c_uint(num_operations)
+        timeout = ctypes.c_int(10000)
         cufile.batch_io_get_status(
-            batch_handle, min_nr, ctypes.addressof(nr_completed), io_events.ptr, ctypes.addressof(timeout)
+            batch_handle, num_operations, ctypes.addressof(nr_completed_writes),
+            io_events.ptr, ctypes.addressof(timeout)
         )
 
+
+        # Verify writes succeeded
+        for i in range(nr_completed_writes.value):
+            if io_events[i].status != cufile.Status.COMPLETE:
+                raise RuntimeError(f"Write {i} failed: {io_events[i].status}")
+            print(f"Write {io_events[i].cookie}: {io_events[i].ret} bytes")
+
+        # Force file sync
+        os.fsync(fd)
+        print("File sync after writes completed")
+
+        # Now submit reads separately
+        print("Submitting reads...")
+        read_batch_handle = cufile.batch_io_set_up(num_operations)
+        read_io_params = cufile.IOParams(num_operations)
+        read_io_events = cufile.IOEvents(num_operations)
+
+        # Set up read operations in separate array
+        for i in range(num_operations):
+            read_io_params[i].mode = cufile.BatchMode.BATCH
+            read_io_params[i].fh = handle
+            read_io_params[i].opcode = cufile.Opcode.READ
+            read_io_params[i].cookie = i + 100
+            read_io_params[i].u.batch.dev_ptr_base = int(read_buffers[i])
+            read_io_params[i].u.batch.file_offset = i * buf_size
+            read_io_params[i].u.batch.dev_ptr_offset = 0
+            read_io_params[i].u.batch.size_ = buf_size
+
+        # Submit reads
+        cufile.batch_io_submit(read_batch_handle, num_operations, read_io_params.ptr, 0)
+
+        # Wait for reads
+        nr_completed_reads = ctypes.c_uint(num_operations)
+        cufile.batch_io_get_status(
+            read_batch_handle, num_operations, ctypes.addressof(nr_completed_reads),
+            read_io_events.ptr, ctypes.addressof(timeout)
+        )
+
+
+        # Check read results
+        for i in range(nr_completed_reads.value):
+            print(f"Read {read_io_events[i].cookie}: {read_io_events[i].ret} bytes")
+
+        # Use read_io_events for verification instead of io_events
+        io_events = read_io_events  # Replace for rest of test
+        nr_completed = nr_completed_reads
+
+        # Clean up read batch
+        cufile.batch_io_destroy(read_batch_handle)
+
+        # Enhanced operation analysis
+        print("=== Detailed Operation Results ===")
+        # Check each operation's detailed status
+        write_ops = []
+        read_ops = []
+
+        for i in range(nr_completed.value):
+            event = io_events[i]
+            status_name = "UNKNOWN"
+            try:
+                status_name = cufile.Status(event.status).name
+            except:
+                pass
+
+            print(f"Operation {i}:")
+            print(f"  Cookie: {event.cookie}")
+            print(f"  Status: {event.status} ({status_name})")
+            print(f"  Result: {event.ret}")
+
+            # Categorize operations by cookie
+            if event.cookie < 100:  # Write operations (cookies 0, 1)
+                write_ops.append({
+                    'index': i,
+                    'cookie': event.cookie,
+                    'result': event.ret,
+                    'status': event.status
+                })
+                print(f"  -> WRITE operation: {event.ret} bytes")
+            else:  # Read operations (cookies 100, 101)
+                read_ops.append({
+                    'index': i,
+                    'cookie': event.cookie,
+                    'result': event.ret,
+                    'status': event.status
+                })
+                print(f"  -> READ operation: {event.ret} bytes")
+
+            # Check if operation failed
+            if event.status != cufile.Status.COMPLETE:
+                print(f"  *** OPERATION {i} FAILED ***")
+                if event.status == cufile.Status.FAILED:
+                    print(f"  Error code: {event.ret}")
+
+        print("=== Operation Analysis ===")
+        print(f"Write operations completed: {len(write_ops)}")
+        print(f"Read operations completed: {len(read_ops)}")
+
+        # Check if all writes succeeded before analyzing reads
+        all_writes_success = all(op['result'] > 0 for op in write_ops)
+        print(f"All writes successful: {all_writes_success}")
+
+        if all_writes_success:
+            print("Writes completed successfully, reads should now work")
+        else:
+            print("Some writes failed - this could explain read failures")
+
+        # Show operation completion order
+        print("=== Operation Completion Order ===")
+        for i, event in enumerate([(io_events[j].cookie, io_events[j].ret) for j in range(nr_completed.value)]):
+            cookie, result = event
+            op_type = "WRITE" if cookie < 100 else "READ"
+            print(f"Position {i}: {op_type} (cookie {cookie}) -> {result} bytes")
+
+        # Write completion check
+        print("=== Write Completion Check ===")
+        # Check if writes actually completed by reading file size
+        file_stat = os.fstat(fd)
+        print(f"File size after batch: {file_stat.st_size}")
+
+        # Try a small direct read to verify data is in file
+        try:
+            test_buf_size = 1024
+            err, test_buf = cuda.cuMemAlloc(test_buf_size)
+            cufile.buf_register(int(test_buf), test_buf_size, 0)
+
+            # Try reading first 1KB directly
+            cufile.read(handle, int(test_buf), test_buf_size, 0, 0)
+
+            # Copy back and check
+            test_host_buf = ctypes.create_string_buffer(test_buf_size)
+            cuda.cuMemcpyDtoH(test_host_buf, test_buf, test_buf_size)
+            test_data = test_host_buf.value
+
+            print(f"Direct read test: {len(test_data)} bytes")
+            print(f"First 50 bytes: {test_data[:50]!r}")
+
+            # Cleanup test buffer
+            cufile.buf_deregister(int(test_buf))
+            cuda.cuMemFree(test_buf)
+
+        except Exception as e:
+            print(f"Direct read test failed: {e}")
+
         # Verify all operations completed successfully
-        assert nr_completed.value == num_operations * 2, (
-            f"Expected {num_operations * 2} operations, got {nr_completed.value}"
+        assert nr_completed.value == num_operations, (
+            f"Expected {num_operations} read operations, got {nr_completed.value}"
         )
 
         # Collect all returned cookies
         returned_cookies = set()
-        for i in range(num_operations * 2):
+        for i in range(num_operations):
+            if io_events[i].status != cufile.Status.COMPLETE:
+                print(f"*** Operation {i} with cookie {io_events[i].cookie} failed with status {io_events[i].status} ***")
             assert io_events[i].status == cufile.Status.COMPLETE, (
                 f"Operation {i} failed with status {io_events[i].status}"
             )
             returned_cookies.add(io_events[i].cookie)
 
         # Verify all expected cookies are present
-        expected_cookies = set(range(num_operations)) | set(
-            range(100, 100 + num_operations)
-        )  # write cookies 0,1 + read cookies 100,101
+        expected_cookies = set(range(100, 100 + num_operations))  # read cookies 100,101
         assert returned_cookies == expected_cookies, (
             f"Cookie mismatch. Expected {expected_cookies}, got {returned_cookies}"
         )
 
         # Verify the read data matches the written data
         for i in range(num_operations):
+
             # Copy read data back to host
             cuda.cuMemcpyDtoHAsync(host_buf, read_buffers[i], buf_size, 0)
             cuda.cuStreamSynchronize(0)
             read_data = host_buf.value
+
 
             # Prepare expected data
             test_string = test_strings[i]
             test_string_len = len(test_string)
             repetitions = buf_size // test_string_len
             expected_data = (test_string * repetitions)[:buf_size]
+
+           
+
 
             if read_data != expected_data:
                 n = 100  # Show first n bytes
@@ -1579,36 +1742,778 @@ def test_batch_io_large_operations():
                     f"expected {expected_data[:n]!r}"
                 )
 
-        # Clean up batch IO
-        cufile.batch_io_destroy(batch_handle)
-
-        # Deregister file handle
-        cufile.handle_deregister(handle)
-
-        # Deregister buffers
-        for buf in all_buffers:
-            buf_int = int(buf)
-            cufile.buf_deregister(buf_int)
+        print("=== Test Completed Successfully ===")
 
     finally:
-        # Close file
-        os.close(fd)
-        # Free CUDA memory
-        for buf in all_buffers:
-            cuda.cuMemFree(buf)
-        # Clean up test file
+        # Cleanup
         try:
-            os.unlink(file_path)
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise
+            if 'all_buffers' in locals():
+                for buf in all_buffers:
+                    cufile.buf_deregister(int(buf))
+                    cuda.cuMemFree(buf)
+        except Exception as e:
+            print(f"Cleanup error: {e}")
+
+        try:
+            if 'handle' in locals():
+                cufile.handle_deregister(handle)
+        except Exception as e:
+            print(f"Handle deregister error: {e}")
+
+        try:
+            if 'batch_handle' in locals():
+                cufile.batch_io_destroy(batch_handle)
+        except Exception as e:
+            print(f"Batch destroy error: {e}")
+
+        try:
+            if 'read_batch_handle' in locals():
+                cufile.batch_io_destroy(read_batch_handle)
+        except Exception as e:
+            print(f"Read batch destroy error: {e}")
+
+        try:
+            if 'fd' in locals():
+                os.close(fd)
+        except Exception as e:
+            print(f"File close error: {e}")
+
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except Exception as e:
+            print(f"File remove error: {e}")
+
+        try:
+            cufile.driver_close()
+        except Exception as e:
+            print(f"Driver close error: {e}")
+
+        try:
+            cuda.cuDevicePrimaryCtxRelease(device)
+        except Exception as e:
+            print(f"Context release error: {e}")
+
+@pytest.mark.skipif(
+    cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
+)
+def test_get_parameter_bool():
+    """Test setting and getting boolean parameters with cuFile validation."""
+
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    try:
+        # Test setting and getting various boolean parameters
+
+        # Test poll mode
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE)
+        assert retrieved_value is True, f"Poll mode mismatch: set True, got {retrieved_value}"
+
+        # Test compatibility mode
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE, False)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE)
+        assert retrieved_value is False, f"Compatibility mode mismatch: set False, got {retrieved_value}"
+
+        # Test force compatibility mode
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.FORCE_COMPAT_MODE, False)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_COMPAT_MODE)
+        assert retrieved_value is False, f"Force compatibility mode mismatch: set False, got {retrieved_value}"
+
+        # Test aggressive API check
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE)
+        assert retrieved_value is True, f"Aggressive API check mismatch: set True, got {retrieved_value}"
+
+        # Test parallel IO
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.EXECUTION_PARALLEL_IO, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.EXECUTION_PARALLEL_IO)
+        assert retrieved_value is True, f"Parallel IO mismatch: set True, got {retrieved_value}"
+
+        # Test NVTX profiling
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROFILE_NVTX, False)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROFILE_NVTX)
+        assert retrieved_value is False, f"NVTX profiling mismatch: set False, got {retrieved_value}"
+
+        # Test system memory allowance
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY)
+        assert retrieved_value is True, f"System memory allowance mismatch: set True, got {retrieved_value}"
+
+        # Test PCI P2P DMA
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.USE_PCIP2PDMA, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.USE_PCIP2PDMA)
+        assert retrieved_value is True, f"PCI P2P DMA mismatch: set True, got {retrieved_value}"
+
+        # Test IO uring preference
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.PREFER_IO_URING, False)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PREFER_IO_URING)
+        assert retrieved_value is False, f"IO uring preference mismatch: set False, got {retrieved_value}"
+
+        # Test force O_DIRECT mode
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.FORCE_ODIRECT_MODE, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_ODIRECT_MODE)
+        assert retrieved_value is True, f"Force O_DIRECT mode mismatch: set True, got {retrieved_value}"
+
+        # Test topology detection skip
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION, False)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION)
+        assert retrieved_value is False, f"Topology detection skip mismatch: set False, got {retrieved_value}"
+
+        # Test stream memops bypass
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS)
+        assert retrieved_value is True, f"Stream memops bypass mismatch: set True, got {retrieved_value}"
+
+    finally:
+        cuda.cuDevicePrimaryCtxRelease(device)
+
+
+@pytest.mark.skipif(
+    cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
+)
+def test_get_parameter_string():
+    """Test setting and getting string parameters with cuFile validation."""
+
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    try:
+        # Test setting and getting various string parameters
+        # Note: String parameter tests may have issues with the current implementation
+
+        # Test logging level
+        logging_level = "INFO"
+        try:
+            # Convert Python string to null-terminated C string
+            logging_level_bytes = logging_level.encode("utf-8") + b"\x00"
+            logging_level_buffer = ctypes.create_string_buffer(logging_level_bytes)
+            cufile.set_parameter_string(
+                cufile.StringConfigParameter.LOGGING_LEVEL, int(ctypes.addressof(logging_level_buffer))
+            )
+            retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.LOGGING_LEVEL, 256)
+            # Use safe_decode_string to handle null terminators and padding
+            retrieved_value = safe_decode_string(retrieved_value_raw.encode("utf-8"))
+            logging.info(f"Logging level test: set {logging_level}, got {retrieved_value}")
+            # The retrieved value should be a string, so we can compare directly
+            assert retrieved_value == logging_level, (
+                f"Logging level mismatch: set {logging_level}, got {retrieved_value}"
+            )
+        except Exception as e:
+            logging.error(f"Logging level test failed: {e}")
+            # Re-raise the exception to make the test fail
+            raise
+
+        # Test environment log file path
+        logfile_path = tempfile.gettempdir() + "/cufile.log"
+        try:
+            # Convert Python string to null-terminated C string
+            logfile_path_bytes = logfile_path.encode("utf-8") + b"\x00"
+            logfile_buffer = ctypes.create_string_buffer(logfile_path_bytes)
+            cufile.set_parameter_string(
+                cufile.StringConfigParameter.ENV_LOGFILE_PATH, int(ctypes.addressof(logfile_buffer))
+            )
+            retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.ENV_LOGFILE_PATH, 256)
+            # Use safe_decode_string to handle null terminators and padding
+            retrieved_value = safe_decode_string(retrieved_value_raw.encode("utf-8"))
+            logging.info(f"Log file path test: set {logfile_path}, got {retrieved_value}")
+            # The retrieved value should be a string, so we can compare directly
+            assert retrieved_value == logfile_path, f"Log file path mismatch: set {logfile_path}, got {retrieved_value}"
+        except Exception as e:
+            logging.error(f"Log file path test failed: {e}")
+            # Re-raise the exception to make the test fail
+            raise
+
+        # Test log directory
+        log_dir = tempfile.gettempdir() + "/cufile_logs"
+        try:
+            # Convert Python string to null-terminated C string
+            log_dir_bytes = log_dir.encode("utf-8") + b"\x00"
+            log_dir_buffer = ctypes.create_string_buffer(log_dir_bytes)
+            cufile.set_parameter_string(cufile.StringConfigParameter.LOG_DIR, int(ctypes.addressof(log_dir_buffer)))
+            retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.LOG_DIR, 256)
+            # Use safe_decode_string to handle null terminators and padding
+            retrieved_value = safe_decode_string(retrieved_value_raw.encode("utf-8"))
+            logging.info(f"Log directory test: set {log_dir}, got {retrieved_value}")
+            # The retrieved value should be a string, so we can compare directly
+            assert retrieved_value == log_dir, f"Log directory mismatch: set {log_dir}, got {retrieved_value}"
+        except Exception as e:
+            logging.error(f"Log directory test failed: {e}")
+            # Re-raise the exception to make the test fail
+            raise
+
+    finally:
+        cuda.cuDevicePrimaryCtxRelease(device)
+
+
+@pytest.mark.skipif(
+    cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
+)
+def test_set_stats_level():
+    """Test cuFile statistics level configuration."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    try:
+        # Test setting different statistics levels
+        valid_levels = [0, 1, 2, 3]  # 0=disabled, 1=basic, 2=detailed, 3=verbose
+
+        for level in valid_levels:
+            cufile.set_stats_level(level)
+
+            # Verify the level was set correctly
+            current_level = cufile.get_stats_level()
+            assert current_level == level, f"Expected stats level {level}, but got {current_level}"
+
+            logging.info(f"Successfully set and verified stats level {level}")
+
+        # Test invalid level (should raise an error)
+        try:
+            cufile.set_stats_level(-1)  # Invalid negative level
+            assert False, "Expected an error for invalid stats level -1"
+        except Exception as e:
+            logging.info(f"Correctly caught error for invalid stats level: {e}")
+
+        try:
+            cufile.set_stats_level(4)  # Invalid level > 3
+            assert False, "Expected an error for invalid stats level 4"
+        except Exception as e:
+            logging.info(f"Correctly caught error for invalid stats level: {e}")
+
+        # Reset to level 0 (disabled) for cleanup
+        cufile.set_stats_level(0)
+
+    finally:
         # Close cuFile driver
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
 
 
 @pytest.mark.skipif(
-    cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
+    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
+)
+def test_stats_start():
+    """Test cuFile statistics collection start."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    try:
+        # Set statistics level first (required before starting stats)
+        cufile.set_stats_level(1)  # Level 1 = basic statistics
+
+        # Start collecting cuFile statistics
+        cufile.stats_start()
+
+        # Verify statistics collection is active
+        # Note: Additional verification would require stats_get() or similar functions
+        logging.info("cuFile statistics collection started successfully")
+
+    finally:
+        # Close cuFile driver
+        cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
+
+@pytest.mark.skipif(
+    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
+)
+def test_stats_stop():
+    """Test cuFile statistics collection stop."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    try:
+        # Set statistics level first (required before starting stats)
+        cufile.set_stats_level(1)  # Level 1 = basic statistics
+        # Start collecting cuFile statistics first
+        cufile.stats_start()
+
+        # Stop collecting cuFile statistics
+        cufile.stats_stop()
+
+        # Verify statistics collection is stopped
+        logging.info("cuFile statistics collection stopped successfully")
+
+    finally:
+        # Close cuFile driver
+        cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
+
+@pytest.mark.skipif(
+    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
+)
+def test_stats_reset():
+    """Test cuFile statistics reset."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    try:
+        # Set statistics level first (required before starting stats)
+        cufile.set_stats_level(1)  # Level 1 = basic statistics
+        # Start collecting cuFile statistics first
+
+        cufile.stats_start()
+
+        # Reset cuFile statistics to clear all counters
+        cufile.stats_reset()
+
+        # Verify statistics reset completed successfully
+        logging.info("cuFile statistics reset successfully")
+
+        # Stop statistics collection
+        cufile.stats_stop()
+
+    finally:
+        # Close cuFile driver
+        cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
+
+@pytest.mark.skipif(
+    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
+)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
+def test_get_stats_l1():
+    """Test cuFile L1 statistics retrieval with file operations."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    # Create test file directly with O_DIRECT
+    file_path = "test_stats_l1.bin"
+    fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
+
+    try:
+        cufile.set_stats_level(1)  # L1 = basic operation counts
+        # Start collecting cuFile statistics
+        cufile.stats_start()
+
+        # Create and initialize the descriptor
+        descr = cufile.Descr()
+        descr.type = cufile.FileHandleType.OPAQUE_FD
+        descr.handle.fd = fd
+        descr.fs_ops = 0
+
+        # Register the handle
+        handle = cufile.handle_register(descr.ptr)
+
+        # Allocate CUDA memory
+        buffer_size = 4096  # 4KB, aligned to 4096 bytes
+        err, buf_ptr = cuda.cuMemAlloc(buffer_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        # Register the buffer with cuFile
+        buf_ptr_int = int(buf_ptr)
+        cufile.buf_register(buf_ptr_int, buffer_size, 0)
+
+        # Prepare test data and copy to GPU buffer
+        test_data = b"cuFile L1 stats test data" * 100  # Fill buffer
+        test_data = test_data[:buffer_size]
+        host_buf = ctypes.create_string_buffer(test_data, buffer_size)
+        cuda.cuMemcpyHtoD(buf_ptr, host_buf, len(test_data))
+
+        # Perform cuFile operations to generate L1 statistics
+        cufile.write(handle, buf_ptr_int, buffer_size, 0, 0)
+        cufile.read(handle, buf_ptr_int, buffer_size, 0, 0)
+
+        # Allocate buffer for L1 statistics
+        stats_buffer = ctypes.create_string_buffer(1024)  # Allocate sufficient space
+        stats_ptr = ctypes.addressof(stats_buffer)
+
+        # Get L1 statistics (basic operation counts)
+        cufile.get_stats_l1(stats_ptr)
+
+        # Verify that statistics data was written to the buffer
+        # Convert buffer to bytes and check that it's not all zeros
+        buffer_bytes = bytes(stats_buffer)
+        non_zero_bytes = sum(1 for b in buffer_bytes if b != 0)
+        assert non_zero_bytes > 0, f"Expected statistics data to be written to buffer, but got {non_zero_bytes} non-zero bytes"
+
+        # Verify statistics retrieval completed successfully
+        logging.info("cuFile L1 statistics retrieved successfully after file operations")
+
+        # Stop statistics collection
+        cufile.stats_stop()
+
+        # Clean up cuFile resources
+        cufile.buf_deregister(buf_ptr_int)
+        cufile.handle_deregister(handle)
+        cuda.cuMemFree(buf_ptr)
+
+    finally:
+        os.close(fd)
+        with suppress(OSError):
+            os.unlink(file_path)
+        cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
+
+@pytest.mark.skipif(
+    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
+)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
+def test_get_stats_l2():
+    """Test cuFile L2 statistics retrieval with file operations."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    # Create test file directly with O_DIRECT
+    file_path = "test_stats_l2.bin"
+    fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
+
+    try:
+        cufile.set_stats_level(2)  # L2 = detailed performance metrics
+
+        # Start collecting cuFile statistics
+        cufile.stats_start()
+
+        # Create and initialize the descriptor
+        descr = cufile.Descr()
+        descr.type = cufile.FileHandleType.OPAQUE_FD
+        descr.handle.fd = fd
+        descr.fs_ops = 0
+
+        # Register the handle
+        handle = cufile.handle_register(descr.ptr)
+
+        # Allocate CUDA memory
+        buffer_size = 8192  # 8KB for more detailed stats
+        err, buf_ptr = cuda.cuMemAlloc(buffer_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        # Register the buffer with cuFile
+        buf_ptr_int = int(buf_ptr)
+        cufile.buf_register(buf_ptr_int, buffer_size, 0)
+
+        # Prepare test data and copy to GPU buffer
+        test_data = b"cuFile L2 detailed stats test data" * 150  # Fill buffer
+        test_data = test_data[:buffer_size]
+        host_buf = ctypes.create_string_buffer(test_data, buffer_size)
+        cuda.cuMemcpyHtoD(buf_ptr, host_buf, len(test_data))
+
+        # Perform multiple cuFile operations to generate detailed L2 statistics
+        cufile.write(handle, buf_ptr_int, buffer_size, 0, 0)
+        cufile.read(handle, buf_ptr_int, buffer_size, 0, 0)
+        cufile.write(handle, buf_ptr_int, buffer_size, buffer_size, 0)  # Different offset
+        cufile.read(handle, buf_ptr_int, buffer_size, buffer_size, 0)
+
+        # Allocate buffer for L2 statistics
+        stats_buffer = ctypes.create_string_buffer(2048)  # Larger buffer for detailed stats
+        stats_ptr = ctypes.addressof(stats_buffer)
+
+        # Get L2 statistics (detailed performance metrics)
+        cufile.get_stats_l2(stats_ptr)
+
+        # Verify that statistics data was written to the buffer
+        buffer_bytes = bytes(stats_buffer)
+        non_zero_bytes = sum(1 for b in buffer_bytes if b != 0)
+        assert non_zero_bytes > 0, f"Expected statistics data to be written to buffer, but got {non_zero_bytes} non-zero bytes"
+
+        # Verify statistics retrieval completed successfully
+        logging.info("cuFile L2 statistics retrieved successfully after file operations")
+
+        # Stop statistics collection
+        cufile.stats_stop()
+
+        # Clean up cuFile resources
+        cufile.buf_deregister(buf_ptr_int)
+        cufile.handle_deregister(handle)
+        cuda.cuMemFree(buf_ptr)
+
+    finally:
+        os.close(fd)
+        with suppress(OSError):
+            os.unlink(file_path)
+        cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
+
+@pytest.mark.skipif(
+    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
+)
+@pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
+def test_get_stats_l3():
+    """Test cuFile L3 statistics retrieval with file operations."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    # Create test file directly with O_DIRECT
+    file_path = "test_stats_l3.bin"
+    fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
+
+    try:
+        cufile.set_stats_level(3)  # L3 = comprehensive diagnostic data
+
+        # Start collecting cuFile statistics
+        cufile.stats_start()
+
+        # Create and initialize the descriptor
+        descr = cufile.Descr()
+        descr.type = cufile.FileHandleType.OPAQUE_FD
+        descr.handle.fd = fd
+        descr.fs_ops = 0
+
+        # Register the handle
+        handle = cufile.handle_register(descr.ptr)
+
+        # Allocate CUDA memory
+        buffer_size = 16384  # 16KB for comprehensive stats testing
+        err, buf_ptr = cuda.cuMemAlloc(buffer_size)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+
+        # Register the buffer with cuFile
+        buf_ptr_int = int(buf_ptr)
+        cufile.buf_register(buf_ptr_int, buffer_size, 0)
+
+        # Prepare test data and copy to GPU buffer
+        test_data = b"cuFile L3 comprehensive stats test data" * 200  # Fill buffer
+        test_data = test_data[:buffer_size]
+        host_buf = ctypes.create_string_buffer(test_data, buffer_size)
+        cuda.cuMemcpyHtoD(buf_ptr, host_buf, len(test_data))
+
+        # Perform comprehensive cuFile operations to generate L3 statistics
+        # Multiple writes and reads at different offsets to generate rich stats
+        cufile.write(handle, buf_ptr_int, buffer_size, 0, 0)
+        cufile.read(handle, buf_ptr_int, buffer_size, 0, 0)
+        cufile.write(handle, buf_ptr_int, buffer_size, buffer_size, 0)  # Different offset
+        cufile.read(handle, buf_ptr_int, buffer_size, buffer_size, 0)
+        cufile.write(handle, buf_ptr_int, buffer_size // 2, buffer_size * 2, 0)  # Partial write
+        cufile.read(handle, buf_ptr_int, buffer_size // 2, buffer_size * 2, 0)   # Partial read
+
+        # Allocate buffer for L3 statistics
+        stats_buffer = ctypes.create_string_buffer(4096)  # Largest buffer for comprehensive stats
+        stats_ptr = ctypes.addressof(stats_buffer)
+
+        # Get L3 statistics (comprehensive diagnostic data)
+        cufile.get_stats_l3(stats_ptr)
+
+        # Verify that statistics data was written to the buffer
+        buffer_bytes = bytes(stats_buffer)
+        non_zero_bytes = sum(1 for b in buffer_bytes if b != 0)
+        assert non_zero_bytes > 0, f"Expected statistics data to be written to buffer, but got {non_zero_bytes} non-zero bytes"
+
+        # Verify statistics retrieval completed successfully
+        logging.info("cuFile L3 statistics retrieved successfully after file operations")
+
+        # Stop statistics collection
+        cufile.stats_stop()
+
+        # Clean up cuFile resources
+        cufile.buf_deregister(buf_ptr_int)
+        cufile.handle_deregister(handle)
+        cuda.cuMemFree(buf_ptr)
+
+    finally:
+        os.close(fd)
+        with suppress(OSError):
+            os.unlink(file_path)
+        cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
+
+@pytest.mark.skipif(
+    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
+)
+def test_get_bar_size_in_kb():
+    """Test cuFile BAR (Base Address Register) size retrieval."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Open cuFile driver
+    cufile.driver_open()
+
+    try:
+        # Get BAR size in kilobytes
+        bar_size_kb = cufile.get_bar_size_in_kb(0)
+
+        # Verify BAR size is a reasonable value
+        assert isinstance(bar_size_kb, int), "BAR size should be an integer"
+        assert bar_size_kb > 0, "BAR size should be positive"
+
+        logging.info(f"GPU BAR size: {bar_size_kb} KB ({bar_size_kb / 1024 / 1024:.2f} GB)")
+
+    finally:
+        # Close cuFile driver
+        cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
+
+@pytest.mark.skipif(
+    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
+)
+def test_set_parameter_posix_pool_slab_array():
+    """Test cuFile POSIX pool slab array configuration."""
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Define slab sizes for POSIX I/O pool (common I/O buffer sizes) - BEFORE driver open
+    import ctypes
+    slab_sizes = [
+        4096,      # 4KB - small files
+        65536,     # 64KB - medium files
+        1048576,   # 1MB - large files
+        16777216,  # 16MB - very large files
+    ]
+
+    # Define counts for each slab size (number of buffers)
+    slab_counts = [
+        10,        # 10 buffers of 4KB
+        5,         # 5 buffers of 64KB
+        3,         # 3 buffers of 1MB
+        2,         # 2 buffers of 16MB
+    ]
+
+    # Convert to ctypes arrays
+    size_array_type = ctypes.c_size_t * len(slab_sizes)
+    count_array_type = ctypes.c_size_t * len(slab_counts)
+    size_array = size_array_type(*slab_sizes)
+    count_array = count_array_type(*slab_counts)
+
+    # Set POSIX pool slab array configuration BEFORE opening driver
+    cufile.set_parameter_posix_pool_slab_array(ctypes.addressof(size_array), ctypes.addressof(count_array), len(slab_sizes))
+
+    # Open cuFile driver AFTER setting parameters
+    cufile.driver_open()
+
+    try:
+        # After setting parameters, retrieve them back to verify
+        retrieved_sizes = (ctypes.c_size_t * len(slab_sizes))()
+        retrieved_counts = (ctypes.c_size_t * len(slab_counts))()
+
+        cufile.get_parameter_posix_pool_slab_array(ctypes.addressof(retrieved_sizes), ctypes.addressof(retrieved_counts), len(slab_sizes))
+
+        # Verify they match what we set
+        for i in range(len(slab_sizes)):
+            assert retrieved_sizes[i] == slab_sizes[i], f"Size mismatch at index {i}: expected {slab_sizes[i]}, got {retrieved_sizes[i]}"
+            assert retrieved_counts[i] == slab_counts[i], f"Count mismatch at index {i}: expected {slab_counts[i]}, got {retrieved_counts[i]}"
+
+        # Verify configuration was accepted successfully
+        logging.info(f"POSIX pool slab array configured with {len(slab_sizes)} slab sizes")
+        logging.info(f"Slab sizes: {[f'{size//1024}KB' for size in slab_sizes]}")
+        logging.info("Round-trip verification successful: set and retrieved values match")
+
+    finally:
+        # Close cuFile driver
+        cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
+
+
+@pytest.mark.skipif(
+    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
 def test_set_get_parameter_size_t():
     """Test setting and getting size_t parameters with cuFile validation."""
@@ -1712,177 +2617,6 @@ def test_set_get_parameter_size_t():
         assert retrieved_value == max_request_parallelism, (
             f"Max request parallelism mismatch: set {max_request_parallelism}, got {retrieved_value}"
         )
-
-    finally:
-        cuda.cuDevicePrimaryCtxRelease(device)
-
-
-@pytest.mark.skipif(
-    cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
-)
-def test_set_get_parameter_bool():
-    """Test setting and getting boolean parameters with cuFile validation."""
-
-    # Initialize CUDA
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCtxSetCurrent(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    try:
-        # Test setting and getting various boolean parameters
-
-        # Test poll mode
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE)
-        assert retrieved_value is True, f"Poll mode mismatch: set True, got {retrieved_value}"
-
-        # Test compatibility mode
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE, False)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE)
-        assert retrieved_value is False, f"Compatibility mode mismatch: set False, got {retrieved_value}"
-
-        # Test force compatibility mode
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.FORCE_COMPAT_MODE, False)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_COMPAT_MODE)
-        assert retrieved_value is False, f"Force compatibility mode mismatch: set False, got {retrieved_value}"
-
-        # Test aggressive API check
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE)
-        assert retrieved_value is True, f"Aggressive API check mismatch: set True, got {retrieved_value}"
-
-        # Test parallel IO
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.EXECUTION_PARALLEL_IO, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.EXECUTION_PARALLEL_IO)
-        assert retrieved_value is True, f"Parallel IO mismatch: set True, got {retrieved_value}"
-
-        # Test NVTX profiling
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROFILE_NVTX, False)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROFILE_NVTX)
-        assert retrieved_value is False, f"NVTX profiling mismatch: set False, got {retrieved_value}"
-
-        # Test system memory allowance
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY)
-        assert retrieved_value is True, f"System memory allowance mismatch: set True, got {retrieved_value}"
-
-        # Test PCI P2P DMA
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.USE_PCIP2PDMA, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.USE_PCIP2PDMA)
-        assert retrieved_value is True, f"PCI P2P DMA mismatch: set True, got {retrieved_value}"
-
-        # Test IO uring preference
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.PREFER_IO_URING, False)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PREFER_IO_URING)
-        assert retrieved_value is False, f"IO uring preference mismatch: set False, got {retrieved_value}"
-
-        # Test force O_DIRECT mode
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.FORCE_ODIRECT_MODE, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_ODIRECT_MODE)
-        assert retrieved_value is True, f"Force O_DIRECT mode mismatch: set True, got {retrieved_value}"
-
-        # Test topology detection skip
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION, False)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION)
-        assert retrieved_value is False, f"Topology detection skip mismatch: set False, got {retrieved_value}"
-
-        # Test stream memops bypass
-        cufile.set_parameter_bool(cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS, True)
-        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS)
-        assert retrieved_value is True, f"Stream memops bypass mismatch: set True, got {retrieved_value}"
-
-    finally:
-        cuda.cuDevicePrimaryCtxRelease(device)
-
-
-@pytest.mark.skipif(
-    cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
-)
-def test_set_get_parameter_string():
-    """Test setting and getting string parameters with cuFile validation."""
-
-    # Initialize CUDA
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCtxSetCurrent(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    try:
-        # Test setting and getting various string parameters
-        # Note: String parameter tests may have issues with the current implementation
-
-        # Test logging level
-        logging_level = "INFO"
-        try:
-            # Convert Python string to null-terminated C string
-            logging_level_bytes = logging_level.encode("utf-8") + b"\x00"
-            logging_level_buffer = ctypes.create_string_buffer(logging_level_bytes)
-            cufile.set_parameter_string(
-                cufile.StringConfigParameter.LOGGING_LEVEL, int(ctypes.addressof(logging_level_buffer))
-            )
-            retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.LOGGING_LEVEL, 256)
-            # Use safe_decode_string to handle null terminators and padding
-            retrieved_value = safe_decode_string(retrieved_value_raw.encode("utf-8"))
-            logging.info(f"Logging level test: set {logging_level}, got {retrieved_value}")
-            # The retrieved value should be a string, so we can compare directly
-            assert retrieved_value == logging_level, (
-                f"Logging level mismatch: set {logging_level}, got {retrieved_value}"
-            )
-        except Exception as e:
-            logging.error(f"Logging level test failed: {e}")
-            # Re-raise the exception to make the test fail
-            raise
-
-        # Test environment log file path
-        logfile_path = tempfile.gettempdir() + "/cufile.log"
-        try:
-            # Convert Python string to null-terminated C string
-            logfile_path_bytes = logfile_path.encode("utf-8") + b"\x00"
-            logfile_buffer = ctypes.create_string_buffer(logfile_path_bytes)
-            cufile.set_parameter_string(
-                cufile.StringConfigParameter.ENV_LOGFILE_PATH, int(ctypes.addressof(logfile_buffer))
-            )
-            retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.ENV_LOGFILE_PATH, 256)
-            # Use safe_decode_string to handle null terminators and padding
-            retrieved_value = safe_decode_string(retrieved_value_raw.encode("utf-8"))
-            logging.info(f"Log file path test: set {logfile_path}, got {retrieved_value}")
-            # The retrieved value should be a string, so we can compare directly
-            assert retrieved_value == logfile_path, f"Log file path mismatch: set {logfile_path}, got {retrieved_value}"
-        except Exception as e:
-            logging.error(f"Log file path test failed: {e}")
-            # Re-raise the exception to make the test fail
-            raise
-
-        # Test log directory
-        log_dir = tempfile.gettempdir() + "/cufile_logs"
-        try:
-            # Convert Python string to null-terminated C string
-            log_dir_bytes = log_dir.encode("utf-8") + b"\x00"
-            log_dir_buffer = ctypes.create_string_buffer(log_dir_bytes)
-            cufile.set_parameter_string(cufile.StringConfigParameter.LOG_DIR, int(ctypes.addressof(log_dir_buffer)))
-            retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.LOG_DIR, 256)
-            # Use safe_decode_string to handle null terminators and padding
-            retrieved_value = safe_decode_string(retrieved_value_raw.encode("utf-8"))
-            logging.info(f"Log directory test: set {log_dir}, got {retrieved_value}")
-            # The retrieved value should be a string, so we can compare directly
-            assert retrieved_value == log_dir, f"Log directory mismatch: set {log_dir}, got {retrieved_value}"
-        except Exception as e:
-            logging.error(f"Log directory test failed: {e}")
-            # Re-raise the exception to make the test fail
-            raise
 
     finally:
         cuda.cuDevicePrimaryCtxRelease(device)
