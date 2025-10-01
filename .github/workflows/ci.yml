@@ -168,22 +168,6 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
 
-  doc:
-    name: Docs
-    if: ${{ github.repository_owner == 'nvidia' }}
-    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-    permissions:
-      id-token: write
-      contents: write
-      pull-requests: write
-    needs:
-      - ci-vars
-      - build-linux-64
-    secrets: inherit
-    uses: ./.github/workflows/build-docs.yml
-    with:
-      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-
   checks:
     name: Check job status
     runs-on: ubuntu-latest
@@ -191,7 +175,7 @@ jobs:
       - test-linux-64
       - test-linux-aarch64
       - test-windows
-      - doc
+      # we don't build docs on the backport branch, see #809
     steps:
       - name: Exit
         run: exit 0
