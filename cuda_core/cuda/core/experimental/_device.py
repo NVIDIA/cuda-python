@@ -1323,18 +1323,6 @@ class DeviceProperties:
         )
 
     @property
-    def cooperative_multi_device_launch(self) -> bool:
-        """
-        Deprecated, cuLaunchCooperativeKernelMultiDevice is deprecated.
-
-        Returns:
-            bool: Deprecated, cuLaunchCooperativeKernelMultiDevice is deprecated.
-        """
-        return bool(
-            self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_COOPERATIVE_MULTI_DEVICE_LAUNCH)
-        )
-
-    @property
     def can_flush_remote_writes(self) -> bool:
         """
         The CU_STREAM_WAIT_VALUE_FLUSH flag and the CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES MemOp are supported on the
@@ -1355,20 +1343,6 @@ class DeviceProperties:
             bool: Device supports host memory registration via cudaHostRegister.
         """
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_REGISTER_SUPPORTED))
-
-    @property
-    def virtual_address_management_supported(self) -> bool:
-        """
-        Deprecated, Use virtual_memory_management_supported.
-
-        Returns:
-            bool: Deprecated, Use virtual_memory_management_supported.
-        """
-        return bool(
-            self._get_cached_attribute(
-                driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VIRTUAL_ADDRESS_MANAGEMENT_SUPPORTED
-            )
-        )
 
     @property
     def timeline_semaphore_interop_supported(self) -> bool:
