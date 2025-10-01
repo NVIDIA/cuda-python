@@ -10,8 +10,9 @@ import platform
 import tempfile
 from contextlib import suppress
 from functools import cache
-import pytest
+
 import cuda.bindings.driver as cuda
+import pytest
 
 # Configure logging to show INFO level and above
 logging.basicConfig(
@@ -117,6 +118,8 @@ def isSupportedFilesystem():
 
 # Global skip condition for all tests if cuFile library is not available
 pytestmark = pytest.mark.skipif(not cufileLibraryAvailable(), reason="cuFile library not available on this system")
+
+
 def safe_decode_string(raw_value):
     """Safely decode a string value from ctypes buffer."""
     # Find null terminator if present
@@ -1412,6 +1415,7 @@ def test_batch_io_cancel():
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
 
+
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
 def test_batch_io_large_operations():
     """Test batch IO with large buffer operations."""
@@ -1515,15 +1519,16 @@ def test_batch_io_large_operations():
         nr_completed_writes = ctypes.c_uint(num_operations)
         timeout = ctypes.c_int(10000)
         cufile.batch_io_get_status(
-            batch_handle, num_operations, ctypes.addressof(nr_completed_writes),
-            io_events.ptr, ctypes.addressof(timeout)
+            batch_handle,
+            num_operations,
+            ctypes.addressof(nr_completed_writes),
+            io_events.ptr,
+            ctypes.addressof(timeout),
         )
 
         # Verify writes succeeded
         for i in range(nr_completed_writes.value):
-            assert io_events[i].status == cufile.Status.COMPLETE, (
-                f"Write {i} failed with status {io_events[i].status}"
-            )
+            assert io_events[i].status == cufile.Status.COMPLETE, f"Write {i} failed with status {io_events[i].status}"
 
         # Force file sync
         os.fsync(fd)
@@ -1553,14 +1558,15 @@ def test_batch_io_large_operations():
         # Wait for reads
         nr_completed = ctypes.c_uint(num_operations)
         cufile.batch_io_get_status(
-            read_batch_handle, num_operations, ctypes.addressof(nr_completed),
-            read_io_events.ptr, ctypes.addressof(timeout)
+            read_batch_handle,
+            num_operations,
+            ctypes.addressof(nr_completed),
+            read_io_events.ptr,
+            ctypes.addressof(timeout),
         )
 
         # Verify all operations completed successfully
-        assert nr_completed.value == num_operations, (
-            f"Expected {num_operations} operations, got {nr_completed.value}"
-        )
+        assert nr_completed.value == num_operations, f"Expected {num_operations} operations, got {nr_completed.value}"
 
         # Collect all returned cookies
         returned_cookies = set()
@@ -1624,7 +1630,8 @@ def test_batch_io_large_operations():
         # Close cuFile driver
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
-        
+
+
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
@@ -1738,7 +1745,6 @@ def test_set_get_parameter_size_t():
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
-
 def test_set_get_parameter_bool():
     """Test setting and getting boolean parameters with cuFile validation."""
 
@@ -1819,6 +1825,7 @@ def test_set_get_parameter_bool():
 
     finally:
         cuda.cuDevicePrimaryCtxRelease(device)
+
 
 def test_set_get_parameter_string():
     """Test setting and getting string parameters with cuFile validation."""
@@ -1901,6 +1908,7 @@ def test_set_get_parameter_string():
 
     finally:
         cuda.cuDevicePrimaryCtxRelease(device)
+
 
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
@@ -1993,6 +2001,7 @@ def test_stats_start():
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
 
+
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
 )
@@ -2029,6 +2038,7 @@ def test_stats_stop():
         # Close cuFile driver
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
+
 
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
@@ -2070,6 +2080,7 @@ def test_stats_reset():
         # Close cuFile driver
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
+
 
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
@@ -2140,7 +2151,9 @@ def test_get_stats_l1():
         # Convert buffer to bytes and check that it's not all zeros
         buffer_bytes = bytes(stats_buffer)
         non_zero_bytes = sum(1 for b in buffer_bytes if b != 0)
-        assert non_zero_bytes > 0, f"Expected statistics data to be written to buffer, but got {non_zero_bytes} non-zero bytes"
+        assert non_zero_bytes > 0, (
+            f"Expected statistics data to be written to buffer, but got {non_zero_bytes} non-zero bytes"
+        )
 
         # Verify statistics retrieval completed successfully
         logging.info("cuFile L1 statistics retrieved successfully after file operations")
@@ -2159,6 +2172,7 @@ def test_get_stats_l1():
             os.unlink(file_path)
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
+
 
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
@@ -2231,7 +2245,9 @@ def test_get_stats_l2():
         # Verify that statistics data was written to the buffer
         buffer_bytes = bytes(stats_buffer)
         non_zero_bytes = sum(1 for b in buffer_bytes if b != 0)
-        assert non_zero_bytes > 0, f"Expected statistics data to be written to buffer, but got {non_zero_bytes} non-zero bytes"
+        assert non_zero_bytes > 0, (
+            f"Expected statistics data to be written to buffer, but got {non_zero_bytes} non-zero bytes"
+        )
 
         # Verify statistics retrieval completed successfully
         logging.info("cuFile L2 statistics retrieved successfully after file operations")
@@ -2250,6 +2266,7 @@ def test_get_stats_l2():
             os.unlink(file_path)
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
+
 
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
@@ -2313,7 +2330,7 @@ def test_get_stats_l3():
         cufile.write(handle, buf_ptr_int, buffer_size, buffer_size, 0)  # Different offset
         cufile.read(handle, buf_ptr_int, buffer_size, buffer_size, 0)
         cufile.write(handle, buf_ptr_int, buffer_size // 2, buffer_size * 2, 0)  # Partial write
-        cufile.read(handle, buf_ptr_int, buffer_size // 2, buffer_size * 2, 0)   # Partial read
+        cufile.read(handle, buf_ptr_int, buffer_size // 2, buffer_size * 2, 0)  # Partial read
 
         # Allocate buffer for L3 statistics
         stats_buffer = ctypes.create_string_buffer(4096)  # Largest buffer for comprehensive stats
@@ -2325,7 +2342,9 @@ def test_get_stats_l3():
         # Verify that statistics data was written to the buffer
         buffer_bytes = bytes(stats_buffer)
         non_zero_bytes = sum(1 for b in buffer_bytes if b != 0)
-        assert non_zero_bytes > 0, f"Expected statistics data to be written to buffer, but got {non_zero_bytes} non-zero bytes"
+        assert non_zero_bytes > 0, (
+            f"Expected statistics data to be written to buffer, but got {non_zero_bytes} non-zero bytes"
+        )
 
         # Verify statistics retrieval completed successfully
         logging.info("cuFile L3 statistics retrieved successfully after file operations")
@@ -2344,6 +2363,7 @@ def test_get_stats_l3():
             os.unlink(file_path)
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
+
 
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
@@ -2380,6 +2400,7 @@ def test_get_bar_size_in_kb():
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
 
+
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
 )
@@ -2399,19 +2420,20 @@ def test_set_parameter_posix_pool_slab_array():
 
     # Define slab sizes for POSIX I/O pool (common I/O buffer sizes) - BEFORE driver open
     import ctypes
+
     slab_sizes = [
-        4096,      # 4KB - small files
-        65536,     # 64KB - medium files
-        1048576,   # 1MB - large files
+        4096,  # 4KB - small files
+        65536,  # 64KB - medium files
+        1048576,  # 1MB - large files
         16777216,  # 16MB - very large files
     ]
 
     # Define counts for each slab size (number of buffers)
     slab_counts = [
-        10,        # 10 buffers of 4KB
-        5,         # 5 buffers of 64KB
-        3,         # 3 buffers of 1MB
-        2,         # 2 buffers of 16MB
+        10,  # 10 buffers of 4KB
+        5,  # 5 buffers of 64KB
+        3,  # 3 buffers of 1MB
+        2,  # 2 buffers of 16MB
     ]
 
     # Convert to ctypes arrays
@@ -2421,7 +2443,9 @@ def test_set_parameter_posix_pool_slab_array():
     count_array = count_array_type(*slab_counts)
 
     # Set POSIX pool slab array configuration BEFORE opening driver
-    cufile.set_parameter_posix_pool_slab_array(ctypes.addressof(size_array), ctypes.addressof(count_array), len(slab_sizes))
+    cufile.set_parameter_posix_pool_slab_array(
+        ctypes.addressof(size_array), ctypes.addressof(count_array), len(slab_sizes)
+    )
 
     # Open cuFile driver AFTER setting parameters
     cufile.driver_open()
@@ -2431,16 +2455,22 @@ def test_set_parameter_posix_pool_slab_array():
         retrieved_sizes = (ctypes.c_size_t * len(slab_sizes))()
         retrieved_counts = (ctypes.c_size_t * len(slab_counts))()
 
-        cufile.get_parameter_posix_pool_slab_array(ctypes.addressof(retrieved_sizes), ctypes.addressof(retrieved_counts), len(slab_sizes))
+        cufile.get_parameter_posix_pool_slab_array(
+            ctypes.addressof(retrieved_sizes), ctypes.addressof(retrieved_counts), len(slab_sizes)
+        )
 
         # Verify they match what we set
         for i in range(len(slab_sizes)):
-            assert retrieved_sizes[i] == slab_sizes[i], f"Size mismatch at index {i}: expected {slab_sizes[i]}, got {retrieved_sizes[i]}"
-            assert retrieved_counts[i] == slab_counts[i], f"Count mismatch at index {i}: expected {slab_counts[i]}, got {retrieved_counts[i]}"
+            assert retrieved_sizes[i] == slab_sizes[i], (
+                f"Size mismatch at index {i}: expected {slab_sizes[i]}, got {retrieved_sizes[i]}"
+            )
+            assert retrieved_counts[i] == slab_counts[i], (
+                f"Count mismatch at index {i}: expected {slab_counts[i]}, got {retrieved_counts[i]}"
+            )
 
         # Verify configuration was accepted successfully
         logging.info(f"POSIX pool slab array configured with {len(slab_sizes)} slab sizes")
-        logging.info(f"Slab sizes: {[f'{size//1024}KB' for size in slab_sizes]}")
+        logging.info(f"Slab sizes: {[f'{size // 1024}KB' for size in slab_sizes]}")
         logging.info("Round-trip verification successful: set and retrieved values match")
 
     finally:
