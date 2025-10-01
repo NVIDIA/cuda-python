@@ -1904,6 +1904,87 @@ def test_set_get_parameter_size_t():
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
 
+def test_set_get_parameter_bool():
+    """Test setting and getting boolean parameters with cuFile validation."""
+
+    # Initialize CUDA
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    try:
+        # Test setting and getting various boolean parameters
+
+        # Test poll mode
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_USE_POLL_MODE)
+        assert retrieved_value is True, f"Poll mode mismatch: set True, got {retrieved_value}"
+
+        # Test compatibility mode
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE, False)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_COMPAT_MODE)
+        assert retrieved_value is False, f"Compatibility mode mismatch: set False, got {retrieved_value}"
+
+        # Test force compatibility mode
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.FORCE_COMPAT_MODE, False)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_COMPAT_MODE)
+        assert retrieved_value is False, f"Force compatibility mode mismatch: set False, got {retrieved_value}"
+
+        # Test aggressive API check
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FS_MISC_API_CHECK_AGGRESSIVE)
+        assert retrieved_value is True, f"Aggressive API check mismatch: set True, got {retrieved_value}"
+
+        # Test parallel IO
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.EXECUTION_PARALLEL_IO, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.EXECUTION_PARALLEL_IO)
+        assert retrieved_value is True, f"Parallel IO mismatch: set True, got {retrieved_value}"
+
+        # Test NVTX profiling
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROFILE_NVTX, False)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROFILE_NVTX)
+        assert retrieved_value is False, f"NVTX profiling mismatch: set False, got {retrieved_value}"
+
+        # Test system memory allowance
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PROPERTIES_ALLOW_SYSTEM_MEMORY)
+        assert retrieved_value is True, f"System memory allowance mismatch: set True, got {retrieved_value}"
+
+        # Test PCI P2P DMA
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.USE_PCIP2PDMA, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.USE_PCIP2PDMA)
+        assert retrieved_value is True, f"PCI P2P DMA mismatch: set True, got {retrieved_value}"
+
+        # Test IO uring preference
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.PREFER_IO_URING, False)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.PREFER_IO_URING)
+        assert retrieved_value is False, f"IO uring preference mismatch: set False, got {retrieved_value}"
+
+        # Test force O_DIRECT mode
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.FORCE_ODIRECT_MODE, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.FORCE_ODIRECT_MODE)
+        assert retrieved_value is True, f"Force O_DIRECT mode mismatch: set True, got {retrieved_value}"
+
+        # Test topology detection skip
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION, False)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION)
+        assert retrieved_value is False, f"Topology detection skip mismatch: set False, got {retrieved_value}"
+
+        # Test stream memops bypass
+        cufile.set_parameter_bool(cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS, True)
+        retrieved_value = cufile.get_parameter_bool(cufile.BoolConfigParameter.STREAM_MEMOPS_BYPASS)
+        assert retrieved_value is True, f"Stream memops bypass mismatch: set True, got {retrieved_value}"
+
+    finally:
+        cuda.cuDevicePrimaryCtxRelease(device)
+        
 def test_set_get_parameter_string():
     """Test setting and getting string parameters with cuFile validation."""
 
