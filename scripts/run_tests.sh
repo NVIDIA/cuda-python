@@ -158,7 +158,7 @@ ensure_installed() {
   fi
 
   if [[ "${INSTALL_MODE}" == "force" ]]; then
-    pip install -e .[test]
+    pip install -e . --group test
     return 0
   fi
 
@@ -177,7 +177,7 @@ sys.exit(0 if str(p).startswith(str(sub)) else 3)
 PY
   rc=$?
   if [[ $rc -ne 0 ]]; then
-    pip install -e .[test]
+    pip install -e . --group test
   fi
 }
 
