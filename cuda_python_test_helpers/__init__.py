@@ -7,6 +7,7 @@ from contextlib import suppress
 from typing import Union
 
 import pytest
+from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
 def _detect_wsl() -> bool:
@@ -23,10 +24,11 @@ IS_WSL: bool = _detect_wsl()
 
 @functools.cache
 def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
-    """Return True if the driver accepts creating an IPC-enabled mempool.
+    """Return True if mempool IPC via POSIX file descriptor is supported.
 
-    Attempts to create a mempool with POSIX FD handle type using the CUDA driver.
-    Returns False if the operation is rejected or raises.
+    Uses cuDeviceGetAttribute(CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES)
+    to check for CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR support. Does not
+    require an active CUDA context.
     """
     try:
         # Lazy import to avoid hard dependency when not running GPU tests
@@ -35,27 +37,19 @@ def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
         except Exception:
             from cuda import cuda as driver  # type: ignore
 
-        # Build location for the provided device id (int or Device-like with device_id)
-        dev_id = getattr(device_id, "device_id", device_id)
-        loc = driver.CUmemLocation()
-        loc.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-        loc.id = int(dev_id)
+        # Initialize CUDA
+        handle_return(driver.cuInit(0))
 
-        props = driver.CUmemPoolProps()
-        props.allocType = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-        props.handleTypes = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
-        props.location = loc
-        props.maxSize = 2_097_152
-        props.win32SecurityAttributes = 0
-        props.usage = 0
+        # Resolve device id from int or Device-like object
+        dev_id = int(getattr(device_id, "device_id", device_id))
 
-        res, pool = driver.cuMemPoolCreate(props)
-        if int(res.value) != 0:
-            return False
-        # Destroy created pool to avoid leaks
-        with suppress(Exception):
-            driver.cuMemPoolDestroy(pool)
-        return True
+        # Query supported mempool handle types bitmask
+        attr = driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES
+        mask = handle_return(driver.cuDeviceGetAttribute(attr, dev_id))
+
+        # Check POSIX FD handle type support via bitmask
+        posix_fd = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
+        return (int(mask) & int(posix_fd)) != 0
     except Exception:
         return False
 
