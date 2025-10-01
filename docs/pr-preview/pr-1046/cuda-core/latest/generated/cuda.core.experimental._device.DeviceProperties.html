@@ -723,16 +723,6 @@ on the device. See Stream Memory Operations for additional details.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.cooperative_multi_device_launch">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cooperative_multi_device_launch</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.cooperative_multi_device_launch" title="Link to this definition">#</a></dt>
-<dd><p>Deprecated, cuLaunchCooperativeKernelMultiDevice is deprecated.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>bool: Deprecated, cuLaunchCooperativeKernelMultiDevice is deprecated.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.d3d12_cig_supported">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">d3d12_cig_supported</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.d3d12_cig_supported" title="Link to this definition">#</a></dt>
 <dd><p>Device supports CIG with D3D12.</p>
@@ -2001,16 +1991,6 @@ precision performance.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.virtual_address_management_supported">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">virtual_address_management_supported</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.virtual_address_management_supported" title="Link to this definition">#</a></dt>
-<dd><p>Deprecated, Use virtual_memory_management_supported.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>bool: Deprecated, Use virtual_memory_management_supported.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.experimental._device.DeviceProperties.virtual_memory_management_supported">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">virtual_memory_management_supported</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental._device.DeviceProperties.virtual_memory_management_supported" title="Link to this definition">#</a></dt>
 <dd><p>Device supports virtual memory management APIs like cuMemAddressReserve, cuMemCreate, cuMemMap and related APIs.</p>
@@ -2094,7 +2074,6 @@ cuMemMap and related APIs.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.concurrent_kernels"><code class="docutils literal notranslate"><span class="pre">concurrent_kernels</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.concurrent_managed_access"><code class="docutils literal notranslate"><span class="pre">concurrent_managed_access</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.cooperative_launch"><code class="docutils literal notranslate"><span class="pre">cooperative_launch</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.cooperative_multi_device_launch"><code class="docutils literal notranslate"><span class="pre">cooperative_multi_device_launch</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.d3d12_cig_supported"><code class="docutils literal notranslate"><span class="pre">d3d12_cig_supported</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.deferred_mapping_cuda_array_supported"><code class="docutils literal notranslate"><span class="pre">deferred_mapping_cuda_array_supported</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.direct_managed_mem_access_from_host"><code class="docutils literal notranslate"><span class="pre">direct_managed_mem_access_from_host</span></code></a></li>
@@ -2219,7 +2198,6 @@ cuMemMap and related APIs.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.total_constant_memory"><code class="docutils literal notranslate"><span class="pre">total_constant_memory</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.unified_addressing"><code class="docutils literal notranslate"><span class="pre">unified_addressing</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.unified_function_pointers"><code class="docutils literal notranslate"><span class="pre">unified_function_pointers</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.virtual_address_management_supported"><code class="docutils literal notranslate"><span class="pre">virtual_address_management_supported</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.virtual_memory_management_supported"><code class="docutils literal notranslate"><span class="pre">virtual_memory_management_supported</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.vulkan_cig_supported"><code class="docutils literal notranslate"><span class="pre">vulkan_cig_supported</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._device.DeviceProperties.warp_size"><code class="docutils literal notranslate"><span class="pre">warp_size</span></code></a></li>

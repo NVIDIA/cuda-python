@@ -39,7 +39,6 @@ cuda.core.experimental.\_device.DeviceProperties
    .. autoproperty:: concurrent_kernels
    .. autoproperty:: concurrent_managed_access
    .. autoproperty:: cooperative_launch
-   .. autoproperty:: cooperative_multi_device_launch
    .. autoproperty:: d3d12_cig_supported
    .. autoproperty:: deferred_mapping_cuda_array_supported
    .. autoproperty:: direct_managed_mem_access_from_host
@@ -164,7 +163,6 @@ cuda.core.experimental.\_device.DeviceProperties
    .. autoproperty:: total_constant_memory
    .. autoproperty:: unified_addressing
    .. autoproperty:: unified_function_pointers
-   .. autoproperty:: virtual_address_management_supported
    .. autoproperty:: virtual_memory_management_supported
    .. autoproperty:: vulkan_cig_supported
    .. autoproperty:: warp_size
