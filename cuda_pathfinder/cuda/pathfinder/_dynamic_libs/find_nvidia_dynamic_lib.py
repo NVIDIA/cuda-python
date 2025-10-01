@@ -204,8 +204,6 @@ class _FindNvidiaDynamicLib:
                 self.error_messages,
                 self.attachments,
             )
-        if self.abs_path is not None:
-            self.distribution = "CUDA_HOME"
 
     def raise_not_found_error(self) -> None:
         err = ", ".join(self.error_messages)
