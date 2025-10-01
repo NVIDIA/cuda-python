@@ -109,8 +109,8 @@ jobs:
         continue-on-error: false
         with:
           # for artifact fetching
-          dependencies: "jq wget"
-          dependent_exes: "jq wget"
+          dependencies: "jq wget abigail-tools"
+          dependent_exes: "jq wget abidw abidiff"
 
       - name: Set environment variables
         env:
@@ -147,6 +147,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # shellcheck disable=SC2174,SC2086
           # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
           # gh is needed for artifact fetching.
           mkdir -p -m 755 /etc/apt/keyrings \
@@ -159,7 +160,7 @@ jobs:
 
           OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
-          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "ci.yml" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
+          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "ci.yml" -s completed -R NVIDIA/cuda-python --json databaseId | jq ".[]| .databaseId")
           if [[ "$LATEST_PRIOR_RUN_ID" == "" ]]; then
             echo "LATEST_PRIOR_RUN_ID not found!"
             exit 1
@@ -184,6 +185,7 @@ jobs:
 
       - name: Display structure of downloaded cuda.bindings artifacts
         run: |
+          # shellcheck disable=SC2086
           pwd
           ls -lahR $CUDA_BINDINGS_ARTIFACTS_DIR
 
@@ -258,6 +260,29 @@ jobs:
           CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS: see_what_works
           CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS: see_what_works
         run: run-tests pathfinder
+
+      - name: Check cuda.bindings ABI compatibility
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' && matrix.PY_VER == '3.13' }}
+        id: abicheck
+        run: |
+          if [[ $(abicheck.py check cuda.bindings cuda/bindings/abi/) ]]; then
+            echo "ABI check passed"
+          else
+            echo "ABI check failed"
+            echo "The changed ABI data from this PR is in the cuda_bindings_abi artifact."
+            echo "If these changes are expected, copy the files in that artifact to cuda/bindings/abi/"
+            echo "and commit the changes."
+            abicheck.py regenerate cuda.bindings new-abi
+            exit 1
+          fi
+
+      - name: upload cuda.pathfinder build artifacts
+        if: ${{ failure() && steps.abicheck.conclusion == 'failure' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: cuda_bindings_abi
+          path: new-abi
+          if-no-files-found: error
 
       - name: Run cuda.bindings tests
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}

@@ -8,6 +8,7 @@ LICENSE
 .github/BACKPORT_BRANCH
 requirements*.txt
 cuda_bindings/examples/*
+*.abi
 
 # Vendored
 cuda_core/cuda/core/experimental/dlpack.h
