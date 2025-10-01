@@ -49,15 +49,16 @@ def _decide_nvjitlink_or_driver() -> bool:
         _nvjitlink = importlib.import_module("cuda.bindings.nvjitlink")
     except ModuleNotFoundError:
         problem = "cuda.bindings.nvjitlink is not available, therefore"
-    except RuntimeError:
-        problem = libname() + " is not available" + therefore_not_usable
     else:
         from cuda.bindings._internal import nvjitlink as inner_nvjitlink
 
-        if inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion"):
-            return False  # Use nvjitlink
-
-        problem = libname() + " is is too old (<12.3)" + therefore_not_usable
+        try:
+            if inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion"):
+                return False  # Use nvjitlink
+        except RuntimeError:
+            problem = libname() + " is not available" + therefore_not_usable
+        else:
+            problem = libname() + " is is too old (<12.3)" + therefore_not_usable
         _nvjitlink = None
 
     warn(
