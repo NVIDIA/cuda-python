@@ -265,6 +265,9 @@ jobs:
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' && matrix.PY_VER == '3.13' }}
         id: abicheck
         run: |
+          echo `which pytest`
+          echo `which python`
+          cat `which pytest`
           if [[ $(abicheck.py check cuda.bindings cuda/bindings/abi/) ]]; then
             echo "ABI check passed"
           else
