@@ -8,6 +8,7 @@ from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
 
+from cuda.core.experimental._event cimport Event as cyEvent
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
@@ -292,8 +293,9 @@ cdef class Stream:
         if event is None:
             self._get_device_and_context()
             event = Event._init(self._device_id, self._ctx_handle, options)
-        # TODO: revisit after Event is cythonized
-        HANDLE_RETURN(cydriver.cuEventRecord(<cydriver.CUevent><uintptr_t>(event.handle), self._handle))
+        cdef cydriver.CUevent e = (<cyEvent?>(event))._handle
+        with nogil:
+            HANDLE_RETURN(cydriver.cuEventRecord(e, self._handle))
         return event
 
     def wait(self, event_or_stream: Union[Event, Stream]):

@@ -81,13 +81,6 @@ cdef class Event:
     and they should instead be created through a :obj:`~_stream.Stream` object.
 
     """
-    cdef:
-        cydriver.CUevent _handle
-        bint _timing_disabled
-        bint _busy_waited
-        int _device_id
-        object _ctx_handle
-
     def __cinit__(self):
         self._handle = <cydriver.CUevent>(NULL)
 
