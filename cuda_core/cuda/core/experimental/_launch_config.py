@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Union
 
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._utils.cuda_utils import (
@@ -68,8 +68,8 @@ class LaunchConfig:
     grid: Union[tuple, int] = None
     cluster: Union[tuple, int] = None
     block: Union[tuple, int] = None
-    shmem_size: Optional[int] = None
-    cooperative_launch: Optional[bool] = False
+    shmem_size: int | None = None
+    cooperative_launch: bool | None = False
 
     def __post_init__(self):
         _lazy_init()
