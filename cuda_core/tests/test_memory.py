@@ -1,11 +1,16 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
+
 try:
     from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-
+try:
+    import numpy as np
+except ImportError:
+    np = None
 import ctypes
 import platform
 
@@ -13,6 +18,7 @@ import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource
 from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core.experimental.utils import StridedMemoryView
 
 from cuda_python_test_helpers import supports_ipc_mempool
 
@@ -442,3 +448,14 @@ def test_mempool_attributes_ownership(mempool_device):
     with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
         _ = attributes.used_mem_high
     mr._mempool_handle = old_handle
+
+
+# Ensure that memory views dellocate their reference to dlpack tensors
+@pytest.mark.skipif(np is None, reason="numpy is not installed")
+def test_strided_memory_view_leak():
+    arr = np.zeros(1048576, dtype=np.uint8)
+    before = sys.getrefcount(arr)
+    for idx in range(10):
+        StridedMemoryView(arr, stream_ptr=-1)
+    after = sys.getrefcount(arr)
+    assert before == after
