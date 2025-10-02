@@ -255,6 +255,7 @@ class Transaction:
 
     def __exit__(self, exc_type, exc, tb):
         # If exit callbacks remain, they'll run in LIFO order.
+        self._entered = False
         return self._stack.__exit__(exc_type, exc, tb)
 
     def append(self, fn, /, *args, **kwargs):

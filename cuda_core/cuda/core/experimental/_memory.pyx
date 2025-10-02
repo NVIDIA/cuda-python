@@ -24,15 +24,11 @@ import weakref
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
-from cuda.core.experimental._utils.cuda_utils import ( driver, Transaction, get_binding_version, 
-                                                       handle_return,
-                                                     )
+from cuda.core.experimental._utils.cuda_utils import ( driver, Transaction, get_binding_version )
 
 if platform.system() == "Linux":
     import socket
-# Helper to invoke CUDA driver functions with standard error handling.
-def _driver_call(func, /, *args):
-    handle_return(func(*args))
+# (Removed) helper for driver calls; use raise_if_driver_error with direct calls instead.
 
 
 if TYPE_CHECKING:
@@ -1095,7 +1091,8 @@ class VirtualMemoryResource(MemoryResource):
             # Check for specific errors that are not recoverable with the slow path
             if res in (driver.CUresult.CUDA_ERROR_INVALID_VALUE, driver.CUresult.CUDA_ERROR_NOT_PERMITTED, driver.CUresult.CUDA_ERROR_NOT_INITIALIZED, driver.CUresult.CUDA_ERROR_NOT_SUPPORTED):
                 raise RuntimeError(f"Failed to extend VA range: {res}")
-            _driver_call(driver.cuMemAddressFree, new_ptr, aligned_additional_size)
+            res2, = driver.cuMemAddressFree(new_ptr, aligned_additional_size)
+            raise_if_driver_error(res2)
             # Fallback: couldn't extend contiguously, need full remapping
             return self._grow_allocation_slow_path(buf, new_size, prop, aligned_additional_size, total_aligned_size, addr_align)
         else:
@@ -1124,17 +1121,17 @@ class VirtualMemoryResource(MemoryResource):
         """
         with Transaction() as trans:
             # Create new physical memory for the additional size
-            trans.append(_driver_call, driver.cuMemAddressFree, new_ptr, aligned_additional_size)
+            trans.append(lambda np=new_ptr, s=aligned_additional_size: raise_if_driver_error(driver.cuMemAddressFree(np, s)[0]))
             res, new_handle = driver.cuMemCreate(aligned_additional_size, prop, 0)
             raise_if_driver_error(res)
             # Register undo for creation
-            trans.append(_driver_call, driver.cuMemRelease, new_handle)
+            trans.append(lambda h=new_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
             # Map the new physical memory to the extended VA range
             res, = driver.cuMemMap(new_ptr, aligned_additional_size, 0, new_handle, 0)
             raise_if_driver_error(res)
             # Register undo for mapping
-            trans.append(_driver_call, driver.cuMemUnmap, new_ptr, aligned_additional_size)
+            trans.append(lambda np=new_ptr, s=aligned_additional_size: raise_if_driver_error(driver.cuMemUnmap(np, s)[0]))
 
             # Set access permissions for the new portion
             descs = self._build_access_descriptors(prop)
@@ -1176,13 +1173,13 @@ class VirtualMemoryResource(MemoryResource):
             res, new_ptr = driver.cuMemAddressReserve(total_aligned_size, addr_align, 0, 0)
             raise_if_driver_error(res)
             # Register undo for VA reservation
-            trans.append(_driver_call, driver.cuMemAddressFree, new_ptr, total_aligned_size)
+            trans.append(lambda np=new_ptr, s=total_aligned_size: raise_if_driver_error(driver.cuMemAddressFree(np, s)[0]))
 
             # Get the old allocation handle for remapping
             result, old_handle = driver.cuMemRetainAllocationHandle(buf.handle)
             raise_if_driver_error(result)
             # Register undo for old_handle
-            trans.append(_driver_call, driver.cuMemRelease, old_handle)
+            trans.append(lambda h=old_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
             # Unmap the old VA range (aligned previous size)
             aligned_prev_size = total_aligned_size - aligned_additional_size
@@ -1202,21 +1199,21 @@ class VirtualMemoryResource(MemoryResource):
             raise_if_driver_error(res)
 
             # Register undo for mapping
-            trans.append(_driver_call, driver.cuMemUnmap, new_ptr, aligned_prev_size)
+            trans.append(lambda np=new_ptr, s=aligned_prev_size: raise_if_driver_error(driver.cuMemUnmap(np, s)[0]))
 
             # Create new physical memory for the additional size
             res, new_handle = driver.cuMemCreate(aligned_additional_size, prop, 0)
             raise_if_driver_error(res)
 
             # Register undo for new physical memory
-            trans.append(_driver_call, driver.cuMemRelease, new_handle)
+            trans.append(lambda h=new_handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
             # Map the new physical memory to the extended portion (aligned offset)
             res, = driver.cuMemMap(int(new_ptr) + aligned_prev_size, aligned_additional_size, 0, new_handle, 0)
             raise_if_driver_error(res)
 
             # Register undo for mapping
-            trans.append(_driver_call, driver.cuMemUnmap, int(new_ptr) + aligned_prev_size, aligned_additional_size)
+            trans.append(lambda base=int(new_ptr), offs=aligned_prev_size, s=aligned_additional_size: raise_if_driver_error(driver.cuMemUnmap(base + offs, s)[0]))
 
             # Set access permissions for the entire new range
             descs = self._build_access_descriptors(prop)
@@ -1228,7 +1225,8 @@ class VirtualMemoryResource(MemoryResource):
             trans.commit()
 
         # Free the old VA range (aligned previous size)
-        handle_return(driver.cuMemAddressFree(int(buf.handle), aligned_prev_size))
+        res2, = driver.cuMemAddressFree(int(buf.handle), aligned_prev_size)
+        raise_if_driver_error(res2)
 
         # Invalidate the old buffer so its destructor won't try to free again
         buf._ptr = 0
@@ -1334,18 +1332,18 @@ class VirtualMemoryResource(MemoryResource):
             res, handle = driver.cuMemCreate(aligned_size, prop, 0)
             raise_if_driver_error(res)
             # Register undo for physical memory
-            trans.append(_driver_call, driver.cuMemRelease, handle)
+            trans.append(lambda h=handle: raise_if_driver_error(driver.cuMemRelease(h)[0]))
 
             # ---- Reserve VA space ----
             # Potentially, use a separate size for the VA reservation from the physical allocation size
             res, ptr = driver.cuMemAddressReserve(aligned_size, addr_align, config.addr_hint, 0)
             raise_if_driver_error(res)
             # Register undo for VA reservation
-            trans.append(_driver_call, driver.cuMemAddressFree, ptr, aligned_size)
+            trans.append(lambda p=ptr, s=aligned_size: raise_if_driver_error(driver.cuMemAddressFree(p, s)[0]))
 
             # ---- Map physical memory into VA ----
             res, = driver.cuMemMap(ptr, aligned_size, 0, handle, 0)
-            trans.append(_driver_call, driver.cuMemUnmap, ptr, aligned_size)
+            trans.append(lambda p=ptr, s=aligned_size: raise_if_driver_error(driver.cuMemUnmap(p, s)[0]))
             raise_if_driver_error(res)
 
             # ---- Set access for owner + peers ----
