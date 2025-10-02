@@ -177,16 +177,21 @@ cdef class Stream:
         priority = opts.priority
 
         flags = cydriver.CUstream_flags.CU_STREAM_NON_BLOCKING if nonblocking else cydriver.CUstream_flags.CU_STREAM_DEFAULT
+        # TODO: we might want to consider memoizing high/low per CUDA context and avoid this call
         cdef int high, low
-        HANDLE_RETURN(cydriver.cuCtxGetStreamPriorityRange(&high, &low))
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetStreamPriorityRange(&high, &low))
+        cdef int prio
         if priority is not None:
-            if not (low <= priority <= high):
+            prio = priority
+            if not (low <= prio <= high):
                 raise ValueError(f"{priority=} is out of range {[low, high]}")
         else:
-            priority = high
+            prio = high
 
         cdef cydriver.CUstream s
-        HANDLE_RETURN(cydriver.cuStreamCreateWithPriority(&s, flags, priority))
+        with nogil:
+            HANDLE_RETURN(cydriver.cuStreamCreateWithPriority(&s, flags, prio))
         self._handle = s
         self._owner = None
         self._nonblocking = nonblocking
@@ -204,7 +209,8 @@ cdef class Stream:
 
         if self._owner is None:
             if self._handle and not self._builtin:
-                HANDLE_RETURN(cydriver.cuStreamDestroy(self._handle))
+                with nogil:
+                    HANDLE_RETURN(cydriver.cuStreamDestroy(self._handle))
         else:
             self._owner = None
         self._handle = <cydriver.CUstream>(NULL)
@@ -238,7 +244,8 @@ cdef class Stream:
         """Return True if this is a nonblocking stream, otherwise False."""
         cdef unsigned int flags
         if self._nonblocking is None:
-            HANDLE_RETURN(cydriver.cuStreamGetFlags(self._handle, &flags))
+            with nogil:
+                HANDLE_RETURN(cydriver.cuStreamGetFlags(self._handle, &flags))
             if flags & cydriver.CUstream_flags.CU_STREAM_NON_BLOCKING:
                 self._nonblocking = True
             else:
@@ -250,13 +257,15 @@ cdef class Stream:
         """Return the stream priority."""
         cdef int prio
         if self._priority is None:
-            HANDLE_RETURN(cydriver.cuStreamGetPriority(self._handle, &prio))
+            with nogil:
+                HANDLE_RETURN(cydriver.cuStreamGetPriority(self._handle, &prio))
             self._priority = prio
         return self._priority
 
     def sync(self):
         """Synchronize the stream."""
-        HANDLE_RETURN(cydriver.cuStreamSynchronize(self._handle))
+        with nogil:
+            HANDLE_RETURN(cydriver.cuStreamSynchronize(self._handle))
 
     def record(self, event: Event = None, options: EventOptions = None) -> Event:
         """Record an event onto the stream.
@@ -299,11 +308,12 @@ cdef class Stream:
         """
         cdef cydriver.CUevent event
         cdef cydriver.CUstream stream
-        cdef bint discard_event
 
         if isinstance(event_or_stream, Event):
             event = <cydriver.CUevent><uintptr_t>(event_or_stream.handle)
-            discard_event = False
+            with nogil:
+                # TODO: support flags other than 0?
+                HANDLE_RETURN(cydriver.cuStreamWaitEvent(self._handle, event, 0))
         else:
             if isinstance(event_or_stream, Stream):
                 stream = <cydriver.CUstream><uintptr_t>(event_or_stream.handle)
@@ -316,14 +326,12 @@ cdef class Stream:
                         f" got {type(event_or_stream)}"
                     ) from e
                 stream = <cydriver.CUstream><uintptr_t>(s.handle)
-            HANDLE_RETURN(cydriver.cuEventCreate(&event, cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING))
-            HANDLE_RETURN(cydriver.cuEventRecord(event, stream))
-            discard_event = True
-
-        # TODO: support flags other than 0?
-        HANDLE_RETURN(cydriver.cuStreamWaitEvent(self._handle, event, 0))
-        if discard_event:
-            HANDLE_RETURN(cydriver.cuEventDestroy(event))
+            with nogil:
+                HANDLE_RETURN(cydriver.cuEventCreate(&event, cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING))
+                HANDLE_RETURN(cydriver.cuEventRecord(event, stream))
+                # TODO: support flags other than 0?
+                HANDLE_RETURN(cydriver.cuStreamWaitEvent(self._handle, event, 0))
+                HANDLE_RETURN(cydriver.cuEventDestroy(event))
 
     @property
     def device(self) -> Device:
@@ -344,7 +352,8 @@ cdef class Stream:
         # TODO: consider making self._ctx_handle typed?
         cdef cydriver.CUcontext ctx
         if self._ctx_handle is None:
-            HANDLE_RETURN(cydriver.cuStreamGetCtx(self._handle, &ctx))
+            with nogil:
+                HANDLE_RETURN(cydriver.cuStreamGetCtx(self._handle, &ctx))
             self._ctx_handle = driver.CUcontext(<uintptr_t>ctx)
         return 0
 

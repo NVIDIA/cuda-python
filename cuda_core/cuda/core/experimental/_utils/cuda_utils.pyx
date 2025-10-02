@@ -52,32 +52,33 @@ def _reduce_3_tuple(t: tuple):
     return t[0] * t[1] * t[2]
 
 
-cdef int HANDLE_RETURN(supported_error_type err) except?-1:
+cdef int HANDLE_RETURN(supported_error_type err) except?-1 nogil:
     if supported_error_type is cydriver.CUresult:
         if err != cydriver.CUresult.CUDA_SUCCESS:
             return _check_driver_error(err)
 
 
-cdef object _DRIVER_SUCCESS = driver.CUresult.CUDA_SUCCESS
 cdef object _RUNTIME_SUCCESS = runtime.cudaError_t.cudaSuccess
 cdef object _NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS
 
 
-cpdef inline int _check_driver_error(error) except?-1:
-    if error == _DRIVER_SUCCESS:
+cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
+    if error == cydriver.CUresult.CUDA_SUCCESS:
         return 0
-    name_err, name = driver.cuGetErrorName(error)
-    if name_err != _DRIVER_SUCCESS:
+    cdef const char* name
+    name_err = cydriver.cuGetErrorName(error, &name)
+    if name_err != cydriver.CUresult.CUDA_SUCCESS:
         raise CUDAError(f"UNEXPECTED ERROR CODE: {error}")
-    name = name.decode()
-    expl = DRIVER_CU_RESULT_EXPLANATIONS.get(int(error))
-    if expl is not None:
-        raise CUDAError(f"{name}: {expl}")
-    desc_err, desc = driver.cuGetErrorString(error)
-    if desc_err != _DRIVER_SUCCESS:
-        raise CUDAError(f"{name}")
-    desc = desc.decode()
-    raise CUDAError(f"{name}: {desc}")
+    with gil:
+        # TODO: consider lower this to Cython
+        expl = DRIVER_CU_RESULT_EXPLANATIONS.get(int(error))
+        if expl is not None:
+            raise CUDAError(f"{name.decode()}: {expl}")
+    cdef const char* desc
+    desc_err = cydriver.cuGetErrorString(error, &desc)
+    if desc_err != cydriver.CUresult.CUDA_SUCCESS:
+        raise CUDAError(f"{name.decode()}")
+    raise CUDAError(f"{name.decode()}: {desc.decode()}")
 
 
 cpdef inline int _check_runtime_error(error) except?-1:

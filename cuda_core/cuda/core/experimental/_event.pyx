@@ -109,7 +109,8 @@ cdef class Event:
             self._busy_waited = True
         if opts.support_ipc:
             raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
-        HANDLE_RETURN(cydriver.cuEventCreate(&self._handle, flags))
+        with nogil:
+            HANDLE_RETURN(cydriver.cuEventCreate(&self._handle, flags))
         self._device_id = device_id
         self._ctx_handle = ctx_handle
         return self
@@ -118,7 +119,8 @@ cdef class Event:
         if is_shutting_down and is_shutting_down():
             return
         if self._handle != NULL:
-            HANDLE_RETURN(cydriver.cuEventDestroy(self._handle))
+            with nogil:
+                HANDLE_RETURN(cydriver.cuEventDestroy(self._handle))
             self._handle = <cydriver.CUevent>(NULL)
 
     cpdef close(self):
@@ -137,7 +139,8 @@ cdef class Event:
     def __sub__(self, other: Event):
         # return self - other (in milliseconds)
         cdef float timing
-        err = cydriver.cuEventElapsedTime(&timing, other._handle, self._handle)
+        with nogil:
+            err = cydriver.cuEventElapsedTime(&timing, other._handle, self._handle)
         if err == 0:
             return timing
         else:
@@ -187,12 +190,14 @@ cdef class Event:
         has been completed.
 
         """
-        HANDLE_RETURN(cydriver.cuEventSynchronize(self._handle))
+        with nogil:
+            HANDLE_RETURN(cydriver.cuEventSynchronize(self._handle))
 
     @property
     def is_done(self) -> bool:
         """Return True if all captured works have been completed, otherwise False."""
-        result = cydriver.cuEventQuery(self._handle)
+        with nogil:
+            result = cydriver.cuEventQuery(self._handle)
         if result == cydriver.CUresult.CUDA_SUCCESS:
             return True
         if result == cydriver.CUresult.CUDA_ERROR_NOT_READY:

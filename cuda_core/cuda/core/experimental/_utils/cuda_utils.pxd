@@ -12,11 +12,11 @@ ctypedef fused supported_error_type:
     cydriver.CUresult
 
 
-cdef int HANDLE_RETURN(supported_error_type err) except?-1
+cdef int HANDLE_RETURN(supported_error_type err) except?-1 nogil
 
 
 # TODO: stop exposing these within the codebase?
-cpdef int _check_driver_error(error) except?-1
+cpdef int _check_driver_error(cydriver.CUresult error) except?-1 nogil
 cpdef int _check_runtime_error(error) except?-1
 cpdef int _check_nvrtc_error(error) except?-1
 
