@@ -1088,7 +1088,7 @@ class VirtualMemoryResource(MemoryResource):
         if res != driver.CUresult.CUDA_SUCCESS or new_ptr != (int(buf.handle) + aligned_prev_size):
             # Check for specific errors that are not recoverable with the slow path
             if res in (driver.CUresult.CUDA_ERROR_INVALID_VALUE, driver.CUresult.CUDA_ERROR_NOT_PERMITTED, driver.CUresult.CUDA_ERROR_NOT_INITIALIZED, driver.CUresult.CUDA_ERROR_NOT_SUPPORTED):
-                raise RuntimeError(f"Failed to extend VA range: {res}")
+                raise_if_driver_error(res)
             res2, = driver.cuMemAddressFree(new_ptr, aligned_additional_size)
             raise_if_driver_error(res2)
             # Fallback: couldn't extend contiguously, need full remapping
@@ -1187,7 +1187,8 @@ class VirtualMemoryResource(MemoryResource):
             def _remap_old():
                 # Try to remap the old physical memory back to the original VA range
                 try:
-                    driver.cuMemMap(int(buf.handle), aligned_prev_size, 0, old_handle, 0)
+                    res, = driver.cuMemMap(int(buf.handle), aligned_prev_size, 0, old_handle, 0)
+                    raise_if_driver_error(res)
                 except Exception:
                     pass
             trans.append(_remap_old)
@@ -1306,9 +1307,6 @@ class VirtualMemoryResource(MemoryResource):
         # ---- Build allocation properties ----
         prop = driver.CUmemAllocationProp()
         prop.type = VirtualMemoryResourceOptions._allocation_type_to_driver(config.allocation_type)
-
-        if prop.type != driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE:
-            raise NotImplementedError(f"Location type must be CU_MEM_LOCATION_TYPE_DEVICE, got {config.location_type}")
 
         prop.location.type = VirtualMemoryResourceOptions._location_type_to_driver(config.location_type)
         prop.location.id = self.device.device_id if config.location_type == "device" else -1
