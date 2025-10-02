@@ -24,6 +24,7 @@ repos:
   - repo: local
     hooks:
       - id: check-spdx
+        exclude: 'pixi\.lock$'
         name: Check SPDX Headers
         entry: python ./toolshed/check_spdx.py
         language: python
@@ -52,7 +53,7 @@ repos:
     - id: check-yaml
     - id: debug-statements
     - id: end-of-file-fixer
-      exclude: &gen_exclude '^(?:cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?)$'
+      exclude: &gen_exclude '^(?:cuda_bindings/cuda/bindings/.*\.in?|cuda_bindings/docs/source/module/.*\.rst?|pixi\.lock)$'
     - id: mixed-line-ending
     - id: trailing-whitespace
       exclude: *gen_exclude
