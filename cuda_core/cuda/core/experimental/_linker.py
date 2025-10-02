@@ -39,33 +39,33 @@ def _decide_nvjitlink_or_driver() -> bool:
     _driver_ver = handle_return(driver.cuDriverGetVersion())
     _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
 
+    warn_txt_common = (
+        "the culink APIs will be used instead, which do not support"
+        " minor version compatibility or linking LTO IRs."
+        " For best results, consider upgrading to a recent version of"
+    )
+
     try:
         import cuda.bindings.nvjitlink as _nvjitlink
     except ModuleNotFoundError:
-        warn_txt = "cuda.bindings.nvjitlink is not available, therefore"
+        warn_txt = f"cuda.bindings.nvjitlink is not available, therefore {warn_txt_common} cuda-bindings."
     else:
         from cuda.bindings._internal import nvjitlink as inner_nvjitlink
-
-        def build_warn_txt(detail):
-            return (
-                f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is {detail}."
-                " Therefore cuda.bindings.nvjitlink is not usable and"
-            )
 
         try:
             if inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion"):
                 return False  # Use nvjitlink
         except RuntimeError:
-            warn_txt = build_warn_txt("not available")
+            warn_detail = "not available"
         else:
-            warn_txt = build_warn_txt("too old (<12.3)")
+            warn_detail = "too old (<12.3)"
+        warn_txt = (
+            f"{'nvJitLink*.dll' if sys.platform == 'win32' else 'libnvJitLink.so*'} is {warn_detail}."
+            f" Therefore cuda.bindings.nvjitlink is not usable and the {warn_txt_common} nvJitLink."
+        )
         _nvjitlink = None
 
-    warn(
-        warn_txt + " the culink APIs will be used instead.",
-        stacklevel=2,
-        category=RuntimeWarning,
-    )
+    warn(warn_txt, stacklevel=2, category=RuntimeWarning)
     _driver = driver
     return True
 
