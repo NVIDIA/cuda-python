@@ -269,7 +269,7 @@ jobs:
         run: run-tests bindings
 
       - name: Check cuda.bindings ABI compatibility
-        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' && matrix.PY_VER == '3.13' }}
+        if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '0' }}
         id: abicheck
         run: |
           if (python ci/tools/abicheck.py check cuda.bindings cuda/bindings/abi/); then
