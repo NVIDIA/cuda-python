@@ -55,7 +55,6 @@ def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
 
 
 __all__ = [
-    "_detect_wsl",
     "IS_WSL",
     "supports_ipc_mempool",
 ]
