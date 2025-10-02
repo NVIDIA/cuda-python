@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 line-length = 120
 respect-gitignore = true
-target-version = "py39"
+target-version = "py310"
 
 [format]
 docstring-code-format = true
