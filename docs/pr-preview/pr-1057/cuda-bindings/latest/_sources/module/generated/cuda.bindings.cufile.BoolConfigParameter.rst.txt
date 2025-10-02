@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.BoolConfigParameter
-========================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autoenum:: BoolConfigParameter
