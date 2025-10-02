@@ -110,7 +110,7 @@ def check(package: str, abi_dir: Path) -> tuple[bool, bool]:
 
 def regenerate(package: str, abi_dir: Path) -> None:
     build_dir = get_package_path(package)
-    for so_path in Path(build_dir).glob("**/*.so"):
+    for so_path in Path(build_dir).glob("**/*{EXT_SUFFIX}"):
         print(f"Generating ABI from {so_path.relative_to(build_dir)}")
         module = import_from_path(package, build_dir, so_path)
         if hasattr(module, "__pyx_capi__"):
