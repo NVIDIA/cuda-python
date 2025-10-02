@@ -14,7 +14,7 @@ dynamic = [
     "version",
     "readme",
 ]
-requires-python = '>=3.9'
+requires-python = '>=3.10'
 description = "cuda.core: (experimental) pythonic CUDA module"
 authors = [
     { name = "NVIDIA Corporation" }

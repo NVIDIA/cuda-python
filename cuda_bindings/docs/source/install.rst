@@ -10,7 +10,7 @@ Runtime Requirements
 ``cuda.bindings`` supports the same platforms as CUDA. Runtime dependencies are:
 
 * Linux (x86-64, arm64) and Windows (x86-64)
-* Python 3.9 - 3.13
+* Python 3.10 - 3.14
 * Driver: Linux (580.65.06 or later) Windows (580.88 or later)
 * Optionally, NVRTC, nvJitLink, NVVM, and cuFile from CUDA Toolkit 13.x
 
