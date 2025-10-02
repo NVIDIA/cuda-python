@@ -23,9 +23,20 @@ The ``cuda.bindings`` module has the following support policy:
    module could require Cython layer users to rebuild their projects and update their pinning to
    this module.
 
+Free-threading build Support
+----------------------------
+As of $RELEASE, cuda-python ships with wheels that support the `free-threaded interpreter`_.
+
+1. Support for these builds is best effort, due to heavy use of `built-in
+   modules that are known to be thread-unsafe`_, such as ``ctypes``.
+2. For now, you are responsible for making sure that calls into ``cuda-python``
+   libraries are thread-safe. This is subject to change.
+
 The NVIDIA CUDA Python team reserves rights to amend the above support policy. Any major changes,
 however, will be announced to the users in advance.
 
 
 .. _CUDA minor version compatibility: https://docs.nvidia.com/deploy/cuda-compatibility/#minor-version-compatibility
 .. _CPython EOL schedule: https://devguide.python.org/versions/
+.. _built-in modules that are known to be thread-unsafe: https://github.com/python/cpython/issues/116738
+.. _free-threaded interpreter: https://docs.python.org/3/howto/free-threading-python.html
