@@ -1,8 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import multiprocessing
 from itertools import cycle
+import multiprocessing as mp
+import pickle
+import pytest
 
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from utility import IPCBufferTestHelper
@@ -14,87 +16,24 @@ NMRS = 3
 NTASKS = 20
 POOL_SIZE = 2097152
 
-# Global memory resources, set in children.
-g_mrs = None
-
-
-class TestIpcWorkerPoolUsingExport:
-    """
-    Test buffer sharing using export handles.
-
-    The memory resources need to be passed to subprocesses at startup. Buffers
-    are passed by their handles and reconstructed using the corresponding mr.
-    """
-
-    @staticmethod
-    def init_worker(mrs):
-        global g_mrs
-        g_mrs = mrs
-
-    def test_ipc_workerpool(self, ipc_device, ipc_memory_resource):
-        """Test IPC with a worker pool."""
-        device = ipc_device
-        mr = ipc_memory_resource
-        buffers = [mr.allocate(NBYTES) for _ in range(NTASKS)]
-        with multiprocessing.Pool(processes=NWORKERS, initializer=self.init_worker, initargs=([mr],)) as pool:
-            pool.starmap(self.process_buffer, [(0, buffer.get_ipc_descriptor()) for buffer in buffers])
-
-        for buffer in buffers:
-            IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
-
-    def test_ipc_workerpool_multi_mr(self, ipc_device, ipc_memory_resource):
-        """Test IPC with a worker pool using multiple memory resources."""
-        device = ipc_device
-        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-        mrs = [ipc_memory_resource] + [DeviceMemoryResource(device, options=options) for _ in range(NMRS - 1)]
-        buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
-        with multiprocessing.Pool(processes=NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
-            pool.starmap(
-                self.process_buffer,
-                [(mrs.index(buffer.memory_resource), buffer.get_ipc_descriptor()) for buffer in buffers],
-            )
-
-        for buffer in buffers:
-            IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
-
-    def process_buffer(self, mr_idx, buffer_desc):
-        device = Device()
-        buffer = Buffer.from_ipc_descriptor(g_mrs[mr_idx], buffer_desc)
-        IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
-
 
 class TestIpcWorkerPool:
     """
-    Test buffer sharing without using export handles.
+    Map a function over shared buffers using a worker pool to distribute work.
 
-    The memory resources need to be passed to subprocesses at startup. Buffers
-    are serialized with the `uuid` of the corresponding mr, and the
-    import/export is handled automatically.
+    This demonstrates the simplest interface, though not the most efficient
+    one.  Each buffer transfer involes a deep transfer of the associated memory
+    resource (duplicates are ignored on the receiving end).
     """
 
-    @staticmethod
-    def init_worker(mrs):
-        global g_mrs
-        g_mrs = mrs
-
-    def test_ipc_workerpool(self, ipc_device, ipc_memory_resource):
-        """Test IPC with a worker pool."""
-        device = ipc_device
-        mr = ipc_memory_resource
-        buffers = [mr.allocate(NBYTES) for _ in range(NTASKS)]
-        with multiprocessing.Pool(processes=NWORKERS, initializer=self.init_worker, initargs=([mr],)) as pool:
-            pool.map(self.process_buffer, buffers)
-
-        for buffer in buffers:
-            IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
-
-    def test_ipc_workerpool_multi_mr(self, ipc_device, ipc_memory_resource):
-        """Test IPC with a worker pool using multiple memory resources."""
+    @pytest.mark.parametrize("nmrs", (1, NMRS))
+    def test_main(self, ipc_device, nmrs):
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-        mrs = [ipc_memory_resource] + [DeviceMemoryResource(device, options=options) for _ in range(NMRS - 1)]
+        mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
         buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
-        with multiprocessing.Pool(processes=NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
+
+        with mp.Pool(NWORKERS) as pool:
             pool.map(self.process_buffer, buffers)
 
         for buffer in buffers:
@@ -103,3 +42,75 @@ class TestIpcWorkerPool:
     def process_buffer(self, buffer):
         device = Device()
         IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
+
+
+class TestIpcWorkerPoolUsingIPCDescriptors:
+    """
+    Test buffer sharing using IPC descriptors.
+
+    The memory resources are passed to subprocesses at startup. Buffers are
+    passed by their handles and reconstructed using the corresponding resource.
+    """
+
+    @staticmethod
+    def init_worker(mrs):
+        """Called during child process initialization to store received memory resources."""
+        TestIpcWorkerPoolUsingIPCDescriptors.mrs = mrs
+
+    @pytest.mark.parametrize("nmrs", (1, NMRS))
+    def test_main(self, ipc_device, nmrs):
+        device = ipc_device
+        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+
+        with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
+            pool.starmap(
+                self.process_buffer,
+                [(mrs.index(buffer.memory_resource), buffer.get_ipc_descriptor()) for buffer in buffers]
+            )
+
+        for buffer in buffers:
+            IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
+
+    def process_buffer(self, mr_idx, buffer_desc):
+        device = Device()
+        buffer = Buffer.from_ipc_descriptor(self.mrs[mr_idx], buffer_desc)
+        IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
+
+
+class TestIpcWorkerPoolUsingRegistry:
+    """
+    Test buffer sharing using the memory resource registry.
+
+    The memory resources are passed to subprocesses at startup, which
+    implicitly registers them. Buffers are passed via serialization and matched
+    to the corresponding memory resource through the registry. This is more
+    complicated than the simple example (first, above) but passes buffers more
+    efficiently.
+    """
+
+    @staticmethod
+    def init_worker(mrs):
+        # Passing mrs implicitly registers them.
+        pass
+
+    @pytest.mark.parametrize("nmrs", (1, NMRS))
+    def test_main(self, ipc_device, nmrs):
+        device = ipc_device
+        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
+        buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+
+        with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
+            pool.map(self.process_buffer, [pickle.dumps(buffer) for buffer in buffers]
+            )
+
+        for buffer in buffers:
+            IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
+
+    def process_buffer(self, buffer_s):
+        device = Device()
+        buffer = pickle.loads(buffer_s)
+        IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
+

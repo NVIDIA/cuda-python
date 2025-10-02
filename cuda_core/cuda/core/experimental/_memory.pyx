@@ -532,6 +532,7 @@ class DeviceMemoryResourceAttributes:
 
     del mempool_property
 
+
 # Holds DeviceMemoryResource objects imported by this process.
 # This enables buffer serialization, as buffers can reduce to a pair
 # of comprising the memory resource UUID (the key into this registry)
@@ -539,7 +540,8 @@ class DeviceMemoryResourceAttributes:
 _ipc_registry = {}
 
 class DeviceMemoryResource(MemoryResource):
-    """Create a device memory resource managing a stream-ordered memory pool.
+    """
+    Create a device memory resource managing a stream-ordered memory pool.
 
     Parameters
     ----------
@@ -560,9 +562,63 @@ class DeviceMemoryResource(MemoryResource):
         When using an existing (current or default) memory pool, the returned
         device memory resource does not own the pool (`is_handle_owned` is
         `False`), and closing the resource has no effect.
+
+    IPC-Enabled Memory Resources
+    ----------------------------
+    If ``ipc_enabled=True`` is specified as an initializer option, the memory
+    resource constructed will be capable of sharing allocations between
+    processes. Sharing an allocation is a two-step procedure that involves
+    mapping a memory resource and then mapping buffers owned by that resource.
+    These steps can be accomplished in several ways.
+
+    An IPC-enabled memory resource (MR) can allocate memory buffers but cannot
+    receive shared buffers. Mapping an MR to another process creates a "mapped
+    memory resource" (MMR). An MMR cannot allocate memory buffers and can only
+    receive shared buffers. MRs and MMRs are both of type
+    :class:`DeviceMemoryResource` and can be distinguished via
+    :attr:`DeviceMemoryResource.is_mapped`.
+
+    An MR is shared via an allocation handle obtained by calling
+    :meth:`DeviceMemoryResource.get_allocation_handle`. The allocation handle
+    has a platform-specific interpretation; however, memory IPC is currently
+    only supported for Linux, and in that case allocation handles are file
+    descriptors. After sending an allocation handle to another process, it can
+    be used to create an MMR by invoking
+    :meth:`DeviceMemoryResource.from_allocation_handle`.
+
+    Buffers can be shared as serializable descriptors obtained by calling
+    :meth:`Buffer.get_ipc_descriptor`. In a receiving process, a shared buffer is
+    created by invoking :meth:`Buffer.from_ipc_descriptor` with an MMR and
+    buffer descriptor, where the MMR corresponds to the MR that created the
+    described buffer.
+
+    To help manage the association between memory resources and buffers, a
+    registry is provided. Every MR has a unique identifier (UUID). MMRs can be
+    registered by calling :meth:`DeviceMemoryResource.register` with the UUID
+    of the corresponding MR. Registered MMRs can be looked up via
+    :meth:`DeviceMemoryResource.from_registry`. When registering MMRs in this
+    way, the use of buffer descriptors can be avoided. Instead, buffer objects
+    can themselves be serialized and transferred directly. Serialization embeds
+    the UUID, which is used to locate the correct MMR during reconstruction.
+
+    IPC-enabled memory resources interoperate with the :mod:`multiprocessing`
+    module to provide a simplified interface. This approach can avoid direct
+    use of allocation handles, buffer descriptors, MMRs, and the registry. When
+    using :mod:`multiprocessing` to spawn processes or send objects through
+    communication channels such as :class:`multiprocessing.Queue`,
+    :class:`multiprocessing.Pipe`, or :class:`multiprocessing.Connection`,
+    :class:`Buffer` objects may be sent directly, and in such cases the process
+    for creating MMRs and mapping buffers will be handled automatically.
+
+    For greater efficiency when transferring many buffers, one may also send
+    MRs and buffers separately. When an MR is sent via :mod:`multiprocessing`,
+    an MMR is created and registered in the receiving process. Subsequently,
+    buffers may be serialized and transferred using ordinary :mod:`pickle`
+    methods.  The reconstruction procedure uses the registry to find the
+    associated MMR.
     """
     __slots__ = ("_dev_id", "_mempool_handle", "_attributes", "_ipc_handle_type",
-                 "_mempool_owned", "_is_imported", "_uuid", "_alloc_handle")
+                 "_mempool_owned", "_is_mapped", "_uuid", "_alloc_handle")
 
     def __init__(self, device_id: int | Device, options=None):
         device_id = getattr(device_id, 'device_id', device_id)
@@ -577,7 +633,7 @@ class DeviceMemoryResource(MemoryResource):
             self._attributes = None
             self._ipc_handle_type = _NOIPC_HANDLE_TYPE
             self._mempool_owned = False
-            self._is_imported = False
+            self._is_mapped = False
             self._uuid = None
             self._alloc_handle = None
 
@@ -620,7 +676,7 @@ class DeviceMemoryResource(MemoryResource):
             self._attributes = None
             self._ipc_handle_type = properties.handleTypes
             self._mempool_owned = True
-            self._is_imported = False
+            self._is_mapped = False
             self._uuid = None
             self._alloc_handle = None
 
@@ -641,38 +697,46 @@ class DeviceMemoryResource(MemoryResource):
                     err, = driver.cuMemPoolDestroy(self._mempool_handle)
                     raise_if_driver_error(err)
             finally:
-                self.unregister()
+                if self.is_mapped:
+                    self.unregister()
                 self._dev_id = None
                 self._mempool_handle = None
                 self._attributes = None
                 self._ipc_handle_type = _NOIPC_HANDLE_TYPE
                 self._mempool_owned = False
-                self._is_imported = False
+                self._is_mapped = False
                 self._uuid = None
                 self._alloc_handle = None
 
 
     def __reduce__(self):
-        # If spawning a new process, serialize the resources; otherwise, just
-        # send the UUID, using the registry on the receiving end.
-        import multiprocessing
-        is_spawning = multiprocessing.context.get_spawning_popen() is not None
-        if is_spawning:
-            from ._device import Device
-            device = Device(self.device_id)
-            alloc_handle = self.get_allocation_handle()
-            return DeviceMemoryResource.from_allocation_handle, (device, alloc_handle)
-        else:
-            return DeviceMemoryResource.from_registry, (self.uuid,)
+        return DeviceMemoryResource.from_registry, (self.uuid,)
 
     @staticmethod
-    def from_registry(uuid: uuid.UUID):
+    def from_registry(uuid: uuid.UUID) -> DeviceMemoryResource:
+        """
+        Obtain a registered mapped memory resource.
+
+        Raises
+        ------
+        RuntimeError
+            If no mapped memory resource is found in the registry.
+        """
+
         try:
             return _ipc_registry[uuid]
         except KeyError:
             raise RuntimeError(f"Memory resource {uuid} was not found") from None
 
-    def register(self, uuid: uuid.UUID):
+    def register(self, uuid: uuid.UUID) -> DeviceMemoryResource:
+        """
+        Register a mapped memory resource.
+
+        Returns
+        -------
+        The registered mapped memory resource. If one was previously registered
+        with the given key, it is returned.
+        """
         existing = _ipc_registry.get(uuid)
         if existing is not None:
             return existing
@@ -682,12 +746,18 @@ class DeviceMemoryResource(MemoryResource):
         return self
 
     def unregister(self):
-        if _ipc_registry is not None:
+        """Unregister this mapped memory resource."""
+        assert self.is_mapped
+        if _ipc_registry is not None:  # can occur during shutdown catastrophe
             with contextlib.suppress(KeyError):
                 del _ipc_registry[self.uuid]
 
     @property
-    def uuid(self):
+    def uuid(self) -> Optional[uuid.UUID]:
+        """
+        A universally unique identifier for this memory resource. Meaningful
+        only for IPC-enabled memory resources.
+        """
         return self._uuid
 
     @classmethod
@@ -711,6 +781,12 @@ class DeviceMemoryResource(MemoryResource):
         -------
             A new device memory resource instance with the imported handle.
         """
+         # Quick exit for registry hits.
+        uuid = getattr(alloc_handle, 'uuid', None)
+        self = _ipc_registry.get(uuid)
+        if self is not None:
+            return self
+
         device_id = getattr(device_id, 'device_id', device_id)
 
         self = cls.__new__(cls)
@@ -719,15 +795,15 @@ class DeviceMemoryResource(MemoryResource):
         self._attributes = None
         self._ipc_handle_type = _IPC_HANDLE_TYPE
         self._mempool_owned = True
-        self._is_imported = True
+        self._is_mapped = True
         self._uuid = None
         self._alloc_handle = None # only used for non-imported
 
         err, self._mempool_handle = driver.cuMemPoolImportFromShareableHandle(int(alloc_handle), _IPC_HANDLE_TYPE, 0)
         raise_if_driver_error(err)
-        uuid = getattr(alloc_handle, 'uuid', None)
         if uuid is not None:
-            self = self.register(uuid)
+            registered = self.register(uuid)
+            assert registered is self
         return self
 
     def get_allocation_handle(self) -> IPCAllocationHandle:
@@ -743,13 +819,13 @@ class DeviceMemoryResource(MemoryResource):
         if self._alloc_handle is None:
             if not self.is_ipc_enabled:
                 raise RuntimeError("Memory resource is not IPC-enabled")
-            if self._is_imported:
+            if self._is_mapped:
                 raise RuntimeError("Imported memory resource cannot be exported")
             err, alloc_handle = driver.cuMemPoolExportToShareableHandle(self._mempool_handle, _IPC_HANDLE_TYPE, 0)
             raise_if_driver_error(err)
             try:
                 assert self._uuid is None
-                import uuid as uuid
+                import uuid
                 self._uuid = uuid.uuid4()
                 self._alloc_handle = IPCAllocationHandle._init(alloc_handle, self._uuid)
             except:
@@ -774,8 +850,8 @@ class DeviceMemoryResource(MemoryResource):
             The allocated buffer object, which is accessible on the device that this memory
             resource was created for.
         """
-        if self._is_imported:
-            raise TypeError("Cannot allocate from shared memory pool imported via IPC")
+        if self._is_mapped:
+            raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         if stream is None:
             stream = default_stream()
         err, ptr = driver.cuMemAllocFromPoolAsync(size, self._mempool_handle, stream.handle)
@@ -823,9 +899,12 @@ class DeviceMemoryResource(MemoryResource):
         return self._mempool_owned
 
     @property
-    def is_imported(self) -> bool:
-        """Whether the memory resource was imported from another process. If True, allocation is not permitted."""
-        return self._is_imported
+    def is_mapped(self) -> bool:
+        """
+        Whether this is a mapping of an IPC-enabled memory resource from
+        another process.  If True, allocation is not permitted.
+        """
+        return self._is_mapped
 
     @property
     def is_device_accessible(self) -> bool:
@@ -841,6 +920,16 @@ class DeviceMemoryResource(MemoryResource):
     def is_ipc_enabled(self) -> bool:
         """Whether this memory resource has IPC enabled."""
         return self._ipc_handle_type != _NOIPC_HANDLE_TYPE
+
+
+def _deep_reduce_device_memory_resource(mr):
+    from ._device import Device
+    device = Device(mr.device_id)
+    alloc_handle = mr.get_allocation_handle()
+    return mr.from_allocation_handle, (device, alloc_handle)
+
+
+multiprocessing.reduction.register(DeviceMemoryResource, _deep_reduce_device_memory_resource)
 
 
 class LegacyPinnedMemoryResource(MemoryResource):

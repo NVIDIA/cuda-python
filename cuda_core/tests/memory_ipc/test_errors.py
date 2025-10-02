@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing
+import pickle
 import re
 
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
@@ -64,7 +65,7 @@ class TestAllocFromImportedMr(ChildErrorHarness):
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is TypeError
-        assert exc_msg == "Cannot allocate from shared memory pool imported via IPC"
+        assert exc_msg == "Cannot allocate from a mapped IPC-enabled memory resource"
 
 
 class TestImportWrongMR(ChildErrorHarness):
@@ -128,11 +129,13 @@ class TestDanglingBuffer(ChildErrorHarness):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr2 = DeviceMemoryResource(self.device, options=options)
         self.buffer = mr2.allocate(NBYTES)
-        queue.put(self.buffer)  # Note: mr2 not sent
+        buffer_s = pickle.dumps(self.buffer)
+        queue.put(buffer_s)  # Note: mr2 not sent
 
     def CHILD_ACTION(self, queue):
         Device().set_current()
-        queue.get(timeout=CHILD_TIMEOUT_SEC)
+        buffer_s = queue.get(timeout=CHILD_TIMEOUT_SEC)
+        pickle.loads(buffer_s)
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is RuntimeError
