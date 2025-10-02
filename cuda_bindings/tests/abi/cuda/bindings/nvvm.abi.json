@@ -1,0 +1,14 @@
+{
+  "add_module_to_program": "PyObject *(intptr_t, PyObject *, size_t, PyObject *, int __pyx_skip_dispatch)",
+  "compile_program": "PyObject *(intptr_t, int, PyObject *, int __pyx_skip_dispatch)",
+  "create_program": "intptr_t (int __pyx_skip_dispatch)",
+  "get_compiled_result": "PyObject *(intptr_t, PyObject *, int __pyx_skip_dispatch)",
+  "get_compiled_result_size": "size_t (intptr_t, int __pyx_skip_dispatch)",
+  "get_error_string": "PyObject *(int, int __pyx_skip_dispatch)",
+  "get_program_log": "PyObject *(intptr_t, PyObject *, int __pyx_skip_dispatch)",
+  "get_program_log_size": "size_t (intptr_t, int __pyx_skip_dispatch)",
+  "ir_version": "PyObject *(int __pyx_skip_dispatch)",
+  "lazy_add_module_to_program": "PyObject *(intptr_t, PyObject *, size_t, PyObject *, int __pyx_skip_dispatch)",
+  "verify_program": "PyObject *(intptr_t, int, PyObject *, int __pyx_skip_dispatch)",
+  "version": "PyObject *(int __pyx_skip_dispatch)"
+}

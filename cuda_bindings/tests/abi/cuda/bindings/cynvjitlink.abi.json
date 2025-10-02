@@ -1,0 +1,16 @@
+{
+  "nvJitLinkAddData": "nvJitLinkResult (nvJitLinkHandle, nvJitLinkInputType, void const *, size_t, char const *)",
+  "nvJitLinkAddFile": "nvJitLinkResult (nvJitLinkHandle, nvJitLinkInputType, char const *)",
+  "nvJitLinkComplete": "nvJitLinkResult (nvJitLinkHandle)",
+  "nvJitLinkCreate": "nvJitLinkResult (nvJitLinkHandle *, uint32_t, char const **)",
+  "nvJitLinkDestroy": "nvJitLinkResult (nvJitLinkHandle *)",
+  "nvJitLinkGetErrorLog": "nvJitLinkResult (nvJitLinkHandle, char *)",
+  "nvJitLinkGetErrorLogSize": "nvJitLinkResult (nvJitLinkHandle, size_t *)",
+  "nvJitLinkGetInfoLog": "nvJitLinkResult (nvJitLinkHandle, char *)",
+  "nvJitLinkGetInfoLogSize": "nvJitLinkResult (nvJitLinkHandle, size_t *)",
+  "nvJitLinkGetLinkedCubin": "nvJitLinkResult (nvJitLinkHandle, void *)",
+  "nvJitLinkGetLinkedCubinSize": "nvJitLinkResult (nvJitLinkHandle, size_t *)",
+  "nvJitLinkGetLinkedPtx": "nvJitLinkResult (nvJitLinkHandle, char *)",
+  "nvJitLinkGetLinkedPtxSize": "nvJitLinkResult (nvJitLinkHandle, size_t *)",
+  "nvJitLinkVersion": "nvJitLinkResult (unsigned int *, unsigned int *)"
+}

@@ -1,0 +1,17 @@
+{
+  "__pyx_fuse_0get_nested_resource_ptr": "int (__pyx_t_4cuda_8bindings_9_internal_5utils_nested_resource<int>  &, PyObject *, int *)",
+  "__pyx_fuse_0get_resource_ptr": "int (nullable_unique_ptr<std::vector<int> >  &, PyObject *, int *)",
+  "__pyx_fuse_0get_resource_ptrs": "int (nullable_unique_ptr<std::vector<void *> >  &, PyObject *, void *)",
+  "__pyx_fuse_1get_nested_resource_ptr": "int (__pyx_t_4cuda_8bindings_9_internal_5utils_nested_resource<int32_t>  &, PyObject *, int32_t *)",
+  "__pyx_fuse_1get_resource_ptr": "int (nullable_unique_ptr<std::vector<int32_t> >  &, PyObject *, int32_t *)",
+  "__pyx_fuse_2get_nested_resource_ptr": "int (__pyx_t_4cuda_8bindings_9_internal_5utils_nested_resource<int64_t>  &, PyObject *, int64_t *)",
+  "__pyx_fuse_2get_resource_ptr": "int (nullable_unique_ptr<std::vector<int64_t> >  &, PyObject *, int64_t *)",
+  "__pyx_fuse_3get_nested_resource_ptr": "int (__pyx_t_4cuda_8bindings_9_internal_5utils_nested_resource<char>  &, PyObject *, char *)",
+  "__pyx_fuse_3get_resource_ptr": "int (nullable_unique_ptr<std::vector<char> >  &, PyObject *, char *)",
+  "__pyx_fuse_4get_nested_resource_ptr": "int (__pyx_t_4cuda_8bindings_9_internal_5utils_nested_resource<float>  &, PyObject *, float *)",
+  "__pyx_fuse_4get_resource_ptr": "int (nullable_unique_ptr<std::vector<float> >  &, PyObject *, float *)",
+  "__pyx_fuse_5get_nested_resource_ptr": "int (__pyx_t_4cuda_8bindings_9_internal_5utils_nested_resource<double>  &, PyObject *, double *)",
+  "__pyx_fuse_5get_resource_ptr": "int (nullable_unique_ptr<std::vector<double> >  &, PyObject *, double *)",
+  "get_buffer_pointer": "void *(PyObject *, Py_ssize_t, struct __pyx_opt_args_4cuda_8bindings_9_internal_5utils_get_buffer_pointer *__pyx_optional_args)",
+  "is_nested_sequence": "int (PyObject *)"
+}
