@@ -10,7 +10,7 @@ from cuda.bindings cimport cydriver
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 import threading
-from typing import Optional, Union
+from typing import Union
 
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
@@ -949,7 +949,7 @@ class Device:
     """
     __slots__ = ("_id", "_mr", "_has_inited", "_properties")
 
-    def __new__(cls, device_id: Optional[int] = None):
+    def __new__(cls, device_id: int | None = None):
         global _is_cuInit
         if _is_cuInit is False:
             with _lock, nogil:
@@ -1221,7 +1221,7 @@ class Device:
         """
         raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
 
-    def create_stream(self, obj: Optional[IsStreamT] = None, options: Optional[StreamOptions] = None) -> Stream:
+    def create_stream(self, obj: IsStreamT | None = None, options: StreamOptions | None = None) -> Stream:
         """Create a Stream object.
 
         New stream objects can be created in two different ways:
@@ -1252,7 +1252,7 @@ class Device:
         self._check_context_initialized()
         return Stream._init(obj=obj, options=options, device_id=self._id)
 
-    def create_event(self, options: Optional[EventOptions] = None) -> Event:
+    def create_event(self, options: EventOptions | None = None) -> Event:
         """Create an Event object without recording it to a Stream.
 
         Note
@@ -1274,7 +1274,7 @@ class Device:
         ctx = self._get_current_context()
         return Event._init(self._id, ctx, options)
 
-    def allocate(self, size, stream: Optional[Stream] = None) -> Buffer:
+    def allocate(self, size, stream: Stream | None = None) -> Buffer:
         """Allocate device memory from a specified stream.
 
         Allocates device memory of `size` bytes on the specified `stream`
