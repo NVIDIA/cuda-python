@@ -10,5 +10,4 @@ cdef class Event:
         int _device_id
         object _ctx_handle
 
-    cdef _shutdown_safe_close(self, is_shutting_down=*)
     cpdef close(self)

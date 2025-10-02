@@ -14,8 +14,6 @@ from cuda.core.experimental._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
 
-import sys
-
 import cython
 import os
 import warnings
@@ -202,19 +200,7 @@ cdef class Stream:
         return self
 
     def __del__(self):
-        self._shutdown_safe_close()
-
-    cdef _shutdown_safe_close(self, is_shutting_down=sys.is_finalizing):
-        if is_shutting_down and is_shutting_down():
-            return
-
-        if self._owner is None:
-            if self._handle and not self._builtin:
-                with nogil:
-                    HANDLE_RETURN(cydriver.cuStreamDestroy(self._handle))
-        else:
-            self._owner = None
-        self._handle = <cydriver.CUstream>(NULL)
+        self.close()
 
     cpdef close(self):
         """Destroy the stream.
@@ -223,7 +209,13 @@ cdef class Stream:
         object will instead have their references released.
 
         """
-        self._shutdown_safe_close(is_shutting_down=None)
+        if self._owner is None:
+            if self._handle and not self._builtin:
+                with nogil:
+                    HANDLE_RETURN(cydriver.cuStreamDestroy(self._handle))
+        else:
+            self._owner = None
+        self._handle = <cydriver.CUstream>(NULL)
 
     def __cuda_stream__(self) -> tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
