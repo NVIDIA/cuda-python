@@ -11,7 +11,12 @@ def find_all_dll_files_via_metadata() -> dict[str, tuple[str, ...]]:
     results: collections.defaultdict[str, list[str]] = collections.defaultdict(list)
 
     # sort dists for deterministic output
-    for dist in sorted(importlib.metadata.distributions(), key=lambda d: (d.metadata.get("Name", ""), d.version)):
+
+    for dist in sorted(
+        importlib.metadata.distributions(),
+        # `get` exists before 3.12, even though the hints only exist for Python >=3.12
+        key=lambda d: (d.metadata.get("Name", ""), d.version),  # type: ignore[attr-defined]
+    ):
         files = dist.files
         if not files:
             continue
