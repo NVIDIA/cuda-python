@@ -26,7 +26,7 @@ dependencies are as follows:
 .. [#f1] Including ``cuda-python``.
 
 
-``cuda.core`` supports Python 3.9 - 3.13, on Linux (x86-64, arm64) and Windows (x86-64).
+``cuda.core`` supports Python 3.10 - 3.14, on Linux (x86-64, arm64) and Windows (x86-64).
 
 Installing from PyPI
 --------------------

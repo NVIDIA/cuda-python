@@ -9,6 +9,7 @@ name = "cuda-bindings"
 description = "Python bindings for CUDA"
 authors = [{name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com"},]
 license = "LicenseRef-NVIDIA-SOFTWARE-LICENSE"
+requires-python = ">=3.10"
 classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Database",

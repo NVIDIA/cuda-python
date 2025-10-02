@@ -49,7 +49,7 @@ def _nvvm_exception_manager(self):
             except Exception:
                 error_log = ""
         # Starting Python 3.11 we could also use Exception.add_note() for the same purpose, but
-        # unfortunately we are still supporting Python 3.9/3.10...
+        # unfortunately we are still supporting Python 3.10...
         e.args = (e.args[0] + (f"\nNVVM program log: {error_log}" if error_log else ""), *e.args[1:])
         raise e
 
