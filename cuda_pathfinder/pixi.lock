@@ -2,6 +2,7 @@ version: 6
 environments:
   cu12:
     channels:
+    - url: https://conda.anaconda.org/nvidia/
     - url: https://conda.anaconda.org/conda-forge/
     indexes:
     - https://pypi.org/simple
@@ -136,6 +137,7 @@ environments:
       - pypi: ./
   cu12-ext:
     channels:
+    - url: https://conda.anaconda.org/nvidia/
     - url: https://conda.anaconda.org/conda-forge/
     indexes:
     - https://pypi.org/simple
@@ -215,6 +217,7 @@ environments:
       - pypi: ./
   cu13:
     channels:
+    - url: https://conda.anaconda.org/nvidia/
     - url: https://conda.anaconda.org/conda-forge/
     indexes:
     - https://pypi.org/simple
@@ -349,6 +352,7 @@ environments:
       - pypi: ./
   cu13-ext:
     channels:
+    - url: https://conda.anaconda.org/nvidia/
     - url: https://conda.anaconda.org/conda-forge/
     indexes:
     - https://pypi.org/simple
@@ -418,6 +422,7 @@ environments:
       - pypi: ./
   default:
     channels:
+    - url: https://conda.anaconda.org/nvidia/
     - url: https://conda.anaconda.org/conda-forge/
     indexes:
     - https://pypi.org/simple
@@ -488,6 +493,7 @@ environments:
       - pypi: ./
   host:
     channels:
+    - url: https://conda.anaconda.org/nvidia/
     - url: https://conda.anaconda.org/conda-forge/
     indexes:
     - https://pypi.org/simple
@@ -614,7 +620,7 @@ packages:
 - pypi: ./
   name: cuda-pathfinder
   version: 1.3.0
-  sha256: 1d9f1da21d2a897c611db7f770562f26b5403e9e0596b03d654db9fc44e56dd8
+  sha256: 174637fab82392428c997179ec5491ec2228fcbe01c282fb171aa0d394b2247d
   requires_python: '>=3.9'
   editable: true
 - pypi: https://files.pythonhosted.org/packages/7c/8f/a28e7da158e96ad61f7e1035e53851fafaddf22445300d664e68ec657fdc/cuda_toolkit-12.9.1-py2.py3-none-any.whl
