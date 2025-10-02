@@ -29,6 +29,11 @@ _nvjitlink = None  # populated if nvJitLink can be used
 _nvjitlink_input_types = None  # populated if nvJitLink cannot be used
 
 
+def _nvjitlink_has_version_symbol(inner_nvjitlink) -> bool:
+    # This condition is equivalent to testing for version >= 12.3
+    return bool(inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion"))
+
+
 # Note: this function is reused in the tests
 def _decide_nvjitlink_or_driver() -> bool:
     """Returns True if falling back to the cuLink* driver APIs."""
@@ -53,7 +58,7 @@ def _decide_nvjitlink_or_driver() -> bool:
         from cuda.bindings._internal import nvjitlink as inner_nvjitlink
 
         try:
-            if inner_nvjitlink._inspect_function_pointer("__nvJitLinkVersion"):
+            if _nvjitlink_has_version_symbol(inner_nvjitlink):
                 return False  # Use nvjitlink
         except RuntimeError:
             warn_detail = "not available"
