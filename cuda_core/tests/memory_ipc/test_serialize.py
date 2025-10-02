@@ -33,7 +33,6 @@ class TestObjectSerializationDirect:
         # Send a memory resource by allocation handle.
         alloc_handle = mr.get_allocation_handle()
         mp.reduction.send_handle(parent_conn, alloc_handle.handle, process.pid)
-        parent_conn.send(mr.uuid)
 
         # Send a buffer.
         buffer1 = mr.allocate(NBYTES)
@@ -57,9 +56,7 @@ class TestObjectSerializationDirect:
 
         # Receive the memory resource.
         handle = mp.reduction.recv_handle(conn)
-        uuid = conn.recv()
         mr = DeviceMemoryResource.from_allocation_handle(device, handle)
-        mr.register(uuid)
         os.close(handle)
 
         # Receive the buffers.
@@ -135,7 +132,7 @@ def test_object_passing(ipc_device, ipc_memory_resource):
     helper.fill_buffer(flipped=False)
 
     # Start the child process.
-    process = mp.Process(target=child_main, args=(device, alloc_handle, mr, buffer_desc, buffer))
+    process = mp.Process(target=child_main, args=(alloc_handle, mr, buffer_desc, buffer))
     process.start()
     process.join(timeout=CHILD_TIMEOUT_SEC)
     assert process.exitcode == 0
@@ -143,7 +140,9 @@ def test_object_passing(ipc_device, ipc_memory_resource):
     helper.verify_buffer(flipped=True)
 
 
-def child_main(device, alloc_handle, mr1, buffer_desc, buffer1):
+def child_main(alloc_handle, mr1, buffer_desc, buffer1):
+    device = Device()
+    device.set_current()
     mr2 = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
 
     # OK to build the buffer from either mr and the descriptor.

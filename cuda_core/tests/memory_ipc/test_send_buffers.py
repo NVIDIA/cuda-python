@@ -1,10 +1,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import multiprocessing
+import multiprocessing as mp
 from itertools import cycle
 
-from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions
+import pytest
+from cuda.core.experimental import DeviceMemoryResource, DeviceMemoryResourceOptions
 from utility import IPCBufferTestHelper
 
 CHILD_TIMEOUT_SEC = 20
@@ -14,37 +15,13 @@ NTASKS = 7
 POOL_SIZE = 2097152
 
 
-def test_ipc_send_buffers(ipc_device, ipc_memory_resource):
-    """Test passing buffers directly to a child separately from a memory resource."""
-    device = ipc_device
-    mr = ipc_memory_resource
-
-    # Allocate and fill memory.
-    buffers = [mr.allocate(NBYTES) for _ in range(NTASKS)]
-    for buffer in buffers:
-        helper = IPCBufferTestHelper(device, buffer)
-        helper.fill_buffer(flipped=False)
-
-    # Start the child process. Send the buffer directly.
-    process = multiprocessing.Process(target=child_main, args=(buffers,))
-    process.start()
-
-    # Wait for the child process.
-    process.join(timeout=CHILD_TIMEOUT_SEC)
-    assert process.exitcode == 0
-
-    # Verify that the buffers were modified.
-    for buffer in buffers:
-        helper = IPCBufferTestHelper(device, buffer)
-        helper.verify_buffer(flipped=True)
-
-
-def test_ipc_send_buffers_multi(ipc_device, ipc_memory_resource):
+@pytest.mark.parametrize("nmrs", (1, NMRS))
+def test_ipc_send_buffers(ipc_device, nmrs):
     """Test passing buffers sourced from multiple memory resources."""
     # Set up several IPC-enabled memory pools.
     device = ipc_device
     options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-    mrs = [ipc_memory_resource] + [DeviceMemoryResource(device, options=options) for _ in range(NMRS - 1)]
+    mrs = [DeviceMemoryResource(device, options=options) for _ in range(NMRS)]
 
     # Allocate and fill memory.
     buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
@@ -53,7 +30,13 @@ def test_ipc_send_buffers_multi(ipc_device, ipc_memory_resource):
         helper.fill_buffer(flipped=False)
 
     # Start the child process.
-    process = multiprocessing.Process(target=child_main, args=(buffers,))
+    process = mp.Process(
+        target=child_main,
+        args=(
+            device,
+            buffers,
+        ),
+    )
     process.start()
 
     # Wait for the child process.
@@ -66,8 +49,8 @@ def test_ipc_send_buffers_multi(ipc_device, ipc_memory_resource):
         helper.verify_buffer(flipped=True)
 
 
-def child_main(buffers):
-    device = Device()
+def child_main(device, buffers):
+    device.set_current()
     for buffer in buffers:
         helper = IPCBufferTestHelper(device, buffer)
         helper.verify_buffer(flipped=False)

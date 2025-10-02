@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from itertools import cycle
 import multiprocessing as mp
 import pickle
-import pytest
+from itertools import cycle
 
+import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from utility import IPCBufferTestHelper
 
@@ -40,7 +40,8 @@ class TestIpcWorkerPool:
             IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
 
     def process_buffer(self, buffer):
-        device = Device()
+        device = Device(buffer.memory_resource.device_id)
+        device.set_current()
         IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
 
 
@@ -67,15 +68,17 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
             pool.starmap(
                 self.process_buffer,
-                [(mrs.index(buffer.memory_resource), buffer.get_ipc_descriptor()) for buffer in buffers]
+                [(mrs.index(buffer.memory_resource), buffer.get_ipc_descriptor()) for buffer in buffers],
             )
 
         for buffer in buffers:
             IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
 
     def process_buffer(self, mr_idx, buffer_desc):
-        device = Device()
-        buffer = Buffer.from_ipc_descriptor(self.mrs[mr_idx], buffer_desc)
+        mr = self.mrs[mr_idx]
+        device = Device(mr.device_id)
+        device.set_current()
+        buffer = Buffer.from_ipc_descriptor(mr, buffer_desc)
         IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
 
 
@@ -103,14 +106,12 @@ class TestIpcWorkerPoolUsingRegistry:
         buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
 
         with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
-            pool.map(self.process_buffer, [pickle.dumps(buffer) for buffer in buffers]
-            )
+            pool.starmap(self.process_buffer, [(device, pickle.dumps(buffer)) for buffer in buffers])
 
         for buffer in buffers:
             IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
 
-    def process_buffer(self, buffer_s):
-        device = Device()
-        buffer = pickle.loads(buffer_s)
+    def process_buffer(self, device, buffer_s):
+        device.set_current()
+        buffer = pickle.loads(buffer_s)  # noqa: S301
         IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
-

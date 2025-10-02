@@ -33,7 +33,7 @@ def test_alloc_handle(ipc_memory_resource):
         [mr.get_allocation_handle() for _ in range(10)]
 
 
-def exec_with_object(obj, number=1):
+def exec_success(obj, number=1):
     """Succesfully run a child process."""
     for _ in range(number):
         process = mp.Process(target=child_main, args=(obj,))
@@ -92,7 +92,7 @@ class Irreducible:
     ],
     ids=["alloc_handle", "mr", "buffer", "buffer_desc"],
 )
-@pytest.mark.parametrize("launcher", [exec_with_object, exec_launch_failure, exec_reduce_failure])
+@pytest.mark.parametrize("launcher", [exec_success, exec_launch_failure, exec_reduce_failure])
 def test_pass_object(ipc_memory_resource, launcher, getobject):
     """Check for fd leaks when an object is sent as a subprocess argument."""
     mr = ipc_memory_resource

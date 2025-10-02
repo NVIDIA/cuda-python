@@ -923,7 +923,7 @@ class DeviceMemoryResource(MemoryResource):
 
 
 def _deep_reduce_device_memory_resource(mr):
-    from ._device import Device
+    from . import Device
     device = Device(mr.device_id)
     alloc_handle = mr.get_allocation_handle()
     return mr.from_allocation_handle, (device, alloc_handle)

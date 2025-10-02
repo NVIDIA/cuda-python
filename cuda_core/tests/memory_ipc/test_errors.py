@@ -43,6 +43,7 @@ class ChildErrorHarness:
     def child_main(self, pipe, device, mr):
         """Child process that pushes IPC errors to a shared pipe for testing."""
         self.device = device
+        self.device.set_current()
         self.mr = mr
         try:
             self.CHILD_ACTION(pipe[0])
@@ -129,13 +130,13 @@ class TestDanglingBuffer(ChildErrorHarness):
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mr2 = DeviceMemoryResource(self.device, options=options)
         self.buffer = mr2.allocate(NBYTES)
-        buffer_s = pickle.dumps(self.buffer)
+        buffer_s = pickle.dumps(self.buffer)  # noqa: S301
         queue.put(buffer_s)  # Note: mr2 not sent
 
     def CHILD_ACTION(self, queue):
         Device().set_current()
         buffer_s = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        pickle.loads(buffer_s)
+        pickle.loads(buffer_s)  # noqa: S301
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is RuntimeError

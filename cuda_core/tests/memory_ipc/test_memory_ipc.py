@@ -3,7 +3,7 @@
 
 import multiprocessing as mp
 
-from cuda.core.experimental import Buffer, Device, DeviceMemoryResource
+from cuda.core.experimental import Buffer, DeviceMemoryResource
 from utility import IPCBufferTestHelper
 
 CHILD_TIMEOUT_SEC = 20
@@ -21,7 +21,7 @@ class TestIpcMempool:
 
         # Start the child process.
         queue = mp.Queue()
-        process = mp.Process(target=self.child_main, args=(mr, queue))
+        process = mp.Process(target=self.child_main, args=(device, mr, queue))
         process.start()
 
         # Allocate and fill memory.
@@ -39,8 +39,8 @@ class TestIpcMempool:
         # Verify that the buffer was modified.
         helper.verify_buffer(flipped=True)
 
-    def child_main(self, mr, queue):
-        device = Device()
+    def child_main(self, device, mr, queue):
+        device.set_current()
         buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
         helper = IPCBufferTestHelper(device, buffer)
         helper.verify_buffer(flipped=False)
@@ -64,8 +64,8 @@ class TestIPCMempoolMultiple:
         q2.put(buffer2)
 
         # Start the child processes.
-        p1 = mp.Process(target=self.child_main, args=(mr, 1, q1))
-        p2 = mp.Process(target=self.child_main, args=(mr, 2, q2))
+        p1 = mp.Process(target=self.child_main, args=(device, mr, 1, q1))
+        p2 = mp.Process(target=self.child_main, args=(device, mr, 2, q2))
         p1.start()
         p2.start()
 
@@ -79,10 +79,10 @@ class TestIPCMempoolMultiple:
         IPCBufferTestHelper(device, buffer1).verify_buffer(flipped=False)
         IPCBufferTestHelper(device, buffer2).verify_buffer(flipped=True)
 
-    def child_main(self, mr, idx, queue):
+    def child_main(self, device, mr, idx, queue):
         # Note: passing the mr registers it so that buffers can be passed
         # directly.
-        device = Device()
+        device.set_current()
         buffer1 = queue.get(timeout=CHILD_TIMEOUT_SEC)
         buffer2 = queue.get(timeout=CHILD_TIMEOUT_SEC)
         if idx == 1:
@@ -104,8 +104,8 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
 
         # Start children.
         q1, q2 = (mp.Queue() for _ in range(2))
-        p1 = mp.Process(target=self.child_main, args=(alloc_handle, 1, q1))
-        p2 = mp.Process(target=self.child_main, args=(alloc_handle, 2, q2))
+        p1 = mp.Process(target=self.child_main, args=(device, alloc_handle, 1, q1))
+        p2 = mp.Process(target=self.child_main, args=(device, alloc_handle, 2, q2))
         p1.start()
         p2.start()
 
@@ -125,11 +125,10 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         IPCBufferTestHelper(device, buf1).verify_buffer(starting_from=1)
         IPCBufferTestHelper(device, buf2).verify_buffer(starting_from=2)
 
-    def child_main(self, alloc_handle, idx, queue):
+    def child_main(self, device, alloc_handle, idx, queue):
         """Fills a shared memory buffer."""
         # In this case, the device needs to be set up (passing the mr does it
         # implicitly in other tests).
-        device = Device()
         device.set_current()
         mr = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
         buffer_descriptor = queue.get(timeout=CHILD_TIMEOUT_SEC)
@@ -149,8 +148,8 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
 
         # Start children.
         q1, q2 = (mp.Queue() for _ in range(2))
-        p1 = mp.Process(target=self.child_main, args=(alloc_handle, 1, q1))
-        p2 = mp.Process(target=self.child_main, args=(alloc_handle, 2, q2))
+        p1 = mp.Process(target=self.child_main, args=(device, alloc_handle, 1, q1))
+        p2 = mp.Process(target=self.child_main, args=(device, alloc_handle, 2, q2))
         p1.start()
         p2.start()
 
@@ -170,9 +169,8 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         IPCBufferTestHelper(device, buf1).verify_buffer(starting_from=1)
         IPCBufferTestHelper(device, buf2).verify_buffer(starting_from=2)
 
-    def child_main(self, alloc_handle, idx, queue):
+    def child_main(self, device, alloc_handle, idx, queue):
         """Fills a shared memory buffer."""
-        device = Device()
         device.set_current()
 
         # Register the memory resource.
