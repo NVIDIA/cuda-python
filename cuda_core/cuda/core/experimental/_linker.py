@@ -45,7 +45,7 @@ def _decide_nvjitlink_or_driver() -> bool:
     _driver_ver = (_driver_ver // 1000, (_driver_ver % 1000) // 10)
 
     warn_txt_common = (
-        "the culink APIs will be used instead, which do not support"
+        "the driver APIs will be used instead, which do not support"
         " minor version compatibility or linking LTO IRs."
         " For best results, consider upgrading to a recent version of"
     )
