@@ -28,8 +28,6 @@ from cuda.core.experimental._utils.cuda_utils import ( driver, Transaction, get_
 
 if platform.system() == "Linux":
     import socket
-# (Removed) helper for driver calls; use raise_if_driver_error with direct calls instead.
-
 
 if TYPE_CHECKING:
     import cuda.bindings.driver
