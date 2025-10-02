@@ -128,3 +128,32 @@ disallow_untyped_defs = true
 module = "tests.*"
 disallow_untyped_defs = false
 ignore_errors = true
+
+[tool.pixi.workspace]
+channels = ["nvidia", "conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "win-64"]
+
+[tool.pixi.pypi-dependencies]
+cuda-pathfinder = { path = ".", editable = true }
+
+[tool.pixi.environments]
+cu12 = { features = ["cu12", "test"], solve-group = "cu12" }
+cu13 = { features = ["cu13", "test"], solve-group = "cu13" }
+cu12-ext = { features = ["cu12-ext", "test"], solve-group = "cu12-ext" }
+cu13-ext = { features = ["cu13-ext", "test"], solve-group = "cu13-ext" }
+host = { features = ["host", "test"], solve-group = "host" }
+
+[tool.pixi.feature.host]
+platforms = ["linux-aarch64"]
+
+[tool.pixi.feature.cu12-ext]
+platforms = ["linux-64", "linux-aarch64"]
+
+[tool.pixi.feature.cu13-ext]
+platforms = ["linux-64", "linux-aarch64"]
+
+[tool.pixi.feature.test.tasks]
+test = { cmd = ["pytest", "tests"] }
+
+[tool.pixi.target.linux.activation.env]
+CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
