@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+.. _support:
+
 ``cuda.bindings`` Support Policy
 ================================
 
@@ -25,7 +27,7 @@ The ``cuda.bindings`` module has the following support policy:
 
 Free-threading build Support
 ----------------------------
-As of $RELEASE, cuda-python ships with wheels that support the `free-threaded interpreter`_.
+As of cuda-python 13.0.2/12.9.3, wheels for the `free-threaded interpreter`_ are shipped to PyPI.
 
 1. Support for these builds is best effort, due to heavy use of `built-in
    modules that are known to be thread-unsafe`_, such as ``ctypes``.
