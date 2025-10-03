@@ -31,7 +31,7 @@ As of cuda-bindings 13.0.2/12.9.3, wheels for the `free-threaded interpreter`_ a
 
 1. Support for these builds is best effort, due to heavy use of `built-in
    modules that are known to be thread-unsafe`_, such as ``ctypes``.
-2. For now, you are responsible for making sure that calls into ``cuda-python``
+2. For now, you are responsible for making sure that calls into ``cuda-bindings``
    libraries are thread-safe. This is subject to change.
 
 The NVIDIA CUDA Python team reserves rights to amend the above support policy. Any major changes,
