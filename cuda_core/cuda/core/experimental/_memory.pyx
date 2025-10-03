@@ -563,15 +563,15 @@ class DeviceMemoryResource(MemoryResource):
         device memory resource does not own the pool (`is_handle_owned` is
         `False`), and closing the resource has no effect.
 
-    IPC-Enabled Memory Resources
-    ----------------------------
-    If ``ipc_enabled=True`` is specified as an initializer option, the memory
-    resource constructed will be capable of sharing allocations between
-    processes. Sharing an allocation is a two-step procedure that involves
+    Notes
+    -----
+    To create an IPC-Enabled memory resource (MR) that is capable of sharing
+    allocations between processes, specify ``ipc_enabled=True`` in the initializer
+    option. Sharing an allocation is a two-step procedure that involves
     mapping a memory resource and then mapping buffers owned by that resource.
     These steps can be accomplished in several ways.
 
-    An IPC-enabled memory resource (MR) can allocate memory buffers but cannot
+    An IPC-enabled memory resource can allocate memory buffers but cannot
     receive shared buffers. Mapping an MR to another process creates a "mapped
     memory resource" (MMR). An MMR cannot allocate memory buffers and can only
     receive shared buffers. MRs and MMRs are both of type
