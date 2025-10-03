@@ -6,7 +6,7 @@ from __future__ import annotations
 
 cimport cpython
 from libc.stdint cimport uintptr_t, intptr_t
-from libc.string cimport memset
+from libc.string cimport memset, memcpy
 
 from cuda.bindings cimport cydriver
 
@@ -70,7 +70,7 @@ cdef class Buffer:
     @classmethod
     def _init(cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None):
         cdef Buffer self = Buffer.__new__(cls)
-        self._ptr = <uintptr_t>(int(ptr))
+        self._ptr = <intptr_t>(int(ptr))
         self._ptr_obj = ptr
         self._size = size
         self._mr = mr
@@ -158,7 +158,7 @@ cdef class Buffer:
         if not mr.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
         cdef cydriver.CUmemPoolPtrExportData share_data
-        share_data.reserved = ipc_buffer._reserved
+        memcpy(share_data.reserved, <const void*><const char*>(ipc_buffer._reserved), sizeof(share_data.reserved))
         cdef cydriver.CUdeviceptr ptr
         with nogil:
             HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._mempool_handle, &share_data))
@@ -711,7 +711,7 @@ cdef class DeviceMemoryResource(_DeviceMemoryResourceBase, MemoryResource):
     def __dealloc__(self):
         self.close()
 
-    def close(self):
+    cpdef close(self):
         """Close the device memory resource and destroy the associated memory pool if owned."""
         if self._mempool_handle == NULL:
             return
