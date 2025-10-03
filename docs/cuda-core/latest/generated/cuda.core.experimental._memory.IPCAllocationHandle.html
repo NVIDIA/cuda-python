@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.experimental.utils.args_viewable_as_strided_memory &#8212; cuda.core</title>
+    <title>cuda.core.experimental._memory.IPCAllocationHandle &#8212; cuda.core</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.experimental.utils.args_viewable_as_strided_memory';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.experimental._memory.IPCAllocationHandle';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -55,12 +55,10 @@
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
-    <link rel="canonical" href="docs/generated/cuda.core.experimental.utils.args_viewable_as_strided_memory.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.experimental._memory.IPCAllocationHandle.html" />
     <link rel="icon" href="../_static/favicon.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.experimental.utils.StridedMemoryView" href="cuda.core.experimental.utils.StridedMemoryView.html" />
-    <link rel="prev" title="cuda.core.experimental.LinkerOptions" href="cuda.core.experimental.LinkerOptions.html" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -196,7 +194,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core.experimental API Reference
   </a>
@@ -385,7 +383,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core.experimental API Reference
   </a>
@@ -450,11 +448,11 @@
      aria-label="Table of Contents">
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Device.html">cuda.core.experimental.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
@@ -477,7 +475,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Kernel.html">cuda.core.experimental.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ProgramOptions.html">cuda.core.experimental.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LinkerOptions.html">cuda.core.experimental.LinkerOptions</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.utils.args_viewable_as_strided_memory.html">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.utils.StridedMemoryView.html">cuda.core.experimental.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
@@ -532,10 +530,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    
-    <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.experimental.utils.args_viewable_as_strided_memory</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.experimental._memory.IPCAllocationHandle</span></li>
   </ul>
 </nav>
 </div>
@@ -552,34 +547,25 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-experimental-utils-args-viewable-as-strided-memory">
-<h1>cuda.core.experimental.utils.args_viewable_as_strided_memory<a class="headerlink" href="#cuda-core-experimental-utils-args-viewable-as-strided-memory" title="Link to this heading">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="cuda.core.experimental.utils.args_viewable_as_strided_memory">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.utils.</span></span><span class="sig-name descname"><span class="pre">args_viewable_as_strided_memory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tuple</span> <span class="pre">arg_indices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.utils.args_viewable_as_strided_memory" title="Link to this definition">#</a></dt>
-<dd><p>Decorator to create proxy objects to <a class="reference internal" href="cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView" title="cuda.core.experimental.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> for the
-specified positional arguments.</p>
-<p>This allows array/tensor attributes to be accessed inside the function
-implementation, while keeping the function body array-library-agnostic (if
-desired).</p>
-<p>Inside the decorated function, the specified arguments become instances
-of an (undocumented) proxy type, regardless of its original source. A
-<a class="reference internal" href="cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView" title="cuda.core.experimental.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> instance can be obtained by passing the (consumer)
-stream pointer (as a Python <cite>int</cite>) to the proxies’s <code class="docutils literal notranslate"><span class="pre">view()</span></code> method. For
-example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@args_viewable_as_strided_memory</span><span class="p">((</span><span class="mi">1</span><span class="p">,))</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">my_func</span><span class="p">(</span><span class="n">arg0</span><span class="p">,</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">Stream</span><span class="p">):</span>
-    <span class="c1"># arg1 can be any object supporting DLPack or CUDA Array Interface</span>
-    <span class="n">view</span> <span class="o">=</span> <span class="n">arg1</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">StridedMemoryView</span><span class="p">)</span>
-    <span class="o">...</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>arg_indices</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a>) – The indices of the target positional arguments.</p>
-</dd>
-</dl>
+  <section id="cuda-core-experimental-memory-ipcallocationhandle">
+<h1>cuda.core.experimental._memory.IPCAllocationHandle<a class="headerlink" href="#cuda-core-experimental-memory-ipcallocationhandle" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.core.experimental._memory.IPCAllocationHandle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._memory.</span></span><span class="sig-name descname"><span class="pre">IPCAllocationHandle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._memory.IPCAllocationHandle" title="Link to this definition">#</a></dt>
+<dd><p>Shareable handle to an IPC-enabled device memory pool.</p>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental._memory.IPCAllocationHandle.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._memory.IPCAllocationHandle.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental._memory.IPCAllocationHandle.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._memory.IPCAllocationHandle.close" title="Link to this definition">#</a></dt>
+<dd><p>Close the handle.</p>
+</dd></dl>
+
+<p class="rubric">Attributes</p>
 </dd></dl>
 
 </section>
@@ -594,24 +580,6 @@ example:</p>
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="cuda.core.experimental.LinkerOptions.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.experimental.LinkerOptions</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="cuda.core.experimental.utils.StridedMemoryView.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.experimental.utils.StridedMemoryView</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
@@ -633,7 +601,11 @@ example:</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.utils.args_viewable_as_strided_memory"><code class="docutils literal notranslate"><span class="pre">args_viewable_as_strided_memory()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._memory.IPCAllocationHandle"><code class="docutils literal notranslate"><span class="pre">IPCAllocationHandle</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._memory.IPCAllocationHandle.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._memory.IPCAllocationHandle.close"><code class="docutils literal notranslate"><span class="pre">close()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

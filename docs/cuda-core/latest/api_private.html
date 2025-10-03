@@ -463,6 +463,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.DeviceMemoryResourceOptions.html">cuda.core.experimental.DeviceMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
@@ -556,22 +557,25 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental._memory.DevicePointerT.html#cuda.core.experimental._memory.DevicePointerT" title="cuda.core.experimental._memory.DevicePointerT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory.DevicePointerT</span></code></a></p></td>
 <td><p>alias of <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUdeviceptr" title="(in cuda.bindings)"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUdeviceptr</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties" title="cuda.core.experimental._device.DeviceProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_device.DeviceProperties</span></code></a>(*args, **kwargs)</p></td>
+<td><p>A class to query various attributes of a CUDA device.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental._memory.IPCAllocationHandle.html#cuda.core.experimental._memory.IPCAllocationHandle" title="cuda.core.experimental._memory.IPCAllocationHandle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory.IPCAllocationHandle</span></code></a>(*arg, **kwargs)</p></td>
+<td><p>Shareable handle to an IPC-enabled device memory pool.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._memory.IPCBufferDescriptor.html#cuda.core.experimental._memory.IPCBufferDescriptor" title="cuda.core.experimental._memory.IPCBufferDescriptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_memory.IPCBufferDescriptor</span></code></a>(*arg, **kwargs)</p></td>
 <td><p>Serializable object describing a buffer that can be shared between processes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental._device.DeviceProperties.html#cuda.core.experimental._device.DeviceProperties" title="cuda.core.experimental._device.DeviceProperties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_device.DeviceProperties</span></code></a>(*args, **kwargs)</p></td>
-<td><p>A class to query various attributes of a CUDA device.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes" title="cuda.core.experimental._module.KernelAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.KernelAttributes</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes" title="cuda.core.experimental._module.KernelAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.KernelAttributes</span></code></a>(*args, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental._module.KernelOccupancy.html#cuda.core.experimental._module.KernelOccupancy" title="cuda.core.experimental._module.KernelOccupancy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.KernelOccupancy</span></code></a>(*args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._module.KernelOccupancy.html#cuda.core.experimental._module.KernelOccupancy" title="cuda.core.experimental._module.KernelOccupancy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.KernelOccupancy</span></code></a>(*args, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._module.ParamInfo.html#cuda.core.experimental._module.ParamInfo" title="cuda.core.experimental._module.ParamInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.ParamInfo</span></code></a>(offset, size)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental._module.ParamInfo.html#cuda.core.experimental._module.ParamInfo" title="cuda.core.experimental._module.ParamInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.ParamInfo</span></code></a>(offset, size)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental._module.MaxPotentialBlockSizeOccupancyResult.html#cuda.core.experimental._module.MaxPotentialBlockSizeOccupancyResult" title="cuda.core.experimental._module.MaxPotentialBlockSizeOccupancyResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.MaxPotentialBlockSizeOccupancyResult</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental._module.MaxPotentialBlockSizeOccupancyResult.html#cuda.core.experimental._module.MaxPotentialBlockSizeOccupancyResult" title="cuda.core.experimental._module.MaxPotentialBlockSizeOccupancyResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_module.MaxPotentialBlockSizeOccupancyResult</span></code></a></p></td>
 <td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">MaxPotential</span></code></p></td>
 </tr>
 </tbody>
