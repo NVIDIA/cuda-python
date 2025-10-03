@@ -814,18 +814,15 @@ cdef class DeviceMemoryResource(_DeviceMemoryResourceBase, MemoryResource):
 
         cdef DeviceMemoryResource self = DeviceMemoryResource.__new__(cls)
         self._dev_id = device_id
-        self._mempool_handle = NULL
-        self._attributes = None
         self._ipc_handle_type = _IPC_HANDLE_TYPE
         self._mempool_owned = True
         self._is_mapped = True
-        self._uuid = None
-        self._alloc_handle = None  # only used for non-imported
+        #self._alloc_handle = None  # only used for non-imported
 
         cdef int handle = int(alloc_handle)
         with nogil:
             HANDLE_RETURN(cydriver.cuMemPoolImportFromShareableHandle(
-                &(self._mempool_handle), &handle, _IPC_HANDLE_TYPE, 0)
+                &(self._mempool_handle), <void*>handle, _IPC_HANDLE_TYPE, 0)
             )
         if uuid is not None:
             registered = self.register(uuid)
