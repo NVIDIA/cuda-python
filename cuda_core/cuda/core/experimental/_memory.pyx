@@ -4,10 +4,16 @@
 
 from __future__ import annotations
 
-from libc.stdint cimport uintptr_t
+cimport cpython
+from libc.stdint cimport uintptr_t, intptr_t
+from libc.string cimport memset
+
+from cuda.bindings cimport cydriver
+
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
     check_or_create_options,
+    HANDLE_RETURN,
 )
 
 from dataclasses import dataclass
@@ -53,7 +59,7 @@ cdef class Buffer:
     """
 
     cdef:
-        uintptr_t _ptr
+        intptr_t _ptr
         size_t _size
         object _mr
         object _ptr_obj
@@ -140,20 +146,23 @@ cdef class Buffer:
         """Export a buffer allocated for sharing between processes."""
         if not self._mr.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
-        err, ptr = driver.cuMemPoolExportPointer(self.handle)
-        raise_if_driver_error(err)
-        return IPCBufferDescriptor._init(ptr.reserved, self.size)
+        cdef cydriver.CUmemPoolPtrExportData data
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPoolExportPointer(&data, <cydriver.CUdeviceptr>(self._ptr)))
+        cdef bytes data_b = cpython.PyBytes_FromStringAndSize(<char*>(data.reserved), sizeof(data.reserved))
+        return IPCBufferDescriptor._init(data_b, self.size)
 
     @classmethod
-    def from_ipc_descriptor(cls, mr: MemoryResource, ipc_buffer: IPCBufferDescriptor) -> Buffer:
+    def from_ipc_descriptor(cls, mr: DeviceMemoryResource, ipc_buffer: IPCBufferDescriptor) -> Buffer:
         """Import a buffer that was exported from another process."""
         if not mr.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
-        share_data = driver.CUmemPoolPtrExportData()
+        cdef cydriver.CUmemPoolPtrExportData share_data
         share_data.reserved = ipc_buffer._reserved
-        err, ptr = driver.cuMemPoolImportPointer(mr._mempool_handle, share_data)
-        raise_if_driver_error(err)
-        return Buffer.from_handle(ptr, ipc_buffer.size, mr)
+        cdef cydriver.CUdeviceptr ptr
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._mempool_handle, &share_data))
+        return Buffer.from_handle(<intptr_t>ptr, ipc_buffer.size, mr)
 
     def copy_to(self, dst: Buffer = None, *, stream: Stream) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
@@ -360,10 +369,9 @@ class MemoryResource(abc.ABC):
 
 # IPC is currently only supported on Linux. On other platforms, the IPC handle
 # type is set equal to the no-IPC handle type.
+cdef cydriver.CUmemAllocationHandleType _IPC_HANDLE_TYPE = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR \
+    if platform.system() == "Linux" else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
 
-_NOIPC_HANDLE_TYPE = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
-_IPC_HANDLE_TYPE = driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR \
-    if platform.system() == "Linux" else _NOIPC_HANDLE_TYPE
 
 cdef class IPCBufferDescriptor:
     """Serializable object describing a buffer that can be shared between processes."""
@@ -466,6 +474,7 @@ cdef class DeviceMemoryResourceOptions:
     max_size : cython.int = 0
 
 
+# TODO: cythonize this?
 class DeviceMemoryResourceAttributes:
     def __init__(self, *args, **kwargs):
         raise RuntimeError("DeviceMemoryResourceAttributes cannot be instantiated directly. Please use MemoryResource APIs.")
@@ -483,8 +492,9 @@ class DeviceMemoryResourceAttributes:
             def fget(self) -> property_type:
                 mr = self._mr()
                 if mr is None:
-                  raise RuntimeError("DeviceMemoryResource is expired")
-                err, value = driver.cuMemPoolGetAttribute(mr._mempool_handle, attr_enum)
+                    raise RuntimeError("DeviceMemoryResource is expired")
+                # TODO: this implementation does not allow lowering to Cython + nogil
+                err, value = driver.cuMemPoolGetAttribute(mr.handle, attr_enum)
                 raise_if_driver_error(err)
                 return property_type(value)
             return property(fget=fget, doc=stub.__doc__)
@@ -531,7 +541,34 @@ class DeviceMemoryResourceAttributes:
 # and the serialized buffer descriptor.
 _ipc_registry = {}
 
-class DeviceMemoryResource(MemoryResource):
+
+cdef class _DeviceMemoryResourceBase:
+    """Internal only. Responsible for offering C layout & attribute access."""
+    cdef:
+        int _dev_id
+        cydriver.CUmemoryPool _mempool_handle
+        object _attributes
+        cydriver.CUmemAllocationHandleType _ipc_handle_type
+        bint _mempool_owned
+        bint _is_mapped
+        object _uuid
+        IPCAllocationHandle _alloc_handle
+
+    def __cinit__(self):
+        self._dev_id = cydriver.CU_DEVICE_INVALID
+        self._mempool_handle = NULL
+        self._attributes = None
+        self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_MAX
+        self._mempool_owned = False
+        self._is_mapped = False
+        self._uuid = None
+        self._alloc_handle = None
+
+    def __dealloc__(self):
+        pass
+
+
+cdef class DeviceMemoryResource(_DeviceMemoryResourceBase, MemoryResource):
     """
     Create a device memory resource managing a stream-ordered memory pool.
 
@@ -609,97 +646,91 @@ class DeviceMemoryResource(MemoryResource):
     methods.  The reconstruction procedure uses the registry to find the
     associated MMR.
     """
-    __slots__ = ("_dev_id", "_mempool_handle", "_attributes", "_ipc_handle_type",
-                 "_mempool_owned", "_is_mapped", "_uuid", "_alloc_handle")
+    cdef:
+        dict __dict__
+        object __weakref__
 
     def __init__(self, device_id: int | Device, options=None):
-        device_id = getattr(device_id, 'device_id', device_id)
+        cdef int dev_id = getattr(device_id, 'device_id', device_id)
         opts = check_or_create_options(
             DeviceMemoryResourceOptions, options, "DeviceMemoryResource options", keep_none=True
         )
+        cdef cydriver.cuuint64_t current_threshold
+        cdef cydriver.cuuint64_t max_threshold = 0xFFFFFFFFFFFFFFFF
+        cdef cydriver.CUmemPoolProps properties
 
         if opts is None:
             # Get the current memory pool.
-            self._dev_id = device_id
-            self._mempool_handle = None
-            self._attributes = None
-            self._ipc_handle_type = _NOIPC_HANDLE_TYPE
+            self._dev_id = dev_id
+            self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
             self._mempool_owned = False
-            self._is_mapped = False
-            self._uuid = None
-            self._alloc_handle = None
 
-            err, self._mempool_handle = driver.cuDeviceGetMemPool(self.device_id)
-            raise_if_driver_error(err)
+            with nogil:
+                HANDLE_RETURN(cydriver.cuDeviceGetMemPool(&(self._mempool_handle), dev_id))
 
-            # Set a higher release threshold to improve performance when there are no active allocations.
-            # By default, the release threshold is 0, which means memory is immediately released back
-            # to the OS when there are no active suballocations, causing performance issues.
-            # Check current release threshold
-            err, current_threshold = driver.cuMemPoolGetAttribute(
-                self._mempool_handle, driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD
-            )
-            raise_if_driver_error(err)
-            # If threshold is 0 (default), set it to maximum to retain memory in the pool
-            if int(current_threshold) == 0:
-                err, = driver.cuMemPoolSetAttribute(
-                    self._mempool_handle,
-                    driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
-                    driver.cuuint64_t(0xFFFFFFFFFFFFFFFF),
+                # Set a higher release threshold to improve performance when there are no active allocations.
+                # By default, the release threshold is 0, which means memory is immediately released back
+                # to the OS when there are no active suballocations, causing performance issues.
+                # Check current release threshold
+                HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(
+                    self._mempool_handle, cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD, &current_threshold)
                 )
-                raise_if_driver_error(err)
+
+                # If threshold is 0 (default), set it to maximum to retain memory in the pool
+                if current_threshold == 0:
+                    HANDLE_RETURN(cydriver.cuMemPoolSetAttribute(
+                        self._mempool_handle,
+                        cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+                        &max_threshold
+                    ))
         else:
             # Create a new memory pool.
-            if opts.ipc_enabled and _IPC_HANDLE_TYPE == _NOIPC_HANDLE_TYPE:
+            if opts.ipc_enabled and _IPC_HANDLE_TYPE == cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE:
                 raise RuntimeError("IPC is not available on {platform.system()}")
 
-            properties = driver.CUmemPoolProps()
-            properties.allocType = driver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-            properties.handleTypes = _IPC_HANDLE_TYPE if opts.ipc_enabled else _NOIPC_HANDLE_TYPE
-            properties.location = driver.CUmemLocation()
-            properties.location.id = device_id
-            properties.location.type = driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+            memset(&properties, 0, sizeof(cydriver.CUmemPoolProps))
+            properties.allocType = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+            properties.handleTypes = _IPC_HANDLE_TYPE if opts.ipc_enabled else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+            properties.location.id = dev_id
+            properties.location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
             properties.maxSize = opts.max_size
-            properties.win32SecurityAttributes = 0
+            properties.win32SecurityAttributes = NULL
             properties.usage = 0
 
-            self._dev_id = device_id
-            self._mempool_handle = None
-            self._attributes = None
+            self._dev_id = dev_id
             self._ipc_handle_type = properties.handleTypes
             self._mempool_owned = True
-            self._is_mapped = False
-            self._uuid = None
-            self._alloc_handle = None
 
-            err, self._mempool_handle = driver.cuMemPoolCreate(properties)
-            raise_if_driver_error(err)
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemPoolCreate(&(self._mempool_handle), &properties))
+                # TODO: should we also set the threshold here?
 
             if opts.ipc_enabled:
-                self.get_allocation_handle() # enables Buffer.get_ipc_descriptor, sets uuid
+                self.get_allocation_handle()  # enables Buffer.get_ipc_descriptor, sets uuid
 
-    def __del__(self):
+    def __dealloc__(self):
         self.close()
 
     def close(self):
         """Close the device memory resource and destroy the associated memory pool if owned."""
-        if self._mempool_handle is not None:
-            try:
-                if self._mempool_owned:
-                    err, = driver.cuMemPoolDestroy(self._mempool_handle)
-                    raise_if_driver_error(err)
-            finally:
-                if self.is_mapped:
-                    self.unregister()
-                self._dev_id = None
-                self._mempool_handle = None
-                self._attributes = None
-                self._ipc_handle_type = _NOIPC_HANDLE_TYPE
-                self._mempool_owned = False
-                self._is_mapped = False
-                self._uuid = None
-                self._alloc_handle = None
+        if self._mempool_handle == NULL:
+            return
 
+        try:
+            if self._mempool_owned:
+                with nogil:
+                    HANDLE_RETURN(cydriver.cuMemPoolDestroy(self._mempool_handle))
+        finally:
+            if self.is_mapped:
+                self.unregister()
+            self._dev_id = cydriver.CU_DEVICE_INVALID
+            self._mempool_handle = NULL
+            self._attributes = None
+            self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_MAX
+            self._mempool_owned = False
+            self._is_mapped = False
+            self._uuid = None
+            self._alloc_handle = None
 
     def __reduce__(self):
         return DeviceMemoryResource.from_registry, (self.uuid,)
@@ -775,30 +806,33 @@ class DeviceMemoryResource(MemoryResource):
         """
          # Quick exit for registry hits.
         uuid = getattr(alloc_handle, 'uuid', None)
-        self = _ipc_registry.get(uuid)
-        if self is not None:
-            return self
+        mr = _ipc_registry.get(uuid)
+        if mr is not None:
+            return mr
 
         device_id = getattr(device_id, 'device_id', device_id)
 
-        self = cls.__new__(cls)
+        cdef DeviceMemoryResource self = DeviceMemoryResource.__new__(cls)
         self._dev_id = device_id
-        self._mempool_handle = None
+        self._mempool_handle = NULL
         self._attributes = None
         self._ipc_handle_type = _IPC_HANDLE_TYPE
         self._mempool_owned = True
         self._is_mapped = True
         self._uuid = None
-        self._alloc_handle = None # only used for non-imported
+        self._alloc_handle = None  # only used for non-imported
 
-        err, self._mempool_handle = driver.cuMemPoolImportFromShareableHandle(int(alloc_handle), _IPC_HANDLE_TYPE, 0)
-        raise_if_driver_error(err)
+        cdef int handle = int(alloc_handle)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPoolImportFromShareableHandle(
+                &(self._mempool_handle), &handle, _IPC_HANDLE_TYPE, 0)
+            )
         if uuid is not None:
             registered = self.register(uuid)
             assert registered is self
         return self
 
-    def get_allocation_handle(self) -> IPCAllocationHandle:
+    cpdef IPCAllocationHandle get_allocation_handle(self):
         """Export the memory pool handle to be shared (requires IPC).
 
         The handle can be used to share the memory pool with other processes.
@@ -808,13 +842,19 @@ class DeviceMemoryResource(MemoryResource):
         -------
             The shareable handle for the memory pool.
         """
+        # Note: This is Linux only (int for file descriptor)
+        cdef int alloc_handle
+
         if self._alloc_handle is None:
             if not self.is_ipc_enabled:
                 raise RuntimeError("Memory resource is not IPC-enabled")
             if self._is_mapped:
                 raise RuntimeError("Imported memory resource cannot be exported")
-            err, alloc_handle = driver.cuMemPoolExportToShareableHandle(self._mempool_handle, _IPC_HANDLE_TYPE, 0)
-            raise_if_driver_error(err)
+
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(
+                    &alloc_handle, self._mempool_handle, _IPC_HANDLE_TYPE, 0)
+                )
             try:
                 assert self._uuid is None
                 import uuid
@@ -846,9 +886,11 @@ class DeviceMemoryResource(MemoryResource):
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         if stream is None:
             stream = default_stream()
-        err, ptr = driver.cuMemAllocFromPoolAsync(size, self._mempool_handle, stream.handle)
-        raise_if_driver_error(err)
-        return Buffer._init(ptr, size, self)
+        cdef cydriver.CUstream s = <cydriver.CUstream><uintptr_t>(stream.handle)
+        cdef cydriver.CUdeviceptr devptr
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, self._mempool_handle, s))
+        return Buffer._init(<intptr_t>devptr, size, self)
 
     def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
         """Deallocate a buffer previously allocated by this resource.
@@ -865,8 +907,10 @@ class DeviceMemoryResource(MemoryResource):
         """
         if stream is None:
             stream = default_stream()
-        err, = driver.cuMemFreeAsync(ptr, stream.handle)
-        raise_if_driver_error(err)
+        cdef cydriver.CUstream s = <cydriver.CUstream><uintptr_t>(stream.handle)
+        cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr><intptr_t>ptr
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
 
     @property
     def attributes(self) -> DeviceMemoryResourceAttributes:
@@ -881,9 +925,9 @@ class DeviceMemoryResource(MemoryResource):
         return self._dev_id
 
     @property
-    def handle(self) -> cuda.bindings.driver.CUmemoryPool:
+    def handle(self) -> driver.CUmemoryPool:
         """Handle to the underlying memory pool."""
-        return self._mempool_handle
+        return driver.CUmemoryPool(<uintptr_t>(self._mempool_handle))
 
     @property
     def is_handle_owned(self) -> bool:
@@ -911,7 +955,7 @@ class DeviceMemoryResource(MemoryResource):
     @property
     def is_ipc_enabled(self) -> bool:
         """Whether this memory resource has IPC enabled."""
-        return self._ipc_handle_type != _NOIPC_HANDLE_TYPE
+        return self._ipc_handle_type != cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
 
 
 def _deep_reduce_device_memory_resource(mr):
