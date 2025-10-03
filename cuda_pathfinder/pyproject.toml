@@ -11,25 +11,29 @@ dynamic = ["version", "readme"]
 dependencies = []
 
 [dependency-groups]
-test = [
-    "pytest>=6.2.4",
-]
-test_nvidia_wheels_cu12 = [
+test = ["pytest>=6.2.4"]
+cu12 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl]==12.*",
-    "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
     "nvidia-cudss-cu12",
-    "nvidia-cufftmp-cu12; sys_platform != 'win32'",
     "nvidia-libmathdx-cu12",
+]
+cu12-ext = [
+    { include-group = "cu12" },
+    "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
+    "nvidia-cufftmp-cu12; sys_platform != 'win32'",
     "nvidia-nccl-cu12; sys_platform != 'win32'",
     "nvidia-nvshmem-cu12; sys_platform != 'win32'",
 ]
-test_nvidia_wheels_cu13 = [
+cu13 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,nvvm]==13.*",
+]
+cu13-ext = [
+    { include-group = "cu13" },
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
     "nvidia-nvshmem-cu13; sys_platform != 'win32'",
 ]
-test_nvidia_wheels_host = [
+host = [
     "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
 
@@ -121,3 +125,32 @@ disallow_untyped_defs = true
 module = "tests.*"
 disallow_untyped_defs = false
 ignore_errors = true
+
+[tool.pixi.workspace]
+channels = ["nvidia", "conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "win-64"]
+
+[tool.pixi.pypi-dependencies]
+cuda-pathfinder = { path = ".", editable = true }
+
+[tool.pixi.environments]
+cu12 = { features = ["cu12", "test"], solve-group = "cu12" }
+cu13 = { features = ["cu13", "test"], solve-group = "cu13" }
+cu12-ext = { features = ["cu12-ext", "test"], solve-group = "cu12-ext" }
+cu13-ext = { features = ["cu13-ext", "test"], solve-group = "cu13-ext" }
+host = { features = ["host", "test"], solve-group = "host" }
+
+[tool.pixi.feature.host]
+platforms = ["linux-aarch64"]
+
+[tool.pixi.feature.cu12-ext]
+platforms = ["linux-64", "linux-aarch64"]
+
+[tool.pixi.feature.cu13-ext]
+platforms = ["linux-64", "linux-aarch64"]
+
+[tool.pixi.feature.test.tasks]
+test = { cmd = ["pytest", "tests"] }
+
+[tool.pixi.target.linux.activation.env]
+CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
