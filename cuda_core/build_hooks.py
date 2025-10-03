@@ -45,7 +45,7 @@ def _get_proper_cuda_bindings_major_version() -> str:
         m = re.search(r"CUDA Version:\s*([\d\.]+)", out.stdout.decode())
         if m:
             return m.group(1).split(".")[0]
-    except FileNotFoundError:
+    except (FileNotFoundError, subprocess.CalledProcessError):
         # the build machine has no driver installed
         pass
 
