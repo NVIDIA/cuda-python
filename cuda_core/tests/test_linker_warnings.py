@@ -102,7 +102,7 @@ def test_warns_when_python_nvjitlink_missing(monkeypatch):
     """
     Case 1: 'from cuda.bindings import nvjitlink' fails -> bindings missing.
     Expect a RuntimeWarning stating that cuda.bindings.nvjitlink is not available,
-    and that we fall back to cuLink* (function returns True).
+    and that we fall back to driver APIs (function returns True).
     """
     # Ensure nothing is preloaded and actively block future imports.
     sys.modules.pop("cuda.bindings.nvjitlink", None)
@@ -119,7 +119,7 @@ def test_warns_when_python_nvjitlink_missing(monkeypatch):
     assert len(warns) == 1
     msg = str(warns[0].message)
     assert "cuda.bindings.nvjitlink is not available" in msg
-    assert "therefore the culink APIs will be used instead" in msg
+    assert "therefore the driver APIs will be used instead" in msg
     assert "recent version of cuda-bindings." in msg
 
 
@@ -145,7 +145,7 @@ def test_warns_when_nvjitlink_symbol_probe_raises(monkeypatch):
     msg = str(warns[0].message)
     assert "libnvJitLink.so* is not available" in msg
     assert "cuda.bindings.nvjitlink is not usable" in msg
-    assert "and the culink APIs will be used instead" in msg
+    assert "and the driver APIs will be used instead" in msg
     assert "recent version of nvJitLink." in msg
 
 
@@ -167,7 +167,7 @@ def test_warns_when_nvjitlink_too_old(monkeypatch):
     msg = str(warns[0].message)
     assert "libnvJitLink.so* is too old (<12.3)" in msg
     assert "cuda.bindings.nvjitlink is not usable" in msg
-    assert "and the culink APIs will be used instead" in msg
+    assert "and the driver APIs will be used instead" in msg
     assert "recent version of nvJitLink." in msg
 
 
