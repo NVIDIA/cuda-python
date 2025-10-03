@@ -13,6 +13,8 @@ import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, IPCChannel, MemoryResource
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
+from cuda_python_test_helpers import supports_ipc_mempool
+
 CHILD_TIMEOUT_SEC = 10
 NBYTES = 64
 POOL_SIZE = 2097152
@@ -32,6 +34,10 @@ def ipc_device():
     # test should be updated.
     if not device.properties.handle_type_posix_file_descriptor_supported:
         pytest.skip("Device does not support IPC")
+
+    # Final driver capability probe: skip if the driver rejects IPC mempool creation.
+    if not supports_ipc_mempool(device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
     return device
 
