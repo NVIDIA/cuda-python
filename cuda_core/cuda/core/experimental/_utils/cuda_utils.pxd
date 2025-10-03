@@ -12,6 +12,14 @@ ctypedef fused supported_error_type:
     cydriver.CUresult
 
 
+# mimic CU_DEVICE_INVALID
+cdef cydriver.CUcontext CU_CONTEXT_INVALID = <cydriver.CUcontext>(-2)
+
+
+cdef cydriver.CUdevice get_device_from_ctx(
+    cydriver.CUcontext target_ctx, cydriver.CUcontext curr_ctx) except?cydriver.CU_DEVICE_INVALID nogil
+
+
 cdef int HANDLE_RETURN(supported_error_type err) except?-1 nogil
 
 

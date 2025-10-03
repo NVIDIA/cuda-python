@@ -27,6 +27,8 @@ from cuda.core.experimental._utils.cuda_utils import (
 )
 
 
+# TODO: I prefer to type these as "cdef object" and avoid accessing them from within Python,
+# but it seems it is very convenient to expose them for testing purposes...
 _tls = threading.local()
 _lock = threading.Lock()
 cdef bint _is_cuInit = False

@@ -192,20 +192,23 @@ def precondition(checker: Callable[..., None], str what="") -> Callable:
     return outer
 
 
-def get_device_from_ctx(ctx_handle) -> int:
+cdef cydriver.CUdevice get_device_from_ctx(
+        cydriver.CUcontext target_ctx, cydriver.CUcontext curr_ctx) except?cydriver.CU_DEVICE_INVALID nogil:
     """Get device ID from the given ctx."""
-    from cuda.core.experimental._device import Device  # avoid circular import
-
-    prev_ctx = Device().context._handle
-    switch_context = int(ctx_handle) != int(prev_ctx)
-    if switch_context:
-        assert prev_ctx == handle_return(driver.cuCtxPopCurrent())
-        handle_return(driver.cuCtxPushCurrent(ctx_handle))
-    device_id = int(handle_return(driver.cuCtxGetDevice()))
-    if switch_context:
-        assert ctx_handle == handle_return(driver.cuCtxPopCurrent())
-        handle_return(driver.cuCtxPushCurrent(prev_ctx))
-    return device_id
+    cdef bint switch_context = (curr_ctx != target_ctx)
+    cdef cydriver.CUcontext ctx
+    cdef cydriver.CUdevice target_dev
+    with nogil:
+        if switch_context:
+            HANDLE_RETURN(cydriver.cuCtxPopCurrent(&ctx))
+            assert curr_ctx == ctx
+            HANDLE_RETURN(cydriver.cuCtxPushCurrent(target_ctx))
+        HANDLE_RETURN(cydriver.cuCtxGetDevice(&target_dev))
+        if switch_context:
+            HANDLE_RETURN(cydriver.cuCtxPopCurrent(&ctx))
+            assert target_ctx == ctx
+            HANDLE_RETURN(cydriver.cuCtxPushCurrent(curr_ctx))
+    return target_dev
 
 
 def is_sequence(obj):

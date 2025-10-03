@@ -11,6 +11,8 @@ from cuda.bindings cimport cydriver
 from cuda.core.experimental._event cimport Event as cyEvent
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
+    CU_CONTEXT_INVALID,
+    get_device_from_ctx,
     HANDLE_RETURN,
 )
 
@@ -29,8 +31,6 @@ from cuda.core.experimental._graph import GraphBuilder
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
     driver,
-    get_device_from_ctx,
-    handle_return,
 )
 
 
@@ -117,11 +117,13 @@ cdef class Stream:
         object _builtin
         object _nonblocking
         object _priority
-        object _device_id
-        object _ctx_handle
+        cydriver.CUdevice _device_id
+        cydriver.CUcontext _ctx_handle
 
     def __cinit__(self):
         self._handle = <cydriver.CUstream>(NULL)
+        self._device_id = cydriver.CU_DEVICE_INVALID  # delayed
+        self._ctx_handle = CU_CONTEXT_INVALID  # delayed
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError(
@@ -137,8 +139,6 @@ cdef class Stream:
         self._builtin = True
         self._nonblocking = None  # delayed
         self._priority = None  # delayed
-        self._device_id = None  # delayed
-        self._ctx_handle = None  # delayed
         return self
 
     @classmethod
@@ -149,8 +149,6 @@ cdef class Stream:
         self._builtin = True
         self._nonblocking = None  # delayed
         self._priority = None  # delayed
-        self._device_id = None  # delayed
-        self._ctx_handle = None  # delayed
         return self
 
     @classmethod
@@ -167,8 +165,6 @@ cdef class Stream:
             self._owner = obj
             self._nonblocking = None  # delayed
             self._priority = None  # delayed
-            self._device_id = None  # delayed
-            self._ctx_handle = None  # delayed
             return self
 
         cdef StreamOptions opts = check_or_create_options(StreamOptions, options, "Stream options")
@@ -195,8 +191,7 @@ cdef class Stream:
         self._owner = None
         self._nonblocking = nonblocking
         self._priority = priority
-        self._device_id = device_id
-        self._ctx_handle = None  # delayed
+        self._device_id = device_id if device_id is not None else self._device_id
         return self
 
     def __del__(self):
@@ -284,7 +279,7 @@ cdef class Stream:
         # and CU_EVENT_RECORD_EXTERNAL, can be set in EventOptions.
         if event is None:
             self._get_device_and_context()
-            event = Event._init(self._device_id, self._ctx_handle, options)
+            event = Event._init(<int>(self._device_id), <uintptr_t>(self._ctx_handle), options)
         cdef cydriver.CUevent e = (<cyEvent?>(event))._handle
         with nogil:
             HANDLE_RETURN(cydriver.cuEventRecord(e, self._handle))
@@ -340,22 +335,23 @@ cdef class Stream:
         """
         from cuda.core.experimental._device import Device  # avoid circular import
         self._get_device_and_context()
-        return Device(self._device_id)
+        return Device(<int>(self._device_id))
 
-    cdef int _get_context(Stream self) except?-1:
-        # TODO: consider making self._ctx_handle typed?
-        cdef cydriver.CUcontext ctx
-        if self._ctx_handle is None:
-            with nogil:
-                HANDLE_RETURN(cydriver.cuStreamGetCtx(self._handle, &ctx))
-            self._ctx_handle = driver.CUcontext(<uintptr_t>ctx)
+    cdef int _get_context(self) except?-1 nogil:
+        if self._ctx_handle == CU_CONTEXT_INVALID:
+            HANDLE_RETURN(cydriver.cuStreamGetCtx(self._handle, &(self._ctx_handle)))
         return 0
 
-    cdef int _get_device_and_context(Stream self) except?-1:
-        if self._device_id is None:
-            # Get the stream context first
-            self._get_context()
-            self._device_id = get_device_from_ctx(self._ctx_handle)
+    cdef int _get_device_and_context(self) except?-1:
+        cdef cydriver.CUcontext curr_ctx
+        if self._device_id == cydriver.CU_DEVICE_INVALID:
+            # TODO: It is likely faster/safer to call cuCtxGetCurrent?
+            from cuda.core.experimental._device import Device  # avoid circular import
+            curr_ctx = <cydriver.CUcontext><uintptr_t>(Device().context._handle)
+            with nogil:
+                # Get the stream context first
+                self._get_context()
+                self._device_id = get_device_from_ctx(self._ctx_handle, curr_ctx)
         return 0
 
     @property
@@ -363,7 +359,7 @@ cdef class Stream:
         """Return the :obj:`~_context.Context` associated with this stream."""
         self._get_context()
         self._get_device_and_context()
-        return Context._from_ctx(self._ctx_handle, self._device_id)
+        return Context._from_ctx(<uintptr_t>(self._ctx_handle), <int>(self._device_id))
 
     @staticmethod
     def from_handle(handle: int) -> Stream:
