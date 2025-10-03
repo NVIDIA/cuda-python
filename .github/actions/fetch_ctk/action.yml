@@ -18,6 +18,11 @@ inputs:
     required: false
     type: string
     default: "cuda_nvcc,cuda_cudart,cuda_crt,libnvvm,cuda_nvrtc,cuda_profiler_api,cuda_cccl,libnvjitlink,libcufile"
+  cuda-path:
+    description: "where the CTK components will be installed to, relative to $PWD"
+    required: false
+    type: string
+    default: "./cuda_toolkit"
 
 runs:
   using: composite
@@ -159,18 +164,24 @@ runs:
           exit 1
         fi
 
+    - name: Move CTK to the specified location
+      if: ${{ inputs.cuda-path != './cuda_toolkit' }}
+      shell: bash --noprofile --norc -xeuo pipefail {0}
+      run: |
+        mv ./cuda_toolkit ${{ inputs.cuda-path }}
+
     - name: Set output environment variables
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         # mimics actual CTK installation
         if [[ "${{ inputs.host-platform }}" == linux* ]]; then
-          CUDA_PATH=$(realpath "./cuda_toolkit")
-          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}:${CUDA_PATH}/lib" >> $GITHUB_ENV
+          CUDA_PATH=$(realpath "${{ inputs.cuda-path }}")
+          echo "LD_LIBRARY_PATH=${CUDA_PATH}/lib:${LD_LIBRARY_PATH:-}" >> $GITHUB_ENV
         elif [[ "${{ inputs.host-platform }}" == win* ]]; then
           function normpath() {
             echo "$(echo $(cygpath -w $1) | sed 's/\\/\\\\/g')"
           }
-          CUDA_PATH=$(normpath $(realpath "./cuda_toolkit"))
+          CUDA_PATH=$(normpath $(realpath "${{ inputs.cuda-path }}"))
           echo "$(normpath ${CUDA_PATH}/bin)" >> $GITHUB_PATH
         fi
         echo "CUDA_PATH=${CUDA_PATH}" >> $GITHUB_ENV

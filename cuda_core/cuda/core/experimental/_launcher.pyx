@@ -2,12 +2,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from libc.stdint cimport uintptr_t
+
+from cuda.core.experimental._stream cimport _try_to_get_stream_ptr
+
 from typing import Union
 
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
 from cuda.core.experimental._launch_config import LaunchConfig, _to_native_launch_config
 from cuda.core.experimental._module import Kernel
-from cuda.core.experimental._stream import IsStreamT, Stream, _try_to_get_stream_ptr
+from cuda.core.experimental._stream import IsStreamT, Stream
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
     _reduce_3_tuple,
@@ -60,7 +64,7 @@ def launch(stream: Union[Stream, IsStreamT], config: LaunchConfig, kernel: Kerne
         stream_handle = stream.handle
     except AttributeError:
         try:
-            stream_handle = _try_to_get_stream_ptr(stream)
+            stream_handle = driver.CUstream(<uintptr_t>(_try_to_get_stream_ptr(stream)))
         except Exception:
             raise ValueError(
                 f"stream must either be a Stream object or support __cuda_stream__ (got {type(stream)})"

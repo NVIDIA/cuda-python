@@ -11,6 +11,9 @@ on:
       cuda-version:
         required: true
         type: string
+      prev-cuda-version:
+        required: true
+        type: string
 
 defaults:
   run:
@@ -109,33 +112,6 @@ jobs:
           path: cuda_pathfinder/*.whl
           if-no-files-found: error
 
-      - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@7c619efba910c04005a835b110b057fc28fd6e93  # v3.2.0
-        with:
-          package-dir: ./cuda_core/
-          output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-
-      - name: List the cuda.core artifacts directory
-        run: |
-          if [[ "${{ inputs.host-platform }}" == win* ]]; then
-            export CHOWN=chown
-          else
-            export CHOWN="sudo chown"
-          fi
-          $CHOWN -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-          ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
-
-      - name: Check cuda.core wheel
-        run: |
-          twine check --strict ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
-
-      - name: Upload cuda.core build artifacts
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
-        with:
-          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
-          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
-          if-no-files-found: error
-
       - name: Set up mini CTK
         uses: ./.github/actions/fetch_ctk
         continue-on-error: false
@@ -148,6 +124,15 @@ jobs:
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # CIBW mounts the host filesystem under /host
+          CIBW_ENVIRONMENT_LINUX: >
+            CUDA_PATH=/host/${{ env.CUDA_PATH }}
+            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+          CIBW_ENVIRONMENT_WINDOWS: >
+            CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
+            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
 
       - name: List the cuda.bindings artifacts directory
         run: |
@@ -169,6 +154,47 @@ jobs:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
           if-no-files-found: error
+
+      - name: Build cuda.core wheel
+        uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6  # v3.1.4
+        with:
+          package-dir: ./cuda_core/
+          output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # CIBW mounts the host filesystem under /host
+          CIBW_ENVIRONMENT_LINUX: >
+            CUDA_PATH=/host/${{ env.CUDA_PATH }}
+            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+            CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
+            PIP_FIND_LINKS=/host/${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          CIBW_ENVIRONMENT_WINDOWS: >
+            CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
+            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+            CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
+            PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
+
+      - name: List the cuda.core artifacts directory and rename
+        run: |
+          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+            export CHOWN=chown
+          else
+            export CHOWN="sudo chown"
+          fi
+          $CHOWN -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+          # Rename wheel to include CUDA version suffix
+          mkdir -p "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/cu${BUILD_CUDA_MAJOR}"
+          for wheel in ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl; do
+            if [[ -f "${wheel}" ]]; then
+              base_name=$(basename "${wheel}" .whl)
+              new_name="${base_name}.cu${BUILD_CUDA_MAJOR}.whl"
+              mv "${wheel}" "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/cu${BUILD_CUDA_MAJOR}/${new_name}"
+              echo "Renamed wheel to: ${new_name}"
+            fi
+          done
+
+          ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       # We only need/want a single pure python wheel, pick linux-64 index 0.
       - name: Build and check cuda-python wheel
@@ -241,7 +267,7 @@ jobs:
 
       - name: Build cuda.core Cython tests
         run: |
-          pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl --group ./cuda_core/pyproject.toml:test
+          pip install ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/"cu${BUILD_CUDA_MAJOR}"/*.whl --group ./cuda_core/pyproject.toml:test
           pushd ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}
           bash build_tests.sh
           popd
@@ -251,4 +277,108 @@ jobs:
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
+          if-no-files-found: error
+
+      # Note: This overwrites CUDA_PATH etc
+      - name: Set up mini CTK
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: ${{ inputs.host-platform }}
+          cuda-version: ${{ inputs.prev-cuda-version }}
+          cuda-path: "./cuda_toolkit_prev"
+
+      - name: Download cuda.bindings build artifacts from the prior branch
+        if: ${{ matrix.python-version == '3.13t'
+                || matrix.python-version == '3.14'
+                || matrix.python-version == '3.14t' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! (command -v gh 2>&1 >/dev/null); then
+            # See https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt.
+            # gh is needed for artifact fetching.
+            mkdir -p -m 755 /etc/apt/keyrings \
+                  && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+                  && cat $out | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+            && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+            && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+            && apt update \
+            && apt install gh -y
+          fi
+
+          OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
+          OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
+          LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "ci.yml" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
+          if [[ "$LATEST_PRIOR_RUN_ID" == "" ]]; then
+            echo "LATEST_PRIOR_RUN_ID not found!"
+            exit 1
+          fi
+
+          gh run download $LATEST_PRIOR_RUN_ID -p ${OLD_BASENAME} -R NVIDIA/cuda-python
+          rm -rf ${OLD_BASENAME}-tests  # exclude cython test artifacts
+          ls -al $OLD_BASENAME
+          mkdir -p "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
+          mv $OLD_BASENAME/*.whl "${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}"
+          rmdir $OLD_BASENAME
+
+      - name: Build cuda.core wheel
+        uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6  # v3.1.4
+        with:
+          package-dir: ./cuda_core/
+          output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+        env:
+          CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # CIBW mounts the host filesystem under /host
+          CIBW_ENVIRONMENT_LINUX: >
+            CUDA_PATH=/host/${{ env.CUDA_PATH }}
+            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+            CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
+            PIP_FIND_LINKS=/host/${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+          CIBW_ENVIRONMENT_WINDOWS: >
+            CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
+            CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+            CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
+            PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
+
+      - name: List the cuda.core artifacts directory and rename
+        run: |
+          if [[ "${{ inputs.host-platform }}" == win* ]]; then
+            export CHOWN=chown
+          else
+            export CHOWN="sudo chown"
+          fi
+          $CHOWN -R $(whoami) ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+          ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+          # Rename wheel to include CUDA version suffix
+          mkdir -p "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/cu${BUILD_PREV_CUDA_MAJOR}"
+          for wheel in ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl; do
+            if [[ -f "${wheel}" ]]; then
+              base_name=$(basename "${wheel}" .whl)
+              new_name="${base_name}.cu${BUILD_PREV_CUDA_MAJOR}.whl"
+              mv "${wheel}" "${{ env.CUDA_CORE_ARTIFACTS_DIR }}/cu${BUILD_PREV_CUDA_MAJOR}/${new_name}"
+              echo "Renamed wheel to: ${new_name}"
+            fi
+          done
+
+          ls -lahR ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
+
+      - name: Merge cuda.core wheels
+        run: |
+          pip install wheel
+          python ci/tools/merge_cuda_core_wheels.py \
+            "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_CUDA_MAJOR}"/cuda_core*.whl \
+            "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"/cu"${BUILD_PREV_CUDA_MAJOR}"/cuda_core*.whl \
+            --output-dir "${{ env.CUDA_CORE_ARTIFACTS_DIR }}"
+
+      - name: Check cuda.core wheel
+        run: |
+          twine check --strict ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
+
+      - name: Upload cuda.core build artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
+          path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
           if-no-files-found: error
