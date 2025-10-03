@@ -1165,6 +1165,9 @@ class Device:
     def __repr__(self):
         return f"<Device {self._id} ({self.name})>"
 
+    def __reduce__(self):
+        return Device, (self.device_id,)
+
     def set_current(self, ctx: Context = None) -> Union[Context, None]:
         """Set device to be used for GPU executions.
 

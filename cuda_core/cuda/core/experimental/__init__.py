@@ -52,7 +52,7 @@ from cuda.core.experimental._linker import Linker, LinkerOptions  # noqa: E402
 from cuda.core.experimental._memory import (  # noqa: E402
     Buffer,
     DeviceMemoryResource,
-    IPCChannel,
+    DeviceMemoryResourceOptions,
     LegacyPinnedMemoryResource,
     MemoryResource,
 )
