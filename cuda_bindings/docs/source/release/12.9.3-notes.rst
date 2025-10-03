@@ -16,7 +16,7 @@ Highlights
 * The Python overhead of calling functions in CUDA bindings in ``driver``, ``runtime`` and ``nvrtc`` has been reduced by approximately 30%.
 * Updated the ``cuda.bindings.runtime`` module to statically link against the CUDA Runtime library from CUDA Toolkit 12.9.1.
 * ``cyruntime.getLocalRuntimeVersion`` now uses pathfinder to find the CUDA runtime.
-
+* Experimental free-threaded builds are available on PyPI. More details are available in our :ref:`support` docs.
 
 Known issues
 ------------
