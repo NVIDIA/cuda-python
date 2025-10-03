@@ -52,6 +52,12 @@ def _reduce_3_tuple(t: tuple):
     return t[0] * t[1] * t[2]
 
 
+cdef int HANDLE_RETURN(supported_error_type err) except?-1:
+    if supported_error_type is cydriver.CUresult:
+        if err != cydriver.CUresult.CUDA_SUCCESS:
+            return _check_driver_error(err)
+
+
 cdef object _DRIVER_SUCCESS = driver.CUresult.CUDA_SUCCESS
 cdef object _RUNTIME_SUCCESS = runtime.cudaError_t.cudaSuccess
 cdef object _NVRTC_SUCCESS = nvrtc.nvrtcResult.NVRTC_SUCCESS

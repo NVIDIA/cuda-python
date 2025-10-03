@@ -21,16 +21,20 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
+      CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: 0
-      - name: Get CUDA build version
+      - name: Get CUDA build versions
         id: get-vars
         run: |
           cuda_build_ver=$(jq -r .cuda.build.version ci/versions.json)
           echo "cuda_build_ver=$cuda_build_ver" >> $GITHUB_OUTPUT
+
+          cuda_prev_build_ver=$(jq -r .cuda.prev_build.version ci/versions.json)
+          echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
 
   should-skip:
     runs-on: ubuntu-latest
@@ -69,6 +73,7 @@ jobs:
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
   # WARNING: make sure all of the build jobs are in sync
   build-linux-aarch64:
@@ -87,6 +92,7 @@ jobs:
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
   # WARNING: make sure all of the build jobs are in sync
   build-windows:
@@ -105,6 +111,7 @@ jobs:
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
   # WARNING: make sure both Linux test jobs are in sync
   test-linux-64:
