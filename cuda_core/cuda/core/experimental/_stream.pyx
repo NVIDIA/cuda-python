@@ -214,7 +214,7 @@ cdef class Stream:
 
     def __cuda_stream__(self) -> tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
-        return (0, int(self.handle))
+        return (0, <uintptr_t>(self._handle))
 
     @property
     def handle(self) -> cuda.bindings.driver.CUstream:
