@@ -9,7 +9,6 @@ from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
     check_or_create_options,
 )
-import sys
 
 from dataclasses import dataclass
 from typing import Optional, TypeVar, Union, TYPE_CHECKING
@@ -20,7 +19,6 @@ import cython
 import multiprocessing
 import os
 import platform
-import sys
 import weakref
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream, default_stream
@@ -72,17 +70,8 @@ cdef class Buffer:
         self._mr = mr
         return self
 
-    def __del__(self):
-        self._shutdown_safe_close()
-
-    cdef _shutdown_safe_close(self, stream: Stream = None, is_shutting_down=sys.is_finalizing):
-        if is_shutting_down and is_shutting_down():
-            return
-        if self._ptr and self._mr is not None:
-            self._mr.deallocate(self._ptr, self._size, stream)
-            self._ptr = 0
-            self._mr = None
-            self._ptr_obj = None
+    def __dealloc__(self):
+        self.close()
 
     def __reduce__(self):
         return Buffer.from_ipc_descriptor, (self.memory_resource, self.get_ipc_descriptor())
@@ -99,7 +88,11 @@ cdef class Buffer:
             The stream object to use for asynchronous deallocation. If None,
             the behavior depends on the underlying memory resource.
         """
-        self._shutdown_safe_close(stream, is_shutting_down=None)
+        if self._ptr and self._mr is not None:
+            self._mr.deallocate(self._ptr, self._size, stream)
+            self._ptr = 0
+            self._mr = None
+            self._ptr_obj = None
 
     @property
     def handle(self) -> DevicePointerT:
@@ -424,8 +417,7 @@ cdef class IPCAllocationHandle:
                 self._handle = -1
                 self._uuid = None
 
-    def __del__(self):
-        """Close the handle."""
+    def __dealloc__(self):
         self.close()
 
     def __int__(self) -> int:

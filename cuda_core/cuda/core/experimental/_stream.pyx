@@ -194,7 +194,7 @@ cdef class Stream:
         self._device_id = device_id if device_id is not None else self._device_id
         return self
 
-    def __del__(self):
+    def __dealloc__(self):
         self.close()
 
     cpdef close(self):
