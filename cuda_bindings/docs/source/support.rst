@@ -27,7 +27,7 @@ The ``cuda.bindings`` module has the following support policy:
 
 Free-threading Build Support
 ----------------------------
-As of cuda-python 13.0.2/12.9.3, wheels for the `free-threaded interpreter`_ are shipped to PyPI.
+As of cuda-bindings 13.0.2/12.9.3, wheels for the `free-threaded interpreter`_ are shipped to PyPI.
 
 1. Support for these builds is best effort, due to heavy use of `built-in
    modules that are known to be thread-unsafe`_, such as ``ctypes``.
