@@ -25,7 +25,7 @@ The ``cuda.bindings`` module has the following support policy:
    module could require Cython layer users to rebuild their projects and update their pinning to
    this module.
 
-Free-threading build Support
+Free-threading Build Support
 ----------------------------
 As of cuda-python 13.0.2/12.9.3, wheels for the `free-threaded interpreter`_ are shipped to PyPI.
 
