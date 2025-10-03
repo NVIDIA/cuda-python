@@ -30,6 +30,7 @@ CUDA runtime
 
    :template: dataclass.rst
 
+   DeviceMemoryResourceOptions
    EventOptions
    GraphCompleteOptions
    GraphDebugPrintOptions
