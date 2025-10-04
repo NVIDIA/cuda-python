@@ -12,6 +12,7 @@
 import functools
 import glob
 import os
+import pathlib
 import re
 import subprocess
 
@@ -22,6 +23,46 @@ from setuptools import build_meta as _build_meta
 prepare_metadata_for_build_wheel = _build_meta.prepare_metadata_for_build_wheel
 build_sdist = _build_meta.build_sdist
 get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
+
+
+@functools.cache
+def _get_cuda_paths():
+    CUDA_PATH = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
+    if not CUDA_PATH:
+        raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
+    CUDA_PATH = CUDA_PATH.split(os.pathsep)
+    print("CUDA paths:", CUDA_PATH, flush=True)
+    return CUDA_PATH
+
+
+@functools.cache
+def _get_cuda_version_from_cuda_h(cuda_home=None):
+    """
+    Given CUDA_HOME, try to extract the CUDA_VERSION macro from include/cuda.h.
+
+    Example line in cuda.h:
+        #define CUDA_VERSION 13000
+
+    Returns the integer (e.g. 13000) or None if not found / on error.
+    """
+    if cuda_home is None:
+        cuda_home = _get_cuda_paths()[0]
+
+    cuda_h = pathlib.Path(cuda_home) / "include" / "cuda.h"
+    if not cuda_h.is_file():
+        return None
+
+    try:
+        text = cuda_h.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        # Permissions issue, unreadable file, etc.
+        return None
+
+    m = re.search(r"^\s*#define\s+CUDA_VERSION\s+(\d+)", text, re.MULTILINE)
+    if not m:
+        return None
+    print(f"CUDA_VERSION from {cuda_h}:", m.group(1), flush=True)
+    return m.group(1)
 
 
 @functools.cache
@@ -38,6 +79,10 @@ def _get_proper_cuda_bindings_major_version() -> str:
     cuda_major = os.environ.get("CUDA_CORE_BUILD_MAJOR")
     if cuda_major is not None:
         return cuda_major
+
+    cuda_version = _get_cuda_version_from_cuda_h()
+    if cuda_version and len(cuda_version) > 3:
+        return cuda_version[:-3]
 
     # also for local development
     try:
@@ -73,20 +118,11 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
     module_names = (strip_prefix_suffix(f) for f in ext_files)
 
-    @functools.cache
-    def get_cuda_paths():
-        CUDA_PATH = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
-        if not CUDA_PATH:
-            raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
-        CUDA_PATH = CUDA_PATH.split(os.pathsep)
-        print("CUDA paths:", CUDA_PATH)
-        return CUDA_PATH
-
     ext_modules = tuple(
         Extension(
             f"cuda.core.experimental.{mod.replace(os.path.sep, '.')}",
             sources=[f"cuda/core/experimental/{mod}.pyx"],
-            include_dirs=list(os.path.join(root, "include") for root in get_cuda_paths()),
+            include_dirs=list(os.path.join(root, "include") for root in _get_cuda_paths()),
             language="c++",
         )
         for mod in module_names
