@@ -108,18 +108,7 @@ cdef class Stream:
     New streams should instead be created through a :obj:`~_device.Device`
     object, or created directly through using an existing handle
     using Stream.from_handle().
-
     """
-
-    cdef:
-        cydriver.CUstream _handle
-        object _owner
-        object _builtin
-        object _nonblocking
-        object _priority
-        cydriver.CUdevice _device_id
-        cydriver.CUcontext _ctx_handle
-
     def __cinit__(self):
         self._handle = <cydriver.CUstream>(NULL)
         self._device_id = cydriver.CU_DEVICE_INVALID  # delayed
