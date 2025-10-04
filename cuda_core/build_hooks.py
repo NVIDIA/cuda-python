@@ -9,12 +9,13 @@
 #
 # TODO: also implement PEP-660 API hooks
 
+import ctypes
 import functools
 import glob
 import os
 import pathlib
 import re
-import subprocess
+import sys
 
 from Cython.Build import cythonize
 from setuptools import Extension
@@ -65,6 +66,70 @@ def _get_cuda_version_from_cuda_h(cuda_home=None):
     return m.group(1)
 
 
+def _get_cuda_driver_version_linux():
+    """
+    Linux-only. Try to load `libcuda.so` via standard dynamic library lookup
+    and call `CUresult cuDriverGetVersion(int* driverVersion)`.
+
+    Returns:
+        int  : driver version (e.g., 12040 for 12.4), if successful.
+        None : on any failure (load error, missing symbol, non-success CUresult).
+    """
+    CUDA_SUCCESS = 0
+
+    libcuda_so = "libcuda.so.1"
+    cdll_mode = os.RTLD_NOW | os.RTLD_GLOBAL
+    try:
+        # Use system search paths only; do not provide an absolute path.
+        # Make symbols globally available to any dependent libraries.
+        lib = ctypes.CDLL(libcuda_so, mode=cdll_mode)
+    except OSError:
+        return None
+
+    # int cuDriverGetVersion(int* driverVersion);
+    lib.cuDriverGetVersion.restype = ctypes.c_int  # CUresult
+    lib.cuDriverGetVersion.argtypes = [ctypes.POINTER(ctypes.c_int)]
+
+    out = ctypes.c_int(0)
+    rc = lib.cuDriverGetVersion(ctypes.byref(out))
+    if rc != CUDA_SUCCESS:
+        return None
+
+    print(f"CUDA_VERSION from {libcuda_so}:", int(out.value), flush=True)
+    return int(out.value)
+
+
+def _get_cuda_driver_version_windows():
+    """
+    Windows-only. Load `nvcuda.dll` via normal system search and call
+    CUresult cuDriverGetVersion(int* driverVersion).
+
+    Returns:
+        int  : driver version (e.g., 12040 for 12.4), if successful.
+        None : on any failure (load error, missing symbol, non-success CUresult).
+    """
+    CUDA_SUCCESS = 0
+
+    try:
+        # WinDLL => stdcall (CUDAAPI on Windows), matches CUDA Driver API.
+        lib = ctypes.WinDLL("nvcuda.dll")
+    except OSError:
+        return None
+
+    # int cuDriverGetVersion(int* driverVersion);
+    cuDriverGetVersion = lib.cuDriverGetVersion
+    cuDriverGetVersion.restype = ctypes.c_int  # CUresult
+    cuDriverGetVersion.argtypes = [ctypes.POINTER(ctypes.c_int)]
+
+    out = ctypes.c_int(0)
+    rc = cuDriverGetVersion(ctypes.byref(out))
+    if rc != CUDA_SUCCESS:
+        return None
+
+    print("CUDA_VERSION from nvcuda.dll:", int(out.value), flush=True)
+    return int(out.value)
+
+
 @functools.cache
 def _get_proper_cuda_bindings_major_version() -> str:
     # for local development (with/without build isolation)
@@ -85,14 +150,12 @@ def _get_proper_cuda_bindings_major_version() -> str:
         return cuda_version[:-3]
 
     # also for local development
-    try:
-        out = subprocess.run("nvidia-smi", env=os.environ, capture_output=True, check=True)  # noqa: S603, S607
-        m = re.search(r"CUDA Version:\s*([\d\.]+)", out.stdout.decode())
-        if m:
-            return m.group(1).split(".")[0]
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        # the build machine has no driver installed
-        pass
+    if sys.platform == "win32":
+        cuda_version = _get_cuda_driver_version_windows()
+    else:
+        cuda_version = _get_cuda_driver_version_linux()
+    if cuda_version:
+        return str(cuda_version // 1000)
 
     # default fallback
     return "13"
