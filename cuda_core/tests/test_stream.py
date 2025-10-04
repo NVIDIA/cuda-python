@@ -51,7 +51,7 @@ def test_stream_record(init_cuda):
 
 def test_stream_record_invalid_event(init_cuda):
     stream = Device().create_stream(options=StreamOptions())
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         stream.record(event="invalid_event")
 
 

@@ -20,9 +20,7 @@ from cuda.core.experimental._context import Context
 from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
     driver,
-    handle_return,
 )
-import sys
 if TYPE_CHECKING:
     import cuda.bindings
     from cuda.core.experimental._device import Device
@@ -81,13 +79,6 @@ cdef class Event:
     and they should instead be created through a :obj:`~_stream.Stream` object.
 
     """
-    cdef:
-        cydriver.CUevent _handle
-        bint _timing_disabled
-        bint _busy_waited
-        int _device_id
-        object _ctx_handle
-
     def __cinit__(self):
         self._handle = <cydriver.CUevent>(NULL)
 
@@ -109,24 +100,21 @@ cdef class Event:
             self._busy_waited = True
         if opts.support_ipc:
             raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
-        HANDLE_RETURN(cydriver.cuEventCreate(&self._handle, flags))
+        with nogil:
+            HANDLE_RETURN(cydriver.cuEventCreate(&self._handle, flags))
         self._device_id = device_id
         self._ctx_handle = ctx_handle
         return self
 
-    cdef _shutdown_safe_close(self, is_shutting_down=sys.is_finalizing):
-        if is_shutting_down and is_shutting_down():
-            return
-        if self._handle != NULL:
-            HANDLE_RETURN(cydriver.cuEventDestroy(self._handle))
-            self._handle = <cydriver.CUevent>(NULL)
-
     cpdef close(self):
         """Destroy the event."""
-        self._shutdown_safe_close(is_shutting_down=None)
+        if self._handle != NULL:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuEventDestroy(self._handle))
+            self._handle = <cydriver.CUevent>(NULL)
 
-    def __del__(self):
-        self._shutdown_safe_close()
+    def __dealloc__(self):
+        self.close()
 
     def __isub__(self, other):
         return NotImplemented
@@ -137,7 +125,8 @@ cdef class Event:
     def __sub__(self, other: Event):
         # return self - other (in milliseconds)
         cdef float timing
-        err = cydriver.cuEventElapsedTime(&timing, other._handle, self._handle)
+        with nogil:
+            err = cydriver.cuEventElapsedTime(&timing, other._handle, self._handle)
         if err == 0:
             return timing
         else:
@@ -187,12 +176,14 @@ cdef class Event:
         has been completed.
 
         """
-        HANDLE_RETURN(cydriver.cuEventSynchronize(self._handle))
+        with nogil:
+            HANDLE_RETURN(cydriver.cuEventSynchronize(self._handle))
 
     @property
     def is_done(self) -> bool:
         """Return True if all captured works have been completed, otherwise False."""
-        result = cydriver.cuEventQuery(self._handle)
+        with nogil:
+            result = cydriver.cuEventQuery(self._handle)
         if result == cydriver.CUresult.CUDA_SUCCESS:
             return True
         if result == cydriver.CUresult.CUDA_ERROR_NOT_READY:
