@@ -33,10 +33,11 @@ repos:
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
         entry: bash -c
-        args: ['if find . -path "*/docs/source/*.md" -not -path "./docs/README.md" | grep -q .; then echo "ERROR: Markdown files found in docs/source/ directories. Use reST (.rst) instead."; exit 1; fi']
+        args:
+          - 'for file in "$@"; do >&2 echo "error: markdown file "$file" found in a docs/source directory. Only reST (.rst) is allowed"; done && exit 1'
+          - "_" # fake script name, because bash considers $0 (the first argument) to be the script name
         language: system
-        pass_filenames: false
-        always_run: true
+        files: '^.*/docs/source/.*\.md$'
 
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
