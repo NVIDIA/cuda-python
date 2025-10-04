@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from libc.stdint cimport uintptr_t
+from libc.stdint cimport uintptr_t, INT32_MIN
 
 from cuda.bindings cimport cydriver
 
@@ -111,6 +111,10 @@ cdef class Stream:
     """
     def __cinit__(self):
         self._handle = <cydriver.CUstream>(NULL)
+        self._owner = None
+        self._builtin = False
+        self._nonblocking = -1  # delayed
+        self._priority = INT32_MIN  # delayed
         self._device_id = cydriver.CU_DEVICE_INVALID  # delayed
         self._ctx_handle = CU_CONTEXT_INVALID  # delayed
 
@@ -124,27 +128,19 @@ cdef class Stream:
     def _legacy_default(cls):
         cdef Stream self = Stream.__new__(cls)
         self._handle = <cydriver.CUstream>(cydriver.CU_STREAM_LEGACY)
-        self._owner = None
         self._builtin = True
-        self._nonblocking = None  # delayed
-        self._priority = None  # delayed
         return self
 
     @classmethod
     def _per_thread_default(cls):
         cdef Stream self = Stream.__new__(cls)
         self._handle = <cydriver.CUstream>(cydriver.CU_STREAM_PER_THREAD)
-        self._owner = None
         self._builtin = True
-        self._nonblocking = None  # delayed
-        self._priority = None  # delayed
         return self
 
     @classmethod
     def _init(cls, obj: Optional[IsStreamT] = None, options=None, device_id: int = None):
         cdef Stream self = Stream.__new__(cls)
-        self._owner = None
-        self._builtin = False
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
@@ -152,8 +148,6 @@ cdef class Stream:
             self._handle = _try_to_get_stream_ptr(obj)
             # TODO: check if obj is created under the current context/device
             self._owner = obj
-            self._nonblocking = None  # delayed
-            self._priority = None  # delayed
             return self
 
         cdef StreamOptions opts = check_or_create_options(StreamOptions, options, "Stream options")
@@ -177,9 +171,8 @@ cdef class Stream:
         with nogil:
             HANDLE_RETURN(cydriver.cuStreamCreateWithPriority(&s, flags, prio))
         self._handle = s
-        self._owner = None
-        self._nonblocking = nonblocking
-        self._priority = priority
+        self._nonblocking = int(nonblocking)
+        self._priority = prio
         self._device_id = device_id if device_id is not None else self._device_id
         return self
 
@@ -220,20 +213,20 @@ cdef class Stream:
     def is_nonblocking(self) -> bool:
         """Return True if this is a nonblocking stream, otherwise False."""
         cdef unsigned int flags
-        if self._nonblocking is None:
+        if self._nonblocking == -1:
             with nogil:
                 HANDLE_RETURN(cydriver.cuStreamGetFlags(self._handle, &flags))
             if flags & cydriver.CUstream_flags.CU_STREAM_NON_BLOCKING:
                 self._nonblocking = True
             else:
                 self._nonblocking = False
-        return self._nonblocking
+        return bool(self._nonblocking)
 
     @property
     def priority(self) -> int:
         """Return the stream priority."""
         cdef int prio
-        if self._priority is None:
+        if self._priority == INT32_MIN:
             with nogil:
                 HANDLE_RETURN(cydriver.cuStreamGetPriority(self._handle, &prio))
             self._priority = prio

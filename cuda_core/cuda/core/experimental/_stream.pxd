@@ -13,9 +13,9 @@ cdef class Stream:
     cdef:
         cydriver.CUstream _handle
         object _owner
-        object _builtin
-        object _nonblocking
-        object _priority
+        bint _builtin
+        int _nonblocking
+        int _priority
         cydriver.CUdevice _device_id
         cydriver.CUcontext _ctx_handle
 
