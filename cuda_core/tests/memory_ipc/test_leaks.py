@@ -14,13 +14,10 @@ else:
     HAVE_PSUTIL = True
 import pytest
 
-from cuda.core.experimental._utils.cuda_utils import driver
-
-
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
 
-USING_FDS = True if platform.system() == "Linux" else False
+USING_FDS = platform.system() == "Linux"
 skip_if_unrunnable = pytest.mark.skipif(
     not USING_FDS or not HAVE_PSUTIL, reason="mempool allocation handle is not using fds or psutil is unavailable"
 )

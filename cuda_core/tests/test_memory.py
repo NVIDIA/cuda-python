@@ -426,7 +426,6 @@ def test_mempool_attributes_ownership(mempool_device):
     device = mempool_device
     mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
     attributes = mr.attributes
-    old_handle = mr.handle
     mr.close()
     del mr
 
@@ -436,7 +435,7 @@ def test_mempool_attributes_ownership(mempool_device):
 
     # Even when a new object is created (we found a case where the same
     # mempool handle was really reused).
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
+    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))  # noqa: F841
     with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
         _ = attributes.used_mem_high
 
