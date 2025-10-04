@@ -97,6 +97,10 @@ cdef class Buffer:
         """
         if self._ptr and self._mr is not None:
             if isinstance(self._mr, _cyMemoryResource):
+                # FIXME
+                if stream is None:
+                    stream = Stream.__new__(Stream)
+                    (<cyStream>(stream))._handle = <cydriver.CUstream>(0)
                 (<_cyMemoryResource>(self._mr))._deallocate(self._ptr, self._size, <cyStream>stream)
             else:
                 self._mr.deallocate(self._ptr, self._size, stream)
@@ -113,7 +117,13 @@ cdef class Buffer:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(Buffer.handle)``.
         """
-        return self._ptr_obj
+        if self._ptr_obj is not None:
+            return self._ptr_obj
+        elif self._ptr:
+            return self._ptr
+        else:
+            # contract: Buffer is closed
+            return None
 
     @property
     def size(self) -> int:
