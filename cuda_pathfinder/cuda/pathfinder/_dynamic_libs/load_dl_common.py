@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Optional
 
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import DIRECT_DEPENDENCIES
 
@@ -13,7 +13,7 @@ class DynamicLibNotFoundError(RuntimeError):
 
 @dataclass
 class LoadedDL:
-    abs_path: Optional[str]
+    abs_path: str | None
     was_already_loaded_from_elsewhere: bool
     _handle_uint: int  # Platform-agnostic unsigned pointer value
 

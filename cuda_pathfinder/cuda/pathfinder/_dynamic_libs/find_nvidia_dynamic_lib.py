@@ -4,7 +4,6 @@
 import glob
 import os
 from collections.abc import Sequence
-from typing import Optional
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
@@ -29,7 +28,7 @@ def _no_such_file_in_sub_dirs(
 
 def _find_so_using_nvidia_lib_dirs(
     libname: str, so_basename: str, error_messages: list[str], attachments: list[str]
-) -> Optional[str]:
+) -> str | None:
     rel_dirs = SITE_PACKAGES_LIBDIRS_LINUX.get(libname)
     if rel_dirs is not None:
         sub_dirs_searched = []
@@ -52,7 +51,7 @@ def _find_so_using_nvidia_lib_dirs(
     return None
 
 
-def _find_dll_under_dir(dirpath: str, file_wild: str) -> Optional[str]:
+def _find_dll_under_dir(dirpath: str, file_wild: str) -> str | None:
     for path in sorted(glob.glob(os.path.join(dirpath, file_wild))):
         if not os.path.isfile(path):
             continue
@@ -63,7 +62,7 @@ def _find_dll_under_dir(dirpath: str, file_wild: str) -> Optional[str]:
 
 def _find_dll_using_nvidia_bin_dirs(
     libname: str, lib_searched_for: str, error_messages: list[str], attachments: list[str]
-) -> Optional[str]:
+) -> str | None:
     rel_dirs = SITE_PACKAGES_LIBDIRS_WINDOWS.get(libname)
     if rel_dirs is not None:
         sub_dirs_searched = []
@@ -79,7 +78,7 @@ def _find_dll_using_nvidia_bin_dirs(
     return None
 
 
-def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str, linux_lib_dir: str) -> Optional[str]:
+def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str, linux_lib_dir: str) -> str | None:
     # Resolve paths for the four cases:
     #    Windows/Linux x nvvm yes/no
     if IS_WINDOWS:
@@ -107,14 +106,14 @@ def _find_lib_dir_using_anchor_point(libname: str, anchor_point: str, linux_lib_
     return None
 
 
-def _find_lib_dir_using_cuda_home(libname: str) -> Optional[str]:
+def _find_lib_dir_using_cuda_home(libname: str) -> str | None:
     cuda_home = get_cuda_home_or_path()
     if cuda_home is None:
         return None
     return _find_lib_dir_using_anchor_point(libname, anchor_point=cuda_home, linux_lib_dir="lib64")
 
 
-def _find_lib_dir_using_conda_prefix(libname: str) -> Optional[str]:
+def _find_lib_dir_using_conda_prefix(libname: str) -> str | None:
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if not conda_prefix:
         return None
@@ -125,7 +124,7 @@ def _find_lib_dir_using_conda_prefix(libname: str) -> Optional[str]:
 
 def _find_so_using_lib_dir(
     lib_dir: str, so_basename: str, error_messages: list[str], attachments: list[str]
-) -> Optional[str]:
+) -> str | None:
     so_name = os.path.join(lib_dir, so_basename)
     if os.path.isfile(so_name):
         return so_name
@@ -141,7 +140,7 @@ def _find_so_using_lib_dir(
 
 def _find_dll_using_lib_dir(
     lib_dir: str, libname: str, error_messages: list[str], attachments: list[str]
-) -> Optional[str]:
+) -> str | None:
     file_wild = libname + "*.dll"
     dll_name = _find_dll_under_dir(lib_dir, file_wild)
     if dll_name is not None:
@@ -162,9 +161,9 @@ class _FindNvidiaDynamicLib:
             self.lib_searched_for = f"lib{libname}.so"
         self.error_messages: list[str] = []
         self.attachments: list[str] = []
-        self.abs_path: Optional[str] = None
+        self.abs_path: str | None = None
 
-    def try_site_packages(self) -> Optional[str]:
+    def try_site_packages(self) -> str | None:
         if IS_WINDOWS:
             return _find_dll_using_nvidia_bin_dirs(
                 self.libname,
@@ -180,13 +179,13 @@ class _FindNvidiaDynamicLib:
                 self.attachments,
             )
 
-    def try_with_conda_prefix(self) -> Optional[str]:
+    def try_with_conda_prefix(self) -> str | None:
         return self._find_using_lib_dir(_find_lib_dir_using_conda_prefix(self.libname))
 
-    def try_with_cuda_home(self) -> Optional[str]:
+    def try_with_cuda_home(self) -> str | None:
         return self._find_using_lib_dir(_find_lib_dir_using_cuda_home(self.libname))
 
-    def _find_using_lib_dir(self, lib_dir: Optional[str]) -> Optional[str]:
+    def _find_using_lib_dir(self, lib_dir: str | None) -> str | None:
         if lib_dir is None:
             return None
         if IS_WINDOWS:
