@@ -587,7 +587,7 @@ receive shared buffers. Mapping an MR to another process creates a “mapped
 memory resource” (MMR). An MMR cannot allocate memory buffers and can only
 receive shared buffers. MRs and MMRs are both of type
 <a class="reference internal" href="#cuda.core.experimental.DeviceMemoryResource" title="cuda.core.experimental.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a> and can be distinguished via
-<a class="reference internal" href="#cuda.core.experimental.DeviceMemoryResource.is_mapped" title="cuda.core.experimental.DeviceMemoryResource.is_mapped"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DeviceMemoryResource.is_mapped</span></code></a>.</p>
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">DeviceMemoryResource.is_mapped</span></code>.</p>
 <p>An MR is shared via an allocation handle obtained by calling
 <a class="reference internal" href="#cuda.core.experimental.DeviceMemoryResource.get_allocation_handle" title="cuda.core.experimental.DeviceMemoryResource.get_allocation_handle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceMemoryResource.get_allocation_handle()</span></code></a>. The allocation handle
 has a platform-specific interpretation; however, memory IPC is currently
@@ -625,15 +625,7 @@ associated MMR.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><span class="pre">Device</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -791,61 +783,6 @@ The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.attributes">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">attributes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DeviceMemoryResourceAttributes</span></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.attributes" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.device_id">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.device_id" title="Link to this definition">#</a></dt>
-<dd><p>The associated device ordinal.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.handle">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUmemoryPool" title="(in cuda.bindings)"><span class="pre">cuda.bindings.driver.CUmemoryPool</span></a></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.handle" title="Link to this definition">#</a></dt>
-<dd><p>Handle to the underlying memory pool.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.is_device_accessible">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_device_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.is_device_accessible" title="Link to this definition">#</a></dt>
-<dd><p>Return True. This memory resource provides device-accessible buffers.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.is_handle_owned">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_handle_owned</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.is_handle_owned" title="Link to this definition">#</a></dt>
-<dd><p>Whether the memory resource handle is owned. If False, <code class="docutils literal notranslate"><span class="pre">close</span></code> has no effect.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.is_host_accessible">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_host_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.is_host_accessible" title="Link to this definition">#</a></dt>
-<dd><p>Return False. This memory resource does not provide host-accessible buffers.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.is_ipc_enabled">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_ipc_enabled</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.is_ipc_enabled" title="Link to this definition">#</a></dt>
-<dd><p>Whether this memory resource has IPC enabled.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.is_mapped">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_mapped</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.is_mapped" title="Link to this definition">#</a></dt>
-<dd><p>Whether this is a mapping of an IPC-enabled memory resource from
-another process.  If True, allocation is not permitted.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.uuid">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uuid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/uuid.html#uuid.UUID" title="(in Python v3.13)"><span class="pre">uuid.UUID</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></em><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.uuid" title="Link to this definition">#</a></dt>
-<dd><p>A universally unique identifier for this memory resource. Meaningful
-only for IPC-enabled memory resources.</p>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -909,15 +846,6 @@ only for IPC-enabled memory resources.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.get_allocation_handle"><code class="docutils literal notranslate"><span class="pre">get_allocation_handle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.register"><code class="docutils literal notranslate"><span class="pre">register()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.unregister"><code class="docutils literal notranslate"><span class="pre">unregister()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.attributes"><code class="docutils literal notranslate"><span class="pre">attributes</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">device_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.handle"><code class="docutils literal notranslate"><span class="pre">handle</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">is_device_accessible</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.is_handle_owned"><code class="docutils literal notranslate"><span class="pre">is_handle_owned</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">is_host_accessible</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.is_ipc_enabled"><code class="docutils literal notranslate"><span class="pre">is_ipc_enabled</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.is_mapped"><code class="docutils literal notranslate"><span class="pre">is_mapped</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResource.uuid"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
 </ul>
 </li>
 </ul>
