@@ -42,6 +42,29 @@ if TYPE_CHECKING:
 # MemoryResource both inherit from it
 
 
+cdef extern from * nogil:
+    """
+    #if defined(__GNUC__)
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+    #elif defined(_MSC_VER)
+      #pragma warning(push)
+      #pragma warning(disable : 4312)
+    #endif
+
+    void* unsafe_cast_from_int(int x) {
+        return (void*)x;
+    }
+
+    #if defined(__GNUC__)
+      #pragma GCC diagnostic pop
+    #elif defined(_MSC_VER)
+      #pragma warning(pop)
+    #endif
+    """
+    void* unsafe_cast_from_int(int x)
+
+
 PyCapsule = TypeVar("PyCapsule")
 """Represent the capsule type."""
 
@@ -64,23 +87,33 @@ cdef class Buffer:
         size_t _size
         object _mr
         object _ptr_obj
+        cyStream _alloc_stream
+
+    def __cinit__(self):
+        self._ptr = 0
+        self._size = 0
+        self._mr = None
+        self._ptr_obj = None
+        self._alloc_stream = None
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError("Buffer objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None):
+    def _init(cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None, stream: Stream | None = None):
         cdef Buffer self = Buffer.__new__(cls)
         self._ptr = <intptr_t>(int(ptr))
         self._ptr_obj = ptr
         self._size = size
         self._mr = mr
+        self._alloc_stream = <cyStream>(stream) if stream is not None else None
         return self
 
     def __dealloc__(self):
-        self.close()
+        self.close(self._alloc_stream)
 
     def __reduce__(self):
+        # Must not serialize the parent's stream!
         return Buffer.from_ipc_descriptor, (self.memory_resource, self.get_ipc_descriptor())
 
     cpdef close(self, stream: Stream = None):
@@ -95,18 +128,23 @@ cdef class Buffer:
             The stream object to use for asynchronous deallocation. If None,
             the behavior depends on the underlying memory resource.
         """
+        cdef cyStream s
         if self._ptr and self._mr is not None:
             if isinstance(self._mr, _cyMemoryResource):
-                # FIXME
-                if stream is None:
-                    stream = Stream.__new__(Stream)
-                    (<cyStream>(stream))._handle = <cydriver.CUstream>(0)
-                (<_cyMemoryResource>(self._mr))._deallocate(self._ptr, self._size, <cyStream>stream)
+                s = self._alloc_stream if stream is None else <cyStream>stream
+                (<_cyMemoryResource>(self._mr))._deallocate(self._ptr, self._size, s)
             else:
+                if stream is None:
+                    if self._alloc_stream is not None:
+                        stream = self._alloc_stream
+                    else:
+                        # TODO: remove this branch when from_handle takes a stream
+                        stream = default_stream()
                 self._mr.deallocate(self._ptr, self._size, stream)
             self._ptr = 0
             self._mr = None
             self._ptr_obj = None
+            self._alloc_stream = None
 
     @property
     def handle(self) -> DevicePointerT:
@@ -167,16 +205,19 @@ cdef class Buffer:
         return IPCBufferDescriptor._init(data_b, self.size)
 
     @classmethod
-    def from_ipc_descriptor(cls, mr: DeviceMemoryResource, ipc_buffer: IPCBufferDescriptor) -> Buffer:
+    def from_ipc_descriptor(cls, mr: DeviceMemoryResource, ipc_buffer: IPCBufferDescriptor, stream: Stream = None) -> Buffer:
         """Import a buffer that was exported from another process."""
         if not mr.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
+        if stream is None:
+            # Note: match this behavior to DeviceMemoryResource.allocate()
+            stream = default_stream()
         cdef cydriver.CUmemPoolPtrExportData share_data
         memcpy(share_data.reserved, <const void*><const char*>(ipc_buffer._reserved), sizeof(share_data.reserved))
         cdef cydriver.CUdeviceptr ptr
         with nogil:
             HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._mempool_handle, &share_data))
-        return Buffer.from_handle(<intptr_t>ptr, ipc_buffer.size, mr)
+        return Buffer._init(<intptr_t>ptr, ipc_buffer.size, mr, stream)
 
     def copy_to(self, dst: Buffer = None, *, stream: Stream) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
@@ -297,6 +338,7 @@ cdef class Buffer:
         mr : :obj:`~_memory.MemoryResource`, optional
             Memory resource associated with the buffer
         """
+        # TODO: It is better to take a stream for latter deallocation
         return Buffer._init(ptr, size, mr=mr)
 
 
@@ -839,7 +881,7 @@ cdef class DeviceMemoryResource(_cyMemoryResource, MemoryResource):
         cdef int handle = int(alloc_handle)
         with nogil:
             HANDLE_RETURN(cydriver.cuMemPoolImportFromShareableHandle(
-                &(self._mempool_handle), <void*>handle, _IPC_HANDLE_TYPE, 0)
+                &(self._mempool_handle), unsafe_cast_from_int(handle), _IPC_HANDLE_TYPE, 0)
             )
         if uuid is not None:
             registered = self.register(uuid)
@@ -889,6 +931,7 @@ cdef class DeviceMemoryResource(_cyMemoryResource, MemoryResource):
         buf._ptr_obj = None
         buf._size = size
         buf._mr = self
+        buf._alloc_stream = stream
         return buf
 
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
@@ -921,7 +964,7 @@ cdef class DeviceMemoryResource(_cyMemoryResource, MemoryResource):
             HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
         return 0
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -932,10 +975,9 @@ cdef class DeviceMemoryResource(_cyMemoryResource, MemoryResource):
             The size of the buffer to deallocate, in bytes.
         stream : Stream, optional
             The stream on which to perform the deallocation asynchronously.
-            If None, an internal stream is used.
+            If the buffer is deallocated without an explicit stream, the allocation stream
+            is used.
         """
-        if stream is None:
-            stream = default_stream()
         self._deallocate(<intptr_t>ptr, size, <cyStream>stream)
 
     @property
@@ -1018,11 +1060,13 @@ class LegacyPinnedMemoryResource(MemoryResource):
         Buffer
             The allocated buffer object, which is accessible on both host and device.
         """
+        if stream is None:
+            stream = default_stream()
         err, ptr = driver.cuMemAllocHost(size)
         raise_if_driver_error(err)
-        return Buffer._init(ptr, size, self)
+        return Buffer._init(ptr, size, self, stream)
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -1031,12 +1075,10 @@ class LegacyPinnedMemoryResource(MemoryResource):
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : Stream, optional
-            The stream on which to perform the deallocation asynchronously.
-            If None, no synchronization would happen.
+        stream : Stream
+            The stream on which to perform the deallocation synchronously.
         """
-        if stream:
-            stream.sync()
+        stream.sync()
         err, = driver.cuMemFreeHost(ptr)
         raise_if_driver_error(err)
 
@@ -1064,13 +1106,13 @@ class _SynchronousMemoryResource(MemoryResource):
         self._dev_id = getattr(device_id, 'device_id', device_id)
 
     def allocate(self, size, stream=None) -> Buffer:
+        if stream is None:
+            stream = default_stream()
         err, ptr = driver.cuMemAlloc(size)
         raise_if_driver_error(err)
         return Buffer._init(ptr, size, self)
 
-    def deallocate(self, ptr, size, stream=None):
-        if stream is None:
-            stream = default_stream()
+    def deallocate(self, ptr, size, stream):
         stream.sync()
         err, = driver.cuMemFree(ptr)
         raise_if_driver_error(err)
