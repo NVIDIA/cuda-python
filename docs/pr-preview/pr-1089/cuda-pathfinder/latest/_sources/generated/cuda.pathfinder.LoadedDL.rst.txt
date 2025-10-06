@@ -1,0 +1,29 @@
+﻿cuda.pathfinder.LoadedDL
+========================
+
+.. currentmodule:: cuda.pathfinder
+
+.. autoclass:: LoadedDL
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LoadedDL.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LoadedDL.abs_path
+      ~LoadedDL.was_already_loaded_from_elsewhere
+   
+   
