@@ -52,4 +52,4 @@ Fixes and enhancements
 - Fixed a bug in :class:`Stream` and other classes where object cleanup would error during interpreter shutdown.
 - :class:`StridedMemoryView` of an underlying array using the DLPack protocol will no longer leak memory.
 - General performance improvement.
-- Fixed incorrect index usage in vector_add example 
+- Fixed incorrect index usage in vector_add example
