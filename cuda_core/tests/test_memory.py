@@ -1,19 +1,24 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
+
 try:
     from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-
+try:
+    import numpy as np
+except ImportError:
+    np = None
 import ctypes
 import platform
 
 import pytest
-
-from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource
+from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions, MemoryResource
 from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core.experimental.utils import StridedMemoryView
 
 POOL_SIZE = 2097152  # 2MB size
 
@@ -305,7 +310,8 @@ def test_mempool(mempool_device):
     device = mempool_device
 
     # Test basic pool creation
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=False))
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
+    mr = DeviceMemoryResource(device, options=options)
     assert mr.device_id == device.device_id
     assert mr.is_device_accessible
     assert not mr.is_host_accessible
@@ -348,14 +354,14 @@ def test_mempool(mempool_device):
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        mr._get_allocation_handle()
+        mr.get_allocation_handle()
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        buffer.export()
+        buffer.get_ipc_descriptor()
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         handle = IPCBufferDescriptor._init(b"", 0)
-        Buffer.import_(mr, handle)
+        Buffer.from_ipc_descriptor(mr, handle)
 
     buffer.close()
 
@@ -380,7 +386,8 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
     if platform.system() == "Windows":
         return  # IPC not implemented for Windows
 
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=ipc_enabled))
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=ipc_enabled)
+    mr = DeviceMemoryResource(device, options=options)
     assert mr.is_ipc_enabled == ipc_enabled
 
     # Get the property value
@@ -438,3 +445,14 @@ def test_mempool_attributes_ownership(mempool_device):
     with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
         _ = attributes.used_mem_high
     mr._mempool_handle = old_handle
+
+
+# Ensure that memory views dellocate their reference to dlpack tensors
+@pytest.mark.skipif(np is None, reason="numpy is not installed")
+def test_strided_memory_view_leak():
+    arr = np.zeros(1048576, dtype=np.uint8)
+    before = sys.getrefcount(arr)
+    for idx in range(10):
+        StridedMemoryView(arr, stream_ptr=-1)
+    after = sys.getrefcount(arr)
+    assert before == after

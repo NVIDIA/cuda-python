@@ -6,12 +6,10 @@ import pathlib
 import platform
 import time
 
+import cuda.core.experimental
 import helpers
 import numpy as np
 import pytest
-from conftest import skipif_need_cuda_headers
-
-import cuda.core.experimental
 from cuda.core.experimental import (
     Device,
     Event,
@@ -22,6 +20,8 @@ from cuda.core.experimental import (
     ProgramOptions,
     launch,
 )
+
+from conftest import skipif_need_cuda_headers
 
 
 def platform_is_wsl():

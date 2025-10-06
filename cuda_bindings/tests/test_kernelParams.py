@@ -3,11 +3,10 @@
 
 import ctypes
 
-import numpy as np
-
 import cuda.bindings.driver as cuda
 import cuda.bindings.nvrtc as nvrtc
 import cuda.bindings.runtime as cudart
+import numpy as np
 
 
 def ASSERT_DRV(err):

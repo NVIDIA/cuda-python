@@ -38,6 +38,3 @@ homepage = "https://nvidia.github.io/cuda-python/"
 documentation = "https://nvidia.github.io/cuda-python/"
 repository = "https://github.com/NVIDIA/cuda-python/"
 issues = "https://github.com/NVIDIA/cuda-python/issues/"
-
-[tool.ruff]
-line-length = 120

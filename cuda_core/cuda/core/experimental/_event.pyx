@@ -4,9 +4,13 @@
 
 from __future__ import annotations
 
+from libc.stdint cimport uintptr_t
+
+from cuda.bindings cimport cydriver
+
 from cuda.core.experimental._utils.cuda_utils cimport (
-    _check_driver_error as raise_if_driver_error,
     check_or_create_options,
+    HANDLE_RETURN
 )
 
 from dataclasses import dataclass
@@ -18,7 +22,7 @@ from cuda.core.experimental._utils.cuda_utils import (
     driver,
     handle_return,
 )
-
+import sys
 if TYPE_CHECKING:
     import cuda.bindings
     from cuda.core.experimental._device import Device
@@ -78,11 +82,14 @@ cdef class Event:
 
     """
     cdef:
-        object _handle
+        cydriver.CUevent _handle
         bint _timing_disabled
         bint _busy_waited
         int _device_id
         object _ctx_handle
+
+    def __cinit__(self):
+        self._handle = <cydriver.CUevent>(NULL)
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
@@ -91,32 +98,35 @@ cdef class Event:
     def _init(cls, device_id: int, ctx_handle: Context, options=None):
         cdef Event self = Event.__new__(cls)
         cdef EventOptions opts = check_or_create_options(EventOptions, options, "Event options")
-        flags = 0x0
+        cdef unsigned int flags = 0x0
         self._timing_disabled = False
         self._busy_waited = False
         if not opts.enable_timing:
-            flags |= driver.CUevent_flags.CU_EVENT_DISABLE_TIMING
+            flags |= cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING
             self._timing_disabled = True
         if opts.busy_waited_sync:
-            flags |= driver.CUevent_flags.CU_EVENT_BLOCKING_SYNC
+            flags |= cydriver.CUevent_flags.CU_EVENT_BLOCKING_SYNC
             self._busy_waited = True
         if opts.support_ipc:
             raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
-        err, self._handle = driver.cuEventCreate(flags)
-        raise_if_driver_error(err)
+        HANDLE_RETURN(cydriver.cuEventCreate(&self._handle, flags))
         self._device_id = device_id
         self._ctx_handle = ctx_handle
         return self
 
+    cdef _shutdown_safe_close(self, is_shutting_down=sys.is_finalizing):
+        if is_shutting_down and is_shutting_down():
+            return
+        if self._handle != NULL:
+            HANDLE_RETURN(cydriver.cuEventDestroy(self._handle))
+            self._handle = <cydriver.CUevent>(NULL)
+
     cpdef close(self):
         """Destroy the event."""
-        if self._handle is not None:
-            err, = driver.cuEventDestroy(self._handle)
-            self._handle = None
-            raise_if_driver_error(err)
+        self._shutdown_safe_close(is_shutting_down=None)
 
     def __del__(self):
-        self.close()
+        self._shutdown_safe_close()
 
     def __isub__(self, other):
         return NotImplemented
@@ -124,14 +134,14 @@ cdef class Event:
     def __rsub__(self, other):
         return NotImplemented
 
-    def __sub__(self, other):
+    def __sub__(self, other: Event):
         # return self - other (in milliseconds)
-        err, timing = driver.cuEventElapsedTime(other.handle, self._handle)
-        try:
-            raise_if_driver_error(err)
+        cdef float timing
+        err = cydriver.cuEventElapsedTime(&timing, other._handle, self._handle)
+        if err == 0:
             return timing
-        except CUDAError as e:
-            if err == driver.CUresult.CUDA_ERROR_INVALID_HANDLE:
+        else:
+            if err == cydriver.CUresult.CUDA_ERROR_INVALID_HANDLE:
                 if self.is_timing_disabled or other.is_timing_disabled:
                     explanation = (
                         "Both Events must be created with timing enabled in order to subtract them; "
@@ -142,15 +152,15 @@ cdef class Event:
                         "Both Events must be recorded before they can be subtracted; "
                         "use Stream.record() to record both events to a stream."
                     )
-            elif err == driver.CUresult.CUDA_ERROR_NOT_READY:
+            elif err == cydriver.CUresult.CUDA_ERROR_NOT_READY:
                 explanation = (
                     "One or both events have not completed; "
                     "use Event.sync(), Stream.sync(), or Device.sync() to wait for the events to complete "
                     "before subtracting them."
                 )
             else:
-                raise e
-            raise RuntimeError(explanation) from e
+                raise CUDAError(err)
+            raise RuntimeError(explanation)
 
     @property
     def is_timing_disabled(self) -> bool:
@@ -177,17 +187,17 @@ cdef class Event:
         has been completed.
 
         """
-        handle_return(driver.cuEventSynchronize(self._handle))
+        HANDLE_RETURN(cydriver.cuEventSynchronize(self._handle))
 
     @property
     def is_done(self) -> bool:
         """Return True if all captured works have been completed, otherwise False."""
-        result, = driver.cuEventQuery(self._handle)
-        if result == driver.CUresult.CUDA_SUCCESS:
+        result = cydriver.cuEventQuery(self._handle)
+        if result == cydriver.CUresult.CUDA_SUCCESS:
             return True
-        if result == driver.CUresult.CUDA_ERROR_NOT_READY:
+        if result == cydriver.CUresult.CUDA_ERROR_NOT_READY:
             return False
-        handle_return(result)
+        HANDLE_RETURN(result)
 
     @property
     def handle(self) -> cuda.bindings.driver.CUevent:
@@ -198,7 +208,7 @@ cdef class Event:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(Event.handle)``.
         """
-        return self._handle
+        return driver.CUevent(<uintptr_t>(self._handle))
 
     @property
     def device(self) -> Device:

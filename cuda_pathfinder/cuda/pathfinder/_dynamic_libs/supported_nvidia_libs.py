@@ -7,9 +7,7 @@
 #     SUPPORTED_WINDOWS_DLLS
 #     SUPPORTED_LINUX_SONAMES
 
-import sys
-
-IS_WINDOWS = sys.platform == "win32"
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 SUPPORTED_LIBNAMES_COMMON = (
     # Core CUDA Runtime and Compiler

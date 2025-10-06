@@ -203,17 +203,17 @@ class LinkerOptions:
             self.formatted_options.append(f"-maxrregcount={self.max_register_count}")
         if self.time is not None:
             self.formatted_options.append("-time")
-        if self.verbose is not None:
+        if self.verbose:
             self.formatted_options.append("-verbose")
-        if self.link_time_optimization is not None and self.link_time_optimization:
+        if self.link_time_optimization:
             self.formatted_options.append("-lto")
-        if self.ptx is not None:
+        if self.ptx:
             self.formatted_options.append("-ptx")
         if self.optimization_level is not None:
             self.formatted_options.append(f"-O{self.optimization_level}")
-        if self.debug is not None and self.debug:
+        if self.debug:
             self.formatted_options.append("-g")
-        if self.lineinfo is not None and self.lineinfo:
+        if self.lineinfo:
             self.formatted_options.append("-lineinfo")
         if self.ftz is not None:
             self.formatted_options.append(f"-ftz={'true' if self.ftz else 'false'}")
@@ -273,21 +273,21 @@ class LinkerOptions:
             self.option_keys.append(_driver.CUjit_option.CU_JIT_MAX_REGISTERS)
         if self.time is not None:
             raise ValueError("time option is not supported by the driver API")
-        if self.verbose is not None:
+        if self.verbose:
             self.formatted_options.append(1)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_LOG_VERBOSE)
-        if self.link_time_optimization is not None:
+        if self.link_time_optimization:
             self.formatted_options.append(1)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_LTO)
-        if self.ptx is not None:
+        if self.ptx:
             raise ValueError("ptx option is not supported by the driver API")
         if self.optimization_level is not None:
             self.formatted_options.append(self.optimization_level)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_OPTIMIZATION_LEVEL)
-        if self.debug is not None:
+        if self.debug:
             self.formatted_options.append(1)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_DEBUG_INFO)
-        if self.lineinfo is not None:
+        if self.lineinfo:
             self.formatted_options.append(1)
             self.option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_LINE_INFO)
         if self.ftz is not None:

@@ -2,12 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
-import pickle  # nosec B403, B301
+import pickle
 import warnings
 
-import pytest
-
 import cuda.core.experimental
+import pytest
 from cuda.core.experimental import Device, ObjectCode, Program, ProgramOptions, system
 from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 
@@ -781,7 +780,7 @@ def test_occupancy_max_potential_cluster_size(get_saxpy_kernel):
 
 def test_module_serialization_roundtrip(get_saxpy_kernel):
     _, objcode = get_saxpy_kernel
-    result = pickle.loads(pickle.dumps(objcode))  # nosec B403, B301
+    result = pickle.loads(pickle.dumps(objcode))  # noqa: S403, S301
 
     assert isinstance(result, ObjectCode)
     assert objcode.code == result.code

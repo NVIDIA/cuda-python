@@ -4,22 +4,12 @@
 
 import binascii
 import re
-import textwrap
 from contextlib import contextmanager
 
 import pytest
-
 from cuda.bindings import nvvm
 
-MINIMAL_NVVMIR_FIXTURE_PARAMS = ["txt", "bitcode_static"]
-try:
-    import llvmlite.binding as llvmlite_binding  # Optional test dependency.
-except ImportError:
-    llvmlite_binding = None
-else:
-    MINIMAL_NVVMIR_FIXTURE_PARAMS.append("bitcode_dynamic")
-
-MINIMAL_NVVMIR_TXT = b"""\
+MINIMAL_NVVMIR_TXT_TEMPLATE = b"""\
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
 target triple = "nvptx64-nvidia-cuda"
@@ -131,43 +121,24 @@ MINIMAL_NVVMIR_BITCODE_STATIC = {
     "6e673e0000000000",
 }
 
-MINIMAL_NVVMIR_CACHE = {}
 
-
-@pytest.fixture(params=MINIMAL_NVVMIR_FIXTURE_PARAMS)
+@pytest.fixture(params=("txt", "bitcode_static"))
 def minimal_nvvmir(request):
-    for pass_counter in range(2):
-        nvvmir = MINIMAL_NVVMIR_CACHE.get(request.param, -1)
-        if nvvmir != -1:
-            if nvvmir is None:
-                pytest.skip(f"UNAVAILABLE: {request.param}")
-            return nvvmir
-        if pass_counter:
-            raise AssertionError("This code path is meant to be unreachable.")
-        # Build cache entries, then try again (above).
-        major, minor, debug_major, debug_minor = nvvm.ir_version()
-        txt = MINIMAL_NVVMIR_TXT % (major, debug_major)
-        if llvmlite_binding is None:
-            bitcode_dynamic = None
-        else:
-            bitcode_dynamic = llvmlite_binding.parse_assembly(txt.decode()).as_bitcode()
-        bitcode_static = MINIMAL_NVVMIR_BITCODE_STATIC.get((major, debug_major))
-        if bitcode_static is not None:
-            bitcode_static = binascii.unhexlify(bitcode_static)
-        MINIMAL_NVVMIR_CACHE["txt"] = txt
-        MINIMAL_NVVMIR_CACHE["bitcode_dynamic"] = bitcode_dynamic
-        MINIMAL_NVVMIR_CACHE["bitcode_static"] = bitcode_static
-        if bitcode_static is None:
-            if bitcode_dynamic is None:
-                raise RuntimeError("Please `pip install llvmlite` to generate `bitcode_static` (see PR #443)")
-            bitcode_hex = binascii.hexlify(bitcode_dynamic).decode("ascii")
-            print("\n\nMINIMAL_NVVMIR_BITCODE_STATIC = { # PLEASE ADD TO test_nvvm.py")
-            print(f"    ({major}, {debug_major}):  # (major, debug_major)")
-            lines = textwrap.wrap(bitcode_hex, width=80)
-            for line in lines[:-1]:
-                print(f'    "{line}"')
-            print(f'    "{lines[-1]}",')
-            print("}\n", flush=True)
+    major, minor, debug_major, debug_minor = nvvm.ir_version()
+
+    if request.param == "txt":
+        return MINIMAL_NVVMIR_TXT_TEMPLATE % (major, debug_major)
+
+    bitcode_static_binascii = MINIMAL_NVVMIR_BITCODE_STATIC.get((major, debug_major))
+    if bitcode_static_binascii:
+        return binascii.unhexlify(bitcode_static_binascii)
+    raise RuntimeError(
+        "Static bitcode for NVVM IR version "
+        f"{major}.{debug_major} is not available in this test.\n"
+        "Maintainers: Please run the helper script to generate it and add the "
+        "output to the MINIMAL_NVVMIR_BITCODE_STATIC dict:\n"
+        "  ../../toolshed/build_static_bitcode_input.py"
+    )
 
 
 @pytest.fixture(params=[nvvm.compile_program, nvvm.verify_program])
