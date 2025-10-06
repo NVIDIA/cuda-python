@@ -15,7 +15,7 @@ ci:
 # pre-commit autoupdate --freeze
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: f298305809c552671cc47e0fec0ba43e96c146a2  # frozen: v0.13.2
+    rev: 9c89adb347f6b973f4905a4be0051eb2ecf85dea  # frozen: v0.13.3
     hooks:
       - id: ruff
         args: [--fix, --show-fixes]
