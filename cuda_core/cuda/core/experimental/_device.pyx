@@ -791,132 +791,66 @@ cdef class DeviceProperties:
 
     @property
     def tensor_map_access_supported(self) -> bool:
-        """
-        Device supports accessing memory using Tensor Map.
-
-        Returns:
-            bool: Device supports accessing memory using Tensor Map.
-        """
+        """bool: Device supports accessing memory using Tensor Map."""
         return bool(
             self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TENSOR_MAP_ACCESS_SUPPORTED)
         )
 
     @property
     def handle_type_fabric_supported(self) -> bool:
-        """
-        Device supports exporting memory to a fabric handle with cuMemExportToShareableHandle() or requested
-        with cuMemCreate().
-
-        Returns:
-            bool: Device supports exporting memory to a fabric handle with cuMemExportToShareableHandle() or requested
-            with cuMemCreate().
-        """
+        """bool: Device supports exporting memory to a fabric handle with cuMemExportToShareableHandle() or requested with cuMemCreate()."""
         return bool(
             self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_FABRIC_SUPPORTED)
         )
 
     @property
     def unified_function_pointers(self) -> bool:
-        """
-        Device supports unified function pointers.
-
-        Returns:
-            bool: Device supports unified function pointers.
-        """
+        """bool: Device supports unified function pointers."""
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_FUNCTION_POINTERS))
 
     @property
     def mps_enabled(self) -> bool:
-        """
-        Indicates if contexts created on this device will be shared via MPS.
-
-        Returns:
-            bool: Indicates if contexts created on this device will be shared via MPS.
-        """
+        """bool: Indicates if contexts created on this device will be shared via MPS."""
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MPS_ENABLED))
 
     @property
     def host_numa_id(self) -> int:
-        """
-        NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA.
-
-        Returns:
-            int: NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA.
-        """
+        """int: NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA."""
         return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID)
 
     @property
     def d3d12_cig_supported(self) -> bool:
-        """
-        Device supports CIG with D3D12.
-
-        Returns:
-            bool: Device supports CIG with D3D12.
-        """
+        """bool: Device supports CIG with D3D12."""
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_D3D12_CIG_SUPPORTED))
 
     @property
     def mem_decompress_algorithm_mask(self) -> int:
-        """
-        The returned valued shall be interpreted as a bitmask, where the individual bits are described by
-        the CUmemDecompressAlgorithm enum.
-
-        Returns:
-            int: The returned valued shall be interpreted as a bitmask, where the individual bits are described by
-            the CUmemDecompressAlgorithm enum.
-        """
+        """int: The returned valued shall be interpreted as a bitmask, where the individual bits are described by the CUmemDecompressAlgorithm enum."""
         return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_DECOMPRESS_ALGORITHM_MASK)
 
     @property
     def mem_decompress_maximum_length(self) -> int:
-        """
-        The returned valued is the maximum length in bytes of a single decompress operation that is allowed.
-
-        Returns:
-            int: The returned valued is the maximum length in bytes of a single decompress operation that is allowed.
-        """
+        """int: The returned valued is the maximum length in bytes of a single decompress operation that is allowed."""
         return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_DECOMPRESS_MAXIMUM_LENGTH)
 
     @property
     def vulkan_cig_supported(self) -> bool:
-        """
-        Device supports CIG with Vulkan.
-
-        Returns:
-            bool: Device supports CIG with Vulkan.
-        """
+        """bool: Device supports CIG with Vulkan."""
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VULKAN_CIG_SUPPORTED))
 
     @property
     def gpu_pci_device_id(self) -> int:
-        """
-        The combined 16-bit PCI device ID and 16-bit PCI vendor ID.
-
-        Returns:
-            int: The combined 16-bit PCI device ID and 16-bit PCI vendor ID.
-        """
+        """int: The combined 16-bit PCI device ID and 16-bit PCI vendor ID."""
         return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_DEVICE_ID)
 
     @property
     def gpu_pci_subsystem_id(self) -> int:
-        """
-        The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.
-
-        Returns:
-            int: The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.
-        """
+        """int: The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID."""
         return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_SUBSYSTEM_ID)
 
     @property
     def host_numa_virtual_memory_management_supported(self) -> bool:
-        """
-        Device supports HOST_NUMA location with the virtual memory management APIs like cuMemCreate, cuMemMap and
-        related APIs.
-
-        Returns:
-            bool: Device supports HOST_NUMA location with the virtual memory management APIs like cuMemCreate, cuMemMap
-            and related APIs.
-        """
+        """bool: Device supports HOST_NUMA location with the virtual memory management APIs like cuMemCreate, cuMemMap and related APIs."""
         return bool(
             self._get_cached_attribute(
                 driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED
@@ -925,50 +859,28 @@ cdef class DeviceProperties:
 
     @property
     def host_numa_memory_pools_supported(self) -> bool:
-        """
-        Device supports HOST_NUMA location with the cuMemAllocAsync and cuMemPool family of APIs.
-
-        Returns:
-            bool: Device supports HOST_NUMA location with the cuMemAllocAsync and cuMemPool family of APIs.
-        """
+        """bool: Device supports HOST_NUMA location with the cuMemAllocAsync and cuMemPool family of APIs."""
         return bool(
             self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_MEMORY_POOLS_SUPPORTED)
         )
 
     @property
     def host_numa_multinode_ipc_supported(self) -> bool:
-        """
-        Device supports HOST_NUMA location IPC between nodes in a multi-node system.
-
-        Returns:
-            bool: Device supports HOST_NUMA location IPC between nodes in a multi-node system.
-        """
+        """bool: Device supports HOST_NUMA location IPC between nodes in a multi-node system."""
         return bool(
             self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_MULTINODE_IPC_SUPPORTED)
         )
 
     @property
     def host_memory_pools_supported(self) -> bool:
-        """
-        Device suports HOST location with the cuMemAllocAsync and cuMemPool family of APIs.
-
-        Returns:
-            bool: Device suports HOST location with the cuMemAllocAsync and cuMemPool family of APIs.
-        """
+        """bool: Device suports HOST location with the cuMemAllocAsync and cuMemPool family of APIs."""
         return bool(
             self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_MEMORY_POOLS_SUPPORTED)
         )
 
     @property
     def host_virtual_memory_management_supported(self) -> bool:
-        """
-        Device supports HOST location with the virtual memory management APIs like cuMemCreate, cuMemMap and related
-        APIs.
-
-        Returns:
-            bool: Device supports HOST location with the virtual memory management APIs like cuMemCreate, cuMemMap and
-            related APIs.
-        """
+        """bool: Device supports HOST location with the virtual memory management APIs like cuMemCreate, cuMemMap and related APIs."""
         return bool(
             self._get_cached_attribute(
                 driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED
@@ -977,24 +889,14 @@ cdef class DeviceProperties:
 
     @property
     def host_alloc_dma_buf_supported(self) -> bool:
-        """
-        Device supports page-locked host memory buffer sharing with dma_buf mechanism.
-
-        Returns:
-            bool: Device supports page-locked host memory buffer sharing with dma_buf mechanism.
-        """
+        """bool: Device supports page-locked host memory buffer sharing with dma_buf mechanism."""
         return bool(
             self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED)
         )
 
     @property
     def only_partial_host_native_atomic_supported(self) -> bool:
-        """
-        Link between the device and the host supports only some native atomic operations.
-
-        Returns:
-            bool: Link between the device and the host supports only some native atomic operations.
-        """
+        """bool: Link between the device and the host supports only some native atomic operations."""
         return bool(
             self._get_cached_attribute(
                 driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED
