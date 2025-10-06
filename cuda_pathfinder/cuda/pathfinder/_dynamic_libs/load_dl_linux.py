@@ -7,7 +7,7 @@ import ctypes.util
 import os
 from typing import Optional, cast
 
-from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
+from cuda.pathfinder._dynamic_libs.load_dl_common import FoundVia, LoadedDL
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     LIBNAMES_REQUIRING_RTLD_DEEPBIND,
     SUPPORTED_LINUX_SONAMES,
@@ -131,14 +131,16 @@ def get_candidate_sonames(libname: str) -> list[str]:
     return candidate_sonames
 
 
-def check_if_already_loaded_from_elsewhere(libname: str, _have_abs_path: bool) -> Optional[LoadedDL]:
+def check_if_already_loaded_from_elsewhere(
+    libname: str, _have_abs_path: bool, found_via: Optional[FoundVia] = None
+) -> Optional[LoadedDL]:
     for soname in get_candidate_sonames(libname):
         try:
             handle = ctypes.CDLL(soname, mode=os.RTLD_NOLOAD)
         except OSError:
             continue
         else:
-            return LoadedDL(abs_path_for_dynamic_library(libname, handle), True, handle._handle)
+            return LoadedDL(abs_path_for_dynamic_library(libname, handle), True, handle._handle, found_via)
     return None
 
 
@@ -170,7 +172,7 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
             abs_path = abs_path_for_dynamic_library(libname, handle)
             if abs_path is None:
                 raise RuntimeError(f"No expected symbol for {libname=!r}")
-            return LoadedDL(abs_path, False, handle._handle)
+            return LoadedDL(abs_path, False, handle._handle, FoundVia("system"))
     return None
 
 
@@ -193,7 +195,7 @@ def _work_around_known_bugs(libname: str, found_path: str) -> None:
                     ctypes.CDLL(dep_path, CDLL_MODE)
 
 
-def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
+def load_with_abs_path(libname: str, found_path: str, found_via: Optional[FoundVia] = None) -> LoadedDL:
     """Load a dynamic library from the given path.
 
     Args:
@@ -211,4 +213,4 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
         handle = _load_lib(libname, found_path)
     except OSError as e:
         raise RuntimeError(f"Failed to dlopen {found_path}: {e}") from e
-    return LoadedDL(found_path, False, handle._handle)
+    return LoadedDL(found_path, False, handle._handle, found_via)

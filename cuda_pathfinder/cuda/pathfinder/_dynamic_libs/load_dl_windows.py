@@ -7,7 +7,7 @@ import os
 import struct
 from typing import Optional
 
-from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
+from cuda.pathfinder._dynamic_libs.load_dl_common import FoundVia, LoadedDL
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
     LIBNAMES_REQUIRING_OS_ADD_DLL_DIRECTORY,
     SUPPORTED_WINDOWS_DLLS,
@@ -100,7 +100,9 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
     return buffer.value
 
 
-def check_if_already_loaded_from_elsewhere(libname: str, have_abs_path: bool) -> Optional[LoadedDL]:
+def check_if_already_loaded_from_elsewhere(
+    libname: str, have_abs_path: bool, found_via: Optional[FoundVia] = None
+) -> Optional[LoadedDL]:
     for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
         handle = kernel32.GetModuleHandleW(dll_name)
         if handle:
@@ -110,7 +112,7 @@ def check_if_already_loaded_from_elsewhere(libname: str, have_abs_path: bool) ->
                 # load_with_abs_path(). To make the side-effect more deterministic,
                 # activate it even if the library was already loaded from elsewhere.
                 add_dll_directory(abs_path)
-            return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle))
+            return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle), found_via)
     return None
 
 
@@ -128,12 +130,12 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
         handle = kernel32.LoadLibraryExW(dll_name, None, 0)
         if handle:
             abs_path = abs_path_for_dynamic_library(libname, handle)
-            return LoadedDL(abs_path, False, ctypes_handle_to_unsigned_int(handle))
+            return LoadedDL(abs_path, False, ctypes_handle_to_unsigned_int(handle), FoundVia("system"))
 
     return None
 
 
-def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
+def load_with_abs_path(libname: str, found_path: str, found_via: Optional[FoundVia] = None) -> LoadedDL:
     """Load a dynamic library from the given path.
 
     Args:
@@ -156,4 +158,4 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
         error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
         raise RuntimeError(f"Failed to load DLL at {found_path}: Windows error {error_code}")
 
-    return LoadedDL(found_path, False, ctypes_handle_to_unsigned_int(handle))
+    return LoadedDL(found_path, False, ctypes_handle_to_unsigned_int(handle), found_via)
