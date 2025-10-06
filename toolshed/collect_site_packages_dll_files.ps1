@@ -23,11 +23,11 @@ function Fresh-Venv {
 Set-Location -Path 'cuda_pathfinder'
 
 Fresh-Venv -Path '..\TmpCp12Venv'
-pip install --only-binary=:all: -e '.[test,test_nvidia_wheels_cu12,test_nvidia_wheels_host]'
+pip install --only-binary=:all: -e . --group test --group cu12 --group host
 deactivate
 
 Fresh-Venv -Path '..\TmpCp13Venv'
-pip install --only-binary=:all: -e '.[test,test_nvidia_wheels_cu13,test_nvidia_wheels_host]'
+pip install --only-binary=:all: -e . --group test --group cu13 --group host
 deactivate
 
 Set-Location -Path '..'
