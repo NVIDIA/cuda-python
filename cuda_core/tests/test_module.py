@@ -67,7 +67,6 @@ def get_saxpy_kernel_cubin(init_cuda):
         "cubin",
         name_expressions=("saxpy<float>", "saxpy<double>"),
     )
-
     # run in single precision
     return mod.get_kernel("saxpy<float>"), mod
 
@@ -154,9 +153,9 @@ def test_object_code_load_ptx(get_saxpy_kernel_ptx):
 def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path):
     ptx, mod = get_saxpy_kernel_ptx
     sym_map = mod._sym_map
-    assert isinstance(ptx, str)
+    assert isinstance(ptx, bytes)
     ptx_file = tmp_path / "test.ptx"
-    ptx_file.write_text(ptx)
+    ptx_file.write_bytes(ptx)
     mod_obj = ObjectCode.from_ptx(str(ptx_file), symbol_mapping=sym_map)
     assert mod_obj.code == str(ptx_file)
     assert mod_obj._code_type == "ptx"
@@ -187,8 +186,8 @@ def test_object_code_load_cubin_from_file(get_saxpy_kernel_cubin, tmp_path):
     mod.get_kernel("saxpy<double>")  # force loading
 
 
-def test_object_code_handle(get_saxpy_object_code):
-    mod = get_saxpy_object_code
+def test_object_code_handle(get_saxpy_kernel_cubin):
+    _, mod = get_saxpy_kernel_cubin
     assert mod.handle is not None
 
 
