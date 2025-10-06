@@ -47,7 +47,7 @@ First, we define a string containing the CUDA C++ kernel. Note that this is a te
                               size_t N) {
        const unsigned int tid = threadIdx.x + blockIdx.x * blockDim.x;
        for (size_t i=tid; i<N; i+=gridDim.x*blockDim.x) {
-           C[tid] = A[tid] + B[tid];
+           C[i] = A[i] + B[i];
        }
    }
    """
