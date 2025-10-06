@@ -1,0 +1,137 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.experimental.\_device.DeviceProperties
+================================================
+
+.. currentmodule:: cuda.core.experimental._device
+
+.. autoclass:: DeviceProperties
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoproperty:: can_map_host_memory
+   .. autoproperty:: can_use_host_pointer_for_registered_mem
+   .. autoproperty:: clock_rate
+   .. autoproperty:: compute_capability_major
+   .. autoproperty:: compute_capability_minor
+   .. autoproperty:: compute_mode
+   .. autoproperty:: compute_preemption_supported
+   .. autoproperty:: concurrent_kernels
+   .. autoproperty:: concurrent_managed_access
+   .. autoproperty:: cooperative_launch
+   .. autoproperty:: deferred_mapping_cuda_array_supported
+   .. autoproperty:: direct_managed_mem_access_from_host
+   .. autoproperty:: ecc_enabled
+   .. autoproperty:: generic_compression_supported
+   .. autoproperty:: global_l1_cache_supported
+   .. autoproperty:: global_memory_bus_width
+   .. autoproperty:: gpu_direct_rdma_flush_writes_options
+   .. autoproperty:: gpu_direct_rdma_supported
+   .. autoproperty:: gpu_direct_rdma_with_cuda_vmm_supported
+   .. autoproperty:: gpu_direct_rdma_writes_ordering
+   .. autoproperty:: gpu_overlap
+   .. autoproperty:: handle_type_posix_file_descriptor_supported
+   .. autoproperty:: handle_type_win32_handle_supported
+   .. autoproperty:: handle_type_win32_kmt_handle_supported
+   .. autoproperty:: host_native_atomic_supported
+   .. autoproperty:: integrated
+   .. autoproperty:: kernel_exec_timeout
+   .. autoproperty:: l2_cache_size
+   .. autoproperty:: local_l1_cache_supported
+   .. autoproperty:: managed_memory
+   .. autoproperty:: max_access_policy_window_size
+   .. autoproperty:: max_block_dim_x
+   .. autoproperty:: max_block_dim_y
+   .. autoproperty:: max_block_dim_z
+   .. autoproperty:: max_blocks_per_multiprocessor
+   .. autoproperty:: max_grid_dim_x
+   .. autoproperty:: max_grid_dim_y
+   .. autoproperty:: max_grid_dim_z
+   .. autoproperty:: max_persisting_l2_cache_size
+   .. autoproperty:: max_pitch
+   .. autoproperty:: max_registers_per_block
+   .. autoproperty:: max_registers_per_multiprocessor
+   .. autoproperty:: max_shared_memory_per_block
+   .. autoproperty:: max_shared_memory_per_block_optin
+   .. autoproperty:: max_shared_memory_per_multiprocessor
+   .. autoproperty:: max_threads_per_block
+   .. autoproperty:: max_threads_per_multiprocessor
+   .. autoproperty:: maximum_surface1d_layered_layers
+   .. autoproperty:: maximum_surface1d_layered_width
+   .. autoproperty:: maximum_surface1d_width
+   .. autoproperty:: maximum_surface2d_height
+   .. autoproperty:: maximum_surface2d_layered_height
+   .. autoproperty:: maximum_surface2d_layered_layers
+   .. autoproperty:: maximum_surface2d_layered_width
+   .. autoproperty:: maximum_surface2d_width
+   .. autoproperty:: maximum_surface3d_depth
+   .. autoproperty:: maximum_surface3d_height
+   .. autoproperty:: maximum_surface3d_width
+   .. autoproperty:: maximum_surfacecubemap_layered_layers
+   .. autoproperty:: maximum_surfacecubemap_layered_width
+   .. autoproperty:: maximum_surfacecubemap_width
+   .. autoproperty:: maximum_texture1d_layered_layers
+   .. autoproperty:: maximum_texture1d_layered_width
+   .. autoproperty:: maximum_texture1d_linear_width
+   .. autoproperty:: maximum_texture1d_mipmapped_width
+   .. autoproperty:: maximum_texture1d_width
+   .. autoproperty:: maximum_texture2d_height
+   .. autoproperty:: maximum_texture2d_layered_height
+   .. autoproperty:: maximum_texture2d_layered_layers
+   .. autoproperty:: maximum_texture2d_layered_width
+   .. autoproperty:: maximum_texture2d_linear_height
+   .. autoproperty:: maximum_texture2d_linear_pitch
+   .. autoproperty:: maximum_texture2d_linear_width
+   .. autoproperty:: maximum_texture2d_mipmapped_height
+   .. autoproperty:: maximum_texture2d_mipmapped_width
+   .. autoproperty:: maximum_texture2d_width
+   .. autoproperty:: maximum_texture3d_depth
+   .. autoproperty:: maximum_texture3d_depth_alternate
+   .. autoproperty:: maximum_texture3d_height
+   .. autoproperty:: maximum_texture3d_height_alternate
+   .. autoproperty:: maximum_texture3d_width
+   .. autoproperty:: maximum_texture3d_width_alternate
+   .. autoproperty:: maximum_texturecubemap_layered_layers
+   .. autoproperty:: maximum_texturecubemap_layered_width
+   .. autoproperty:: maximum_texturecubemap_width
+   .. autoproperty:: memory_clock_rate
+   .. autoproperty:: memory_pools_supported
+   .. autoproperty:: mempool_supported_handle_types
+   .. autoproperty:: multi_gpu_board
+   .. autoproperty:: multi_gpu_board_group_id
+   .. autoproperty:: multicast_supported
+   .. autoproperty:: multiprocessor_count
+   .. autoproperty:: numa_config
+   .. autoproperty:: numa_id
+   .. autoproperty:: pageable_memory_access
+   .. autoproperty:: pageable_memory_access_uses_host_page_tables
+   .. autoproperty:: pci_bus_id
+   .. autoproperty:: pci_device_id
+   .. autoproperty:: pci_domain_id
+   .. autoproperty:: read_only_host_register_supported
+   .. autoproperty:: reserved_shared_memory_per_block
+   .. autoproperty:: single_to_double_precision_perf_ratio
+   .. autoproperty:: sparse_cuda_array_supported
+   .. autoproperty:: tcc_driver
+   .. autoproperty:: texture_alignment
+   .. autoproperty:: texture_pitch_alignment
+   .. autoproperty:: total_constant_memory
+   .. autoproperty:: unified_addressing
+   .. autoproperty:: virtual_memory_management_supported
+   .. autoproperty:: warp_size
+   
+   
