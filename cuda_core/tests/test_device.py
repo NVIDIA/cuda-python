@@ -267,7 +267,7 @@ cuda_13_properties = [
 ]
 
 version = get_binding_version()
-if version[0] >= 13 and version[1] >= 13000:
+if version[0] >= 13:
     cuda_base_properties += cuda_13_properties
 
 
@@ -284,7 +284,7 @@ def test_device_properties_complete():
 
     excluded_props = set()
     # Exclude CUDA 13+ specific properties when not available
-    if version[0] < 13 or version[1] < 13000:
+    if version[0] < 13:
         excluded_props.update({prop[0] for prop in cuda_13_properties})
 
     filtered_tab_props = tab_props - excluded_props
