@@ -1,33 +1,16 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. module:: cuda.pathfinder
+.. py:currentmodule:: cuda.pathfinder
 
 ``cuda-pathfinder`` 1.X.Y Release notes
-========================================
+=======================================
 
 Released on TBD
-
 
 Highlights
 ----------
 
-* Reverse tabulated names to achieve new → old search order (`PR #921 <https://github.com/NVIDIA/cuda-python/pull/921>`_)
-
-  - ``SUPPORTED_LINUX_SONAMES`` and ``SUPPORTED_WINDOWS_DLLS`` lists of DSOs are searched from new → old
-
-* Support non-CTK Nvidia libraries (`PR #864 <https://github.com/NVIDIA/cuda-python/pull/864>`_)
-
-  - Adds support for non-CTK Nvidia libraries: ``mathdx``, ``cufftMp``, ``nvshmem_host``, ``nvpl_fftw``
-
-* ``RTLD_DI_LINKMAP``-based new implementation of ``abs_path_for_dynamic_library()`` (`PR #834 <https://github.com/NVIDIA/cuda-python/pull/834>`_)
-
-  - Eliminates ``supported_nvidia_libs.EXPECTED_LIB_SYMBOLS`` entirely, providing major simplification
-  - Step towards resolving library discovery issues
-  - Includes minor fixes and cleanup
-
-* Make ``add_dll_directory()`` and ``load_dependencies()`` side-effects more deterministic (`PR #855 <https://github.com/NVIDIA/cuda-python/pull/855>`_)
-
-  - Improves stability in general and supports nvmath specifically
-  - Proactive change to improve library loading consistency
-  - Drops boilerplate docstrings for private functions
+* supported_nvidia_libs.py updates:
+  add nvidia-cublasmp-cu12, nvidia-cublasmp-cu13, nvidia-cudss-cu13
+  (`PR #1089 <https://github.com/NVIDIA/cuda-python/pull/1089>`_)
