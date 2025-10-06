@@ -163,7 +163,6 @@ class _FindNvidiaDynamicLib:
         self.error_messages: list[str] = []
         self.attachments: list[str] = []
         self.abs_path: Optional[str] = None
-        self.distribution: Optional[str] = None
 
     def try_site_packages(self) -> Optional[str]:
         if IS_WINDOWS:

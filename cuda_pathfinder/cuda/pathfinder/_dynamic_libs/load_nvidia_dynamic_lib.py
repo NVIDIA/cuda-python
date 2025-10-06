@@ -6,7 +6,7 @@ import struct
 import sys
 
 from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _FindNvidiaDynamicLib
-from cuda.pathfinder._dynamic_libs.load_dl_common import FoundVia, LoadedDL, load_dependencies
+from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if IS_WINDOWS:
@@ -22,13 +22,35 @@ else:
         load_with_system_search,
     )
 
-from typing import Optional
-
 
 def _load_lib_no_cache(libname: str) -> LoadedDL:
-    loader = _LoadNvidiaDynamicLib(libname)
-    dl = loader.load_lib()
-    return dl
+    finder = _FindNvidiaDynamicLib(libname)
+    abs_path = finder.try_site_packages()
+    if abs_path is None:
+        abs_path = finder.try_with_conda_prefix()
+
+    # If the library was already loaded by someone else, reproduce any OS-specific
+    # side-effects we would have applied on a direct absolute-path load (e.g.,
+    # AddDllDirectory on Windows for libs that require it).
+    loaded = check_if_already_loaded_from_elsewhere(libname, abs_path is not None)
+
+    # Load dependencies regardless of who loaded the primary lib first.
+    # Doing this *after* the side-effect ensures dependencies resolve consistently
+    # relative to the actually loaded location.
+    load_dependencies(libname, load_nvidia_dynamic_lib)
+
+    if loaded is not None:
+        return loaded
+
+    if abs_path is None:
+        loaded = load_with_system_search(libname)
+        if loaded is not None:
+            return loaded
+        abs_path = finder.try_with_cuda_home()
+        if abs_path is None:
+            finder.raise_not_found_error()
+
+    return load_with_abs_path(libname, abs_path)
 
 
 @functools.cache
@@ -108,74 +130,3 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
             f" {sys.version_info.major}.{sys.version_info.minor}"
         )
     return _load_lib_no_cache(libname)
-
-
-class _LoadNvidiaDynamicLib:
-    def __init__(self, libname: str):
-        self.finder = _FindNvidiaDynamicLib(libname)
-        self.libname = self.finder.libname
-
-    def _maybe_return_loaded(self, check_if_loaded_from_elsewhere: bool = True) -> Optional[LoadedDL]:
-        # If the library was already loaded by someone else, reproduce any OS-specific
-        # side-effects we would have applied on a direct absolute-path load (e.g.,
-        # AddDllDirectory on Windows for libs that re
-        loaded = check_if_already_loaded_from_elsewhere(self.libname, check_if_loaded_from_elsewhere)
-
-        # Load dependencies regardless of who loaded the primary lib first.
-        # Doing this *after* the side-effect ensures dependencies resolve consistently
-        # relative to the actually loaded location.
-        load_dependencies(self.libname, load_nvidia_dynamic_lib)
-
-        if loaded is not None:
-            return loaded
-        return None
-
-    def load_with_site_packages(self) -> Optional[LoadedDL]:
-        if loaded := self._maybe_return_loaded(True):
-            return loaded
-
-        abs_path = self.finder.try_site_packages()
-        if abs_path is None:
-            return None
-        return load_with_abs_path(self.libname, abs_path)
-
-    def load_with_conda_prefix(self) -> Optional[LoadedDL]:
-        if loaded := self._maybe_return_loaded(True):
-            return loaded
-
-        abs_path = self.finder.try_with_conda_prefix()
-        if abs_path is None:
-            return None
-        return load_with_abs_path(self.libname, abs_path)
-
-    def load_with_system_search(self) -> Optional[LoadedDL]:
-        if loaded := self._maybe_return_loaded(False):
-            return loaded
-        loaded = load_with_system_search(self.libname)
-        if loaded is not None:
-            return loaded
-        return None
-
-    def load_with_cuda_home(self) -> Optional[LoadedDL]:
-        if loaded := self._maybe_return_loaded(False):
-            return loaded
-
-        abs_path = self.finder.try_with_cuda_home()
-        if abs_path is None:
-            return None
-        return load_with_abs_path(self.libname, abs_path)
-
-    def load_lib(self) -> LoadedDL:
-        if dl := self.load_with_site_packages():
-            dl.foundvia = FoundVia("site-packages")
-            return dl
-        if dl := self.load_with_conda_prefix():
-            dl.foundvia = FoundVia("conda")
-            return dl
-        if dl := self.load_with_system_search():
-            dl.foundvia = FoundVia("system")
-            return dl
-        if dl := self.load_with_cuda_home():
-            dl.foundvia = FoundVia("CUDA_HOME")
-            return dl
-        self.finder.raise_not_found_error()
