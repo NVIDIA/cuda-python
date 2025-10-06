@@ -257,7 +257,7 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_pathfinder
-          pip install --only-binary=:all: -v ".[test_nvidia_wheels_cu${TEST_CUDA_MAJOR},test_nvidia_wheels_host]"
+          pip install --only-binary=:all: -v . --group "test_nvidia_wheels_cu${TEST_CUDA_MAJOR}" --group test_nvidia_wheels_host
           pip list
           popd
 

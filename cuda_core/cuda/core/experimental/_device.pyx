@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+cimport cpython
+from libc.stdint cimport uintptr_t
+
+from cuda.bindings cimport cydriver
+
+from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
+
 import threading
 from typing import Optional, Union
 
@@ -14,41 +21,44 @@ from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
     ComputeCapability,
     CUDAError,
-    _check_driver_error,
     driver,
     handle_return,
     runtime,
 )
 
+
 _tls = threading.local()
 _lock = threading.Lock()
-_is_cuInit = False
+cdef bint _is_cuInit = False
 
 
-class DeviceProperties:
+cdef class DeviceProperties:
     """
     A class to query various attributes of a CUDA device.
 
     Attributes are read-only and provide information about the device.
     """
+    cdef:
+        int _handle
+        dict _cache
 
-    def __new__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         raise RuntimeError("DeviceProperties cannot be instantiated directly. Please use Device APIs.")
-
-    __slots__ = ("_handle", "_cache")
 
     @classmethod
     def _init(cls, handle):
-        self = super().__new__(cls)
+        cdef DeviceProperties self = DeviceProperties.__new__(cls)
         self._handle = handle
         self._cache = {}
         return self
 
-    def _get_attribute(self, attr):
+    cdef inline _get_attribute(self, cydriver.CUdevice_attribute attr):
         """Retrieve the attribute value directly from the driver."""
-        return handle_return(driver.cuDeviceGetAttribute(attr, self._handle))
+        cdef int val
+        HANDLE_RETURN(cydriver.cuDeviceGetAttribute(&val, attr, self._handle))
+        return val
 
-    def _get_cached_attribute(self, attr):
+    cdef _get_cached_attribute(self, attr):
         """Retrieve the attribute value, using cache if applicable."""
         if attr not in self._cache:
             self._cache[attr] = self._get_attribute(attr)
@@ -1635,8 +1645,17 @@ class DeviceProperties:
         )
 
 
-_SUCCESS = driver.CUresult.CUDA_SUCCESS
-_INVALID_CTX = driver.CUresult.CUDA_ERROR_INVALID_CONTEXT
+cdef cydriver.CUcontext _get_primary_context(int dev_id) except?NULL:
+    try:
+        primary_ctxs = _tls.primary_ctxs
+    except AttributeError:
+        total = len(_tls.devices)
+        primary_ctxs = _tls.primary_ctxs = [0] * total
+    cdef cydriver.CUcontext ctx = <cydriver.CUcontext><uintptr_t>(primary_ctxs[dev_id])
+    if ctx == NULL:
+        HANDLE_RETURN(cydriver.cuDevicePrimaryCtxRetain(&ctx, dev_id))
+        primary_ctxs[dev_id] = <uintptr_t>(ctx)
+    return ctx
 
 
 class Device:
@@ -1665,55 +1684,56 @@ class Device:
         Default value of `None` return the currently used device.
 
     """
-
     __slots__ = ("_id", "_mr", "_has_inited", "_properties")
 
     def __new__(cls, device_id: Optional[int] = None):
         global _is_cuInit
         if _is_cuInit is False:
             with _lock:
-                handle_return(driver.cuInit(0))
+                HANDLE_RETURN(cydriver.cuInit(0))
                 _is_cuInit = True
 
         # important: creating a Device instance does not initialize the GPU!
+        cdef cydriver.CUdevice dev
+        cdef cydriver.CUcontext ctx
         if device_id is None:
-            err, dev = driver.cuCtxGetDevice()
-            if err == _SUCCESS:
+            err = cydriver.cuCtxGetDevice(&dev)
+            if err == cydriver.CUresult.CUDA_SUCCESS:
                 device_id = int(dev)
-            elif err == _INVALID_CTX:
-                ctx = handle_return(driver.cuCtxGetCurrent())
-                assert int(ctx) == 0
+            elif err == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
+                HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+                assert <void*>(ctx) == NULL
                 device_id = 0  # cudart behavior
             else:
-                _check_driver_error(err)
+                HANDLE_RETURN(err)
         elif device_id < 0:
             raise ValueError(f"device_id must be >= 0, got {device_id}")
 
         # ensure Device is singleton
+        cdef int total, attr
         try:
             devices = _tls.devices
         except AttributeError:
-            total = handle_return(driver.cuDeviceGetCount())
+            HANDLE_RETURN(cydriver.cuDeviceGetCount(&total))
             devices = _tls.devices = []
             for dev_id in range(total):
-                dev = super().__new__(cls)
-                dev._id = dev_id
+                device = super().__new__(cls)
+                device._id = dev_id
                 # If the device is in TCC mode, or does not support memory pools for some other reason,
                 # use the SynchronousMemoryResource which does not use memory pools.
-                if (
-                    handle_return(
-                        driver.cuDeviceGetAttribute(
-                            driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, dev_id
-                        )
+                HANDLE_RETURN(
+                    cydriver.cuDeviceGetAttribute(
+                        &attr, cydriver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, dev_id
                     )
-                ) == 1:
-                    dev._mr = DeviceMemoryResource(dev_id)
+                )
+                if attr == 1:
+                    device._mr = DeviceMemoryResource(dev_id)
                 else:
-                    dev._mr = _SynchronousMemoryResource(dev_id)
+                    device._mr = _SynchronousMemoryResource(dev_id)
 
-                dev._has_inited = False
-                dev._properties = None
-                devices.append(dev)
+                device._has_inited = False
+                device._properties = None
+                devices.append(device)
 
         try:
             return devices[device_id]
@@ -1726,36 +1746,17 @@ class Device:
                 f"Device {self._id} is not yet initialized, perhaps you forgot to call .set_current() first?"
             )
 
-    def _get_primary_context(self) -> driver.CUcontext:
-        try:
-            primary_ctxs = _tls.primary_ctxs
-        except AttributeError:
-            total = len(_tls.devices)
-            primary_ctxs = _tls.primary_ctxs = [None] * total
-        ctx = primary_ctxs[self._id]
-        if ctx is None:
-            ctx = handle_return(driver.cuDevicePrimaryCtxRetain(self._id))
-            primary_ctxs[self._id] = ctx
-        return ctx
-
     def _get_current_context(self, check_consistency=False) -> driver.CUcontext:
-        err, ctx = driver.cuCtxGetCurrent()
-
-        # TODO: We want to just call this:
-        # _check_driver_error(err)
-        # but even the simplest success check causes 50-100 ns. Wait until we cythonize this file...
-        if ctx is None:
-            _check_driver_error(err)
-
-        if int(ctx) == 0:
+        cdef cydriver.CUcontext ctx
+        HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+        if ctx == NULL:
             raise CUDAError("No context is bound to the calling CPU thread.")
+        cdef cydriver.CUdevice dev
         if check_consistency:
-            err, dev = driver.cuCtxGetDevice()
-            if err != _SUCCESS:
-                handle_return((err,))
-            if int(dev) != self._id:
+            HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
+            if <int>(dev) != self._id:
                 raise CUDAError("Internal error (current device is not equal to Device.device_id)")
-        return ctx
+        return driver.CUcontext(<uintptr_t>ctx)
 
     @property
     def device_id(self) -> int:
@@ -1782,20 +1783,23 @@ class Device:
         driver is older than CUDA 11.4.
 
         """
-        driver_ver = handle_return(driver.cuDriverGetVersion())
-        if 11040 <= driver_ver < 13000:
-            uuid = handle_return(driver.cuDeviceGetUuid_v2(self._id))
-        else:
-            uuid = handle_return(driver.cuDeviceGetUuid(self._id))
-        uuid = uuid.bytes.hex()
+        cdef cydriver.CUuuid uuid
+        IF CUDA_CORE_BUILD_MAJOR == "12":
+            HANDLE_RETURN(cydriver.cuDeviceGetUuid_v2(&uuid, self._id))
+        ELSE:  # 13.0+
+            HANDLE_RETURN(cydriver.cuDeviceGetUuid(&uuid, self._id))
+        cdef bytes uuid_b = cpython.PyBytes_FromStringAndSize(uuid.bytes, sizeof(uuid.bytes))
+        cdef str uuid_hex = uuid_b.hex()
         # 8-4-4-4-12
-        return f"{uuid[:8]}-{uuid[8:12]}-{uuid[12:16]}-{uuid[16:20]}-{uuid[20:]}"
+        return f"{uuid_hex[:8]}-{uuid_hex[8:12]}-{uuid_hex[12:16]}-{uuid_hex[16:20]}-{uuid_hex[20:]}"
 
     @property
     def name(self) -> str:
         """Return the device name."""
         # Use 256 characters to be consistent with CUDA Runtime
-        name = handle_return(driver.cuDeviceGetName(256, self._id))
+        cdef int LENGTH = 256
+        cdef bytes name = bytes(LENGTH)
+        HANDLE_RETURN(cydriver.cuDeviceGetName(<char*>name, LENGTH, self._id))
         name = name.split(b"\0")[0]
         return name.decode()
 
@@ -1810,10 +1814,11 @@ class Device:
     @property
     def compute_capability(self) -> ComputeCapability:
         """Return a named tuple with 2 fields: major and minor."""
-        if "compute_capability" in self.properties._cache:
-            return self.properties._cache["compute_capability"]
-        cc = ComputeCapability(self.properties.compute_capability_major, self.properties.compute_capability_minor)
-        self.properties._cache["compute_capability"] = cc
+        cdef DeviceProperties prop = self.properties
+        if "compute_capability" in prop._cache:
+            return prop._cache["compute_capability"]
+        cc = ComputeCapability(prop.compute_capability_major, prop.compute_capability_minor)
+        prop._cache["compute_capability"] = cc
         return cc
 
     @property
@@ -1864,6 +1869,9 @@ class Device:
     def __repr__(self):
         return f"<Device {self._id} ({self.name})>"
 
+    def __reduce__(self):
+        return Device, (self.device_id,)
+
     def set_current(self, ctx: Context = None) -> Union[Context, None]:
         """Set device to be used for GPU executions.
 
@@ -1894,22 +1902,25 @@ class Device:
         >>> # ... do work on device 0 ...
 
         """
+        cdef cydriver.CUcontext _ctx
         if ctx is not None:
+            # TODO: revisit once Context is cythonized
             assert_type(ctx, Context)
             if ctx._id != self._id:
                 raise RuntimeError(
                     "the provided context was created on the device with"
                     f" id={ctx._id}, which is different from the target id={self._id}"
                 )
-            prev_ctx = handle_return(driver.cuCtxPopCurrent())
-            handle_return(driver.cuCtxPushCurrent(ctx._handle))
+            # _ctx is the previous context
+            HANDLE_RETURN(cydriver.cuCtxPopCurrent(&_ctx))
+            HANDLE_RETURN(cydriver.cuCtxPushCurrent(<cydriver.CUcontext>(ctx._handle)))
             self._has_inited = True
-            if int(prev_ctx) != 0:
-                return Context._from_ctx(prev_ctx, self._id)
+            if _ctx != NULL:
+                return Context._from_ctx(<uintptr_t>(_ctx), self._id)
         else:
             # use primary ctx
-            ctx = self._get_primary_context()
-            handle_return(driver.cuCtxSetCurrent(ctx))
+            _ctx = _get_primary_context(self._id)
+            HANDLE_RETURN(cydriver.cuCtxSetCurrent(_ctx))
             self._has_inited = True
 
     def create_context(self, options: ContextOptions = None) -> Context:

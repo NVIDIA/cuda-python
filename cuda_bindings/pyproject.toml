@@ -1,6 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
-
 [build-system]
 requires = ["setuptools>=77.0.0", "cython>=3.1,<3.2", "pyclibrary>=0.1.7"]
 build-backend = "setuptools.build_meta"
@@ -36,6 +35,7 @@ all = [
     "cuda-toolkit[cufile]==13.*; sys_platform == 'linux'",
 ]
 
+[dependency-groups]
 test = [
     "cython>=3.1,<3.2",
     "setuptools>=77.0.0",
@@ -59,16 +59,11 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 skip = "*-musllinux_*"
 enable = "cpython-freethreading"
 build-verbosity = 1
-environment-pass = ["CUDA_PATH", "CUDA_PYTHON_PARALLEL_LEVEL"]
 
 [tool.cibuildwheel.linux]
 archs = "native"
-# CIBW mounts the host filesystem under /host
-environment-pass = ["CUDA_PATH"]
-environment = { CUDA_HOME = "/host/$CUDA_PATH" }
 
 [tool.cibuildwheel.windows]
 archs = "AMD64"
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
-environment = { CUDA_HOME = "$(cygpath -w $CUDA_PATH)" }
