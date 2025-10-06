@@ -130,7 +130,7 @@ disallow_untyped_defs = false
 ignore_errors = true
 
 [tool.pixi.workspace]
-channels = ["nvidia", "conda-forge"]
+channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64", "win-64"]
 
 [tool.pixi.pypi-dependencies]
