@@ -32,6 +32,7 @@ New features
 - CUDA 13.x testing support through new ``test-cu13`` dependency group.
 - Stream-ordered memory allocation can now be shared on Linux via :class:`DeviceMemoryResource`.
 - Added NVVM IR support to :class:`Program`. NVVM IR is now understood with ``code_type="nvvm"``.
+- Added an :attr:`ObjectCode.code_type` attribute for querying the code type.
 
 
 New examples

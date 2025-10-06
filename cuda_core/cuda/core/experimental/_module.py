@@ -667,6 +667,11 @@ class ObjectCode:
         return self._name
 
     @property
+    def code_type(self) -> str:
+        """Return the type of the underlying code object."""
+        return self._code_type
+
+    @property
     @precondition(_lazy_load_module)
     def handle(self):
         """Return the underlying handle object.

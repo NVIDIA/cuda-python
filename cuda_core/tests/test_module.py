@@ -158,7 +158,7 @@ def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path):
     ptx_file.write_bytes(ptx)
     mod_obj = ObjectCode.from_ptx(str(ptx_file), symbol_mapping=sym_map)
     assert mod_obj.code == str(ptx_file)
-    assert mod_obj._code_type == "ptx"
+    assert mod_obj.code_type == "ptx"
     if not Program._can_load_generated_ptx():
         pytest.skip("PTX version too new for current driver")
     mod_obj.get_kernel("saxpy<double>")  # force loading
@@ -198,7 +198,7 @@ def test_object_code_load_ltoir(get_saxpy_kernel_ltoir):
     assert isinstance(ltoir, bytes)
     mod_obj = ObjectCode.from_ltoir(ltoir, symbol_mapping=sym_map)
     assert mod_obj.code == ltoir
-    assert mod_obj._code_type == "ltoir"
+    assert mod_obj.code_type == "ltoir"
     # ltoir doesn't support kernel retrieval directly as it's used for linking
     assert mod_obj._handle is None
     # Test that get_kernel fails for unsupported code type
@@ -215,7 +215,7 @@ def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path):
     ltoir_file.write_bytes(ltoir)
     mod_obj = ObjectCode.from_ltoir(str(ltoir_file), symbol_mapping=sym_map)
     assert mod_obj.code == str(ltoir_file)
-    assert mod_obj._code_type == "ltoir"
+    assert mod_obj.code_type == "ltoir"
     # ltoir doesn't support kernel retrieval directly as it's used for linking
     assert mod_obj._handle is None
 
@@ -418,4 +418,4 @@ def test_module_serialization_roundtrip(get_saxpy_kernel_cubin):
     assert isinstance(result, ObjectCode)
     assert objcode.code == result.code
     assert objcode._sym_map == result._sym_map
-    assert objcode._code_type == result._code_type
+    assert objcode.code_type == result.code_type
