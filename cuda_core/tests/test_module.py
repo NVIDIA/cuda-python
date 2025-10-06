@@ -150,16 +150,6 @@ def test_read_only_kernel_attributes(get_saxpy_kernel, attr, expected_type):
     assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
 
 
-def test_object_code_load_cubin(get_saxpy_kernel):
-    _, mod = get_saxpy_kernel
-    cubin = mod._module
-    sym_map = mod._sym_map
-    assert isinstance(cubin, bytes)
-    mod = ObjectCode.from_cubin(cubin, symbol_mapping=sym_map)
-    assert mod.code == cubin
-    mod.get_kernel("saxpy<double>")  # force loading
-
-
 def test_object_code_load_ptx(get_saxpy_kernel_ptx):
     ptx, mod = get_saxpy_kernel_ptx
     sym_map = mod._sym_map
@@ -182,6 +172,16 @@ def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path):
     if not Program._can_load_generated_ptx():
         pytest.skip("PTX version too new for current driver")
     mod_obj.get_kernel("saxpy<double>")  # force loading
+
+
+def test_object_code_load_cubin(get_saxpy_kernel):
+    _, mod = get_saxpy_kernel
+    cubin = mod._module
+    sym_map = mod._sym_map
+    assert isinstance(cubin, bytes)
+    mod = ObjectCode.from_cubin(cubin, symbol_mapping=sym_map)
+    assert mod.code == cubin
+    mod.get_kernel("saxpy<double>")  # force loading
 
 
 def test_object_code_load_cubin_from_file(get_saxpy_kernel, tmp_path):
