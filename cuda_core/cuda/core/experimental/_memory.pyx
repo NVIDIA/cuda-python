@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 cimport cpython
+from libc.limits cimport ULLONG_MAX
 from libc.stdint cimport uintptr_t, intptr_t
 from libc.string cimport memset, memcpy
 
@@ -95,13 +96,15 @@ cdef class Buffer:
             The stream object to use for asynchronous deallocation. If None,
             the behavior depends on the underlying memory resource.
         """
+        cdef _cyMemoryResource cy_mr
         if self._ptr and self._mr is not None:
             if isinstance(self._mr, _cyMemoryResource):
                 # FIXME
                 if stream is None:
                     stream = Stream.__new__(Stream)
                     (<cyStream>(stream))._handle = <cydriver.CUstream>(0)
-                (<_cyMemoryResource>(self._mr))._deallocate(self._ptr, self._size, <cyStream>stream)
+                cy_mr = <_cyMemoryResource>(self._mr)
+                cy_mr._deallocate(self._ptr, self._size, <cyStream>stream)
             else:
                 self._mr.deallocate(self._ptr, self._size, stream)
             self._ptr = 0
@@ -123,7 +126,7 @@ cdef class Buffer:
             return self._ptr
         else:
             # contract: Buffer is closed
-            return None
+            return 0
 
     @property
     def size(self) -> int:
@@ -673,7 +676,7 @@ cdef class DeviceMemoryResource(_cyMemoryResource, MemoryResource):
             DeviceMemoryResourceOptions, options, "DeviceMemoryResource options", keep_none=True
         )
         cdef cydriver.cuuint64_t current_threshold
-        cdef cydriver.cuuint64_t max_threshold = 0xFFFFFFFFFFFFFFFF
+        cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX
         cdef cydriver.CUmemPoolProps properties
 
         if opts is None:

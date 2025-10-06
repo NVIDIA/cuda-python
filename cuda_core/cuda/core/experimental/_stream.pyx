@@ -113,10 +113,10 @@ cdef class Stream:
         self._handle = <cydriver.CUstream>(NULL)
         self._owner = None
         self._builtin = False
-        self._nonblocking = -1  # delayed
-        self._priority = INT32_MIN  # delayed
-        self._device_id = cydriver.CU_DEVICE_INVALID  # delayed
-        self._ctx_handle = CU_CONTEXT_INVALID  # delayed
+        self._nonblocking = -1  # lazy init'd
+        self._priority = INT32_MIN  # lazy init'd
+        self._device_id = cydriver.CU_DEVICE_INVALID  # lazy init'd
+        self._ctx_handle = CU_CONTEXT_INVALID  # lazy init'd
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError(
