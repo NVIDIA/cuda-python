@@ -76,7 +76,7 @@ def test_pci_bus_id():
 def test_uuid():
     device = Device()
     driver_ver = handle_return(driver.cuDriverGetVersion())
-    if 11040 <= driver_ver < 13000:
+    if driver_ver < 13000:
         uuid = handle_return(driver.cuDeviceGetUuid_v2(device.device_id))
     else:
         uuid = handle_return(driver.cuDeviceGetUuid(device.device_id))
@@ -224,15 +224,51 @@ cuda_base_properties = [
     ("gpu_direct_rdma_writes_ordering", int),
     ("mempool_supported_handle_types", int),
     ("deferred_mapping_cuda_array_supported", bool),
+    ("surface_alignment", int),
+    ("async_engine_count", int),
+    ("can_tex2d_gather", bool),
+    ("maximum_texture2d_gather_width", int),
+    ("maximum_texture2d_gather_height", int),
+    ("stream_priorities_supported", bool),
+    ("can_flush_remote_writes", bool),
+    ("host_register_supported", bool),
+    ("timeline_semaphore_interop_supported", bool),
+    ("cluster_launch", bool),
+    ("can_use_64_bit_stream_mem_ops", bool),
+    ("can_use_stream_wait_value_nor", bool),
+    ("dma_buf_supported", bool),
+    ("ipc_event_supported", bool),
+    ("mem_sync_domain_count", int),
+    ("tensor_map_access_supported", bool),
+    ("handle_type_fabric_supported", bool),
+    ("unified_function_pointers", bool),
+    ("numa_config", int),
+    ("numa_id", int),
+    ("multicast_supported", bool),
+    ("mps_enabled", bool),
+    ("host_numa_id", int),
+    ("d3d12_cig_supported", bool),
+    ("mem_decompress_algorithm_mask", int),
+    ("mem_decompress_maximum_length", int),
+    ("vulkan_cig_supported", bool),
+    ("gpu_pci_device_id", int),
+    ("gpu_pci_subsystem_id", int),
+    ("host_numa_virtual_memory_management_supported", bool),
+    ("host_numa_memory_pools_supported", bool),
+    ("host_numa_multinode_ipc_supported", bool),
 ]
 
-cuda_12_properties = [("numa_config", int), ("numa_id", int), ("multicast_supported", bool)]
+# CUDA 13+ specific attributes
+cuda_13_properties = [
+    ("host_memory_pools_supported", bool),
+    ("host_virtual_memory_management_supported", bool),
+    ("host_alloc_dma_buf_supported", bool),
+    ("only_partial_host_native_atomic_supported", bool),
+]
 
 version = get_binding_version()
-cuda_11 = True
-if version[0] >= 12 and version[1] >= 12000:
-    cuda_base_properties += cuda_12_properties
-    cuda_11 = False
+if version[0] >= 13:
+    cuda_base_properties += cuda_13_properties
 
 
 @pytest.mark.parametrize("property_name, expected_type", cuda_base_properties)
@@ -246,8 +282,10 @@ def test_device_properties_complete():
     live_props = set(attr for attr in dir(device.properties) if not attr.startswith("_"))
     tab_props = set(attr for attr, _ in cuda_base_properties)
 
-    # Exclude specific properties from the comparison when unsupported by CTK.
-    excluded_props = {"numa_config", "multicast_supported", "numa_id"} if cuda_11 else set()
+    excluded_props = set()
+    # Exclude CUDA 13+ specific properties when not available
+    if version[0] < 13:
+        excluded_props.update({prop[0] for prop in cuda_13_properties})
 
     filtered_tab_props = tab_props - excluded_props
     filtered_live_props = live_props - excluded_props
