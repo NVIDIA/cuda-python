@@ -922,7 +922,7 @@ allocatable in a 1D linear texture for given format descriptor
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fmtDesc</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatDesc" title="cuda.bindings.runtime.cudaChannelFormatDesc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatDesc</span></code></a>) – Texture format description.</p></li>
-<li><p><strong>None</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – None</p></li>
+<li><p><strong>None</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – None</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1072,7 +1072,7 @@ shared memory</p></li>
 values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>pciBusId</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – String in one of the following forms:</p>
+<dd class="field-odd"><p><strong>pciBusId</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – String in one of the following forms:</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
@@ -1101,8 +1101,8 @@ including the NULL-terminator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Maximum length of string to store in <cite>name</cite></p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device to get identifier string for</p></li>
+<li><p><strong>length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Maximum length of string to store in <cite>name</cite></p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device to get identifier string for</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1410,7 +1410,7 @@ instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The device on which to register the callback</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The device on which to register the callback</p></li>
 <li><p><strong>callbackFunc</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaAsyncCallback" title="cuda.bindings.runtime.cudaAsyncCallback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAsyncCallback</span></code></a>) – The function to register as a callback</p></li>
 <li><p><strong>userData</strong> (<em>Any</em>) – A generic pointer to user data. This is passed into the callback
 function.</p></li>
@@ -1439,7 +1439,7 @@ stop receiving async notifications.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The device from which to remove <cite>callback</cite>.</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The device from which to remove <cite>callback</cite>.</p></li>
 <li><p><strong>callback</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaAsyncCallbackHandle_t" title="cuda.bindings.runtime.cudaAsyncCallbackHandle_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAsyncCallbackHandle_t</span></code></a>) – The callback instance to unregister from receiving async
 notifications.</p></li>
 </ul>
@@ -1486,7 +1486,7 @@ equal to 2.0</p></li>
 <p>Returns in <cite>*prop</cite> the properties of device <cite>dev</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device number to get properties for</p>
+<dd class="field-odd"><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device number to get properties for</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
@@ -1512,7 +1512,7 @@ equal to 2.0</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceAttr" title="cuda.bindings.runtime.cudaDeviceAttr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceAttr</span></code></a>) – Device attribute to query</p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device number to query</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device number to query</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1549,7 +1549,7 @@ not valid.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>operations</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperation" title="cuda.bindings.runtime.cudaAtomicOperation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperation</span></code></a>]) – Requested operations</p></li>
 <li><p><strong>count</strong> (<em>unsigned int</em>) – Count of requested operations and size of capabilities</p></li>
-<li><p><strong>dev</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device handle</p></li>
+<li><p><strong>dev</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device handle</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1574,7 +1574,7 @@ not valid.</p>
 device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – None</p>
+<dd class="field-odd"><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – None</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
@@ -1602,7 +1602,7 @@ its default memory pool.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – None</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – None</p></li>
 <li><p><strong>memPool</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUmemoryPool" title="cuda.bindings.driver.CUmemoryPool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUmemoryPool</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaMemPool_t" title="cuda.bindings.runtime.cudaMemPool_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemPool_t</span></code></a>) – None</p></li>
 </ul>
 </dd>
@@ -1633,7 +1633,7 @@ returned pool must have been set with <a class="reference internal" href="driver
 <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceSetMemPool" title="cuda.bindings.runtime.cudaDeviceSetMemPool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceSetMemPool</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – None</p>
+<dd class="field-odd"><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – None</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
@@ -1709,8 +1709,8 @@ returned in <cite>None</cite> from <code class="xref py py-obj docutils literal 
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nvSciSyncAttrList</strong> (<em>Any</em>) – Return NvSciSync attributes supported.</p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Valid Cuda Device to get NvSciSync attributes for.</p></li>
-<li><p><strong>flags</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – flags describing NvSciSync usage.</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Valid Cuda Device to get NvSciSync attributes for.</p></li>
+<li><p><strong>flags</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – flags describing NvSciSync usage.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1763,8 +1763,8 @@ if <cite>value</cite> is a null pointer.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>attrib</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceP2PAttr" title="cuda.bindings.runtime.cudaDeviceP2PAttr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceP2PAttr</span></code></a>) – The requested attribute of the link between <cite>srcDevice</cite> and
 <cite>dstDevice</cite>.</p></li>
-<li><p><strong>srcDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The source device of the target link.</p></li>
-<li><p><strong>dstDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The destination device of the target link.</p></li>
+<li><p><strong>srcDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The source device of the target link.</p></li>
+<li><p><strong>dstDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The destination device of the target link.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1803,8 +1803,8 @@ not valid.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>operations</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaAtomicOperation" title="cuda.bindings.runtime.cudaAtomicOperation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaAtomicOperation</span></code></a>]) – Requested operations</p></li>
 <li><p><strong>count</strong> (<em>unsigned int</em>) – Count of requested operations and size of capabilities</p></li>
-<li><p><strong>srcDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The source device of the target link</p></li>
-<li><p><strong>dstDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The destination device of the target link</p></li>
+<li><p><strong>srcDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The source device of the target link</p></li>
+<li><p><strong>dstDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The destination device of the target link</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1871,7 +1871,7 @@ process or if the device is in <a class="reference internal" href="#cuda.binding
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device on which the runtime will initialize itself.</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device on which the runtime will initialize itself.</p></li>
 <li><p><strong>deviceFlags</strong> (<em>unsigned int</em>) – Parameters for device operation.</p></li>
 <li><p><strong>flags</strong> (<em>unsigned int</em>) – Flags for controlling the device initialization.</p></li>
 </ul>
@@ -1921,7 +1921,7 @@ process or if the device is in <a class="reference internal" href="#cuda.binding
 function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device on which the active host thread should execute the device
+<dd class="field-odd"><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device on which the active host thread should execute the device
 code.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -2274,7 +2274,7 @@ clamped to the lowest or the highest number in the range.</p>
 <li><p><strong>flags</strong> (<em>unsigned int</em>) – Flags for stream creation. See
 <a class="reference internal" href="#cuda.bindings.runtime.cudaStreamCreateWithFlags" title="cuda.bindings.runtime.cudaStreamCreateWithFlags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags</span></code></a> for a list of valid flags
 that can be passed</p></li>
-<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Priority of the stream. Lower numbers represent higher priorities.
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Priority of the stream. Lower numbers represent higher priorities.
 See <a class="reference internal" href="#cuda.bindings.runtime.cudaDeviceGetStreamPriorityRange" title="cuda.bindings.runtime.cudaDeviceGetStreamPriorityRange"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange</span></code></a> for more
 information about the meaningful stream priorities that can be
 passed.</p></li>
@@ -4124,7 +4124,7 @@ cudaClusterSchedulingPolicy.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>func</strong> (<em>Any</em>) – Function to get attributes of</p></li>
 <li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaFuncAttribute" title="cuda.bindings.runtime.cudaFuncAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncAttribute</span></code></a>) – Attribute to set</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Value to set</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Value to set</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -4219,7 +4219,7 @@ streaming multiprocessor for the device function.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>func</strong> (<em>Any</em>) – Kernel function for which occupancy is calculated</p></li>
-<li><p><strong>blockSize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Block size the kernel is intended to be launched with</p></li>
+<li><p><strong>blockSize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Block size the kernel is intended to be launched with</p></li>
 <li><p><strong>dynamicSMemSize</strong> (<em>size_t</em>) – Per-block dynamic shared memory usage intended, in bytes</p></li>
 </ul>
 </dd>
@@ -4255,8 +4255,8 @@ to allow <cite>numBlocks</cite> blocks per SM.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>func</strong> (<em>Any</em>) – Kernel function for which occupancy is calculated</p></li>
-<li><p><strong>numBlocks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of blocks to fit on SM</p></li>
-<li><p><strong>blockSize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Size of the block</p></li>
+<li><p><strong>numBlocks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of blocks to fit on SM</p></li>
+<li><p><strong>blockSize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Size of the block</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -4306,7 +4306,7 @@ cases. More information can be found about this feature in the
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>func</strong> (<em>Any</em>) – Kernel function for which occupancy is calculated</p></li>
-<li><p><strong>blockSize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Block size the kernel is intended to be launched with</p></li>
+<li><p><strong>blockSize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Block size the kernel is intended to be launched with</p></li>
 <li><p><strong>dynamicSMemSize</strong> (<em>size_t</em>) – Per-block dynamic shared memory usage intended, in bytes</p></li>
 <li><p><strong>flags</strong> (<em>unsigned int</em>) – Requested behavior for the occupancy calculator</p></li>
 </ul>
@@ -5576,7 +5576,7 @@ alignment necessary for mapping the CUDA array.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>array</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaArray_t" title="cuda.bindings.runtime.cudaArray_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaArray_t</span></code></a>) – CUDA array to get the memory requirements of</p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device to get the memory requirements for</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device to get the memory requirements for</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -5609,7 +5609,7 @@ the alignment necessary for mapping the CUDA mipmapped array.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mipmap</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaMipmappedArray_t" title="cuda.bindings.runtime.cudaMipmappedArray_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMipmappedArray_t</span></code></a>) – CUDA mipmapped array to get the memory requirements of</p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device to get the memory requirements for</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device to get the memory requirements for</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -5756,9 +5756,9 @@ the current device, <cite>srcDevice</cite>, and <cite>dstDevice</cite> (use
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dst</strong> (<em>Any</em>) – Destination device pointer</p></li>
-<li><p><strong>dstDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Destination device</p></li>
+<li><p><strong>dstDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Destination device</p></li>
 <li><p><strong>src</strong> (<em>Any</em>) – Source device pointer</p></li>
-<li><p><strong>srcDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Source device</p></li>
+<li><p><strong>srcDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Source device</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Size of memory copy in bytes</p></li>
 </ul>
 </dd>
@@ -6083,9 +6083,9 @@ all work on other devices.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dst</strong> (<em>Any</em>) – Destination device pointer</p></li>
-<li><p><strong>dstDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Destination device</p></li>
+<li><p><strong>dstDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Destination device</p></li>
 <li><p><strong>src</strong> (<em>Any</em>) – Source device pointer</p></li>
-<li><p><strong>srcDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Source device</p></li>
+<li><p><strong>srcDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Source device</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Size of memory copy in bytes</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream identifier</p></li>
 </ul>
@@ -6173,12 +6173,12 @@ platform and other parameters of the copy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dsts</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of destination pointers.</p></li>
-<li><p><strong>srcs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of memcpy source pointers.</p></li>
-<li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of sizes for memcpy operations.</p></li>
+<li><p><strong>dsts</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of destination pointers.</p></li>
+<li><p><strong>srcs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of memcpy source pointers.</p></li>
+<li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – Array of sizes for memcpy operations.</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Size of <cite>dsts</cite>, <cite>srcs</cite> and <cite>sizes</cite> arrays</p></li>
 <li><p><strong>attrs</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemcpyAttributes" title="cuda.bindings.runtime.cudaMemcpyAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemcpyAttributes</span></code></a>]) – Array of memcpy attributes.</p></li>
-<li><p><strong>attrsIdxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of indices to specify which copies each entry in the <cite>attrs</cite>
+<li><p><strong>attrsIdxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – Array of indices to specify which copies each entry in the <cite>attrs</cite>
 array applies to. The attributes specified in attrs[k] will be
 applied to copies starting from attrsIdxs[k] through attrsIdxs[k+1]
 - 1. Also attrs[numAttrs-1] will apply to copies starting from
@@ -6512,7 +6512,7 @@ with the constant byte value <cite>value</cite>.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>devPtr</strong> (<em>Any</em>) – Pointer to device memory</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Value to set for each byte of specified memory</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Value to set for each byte of specified memory</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Size in bytes to set</p></li>
 </ul>
 </dd>
@@ -6555,7 +6555,7 @@ that has been passed back by <a class="reference internal" href="#cuda.bindings.
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>devPtr</strong> (<em>Any</em>) – Pointer to 2D device memory</p></li>
 <li><p><strong>pitch</strong> (<em>size_t</em>) – Pitch in bytes of 2D device memory(Unused if <cite>height</cite> is 1)</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Value to set for each byte of specified memory</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Value to set for each byte of specified memory</p></li>
 <li><p><strong>width</strong> (<em>size_t</em>) – Width of matrix set (columns in bytes)</p></li>
 <li><p><strong>height</strong> (<em>size_t</em>) – Height of matrix set (rows)</p></li>
 </ul>
@@ -6608,7 +6608,7 @@ allocated by <a class="reference internal" href="#cuda.bindings.runtime.cudaMall
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pitchedDevPtr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a>) – Pointer to pitched device memory</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Value to set for each byte of specified memory</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Value to set for each byte of specified memory</p></li>
 <li><p><strong>extent</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a>) – Size parameters for where to set device memory (<cite>width</cite> field in
 bytes)</p></li>
 </ul>
@@ -6643,7 +6643,7 @@ copies and cannot be given local or shared pointers.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>devPtr</strong> (<em>Any</em>) – Pointer to device memory</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Value to set for each byte of specified memory</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Value to set for each byte of specified memory</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Size in bytes to set</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream identifier</p></li>
 </ul>
@@ -6693,7 +6693,7 @@ copies and cannot be given local or shared pointers.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>devPtr</strong> (<em>Any</em>) – Pointer to 2D device memory</p></li>
 <li><p><strong>pitch</strong> (<em>size_t</em>) – Pitch in bytes of 2D device memory(Unused if <cite>height</cite> is 1)</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Value to set for each byte of specified memory</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Value to set for each byte of specified memory</p></li>
 <li><p><strong>width</strong> (<em>size_t</em>) – Width of matrix set (columns in bytes)</p></li>
 <li><p><strong>height</strong> (<em>size_t</em>) – Height of matrix set (rows)</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream identifier</p></li>
@@ -6753,7 +6753,7 @@ copies and cannot be given local or shared pointers.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pitchedDevPtr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaPitchedPtr" title="cuda.bindings.runtime.cudaPitchedPtr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code></a>) – Pointer to pitched device memory</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Value to set for each byte of specified memory</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Value to set for each byte of specified memory</p></li>
 <li><p><strong>extent</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaExtent" title="cuda.bindings.runtime.cudaExtent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaExtent</span></code></a>) – Size parameters for where to set device memory (<cite>width</cite> field in
 bytes)</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream identifier</p></li>
@@ -6909,11 +6909,11 @@ Furthermore, <cite>numPrefetchLocs</cite> must be lesser than or equal to <cite>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dptrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of pointers to be prefetched</p></li>
-<li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of sizes for memory prefetch operations.</p></li>
+<li><p><strong>dptrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of pointers to be prefetched</p></li>
+<li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – Array of sizes for memory prefetch operations.</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Size of <cite>dptrs</cite> and <cite>sizes</cite> arrays.</p></li>
 <li><p><strong>prefetchLocs</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocation" title="cuda.bindings.runtime.cudaMemLocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocation</span></code></a>]) – Array of locations to prefetch to.</p></li>
-<li><p><strong>prefetchLocIdxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of indices to specify which operands each entry in the
+<li><p><strong>prefetchLocIdxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – Array of indices to specify which operands each entry in the
 <cite>prefetchLocs</cite> array applies to. The locations specified in
 prefetchLocs[k] will be applied to copies starting from
 prefetchLocIdxs[k] through prefetchLocIdxs[k+1] - 1. Also
@@ -6962,8 +6962,8 @@ devices have a non-zero value for
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dptrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of pointers to be discarded</p></li>
-<li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of sizes for memory discard operations.</p></li>
+<li><p><strong>dptrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of pointers to be discarded</p></li>
+<li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – Array of sizes for memory discard operations.</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Size of <cite>dptrs</cite> and <cite>sizes</cite> arrays.</p></li>
 <li><p><strong>flags</strong> (<em>unsigned long long</em>) – Flags reserved for future use. Must be zero.</p></li>
 <li><p><strong>hStream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – The stream to enqueue the operations in. Must not be legacy NULL
@@ -7020,11 +7020,11 @@ or equal to <cite>count</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dptrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of pointers to be discarded</p></li>
-<li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of sizes for memory discard operations.</p></li>
+<li><p><strong>dptrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Array of pointers to be discarded</p></li>
+<li><p><strong>sizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – Array of sizes for memory discard operations.</p></li>
 <li><p><strong>count</strong> (<em>size_t</em>) – Size of <cite>dptrs</cite> and <cite>sizes</cite> arrays.</p></li>
 <li><p><strong>prefetchLocs</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemLocation" title="cuda.bindings.runtime.cudaMemLocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemLocation</span></code></a>]) – Array of locations to prefetch to.</p></li>
-<li><p><strong>prefetchLocIdxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array of indices to specify which operands each entry in the
+<li><p><strong>prefetchLocIdxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – Array of indices to specify which operands each entry in the
 <cite>prefetchLocs</cite> array applies to. The locations specified in
 prefetchLocs[k] will be applied to operations starting from
 prefetchLocIdxs[k] through prefetchLocIdxs[k+1] - 1. Also
@@ -7405,7 +7405,7 @@ restrictions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataSizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Array containing the sizes of each result</p></li>
+<li><p><strong>dataSizes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – Array containing the sizes of each result</p></li>
 <li><p><strong>attributes</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaMemRangeAttribute" title="cuda.bindings.runtime.cudaMemRangeAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaMemRangeAttribute</span></code></a>]) – An array of attributes to query (numAttributes and the number of
 attributes in this array should match)</p></li>
 <li><p><strong>numAttributes</strong> (<em>size_t</em>) – Number of attributes to query</p></li>
@@ -8285,9 +8285,9 @@ may be enabled by calling <a class="reference internal" href="#cuda.bindings.run
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device from which allocations on <cite>peerDevice</cite> are to be directly
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device from which allocations on <cite>peerDevice</cite> are to be directly
 accessed.</p></li>
-<li><p><strong>peerDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device on which the allocations to be directly accessed by <cite>device</cite>
+<li><p><strong>peerDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device on which the allocations to be directly accessed by <cite>device</cite>
 reside.</p></li>
 </ul>
 </dd>
@@ -8330,7 +8330,7 @@ of <cite>peerDevice</cite> from the current device has already been enabled.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>peerDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Peer device to enable direct access to from the current device</p></li>
+<li><p><strong>peerDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Peer device to enable direct access to from the current device</p></li>
 <li><p><strong>flags</strong> (<em>unsigned int</em>) – Reserved for future use and must be set to 0</p></li>
 </ul>
 </dd>
@@ -8356,7 +8356,7 @@ memory on <cite>peerDevice</cite> has not yet been enabled from the current
 device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>peerDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Peer device to disable direct access to</p>
+<dd class="field-odd"><p><strong>peerDevice</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Peer device to disable direct access to</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorPeerAccessNotEnabled" title="cuda.bindings.runtime.cudaError_t.cudaErrorPeerAccessNotEnabled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorPeerAccessNotEnabled</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code></a></p>
@@ -8624,7 +8624,7 @@ VDPAU interoperability on <cite>device</cite> may be enabled.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device to use for VDPAU interoperability</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device to use for VDPAU interoperability</p></li>
 <li><p><strong>vdpDevice</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">VdpDevice</span></code>) – The VdpDevice to interoperate with</p></li>
 <li><p><strong>vdpGetProcAddress</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">VdpGetProcAddress</span></code>) – VDPAU’s VdpGetProcAddress function pointer</p></li>
 </ul>
@@ -9214,7 +9214,7 @@ complete before any subsequent CUDA work issued in <cite>stream</cite> begins.</
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of resources to map</p></li>
+<li><p><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of resources to map</p></li>
 <li><p><strong>resources</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphicsResource_t" title="cuda.bindings.runtime.cudaGraphicsResource_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphicsResource_t</span></code></a>) – Resources to map for CUDA</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream for synchronization</p></li>
 </ul>
@@ -9249,7 +9249,7 @@ complete before any subsequently issued graphics work begins.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of resources to unmap</p></li>
+<li><p><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of resources to unmap</p></li>
 <li><p><strong>resources</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphicsResource_t" title="cuda.bindings.runtime.cudaGraphicsResource_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphicsResource_t</span></code></a>) – Resources to unmap</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUstream" title="cuda.bindings.driver.CUstream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUstream</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaStream_t" title="cuda.bindings.runtime.cudaStream_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaStream_t</span></code></a>) – Stream for synchronization</p></li>
 </ul>
@@ -9420,10 +9420,10 @@ is defined as:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – X component</p></li>
-<li><p><strong>y</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Y component</p></li>
-<li><p><strong>z</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Z component</p></li>
-<li><p><strong>w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – W component</p></li>
+<li><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – X component</p></li>
+<li><p><strong>y</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Y component</p></li>
+<li><p><strong>z</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Z component</p></li>
+<li><p><strong>w</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – W component</p></li>
 <li><p><strong>f</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaChannelFormatKind" title="cuda.bindings.runtime.cudaChannelFormatKind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaChannelFormatKind</span></code></a>) – Channel format</p></li>
 </ul>
 </dd>
@@ -9969,7 +9969,7 @@ from <cite>iterator</cite> into <cite>pathToFile</cite> provided.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>iterator</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaLogIterator" title="cuda.bindings.runtime.cudaLogIterator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLogIterator</span></code></a>) – Optional auto-advancing iterator specifying the starting log to
 read. NULL value dumps all logs.</p></li>
-<li><p><strong>pathToFile</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – Path to output file for dumping logs</p></li>
+<li><p><strong>pathToFile</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Path to output file for dumping logs</p></li>
 <li><p><strong>flags</strong> (<em>unsigned int</em>) – Reserved for future use, must be 0</p></li>
 </ul>
 </dd>
@@ -11254,7 +11254,7 @@ executing or scheduled to execute are freed back to the operating
 system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The device for which cached memory should be freed.</p>
+<dd class="field-odd"><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The device for which cached memory should be freed.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaSuccess" title="cuda.bindings.runtime.cudaError_t.cudaSuccess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaSuccess</span></code></a>, <a class="reference internal" href="#cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue" title="cuda.bindings.runtime.cudaError_t.cudaErrorInvalidValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code></a></p>
@@ -11297,7 +11297,7 @@ asynchronous allocator.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Specifies the scope of the query</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Specifies the scope of the query</p></li>
 <li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphMemAttributeType" title="cuda.bindings.runtime.cudaGraphMemAttributeType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphMemAttributeType</span></code></a>) – attribute to get</p></li>
 </ul>
 </dd>
@@ -11339,7 +11339,7 @@ asynchronous allocator.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Specifies the scope of the query</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Specifies the scope of the query</p></li>
 <li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaGraphMemAttributeType" title="cuda.bindings.runtime.cudaGraphMemAttributeType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphMemAttributeType</span></code></a>) – attribute to get</p></li>
 <li><p><strong>value</strong> (<em>Any</em>) – pointer to value to set</p></li>
 </ul>
@@ -11456,7 +11456,7 @@ NULL, and the number of nodes actually obtained will be returned in
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to query</p></li>
-<li><p><strong>numNodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – See description</p></li>
+<li><p><strong>numNodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – See description</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -11488,7 +11488,7 @@ of nodes actually obtained will be returned in <cite>pNumRootNodes</cite>.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to query</p></li>
-<li><p><strong>pNumRootNodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – See description</p></li>
+<li><p><strong>pNumRootNodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – See description</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -11527,7 +11527,7 @@ and <cite>to</cite> must be as well.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – Graph to get the edges from</p></li>
-<li><p><strong>numEdges</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – See description</p></li>
+<li><p><strong>numEdges</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – See description</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -11566,7 +11566,7 @@ NULL, and the number of nodes actually obtained will be returned in
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>node</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphNode" title="cuda.bindings.driver.CUgraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphNode</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>) – Node to query</p></li>
-<li><p><strong>pNumDependencies</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – See description</p></li>
+<li><p><strong>pNumDependencies</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – See description</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -11604,7 +11604,7 @@ returned in <cite>pNumDependentNodes</cite>.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>node</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraphNode" title="cuda.bindings.driver.CUgraphNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraphNode</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraphNode_t" title="cuda.bindings.runtime.cudaGraphNode_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code></a>) – Node to query</p></li>
-<li><p><strong>pNumDependentNodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – See description</p></li>
+<li><p><strong>pNumDependentNodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – See description</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -12741,7 +12741,7 @@ values, kernel attributes, node and function handles.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> (<a class="reference internal" href="driver.html#cuda.bindings.driver.CUgraph" title="cuda.bindings.driver.CUgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CUgraph</span></code></a> or <a class="reference internal" href="#cuda.bindings.runtime.cudaGraph_t" title="cuda.bindings.runtime.cudaGraph_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaGraph_t</span></code></a>) – The graph to create a DOT file from</p></li>
-<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – The path to write the DOT file to</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The path to write the DOT file to</p></li>
 <li><p><strong>flags</strong> (<em>unsigned int</em>) – Flags from cudaGraphDebugDotFlags for specifying which additional
 node information to write</p></li>
 </ul>
@@ -13150,7 +13150,7 @@ function.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>symbol</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – The base name of the driver API function to look for. As an
+<li><p><strong>symbol</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The base name of the driver API function to look for. As an
 example, for the driver API <code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemAlloc_v2</span></code>, <cite>symbol</cite>
 would be cuMemAlloc. Note that the API will use the CUDA runtime
 version to return the address to the most recent ABI compatible
@@ -13249,7 +13249,7 @@ function.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>symbol</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – The base name of the driver API function to look for. As an
+<li><p><strong>symbol</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The base name of the driver API function to look for. As an
 example, for the driver API <code class="xref py py-obj docutils literal notranslate"><span class="pre">cuMemAlloc_v2</span></code>, <cite>symbol</cite>
 would be cuMemAlloc.</p></li>
 <li><p><strong>cudaVersion</strong> (<em>unsigned int</em>) – The CUDA version to look for the requested driver symbol</p></li>
@@ -13317,10 +13317,10 @@ number of total library load options is supplied via
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>code</strong> (<em>Any</em>) – Code to load</p></li>
 <li><p><strong>jitOptions</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaJitOption" title="cuda.bindings.runtime.cudaJitOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaJitOption</span></code></a>]) – Options for JIT</p></li>
-<li><p><strong>jitOptionsValues</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Option values for JIT</p></li>
+<li><p><strong>jitOptionsValues</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Option values for JIT</p></li>
 <li><p><strong>numJitOptions</strong> (<em>unsigned int</em>) – Number of options</p></li>
 <li><p><strong>libraryOptions</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaLibraryOption" title="cuda.bindings.runtime.cudaLibraryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLibraryOption</span></code></a>]) – Options for loading</p></li>
-<li><p><strong>libraryOptionValues</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Option values for loading</p></li>
+<li><p><strong>libraryOptionValues</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Option values for loading</p></li>
 <li><p><strong>numLibraryOptions</strong> (<em>unsigned int</em>) – Number of options for loading</p></li>
 </ul>
 </dd>
@@ -13375,12 +13375,12 @@ number of total library load options is supplied via
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fileName</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – File to load from</p></li>
+<li><p><strong>fileName</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – File to load from</p></li>
 <li><p><strong>jitOptions</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaJitOption" title="cuda.bindings.runtime.cudaJitOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaJitOption</span></code></a>]) – Options for JIT</p></li>
-<li><p><strong>jitOptionsValues</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Option values for JIT</p></li>
+<li><p><strong>jitOptionsValues</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Option values for JIT</p></li>
 <li><p><strong>numJitOptions</strong> (<em>unsigned int</em>) – Number of options</p></li>
 <li><p><strong>libraryOptions</strong> (list[<a class="reference internal" href="#cuda.bindings.runtime.cudaLibraryOption" title="cuda.bindings.runtime.cudaLibraryOption"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLibraryOption</span></code></a>]) – Options for loading</p></li>
-<li><p><strong>libraryOptionValues</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Option values for loading</p></li>
+<li><p><strong>libraryOptionValues</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><em>Any</em><em>]</em>) – Option values for loading</p></li>
 <li><p><strong>numLibraryOptions</strong> (<em>unsigned int</em>) – Number of options for loading</p></li>
 </ul>
 </dd>
@@ -13431,7 +13431,7 @@ in library <cite>library</cite>. If kernel handle is not found, the call returns
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>library</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaLibrary_t" title="cuda.bindings.runtime.cudaLibrary_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLibrary_t</span></code></a>) – Library to retrieve kernel from</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – Name of kernel to retrieve</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Name of kernel to retrieve</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -13464,7 +13464,7 @@ as <code class="xref py py-obj docutils literal notranslate"><span class="pre">c
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>library</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaLibrary_t" title="cuda.bindings.runtime.cudaLibrary_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLibrary_t</span></code></a>) – Library to retrieve global from</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – Name of global to retrieve</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Name of global to retrieve</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -13500,7 +13500,7 @@ returned <cite>dptr</cite> cannot be passed to the Symbol APIs such as
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>library</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaLibrary_t" title="cuda.bindings.runtime.cudaLibrary_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLibrary_t</span></code></a>) – Library to retrieve managed memory from</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – Name of managed memory to retrieve</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Name of managed memory to retrieve</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -13531,7 +13531,7 @@ the system, the call may return <a class="reference internal" href="#cuda.bindin
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>library</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaLibrary_t" title="cuda.bindings.runtime.cudaLibrary_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaLibrary_t</span></code></a>) – Library to retrieve function pointer memory from</p></li>
-<li><p><strong>symbol</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – Name of function pointer to retrieve</p></li>
+<li><p><strong>symbol</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Name of function pointer to retrieve</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -13671,8 +13671,8 @@ cudaClusterSchedulingPolicy.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>kernel</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaKernel_t" title="cuda.bindings.runtime.cudaKernel_t"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaKernel_t</span></code></a>) – Kernel to set attribute of</p></li>
 <li><p><strong>attr</strong> (<a class="reference internal" href="#cuda.bindings.runtime.cudaFuncAttribute" title="cuda.bindings.runtime.cudaFuncAttribute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cudaFuncAttribute</span></code></a>) – Attribute requested</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Value to set</p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Device to set attribute of</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Value to set</p></li>
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device to set attribute of</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -13857,7 +13857,7 @@ EGLFrame</p>
 <dd><p>Reserved for future use</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -13897,7 +13897,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dd><p>CUDA EGL Plane Descriptor cudaEglPlaneDesc</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference internal" href="#cuda.bindings.runtime.cudaEglPlaneDesc" title="cuda.bindings.runtime.cudaEglPlaneDesc">cudaEglPlaneDesc</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="#cuda.bindings.runtime.cudaEglPlaneDesc" title="cuda.bindings.runtime.cudaEglPlaneDesc">cudaEglPlaneDesc</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -13953,7 +13953,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dd><p>x</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -13964,7 +13964,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dd><p>y</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -13975,7 +13975,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dd><p>z</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -13986,7 +13986,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dd><p>w</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -14062,7 +14062,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaArraySparseProperties.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -14106,7 +14106,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaArrayMemoryRequirements.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -14376,7 +14376,7 @@ referring to linear memory</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -14387,7 +14387,7 @@ referring to linear memory</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -14454,7 +14454,7 @@ referring to linear memory</p>
 <dd><p>Source device</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -14498,7 +14498,7 @@ referring to linear memory</p>
 <dd><p>Destination device</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -14720,7 +14720,7 @@ maximum size and alignment.</p>
 assigned missProp.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -14966,7 +14966,7 @@ STREAMING.</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -15007,7 +15007,7 @@ allocated or registered (and if that device is deinitialized then
 this allocation will vanish with that device’s state).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15044,7 +15044,7 @@ pointer if an invalid pointer has been passed to CUDA.</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[long]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[long]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -15106,7 +15106,7 @@ the function would fail. This number depends on both the function
 and the device on which the function is currently loaded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15117,7 +15117,7 @@ and the device on which the function is currently loaded.</p>
 <dd><p>The number of registers used by each thread of this function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15130,7 +15130,7 @@ compiled. This value is the major PTX version * 10 + the minor PTX
 version, so a PTX version 1.3 function would return the value 13.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15144,7 +15144,7 @@ binary version, so a binary version 1.3 function would return the
 value 13.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15156,7 +15156,7 @@ value 13.</p>
 with user specified option “-Xptxas –dlcm=ca” set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15169,7 +15169,7 @@ this function. Any launch must have a dynamic shared memory size
 smaller than this value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15185,7 +15185,7 @@ and the driver can choose a different ratio if required to execute
 the function. See cudaFuncSetAttribute</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15197,7 +15197,7 @@ the function. See cudaFuncSetAttribute</p>
 cluster dimension specified.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15213,7 +15213,7 @@ runtime should return cudaErrorNotPermitted. See
 cudaFuncSetAttribute</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15223,7 +15223,7 @@ cudaFuncSetAttribute</p>
 <span class="sig-name descname"><span class="pre">requiredClusterHeight</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaFuncAttributes.requiredClusterHeight" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15233,7 +15233,7 @@ cudaFuncSetAttribute</p>
 <span class="sig-name descname"><span class="pre">requiredClusterDepth</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaFuncAttributes.requiredClusterDepth" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15244,7 +15244,7 @@ cudaFuncSetAttribute</p>
 <dd><p>The block scheduling policy of a function. See cudaFuncSetAttribute</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15267,7 +15267,7 @@ higher cluster sizes that’s not guaranteed to be portable. See
 cudaFuncSetAttribute</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15278,7 +15278,7 @@ cudaFuncSetAttribute</p>
 <dd><p>Reserved for future use.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -15315,7 +15315,7 @@ set id = host NUMA node id.</p>
 <dd><p>identifier for a given this location’s ::CUmemLocationType.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15444,7 +15444,7 @@ value.</p>
 <dd><p>reserved for future use, must be 0</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15466,7 +15466,7 @@ value.</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemPoolPtrExportData.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15855,7 +15855,7 @@ depth components must not be 0.</p>
 <dd><p>&lt; CUDA definition of UUID</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15878,7 +15878,7 @@ depth components must not be 0.</p>
 <dd><p>ASCII string identifying device</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15901,7 +15901,7 @@ depth components must not be 0.</p>
 non-Windows platforms</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15946,7 +15946,7 @@ platforms</p>
 <dd><p>32-bit registers available per block</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15957,7 +15957,7 @@ platforms</p>
 <dd><p>Warp size in threads</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15979,7 +15979,7 @@ platforms</p>
 <dd><p>Maximum number of threads per block</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -15990,7 +15990,7 @@ platforms</p>
 <dd><p>Maximum size of each dimension of a block</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16001,7 +16001,7 @@ platforms</p>
 <dd><p>Maximum size of each dimension of a grid</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16023,7 +16023,7 @@ platforms</p>
 <dd><p>Major compute capability</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16034,7 +16034,7 @@ platforms</p>
 <dd><p>Minor compute capability</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16068,7 +16068,7 @@ memory</p>
 <dd><p>Number of multiprocessors on device</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16079,7 +16079,7 @@ memory</p>
 <dd><p>Device is integrated as opposed to discrete</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16091,7 +16091,7 @@ memory</p>
 cudaHostAlloc/cudaHostGetDevicePointer</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16102,7 +16102,7 @@ cudaHostAlloc/cudaHostGetDevicePointer</p>
 <dd><p>Maximum 1D texture size</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16113,7 +16113,7 @@ cudaHostAlloc/cudaHostGetDevicePointer</p>
 <dd><p>Maximum 1D mipmapped texture size</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16124,7 +16124,7 @@ cudaHostAlloc/cudaHostGetDevicePointer</p>
 <dd><p>Maximum 2D texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16135,7 +16135,7 @@ cudaHostAlloc/cudaHostGetDevicePointer</p>
 <dd><p>Maximum 2D mipmapped texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16147,7 +16147,7 @@ cudaHostAlloc/cudaHostGetDevicePointer</p>
 pitched memory</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16159,7 +16159,7 @@ pitched memory</p>
 be performed</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16170,7 +16170,7 @@ be performed</p>
 <dd><p>Maximum 3D texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16181,7 +16181,7 @@ be performed</p>
 <dd><p>Maximum alternate 3D texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16192,7 +16192,7 @@ be performed</p>
 <dd><p>Maximum Cubemap texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16203,7 +16203,7 @@ be performed</p>
 <dd><p>Maximum 1D layered texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16214,7 +16214,7 @@ be performed</p>
 <dd><p>Maximum 2D layered texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16225,7 +16225,7 @@ be performed</p>
 <dd><p>Maximum Cubemap layered texture dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16236,7 +16236,7 @@ be performed</p>
 <dd><p>Maximum 1D surface size</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16247,7 +16247,7 @@ be performed</p>
 <dd><p>Maximum 2D surface dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16258,7 +16258,7 @@ be performed</p>
 <dd><p>Maximum 3D surface dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16269,7 +16269,7 @@ be performed</p>
 <dd><p>Maximum 1D layered surface dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16280,7 +16280,7 @@ be performed</p>
 <dd><p>Maximum 2D layered surface dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16291,7 +16291,7 @@ be performed</p>
 <dd><p>Maximum Cubemap surface dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16302,7 +16302,7 @@ be performed</p>
 <dd><p>Maximum Cubemap layered surface dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16324,7 +16324,7 @@ be performed</p>
 <dd><p>Device can possibly execute multiple kernels concurrently</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16335,7 +16335,7 @@ be performed</p>
 <dd><p>Device has ECC support enabled</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16346,7 +16346,7 @@ be performed</p>
 <dd><p>PCI bus ID of the device</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16357,7 +16357,7 @@ be performed</p>
 <dd><p>PCI device ID of the device</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16368,7 +16368,7 @@ be performed</p>
 <dd><p>PCI domain ID of the device</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16379,7 +16379,7 @@ be performed</p>
 <dd><p>1 if device is a Tesla device using TCC driver, 0 otherwise</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16390,7 +16390,7 @@ be performed</p>
 <dd><p>Number of asynchronous engines</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16401,7 +16401,7 @@ be performed</p>
 <dd><p>Device shares a unified address space with the host</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16412,7 +16412,7 @@ be performed</p>
 <dd><p>Global memory bus width in bits</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16423,7 +16423,7 @@ be performed</p>
 <dd><p>Size of L2 cache in bytes</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16434,7 +16434,7 @@ be performed</p>
 <dd><p>Device’s maximum l2 persisting lines capacity setting in bytes</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16445,7 +16445,7 @@ be performed</p>
 <dd><p>Maximum resident threads per multiprocessor</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16456,7 +16456,7 @@ be performed</p>
 <dd><p>Device supports stream priorities</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16467,7 +16467,7 @@ be performed</p>
 <dd><p>Device supports caching globals in L1</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16478,7 +16478,7 @@ be performed</p>
 <dd><p>Device supports caching locals in L1</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16500,7 +16500,7 @@ be performed</p>
 <dd><p>32-bit registers available per multiprocessor</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16511,7 +16511,7 @@ be performed</p>
 <dd><p>Device supports allocating managed memory on this system</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16522,7 +16522,7 @@ be performed</p>
 <dd><p>Device is on a multi-GPU board</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16534,7 +16534,7 @@ be performed</p>
 board</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16546,7 +16546,7 @@ board</p>
 operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16558,7 +16558,7 @@ operations</p>
 calling cudaHostRegister on it</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16570,7 +16570,7 @@ calling cudaHostRegister on it</p>
 CPU</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16581,7 +16581,7 @@ CPU</p>
 <dd><p>Device supports Compute Preemption</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16593,7 +16593,7 @@ CPU</p>
 address as the CPU</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16605,7 +16605,7 @@ address as the CPU</p>
 cudaLaunchCooperativeKernel</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16627,7 +16627,7 @@ cudaLaunchCooperativeKernel</p>
 <dd><p>Device accesses pageable memory via the host’s page tables</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16639,7 +16639,7 @@ cudaLaunchCooperativeKernel</p>
 migration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16650,7 +16650,7 @@ migration.</p>
 <dd><p>Maximum number of resident blocks per multiprocessor</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16661,7 +16661,7 @@ migration.</p>
 <dd><p>The maximum value of cudaAccessPolicyWindow::num_bytes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16683,7 +16683,7 @@ migration.</p>
 <dd><p>Device supports host memory registration via cudaHostRegister.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16695,7 +16695,7 @@ migration.</p>
 mipmapped arrays, 0 otherwise</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16708,7 +16708,7 @@ cudaHostRegisterReadOnly to register memory that must be mapped as
 read-only to the GPU</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16719,7 +16719,7 @@ read-only to the GPU</p>
 <dd><p>External timeline semaphore interop is supported on the device</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16731,7 +16731,7 @@ read-only to the GPU</p>
 family of APIs, 0 otherwise</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16742,7 +16742,7 @@ family of APIs, 0 otherwise</p>
 <dd><p>1 if the device supports GPUDirect RDMA APIs, 0 otherwise</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16765,7 +16765,7 @@ cudaFlushGPUDirectRDMAWritesOptions enum</p>
 <dd><p>See the cudaGPUDirectRDMAWritesOrdering enum for numerical values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16788,7 +16788,7 @@ cudaFlushGPUDirectRDMAWritesOptions enum</p>
 mipmapped arrays</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16799,7 +16799,7 @@ mipmapped arrays</p>
 <dd><p>Device supports IPC Events.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16810,7 +16810,7 @@ mipmapped arrays</p>
 <dd><p>Indicates device supports cluster launch</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16821,7 +16821,7 @@ mipmapped arrays</p>
 <dd><p>Indicates device supports unified pointers</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16833,7 +16833,7 @@ mipmapped arrays</p>
 cudaDeviceNumaConfig enum</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16844,7 +16844,7 @@ cudaDeviceNumaConfig enum</p>
 <dd><p>NUMA node ID of the GPU memory</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16855,7 +16855,7 @@ cudaDeviceNumaConfig enum</p>
 <dd><p>Indicates if contexts created on this device will be shared via MPS</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16867,7 +16867,7 @@ cudaDeviceNumaConfig enum</p>
 does not support NUMA</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16902,7 +16902,7 @@ vendor ID</p>
 multi-node system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16913,7 +16913,7 @@ multi-node system.</p>
 <dd><p>Reserved for future use</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -16935,7 +16935,7 @@ multi-node system.</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcEventHandle_st.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16957,7 +16957,7 @@ multi-node system.</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcMemHandle_st.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -16978,7 +16978,7 @@ multi-node system.</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemFabricHandle_st.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -17044,7 +17044,7 @@ multi-node system.</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17100,7 +17100,7 @@ multi-node system.</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17180,7 +17180,7 @@ cudaMallocMipmappedArray</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17235,7 +17235,7 @@ cudaMallocMipmappedArray</p>
 <dd><p>Must be zero</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17285,7 +17285,7 @@ all other types of cudaExternalSemaphore_t, flags must be zero.</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaExternalSemaphoreSignalParams.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17335,7 +17335,7 @@ all other types of cudaExternalSemaphore_t, flags must be zero.</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaExternalSemaphoreWaitParams.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17918,7 +17918,7 @@ to the parent.</p>
 <dd><p>Reserved. Must be zero.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -17929,7 +17929,7 @@ to the parent.</p>
 <dd><p>Padding. Unused bytes must be zero.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[long long]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[long long]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -18106,7 +18106,7 @@ cudaGraphKernelNodePortProgrammatic, or
 cudaGraphKernelNodePortLaunchCompletion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18122,7 +18122,7 @@ upstream work.   Currently no node types define non-zero ports.
 Accordingly, this field must be set to zero.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18135,7 +18135,7 @@ Accordingly, this field must be set to zero.</p>
 specific layout of bitfields.) See ::cudaGraphDependencyType.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18147,7 +18147,7 @@ specific layout of bitfields.) See ::cudaGraphDependencyType.</p>
 compatibility if additional fields are added in the future.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18327,7 +18327,7 @@ through cudaDevAttrMemSyncDomainCount.</p>
 <dd><p>The default domain ID to use for designated kernels</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18338,7 +18338,7 @@ through cudaDevAttrMemSyncDomainCount.</p>
 <dd><p>The remote domain ID to use for designated kernels</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18361,7 +18361,7 @@ through cudaDevAttrMemSyncDomainCount.</p>
 <span class="sig-name descname"><span class="pre">pad</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaLaunchAttributeValue.pad" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18384,7 +18384,7 @@ through cudaDevAttrMemSyncDomainCount.</p>
 indicates a cooperative kernel (see cudaLaunchCooperativeKernel).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18438,7 +18438,7 @@ scheduling policy preference for the kernel.</p>
 cudaLaunchAttributeProgrammaticStreamSerialization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18466,7 +18466,7 @@ launch will automatically trigger the event.</p>
 priority of the kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18659,7 +18659,7 @@ order to interpret this field.</p>
 <dd><p>Texture address mode for up to 3 dimensions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference internal" href="#cuda.bindings.runtime.cudaTextureAddressMode" title="cuda.bindings.runtime.cudaTextureAddressMode">cudaTextureAddressMode</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="#cuda.bindings.runtime.cudaTextureAddressMode" title="cuda.bindings.runtime.cudaTextureAddressMode">cudaTextureAddressMode</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -18692,7 +18692,7 @@ order to interpret this field.</p>
 <dd><p>Perform sRGB-&gt;linear conversion during texture read</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18703,7 +18703,7 @@ order to interpret this field.</p>
 <dd><p>Texture Border Color</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -18714,7 +18714,7 @@ order to interpret this field.</p>
 <dd><p>Indicates whether texture reads are normalized or not</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18747,7 +18747,7 @@ order to interpret this field.</p>
 <dd><p>Offset applied to the supplied mipmap level</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18758,7 +18758,7 @@ order to interpret this field.</p>
 <dd><p>Lower end of the mipmap level range to clamp access to</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18769,7 +18769,7 @@ order to interpret this field.</p>
 <dd><p>Upper end of the mipmap level range to clamp access to</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18780,7 +18780,7 @@ order to interpret this field.</p>
 <dd><p>Disable any trilinear filtering optimizations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -18791,7 +18791,7 @@ order to interpret this field.</p>
 <dd><p>Enable seamless cube map filtering.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -24895,7 +24895,7 @@ EGLFrame</p>
 <dd><p>Reserved for future use</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[unsigned int]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[unsigned int]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -24935,7 +24935,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dd><p>CUDA EGL Plane Descriptor cudaEglPlaneDesc</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference internal" href="#cuda.bindings.runtime.cudaEglPlaneDesc" title="cuda.bindings.runtime.cudaEglPlaneDesc">cudaEglPlaneDesc</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="#cuda.bindings.runtime.cudaEglPlaneDesc" title="cuda.bindings.runtime.cudaEglPlaneDesc">cudaEglPlaneDesc</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -25061,7 +25061,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dd><p>&lt; CUDA definition of UUID</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25083,7 +25083,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <dd><p>&lt; CUDA definition of UUID</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25105,7 +25105,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcEventHandle_t.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25127,7 +25127,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaIpcMemHandle_t.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25148,7 +25148,7 @@ unsignedintreserved[4]; cudaEglPlaneDesc;</p>
 <span class="sig-name descname"><span class="pre">reserved</span></span><a class="headerlink" href="#cuda.bindings.runtime.cudaMemFabricHandle_t.reserved" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25338,7 +25338,7 @@ cudaGraphKernelNodePortProgrammatic, or
 cudaGraphKernelNodePortLaunchCompletion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25354,7 +25354,7 @@ upstream work.   Currently no node types define non-zero ports.
 Accordingly, this field must be set to zero.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25367,7 +25367,7 @@ Accordingly, this field must be set to zero.</p>
 specific layout of bitfields.) See ::cudaGraphDependencyType.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25379,7 +25379,7 @@ specific layout of bitfields.) See ::cudaGraphDependencyType.</p>
 compatibility if additional fields are added in the future.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25536,7 +25536,7 @@ through cudaDevAttrMemSyncDomainCount.</p>
 <dd><p>The default domain ID to use for designated kernels</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25547,7 +25547,7 @@ through cudaDevAttrMemSyncDomainCount.</p>
 <dd><p>The remote domain ID to use for designated kernels</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25570,7 +25570,7 @@ through cudaDevAttrMemSyncDomainCount.</p>
 <span class="sig-name descname"><span class="pre">pad</span></span><a class="headerlink" href="#id27" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)">bytes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25593,7 +25593,7 @@ through cudaDevAttrMemSyncDomainCount.</p>
 indicates a cooperative kernel (see cudaLaunchCooperativeKernel).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25647,7 +25647,7 @@ scheduling policy preference for the kernel.</p>
 cudaLaunchAttributeProgrammaticStreamSerialization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -25675,7 +25675,7 @@ launch will automatically trigger the event.</p>
 priority of the kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
