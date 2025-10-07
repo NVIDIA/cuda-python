@@ -1087,11 +1087,13 @@ class _SynchronousMemoryResource(MemoryResource):
     def device_id(self) -> int:
         return self._dev_id
 
+
 VirtualMemoryHandleTypeT = Literal["posix_fd", "generic", "none"]
 VirtualMemoryLocationTypeT = Literal["device", "host", "host_numa", "host_numa_current"]
 VirtualMemoryGranularityT = Literal["minimum", "recommended"]
 VirtualMemoryAccessTypeT = Literal["rw", "r", "none"]
 VirtualMemoryAllocationTypeT = Literal["pinned", "managed"]
+
 
 @dataclass
 class VirtualMemoryResourceOptions:
@@ -1122,20 +1124,21 @@ class VirtualMemoryResourceOptions:
     peers: Iterable[int] = field(default_factory=tuple)
     self_access: VirtualMemoryAccessTypeT = "rw"
     peer_access: VirtualMemoryAccessTypeT = "rw"
-    a = driver.CUmemAccess_flags
-    _access_flags = {"rw": a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": a.CU_MEM_ACCESS_FLAGS_PROT_READ, "none": 0}
-    h = driver.CUmemAllocationHandleType
-    _handle_types = {"none": h.CU_MEM_HANDLE_TYPE_NONE, "posix_fd": h.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, "win32": h.CU_MEM_HANDLE_TYPE_WIN32, "win32_kmt": h.CU_MEM_HANDLE_TYPE_WIN32_KMT, "fabric": h.CU_MEM_HANDLE_TYPE_FABRIC}
-    g = driver.CUmemAllocationGranularity_flags
-    _granularity = {"recommended": g.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED, "minimum": g.CU_MEM_ALLOC_GRANULARITY_MINIMUM}
-    l = driver.CUmemLocationType
-    _location_type = {"device": l.CU_MEM_LOCATION_TYPE_DEVICE, "host": l.CU_MEM_LOCATION_TYPE_HOST, "host_numa": l.CU_MEM_LOCATION_TYPE_HOST_NUMA, "host_numa_current": l.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT}
+
+    _a = driver.CUmemAccess_flags
+    _access_flags = {"rw": _a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": _a.CU_MEM_ACCESS_FLAGS_PROT_READ, "none": 0}
+    _h = driver.CUmemAllocationHandleType
+    _handle_types = {"none": _h.CU_MEM_HANDLE_TYPE_NONE, "posix_fd": _h.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, "win32": _h.CU_MEM_HANDLE_TYPE_WIN32, "win32_kmt": _h.CU_MEM_HANDLE_TYPE_WIN32_KMT, "fabric": _h.CU_MEM_HANDLE_TYPE_FABRIC}
+    _g = driver.CUmemAllocationGranularity_flags
+    _granularity = {"recommended": _g.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED, "minimum": _g.CU_MEM_ALLOC_GRANULARITY_MINIMUM}
+    _l = driver.CUmemLocationType
+    _location_type = {"device": _l.CU_MEM_LOCATION_TYPE_DEVICE, "host": _l.CU_MEM_LOCATION_TYPE_HOST, "host_numa": _l.CU_MEM_LOCATION_TYPE_HOST_NUMA, "host_numa_current": _l.CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT}
     # CUDA 13+ exposes MANAGED in CUmemAllocationType; older 12.x does not
-    a = driver.CUmemAllocationType
-    _allocation_type = {"pinned": a.CU_MEM_ALLOCATION_TYPE_PINNED}
+    _a = driver.CUmemAllocationType
+    _allocation_type = {"pinned": _a.CU_MEM_ALLOCATION_TYPE_PINNED}
     ver_major, ver_minor = get_binding_version()
     if ver_major >= 13:
-        _allocation_type["managed"] = a.CU_MEM_ALLOCATION_TYPE_MANAGED
+        _allocation_type["managed"] = _a.CU_MEM_ALLOCATION_TYPE_MANAGED
 
     @staticmethod
     def _access_to_flags(spec: str):
