@@ -4,9 +4,9 @@
 :orphan:
 
 .. This page is to generate documentation for private classes exposed to users,
-   i.e., users cannot instantiate it by themselves but may use it's properties
-   or methods via returned values from public APIs. These classes must be referred
-   in public APIs returning their instances.
+   i.e., users cannot instantiate them but may use their properties or methods
+   via returned values from public APIs. These classes must be referred in
+   public APIs returning their instances.
 
 .. currentmodule:: cuda.core.experimental
 
@@ -18,8 +18,9 @@ CUDA runtime
 
    _memory.PyCapsule
    _memory.DevicePointerT
-   _memory.IPCBufferDescriptor
    _device.DeviceProperties
+   _memory.IPCAllocationHandle
+   _memory.IPCBufferDescriptor
    _module.KernelAttributes
    _module.KernelOccupancy
    _module.ParamInfo

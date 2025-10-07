@@ -19,6 +19,7 @@ from cuda.core.experimental import (
     Buffer,
     Device,
     DeviceMemoryResource,
+    DeviceMemoryResourceOptions,
     MemoryResource,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
@@ -230,7 +231,7 @@ def test_buffer_copy_from():
 def buffer_close(dummy_mr: MemoryResource):
     buffer = dummy_mr.allocate(size=1024)
     buffer.close()
-    assert buffer.handle is None
+    assert buffer.handle == 0
     assert buffer.memory_resource is None
 
 
@@ -444,7 +445,8 @@ def test_mempool(mempool_device):
     device = mempool_device
 
     # Test basic pool creation
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=False))
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
+    mr = DeviceMemoryResource(device, options=options)
     assert mr.device_id == device.device_id
     assert mr.is_device_accessible
     assert not mr.is_host_accessible
@@ -487,14 +489,14 @@ def test_mempool(mempool_device):
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        mr._get_allocation_handle()
+        mr.get_allocation_handle()
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        buffer.export()
+        buffer.get_ipc_descriptor()
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         handle = IPCBufferDescriptor._init(b"", 0)
-        Buffer.import_(mr, handle)
+        Buffer.from_ipc_descriptor(mr, handle)
 
     buffer.close()
 
@@ -519,7 +521,8 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
     if platform.system() == "Windows":
         return  # IPC not implemented for Windows
 
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=ipc_enabled))
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=ipc_enabled)
+    mr = DeviceMemoryResource(device, options=options)
     assert mr.is_ipc_enabled == ipc_enabled
 
     # Get the property value
@@ -558,7 +561,6 @@ def test_mempool_attributes_ownership(mempool_device):
     device = mempool_device
     mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
     attributes = mr.attributes
-    old_handle = mr._mempool_handle
     mr.close()
     del mr
 
@@ -568,15 +570,9 @@ def test_mempool_attributes_ownership(mempool_device):
 
     # Even when a new object is created (we found a case where the same
     # mempool handle was really reused).
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
+    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))  # noqa: F841
     with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
         _ = attributes.used_mem_high
-
-    # Even if we stuff the original handle into a new class.
-    mr._mempool_handle, old_handle = old_handle, mr._mempool_handle
-    with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
-        _ = attributes.used_mem_high
-    mr._mempool_handle = old_handle
 
 
 # Ensure that memory views dellocate their reference to dlpack tensors
