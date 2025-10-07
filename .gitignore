@@ -183,6 +183,6 @@ cython_debug/
 # Dont ignore
 !.github/actions/build/
 # pixi environments
-.pixi/*
+.pixi/
 !.pixi/config.toml
 .gdb_history
