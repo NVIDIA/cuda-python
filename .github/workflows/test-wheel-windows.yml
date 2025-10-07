@@ -257,7 +257,7 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_pathfinder
-          pip install --only-binary=:all: -v . --group "cu${TEST_CUDA_MAJOR}-ext" --group host
+          pip install --only-binary=:all: -v . --group "test-cu${TEST_CUDA_MAJOR}"
           pip list
           popd
 
