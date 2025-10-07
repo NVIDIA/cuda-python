@@ -669,10 +669,10 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_options</strong> (<em>uint32_t</em>) – Number of options passed.</p></li>
-<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><em>object</em></a>) – <p>Array of size <code class="docutils literal notranslate"><span class="pre">num_options</span></code> of option strings. It can be:</p>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – <p>Array of size <code class="docutils literal notranslate"><span class="pre">num_options</span></code> of option strings. It can be:</p>
 <ul>
-<li><p>an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
-<li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
+<li><p>an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> as the pointer address to the nested sequence, or</p></li>
+<li><p>a Python sequence of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>s, each of which is a pointer address
 to a valid sequence of ‘char’, or</p></li>
 <li><p>a nested Python sequence of <code class="docutils literal notranslate"><span class="pre">str</span></code>.</p></li>
 </ul>
@@ -716,9 +716,9 @@ to a valid sequence of ‘char’, or</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p></li>
 <li><p><strong>input_type</strong> (<a class="reference internal" href="#cuda.bindings.nvjitlink.InputType" title="cuda.bindings.nvjitlink.InputType"><em>InputType</em></a>) – kind of input.</p></li>
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – pointer to data image in memory.</p></li>
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – pointer to data image in memory.</p></li>
 <li><p><strong>size</strong> (<em>size_t</em>) – size of the data.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – name of input object.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – name of input object.</p></li>
 </ul>
 </dd>
 </dl>
@@ -737,7 +737,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p></li>
 <li><p><strong>input_type</strong> (<a class="reference internal" href="#cuda.bindings.nvjitlink.InputType" title="cuda.bindings.nvjitlink.InputType"><em>InputType</em></a>) – kind of input.</p></li>
-<li><p><strong>file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – name of file.</p></li>
+<li><p><strong>file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – name of file.</p></li>
 </ul>
 </dd>
 </dl>
@@ -791,7 +791,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p></li>
-<li><p><strong>cubin</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – The linked cubin.</p></li>
+<li><p><strong>cubin</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The linked cubin.</p></li>
 </ul>
 </dd>
 </dl>
@@ -830,7 +830,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p></li>
-<li><p><strong>ptx</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – The linked PTX.</p></li>
+<li><p><strong>ptx</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The linked PTX.</p></li>
 </ul>
 </dd>
 </dl>
@@ -869,7 +869,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p></li>
-<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – The error log.</p></li>
+<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The error log.</p></li>
 </ul>
 </dd>
 </dl>
@@ -908,7 +908,7 @@ to a valid sequence of ‘char’, or</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>handle</strong> (<em>intptr_t</em>) – nvJitLink handle.</p></li>
-<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><em>bytes</em></a>) – The info log.</p></li>
+<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – The info log.</p></li>
 </ul>
 </dd>
 </dl>
@@ -920,7 +920,7 @@ to a valid sequence of ‘char’, or</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.bindings.nvjitlink.version">
-<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvjitlink.version" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvjitlink.</span></span><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></span><a class="headerlink" href="#cuda.bindings.nvjitlink.version" title="Link to this definition">#</a></dt>
 <dd><p>nvJitLinkVersion returns the current version of nvJitLink.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>

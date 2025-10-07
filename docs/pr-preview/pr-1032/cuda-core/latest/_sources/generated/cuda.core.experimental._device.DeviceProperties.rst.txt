@@ -23,9 +23,15 @@ cuda.core.experimental.\_device.DeviceProperties
    .. rubric:: Attributes
 
    
+   .. autoproperty:: async_engine_count
+   .. autoproperty:: can_flush_remote_writes
    .. autoproperty:: can_map_host_memory
+   .. autoproperty:: can_tex2d_gather
+   .. autoproperty:: can_use_64_bit_stream_mem_ops
    .. autoproperty:: can_use_host_pointer_for_registered_mem
+   .. autoproperty:: can_use_stream_wait_value_nor
    .. autoproperty:: clock_rate
+   .. autoproperty:: cluster_launch
    .. autoproperty:: compute_capability_major
    .. autoproperty:: compute_capability_minor
    .. autoproperty:: compute_mode
@@ -33,8 +39,10 @@ cuda.core.experimental.\_device.DeviceProperties
    .. autoproperty:: concurrent_kernels
    .. autoproperty:: concurrent_managed_access
    .. autoproperty:: cooperative_launch
+   .. autoproperty:: d3d12_cig_supported
    .. autoproperty:: deferred_mapping_cuda_array_supported
    .. autoproperty:: direct_managed_mem_access_from_host
+   .. autoproperty:: dma_buf_supported
    .. autoproperty:: ecc_enabled
    .. autoproperty:: generic_compression_supported
    .. autoproperty:: global_l1_cache_supported
@@ -44,11 +52,23 @@ cuda.core.experimental.\_device.DeviceProperties
    .. autoproperty:: gpu_direct_rdma_with_cuda_vmm_supported
    .. autoproperty:: gpu_direct_rdma_writes_ordering
    .. autoproperty:: gpu_overlap
+   .. autoproperty:: gpu_pci_device_id
+   .. autoproperty:: gpu_pci_subsystem_id
+   .. autoproperty:: handle_type_fabric_supported
    .. autoproperty:: handle_type_posix_file_descriptor_supported
    .. autoproperty:: handle_type_win32_handle_supported
    .. autoproperty:: handle_type_win32_kmt_handle_supported
+   .. autoproperty:: host_alloc_dma_buf_supported
+   .. autoproperty:: host_memory_pools_supported
    .. autoproperty:: host_native_atomic_supported
+   .. autoproperty:: host_numa_id
+   .. autoproperty:: host_numa_memory_pools_supported
+   .. autoproperty:: host_numa_multinode_ipc_supported
+   .. autoproperty:: host_numa_virtual_memory_management_supported
+   .. autoproperty:: host_register_supported
+   .. autoproperty:: host_virtual_memory_management_supported
    .. autoproperty:: integrated
+   .. autoproperty:: ipc_event_supported
    .. autoproperty:: kernel_exec_timeout
    .. autoproperty:: l2_cache_size
    .. autoproperty:: local_l1_cache_supported
@@ -89,6 +109,8 @@ cuda.core.experimental.\_device.DeviceProperties
    .. autoproperty:: maximum_texture1d_linear_width
    .. autoproperty:: maximum_texture1d_mipmapped_width
    .. autoproperty:: maximum_texture1d_width
+   .. autoproperty:: maximum_texture2d_gather_height
+   .. autoproperty:: maximum_texture2d_gather_width
    .. autoproperty:: maximum_texture2d_height
    .. autoproperty:: maximum_texture2d_layered_height
    .. autoproperty:: maximum_texture2d_layered_layers
@@ -108,15 +130,20 @@ cuda.core.experimental.\_device.DeviceProperties
    .. autoproperty:: maximum_texturecubemap_layered_layers
    .. autoproperty:: maximum_texturecubemap_layered_width
    .. autoproperty:: maximum_texturecubemap_width
+   .. autoproperty:: mem_decompress_algorithm_mask
+   .. autoproperty:: mem_decompress_maximum_length
+   .. autoproperty:: mem_sync_domain_count
    .. autoproperty:: memory_clock_rate
    .. autoproperty:: memory_pools_supported
    .. autoproperty:: mempool_supported_handle_types
+   .. autoproperty:: mps_enabled
    .. autoproperty:: multi_gpu_board
    .. autoproperty:: multi_gpu_board_group_id
    .. autoproperty:: multicast_supported
    .. autoproperty:: multiprocessor_count
    .. autoproperty:: numa_config
    .. autoproperty:: numa_id
+   .. autoproperty:: only_partial_host_native_atomic_supported
    .. autoproperty:: pageable_memory_access
    .. autoproperty:: pageable_memory_access_uses_host_page_tables
    .. autoproperty:: pci_bus_id
@@ -126,12 +153,18 @@ cuda.core.experimental.\_device.DeviceProperties
    .. autoproperty:: reserved_shared_memory_per_block
    .. autoproperty:: single_to_double_precision_perf_ratio
    .. autoproperty:: sparse_cuda_array_supported
+   .. autoproperty:: stream_priorities_supported
+   .. autoproperty:: surface_alignment
    .. autoproperty:: tcc_driver
+   .. autoproperty:: tensor_map_access_supported
    .. autoproperty:: texture_alignment
    .. autoproperty:: texture_pitch_alignment
+   .. autoproperty:: timeline_semaphore_interop_supported
    .. autoproperty:: total_constant_memory
    .. autoproperty:: unified_addressing
+   .. autoproperty:: unified_function_pointers
    .. autoproperty:: virtual_memory_management_supported
+   .. autoproperty:: vulkan_cig_supported
    .. autoproperty:: warp_size
    
    
