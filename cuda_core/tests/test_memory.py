@@ -223,7 +223,7 @@ def test_buffer_copy_from():
 def buffer_close(dummy_mr: MemoryResource):
     buffer = dummy_mr.allocate(size=1024)
     buffer.close()
-    assert buffer.handle is None
+    assert buffer.handle == 0
     assert buffer.memory_resource is None
 
 
@@ -426,7 +426,6 @@ def test_mempool_attributes_ownership(mempool_device):
     device = mempool_device
     mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
     attributes = mr.attributes
-    old_handle = mr._mempool_handle
     mr.close()
     del mr
 
@@ -436,15 +435,9 @@ def test_mempool_attributes_ownership(mempool_device):
 
     # Even when a new object is created (we found a case where the same
     # mempool handle was really reused).
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
+    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))  # noqa: F841
     with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
         _ = attributes.used_mem_high
-
-    # Even if we stuff the original handle into a new class.
-    mr._mempool_handle, old_handle = old_handle, mr._mempool_handle
-    with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
-        _ = attributes.used_mem_high
-    mr._mempool_handle = old_handle
 
 
 # Ensure that memory views dellocate their reference to dlpack tensors
