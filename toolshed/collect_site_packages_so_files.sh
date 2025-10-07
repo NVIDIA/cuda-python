@@ -17,12 +17,12 @@ fresh_venv() {
 cd cuda_pathfinder/
 fresh_venv ../TmpCp12Venv
 set -x
-pip install --only-binary=:all: -e . --group test --group cu12 --group host
+pip install --only-binary=:all: -e . --group test --group cu12-ext --group host
 set +x
 deactivate
 fresh_venv ../TmpCp13Venv
 set -x
-pip install --only-binary=:all: -e . --group test --group cu13 --group host
+pip install --only-binary=:all: -e . --group test --group cu13-ext --group host
 set +x
 deactivate
 cd ..
