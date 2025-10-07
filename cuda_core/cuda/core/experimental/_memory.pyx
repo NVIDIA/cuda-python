@@ -42,29 +42,6 @@ if TYPE_CHECKING:
 # MemoryResource both inherit from it
 
 
-cdef extern from * nogil:
-    """
-    #if defined(__GNUC__)
-      #pragma GCC diagnostic push
-      #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
-    #elif defined(_MSC_VER)
-      #pragma warning(push)
-      #pragma warning(disable : 4312)
-    #endif
-
-    void* unsafe_cast_from_int(int x) {
-        return (void*)x;
-    }
-
-    #if defined(__GNUC__)
-      #pragma GCC diagnostic pop
-    #elif defined(_MSC_VER)
-      #pragma warning(pop)
-    #endif
-    """
-    void* unsafe_cast_from_int(int x)
-
-
 PyCapsule = TypeVar("PyCapsule")
 """Represent the capsule type."""
 
@@ -881,7 +858,7 @@ cdef class DeviceMemoryResource(_cyMemoryResource, MemoryResource):
         cdef int handle = int(alloc_handle)
         with nogil:
             HANDLE_RETURN(cydriver.cuMemPoolImportFromShareableHandle(
-                &(self._mempool_handle), unsafe_cast_from_int(handle), _IPC_HANDLE_TYPE, 0)
+                &(self._mempool_handle), <void*><intptr_t>(handle), _IPC_HANDLE_TYPE, 0)
             )
         if uuid is not None:
             registered = self.register(uuid)
