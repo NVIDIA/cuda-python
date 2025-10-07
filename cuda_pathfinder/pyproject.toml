@@ -27,12 +27,12 @@ cu12-ext = [
 ]
 cu13 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,nvvm]==13.*",
+    "nvidia-cudss-cu13",
 ]
 cu13-ext = [
     { include-group = "cu13" },
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
     "nvidia-cublasmp-cu13; sys_platform != 'win32'",
-    "nvidia-cudss-cu13",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
     "nvidia-nvshmem-cu13; sys_platform != 'win32'",
 ]
