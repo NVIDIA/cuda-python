@@ -113,10 +113,10 @@ cdef class Stream:
         self._handle = <cydriver.CUstream>(NULL)
         self._owner = None
         self._builtin = False
-        self._nonblocking = -1  # delayed
-        self._priority = INT32_MIN  # delayed
-        self._device_id = cydriver.CU_DEVICE_INVALID  # delayed
-        self._ctx_handle = CU_CONTEXT_INVALID  # delayed
+        self._nonblocking = -1  # lazy init'd
+        self._priority = INT32_MIN  # lazy init'd
+        self._device_id = cydriver.CU_DEVICE_INVALID  # lazy init'd
+        self._ctx_handle = CU_CONTEXT_INVALID  # lazy init'd
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError(
@@ -327,12 +327,12 @@ cdef class Stream:
     cdef int _get_device_and_context(self) except?-1:
         cdef cydriver.CUcontext curr_ctx
         if self._device_id == cydriver.CU_DEVICE_INVALID:
-            # TODO: It is likely faster/safer to call cuCtxGetCurrent?
-            from cuda.core.experimental._device import Device  # avoid circular import
-            curr_ctx = <cydriver.CUcontext><uintptr_t>(Device().context._handle)
             with nogil:
-                # Get the stream context first
+                # Get the current context
+                HANDLE_RETURN(cydriver.cuCtxGetCurrent(&curr_ctx))
+                # Get the stream's context (self.ctx_handle is populated)
                 self._get_context()
+                # Get the stream's device (may require a context-switching dance)
                 self._device_id = get_device_from_ctx(self._ctx_handle, curr_ctx)
         return 0
 

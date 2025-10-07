@@ -223,7 +223,7 @@ def test_buffer_copy_from():
 def buffer_close(dummy_mr: MemoryResource):
     buffer = dummy_mr.allocate(size=1024)
     buffer.close()
-    assert buffer.handle is None
+    assert buffer.handle == 0
     assert buffer.memory_resource is None
 
 

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 cimport cpython
+from libc.limits cimport ULLONG_MAX
 from libc.stdint cimport uintptr_t, intptr_t
 from libc.string cimport memset, memcpy
 
@@ -38,9 +39,6 @@ if TYPE_CHECKING:
     from ._device import Device
     import uuid
 
-# TODO: define a memory property mixin class and make Buffer and
-# MemoryResource both inherit from it
-
 
 PyCapsule = TypeVar("PyCapsule")
 """Represent the capsule type."""
@@ -49,7 +47,57 @@ DevicePointerT = Union[driver.CUdeviceptr, int, None]
 """A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting :attr:`Buffer.handle`."""
 
 
-cdef class Buffer:
+cdef class _cyBuffer:
+    """
+    Internal only. Responsible for offering fast C method access.
+    """
+    cdef:
+        intptr_t _ptr
+        size_t _size
+        _cyMemoryResource _mr
+        object _ptr_obj
+        cyStream _alloc_stream
+
+
+cdef class _cyMemoryResource:
+    """
+    Internal only. Responsible for offering fast C method access.
+    """
+    cdef Buffer _allocate(self, size_t size, cyStream stream):
+        raise NotImplementedError
+
+    cdef void _deallocate(self, intptr_t ptr, size_t size, cyStream stream) noexcept:
+        raise NotImplementedError
+
+
+class MemoryResourceAttributes(abc.ABC):
+
+    @property
+    @abc.abstractmethod
+    def is_device_accessible(self) -> bool:
+        """bool: True if buffers allocated by this resource can be accessed on the device."""
+        ...
+
+    @property
+    @abc.abstractmethod
+    def is_host_accessible(self) -> bool:
+        """bool: True if buffers allocated by this resource can be accessed on the host."""
+        ...
+
+    @property
+    @abc.abstractmethod
+    def device_id(self) -> int:
+        """int: The device ordinal for which this memory resource is responsible.
+
+        Raises
+        ------
+        RuntimeError
+            If the resource is not bound to a specific device.
+        """
+        ...
+
+
+cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
     """Represent a handle to allocated memory.
 
     This generic object provides a unified representation for how
@@ -58,13 +106,7 @@ cdef class Buffer:
 
     Support for data interchange mechanisms are provided by DLPack.
     """
-
-    cdef:
-        intptr_t _ptr
-        size_t _size
-        object _mr
-        object _ptr_obj
-        cyStream _alloc_stream
+    cdef dict __dict__  # required if inheriting from both Cython/Python classes
 
     def __cinit__(self):
         self._ptr = 0
@@ -107,17 +149,15 @@ cdef class Buffer:
         """
         cdef cyStream s
         if self._ptr and self._mr is not None:
-            if isinstance(self._mr, _cyMemoryResource):
-                s = self._alloc_stream if stream is None else <cyStream>stream
-                (<_cyMemoryResource>(self._mr))._deallocate(self._ptr, self._size, s)
+            if stream is None:
+                if self._alloc_stream is not None:
+                    s = self._alloc_stream
+                else:
+                    # TODO: remove this branch when from_handle takes a stream
+                    s = <cyStream>(default_stream())
             else:
-                if stream is None:
-                    if self._alloc_stream is not None:
-                        stream = self._alloc_stream
-                    else:
-                        # TODO: remove this branch when from_handle takes a stream
-                        stream = default_stream()
-                self._mr.deallocate(self._ptr, self._size, stream)
+                s = <cyStream>stream
+            self._mr._deallocate(self._ptr, self._size, s)
             self._ptr = 0
             self._mr = None
             self._ptr_obj = None
@@ -138,7 +178,7 @@ cdef class Buffer:
             return self._ptr
         else:
             # contract: Buffer is closed
-            return None
+            return 0
 
     @property
     def size(self) -> int:
@@ -319,18 +359,7 @@ cdef class Buffer:
         return Buffer._init(ptr, size, mr=mr)
 
 
-cdef class _cyMemoryResource:
-    """
-    Internal only. Responsible for offering fast C method access.
-    """
-    cdef Buffer _allocate(self, size_t size, cyStream stream):
-        raise NotImplementedError
-
-    cdef int _deallocate(self, intptr_t ptr, size_t size, cyStream stream) except?-1:
-        raise NotImplementedError
-
-
-class MemoryResource(abc.ABC):
+cdef class MemoryResource(_cyMemoryResource, MemoryResourceAttributes, abc.ABC):
     """Abstract base class for memory resources that manage allocation and deallocation of buffers.
 
     Subclasses must implement methods for allocating and deallocation, as well as properties
@@ -339,14 +368,10 @@ class MemoryResource(abc.ABC):
     hold a reference to self, the buffer properties are retrieved simply by looking up the underlying
     memory resource's respective property.)
     """
+    cdef dict __dict__  # required if inheriting from both Cython/Python classes
 
-    @abc.abstractmethod
-    def __init__(self, *args, **kwargs):
-        """Initialize the memory resource.
-
-        Subclasses may use additional arguments to configure the resource.
-        """
-        ...
+    cdef void _deallocate(self, intptr_t ptr, size_t size, cyStream stream) noexcept:
+        self.deallocate(ptr, size, stream)
 
     @abc.abstractmethod
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
@@ -383,30 +408,6 @@ class MemoryResource(abc.ABC):
             The stream on which to perform the deallocation asynchronously.
             If None, it is up to each memory resource implementation to decide
             and document the behavior.
-        """
-        ...
-
-    @property
-    @abc.abstractmethod
-    def is_device_accessible(self) -> bool:
-        """bool: True if buffers allocated by this resource can be accessed on the device."""
-        ...
-
-    @property
-    @abc.abstractmethod
-    def is_host_accessible(self) -> bool:
-        """bool: True if buffers allocated by this resource can be accessed on the host."""
-        ...
-
-    @property
-    @abc.abstractmethod
-    def device_id(self) -> int:
-        """int: The device ordinal for which this memory resource is responsible.
-
-        Raises
-        ------
-        RuntimeError
-            If the resource is not bound to a specific device.
         """
         ...
 
@@ -586,7 +587,7 @@ class DeviceMemoryResourceAttributes:
 _ipc_registry = {}
 
 
-cdef class DeviceMemoryResource(_cyMemoryResource, MemoryResource):
+cdef class DeviceMemoryResource(MemoryResource):
     """
     Create a device memory resource managing a stream-ordered memory pool.
 
@@ -673,7 +674,7 @@ cdef class DeviceMemoryResource(_cyMemoryResource, MemoryResource):
         bint _is_mapped
         object _uuid
         IPCAllocationHandle _alloc_handle
-        dict __dict__  # TODO: check if we still need this
+        dict __dict__  # required if inheriting from both Cython/Python classes
         object __weakref__
 
     def __cinit__(self):
@@ -692,7 +693,7 @@ cdef class DeviceMemoryResource(_cyMemoryResource, MemoryResource):
             DeviceMemoryResourceOptions, options, "DeviceMemoryResource options", keep_none=True
         )
         cdef cydriver.cuuint64_t current_threshold
-        cdef cydriver.cuuint64_t max_threshold = 0xFFFFFFFFFFFFFFFF
+        cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX
         cdef cydriver.CUmemPoolProps properties
 
         if opts is None:
@@ -934,14 +935,13 @@ cdef class DeviceMemoryResource(_cyMemoryResource, MemoryResource):
             stream = default_stream()
         return self._allocate(size, <cyStream>stream)
 
-    cdef int _deallocate(self, intptr_t ptr, size_t size, cyStream stream) except?-1:
+    cdef void _deallocate(self, intptr_t ptr, size_t size, cyStream stream) noexcept:
         cdef cydriver.CUstream s = stream._handle
         cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
         with nogil:
             HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
-        return 0
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream):
+    cpdef deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
