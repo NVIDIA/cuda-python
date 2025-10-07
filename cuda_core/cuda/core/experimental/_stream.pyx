@@ -327,12 +327,12 @@ cdef class Stream:
     cdef int _get_device_and_context(self) except?-1:
         cdef cydriver.CUcontext curr_ctx
         if self._device_id == cydriver.CU_DEVICE_INVALID:
-            # TODO: It is likely faster/safer to call cuCtxGetCurrent?
-            from cuda.core.experimental._device import Device  # avoid circular import
-            curr_ctx = <cydriver.CUcontext><uintptr_t>(Device().context._handle)
             with nogil:
-                # Get the stream context first
+                # Get the current context
+                HANDLE_RETURN(cydriver.cuCtxGetCurrent(&curr_ctx))
+                # Get the stream's context (self.ctx_handle is populated)
                 self._get_context()
+                # Get the stream's device (may require a context-switching dance)
                 self._device_id = get_device_from_ctx(self._ctx_handle, curr_ctx)
         return 0
 
