@@ -38,11 +38,13 @@ class TestIpcWorkerPool:
 
         for buffer in buffers:
             IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
+            buffer.close()
 
     def process_buffer(self, buffer):
         device = Device(buffer.memory_resource.device_id)
         device.set_current()
         IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
+        buffer.close()
 
 
 class TestIpcWorkerPoolUsingIPCDescriptors:
@@ -73,6 +75,7 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
 
         for buffer in buffers:
             IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
+            buffer.close()
 
     def process_buffer(self, mr_idx, buffer_desc):
         mr = self.mrs[mr_idx]
@@ -80,6 +83,7 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         device.set_current()
         buffer = Buffer.from_ipc_descriptor(mr, buffer_desc)
         IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
+        buffer.close()
 
 
 class TestIpcWorkerPoolUsingRegistry:
@@ -110,8 +114,10 @@ class TestIpcWorkerPoolUsingRegistry:
 
         for buffer in buffers:
             IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
+            buffer.close()
 
     def process_buffer(self, device, buffer_s):
         device.set_current()
         buffer = pickle.loads(buffer_s)  # noqa: S301
         IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
+        buffer.close()
