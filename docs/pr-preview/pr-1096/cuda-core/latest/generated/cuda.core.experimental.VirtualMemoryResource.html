@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.experimental._memory.IPCBufferDescriptor &#8212; cuda.core</title>
+    <title>cuda.core.experimental.VirtualMemoryResource &#8212; cuda.core</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.experimental._memory.IPCBufferDescriptor';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.experimental.VirtualMemoryResource';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -55,10 +55,12 @@
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
-    <link rel="canonical" href="docs/generated/cuda.core.experimental._memory.IPCBufferDescriptor.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.experimental.VirtualMemoryResource.html" />
     <link rel="icon" href="../_static/favicon.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="cuda.core.experimental.DeviceMemoryResourceOptions" href="cuda.core.experimental.DeviceMemoryResourceOptions.html" />
+    <link rel="prev" title="cuda.core.experimental.LegacyPinnedMemoryResource" href="cuda.core.experimental.LegacyPinnedMemoryResource.html" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -194,7 +196,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core.experimental API Reference
   </a>
@@ -383,7 +385,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core.experimental API Reference
   </a>
@@ -448,11 +450,11 @@
      aria-label="Table of Contents">
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Device.html">cuda.core.experimental.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
@@ -463,7 +465,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.VirtualMemoryResource.html">cuda.core.experimental.VirtualMemoryResource</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.experimental.VirtualMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResourceOptions.html">cuda.core.experimental.DeviceMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
@@ -532,7 +534,10 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.experimental._memory.IPCBufferDescriptor</span></li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.experimental.VirtualMemoryResource</span></li>
   </ul>
 </nav>
 </div>
@@ -549,19 +554,152 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-experimental-memory-ipcbufferdescriptor">
-<h1>cuda.core.experimental._memory.IPCBufferDescriptor<a class="headerlink" href="#cuda-core-experimental-memory-ipcbufferdescriptor" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-experimental-virtualmemoryresource">
+<h1>cuda.core.experimental.VirtualMemoryResource<a class="headerlink" href="#cuda-core-experimental-virtualmemoryresource" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.experimental._memory.IPCBufferDescriptor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental._memory.</span></span><span class="sig-name descname"><span class="pre">IPCBufferDescriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._memory.IPCBufferDescriptor" title="Link to this definition">#</a></dt>
-<dd><p>Serializable object describing a buffer that can be shared between processes.</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">VirtualMemoryResource</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions" title="cuda.core.experimental.VirtualMemoryResourceOptions"><span class="pre">VirtualMemoryResourceOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResource" title="Link to this definition">#</a></dt>
+<dd><p>Create a device memory resource that uses the CUDA VMM APIs to allocate memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Device ordinal for which a memory resource is constructed.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions" title="cuda.core.experimental.VirtualMemoryResourceOptions"><em>VirtualMemoryResourceOptions</em></a>) – A configuration object for the VirtualMemoryResource</p></li>
+</ul>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental._memory.IPCBufferDescriptor.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental._memory.IPCBufferDescriptor.__init__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResource.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions" title="cuda.core.experimental.VirtualMemoryResourceOptions"><span class="pre">VirtualMemoryResourceOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResource.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResource.allocate">
+<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">size:</span> <span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResource.allocate" title="Link to this definition">#</a></dt>
+<dd><p>Allocate a buffer of the given size using CUDA virtual memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size in bytes of the buffer to allocate.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – CUDA stream to associate with the allocation (not currently supported).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A Buffer object representing the allocated virtual memory.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer">Buffer</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – If a stream is provided or if the location type is not device memory.</p></li>
+<li><p><strong>CUDAError</strong> – If any CUDA driver API call fails during allocation.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This method uses transactional allocation: if any step fails, all resources
+allocated so far are automatically cleaned up. The allocation is performed
+with the configured granularity, access permissions, and peer access as
+specified in the resource’s configuration.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResource.deallocate">
+<span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">ptr:</span> <span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">size:</span> <span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResource.deallocate" title="Link to this definition">#</a></dt>
+<dd><p>Deallocate memory on the device using CUDA VMM APIs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResource.modify_allocation">
+<span class="sig-name descname"><span class="pre">modify_allocation</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">Buffer</span> <span class="pre">buf:</span> <span class="pre">Buffer</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">new_size:</span> <span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">config:</span> <span class="pre">VirtualMemoryResourceOptions</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResource.modify_allocation" title="Link to this definition">#</a></dt>
+<dd><p>Grow an existing allocation using CUDA VMM, with a configurable policy.</p>
+<p>This implements true growing allocations that preserve the base pointer
+by extending the virtual address range and mapping additional physical memory.</p>
+<p>This function uses transactional allocation: if any step fails, the original buffer is not modified and
+all steps the function took are rolled back so a new allocation is not created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>buf</strong> (<a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><em>Buffer</em></a>) – The existing buffer to grow</p></li>
+<li><p><strong>new_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The new total size for the allocation</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions" title="cuda.core.experimental.VirtualMemoryResourceOptions"><em>VirtualMemoryResourceOptions</em></a><em>, </em><em>optional</em>) – Configuration for the new physical memory chunks. If None, uses current config.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The same buffer with updated size and properties, preserving the original pointer</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer">Buffer</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <p class="rubric">Attributes</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResource.device_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResource.device_id" title="Link to this definition">#</a></dt>
+<dd><p>Get the device ID associated with this memory resource.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>int: CUDA device ID. -1 if the memory resource allocates host memory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResource.is_device_accessible">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_device_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResource.is_device_accessible" title="Link to this definition">#</a></dt>
+<dd><p>Indicates whether the allocated memory is accessible from the device.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResource.is_host_accessible">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_host_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResource.is_host_accessible" title="Link to this definition">#</a></dt>
+<dd><p>Indicates whether the allocated memory is accessible from the host.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -576,6 +714,24 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="cuda.core.experimental.LegacyPinnedMemoryResource.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">cuda.core.experimental.LegacyPinnedMemoryResource</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="cuda.core.experimental.DeviceMemoryResourceOptions.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">cuda.core.experimental.DeviceMemoryResourceOptions</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -597,8 +753,14 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._memory.IPCBufferDescriptor"><code class="docutils literal notranslate"><span class="pre">IPCBufferDescriptor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._memory.IPCBufferDescriptor.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResource"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResource.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResource.allocate"><code class="docutils literal notranslate"><span class="pre">allocate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">deallocate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResource.modify_allocation"><code class="docutils literal notranslate"><span class="pre">modify_allocation()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">device_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResource.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">is_device_accessible</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">is_host_accessible</span></code></a></li>
 </ul>
 </li>
 </ul>

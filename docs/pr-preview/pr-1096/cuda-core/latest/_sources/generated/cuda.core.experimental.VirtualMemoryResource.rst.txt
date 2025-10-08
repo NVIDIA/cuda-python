@@ -1,12 +1,12 @@
 ﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-cuda.core.experimental.DeviceMemoryResource
-===========================================
+cuda.core.experimental.VirtualMemoryResource
+============================================
 
 .. currentmodule:: cuda.core.experimental
 
-.. autoclass:: DeviceMemoryResource
+.. autoclass:: VirtualMemoryResource
 
    
    
@@ -15,12 +15,8 @@ cuda.core.experimental.DeviceMemoryResource
    
    .. automethod:: __init__
    .. automethod:: allocate
-   .. automethod:: close
    .. automethod:: deallocate
-   .. automethod:: from_allocation_handle
-   .. automethod:: from_registry
-   .. automethod:: get_allocation_handle
-   .. automethod:: register
+   .. automethod:: modify_allocation
 
    
    
@@ -30,14 +26,8 @@ cuda.core.experimental.DeviceMemoryResource
    .. rubric:: Attributes
 
    
-   .. autoproperty:: attributes
    .. autoproperty:: device_id
-   .. autoproperty:: handle
    .. autoproperty:: is_device_accessible
-   .. autoproperty:: is_handle_owned
    .. autoproperty:: is_host_accessible
-   .. autoproperty:: is_ipc_enabled
-   .. autoproperty:: is_mapped
-   .. autoproperty:: uuid
    
    
