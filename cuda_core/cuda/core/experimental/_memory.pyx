@@ -1018,7 +1018,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
 
     def __init__(self):
         # TODO: support flags from cuMemHostAlloc?
-        self._handle = None
+        pass
 
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
@@ -1077,7 +1077,6 @@ class _SynchronousMemoryResource(MemoryResource):
     __slots__ = ("_dev_id",)
 
     def __init__(self, device_id : int | Device):
-        self._handle = None
         self._dev_id = getattr(device_id, 'device_id', device_id)
 
     def allocate(self, size, stream=None) -> Buffer:
