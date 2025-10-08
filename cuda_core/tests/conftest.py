@@ -87,9 +87,7 @@ def ipc_device():
         pytest.skip("Device does not support IPC")
 
     # Skip on WSL or if driver rejects IPC-enabled mempool creation on this platform/device
-    from cuda_python_test_helpers import IS_WSL, supports_ipc_mempool
-
-    if IS_WSL or not supports_ipc_mempool(device):
+    if helpers.IS_WSL or not helpers.supports_ipc_mempool(device):
         pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
     return device
