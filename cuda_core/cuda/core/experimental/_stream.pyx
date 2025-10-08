@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from libc.stdint cimport uintptr_t, INT32_MIN
+from libc.stdlib cimport strtol, getenv
 
 from cuda.bindings cimport cydriver
 
@@ -388,11 +389,16 @@ cdef class Stream:
         return GraphBuilder._init(stream=self, is_stream_owner=False)
 
 
-LEGACY_DEFAULT_STREAM = Stream._legacy_default()
-PER_THREAD_DEFAULT_STREAM = Stream._per_thread_default()
+# c-only python objects, not public
+cdef Stream C_LEGACY_DEFAULT_STREAM = Stream._legacy_default()
+cdef Stream C_PER_THREAD_DEFAULT_STREAM = Stream._per_thread_default()
+
+# standard python objects, public
+LEGACY_DEFAULT_STREAM = C_LEGACY_DEFAULT_STREAM
+PER_THREAD_DEFAULT_STREAM = C_PER_THREAD_DEFAULT_STREAM
 
 
-def default_stream():
+cdef Stream default_stream():
     """Return the default CUDA :obj:`~_stream.Stream`.
 
     The type of default stream returned depends on if the environment
@@ -403,8 +409,14 @@ def default_stream():
 
     """
     # TODO: flip the default
-    use_ptds = int(os.environ.get("CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM", 0))
+    cdef const char* use_ptds_raw = getenv("CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM")
+
+    cdef int use_ptds = 0
+    if use_ptds_raw != NULL:
+        use_ptds = strtol(use_ptds_raw, NULL, 10)
+
+    # value is non-zero, including for weird stuff like 123foo
     if use_ptds:
-        return PER_THREAD_DEFAULT_STREAM
+        return C_PER_THREAD_DEFAULT_STREAM
     else:
-        return LEGACY_DEFAULT_STREAM
+        return C_LEGACY_DEFAULT_STREAM
