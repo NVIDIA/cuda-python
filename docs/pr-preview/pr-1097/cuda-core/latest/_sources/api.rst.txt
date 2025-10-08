@@ -27,6 +27,7 @@ CUDA runtime
    MemoryResource
    DeviceMemoryResource
    LegacyPinnedMemoryResource
+   VirtualMemoryResource
 
    :template: dataclass.rst
 
@@ -36,6 +37,7 @@ CUDA runtime
    GraphDebugPrintOptions
    StreamOptions
    LaunchConfig
+   VirtualMemoryResourceOptions
 
 
 CUDA compilation toolchain
