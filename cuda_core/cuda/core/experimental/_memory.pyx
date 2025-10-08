@@ -1016,9 +1016,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
     APIs.
     """
 
-    def __init__(self):
-        # TODO: support flags from cuMemHostAlloc?
-        pass
+    # TODO: support creating this MR with flags that are later passed to cuMemHostAlloc?
 
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
