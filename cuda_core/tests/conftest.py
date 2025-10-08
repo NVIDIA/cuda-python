@@ -18,9 +18,6 @@ import pytest
 from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, _device
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
-# Import shared platform helpers for tests across repos
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
-
 
 @pytest.fixture(scope="session", autouse=True)
 def session_setup():
@@ -92,6 +89,11 @@ def ipc_device():
     # test should be updated.
     if not device.properties.handle_type_posix_file_descriptor_supported:
         pytest.skip("Device does not support IPC")
+
+    # Skip on WSL or if driver rejects IPC-enabled mempool creation on this platform/device
+    from cuda_python_test_helpers import IS_WSL, supports_ipc_mempool
+    if IS_WSL or not supports_ipc_mempool(device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
     return device
 

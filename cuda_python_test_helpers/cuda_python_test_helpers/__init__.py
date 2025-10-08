@@ -6,14 +6,14 @@ import os
 from contextlib import suppress
 from typing import Union
 
-import pytest
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
 def _detect_wsl() -> bool:
     data = ""
-    with suppress(Exception), open("/proc/sys/kernel/osrelease") as f:
-        data = f.read().lower()
+    with suppress(Exception):
+        with open("/proc/sys/kernel/osrelease") as f:
+            data = f.read().lower()
     if "microsoft" in data or "wsl" in data:
         return True
     return any(os.environ.get(k) for k in ("WSL_DISTRO_NAME", "WSL_INTEROP"))
@@ -61,3 +61,5 @@ __all__ = [
     "IS_WSL",
     "supports_ipc_mempool",
 ]
+
+

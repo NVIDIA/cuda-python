@@ -6,6 +6,7 @@ import pickle
 import re
 
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
+from cuda_python_test_helpers import supports_ipc_mempool
 from cuda.core.experimental._utils.cuda_utils import CUDAError
 
 CHILD_TIMEOUT_SEC = 20
@@ -18,6 +19,9 @@ class ChildErrorHarness:
     PARENT_ACTION, CHILD_ACTION, and ASSERT (see below for examples)."""
 
     def test_main(self, ipc_device, ipc_memory_resource):
+        if not supports_ipc_mempool(ipc_device):
+            import pytest
+            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         """Parent process that checks child errors."""
         # Attach fixtures to this object for convenience. These can be accessed
         # from PARENT_ACTION.

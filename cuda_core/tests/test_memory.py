@@ -429,6 +429,10 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
 def test_mempool_attributes_ownership(mempool_device):
     """Ensure the attributes bundle handles references correctly."""
     device = mempool_device
+    # Skip if IPC mempool is not supported on this platform/device
+    if not supports_ipc_mempool(device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
+
     mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
     attributes = mr.attributes
     mr.close()
