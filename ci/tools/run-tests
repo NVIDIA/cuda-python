@@ -70,6 +70,12 @@ elif [[ "${test_module}" == "core" ]]; then
     FREE_THREADING+="-ft"
   fi
 
+  # Install test helpers used by cuda_core tests
+  pushd ./cuda_python_test_helpers
+  echo "Installing cuda_python_test_helpers (editable)"
+  pip install -e .
+  popd
+
   pushd ./cuda_core
   if [[ "${LOCAL_CTK}" == 1 ]]; then
     # We already installed cuda-bindings, and all CTK components exist locally,
