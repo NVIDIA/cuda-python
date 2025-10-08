@@ -55,6 +55,8 @@ from cuda.core.experimental._memory import (  # noqa: E402
     DeviceMemoryResourceOptions,
     LegacyPinnedMemoryResource,
     MemoryResource,
+    VirtualMemoryResource,
+    VirtualMemoryResourceOptions,
 )
 from cuda.core.experimental._module import Kernel, ObjectCode  # noqa: E402
 from cuda.core.experimental._program import Program, ProgramOptions  # noqa: E402
