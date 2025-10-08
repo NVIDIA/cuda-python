@@ -21,7 +21,6 @@ cuda.core.experimental.DeviceMemoryResource
    .. automethod:: from_registry
    .. automethod:: get_allocation_handle
    .. automethod:: register
-   .. automethod:: unregister
 
    
    
