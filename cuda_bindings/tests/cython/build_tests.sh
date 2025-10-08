@@ -14,4 +14,4 @@ else
   exit 1
 fi
 
-cythonize -3 -Xfreethreading_compatible=True -i ${SCRIPTPATH}/test_*.pyx
+cythonize -3 -i -Xfreethreading_compatible=True ${SCRIPTPATH}/test_*.pyx
