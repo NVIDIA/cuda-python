@@ -101,7 +101,7 @@ def _build_cuda_core():
         verbose=True,
         language_level=3,
         nthreads=nthreads,
-        compiler_directives={"embedsignature": True, "warn.deprecated.IF": False},
+        compiler_directives={"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True},
         compile_time_env=compile_time_env,
     )
 
