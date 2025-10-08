@@ -465,11 +465,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.VirtualMemoryResource.html">cuda.core.experimental.VirtualMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResourceOptions.html">cuda.core.experimental.DeviceMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.StreamOptions.html">cuda.core.experimental.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.VirtualMemoryResourceOptions.html">cuda.core.experimental.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html">cuda.core.experimental.ObjectCode</a></li>
@@ -566,10 +569,10 @@
 </div></blockquote>
 <p>This object supports both DLPack (up to v1.0) and CUDA Array Interface
 (CAI) v3. When wrapping an arbitrary object it will try the DLPack protocol
-first, then the CAI protocol. A <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#BufferError" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BufferError</span></code></a> is raised if neither is
+first, then the CAI protocol. A <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#BufferError" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BufferError</span></code></a> is raised if neither is
 supported.</p>
 <p>Since either way would take a consumer stream, for DLPack it is passed to
-<code class="docutils literal notranslate"><span class="pre">obj.__dlpack__()</span></code> as-is (except for <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, see below); for CAI, a
+<code class="docutils literal notranslate"><span class="pre">obj.__dlpack__()</span></code> as-is (except for <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, see below); for CAI, a
 stream order will be established between the consumer stream and the
 producer stream (from <code class="docutils literal notranslate"><span class="pre">obj.__cuda_array_interface__()[&quot;stream&quot;]</span></code>), as if
 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code> is called by this method.</p>
@@ -585,7 +588,7 @@ internally passed to <code class="docutils literal notranslate"><span class="pre
 <dd><p>Pointer to the tensor buffer (as a Python <cite>int</cite>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -596,7 +599,7 @@ internally passed to <code class="docutils literal notranslate"><span class="pre
 <dd><p>Shape of the tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -607,7 +610,7 @@ internally passed to <code class="docutils literal notranslate"><span class="pre
 <dd><p>Strides of the tensor (in <strong>counts</strong>, not bytes).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a>]</p>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -630,7 +633,7 @@ internally passed to <code class="docutils literal notranslate"><span class="pre
 (meaning those only accessible from the host).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -641,7 +644,7 @@ internally passed to <code class="docutils literal notranslate"><span class="pre
 <dd><p>Whether the tensor data can be accessed on the GPU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -652,7 +655,7 @@ internally passed to <code class="docutils literal notranslate"><span class="pre
 <dd><p>Whether the tensor data can be modified in place.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -673,7 +676,7 @@ internally passed to <code class="docutils literal notranslate"><span class="pre
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> (<em>Any</em>) – Any objects that supports either DLPack (up to v1.0) or CUDA Array
 Interface (v3).</p></li>
-<li><p><strong>stream_ptr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The pointer address (as Python <cite>int</cite>) to the <strong>consumer</strong> stream.
+<li><p><strong>stream_ptr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The pointer address (as Python <cite>int</cite>) to the <strong>consumer</strong> stream.
 Stream ordering will be properly established unless <code class="docutils literal notranslate"><span class="pre">-1</span></code> is passed.</p></li>
 </ul>
 </dd>
