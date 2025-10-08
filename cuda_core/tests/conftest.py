@@ -20,7 +20,6 @@ from cuda.core.experimental._utils.cuda_utils import handle_return
 
 # Import shared platform helpers for tests across repos
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
-from cuda_python_test_helpers import IS_WSL  # noqa: F401 (imported for test modules)
 
 
 @pytest.fixture(scope="session", autouse=True)
