@@ -6,7 +6,7 @@ import struct
 import sys
 
 from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _FindNvidiaDynamicLib
-from cuda.pathfinder._dynamic_libs.load_dl_common import FoundVia, LoadedDL, load_dependencies
+from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if IS_WINDOWS:
@@ -30,16 +30,14 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
     if abs_path is None:
         abs_path = finder.try_with_conda_prefix()
         if abs_path is not None:
-            found_via = FoundVia("conda")
+            found_via = "conda"
     else:
-        found_via = FoundVia("site-packages")
+        found_via = "site-packages"
 
     # If the library was already loaded by someone else, reproduce any OS-specific
     # side-effects we would have applied on a direct absolute-path load (e.g.,
     # AddDllDirectory on Windows for libs that require it).
-    loaded = check_if_already_loaded_from_elsewhere(
-        libname, abs_path is not None, found_via if abs_path is not None else None
-    )
+    loaded = check_if_already_loaded_from_elsewhere(libname, abs_path is not None)
 
     # Load dependencies regardless of who loaded the primary lib first.
     # Doing this *after* the side-effect ensures dependencies resolve consistently
@@ -57,7 +55,7 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
         if abs_path is None:
             finder.raise_not_found_error()
         else:
-            found_via = FoundVia("CUDA_HOME")
+            found_via = "CUDA_HOME"
 
     return load_with_abs_path(libname, abs_path, found_via)
 

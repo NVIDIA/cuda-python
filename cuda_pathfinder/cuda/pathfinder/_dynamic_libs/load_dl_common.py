@@ -12,17 +12,11 @@ class DynamicLibNotFoundError(RuntimeError):
 
 
 @dataclass
-class FoundVia:
-    name: str
-    version: Optional[str] = None
-
-
-@dataclass
 class LoadedDL:
     abs_path: Optional[str]
     was_already_loaded_from_elsewhere: bool
     _handle_uint: int  # Platform-agnostic unsigned pointer value
-    foundvia: Optional[FoundVia] = None
+    foundvia: Optional[str] = None
 
 
 def load_dependencies(libname: str, load_func: Callable[[str], LoadedDL]) -> None:
