@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing
-import pathlib
-import sys
 
 import helpers
 import pytest
@@ -90,6 +88,7 @@ def ipc_device():
 
     # Skip on WSL or if driver rejects IPC-enabled mempool creation on this platform/device
     from cuda_python_test_helpers import IS_WSL, supports_ipc_mempool
+
     if IS_WSL or not supports_ipc_mempool(device):
         pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
