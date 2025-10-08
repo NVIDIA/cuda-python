@@ -320,11 +320,11 @@ def test_vmm_allocator_basic_allocation():
     This test verifies that VirtualMemoryResource can allocate memory
     using CUDA VMM APIs with default configuration.
     """
+    if platform.system() == "Windows":
+        pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
     device = Device()
     device.set_current()
     options = VirtualMemoryResourceOptions()
-    if platform.system() == "Windows":
-        options.handle_type = "win32"
     # Create VMM allocator with default config
     vmm_mr = VirtualMemoryResource(device, config=options)
 
@@ -356,6 +356,8 @@ def test_vmm_allocator_policy_configuration():
     with different allocation policies and that the configuration affects
     the allocation behavior.
     """
+    if platform.system() == "Windows":
+        pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
     device = Device()
     device.set_current()
 
@@ -411,12 +413,13 @@ def test_vmm_allocator_grow_allocation():
     This test verifies that VirtualMemoryResource can grow existing
     allocations while preserving the base pointer when possible.
     """
+    if platform.system() == "Windows":
+        pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
     device = Device()
     device.set_current()
 
     options = VirtualMemoryResourceOptions()
-    if platform.system() == "Windows":
-        options.handle_type = "win32"
+
     vmm_mr = VirtualMemoryResource(device, config=options)
 
     # Create initial allocation

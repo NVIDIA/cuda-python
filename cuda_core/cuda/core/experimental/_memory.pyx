@@ -1088,7 +1088,7 @@ class _SynchronousMemoryResource(MemoryResource):
         return self._dev_id
 
 
-VirtualMemoryHandleTypeT = Literal["posix_fd", "generic", "none", "win32"]
+VirtualMemoryHandleTypeT = Literal["posix_fd", "generic", "none", "win32", "win32_kmt", "fabric"]
 VirtualMemoryLocationTypeT = Literal["device", "host", "host_numa", "host_numa_current"]
 VirtualMemoryGranularityT = Literal["minimum", "recommended"]
 VirtualMemoryAccessTypeT = Literal["rw", "r", "none"]
@@ -1194,6 +1194,8 @@ class VirtualMemoryResource(MemoryResource):
         )
         if self.config.location_type == "host":
             self.device = None
+        if platform.system() == "Windows":
+            raise NotImplementedError("VirtualMemoryResource is not supported on Windows")
 
     @staticmethod
     def _align_up(size: int, gran: int) -> int:
