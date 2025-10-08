@@ -4,6 +4,7 @@
 import contextlib
 import gc
 import multiprocessing as mp
+import platform
 
 try:
     import psutil
@@ -11,15 +12,12 @@ except ImportError:
     HAVE_PSUTIL = False
 else:
     HAVE_PSUTIL = True
-
 import pytest
-from cuda.core.experimental import _memory
-from cuda.core.experimental._utils.cuda_utils import driver
 
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
 
-USING_FDS = _memory._IPC_HANDLE_TYPE == driver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR
+USING_FDS = platform.system() == "Linux"
 skip_if_unrunnable = pytest.mark.skipif(
     not USING_FDS or not HAVE_PSUTIL, reason="mempool allocation handle is not using fds or psutil is unavailable"
 )

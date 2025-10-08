@@ -22,7 +22,6 @@ Breaking Changes
 - **CUDA 11 support dropped**: CUDA 11 support is no longer tested and it may or may not work with cuda.bindings and CTK 11.x. Users are encouraged to migrate to CUDA 12.x or 13.x.
 - Support for ``cuda-bindings`` (and ``cuda-python``) < 12.6.2 is dropped. Internally, ``cuda.core`` now always requires the `new binding module layout <https://nvidia.github.io/cuda-python/cuda-bindings/latest/release/12.6.1-notes.html#cuda-namespace-cleanup-with-a-new-module-layout>`_. As per the ``cuda-bindings`` `support policy <https://nvidia.github.io/cuda-python/cuda-bindings/latest/support.html>`_), CUDA 12 users are encouraged to use the latest ``cuda-bindings`` 12.9.x, which is backward-compatible with all CUDA Toolkit 12.y.
 - **LaunchConfig grid parameter interpretation**: When :attr:`LaunchConfig.cluster` is specified, the :attr:`LaunchConfig.grid` parameter now correctly represents the number of clusters instead of blocks. Previously, the grid parameter was incorrectly interpreted as blocks, causing a mismatch with the expected C++ behavior. This change ensures that ``LaunchConfig(grid=4, cluster=2, block=32)`` correctly produces 4 clusters × 2 blocks/cluster = 8 total blocks, matching the C++ equivalent ``cudax::make_hierarchy(cudax::grid_dims(4), cudax::cluster_dims(2), cudax::block_dims(32))``.
-- When :class:`Buffer` is closed, :attr:`Buffer.handle` is now set to ``None``. It was previously set to ``0`` by accident.
 
 
 New features
@@ -32,6 +31,8 @@ New features
 - CUDA 13.x testing support through new ``test-cu13`` dependency group.
 - Stream-ordered memory allocation can now be shared on Linux via :class:`DeviceMemoryResource`.
 - Added NVVM IR support to :class:`Program`. NVVM IR is now understood with ``code_type="nvvm"``.
+- Added an :attr:`ObjectCode.code_type` attribute for querying the code type.
+- Added :class:`VirtualMemoryResource` for low-level virtual memory management.
 
 
 New examples
@@ -52,3 +53,4 @@ Fixes and enhancements
 - Fixed a bug in :class:`Stream` and other classes where object cleanup would error during interpreter shutdown.
 - :class:`StridedMemoryView` of an underlying array using the DLPack protocol will no longer leak memory.
 - General performance improvement.
+- Fixed incorrect index usage in vector_add example
