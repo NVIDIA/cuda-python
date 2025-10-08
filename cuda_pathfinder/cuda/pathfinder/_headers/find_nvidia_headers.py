@@ -4,6 +4,7 @@
 import functools
 import glob
 import os
+from typing import Optional
 
 from cuda.pathfinder._headers import supported_nvidia_headers
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
@@ -11,7 +12,7 @@ from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
-def _abs_norm(path: str | None) -> str | None:
+def _abs_norm(path: Optional[str]) -> Optional[str]:
     if path:
         return os.path.normpath(os.path.abspath(path))
     return None
@@ -21,7 +22,7 @@ def _joined_isfile(dirpath: str, basename: str) -> bool:
     return os.path.isfile(os.path.join(dirpath, basename))
 
 
-def _find_nvshmem_header_directory() -> str | None:
+def _find_nvshmem_header_directory() -> Optional[str]:
     if IS_WINDOWS:
         # nvshmem has no Windows support.
         return None
@@ -46,7 +47,7 @@ def _find_nvshmem_header_directory() -> str | None:
     return None
 
 
-def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) -> str | None:
+def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) -> Optional[str]:
     parts = [anchor_point]
     if libname == "nvvm":
         parts.append(libname)
@@ -61,7 +62,7 @@ def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) 
     return None
 
 
-def _find_based_on_conda_layout(libname: str, h_basename: str, conda_prefix: str) -> str | None:
+def _find_based_on_conda_layout(libname: str, h_basename: str, conda_prefix: str) -> Optional[str]:
     if IS_WINDOWS:
         anchor_point = os.path.join(conda_prefix, "Library")
         if not os.path.isdir(anchor_point):
@@ -78,7 +79,7 @@ def _find_based_on_conda_layout(libname: str, h_basename: str, conda_prefix: str
     return _find_based_on_ctk_layout(libname, h_basename, anchor_point)
 
 
-def _find_ctk_header_directory(libname: str) -> str | None:
+def _find_ctk_header_directory(libname: str) -> Optional[str]:
     h_basename = supported_nvidia_headers.SUPPORTED_HEADERS_CTK[libname]
     candidate_dirs = supported_nvidia_headers.SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK[libname]
 
@@ -103,7 +104,7 @@ def _find_ctk_header_directory(libname: str) -> str | None:
 
 
 @functools.cache
-def find_nvidia_header_directory(libname: str) -> str | None:
+def find_nvidia_header_directory(libname: str) -> Optional[str]:
     """Locate the header directory for a supported NVIDIA library.
 
     Args:

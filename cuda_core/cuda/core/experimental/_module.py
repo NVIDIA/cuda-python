@@ -4,7 +4,7 @@
 
 import weakref
 from collections import namedtuple
-from typing import Union
+from typing import Optional, Union
 from warnings import warn
 
 from cuda.core.experimental._launch_config import LaunchConfig, _to_native_launch_config
@@ -310,7 +310,7 @@ class KernelOccupancy:
             driver.cuOccupancyAvailableDynamicSMemPerBlock(self._handle, num_blocks_per_multiprocessor, block_size)
         )
 
-    def max_potential_cluster_size(self, config: LaunchConfig, stream: Stream | None = None) -> int:
+    def max_potential_cluster_size(self, config: LaunchConfig, stream: Optional[Stream] = None) -> int:
         """Maximum potential cluster size.
 
         The maximum potential cluster size for this kernel and given launch configuration.
@@ -332,7 +332,7 @@ class KernelOccupancy:
             drv_cfg.hStream = stream.handle
         return handle_return(driver.cuOccupancyMaxPotentialClusterSize(self._handle, drv_cfg))
 
-    def max_active_clusters(self, config: LaunchConfig, stream: Stream | None = None) -> int:
+    def max_active_clusters(self, config: LaunchConfig, stream: Optional[Stream] = None) -> int:
         """Maximum number of active clusters on the target device.
 
         The maximum number of clusters that could concurrently execute on the target device.
@@ -469,7 +469,7 @@ class ObjectCode:
         )
 
     @classmethod
-    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict | None = None):
+    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: Optional[dict] = None):
         self = super().__new__(cls)
         assert code_type in self._supported_code_type, f"{code_type=} is not supported"
         _lazy_init()
@@ -496,7 +496,7 @@ class ObjectCode:
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
 
     @staticmethod
-    def from_cubin(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_cubin(module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
@@ -514,7 +514,7 @@ class ObjectCode:
         return ObjectCode._init(module, "cubin", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_ptx(module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
@@ -532,7 +532,7 @@ class ObjectCode:
         return ObjectCode._init(module, "ptx", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ltoir(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_ltoir(module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
@@ -550,7 +550,9 @@ class ObjectCode:
         return ObjectCode._init(module, "ltoir", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_fatbin(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_fatbin(
+        module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None
+    ) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
@@ -568,7 +570,9 @@ class ObjectCode:
         return ObjectCode._init(module, "fatbin", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_object(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_object(
+        module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None
+    ) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing object code.
 
         Parameters
@@ -586,7 +590,9 @@ class ObjectCode:
         return ObjectCode._init(module, "object", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_library(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_library(
+        module: Union[bytes, str], *, name: str = "", symbol_mapping: Optional[dict] = None
+    ) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing library.
 
         Parameters

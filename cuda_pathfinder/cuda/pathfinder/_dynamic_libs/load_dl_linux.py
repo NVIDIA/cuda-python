@@ -5,7 +5,7 @@ import contextlib
 import ctypes
 import ctypes.util
 import os
-from typing import cast
+from typing import Optional, cast
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
@@ -76,8 +76,8 @@ assert _LinkMapLNameView.l_addr.offset == 0
 assert _LinkMapLNameView.l_name.offset == ctypes.sizeof(ctypes.c_void_p)
 
 
-def _dl_last_error() -> str | None:
-    msg_bytes = cast(bytes | None, LIBDL.dlerror())
+def _dl_last_error() -> Optional[str]:
+    msg_bytes = cast(Optional[bytes], LIBDL.dlerror())
     if not msg_bytes:
         return None  # no pending error
     # Never raises; undecodable bytes are mapped to U+DC80..U+DCFF
@@ -131,7 +131,7 @@ def get_candidate_sonames(libname: str) -> list[str]:
     return candidate_sonames
 
 
-def check_if_already_loaded_from_elsewhere(libname: str, _have_abs_path: bool) -> LoadedDL | None:
+def check_if_already_loaded_from_elsewhere(libname: str, _have_abs_path: bool) -> Optional[LoadedDL]:
     for soname in get_candidate_sonames(libname):
         try:
             handle = ctypes.CDLL(soname, mode=os.RTLD_NOLOAD)
@@ -149,7 +149,7 @@ def _load_lib(libname: str, filename: str) -> ctypes.CDLL:
     return ctypes.CDLL(filename, cdll_mode)
 
 
-def load_with_system_search(libname: str) -> LoadedDL | None:
+def load_with_system_search(libname: str) -> Optional[LoadedDL]:
     """Try to load a library using system search paths.
 
     Args:

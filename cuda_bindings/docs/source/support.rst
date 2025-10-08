@@ -19,7 +19,7 @@ The ``cuda.bindings`` module has the following support policy:
    depends on the underlying driver and the Toolkit versions, as described in the compatibility
    documentation.)
 4. The module supports all Python versions following the `CPython EOL schedule`_. As of writing
-   Python 3.10 - 3.14 are supported.
+   Python 3.9 - 3.13 are supported.
 5. The module exposes a Cython layer from which types and functions could be ``cimport``'d. While
    we strive to keep this layer stable, due to Cython limitations a new *minor* release of this
    module could require Cython layer users to rebuild their projects and update their pinning to
