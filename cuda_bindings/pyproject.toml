@@ -59,16 +59,11 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 skip = "*-musllinux_*"
 enable = "cpython-freethreading"
 build-verbosity = 1
-environment-pass = ["CUDA_PATH", "CUDA_PYTHON_PARALLEL_LEVEL"]
 
 [tool.cibuildwheel.linux]
 archs = "native"
-# CIBW mounts the host filesystem under /host
-environment-pass = ["CUDA_PATH"]
-environment = { CUDA_HOME = "/host/$CUDA_PATH" }
 
 [tool.cibuildwheel.windows]
 archs = "AMD64"
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
-environment = { CUDA_HOME = "$(cygpath -w $CUDA_PATH)" }

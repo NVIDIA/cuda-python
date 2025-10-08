@@ -10,4 +10,4 @@ requirements*.txt
 cuda_bindings/examples/*
 
 # Vendored
-cuda_core/cuda/core/experimental/dlpack.h
+cuda_core/cuda/core/experimental/include/dlpack.h
