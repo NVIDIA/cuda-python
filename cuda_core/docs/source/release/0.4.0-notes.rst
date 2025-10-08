@@ -3,10 +3,10 @@
 
 .. currentmodule:: cuda.core.experimental
 
-``cuda.core`` 0.X.Y Release Notes
+``cuda.core`` 0.4.0 Release Notes
 =================================
 
-Released on TBD
+Released on Oct 9, 2025
 
 
 Highlights

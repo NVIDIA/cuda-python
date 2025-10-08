@@ -3,10 +3,10 @@
 
 .. module:: cuda.bindings
 
-``cuda-bindings`` 12.9.X Release notes
+``cuda-bindings`` 12.9.3 Release notes
 ======================================
 
-Released on TBD
+Released on Oct 9, 2025
 
 
 Highlights
