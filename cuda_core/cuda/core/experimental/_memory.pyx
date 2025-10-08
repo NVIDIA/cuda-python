@@ -1088,7 +1088,7 @@ class _SynchronousMemoryResource(MemoryResource):
         return self._dev_id
 
 
-VirtualMemoryHandleTypeT = Literal["posix_fd", "generic", "none"]
+VirtualMemoryHandleTypeT = Literal["posix_fd", "generic", "none", "win32"]
 VirtualMemoryLocationTypeT = Literal["device", "host", "host_numa", "host_numa_current"]
 VirtualMemoryGranularityT = Literal["minimum", "recommended"]
 VirtualMemoryAccessTypeT = Literal["rw", "r", "none"]

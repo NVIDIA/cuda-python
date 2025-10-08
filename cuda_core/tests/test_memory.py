@@ -322,9 +322,11 @@ def test_vmm_allocator_basic_allocation():
     """
     device = Device()
     device.set_current()
-
+    options = VirtualMemoryResourceOptions()
+    if platform.system() == "Windows":
+        options.handle_type = "win32"
     # Create VMM allocator with default config
-    vmm_mr = VirtualMemoryResource(device)
+    vmm_mr = VirtualMemoryResource(device, config=options)
 
     # Test basic allocation
     buffer = vmm_mr.allocate(4096)
@@ -363,7 +365,7 @@ def test_vmm_allocator_policy_configuration():
         location_type="device",
         granularity="minimum",
         gpu_direct_rdma=True,
-        handle_type="posix_fd",
+        handle_type="posix_fd" if platform.system() != "Windows" else "win32",
         peers=(),
         self_access="rw",
         peer_access="rw",
@@ -412,7 +414,10 @@ def test_vmm_allocator_grow_allocation():
     device = Device()
     device.set_current()
 
-    vmm_mr = VirtualMemoryResource(device)
+    options = VirtualMemoryResourceOptions()
+    if platform.system() == "Windows":
+        options.handle_type = "win32"
+    vmm_mr = VirtualMemoryResource(device, config=options)
 
     # Create initial allocation
     buffer = vmm_mr.allocate(2 * 1024 * 1024)
