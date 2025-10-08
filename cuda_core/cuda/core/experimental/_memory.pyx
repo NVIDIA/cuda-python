@@ -583,7 +583,7 @@ class DeviceMemoryResourceAttributes:
 # This enables buffer serialization, as buffers can reduce to a pair
 # of comprising the memory resource UUID (the key into this registry)
 # and the serialized buffer descriptor.
-_ipc_registry = {}
+cdef object _ipc_registry = weakref.WeakValueDictionary()
 
 
 cdef class DeviceMemoryResource(MemoryResource):
@@ -756,8 +756,6 @@ cdef class DeviceMemoryResource(MemoryResource):
                 with nogil:
                     HANDLE_RETURN(cydriver.cuMemPoolDestroy(self._mempool_handle))
         finally:
-            if self.is_mapped:
-                self.unregister()
             self._dev_id = cydriver.CU_DEVICE_INVALID
             self._mempool_handle = NULL
             self._attributes = None
@@ -802,13 +800,6 @@ cdef class DeviceMemoryResource(MemoryResource):
         _ipc_registry[uuid] = self
         self._uuid = uuid
         return self
-
-    def unregister(self):
-        """Unregister this mapped memory resource."""
-        assert self.is_mapped
-        if _ipc_registry is not None:  # can occur during shutdown catastrophe
-            with contextlib.suppress(KeyError):
-                del _ipc_registry[self.uuid]
 
     @property
     def uuid(self) -> Optional[uuid.UUID]:
