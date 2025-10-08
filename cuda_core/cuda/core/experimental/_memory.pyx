@@ -12,6 +12,7 @@ from libc.string cimport memset, memcpy
 from cuda.bindings cimport cydriver
 
 from cuda.core.experimental._stream cimport Stream as cyStream
+from cuda.core.experimental._stream cimport default_stream
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
     check_or_create_options,
@@ -30,7 +31,7 @@ import platform
 import weakref
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
-from cuda.core.experimental._stream import Stream, default_stream
+from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.cuda_utils import ( driver, Transaction, get_binding_version )
 
 if platform.system() == "Linux":
@@ -73,6 +74,8 @@ cdef class _cyMemoryResource:
 
 class MemoryResourceAttributes(abc.ABC):
 
+    __slots__ = ()
+
     @property
     @abc.abstractmethod
     def is_device_accessible(self) -> bool:
@@ -107,8 +110,6 @@ cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
 
     Support for data interchange mechanisms are provided by DLPack.
     """
-    cdef dict __dict__  # required if inheriting from both Cython/Python classes
-
     def __cinit__(self):
         self._ptr = 0
         self._size = 0
@@ -369,8 +370,6 @@ cdef class MemoryResource(_cyMemoryResource, MemoryResourceAttributes, abc.ABC):
     hold a reference to self, the buffer properties are retrieved simply by looking up the underlying
     memory resource's respective property.)
     """
-    cdef dict __dict__  # required if inheriting from both Cython/Python classes
-
     cdef void _deallocate(self, intptr_t ptr, size_t size, cyStream stream) noexcept:
         self.deallocate(ptr, size, stream)
 
@@ -585,7 +584,7 @@ class DeviceMemoryResourceAttributes:
 # This enables buffer serialization, as buffers can reduce to a pair
 # of comprising the memory resource UUID (the key into this registry)
 # and the serialized buffer descriptor.
-_ipc_registry = {}
+cdef object _ipc_registry = weakref.WeakValueDictionary()
 
 
 cdef class DeviceMemoryResource(MemoryResource):
@@ -675,7 +674,6 @@ cdef class DeviceMemoryResource(MemoryResource):
         bint _is_mapped
         object _uuid
         IPCAllocationHandle _alloc_handle
-        dict __dict__  # required if inheriting from both Cython/Python classes
         object __weakref__
 
     def __cinit__(self):
@@ -759,8 +757,6 @@ cdef class DeviceMemoryResource(MemoryResource):
                 with nogil:
                     HANDLE_RETURN(cydriver.cuMemPoolDestroy(self._mempool_handle))
         finally:
-            if self.is_mapped:
-                self.unregister()
             self._dev_id = cydriver.CU_DEVICE_INVALID
             self._mempool_handle = NULL
             self._attributes = None
@@ -805,13 +801,6 @@ cdef class DeviceMemoryResource(MemoryResource):
         _ipc_registry[uuid] = self
         self._uuid = uuid
         return self
-
-    def unregister(self):
-        """Unregister this mapped memory resource."""
-        assert self.is_mapped
-        if _ipc_registry is not None:  # can occur during shutdown catastrophe
-            with contextlib.suppress(KeyError):
-                del _ipc_registry[self.uuid]
 
     @property
     def uuid(self) -> Optional[uuid.UUID]:
@@ -1019,9 +1008,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
     APIs.
     """
 
-    def __init__(self):
-        # TODO: support flags from cuMemHostAlloc?
-        self._handle = None
+    # TODO: support creating this MR with flags that are later passed to cuMemHostAlloc?
 
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
@@ -1080,7 +1067,6 @@ class _SynchronousMemoryResource(MemoryResource):
     __slots__ = ("_dev_id",)
 
     def __init__(self, device_id : int | Device):
-        self._handle = None
         self._dev_id = getattr(device_id, 'device_id', device_id)
 
     def allocate(self, size, stream=None) -> Buffer:
