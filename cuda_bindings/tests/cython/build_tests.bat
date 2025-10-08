@@ -5,5 +5,5 @@ REM SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 setlocal
 	set CL=%CL% /I"%CUDA_HOME%\include"
-	cythonize -3 -i %~dp0test_*.pyx
+	cythonize -3 -i -Xfreethreading_compatible=True %~dp0test_*.pyx
 endlocal
