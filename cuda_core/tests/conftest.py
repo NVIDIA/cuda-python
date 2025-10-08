@@ -12,9 +12,7 @@ try:
     from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-import multiprocessing
 
-import pytest
 from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, _device
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
