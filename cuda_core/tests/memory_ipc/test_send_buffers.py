@@ -47,6 +47,7 @@ def test_ipc_send_buffers(ipc_device, nmrs):
     for buffer in buffers:
         helper = IPCBufferTestHelper(device, buffer)
         helper.verify_buffer(flipped=True)
+        buffer.close()
 
 
 def child_main(device, buffers):
@@ -55,3 +56,4 @@ def child_main(device, buffers):
         helper = IPCBufferTestHelper(device, buffer)
         helper.verify_buffer(flipped=False)
         helper.fill_buffer(flipped=True)
+        buffer.close()
