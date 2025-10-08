@@ -41,7 +41,12 @@ class build_ext(_build_ext):
 
 
 setup(
-    ext_modules=cythonize(ext_modules, verbose=True, language_level=3, compiler_directives={"embedsignature": True}),
+    ext_modules=cythonize(
+        ext_modules,
+        verbose=True,
+        language_level=3,
+        compiler_directives={"embedsignature": True, "freethreading_compatible": True},
+    ),
     cmdclass={
         "build_ext": build_ext,
     },
