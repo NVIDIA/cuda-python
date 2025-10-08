@@ -160,9 +160,6 @@ cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
                 s = <cyStream>stream
             self._mr._deallocate(self._ptr, self._size, s)
             self._ptr = 0
-            self._mr = None
-            self._ptr_obj = None
-            self._alloc_stream = None
 
     @property
     def handle(self) -> DevicePointerT:
@@ -763,12 +760,9 @@ cdef class DeviceMemoryResource(MemoryResource):
                 self.unregister()
             self._dev_id = cydriver.CU_DEVICE_INVALID
             self._mempool_handle = NULL
-            self._attributes = None
             self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_MAX
             self._mempool_owned = False
             self._is_mapped = False
-            self._uuid = None
-            self._alloc_handle = None
 
     def __reduce__(self):
         return DeviceMemoryResource.from_registry, (self.uuid,)
