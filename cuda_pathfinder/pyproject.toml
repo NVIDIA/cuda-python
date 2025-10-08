@@ -10,13 +10,14 @@ requires-python = ">=3.9"
 dynamic = ["version", "readme"]
 dependencies = []
 
-[project.optional-dependencies]
+[dependency-groups]
 test = [
     "pytest>=6.2.4",
 ]
 test_nvidia_wheels_cu12 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl]==12.*",
     "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
+    "nvidia-cublasmp-cu12; sys_platform != 'win32'",
     "nvidia-cudss-cu12",
     "nvidia-cufftmp-cu12; sys_platform != 'win32'",
     "nvidia-libmathdx-cu12",
@@ -26,6 +27,8 @@ test_nvidia_wheels_cu12 = [
 test_nvidia_wheels_cu13 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,nvvm]==13.*",
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
+    "nvidia-cublasmp-cu13; sys_platform != 'win32'",
+    "nvidia-cudss-cu13",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
     "nvidia-nvshmem-cu13; sys_platform != 'win32'",
 ]
