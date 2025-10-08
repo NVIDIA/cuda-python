@@ -73,6 +73,8 @@ cdef class _cyMemoryResource:
 
 class MemoryResourceAttributes(abc.ABC):
 
+    __slots__ = ()
+
     @property
     @abc.abstractmethod
     def is_device_accessible(self) -> bool:
@@ -107,8 +109,6 @@ cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
 
     Support for data interchange mechanisms are provided by DLPack.
     """
-    cdef dict __dict__  # required if inheriting from both Cython/Python classes
-
     def __cinit__(self):
         self._ptr = 0
         self._size = 0
@@ -369,8 +369,6 @@ cdef class MemoryResource(_cyMemoryResource, MemoryResourceAttributes, abc.ABC):
     hold a reference to self, the buffer properties are retrieved simply by looking up the underlying
     memory resource's respective property.)
     """
-    cdef dict __dict__  # required if inheriting from both Cython/Python classes
-
     cdef void _deallocate(self, intptr_t ptr, size_t size, cyStream stream) noexcept:
         self.deallocate(ptr, size, stream)
 
@@ -675,7 +673,6 @@ cdef class DeviceMemoryResource(MemoryResource):
         bint _is_mapped
         object _uuid
         IPCAllocationHandle _alloc_handle
-        dict __dict__  # required if inheriting from both Cython/Python classes
         object __weakref__
 
     def __cinit__(self):
@@ -1010,9 +1007,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
     APIs.
     """
 
-    def __init__(self):
-        # TODO: support flags from cuMemHostAlloc?
-        self._handle = None
+    # TODO: support creating this MR with flags that are later passed to cuMemHostAlloc?
 
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
@@ -1071,7 +1066,6 @@ class _SynchronousMemoryResource(MemoryResource):
     __slots__ = ("_dev_id",)
 
     def __init__(self, device_id : int | Device):
-        self._handle = None
         self._dev_id = getattr(device_id, 'device_id', device_id)
 
     def allocate(self, size, stream=None) -> Buffer:
