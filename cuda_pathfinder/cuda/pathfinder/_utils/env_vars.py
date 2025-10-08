@@ -3,6 +3,7 @@
 
 import os
 import warnings
+from typing import Optional
 
 
 def _paths_differ(a: str, b: str) -> bool:
@@ -32,7 +33,7 @@ def _paths_differ(a: str, b: str) -> bool:
     return True
 
 
-def get_cuda_home_or_path() -> str | None:
+def get_cuda_home_or_path() -> Optional[str]:
     cuda_home = os.environ.get("CUDA_HOME")
     cuda_path = os.environ.get("CUDA_PATH")
 

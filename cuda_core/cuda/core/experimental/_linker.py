@@ -343,7 +343,7 @@ def _exception_manager(self):
             # our constructor could raise, in which case there's no handle available
             error_log = self.get_error_log()
         # Starting Python 3.11 we could also use Exception.add_note() for the same purpose, but
-        # unfortunately we are still supporting Python 3.10...
+        # unfortunately we are still supporting Python 3.9/3.10...
         # Here we rely on both CUDAError and nvJitLinkError have the error string placed in .args[0].
         e.args = (e.args[0] + (f"\nLinker error log: {error_log}" if error_log else ""), *e.args[1:])
         raise e

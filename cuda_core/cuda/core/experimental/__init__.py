@@ -26,6 +26,17 @@ else:
 finally:
     del cuda.bindings, importlib, subdir, cuda_major, cuda_minor
 
+import sys  # noqa: E402
+import warnings  # noqa: E402
+
+if sys.version_info < (3, 10):
+    warnings.warn(
+        "support for Python 3.9 and below is deprecated and subject to future removal",
+        category=FutureWarning,
+        stacklevel=1,
+    )
+del sys, warnings
+
 from cuda.core.experimental import utils  # noqa: E402
 from cuda.core.experimental._device import Device  # noqa: E402
 from cuda.core.experimental._event import Event, EventOptions  # noqa: E402

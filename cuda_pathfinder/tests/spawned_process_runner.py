@@ -5,10 +5,10 @@ import multiprocessing
 import queue  # for Empty
 import sys
 import traceback
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass
 from io import StringIO
-from typing import Any
+from typing import Any, Callable, Optional
 
 PROCESS_KILLED = -9
 PROCESS_NO_RESULT = -999
@@ -61,9 +61,9 @@ class ChildProcessWrapper:
 def run_in_spawned_child_process(
     target: Callable[..., None],
     *,
-    args: Sequence[Any] | None = None,
-    kwargs: dict[str, Any] | None = None,
-    timeout: float | None = None,
+    args: Optional[Sequence[Any]] = None,
+    kwargs: Optional[dict[str, Any]] = None,
+    timeout: Optional[float] = None,
     rethrow: bool = False,
 ) -> CompletedProcess:
     """Run `target` in a spawned child process, capturing stdout/stderr.

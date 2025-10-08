@@ -8,7 +8,7 @@
 import argparse
 import os
 import re
-from typing import Dict, Set
+from typing import Dict, Optional, Set
 
 _SITE_PACKAGES_RE = re.compile(r"(?i)^.*?/site-packages/")
 
@@ -38,7 +38,7 @@ def parse_lines_linux(lines) -> Dict[str, Set[str]]:
     return d
 
 
-def extract_libname_from_dll(fname: str) -> str | None:
+def extract_libname_from_dll(fname: str) -> Optional[str]:
     """Return base libname per the heuristic, or None if not a .dll."""
     base = os.path.basename(fname)
     if not base.lower().endswith(".dll"):
