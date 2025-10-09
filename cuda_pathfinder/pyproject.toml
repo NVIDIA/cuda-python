@@ -28,10 +28,11 @@ cu12-linux = [
     "nvidia-cublasmp-cu12; sys_platform != 'win32'",
 ]
 cu13-common = [
-    "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,nvvm]==13.*",
+    "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl]==13.*",
     "nvidia-cudss-cu13",
 ]
 cu13-linux = [
+    "cuda-toolkit[nvvm]==13.*",  # this should be in cu13-common, but pixi -e cu13-win-64 stumbles over it
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
     "nvidia-cublasmp-cu13; sys_platform != 'win32'",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
@@ -52,19 +53,6 @@ test-cu13 = [
     { include-group = "test" },
     { include-group = "cu13-common" },
     { include-group = "cu13-linux" },
-    { include-group = "host-linux-aarch64" },
-]
-
-# Only for use from pixi sections below.
-cu12-ext = [
-    { include-group = "cu12-common" },
-    { include-group = "cu12-linux" },
-]
-cu13-ext = [
-    { include-group = "cu13-common" },
-    { include-group = "cu13-linux" },
-]
-host = [
     { include-group = "host-linux-aarch64" },
 ]
 
@@ -165,20 +153,21 @@ platforms = ["linux-64", "linux-aarch64", "win-64"]
 cuda-pathfinder = { path = ".", editable = true }
 
 [tool.pixi.environments]
-cu12 = { features = ["cu12-common", "test"], solve-group = "cu12" }
-cu13 = { features = ["cu13-common", "test"], solve-group = "cu13" }
-cu12-ext = { features = ["cu12-ext", "test"], solve-group = "cu12-ext" }
-cu13-ext = { features = ["cu13-ext", "test"], solve-group = "cu13-ext" }
-host = { features = ["host", "test"], solve-group = "host" }
+cu12-linux-64 = { features = ["test", "cu12-common", "cu12-linux"], solve-group = "cu12-linux-64" }
+cu13-linux-64 = { features = ["test", "cu13-common", "cu13-linux"], solve-group = "cu13-linux-64" }
+cu12-linux-aarch64 = { features = ["test", "cu12-common", "cu12-linux", "host-linux-aarch64"], solve-group = "cu12-linux-aarch64" }
+cu13-linux-aarch64 = { features = ["test", "cu13-common", "cu13-linux", "host-linux-aarch64"], solve-group = "cu13-linux-aarch64" }
+cu12-win-64 = { features = ["test", "cu12-common"], solve-group = "cu12-win-64" }
+cu13-win-64 = { features = ["test", "cu13-common"], solve-group = "cu13-win-64" }
 
-[tool.pixi.feature.host]
+[tool.pixi.feature.cu12-linux]
+platforms = ["linux-64", "linux-aarch64"]
+
+[tool.pixi.feature.cu13-linux]
+platforms = ["linux-64", "linux-aarch64"]
+
+[tool.pixi.feature.host-linux-aarch64]
 platforms = ["linux-aarch64"]
-
-[tool.pixi.feature.cu12-ext]
-platforms = ["linux-64", "linux-aarch64"]
-
-[tool.pixi.feature.cu13-ext]
-platforms = ["linux-64", "linux-aarch64"]
 
 [tool.pixi.feature.test.tasks]
 test = { cmd = ["pytest", "$PIXI_PROJECT_ROOT/tests"] }
