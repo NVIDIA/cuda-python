@@ -29,10 +29,10 @@ cu12-linux = [
 ]
 cu13-common = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl]==13.*",
+    "cuda-toolkit[nvvm]==13.*",  # this needs to be separate so that pixi (cu13-win-64) doesn't stumbles over it
     "nvidia-cudss-cu13",
 ]
 cu13-linux = [
-    "cuda-toolkit[nvvm]==13.*",  # this should be in cu13-common, but pixi -e cu13-win-64 stumbles over it
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
     "nvidia-cublasmp-cu13; sys_platform != 'win32'",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
