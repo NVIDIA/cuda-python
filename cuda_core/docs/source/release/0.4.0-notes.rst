@@ -3,17 +3,18 @@
 
 .. currentmodule:: cuda.core.experimental
 
-``cuda.core`` 0.X.Y Release Notes
+``cuda.core`` 0.4.0 Release Notes
 =================================
 
-Released on TBD
+Released on Oct 9, 2025
 
 
 Highlights
 ----------
 
 - This is the last release that officially supports Python 3.9.
-- Fix for :class:`LaunchConfig` grid parameter unit conversion when thread block clusters are used.
+- Python 3.14 is supported.
+- **Experimental** free-threaded builds for Python 3.13/3.14 are made available. Any bugs can be reported to `our GitHub repo <https://github.com/NVIDIA/cuda-python>`_.
 
 
 Breaking Changes
