@@ -658,7 +658,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> supports the same platforms as CUDA. Runtime dependencies are:</p>
 <ul class="simple">
 <li><p>Linux (x86-64, arm64) and Windows (x86-64)</p></li>
-<li><p>Python 3.9 - 3.13</p></li>
+<li><p>Python 3.9 - 3.14</p></li>
 <li><p>Driver: Linux (580.65.06 or later) Windows (580.88 or later)</p></li>
 <li><p>Optionally, NVRTC, nvJitLink, NVVM, and cuFile from CUDA Toolkit 13.x</p></li>
 </ul>
@@ -667,6 +667,16 @@
 <p>The optional CUDA Toolkit components are now installed via the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage from PyPI for improved dependency resolution. Components can also be installed via Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html">Windows</a> and <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html">Linux</a> Installation Guides).</p>
 </div>
 <p>Starting from v12.8.0, <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> becomes a meta package which currently depends only on <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>; in the future more sub-packages will be added to <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code>. In the instructions below, we still use <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> as example to serve existing users, but everything is applicable to <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> as well.</p>
+<section id="free-threading-build-support">
+<h3>Free-threading Build Support<a class="headerlink" href="#free-threading-build-support" title="Link to this heading">#</a></h3>
+<p>As of cuda-bindings 13.0.2 and 12.9.3, <strong>experimental</strong> packages for the <a class="reference external" href="https://docs.python.org/3/howto/free-threading-python.html">free-threaded interpreter</a> are shipped.</p>
+<ol class="arabic simple">
+<li><p>Support for these builds is best effort, due to heavy use of <a class="reference external" href="https://github.com/python/cpython/issues/116738">built-in
+modules that are known to be thread-unsafe</a>, such as <code class="docutils literal notranslate"><span class="pre">ctypes</span></code>.</p></li>
+<li><p>For now, you are responsible for making sure that calls into the <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>
+library are thread-safe. This is subject to change.</p></li>
+</ol>
+</section>
 </section>
 <section id="installing-from-pypi">
 <h2>Installing from PyPI<a class="headerlink" href="#installing-from-pypi" title="Link to this heading">#</a></h2>
@@ -702,8 +712,6 @@
 </section>
 <section id="installing-from-source">
 <h2>Installing from Source<a class="headerlink" href="#installing-from-source" title="Link to this heading">#</a></h2>
-<section id="requirements">
-<h3>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>CUDA Toolkit headers[^1]</p></li>
 <li><p>CUDA Runtime static library[^2]</p></li>
@@ -719,15 +727,11 @@
 <p class="admonition-title">Note</p>
 <p>Only <code class="docutils literal notranslate"><span class="pre">cydriver</span></code>, <code class="docutils literal notranslate"><span class="pre">cyruntime</span></code> and <code class="docutils literal notranslate"><span class="pre">cynvrtc</span></code> are impacted by the header requirement.</p>
 </div>
-</section>
-<section id="editable-install">
-<h3>Editable Install<a class="headerlink" href="#editable-install" title="Link to this heading">#</a></h3>
 <p>You can use:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-v<span class="w"> </span>-e<span class="w"> </span>.
 </pre></div>
 </div>
 <p>to install the module as editable in your current Python environment (e.g. for testing of porting other libraries to use the binding).</p>
-</section>
 </section>
 </section>
 
@@ -780,14 +784,13 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime-requirements">Runtime Requirements</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-pypi">Installing from PyPI</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-conda">Installing from Conda</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-source">Installing from Source</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#editable-install">Editable Install</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime-requirements">Runtime Requirements</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#free-threading-build-support">Free-threading Build Support</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-pypi">Installing from PyPI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-conda">Installing from Conda</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-source">Installing from Source</a></li>
 </ul>
   </nav></div>
 

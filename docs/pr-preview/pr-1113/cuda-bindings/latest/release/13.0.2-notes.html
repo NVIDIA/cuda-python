@@ -660,6 +660,9 @@
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>This is the last release that officially supports Python 3.9.</p></li>
+<li><p>Python 3.14 is supported.</p></li>
+<li><p><strong>Experimental</strong> free-threaded builds for Python 3.13/3.14 are made available. Any bugs can be reported to <a class="reference external" href="https://github.com/NVIDIA/cuda-python">our GitHub repo</a>. More details are available in our <a class="reference internal" href="../support.html#support"><span class="std std-ref">cuda.bindings Support Policy</span></a> docs.</p></li>
 <li><p>Migrated wheel dependencies from individual NVIDIA packages to the <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> metapackage for improved dependency resolution and version constraints.</p></li>
 <li><p>Automatic CUDA library path detection based on <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>, eliminating the need to manually set <code class="docutils literal notranslate"><span class="pre">LIBRARY_PATH</span></code> environment variables for installation.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">[all]</span></code> optional dependencies now use <code class="docutils literal notranslate"><span class="pre">cuda-toolkit</span></code> with appropriate extras instead of individual packages. The NVCC compiler is no longer automatically installed with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-python[all]</span></code> as it was previously included only to access the NVVM library, which now has its own dedicated wheel. Users who need the NVCC compiler should explicitly install it with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-toolkit[nvcc]==X.Y</span></code> with the appropriate version for their needs.</p></li>
@@ -667,7 +670,6 @@
 <li><p>On Windows, the <code class="docutils literal notranslate"><span class="pre">pywin32</span></code> dependency has been removed. The necessary Windows API functions are now accessed directly.</p></li>
 <li><p>Updated the <code class="docutils literal notranslate"><span class="pre">cuda.bindings.runtime</span></code> module to statically link against the CUDA Runtime library from CUDA Toolkit 13.0.1.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cyruntime.getLocalRuntimeVersion</span></code> now uses pathfinder to find the CUDA runtime.</p></li>
-<li><p>Experimental free-threaded builds are available on PyPI. More details are available in our <a class="reference internal" href="../support.html#support"><span class="std std-ref">cuda.bindings Support Policy</span></a> docs.</p></li>
 </ul>
 </section>
 <section id="bug-fixes">

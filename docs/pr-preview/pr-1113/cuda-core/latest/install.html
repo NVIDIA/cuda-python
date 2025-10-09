@@ -582,7 +582,17 @@ dependencies are as follows:</p>
 <p>Including <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code>.</p>
 </aside>
 </aside>
-<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> supports Python 3.9 - 3.13, on Linux (x86-64, arm64) and Windows (x86-64).</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> supports Python 3.9 - 3.14, on Linux (x86-64, arm64) and Windows (x86-64). <strong>Experimental</strong> free-threaded builds for Python 3.13 &amp; 3.14 are also provided.</p>
+<section id="free-threading-build-support">
+<h3>Free-threading Build Support<a class="headerlink" href="#free-threading-build-support" title="Link to this heading">#</a></h3>
+<p>As of cuda-core 0.4.0, <strong>experimental</strong> packages for the <a class="reference external" href="https://docs.python.org/3/howto/free-threading-python.html">free-threaded interpreter</a> are shipped.</p>
+<ol class="arabic simple">
+<li><p>Support for these builds is best effort, due to heavy use of <a class="reference external" href="https://github.com/python/cpython/issues/116738">built-in
+modules that are known to be thread-unsafe</a>, such as <code class="docutils literal notranslate"><span class="pre">ctypes</span></code>.</p></li>
+<li><p>For now, you are responsible for making sure that calls into the <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code>
+library are thread-safe. This is subject to change.</p></li>
+</ol>
+</section>
 </section>
 <section id="installing-from-pypi">
 <h2>Installing from PyPI<a class="headerlink" href="#installing-from-pypi" title="Link to this heading">#</a></h2>
@@ -593,16 +603,6 @@ dependencies are as follows:</p>
 <p>and likewise use <code class="docutils literal notranslate"><span class="pre">[cu13]</span></code> for CUDA 13.</p>
 <p>Note that using <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> with NVRTC installed from PyPI via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> requires
 <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> 12.8.0+. Likewise, with nvJitLink it requires 12.8.0+.</p>
-<section id="free-threading-build-support">
-<h3>Free-threading Build Support<a class="headerlink" href="#free-threading-build-support" title="Link to this heading">#</a></h3>
-<p>As of cuda-core 0.4.0, wheels for the <a class="reference external" href="https://docs.python.org/3/howto/free-threading-python.html">free-threaded interpreter</a> are shipped to PyPI.</p>
-<ol class="arabic simple">
-<li><p>Support for these builds is best effort, due to heavy use of <a class="reference external" href="https://github.com/python/cpython/issues/116738">built-in
-modules that are known to be thread-unsafe</a>, such as <code class="docutils literal notranslate"><span class="pre">ctypes</span></code>.</p></li>
-<li><p>For now, you are responsible for making sure that calls into <code class="docutils literal notranslate"><span class="pre">cuda-core</span></code>
-libraries are thread-safe. This is subject to change.</p></li>
-</ol>
-</section>
 </section>
 <section id="installing-from-conda-conda-forge">
 <h2>Installing from Conda (conda-forge)<a class="headerlink" href="#installing-from-conda-conda-forge" title="Link to this heading">#</a></h2>
@@ -673,11 +673,11 @@ libraries are thread-safe. This is subject to change.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime-requirements">Runtime Requirements</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-pypi">Installing from PyPI</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime-requirements">Runtime Requirements</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#free-threading-build-support">Free-threading Build Support</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-pypi">Installing from PyPI</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-conda-conda-forge">Installing from Conda (conda-forge)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-source">Installing from Source</a></li>
 </ul>

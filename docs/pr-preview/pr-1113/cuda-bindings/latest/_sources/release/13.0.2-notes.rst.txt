@@ -12,6 +12,9 @@ Released on Oct 9, 2025
 Highlights
 ----------
 
+* This is the last release that officially supports Python 3.9.
+* Python 3.14 is supported.
+* **Experimental** free-threaded builds for Python 3.13/3.14 are made available. Any bugs can be reported to `our GitHub repo <https://github.com/NVIDIA/cuda-python>`_. More details are available in our :ref:`support` docs.
 * Migrated wheel dependencies from individual NVIDIA packages to the ``cuda-toolkit`` metapackage for improved dependency resolution and version constraints.
 * Automatic CUDA library path detection based on ``CUDA_HOME``, eliminating the need to manually set ``LIBRARY_PATH`` environment variables for installation.
 * The ``[all]`` optional dependencies now use ``cuda-toolkit`` with appropriate extras instead of individual packages. The NVCC compiler is no longer automatically installed with ``pip install cuda-python[all]`` as it was previously included only to access the NVVM library, which now has its own dedicated wheel. Users who need the NVCC compiler should explicitly install it with ``pip install cuda-toolkit[nvcc]==X.Y`` with the appropriate version for their needs.
@@ -19,7 +22,6 @@ Highlights
 * On Windows, the ``pywin32`` dependency has been removed. The necessary Windows API functions are now accessed directly.
 * Updated the ``cuda.bindings.runtime`` module to statically link against the CUDA Runtime library from CUDA Toolkit 13.0.1.
 * ``cyruntime.getLocalRuntimeVersion`` now uses pathfinder to find the CUDA runtime.
-* Experimental free-threaded builds are available on PyPI. More details are available in our :ref:`support` docs.
 
 
 Bug fixes
