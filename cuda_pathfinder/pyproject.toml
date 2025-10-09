@@ -198,6 +198,3 @@ platforms = ["linux-aarch64"]
 
 [tool.pixi.feature.test.tasks]
 test = { cmd = ["pytest", "$PIXI_PROJECT_ROOT/tests"] }
-
-[tool.pixi.target.linux.activation.env]
-CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
