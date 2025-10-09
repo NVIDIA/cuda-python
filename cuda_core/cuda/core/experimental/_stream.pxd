@@ -22,3 +22,6 @@ cdef class Stream:
     cpdef close(self)
     cdef int _get_context(self) except?-1 nogil
     cdef int _get_device_and_context(self) except?-1
+
+
+cdef Stream default_stream()

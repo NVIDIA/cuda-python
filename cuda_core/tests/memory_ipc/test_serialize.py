@@ -48,6 +48,8 @@ class TestObjectSerializationDirect:
         # Confirm buffers were modified.
         IPCBufferTestHelper(device, buffer1).verify_buffer(flipped=True)
         IPCBufferTestHelper(device, buffer2).verify_buffer(flipped=True)
+        buffer1.close()
+        buffer2.close()
 
     def child_main(self, conn):
         # Set up the device.
@@ -67,6 +69,8 @@ class TestObjectSerializationDirect:
         # Modify the buffers.
         IPCBufferTestHelper(device, buffer1).fill_buffer(flipped=True)
         IPCBufferTestHelper(device, buffer2).fill_buffer(flipped=True)
+        buffer1.close()
+        buffer2.close()
 
 
 class TestObjectSerializationWithMR:
@@ -97,6 +101,7 @@ class TestObjectSerializationWithMR:
 
         # Confirm buffer was modified.
         IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
+        buffer.close()
 
     def child_main(self, pipe, _):
         device = Device()
@@ -110,6 +115,7 @@ class TestObjectSerializationWithMR:
         buffer = pipe[0].get(timeout=CHILD_TIMEOUT_SEC)
         assert buffer.memory_resource.handle == mr.handle
         IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
+        buffer.close()
 
 
 def test_object_passing(ipc_device, ipc_memory_resource):
@@ -138,6 +144,7 @@ def test_object_passing(ipc_device, ipc_memory_resource):
     assert process.exitcode == 0
 
     helper.verify_buffer(flipped=True)
+    buffer.close()
 
 
 def child_main(alloc_handle, mr1, buffer_desc, buffer1):
@@ -178,3 +185,6 @@ def child_main(alloc_handle, mr1, buffer_desc, buffer1):
     helper1.verify_buffer(flipped=True)
     helper2.verify_buffer(flipped=True)
     helper3.verify_buffer(flipped=True)
+
+    # Close any one buffer.
+    buffer1.close()

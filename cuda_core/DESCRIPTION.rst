@@ -5,6 +5,10 @@
 cuda-core: Pythonic access to CUDA core functionalities
 *******************************************************
 
+.. image:: https://img.shields.io/badge/NVIDIA-black?logo=nvidia
+   :target: https://www.nvidia.com/
+   :alt: NVIDIA
+
 `cuda.core <https://nvidia.github.io/cuda-python/cuda-core/>`_ bridges Python's productivity with CUDA's performance through intuitive and pythonic APIs. The mission is to provide users full access to all of the core CUDA features in Python, such as runtime control, compiler and linker.
 
 * `Repository <https://github.com/NVIDIA/cuda-python/tree/main/cuda_core>`_
