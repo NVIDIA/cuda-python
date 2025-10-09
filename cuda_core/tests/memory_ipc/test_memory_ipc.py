@@ -6,6 +6,8 @@ import multiprocessing as mp
 from cuda.core.experimental import Buffer, DeviceMemoryResource
 from utility import IPCBufferTestHelper
 
+from cuda_python_test_helpers import supports_ipc_mempool
+
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
 NWORKERS = 2
@@ -14,6 +16,10 @@ NTASKS = 2
 
 class TestIpcMempool:
     def test_main(self, ipc_device, ipc_memory_resource):
+        if not supports_ipc_mempool(ipc_device):
+            import pytest
+
+            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         """Test IPC with memory pools."""
         # Set up the IPC-enabled memory pool and share it.
         device = ipc_device
@@ -51,6 +57,10 @@ class TestIpcMempool:
 
 class TestIPCMempoolMultiple:
     def test_main(self, ipc_device, ipc_memory_resource):
+        if not supports_ipc_mempool(ipc_device):
+            import pytest
+
+            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         """Test IPC with memory pools using multiple processes."""
         # Construct an IPC-enabled memory resource and share it with two children.
         device = ipc_device
@@ -99,6 +109,10 @@ class TestIPCMempoolMultiple:
 
 class TestIPCSharedAllocationHandleAndBufferDescriptors:
     def test_main(self, ipc_device, ipc_memory_resource):
+        if not supports_ipc_mempool(ipc_device):
+            import pytest
+
+            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         """
         Demonstrate that a memory pool allocation handle can be reused for IPC
         with multiple processes. Uses buffer descriptors.
