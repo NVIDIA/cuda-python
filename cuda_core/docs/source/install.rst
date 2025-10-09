@@ -26,7 +26,22 @@ dependencies are as follows:
 .. [#f1] Including ``cuda-python``.
 
 
-``cuda.core`` supports Python 3.9 - 3.13, on Linux (x86-64, arm64) and Windows (x86-64).
+``cuda.core`` supports Python 3.9 - 3.14, on Linux (x86-64, arm64) and Windows (x86-64). **Experimental** free-threaded builds for Python 3.13 & 3.14 are also provided.
+
+
+Free-threading Build Support
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As of cuda-core 0.4.0, **experimental** packages for the `free-threaded interpreter`_ are shipped.
+
+1. Support for these builds is best effort, due to heavy use of `built-in
+   modules that are known to be thread-unsafe`_, such as ``ctypes``.
+2. For now, you are responsible for making sure that calls into ``cuda-core``
+   libraries are thread-safe. This is subject to change.
+
+.. _built-in modules that are known to be thread-unsafe: https://github.com/python/cpython/issues/116738
+.. _free-threaded interpreter: https://docs.python.org/3/howto/free-threading-python.html
+
 
 Installing from PyPI
 --------------------
@@ -42,17 +57,6 @@ and likewise use ``[cu13]`` for CUDA 13.
 Note that using ``cuda.core`` with NVRTC installed from PyPI via ``pip install`` requires
 ``cuda.bindings`` 12.8.0+. Likewise, with nvJitLink it requires 12.8.0+.
 
-Free-threading Build Support
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-As of cuda-core 0.4.0, wheels for the `free-threaded interpreter`_ are shipped to PyPI.
-
-1. Support for these builds is best effort, due to heavy use of `built-in
-   modules that are known to be thread-unsafe`_, such as ``ctypes``.
-2. For now, you are responsible for making sure that calls into ``cuda-core``
-   libraries are thread-safe. This is subject to change.
-
-.. _built-in modules that are known to be thread-unsafe: https://github.com/python/cpython/issues/116738
-.. _free-threaded interpreter: https://docs.python.org/3/howto/free-threading-python.html
 
 Installing from Conda (conda-forge)
 -----------------------------------
@@ -66,6 +70,7 @@ Same as above, ``cuda.core`` can be installed in a CUDA 12 or 13 environment. Fo
 and likewise use ``cuda-version=13`` for CUDA 13.
 
 Note that to use ``cuda.core`` with nvJitLink installed from conda-forge requires ``cuda.bindings`` 12.8.0+.
+
 
 Installing from Source
 ----------------------
