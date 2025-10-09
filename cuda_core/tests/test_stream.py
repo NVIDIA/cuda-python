@@ -4,7 +4,7 @@
 import pytest
 from cuda.core.experimental import Device, Stream, StreamOptions
 from cuda.core.experimental._event import Event
-from cuda.core.experimental._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM, default_stream
+from cuda.core.experimental._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
 from cuda.core.experimental._utils.cuda_utils import driver
 
 
@@ -105,11 +105,6 @@ def test_legacy_default_stream():
 
 def test_per_thread_default_stream():
     assert isinstance(PER_THREAD_DEFAULT_STREAM, Stream)
-
-
-def test_default_stream():
-    stream = default_stream()
-    assert isinstance(stream, Stream)
 
 
 def test_stream_subclassing(init_cuda):

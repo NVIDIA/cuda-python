@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+[build-system]
+requires = ["setuptools>=77.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cuda-python-test-helpers"
+version = "0.1.0"
+description = "Shared test helpers for CUDA Python projects"
+readme = {file = "README.md", content-type = "text/markdown"}
+authors = [{ name = "NVIDIA Corporation" }]
+license = "Apache-2.0"
+requires-python = ">=3.9"
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Operating System :: POSIX :: Linux",
+]
+
+[tool.setuptools]
+packages = ["cuda_python_test_helpers"]
+
+[project.urls]
+repository = "https://github.com/NVIDIA/cuda-python"

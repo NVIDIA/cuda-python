@@ -9,6 +9,8 @@ import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from utility import IPCBufferTestHelper
 
+from cuda_python_test_helpers import supports_ipc_mempool
+
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
 NWORKERS = 2
@@ -28,6 +30,8 @@ class TestIpcWorkerPool:
 
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, nmrs):
+        if not supports_ipc_mempool(ipc_device):
+            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
@@ -38,11 +42,13 @@ class TestIpcWorkerPool:
 
         for buffer in buffers:
             IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
+            buffer.close()
 
     def process_buffer(self, buffer):
         device = Device(buffer.memory_resource.device_id)
         device.set_current()
         IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
+        buffer.close()
 
 
 class TestIpcWorkerPoolUsingIPCDescriptors:
@@ -60,6 +66,8 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
 
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, nmrs):
+        if not supports_ipc_mempool(ipc_device):
+            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
@@ -73,6 +81,7 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
 
         for buffer in buffers:
             IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
+            buffer.close()
 
     def process_buffer(self, mr_idx, buffer_desc):
         mr = self.mrs[mr_idx]
@@ -80,6 +89,7 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         device.set_current()
         buffer = Buffer.from_ipc_descriptor(mr, buffer_desc)
         IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
+        buffer.close()
 
 
 class TestIpcWorkerPoolUsingRegistry:
@@ -100,6 +110,8 @@ class TestIpcWorkerPoolUsingRegistry:
 
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, nmrs):
+        if not supports_ipc_mempool(ipc_device):
+            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
@@ -110,8 +122,10 @@ class TestIpcWorkerPoolUsingRegistry:
 
         for buffer in buffers:
             IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
+            buffer.close()
 
     def process_buffer(self, device, buffer_s):
         device.set_current()
         buffer = pickle.loads(buffer_s)  # noqa: S301
         IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
+        buffer.close()

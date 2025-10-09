@@ -12,6 +12,7 @@ from libc.string cimport memset, memcpy
 from cuda.bindings cimport cydriver
 
 from cuda.core.experimental._stream cimport Stream as cyStream
+from cuda.core.experimental._stream cimport default_stream
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
     check_or_create_options,
@@ -30,7 +31,7 @@ import platform
 import weakref
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
-from cuda.core.experimental._stream import Stream, default_stream
+from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.cuda_utils import ( driver, Transaction, get_binding_version )
 
 if platform.system() == "Linux":
