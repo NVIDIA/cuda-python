@@ -36,8 +36,8 @@ As of cuda-core 0.4.0, **experimental** packages for the `free-threaded interpre
 
 1. Support for these builds is best effort, due to heavy use of `built-in
    modules that are known to be thread-unsafe`_, such as ``ctypes``.
-2. For now, you are responsible for making sure that calls into ``cuda-core``
-   libraries are thread-safe. This is subject to change.
+2. For now, you are responsible for making sure that calls into the ``cuda-core``
+   library are thread-safe. This is subject to change.
 
 .. _built-in modules that are known to be thread-unsafe: https://github.com/python/cpython/issues/116738
 .. _free-threaded interpreter: https://docs.python.org/3/howto/free-threading-python.html
