@@ -11,45 +11,61 @@ dynamic = ["version", "readme"]
 dependencies = []
 
 [dependency-groups]
-# Internal organization of test dependencies
-_test-deps = ["pytest>=6.2.4"]
-_test-cu12-base = [
+# Internal organization of test dependencies.
+# Note that pixi does not currently support PEP 508 environment markers,
+# therefore we are forced to break out subgroups by markers.
+test = ["pytest>=6.2.4"]
+cu12-common = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl]==12.*",
     "nvidia-cudss-cu12",
     "nvidia-libmathdx-cu12",
 ]
-_test-cu12-ext = [
+cu12-linux = [
     "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
     "nvidia-cufftmp-cu12; sys_platform != 'win32'",
     "nvidia-nccl-cu12; sys_platform != 'win32'",
     "nvidia-nvshmem-cu12; sys_platform != 'win32'",
     "nvidia-cublasmp-cu12; sys_platform != 'win32'",
 ]
-_test-cu13-base = [
+cu13-common = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,nvvm]==13.*",
     "nvidia-cudss-cu13",
 ]
-_test-cu13-ext = [
+cu13-linux = [
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
     "nvidia-cublasmp-cu13; sys_platform != 'win32'",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
     "nvidia-nvshmem-cu13; sys_platform != 'win32'",
 ]
-_test-host = [
+host-linux-aarch64 = [
     "nvpl-fft; platform_system == 'Linux' and platform_machine == 'aarch64'",
 ]
-# User-facing dependencies, e.g. --group test-cu13
+
+# User-facing dependencies, e.g. pip install --group test-cu13
 test-cu12 = [
-    { include-group = "_test-deps" },
-    { include-group = "_test-cu12-base" },
-    { include-group = "_test-cu12-ext" },
-    { include-group = "_test-host" },
+    { include-group = "test" },
+    { include-group = "cu12-common" },
+    { include-group = "cu12-linux" },
+    { include-group = "host-linux-aarch64" },
 ]
 test-cu13 = [
-    { include-group = "_test-deps" },
-    { include-group = "_test-cu13-base" },
-    { include-group = "_test-cu13-ext" },
-    { include-group = "_test-host" },
+    { include-group = "test" },
+    { include-group = "cu13-common" },
+    { include-group = "cu13-linux" },
+    { include-group = "host-linux-aarch64" },
+]
+
+# Only for use from pixi sections below.
+cu12-ext = [
+    { include-group = "cu12-common" },
+    { include-group = "cu12-linux" },
+]
+cu13-ext = [
+    { include-group = "cu13-common" },
+    { include-group = "cu13-linux" },
+]
+host = [
+    { include-group = "host-linux-aarch64" },
 ]
 
 [project.urls]
@@ -149,8 +165,8 @@ platforms = ["linux-64", "linux-aarch64", "win-64"]
 cuda-pathfinder = { path = ".", editable = true }
 
 [tool.pixi.environments]
-cu12 = { features = ["cu12", "test"], solve-group = "cu12" }
-cu13 = { features = ["cu13", "test"], solve-group = "cu13" }
+cu12 = { features = ["cu12-common", "test"], solve-group = "cu12" }
+cu13 = { features = ["cu13-common", "test"], solve-group = "cu13" }
 cu12-ext = { features = ["cu12-ext", "test"], solve-group = "cu12-ext" }
 cu13-ext = { features = ["cu13-ext", "test"], solve-group = "cu13-ext" }
 host = { features = ["host", "test"], solve-group = "host" }
