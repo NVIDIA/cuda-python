@@ -16,6 +16,7 @@ dependencies = []
 # therefore we are forced to break out subgroups by markers.
 test = ["pytest>=6.2.4"]
 cu12-common = [
+    # Cannot use "cuda-toolkit[...]==12.* here, it confuses pixi (observed with pixi 0.56.0)
     "nvidia-cublas-cu12",
     "nvidia-cuda-cccl-cu12",
     "nvidia-cuda-nvcc-cu12",
@@ -33,7 +34,7 @@ cu12-common = [
     "nvidia-libmathdx-cu12",
 ]
 cu12-linux = [
-    "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
+    "nvidia-cufile-cu12; sys_platform != 'win32'",
     "nvidia-cufftmp-cu12; sys_platform != 'win32'",
     "nvidia-nccl-cu12; sys_platform != 'win32'",
     "nvidia-nvshmem-cu12; sys_platform != 'win32'",
@@ -59,7 +60,7 @@ cu13-common = [
     "nvidia-cudss-cu13",
 ]
 cu13-linux = [
-    "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
+    "nvidia-cufile; sys_platform != 'win32'",
     "nvidia-cublasmp-cu13; sys_platform != 'win32'",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
     "nvidia-nvshmem-cu13; sys_platform != 'win32'",
