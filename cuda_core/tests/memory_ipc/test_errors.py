@@ -5,8 +5,9 @@ import multiprocessing
 import pickle
 import re
 
+import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
-from cuda.core.experimental._utils.cuda_utils import CUDAError
+from cuda.core.experimental._utils.cuda_utils import CUDAError, driver
 
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
@@ -141,3 +142,66 @@ class TestDanglingBuffer(ChildErrorHarness):
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is RuntimeError
         assert re.match(r"Memory resource [a-z0-9-]+ was not found", exc_msg)
+
+
+def test_error_in_close_memory_resource(ipc_memory_resource):
+    """Test that errors when closing a memory resource are raised."""
+    mr = ipc_memory_resource
+    driver.cuMemPoolDestroy(mr.handle)
+    with pytest.raises(CUDAError, match=".*CUDA_ERROR_INVALID_VALUE.*"):
+        mr.close()
+
+
+@pytest.mark.xfail(reason="Issue #1118", strict=True)
+@pytest.mark.filterwarnings("ignore")  # Test incorrectly warns
+def test_error_in_close_buffer(ipc_memory_resource):
+    """Test that errors when closing a memory buffer are raised."""
+    mr = ipc_memory_resource
+    buffer = mr.allocate(NBYTES)
+    driver.cuMemFree(buffer.handle)
+    with pytest.raises(CUDAError, match=".*CUDA_ERROR_INVALID_VALUE.*"):
+        buffer.close()
+
+
+@pytest.mark.xfail(reason="Issue #1118", strict=True)
+@pytest.mark.filterwarnings("ignore")  # Test incorrectly warns
+class TestErrorInCloseImportedMemoryResource(ChildErrorHarness):
+    """Test that errors when closing an imported memory resource are raised."""
+
+    def PARENT_ACTION(self, queue):
+        pass
+
+    def CHILD_ACTION(self, queue):
+        try:
+            driver.cuMemPoolDestroy(self.mr.handle)
+        except Exception:  # noqa: S110
+            pass
+        else:
+            self.mr.close()
+
+    def ASSERT(self, exc_type, exc_msg):
+        assert exc_type is CUDAError
+        assert re.match(r"CUDA_ERROR_INVALID_VALUE", exc_msg)
+
+
+@pytest.mark.xfail(reason="Issue #1118", strict=True)
+@pytest.mark.filterwarnings("ignore")  # Test incorrectly warns
+class TestErrorInCloseImportedBuffer(ChildErrorHarness):
+    """Test that errors when closing an imported buffer are raised."""
+
+    def PARENT_ACTION(self, queue):
+        self.buffer = self.mr.allocate(NBYTES)
+        queue.put(self.buffer)
+
+    def CHILD_ACTION(self, queue):
+        buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
+        try:
+            driver.cuMemFree(buffer.handle)
+        except Exception:  # noqa: S110
+            pass
+        else:
+            buffer.close()
+
+    def ASSERT(self, exc_type, exc_msg):
+        assert exc_type is CUDAError
+        assert re.match(r"CUDA_ERROR_INVALID_VALUE", exc_msg)
