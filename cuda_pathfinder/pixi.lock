@@ -771,8 +771,8 @@ packages:
   requires_python: '>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*'
 - pypi: ./
   name: cuda-pathfinder
-  version: 1.3.1a0
-  sha256: 0d3091b3fa0ee340d4c3074b5ba4966a3f6e894fc3a2e1c2ea3f86b6baaf0fa1
+  version: 1.3.1
+  sha256: cf88cf96b8d0e9d1e8c58d8d6801e8d2bc7709ad36a90431f1e91c477356ccc6
   requires_python: '>=3.9'
   editable: true
 - pypi: https://files.pythonhosted.org/packages/2c/e1/e6716421ea10d38022b952c159d5161ca1193197fb744506875fbb87ea7b/iniconfig-2.1.0-py3-none-any.whl
