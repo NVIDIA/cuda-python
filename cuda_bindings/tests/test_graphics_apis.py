@@ -1,18 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import pytest
 from cuda.bindings import runtime as cudart
 
-try:
-    import PySide6
-except ImportError:
-    PySide6 = None
 
-import pytest
-
-
-@pytest.mark.skipif(PySide6 is None, reason="PySide6 not installed")
 def test_graphics_api_smoketest():
+    _ = pytest.importorskip("PySide6")
     from PySide6 import QtGui, QtOpenGL
 
     class GLWidget(QtOpenGL.QOpenGLWindow):
