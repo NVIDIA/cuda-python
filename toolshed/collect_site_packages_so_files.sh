@@ -17,12 +17,12 @@ fresh_venv() {
 cd cuda_pathfinder/
 fresh_venv ../TmpCp12Venv
 set -x
-pip install --only-binary=:all: -e . --group test --group test_nvidia_wheels_cu12 --group test_nvidia_wheels_host
+pip install --only-binary=:all: -e . --group test-cu12
 set +x
 deactivate
 fresh_venv ../TmpCp13Venv
 set -x
-pip install --only-binary=:all: -e . --group test --group test_nvidia_wheels_cu13 --group test_nvidia_wheels_host
+pip install --only-binary=:all: -e . --group test-cu13
 set +x
 deactivate
 cd ..

@@ -283,7 +283,7 @@ jobs:
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
-          pip install --only-binary=:all: -v . --group "test_nvidia_wheels_cu${TEST_CUDA_MAJOR}" --group test_nvidia_wheels_host
+          pip install --only-binary=:all: -v . --group "test-cu${TEST_CUDA_MAJOR}"
           pip list
           popd
 
