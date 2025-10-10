@@ -16,7 +16,7 @@ class LoadedDL:
     abs_path: Optional[str]
     was_already_loaded_from_elsewhere: bool
     _handle_uint: int  # Platform-agnostic unsigned pointer value
-    foundvia: Optional[str] = None
+    found_via: str
 
 
 def load_dependencies(libname: str, load_func: Callable[[str], LoadedDL]) -> None:

@@ -113,7 +113,7 @@ def check_if_already_loaded_from_elsewhere(
                 # load_with_abs_path(). To make the side-effect more deterministic,
                 # activate it even if the library was already loaded from elsewhere.
                 add_dll_directory(abs_path)
-            return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle), "already-loaded-from-elsewhere")
+            return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle), "was-already-loaded-from-elsewhere")
     return None
 
 

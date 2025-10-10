@@ -27,12 +27,13 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
     finder = _FindNvidiaDynamicLib(libname)
     abs_path = finder.try_site_packages()
 
-    if abs_path is None:
+    abs_path = finder.try_site_packages()
+    if abs_path is not None:
+        found_via = "site-packages"
+    else:
         abs_path = finder.try_with_conda_prefix()
         if abs_path is not None:
             found_via = "conda"
-    else:
-        found_via = "site-packages"
 
     # If the library was already loaded by someone else, reproduce any OS-specific
     # side-effects we would have applied on a direct absolute-path load (e.g.,

@@ -139,7 +139,7 @@ def check_if_already_loaded_from_elsewhere(libname: str, _have_abs_path: bool) -
             continue
         else:
             return LoadedDL(
-                abs_path_for_dynamic_library(libname, handle), True, handle._handle, "already-loaded-from-elsewhere"
+                abs_path_for_dynamic_library(libname, handle), True, handle._handle, "was-already-loaded-from-elsewhere"
             )
     return None
 
