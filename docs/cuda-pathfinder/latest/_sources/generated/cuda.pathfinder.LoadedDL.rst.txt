@@ -25,5 +25,6 @@
    
       ~LoadedDL.abs_path
       ~LoadedDL.was_already_loaded_from_elsewhere
+      ~LoadedDL.found_via
    
    
