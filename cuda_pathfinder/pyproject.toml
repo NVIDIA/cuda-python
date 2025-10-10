@@ -197,4 +197,4 @@ platforms = ["linux-64", "linux-aarch64"]
 platforms = ["linux-aarch64"]
 
 [tool.pixi.feature.test.tasks]
-test = { cmd = ["$CONDA_PREFIX/bin/pytest", "$PIXI_PROJECT_ROOT/tests"] }
+test = { cmd = ["pytest", "$PIXI_PROJECT_ROOT/tests"] }
