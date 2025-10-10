@@ -193,6 +193,7 @@ jobs:
 
   checks:
     name: Check job status
+    if: always()
     runs-on: ubuntu-latest
     needs:
       - test-linux-64

@@ -8,6 +8,8 @@ import pytest
 from cuda.core.experimental import DeviceMemoryResource, DeviceMemoryResourceOptions
 from utility import IPCBufferTestHelper
 
+from cuda_python_test_helpers import supports_ipc_mempool
+
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
 NMRS = 3
@@ -18,6 +20,8 @@ POOL_SIZE = 2097152
 @pytest.mark.parametrize("nmrs", (1, NMRS))
 def test_ipc_send_buffers(ipc_device, nmrs):
     """Test passing buffers sourced from multiple memory resources."""
+    if not supports_ipc_mempool(ipc_device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
     # Set up several IPC-enabled memory pools.
     device = ipc_device
     options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
@@ -47,6 +51,7 @@ def test_ipc_send_buffers(ipc_device, nmrs):
     for buffer in buffers:
         helper = IPCBufferTestHelper(device, buffer)
         helper.verify_buffer(flipped=True)
+        buffer.close()
 
 
 def child_main(device, buffers):
@@ -55,3 +60,4 @@ def child_main(device, buffers):
         helper = IPCBufferTestHelper(device, buffer)
         helper.verify_buffer(flipped=False)
         helper.fill_buffer(flipped=True)
+        buffer.close()

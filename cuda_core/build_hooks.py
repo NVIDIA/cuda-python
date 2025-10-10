@@ -6,8 +6,6 @@
 # - https://peps.python.org/pep-0517/
 # - https://setuptools.pypa.io/en/latest/build_meta.html#dynamic-build-dependencies-and-other-build-meta-tweaks
 # Specifically, there are 5 APIs required to create a proper build backend, see below.
-#
-# TODO: also implement PEP-660 API hooks
 
 import functools
 import glob
@@ -19,6 +17,7 @@ from Cython.Build import cythonize
 from setuptools import Extension
 from setuptools import build_meta as _build_meta
 
+prepare_metadata_for_build_editable = _build_meta.prepare_metadata_for_build_editable
 prepare_metadata_for_build_wheel = _build_meta.prepare_metadata_for_build_wheel
 build_sdist = _build_meta.build_sdist
 get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
@@ -57,10 +56,13 @@ def _get_proper_cuda_bindings_major_version() -> str:
 _extensions = None
 
 
-def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
-    # Customizing this hook is needed because we must defer cythonization until cuda-bindings,
+def _build_cuda_core():
+    # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
     # now a required build-time dependency that's dynamically installed via the other hook below,
     # is installed. Otherwise, cimport any cuda.bindings modules would fail!
+    #
+    # This function populates "_extensions".
+    global _extensions
 
     # It seems setuptools' wildcard support has problems for namespace packages,
     # so we explicitly spell out all Extension instances.
@@ -94,21 +96,36 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
     compile_time_env = {"CUDA_CORE_BUILD_MAJOR": _get_proper_cuda_bindings_major_version()}
-
-    global _extensions
     _extensions = cythonize(
         ext_modules,
         verbose=True,
         language_level=3,
         nthreads=nthreads,
-        compiler_directives={"embedsignature": True, "warn.deprecated.IF": False},
+        compiler_directives={"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True},
         compile_time_env=compile_time_env,
     )
 
+    return
+
+
+def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
+    _build_cuda_core()
+    return _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
+
+
+def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
+    _build_cuda_core()
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
 
 
-def get_requires_for_build_wheel(config_settings=None):
+def _get_cuda_bindings_require():
     cuda_major = _get_proper_cuda_bindings_major_version()
-    cuda_bindings_require = [f"cuda-bindings=={cuda_major}.*"]
-    return _build_meta.get_requires_for_build_wheel(config_settings) + cuda_bindings_require
+    return [f"cuda-bindings=={cuda_major}.*"]
+
+
+def get_requires_for_build_editable(config_settings=None):
+    return _build_meta.get_requires_for_build_editable(config_settings) + _get_cuda_bindings_require()
+
+
+def get_requires_for_build_wheel(config_settings=None):
+    return _build_meta.get_requires_for_build_wheel(config_settings) + _get_cuda_bindings_require()
