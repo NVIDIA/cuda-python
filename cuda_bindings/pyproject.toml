@@ -37,8 +37,6 @@ all = [
 
 [dependency-groups]
 test = [
-    "cython>=3.1,<3.2",
-    "setuptools>=77.0.0",
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
@@ -67,3 +65,40 @@ archs = "native"
 archs = "AMD64"
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "win-64"]
+
+[tool.pixi.pypi-dependencies]
+cuda-bindings = { path = ".", editable = true }
+
+[tool.pixi.environments]
+cu13 = { features = ["all", "test"], solve-group = "cu13" }
+
+[tool.pixi.feature.all.dependencies]
+libnvjitlink = "*"
+
+[tool.pixi.build-dependencies]
+cuda-nvrtc-dev = "*"
+cuda-profiler-api = "*"
+cuda-nvvm = "*"
+gxx = "*"
+
+[tool.pixi.target.linux.build-dependencies]
+libcufile-dev = "*"
+
+[tool.pixi.target.linux-64.build-dependencies]
+cuda-crt-dev_linux-64 = "*"
+
+[tool.pixi.target.linux-aarch64.build-dependencies]
+cuda-crt-dev_linux-aarch64 = "*"
+
+[tool.pixi.target.win-64.build-dependencies]
+cuda-crt-dev_win-64 = "*"
+
+[tool.pixi.target.linux.activation.env]
+CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
+
+[tool.pixi.target.win.activation.env]
+CUDA_HOME = '%CONDA_PREFIX%\Library'
