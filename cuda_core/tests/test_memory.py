@@ -28,7 +28,7 @@ from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
 from cuda.core.experimental.utils import StridedMemoryView
 
-from cuda_python_test_helpers import supports_ipc_mempool, IS_WSL
+from cuda_python_test_helpers import IS_WSL, supports_ipc_mempool
 
 POOL_SIZE = 2097152  # 2MB size
 
