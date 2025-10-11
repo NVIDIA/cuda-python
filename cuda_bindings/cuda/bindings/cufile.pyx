@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.0.1. Do not modify it directly.
+# This code was automatically generated with version 13.0.0. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
@@ -1124,7 +1124,7 @@ cpdef driver_get_properties(intptr_t props):
     """Gets the Driver session properties.
 
     Args:
-        props (intptr_t): Properties to set.
+        props (intptr_t): to set.
 
     .. seealso:: `cuFileDriverGetProperties`
     """
@@ -1273,6 +1273,21 @@ cpdef str get_parameter_string(int param, int len):
     return _desc_str_.decode()
 
 
+cpdef get_parameter_min_max_value(int param, intptr_t min_value, intptr_t max_value):
+    """Get both the minimum and maximum settable values for a given size_t parameter in a single call.
+
+    Args:
+        param (SizeTConfigParameter): CUfile SizeT configuration parameter.
+        min_value (intptr_t): Pointer to store the minimum value.
+        max_value (intptr_t): Pointer to store the maximum value.
+
+    .. seealso:: `cuFileGetParameterMinMaxValue`
+    """
+    with nogil:
+        status = cuFileGetParameterMinMaxValue(<_SizeTConfigParameter>param, <size_t*>min_value, <size_t*>max_value)
+    check_status(status)
+
+
 cpdef set_parameter_size_t(int param, size_t value):
     with nogil:
         status = cuFileSetParameterSizeT(<_SizeTConfigParameter>param, value)
@@ -1288,6 +1303,141 @@ cpdef set_parameter_bool(int param, bint value):
 cpdef set_parameter_string(int param, intptr_t desc_str):
     with nogil:
         status = cuFileSetParameterString(<_StringConfigParameter>param, <const char*>desc_str)
+    check_status(status)
+
+
+cpdef set_stats_level(int level):
+    """Set the level of statistics collection for cuFile operations. This will override the cufile.json settings for stats.
+
+    Args:
+        level (int): Statistics level (0 = disabled, 1 = basic, 2 = detailed, 3 = verbose).
+
+    .. seealso:: `cuFileSetStatsLevel`
+    """
+    with nogil:
+        status = cuFileSetStatsLevel(level)
+    check_status(status)
+
+
+cpdef int get_stats_level() except? 0:
+    """Get the current level of statistics collection for cuFile operations.
+
+    Returns:
+        int: Pointer to store the current statistics level.
+
+    .. seealso:: `cuFileGetStatsLevel`
+    """
+    cdef int level
+    with nogil:
+        status = cuFileGetStatsLevel(&level)
+    check_status(status)
+    return level
+
+
+cpdef stats_start():
+    """Start collecting cuFile statistics.
+
+    .. seealso:: `cuFileStatsStart`
+    """
+    with nogil:
+        status = cuFileStatsStart()
+    check_status(status)
+
+
+cpdef stats_stop():
+    """Stop collecting cuFile statistics.
+
+    .. seealso:: `cuFileStatsStop`
+    """
+    with nogil:
+        status = cuFileStatsStop()
+    check_status(status)
+
+
+cpdef stats_reset():
+    """Reset all cuFile statistics counters.
+
+    .. seealso:: `cuFileStatsReset`
+    """
+    with nogil:
+        status = cuFileStatsReset()
+    check_status(status)
+
+
+cpdef get_stats_l1(intptr_t stats):
+    """Get Level 1 cuFile statistics.
+
+    Args:
+        stats (intptr_t): Pointer to CUfileStatsLevel1_t structure to be filled.
+
+    .. seealso:: `cuFileGetStatsL1`
+    """
+    with nogil:
+        status = cuFileGetStatsL1(<CUfileStatsLevel1_t*>stats)
+    check_status(status)
+
+
+cpdef get_stats_l2(intptr_t stats):
+    """Get Level 2 cuFile statistics.
+
+    Args:
+        stats (intptr_t): Pointer to CUfileStatsLevel2_t structure to be filled.
+
+    .. seealso:: `cuFileGetStatsL2`
+    """
+    with nogil:
+        status = cuFileGetStatsL2(<CUfileStatsLevel2_t*>stats)
+    check_status(status)
+
+
+cpdef get_stats_l3(intptr_t stats):
+    """Get Level 3 cuFile statistics.
+
+    Args:
+        stats (intptr_t): Pointer to CUfileStatsLevel3_t structure to be filled.
+
+    .. seealso:: `cuFileGetStatsL3`
+    """
+    with nogil:
+        status = cuFileGetStatsL3(<CUfileStatsLevel3_t*>stats)
+    check_status(status)
+
+
+cpdef size_t get_bar_size_in_kb(int gpu_ind_ex) except? 0:
+    cdef size_t bar_size
+    with nogil:
+        status = cuFileGetBARSizeInKB(gpu_ind_ex, &bar_size)
+    check_status(status)
+    return bar_size
+
+
+cpdef set_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len):
+    """Set both POSIX pool slab size and count parameters as a pair.
+
+    Args:
+        size_values (intptr_t): Array of slab sizes in KB.
+        count_values (intptr_t): Array of slab counts.
+        len (int): Length of both arrays (must be the same).
+
+    .. seealso:: `cuFileSetParameterPosixPoolSlabArray`
+    """
+    with nogil:
+        status = cuFileSetParameterPosixPoolSlabArray(<const size_t*>size_values, <const size_t*>count_values, len)
+    check_status(status)
+
+
+cpdef get_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len):
+    """Get both POSIX pool slab size and count parameters as a pair.
+
+    Args:
+        size_values (intptr_t): Buffer to receive slab sizes in KB.
+        count_values (intptr_t): Buffer to receive slab counts.
+        len (int): Buffer size (must match the actual parameter length).
+
+    .. seealso:: `cuFileGetParameterPosixPoolSlabArray`
+    """
+    with nogil:
+        status = cuFileGetParameterPosixPoolSlabArray(<size_t*>size_values, <size_t*>count_values, len)
     check_status(status)
 
 
