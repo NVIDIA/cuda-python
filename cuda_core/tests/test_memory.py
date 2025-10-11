@@ -28,7 +28,7 @@ from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
 from cuda.core.experimental.utils import StridedMemoryView
 
-from cuda_python_test_helpers import supports_ipc_mempool
+from cuda_python_test_helpers import supports_ipc_mempool, IS_WSL
 
 POOL_SIZE = 2097152  # 2MB size
 
@@ -324,6 +324,9 @@ def test_vmm_allocator_basic_allocation():
     """
     if platform.system() == "Windows":
         pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
+    if IS_WSL:
+        pytest.skip("VirtualMemoryResource is not supported on WSL")
+
     device = Device()
     device.set_current()
     options = VirtualMemoryResourceOptions()
@@ -360,6 +363,8 @@ def test_vmm_allocator_policy_configuration():
     """
     if platform.system() == "Windows":
         pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
+    if IS_WSL:
+        pytest.skip("VirtualMemoryResource is not supported on WSL")
     device = Device()
     device.set_current()
 
@@ -417,6 +422,8 @@ def test_vmm_allocator_grow_allocation():
     """
     if platform.system() == "Windows":
         pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
+    if IS_WSL:
+        pytest.skip("VirtualMemoryResource is not supported on WSL")
     device = Device()
     device.set_current()
 
