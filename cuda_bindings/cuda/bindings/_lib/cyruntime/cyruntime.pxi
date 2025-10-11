@@ -13,7 +13,7 @@
 # c.b._lib.cyruntime.utils), but was merged into one.
 
 from libc.string cimport memset
-cimport cuda.bindings.cydriver as cydriver
+cimport cuda.bindings._bindings.cydriver as cydriver
 
 cdef cudaError_t _cudaEGLStreamProducerPresentFrame(cyruntime.cudaEglStreamConnection* conn, cyruntime.cudaEglFrame eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
     cdef cudaError_t err = cudaSuccess
@@ -25,7 +25,7 @@ cdef cudaError_t _cudaEGLStreamProducerPresentFrame(cyruntime.cudaEglStreamConne
     err = getDriverEglFrame(&cueglFrame, eglframe)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuEGLStreamProducerPresentFrame(<cydriver.CUeglStreamConnection*>conn, cueglFrame, pStream)
+    err = <cudaError_t>cydriver._cuEGLStreamProducerPresentFrame(<cydriver.CUeglStreamConnection*>conn, cueglFrame, pStream)
     return err
 
 cdef cudaError_t _cudaEGLStreamProducerReturnFrame(cyruntime.cudaEglStreamConnection* conn, cyruntime.cudaEglFrame* eglframe, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -38,7 +38,7 @@ cdef cudaError_t _cudaEGLStreamProducerReturnFrame(cyruntime.cudaEglStreamConnec
         err = cudaErrorInvalidResourceHandle
         return err
     cdef cydriver.CUeglFrame cueglFrame
-    # err = <cudaError_t>cydriver._cuEGLStreamProducerReturnFrame(<cydriver.CUeglStreamConnection*>conn, &cueglFrame, pStream)
+    err = <cudaError_t>cydriver._cuEGLStreamProducerReturnFrame(<cydriver.CUeglStreamConnection*>conn, &cueglFrame, pStream)
     if err != cudaSuccess:
         return err
     err = getRuntimeEglFrame(eglframe, cueglFrame)
@@ -52,7 +52,7 @@ cdef cudaError_t _cudaGraphicsResourceGetMappedEglFrame(cyruntime.cudaEglFrame* 
         return err
     cdef cydriver.CUeglFrame cueglFrame
     memset(&cueglFrame, 0, sizeof(cueglFrame))
-    # err = <cudaError_t>cydriver._cuGraphicsResourceGetMappedEglFrame(&cueglFrame, <cydriver.CUgraphicsResource>resource, index, mipLevel)
+    err = <cudaError_t>cydriver._cuGraphicsResourceGetMappedEglFrame(&cueglFrame, <cydriver.CUgraphicsResource>resource, index, mipLevel)
     if err != cudaSuccess:
         return err
     err = getRuntimeEglFrame(eglFrame, cueglFrame)
@@ -67,7 +67,7 @@ cdef cudaError_t _cudaVDPAUGetDevice(int* device, cyruntime.VdpDevice vdpDevice,
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuVDPAUGetDevice(<cydriver.CUdevice*>device, vdpDevice, vdpGetProcAddress)
+    err = <cudaError_t>cydriver._cuVDPAUGetDevice(<cydriver.CUdevice*>device, vdpDevice, vdpGetProcAddress)
     return err
 
 cdef cudaError_t _cudaGraphicsVDPAURegisterVideoSurface(cudaGraphicsResource** resource, cyruntime.VdpVideoSurface vdpSurface, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -76,7 +76,7 @@ cdef cudaError_t _cudaGraphicsVDPAURegisterVideoSurface(cudaGraphicsResource** r
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuGraphicsVDPAURegisterVideoSurface(<cydriver.CUgraphicsResource*>resource, vdpSurface, flags)
+    err = <cudaError_t>cydriver._cuGraphicsVDPAURegisterVideoSurface(<cydriver.CUgraphicsResource*>resource, vdpSurface, flags)
     return err
 
 cdef cudaError_t _cudaGraphicsVDPAURegisterOutputSurface(cudaGraphicsResource** resource, cyruntime.VdpOutputSurface vdpSurface, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -85,7 +85,7 @@ cdef cudaError_t _cudaGraphicsVDPAURegisterOutputSurface(cudaGraphicsResource** 
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuGraphicsVDPAURegisterOutputSurface(<cydriver.CUgraphicsResource*>resource, vdpSurface, flags)
+    err = <cudaError_t>cydriver._cuGraphicsVDPAURegisterOutputSurface(<cydriver.CUgraphicsResource*>resource, vdpSurface, flags)
     return err
 
 cdef cudaError_t _cudaGLGetDevices(unsigned int* pCudaDeviceCount, int* pCudaDevices, unsigned int cudaDeviceCount, cyruntime.cudaGLDeviceList deviceList) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -94,7 +94,7 @@ cdef cudaError_t _cudaGLGetDevices(unsigned int* pCudaDeviceCount, int* pCudaDev
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuGLGetDevices_v2(pCudaDeviceCount, <cydriver.CUdevice*>pCudaDevices, cudaDeviceCount, <cydriver.CUGLDeviceList>deviceList)
+    err = <cudaError_t>cydriver._cuGLGetDevices_v2(pCudaDeviceCount, <cydriver.CUdevice*>pCudaDevices, cudaDeviceCount, <cydriver.CUGLDeviceList>deviceList)
     return err
 
 cdef cudaError_t _cudaGraphicsGLRegisterImage(cudaGraphicsResource** resource, cyruntime.GLuint image, cyruntime.GLenum target, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -103,7 +103,7 @@ cdef cudaError_t _cudaGraphicsGLRegisterImage(cudaGraphicsResource** resource, c
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuGraphicsGLRegisterImage(<cydriver.CUgraphicsResource*>resource, image, target, flags)
+    err = <cudaError_t>cydriver._cuGraphicsGLRegisterImage(<cydriver.CUgraphicsResource*>resource, image, target, flags)
     return err
 
 cdef cudaError_t _cudaGraphicsGLRegisterBuffer(cudaGraphicsResource** resource, cyruntime.GLuint buffer, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -112,7 +112,7 @@ cdef cudaError_t _cudaGraphicsGLRegisterBuffer(cudaGraphicsResource** resource, 
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuGraphicsGLRegisterBuffer(<cydriver.CUgraphicsResource*>resource, buffer, flags)
+    err = <cudaError_t>cydriver._cuGraphicsGLRegisterBuffer(<cydriver.CUgraphicsResource*>resource, buffer, flags)
     return err
 
 cdef cudaError_t _cudaGraphicsEGLRegisterImage(cudaGraphicsResource_t* pCudaResource, cyruntime.EGLImageKHR image, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -121,7 +121,7 @@ cdef cudaError_t _cudaGraphicsEGLRegisterImage(cudaGraphicsResource_t* pCudaReso
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuGraphicsEGLRegisterImage(<cydriver.CUgraphicsResource*>pCudaResource, image, flags)
+    err = <cudaError_t>cydriver._cuGraphicsEGLRegisterImage(<cydriver.CUgraphicsResource*>pCudaResource, image, flags)
     return err
 
 cdef cudaError_t _cudaEGLStreamConsumerConnect(cyruntime.cudaEglStreamConnection* conn, cyruntime.EGLStreamKHR eglStream) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -130,7 +130,7 @@ cdef cudaError_t _cudaEGLStreamConsumerConnect(cyruntime.cudaEglStreamConnection
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuEGLStreamConsumerConnect(<cydriver.CUeglStreamConnection*>conn, eglStream)
+    err = <cudaError_t>cydriver._cuEGLStreamConsumerConnect(<cydriver.CUeglStreamConnection*>conn, eglStream)
     return err
 
 cdef cudaError_t _cudaEGLStreamConsumerConnectWithFlags(cyruntime.cudaEglStreamConnection* conn, cyruntime.EGLStreamKHR eglStream, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -139,7 +139,7 @@ cdef cudaError_t _cudaEGLStreamConsumerConnectWithFlags(cyruntime.cudaEglStreamC
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuEGLStreamConsumerConnectWithFlags(<cydriver.CUeglStreamConnection*>conn, eglStream, flags)
+    err = <cudaError_t>cydriver._cuEGLStreamConsumerConnectWithFlags(<cydriver.CUeglStreamConnection*>conn, eglStream, flags)
     return err
 
 cdef cudaError_t _cudaEGLStreamConsumerDisconnect(cyruntime.cudaEglStreamConnection* conn) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -148,7 +148,7 @@ cdef cudaError_t _cudaEGLStreamConsumerDisconnect(cyruntime.cudaEglStreamConnect
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuEGLStreamConsumerDisconnect(<cydriver.CUeglStreamConnection*>conn)
+    err = <cudaError_t>cydriver._cuEGLStreamConsumerDisconnect(<cydriver.CUeglStreamConnection*>conn)
     return err
 
 cdef cudaError_t _cudaEGLStreamConsumerAcquireFrame(cyruntime.cudaEglStreamConnection* conn, cudaGraphicsResource_t* pCudaResource, cudaStream_t* pStream, unsigned int timeout) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -157,7 +157,7 @@ cdef cudaError_t _cudaEGLStreamConsumerAcquireFrame(cyruntime.cudaEglStreamConne
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuEGLStreamConsumerAcquireFrame(<cydriver.CUeglStreamConnection*>conn, <cydriver.CUgraphicsResource*>pCudaResource, <cydriver.CUstream*>pStream, timeout)
+    err = <cudaError_t>cydriver._cuEGLStreamConsumerAcquireFrame(<cydriver.CUeglStreamConnection*>conn, <cydriver.CUgraphicsResource*>pCudaResource, <cydriver.CUstream*>pStream, timeout)
     return err
 
 cdef cudaError_t _cudaEGLStreamConsumerReleaseFrame(cyruntime.cudaEglStreamConnection* conn, cudaGraphicsResource_t pCudaResource, cudaStream_t* pStream) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -166,7 +166,7 @@ cdef cudaError_t _cudaEGLStreamConsumerReleaseFrame(cyruntime.cudaEglStreamConne
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuEGLStreamConsumerReleaseFrame(<cydriver.CUeglStreamConnection*>conn, <cydriver.CUgraphicsResource>pCudaResource, <cydriver.CUstream*>pStream)
+    err = <cudaError_t>cydriver._cuEGLStreamConsumerReleaseFrame(<cydriver.CUeglStreamConnection*>conn, <cydriver.CUgraphicsResource>pCudaResource, <cydriver.CUstream*>pStream)
     return err
 
 cdef cudaError_t _cudaEGLStreamProducerConnect(cyruntime.cudaEglStreamConnection* conn, cyruntime.EGLStreamKHR eglStream, cyruntime.EGLint width, cyruntime.EGLint height) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -175,7 +175,7 @@ cdef cudaError_t _cudaEGLStreamProducerConnect(cyruntime.cudaEglStreamConnection
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuEGLStreamProducerConnect(<cydriver.CUeglStreamConnection*>conn, eglStream, width, height)
+    err = <cudaError_t>cydriver._cuEGLStreamProducerConnect(<cydriver.CUeglStreamConnection*>conn, eglStream, width, height)
     return err
 
 cdef cudaError_t _cudaEGLStreamProducerDisconnect(cyruntime.cudaEglStreamConnection* conn) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -184,7 +184,7 @@ cdef cudaError_t _cudaEGLStreamProducerDisconnect(cyruntime.cudaEglStreamConnect
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuEGLStreamProducerDisconnect(<cydriver.CUeglStreamConnection*>conn)
+    err = <cudaError_t>cydriver._cuEGLStreamProducerDisconnect(<cydriver.CUeglStreamConnection*>conn)
     return err
 
 cdef cudaError_t _cudaEventCreateFromEGLSync(cudaEvent_t* phEvent, cyruntime.EGLSyncKHR eglSync, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -193,7 +193,7 @@ cdef cudaError_t _cudaEventCreateFromEGLSync(cudaEvent_t* phEvent, cyruntime.EGL
     err = cudaFree(<void*>0)
     if err != cudaSuccess:
         return err
-    # err = <cudaError_t>cydriver._cuEventCreateFromEGLSync(<cydriver.CUevent*>phEvent, eglSync, flags)
+    err = <cudaError_t>cydriver._cuEventCreateFromEGLSync(<cydriver.CUevent*>phEvent, eglSync, flags)
     return err
 
 ## utility functions
