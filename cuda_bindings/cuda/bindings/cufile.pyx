@@ -1458,4 +1458,3 @@ cpdef str op_status_error(int status):
     cdef bytes _output_
     _output_ = cufileop_status_error(<_OpError>status)
     return _output_.decode()
-
