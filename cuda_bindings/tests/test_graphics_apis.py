@@ -6,9 +6,15 @@ from cuda.bindings import runtime as cudart
 
 
 def test_graphics_api_smoketest():
-    pyglet = pytest.importorskip("pyglet")
+    # Due to lazy importing in pyglet, pytest.importorskip doesn't work
+    try:
+        import pyglet
 
-    tex = pyglet.image.Texture.create(512, 512)
+        tex = pyglet.image.Texture.create(512, 512)
+    except ImportError:
+        pytest.skip("pyglet not available or could not create GL context")
+        # return to make linters happy
+        return
 
     err, gfx_resource = cudart.cudaGraphicsGLRegisterImage(
         tex.id, tex.target, cudart.cudaGraphicsRegisterFlags.cudaGraphicsRegisterFlagsWriteDiscard
