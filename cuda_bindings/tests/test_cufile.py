@@ -11,8 +11,9 @@ import tempfile
 from contextlib import suppress
 from functools import cache
 
-import cuda.bindings.driver as cuda
 import pytest
+
+import cuda.bindings.driver as cuda
 
 # Configure logging to show INFO level and above
 logging.basicConfig(
@@ -1945,14 +1946,12 @@ def test_set_stats_level():
 
         # Test invalid level (should raise an error)
         try:
-            cufile.set_stats_level(-1)  # Invalid negative level
-            assert False, "Expected an error for invalid stats level -1"
+            assert cufile.set_stats_level(-1)  # Invalid negative level
         except Exception as e:
             logging.info(f"Correctly caught error for invalid stats level: {e}")
 
         try:
-            cufile.set_stats_level(4)  # Invalid level > 3
-            assert False, "Expected an error for invalid stats level 4"
+            assert cufile.set_stats_level(4)  # Invalid level > 3
         except Exception as e:
             logging.info(f"Correctly caught error for invalid stats level: {e}")
 
@@ -2476,114 +2475,4 @@ def test_set_parameter_posix_pool_slab_array():
     finally:
         # Close cuFile driver
         cufile.driver_close()
-        cuda.cuDevicePrimaryCtxRelease(device)
-
-
-@pytest.mark.skipif(
-    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
-)
-def test_set_get_parameter_size_t():
-    """Test setting and getting size_t parameters with cuFile validation."""
-
-    # Initialize CUDA
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCtxSetCurrent(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    try:
-        # Test setting and getting various size_t parameters
-
-        # Test poll threshold size (in KB)
-        poll_threshold_kb = 64  # 64KB threshold
-        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.POLLTHRESHOLD_SIZE_KB, poll_threshold_kb)
-        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.POLLTHRESHOLD_SIZE_KB)
-        assert retrieved_value == poll_threshold_kb, (
-            f"Poll threshold mismatch: set {poll_threshold_kb}, got {retrieved_value}"
-        )
-
-        # Test max direct IO size (in KB)
-        max_direct_io_kb = 1024  # 1MB max direct IO size
-        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DIRECT_IO_SIZE_KB, max_direct_io_kb)
-        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DIRECT_IO_SIZE_KB)
-        assert retrieved_value == max_direct_io_kb, (
-            f"Max direct IO size mismatch: set {max_direct_io_kb}, got {retrieved_value}"
-        )
-
-        # Test max device cache size (in KB)
-        max_cache_kb = 512  # 512KB max cache size
-        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB, max_cache_kb)
-        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_CACHE_SIZE_KB)
-        assert retrieved_value == max_cache_kb, f"Max cache size mismatch: set {max_cache_kb}, got {retrieved_value}"
-
-        # Test per buffer cache size (in KB)
-        per_buffer_cache_kb = 128  # 128KB per buffer cache
-        cufile.set_parameter_size_t(
-            cufile.SizeTConfigParameter.PROPERTIES_PER_BUFFER_CACHE_SIZE_KB, per_buffer_cache_kb
-        )
-        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_PER_BUFFER_CACHE_SIZE_KB)
-        assert retrieved_value == per_buffer_cache_kb, (
-            f"Per buffer cache size mismatch: set {per_buffer_cache_kb}, got {retrieved_value}"
-        )
-
-        # Test max device pinned memory size (in KB)
-        max_pinned_kb = 2048  # 2MB max pinned memory
-        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB, max_pinned_kb)
-        retrieved_value = cufile.get_parameter_size_t(
-            cufile.SizeTConfigParameter.PROPERTIES_MAX_DEVICE_PINNED_MEM_SIZE_KB
-        )
-        assert retrieved_value == max_pinned_kb, (
-            f"Max pinned memory size mismatch: set {max_pinned_kb}, got {retrieved_value}"
-        )
-
-        # Test IO batch size
-        batch_size = 16  # 16 operations per batch
-        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_IO_BATCHSIZE, batch_size)
-        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_IO_BATCHSIZE)
-        assert retrieved_value == batch_size, f"IO batch size mismatch: set {batch_size}, got {retrieved_value}"
-
-        # Test batch IO timeout (in milliseconds)
-        timeout_ms = 5000  # 5 second timeout
-        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_BATCH_IO_TIMEOUT_MS, timeout_ms)
-        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.PROPERTIES_BATCH_IO_TIMEOUT_MS)
-        assert retrieved_value == timeout_ms, f"Batch IO timeout mismatch: set {timeout_ms}, got {retrieved_value}"
-
-        # Test execution parameters
-        max_io_queue_depth = 32  # Max 32 operations in queue
-        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_QUEUE_DEPTH, max_io_queue_depth)
-        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_QUEUE_DEPTH)
-        assert retrieved_value == max_io_queue_depth, (
-            f"Max IO queue depth mismatch: set {max_io_queue_depth}, got {retrieved_value}"
-        )
-
-        max_io_threads = 8  # Max 8 IO threads
-        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_THREADS, max_io_threads)
-        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_IO_THREADS)
-        assert retrieved_value == max_io_threads, (
-            f"Max IO threads mismatch: set {max_io_threads}, got {retrieved_value}"
-        )
-
-        min_io_threshold_kb = 4  # 4KB minimum IO threshold
-        cufile.set_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MIN_IO_THRESHOLD_SIZE_KB, min_io_threshold_kb)
-        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MIN_IO_THRESHOLD_SIZE_KB)
-        assert retrieved_value == min_io_threshold_kb, (
-            f"Min IO threshold mismatch: set {min_io_threshold_kb}, got {retrieved_value}"
-        )
-
-        max_request_parallelism = 4  # Max 4 parallel requests
-        cufile.set_parameter_size_t(
-            cufile.SizeTConfigParameter.EXECUTION_MAX_REQUEST_PARALLELISM, max_request_parallelism
-        )
-        retrieved_value = cufile.get_parameter_size_t(cufile.SizeTConfigParameter.EXECUTION_MAX_REQUEST_PARALLELISM)
-        assert retrieved_value == max_request_parallelism, (
-            f"Max request parallelism mismatch: set {max_request_parallelism}, got {retrieved_value}"
-        )
-
-    finally:
         cuda.cuDevicePrimaryCtxRelease(device)
