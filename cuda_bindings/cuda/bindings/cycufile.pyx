@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.0.1. Do not modify it directly.
 
 from ._internal cimport cufile as _cufile
 
@@ -39,10 +39,6 @@ cdef ssize_t cuFileWrite(CUfileHandle_t fh, const void* bufPtr_base, size_t size
 
 cdef CUfileError_t cuFileDriverOpen() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     return _cufile._cuFileDriverOpen()
-
-
-cdef CUfileError_t cuFileDriverClose_v2() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
-    return _cufile._cuFileDriverClose_v2()
 
 
 cdef long cuFileUseCount() except* nogil:
@@ -122,10 +118,6 @@ cdef CUfileError_t cuFileGetParameterString(CUFileStringConfigParameter_t param,
     return _cufile._cuFileGetParameterString(param, desc_str, len)
 
 
-cdef CUfileError_t cuFileGetParameterMinMaxValue(CUFileSizeTConfigParameter_t param, size_t* min_value, size_t* max_value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
-    return _cufile._cuFileGetParameterMinMaxValue(param, min_value, max_value)
-
-
 cdef CUfileError_t cuFileSetParameterSizeT(CUFileSizeTConfigParameter_t param, size_t value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     return _cufile._cuFileSetParameterSizeT(param, value)
 
@@ -136,6 +128,14 @@ cdef CUfileError_t cuFileSetParameterBool(CUFileBoolConfigParameter_t param, cpp
 
 cdef CUfileError_t cuFileSetParameterString(CUFileStringConfigParameter_t param, const char* desc_str) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     return _cufile._cuFileSetParameterString(param, desc_str)
+
+
+cdef CUfileError_t cuFileDriverClose() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileDriverClose()
+
+
+cdef CUfileError_t cuFileGetParameterMinMaxValue(CUFileSizeTConfigParameter_t param, size_t* min_value, size_t* max_value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileGetParameterMinMaxValue(param, min_value, max_value)
 
 
 cdef CUfileError_t cuFileSetStatsLevel(int level) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:

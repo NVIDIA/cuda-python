@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.0.1. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
@@ -1022,8 +1022,8 @@ cpdef intptr_t handle_register(intptr_t descr) except? 0:
     """
     cdef Handle fh
     with nogil:
-        status = cuFileHandleRegister(&fh, <CUfileDescr_t*>descr)
-    check_status(status)
+        __status__ = cuFileHandleRegister(&fh, <CUfileDescr_t*>descr)
+    check_status(__status__)
     return <intptr_t>fh
 
 
@@ -1049,8 +1049,8 @@ cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags):
     .. seealso:: `cuFileBufRegister`
     """
     with nogil:
-        status = cuFileBufRegister(<const void*>buf_ptr_base, length, flags)
-    check_status(status)
+        __status__ = cuFileBufRegister(<const void*>buf_ptr_base, length, flags)
+    check_status(__status__)
 
 
 cpdef buf_deregister(intptr_t buf_ptr_base):
@@ -1062,8 +1062,8 @@ cpdef buf_deregister(intptr_t buf_ptr_base):
     .. seealso:: `cuFileBufDeregister`
     """
     with nogil:
-        status = cuFileBufDeregister(<const void*>buf_ptr_base)
-    check_status(status)
+        __status__ = cuFileBufDeregister(<const void*>buf_ptr_base)
+    check_status(__status__)
 
 
 cpdef read(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):
@@ -1079,8 +1079,8 @@ cpdef read(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, o
     .. seealso:: `cuFileRead`
     """
     with nogil:
-        status = cuFileRead(<Handle>fh, <void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
-    check_status(status)
+        __status__ = cuFileRead(<Handle>fh, <void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
+    check_status(__status__)
 
 
 cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):
@@ -1096,8 +1096,8 @@ cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, 
     .. seealso:: `cuFileWrite`
     """
     with nogil:
-        status = cuFileWrite(<Handle>fh, <const void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
-    check_status(status)
+        __status__ = cuFileWrite(<Handle>fh, <const void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
+    check_status(__status__)
 
 
 cpdef driver_open():
@@ -1106,8 +1106,8 @@ cpdef driver_open():
     .. seealso:: `cuFileDriverOpen`
     """
     with nogil:
-        status = cuFileDriverOpen()
-    check_status(status)
+        __status__ = cuFileDriverOpen()
+    check_status(__status__)
 
 
 cpdef use_count():
@@ -1116,21 +1116,21 @@ cpdef use_count():
     .. seealso:: `cuFileUseCount`
     """
     with nogil:
-        status = cuFileUseCount()
-    check_status(status)
+        __status__ = cuFileUseCount()
+    check_status(__status__)
 
 
 cpdef driver_get_properties(intptr_t props):
     """Gets the Driver session properties.
 
     Args:
-        props (intptr_t): to set.
+        props (intptr_t): Properties to set.
 
     .. seealso:: `cuFileDriverGetProperties`
     """
     with nogil:
-        status = cuFileDriverGetProperties(<CUfileDrvProps_t*>props)
-    check_status(status)
+        __status__ = cuFileDriverGetProperties(<CUfileDrvProps_t*>props)
+    check_status(__status__)
 
 
 cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
@@ -1143,8 +1143,8 @@ cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
     .. seealso:: `cuFileDriverSetPollMode`
     """
     with nogil:
-        status = cuFileDriverSetPollMode(<cpp_bool>poll, poll_threshold_size)
-    check_status(status)
+        __status__ = cuFileDriverSetPollMode(<cpp_bool>poll, poll_threshold_size)
+    check_status(__status__)
 
 
 cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
@@ -1156,8 +1156,8 @@ cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
     .. seealso:: `cuFileDriverSetMaxDirectIOSize`
     """
     with nogil:
-        status = cuFileDriverSetMaxDirectIOSize(max_direct_io_size)
-    check_status(status)
+        __status__ = cuFileDriverSetMaxDirectIOSize(max_direct_io_size)
+    check_status(__status__)
 
 
 cpdef driver_set_max_cache_size(size_t max_cache_size):
@@ -1169,8 +1169,8 @@ cpdef driver_set_max_cache_size(size_t max_cache_size):
     .. seealso:: `cuFileDriverSetMaxCacheSize`
     """
     with nogil:
-        status = cuFileDriverSetMaxCacheSize(max_cache_size)
-    check_status(status)
+        __status__ = cuFileDriverSetMaxCacheSize(max_cache_size)
+    check_status(__status__)
 
 
 cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size):
@@ -1182,34 +1182,34 @@ cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size):
     .. seealso:: `cuFileDriverSetMaxPinnedMemSize`
     """
     with nogil:
-        status = cuFileDriverSetMaxPinnedMemSize(max_pinned_size)
-    check_status(status)
+        __status__ = cuFileDriverSetMaxPinnedMemSize(max_pinned_size)
+    check_status(__status__)
 
 
 cpdef intptr_t batch_io_set_up(unsigned nr) except? 0:
     cdef BatchHandle batch_idp
     with nogil:
-        status = cuFileBatchIOSetUp(&batch_idp, nr)
-    check_status(status)
+        __status__ = cuFileBatchIOSetUp(&batch_idp, nr)
+    check_status(__status__)
     return <intptr_t>batch_idp
 
 
 cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, intptr_t iocbp, unsigned int flags):
     with nogil:
-        status = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>iocbp, flags)
-    check_status(status)
+        __status__ = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>iocbp, flags)
+    check_status(__status__)
 
 
 cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, intptr_t iocbp, intptr_t timeout):
     with nogil:
-        status = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>iocbp, <timespec*>timeout)
-    check_status(status)
+        __status__ = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>iocbp, <timespec*>timeout)
+    check_status(__status__)
 
 
 cpdef batch_io_cancel(intptr_t batch_idp):
     with nogil:
-        status = cuFileBatchIOCancel(<BatchHandle>batch_idp)
-    check_status(status)
+        __status__ = cuFileBatchIOCancel(<BatchHandle>batch_idp)
+    check_status(__status__)
 
 
 cpdef void batch_io_destroy(intptr_t batch_idp) except*:
@@ -1218,49 +1218,49 @@ cpdef void batch_io_destroy(intptr_t batch_idp) except*:
 
 cpdef read_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_read_p, intptr_t stream):
     with nogil:
-        status = cuFileReadAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_read_p, <void*>stream)
-    check_status(status)
+        __status__ = cuFileReadAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_read_p, <void*>stream)
+    check_status(__status__)
 
 
 cpdef write_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_written_p, intptr_t stream):
     with nogil:
-        status = cuFileWriteAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_written_p, <void*>stream)
-    check_status(status)
+        __status__ = cuFileWriteAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_written_p, <void*>stream)
+    check_status(__status__)
 
 
 cpdef stream_register(intptr_t stream, unsigned flags):
     with nogil:
-        status = cuFileStreamRegister(<void*>stream, flags)
-    check_status(status)
+        __status__ = cuFileStreamRegister(<void*>stream, flags)
+    check_status(__status__)
 
 
 cpdef stream_deregister(intptr_t stream):
     with nogil:
-        status = cuFileStreamDeregister(<void*>stream)
-    check_status(status)
+        __status__ = cuFileStreamDeregister(<void*>stream)
+    check_status(__status__)
 
 
 cpdef int get_version() except? 0:
     cdef int version
     with nogil:
-        status = cuFileGetVersion(&version)
-    check_status(status)
+        __status__ = cuFileGetVersion(&version)
+    check_status(__status__)
     return version
 
 
 cpdef size_t get_parameter_size_t(int param) except? 0:
     cdef size_t value
     with nogil:
-        status = cuFileGetParameterSizeT(<_SizeTConfigParameter>param, &value)
-    check_status(status)
+        __status__ = cuFileGetParameterSizeT(<_SizeTConfigParameter>param, &value)
+    check_status(__status__)
     return value
 
 
 cpdef bint get_parameter_bool(int param) except? 0:
     cdef cpp_bool value
     with nogil:
-        status = cuFileGetParameterBool(<_BoolConfigParameter>param, &value)
-    check_status(status)
+        __status__ = cuFileGetParameterBool(<_BoolConfigParameter>param, &value)
+    check_status(__status__)
     return <bint>value
 
 
@@ -1268,9 +1268,33 @@ cpdef str get_parameter_string(int param, int len):
     cdef bytes _desc_str_ = bytes(len)
     cdef char* desc_str = _desc_str_
     with nogil:
-        status = cuFileGetParameterString(<_StringConfigParameter>param, desc_str, len)
-    check_status(status)
+        __status__ = cuFileGetParameterString(<_StringConfigParameter>param, desc_str, len)
+    check_status(__status__)
     return _desc_str_.decode()
+
+
+cpdef set_parameter_size_t(int param, size_t value):
+    with nogil:
+        __status__ = cuFileSetParameterSizeT(<_SizeTConfigParameter>param, value)
+    check_status(__status__)
+
+
+cpdef set_parameter_bool(int param, bint value):
+    with nogil:
+        __status__ = cuFileSetParameterBool(<_BoolConfigParameter>param, <cpp_bool>value)
+    check_status(__status__)
+
+
+cpdef set_parameter_string(int param, intptr_t desc_str):
+    with nogil:
+        __status__ = cuFileSetParameterString(<_StringConfigParameter>param, <const char*>desc_str)
+    check_status(__status__)
+
+
+cpdef driver_close():
+    with nogil:
+        __status__ = cuFileDriverClose()
+    check_status(__status__)
 
 
 cpdef get_parameter_min_max_value(int param, intptr_t min_value, intptr_t max_value):
@@ -1284,26 +1308,8 @@ cpdef get_parameter_min_max_value(int param, intptr_t min_value, intptr_t max_va
     .. seealso:: `cuFileGetParameterMinMaxValue`
     """
     with nogil:
-        status = cuFileGetParameterMinMaxValue(<_SizeTConfigParameter>param, <size_t*>min_value, <size_t*>max_value)
-    check_status(status)
-
-
-cpdef set_parameter_size_t(int param, size_t value):
-    with nogil:
-        status = cuFileSetParameterSizeT(<_SizeTConfigParameter>param, value)
-    check_status(status)
-
-
-cpdef set_parameter_bool(int param, bint value):
-    with nogil:
-        status = cuFileSetParameterBool(<_BoolConfigParameter>param, <cpp_bool>value)
-    check_status(status)
-
-
-cpdef set_parameter_string(int param, intptr_t desc_str):
-    with nogil:
-        status = cuFileSetParameterString(<_StringConfigParameter>param, <const char*>desc_str)
-    check_status(status)
+        __status__ = cuFileGetParameterMinMaxValue(<_SizeTConfigParameter>param, <size_t*>min_value, <size_t*>max_value)
+    check_status(__status__)
 
 
 cpdef set_stats_level(int level):
@@ -1315,8 +1321,8 @@ cpdef set_stats_level(int level):
     .. seealso:: `cuFileSetStatsLevel`
     """
     with nogil:
-        status = cuFileSetStatsLevel(level)
-    check_status(status)
+        __status__ = cuFileSetStatsLevel(level)
+    check_status(__status__)
 
 
 cpdef int get_stats_level() except? 0:
@@ -1329,8 +1335,8 @@ cpdef int get_stats_level() except? 0:
     """
     cdef int level
     with nogil:
-        status = cuFileGetStatsLevel(&level)
-    check_status(status)
+        __status__ = cuFileGetStatsLevel(&level)
+    check_status(__status__)
     return level
 
 
@@ -1340,8 +1346,8 @@ cpdef stats_start():
     .. seealso:: `cuFileStatsStart`
     """
     with nogil:
-        status = cuFileStatsStart()
-    check_status(status)
+        __status__ = cuFileStatsStart()
+    check_status(__status__)
 
 
 cpdef stats_stop():
@@ -1350,8 +1356,8 @@ cpdef stats_stop():
     .. seealso:: `cuFileStatsStop`
     """
     with nogil:
-        status = cuFileStatsStop()
-    check_status(status)
+        __status__ = cuFileStatsStop()
+    check_status(__status__)
 
 
 cpdef stats_reset():
@@ -1360,8 +1366,8 @@ cpdef stats_reset():
     .. seealso:: `cuFileStatsReset`
     """
     with nogil:
-        status = cuFileStatsReset()
-    check_status(status)
+        __status__ = cuFileStatsReset()
+    check_status(__status__)
 
 
 cpdef get_stats_l1(intptr_t stats):
@@ -1373,8 +1379,8 @@ cpdef get_stats_l1(intptr_t stats):
     .. seealso:: `cuFileGetStatsL1`
     """
     with nogil:
-        status = cuFileGetStatsL1(<CUfileStatsLevel1_t*>stats)
-    check_status(status)
+        __status__ = cuFileGetStatsL1(<CUfileStatsLevel1_t*>stats)
+    check_status(__status__)
 
 
 cpdef get_stats_l2(intptr_t stats):
@@ -1386,8 +1392,8 @@ cpdef get_stats_l2(intptr_t stats):
     .. seealso:: `cuFileGetStatsL2`
     """
     with nogil:
-        status = cuFileGetStatsL2(<CUfileStatsLevel2_t*>stats)
-    check_status(status)
+        __status__ = cuFileGetStatsL2(<CUfileStatsLevel2_t*>stats)
+    check_status(__status__)
 
 
 cpdef get_stats_l3(intptr_t stats):
@@ -1399,15 +1405,15 @@ cpdef get_stats_l3(intptr_t stats):
     .. seealso:: `cuFileGetStatsL3`
     """
     with nogil:
-        status = cuFileGetStatsL3(<CUfileStatsLevel3_t*>stats)
-    check_status(status)
+        __status__ = cuFileGetStatsL3(<CUfileStatsLevel3_t*>stats)
+    check_status(__status__)
 
 
 cpdef size_t get_bar_size_in_kb(int gpu_ind_ex) except? 0:
     cdef size_t bar_size
     with nogil:
-        status = cuFileGetBARSizeInKB(gpu_ind_ex, &bar_size)
-    check_status(status)
+        __status__ = cuFileGetBARSizeInKB(gpu_ind_ex, &bar_size)
+    check_status(__status__)
     return bar_size
 
 
@@ -1422,8 +1428,8 @@ cpdef set_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_v
     .. seealso:: `cuFileSetParameterPosixPoolSlabArray`
     """
     with nogil:
-        status = cuFileSetParameterPosixPoolSlabArray(<const size_t*>size_values, <const size_t*>count_values, len)
-    check_status(status)
+        __status__ = cuFileSetParameterPosixPoolSlabArray(<const size_t*>size_values, <const size_t*>count_values, len)
+    check_status(__status__)
 
 
 cpdef get_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len):
@@ -1437,8 +1443,8 @@ cpdef get_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_v
     .. seealso:: `cuFileGetParameterPosixPoolSlabArray`
     """
     with nogil:
-        status = cuFileGetParameterPosixPoolSlabArray(<size_t*>size_values, <size_t*>count_values, len)
-    check_status(status)
+        __status__ = cuFileGetParameterPosixPoolSlabArray(<size_t*>size_values, <size_t*>count_values, len)
+    check_status(__status__)
 
 
 cpdef str op_status_error(int status):
@@ -1453,10 +1459,3 @@ cpdef str op_status_error(int status):
     _output_ = cufileop_status_error(<_OpError>status)
     return _output_.decode()
 
-
-cpdef driver_close():
-    """reset the cuFile library and release the nvidia-fs driver
-    """
-    with nogil:
-        status = cuFileDriverClose_v2()
-    check_status(status)
