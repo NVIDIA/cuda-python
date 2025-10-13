@@ -645,6 +645,16 @@ cdef CUfileError_t _cuFileDriverOpen() except?<CUfileError_t>CUFILE_LOADING_ERRO
         )
 
 
+cdef CUfileError_t _cuFileDriverClose() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileDriverClose
+    _check_or_init_cufile()
+    if __cuFileDriverClose == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileDriverClose is not found")
+    return (<CUfileError_t (*)() noexcept nogil>__cuFileDriverClose)(
+        )
+
+
 cdef long _cuFileUseCount() except* nogil:
     global __cuFileUseCount
     _check_or_init_cufile()
@@ -864,16 +874,6 @@ cdef CUfileError_t _cuFileSetParameterString(CUFileStringConfigParameter_t param
             raise FunctionNotFoundError("function cuFileSetParameterString is not found")
     return (<CUfileError_t (*)(CUFileStringConfigParameter_t, const char*) noexcept nogil>__cuFileSetParameterString)(
         param, desc_str)
-
-
-cdef CUfileError_t _cuFileDriverClose() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
-    global __cuFileDriverClose
-    _check_or_init_cufile()
-    if __cuFileDriverClose == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuFileDriverClose is not found")
-    return (<CUfileError_t (*)() noexcept nogil>__cuFileDriverClose)(
-        )
 
 
 cdef CUfileError_t _cuFileGetParameterMinMaxValue(CUFileSizeTConfigParameter_t param, size_t* min_value, size_t* max_value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
