@@ -1,15 +1,16 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import multiprocessing
+
 import helpers
+import pytest
 
 try:
     from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-import multiprocessing
 
-import pytest
 from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, _device
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
@@ -84,6 +85,10 @@ def ipc_device():
     # test should be updated.
     if not device.properties.handle_type_posix_file_descriptor_supported:
         pytest.skip("Device does not support IPC")
+
+    # Skip on WSL or if driver rejects IPC-enabled mempool creation on this platform/device
+    if helpers.IS_WSL or not helpers.supports_ipc_mempool(device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
     return device
 

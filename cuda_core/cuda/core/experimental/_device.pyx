@@ -16,7 +16,7 @@ from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._graph import GraphBuilder
 from cuda.core.experimental._memory import Buffer, DeviceMemoryResource, MemoryResource, _SynchronousMemoryResource
-from cuda.core.experimental._stream import IsStreamT, Stream, StreamOptions, default_stream
+from cuda.core.experimental._stream import IsStreamT, Stream, StreamOptions
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
     ComputeCapability,
@@ -25,6 +25,7 @@ from cuda.core.experimental._utils.cuda_utils import (
     handle_return,
     runtime,
 )
+from cuda.core.experimental._stream cimport default_stream
 
 
 # TODO: I prefer to type these as "cdef object" and avoid accessing them from within Python,

@@ -6,6 +6,8 @@ import multiprocessing as mp
 from cuda.core.experimental import Buffer, DeviceMemoryResource
 from utility import IPCBufferTestHelper
 
+from cuda_python_test_helpers import supports_ipc_mempool
+
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
 NWORKERS = 2
@@ -14,6 +16,10 @@ NTASKS = 2
 
 class TestIpcMempool:
     def test_main(self, ipc_device, ipc_memory_resource):
+        if not supports_ipc_mempool(ipc_device):
+            import pytest
+
+            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         """Test IPC with memory pools."""
         # Set up the IPC-enabled memory pool and share it.
         device = ipc_device
@@ -38,6 +44,7 @@ class TestIpcMempool:
 
         # Verify that the buffer was modified.
         helper.verify_buffer(flipped=True)
+        buffer.close()
 
     def child_main(self, device, mr, queue):
         device.set_current()
@@ -45,10 +52,15 @@ class TestIpcMempool:
         helper = IPCBufferTestHelper(device, buffer)
         helper.verify_buffer(flipped=False)
         helper.fill_buffer(flipped=True)
+        buffer.close()
 
 
 class TestIPCMempoolMultiple:
     def test_main(self, ipc_device, ipc_memory_resource):
+        if not supports_ipc_mempool(ipc_device):
+            import pytest
+
+            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         """Test IPC with memory pools using multiple processes."""
         # Construct an IPC-enabled memory resource and share it with two children.
         device = ipc_device
@@ -78,6 +90,8 @@ class TestIPCMempoolMultiple:
         # Verify that the buffers were modified.
         IPCBufferTestHelper(device, buffer1).verify_buffer(flipped=False)
         IPCBufferTestHelper(device, buffer2).verify_buffer(flipped=True)
+        buffer1.close()
+        buffer2.close()
 
     def child_main(self, device, mr, idx, queue):
         # Note: passing the mr registers it so that buffers can be passed
@@ -89,10 +103,16 @@ class TestIPCMempoolMultiple:
             IPCBufferTestHelper(device, buffer1).fill_buffer(flipped=False)
         elif idx == 2:
             IPCBufferTestHelper(device, buffer2).fill_buffer(flipped=True)
+        buffer1.close()
+        buffer2.close()
 
 
 class TestIPCSharedAllocationHandleAndBufferDescriptors:
     def test_main(self, ipc_device, ipc_memory_resource):
+        if not supports_ipc_mempool(ipc_device):
+            import pytest
+
+            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         """
         Demonstrate that a memory pool allocation handle can be reused for IPC
         with multiple processes. Uses buffer descriptors.
@@ -110,10 +130,10 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         p2.start()
 
         # Allocate and share memory.
-        buf1 = mr.allocate(NBYTES)
-        buf2 = mr.allocate(NBYTES)
-        q1.put(buf1.get_ipc_descriptor())
-        q2.put(buf2.get_ipc_descriptor())
+        buffer1 = mr.allocate(NBYTES)
+        buffer2 = mr.allocate(NBYTES)
+        q1.put(buffer1.get_ipc_descriptor())
+        q2.put(buffer2.get_ipc_descriptor())
 
         # Wait for children.
         p1.join(timeout=CHILD_TIMEOUT_SEC)
@@ -122,8 +142,10 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         assert p2.exitcode == 0
 
         # Verify results.
-        IPCBufferTestHelper(device, buf1).verify_buffer(starting_from=1)
-        IPCBufferTestHelper(device, buf2).verify_buffer(starting_from=2)
+        IPCBufferTestHelper(device, buffer1).verify_buffer(starting_from=1)
+        IPCBufferTestHelper(device, buffer2).verify_buffer(starting_from=2)
+        buffer1.close()
+        buffer2.close()
 
     def child_main(self, device, alloc_handle, idx, queue):
         """Fills a shared memory buffer."""
@@ -134,6 +156,7 @@ class TestIPCSharedAllocationHandleAndBufferDescriptors:
         buffer_descriptor = queue.get(timeout=CHILD_TIMEOUT_SEC)
         buffer = Buffer.from_ipc_descriptor(mr, buffer_descriptor)
         IPCBufferTestHelper(device, buffer).fill_buffer(starting_from=idx)
+        buffer.close()
 
 
 class TestIPCSharedAllocationHandleAndBufferObjects:
@@ -154,10 +177,10 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         p2.start()
 
         # Allocate and share memory.
-        buf1 = mr.allocate(NBYTES)
-        buf2 = mr.allocate(NBYTES)
-        q1.put(buf1)
-        q2.put(buf2)
+        buffer1 = mr.allocate(NBYTES)
+        buffer2 = mr.allocate(NBYTES)
+        q1.put(buffer1)
+        q2.put(buffer2)
 
         # Wait for children.
         p1.join(timeout=CHILD_TIMEOUT_SEC)
@@ -166,8 +189,10 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         assert p2.exitcode == 0
 
         # Verify results.
-        IPCBufferTestHelper(device, buf1).verify_buffer(starting_from=1)
-        IPCBufferTestHelper(device, buf2).verify_buffer(starting_from=2)
+        IPCBufferTestHelper(device, buffer1).verify_buffer(starting_from=1)
+        IPCBufferTestHelper(device, buffer2).verify_buffer(starting_from=2)
+        buffer1.close()
+        buffer2.close()
 
     def child_main(self, device, alloc_handle, idx, queue):
         """Fills a shared memory buffer."""
@@ -179,3 +204,4 @@ class TestIPCSharedAllocationHandleAndBufferObjects:
         # Now get buffers.
         buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
         IPCBufferTestHelper(device, buffer).fill_buffer(starting_from=idx)
+        buffer.close()

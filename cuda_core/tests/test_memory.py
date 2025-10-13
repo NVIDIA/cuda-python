@@ -28,6 +28,8 @@ from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
 from cuda.core.experimental.utils import StridedMemoryView
 
+from cuda_python_test_helpers import IS_WSL, supports_ipc_mempool
+
 POOL_SIZE = 2097152  # 2MB size
 
 
@@ -322,6 +324,9 @@ def test_vmm_allocator_basic_allocation():
     """
     if platform.system() == "Windows":
         pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
+    if IS_WSL:
+        pytest.skip("VirtualMemoryResource is not supported on WSL")
+
     device = Device()
     device.set_current()
     options = VirtualMemoryResourceOptions()
@@ -358,6 +363,8 @@ def test_vmm_allocator_policy_configuration():
     """
     if platform.system() == "Windows":
         pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
+    if IS_WSL:
+        pytest.skip("VirtualMemoryResource is not supported on WSL")
     device = Device()
     device.set_current()
 
@@ -415,6 +422,8 @@ def test_vmm_allocator_grow_allocation():
     """
     if platform.system() == "Windows":
         pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
+    if IS_WSL:
+        pytest.skip("VirtualMemoryResource is not supported on WSL")
     device = Device()
     device.set_current()
 
@@ -529,6 +538,9 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
     if platform.system() == "Windows":
         return  # IPC not implemented for Windows
 
+    if ipc_enabled and not supports_ipc_mempool(device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
+
     options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=ipc_enabled)
     mr = DeviceMemoryResource(device, options=options)
     assert mr.is_ipc_enabled == ipc_enabled
@@ -567,6 +579,10 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
 def test_mempool_attributes_ownership(mempool_device):
     """Ensure the attributes bundle handles references correctly."""
     device = mempool_device
+    # Skip if IPC mempool is not supported on this platform/device
+    if not supports_ipc_mempool(device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
+
     mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
     attributes = mr.attributes
     mr.close()

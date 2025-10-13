@@ -43,6 +43,7 @@ def child_process_func(libname):
     if loaded_dl_fresh.was_already_loaded_from_elsewhere:
         raise RuntimeError("loaded_dl_fresh.was_already_loaded_from_elsewhere")
     validate_abs_path(loaded_dl_fresh.abs_path)
+    assert loaded_dl_fresh.found_via is not None
 
     loaded_dl_from_cache = load_nvidia_dynamic_lib(libname)
     if loaded_dl_from_cache is not loaded_dl_fresh:

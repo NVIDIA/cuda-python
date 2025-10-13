@@ -138,7 +138,9 @@ def check_if_already_loaded_from_elsewhere(libname: str, _have_abs_path: bool) -
         except OSError:
             continue
         else:
-            return LoadedDL(abs_path_for_dynamic_library(libname, handle), True, handle._handle)
+            return LoadedDL(
+                abs_path_for_dynamic_library(libname, handle), True, handle._handle, "was-already-loaded-from-elsewhere"
+            )
     return None
 
 
@@ -170,7 +172,7 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
             abs_path = abs_path_for_dynamic_library(libname, handle)
             if abs_path is None:
                 raise RuntimeError(f"No expected symbol for {libname=!r}")
-            return LoadedDL(abs_path, False, handle._handle)
+            return LoadedDL(abs_path, False, handle._handle, "system-search")
     return None
 
 
@@ -193,7 +195,7 @@ def _work_around_known_bugs(libname: str, found_path: str) -> None:
                     ctypes.CDLL(dep_path, CDLL_MODE)
 
 
-def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
+def load_with_abs_path(libname: str, found_path: str, found_via: Optional[str] = None) -> LoadedDL:
     """Load a dynamic library from the given path.
 
     Args:
@@ -211,4 +213,4 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
         handle = _load_lib(libname, found_path)
     except OSError as e:
         raise RuntimeError(f"Failed to dlopen {found_path}: {e}") from e
-    return LoadedDL(found_path, False, handle._handle)
+    return LoadedDL(found_path, False, handle._handle, found_via)
