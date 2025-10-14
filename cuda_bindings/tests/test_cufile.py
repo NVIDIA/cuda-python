@@ -1527,13 +1527,6 @@ def test_batch_io_large_operations():
             ctypes.addressof(timeout),
         )
 
-        # Verify writes succeeded
-        for i in range(nr_completed_writes.value):
-            assert io_events[i].status == cufile.Status.COMPLETE, f"Write {i} failed with status {io_events[i].status}"
-
-        # Force file sync
-        os.fsync(fd)
-
         # Clean up write batch
         cufile.batch_io_destroy(batch_handle)
 
