@@ -1,0 +1,15 @@
+{
+  "add_data": "PyObject *(intptr_t, int, PyObject *, size_t, PyObject *, int __pyx_skip_dispatch)",
+  "add_file": "PyObject *(intptr_t, int, PyObject *, int __pyx_skip_dispatch)",
+  "complete": "PyObject *(intptr_t, int __pyx_skip_dispatch)",
+  "create": "intptr_t (uint32_t, PyObject *, int __pyx_skip_dispatch)",
+  "get_error_log": "PyObject *(intptr_t, PyObject *, int __pyx_skip_dispatch)",
+  "get_error_log_size": "size_t (intptr_t, int __pyx_skip_dispatch)",
+  "get_info_log": "PyObject *(intptr_t, PyObject *, int __pyx_skip_dispatch)",
+  "get_info_log_size": "size_t (intptr_t, int __pyx_skip_dispatch)",
+  "get_linked_cubin": "PyObject *(intptr_t, PyObject *, int __pyx_skip_dispatch)",
+  "get_linked_cubin_size": "size_t (intptr_t, int __pyx_skip_dispatch)",
+  "get_linked_ptx": "PyObject *(intptr_t, PyObject *, int __pyx_skip_dispatch)",
+  "get_linked_ptx_size": "size_t (intptr_t, int __pyx_skip_dispatch)",
+  "version": "PyObject *(int __pyx_skip_dispatch)"
+}
