@@ -11,11 +11,12 @@
 Highlights
 ----------
 
+* Updated the ``cuda.bindings.runtime`` module to statically link against the CUDA Runtime library from CUDA Toolkit 13.0.2.
 
 Bug fixes
 ---------
 
-
+* The graphics APIs in ``cuda.bindings.runtime`` were inadvertently disabled in 13.0.2.  This has been fixed.
 
 Known issues
 ------------

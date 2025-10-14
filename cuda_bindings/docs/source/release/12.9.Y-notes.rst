@@ -3,7 +3,7 @@
 
 .. module:: cuda.bindings
 
-``cuda-bindings`` 13.X.Y Release notes
+``cuda-bindings`` 12.9.Y Release notes
 ======================================
 
 

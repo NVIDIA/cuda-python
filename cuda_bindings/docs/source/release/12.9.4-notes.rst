@@ -3,7 +3,7 @@
 
 .. module:: cuda.bindings
 
-``cuda-bindings`` 13.X.Y Release notes
+``cuda-bindings`` 12.9.4 Release notes
 ======================================
 
 
@@ -15,7 +15,7 @@ Highlights
 Bug fixes
 ---------
 
-
+* The graphics APIs in ``cuda.bindings.runtime`` were inadvertently disabled in 12.9.3.  This has been fixed.
 
 Known issues
 ------------
