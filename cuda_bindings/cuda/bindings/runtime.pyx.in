@@ -1578,6 +1578,32 @@ class cudaEmulationStrategy(IntEnum):
 
 _dict_cudaEmulationStrategy = dict(((int(v), v) for k, v in cudaEmulationStrategy.__members__.items()))
 {{endif}}
+{{if 'cudaEmulationMantissaControl_t' in found_types}}
+
+class cudaEmulationMantissaControl(IntEnum):
+    """"""
+    {{if 'CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC' in found_values}}
+    CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC = cyruntime.cudaEmulationMantissaControl_t.CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC{{endif}}
+    {{if 'CUDA_EMULATION_MANTISSA_CONTROL_FIXED' in found_values}}
+    CUDA_EMULATION_MANTISSA_CONTROL_FIXED = cyruntime.cudaEmulationMantissaControl_t.CUDA_EMULATION_MANTISSA_CONTROL_FIXED{{endif}}
+
+_dict_cudaEmulationMantissaControl = dict(((int(v), v) for k, v in cudaEmulationMantissaControl.__members__.items()))
+{{endif}}
+{{if 'cudaEmulationSpecialValuesSupport_t' in found_types}}
+
+class cudaEmulationSpecialValuesSupport(IntEnum):
+    """"""
+    {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE' in found_values}}
+    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE = cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE{{endif}}
+    {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY' in found_values}}
+    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY = cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY{{endif}}
+    {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN' in found_values}}
+    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN = cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN{{endif}}
+    {{if 'CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT' in found_values}}
+    CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT = cyruntime.cudaEmulationSpecialValuesSupport_t.CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT{{endif}}
+
+_dict_cudaEmulationSpecialValuesSupport = dict(((int(v), v) for k, v in cudaEmulationSpecialValuesSupport.__members__.items()))
+{{endif}}
 {{if 'libraryPropertyType_t' in found_types}}
 
 class libraryPropertyType(IntEnum):
