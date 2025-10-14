@@ -84,7 +84,7 @@ def update_config(version: str, config_path: Path) -> None:
         f.write("".join(out))
 
 
-def run_cybind(cybind_repo: Path, cuda_python_repo: Path, libraries: list[str]) -> None:
+def run_cybind(cybind_repo: Path, cuda_python_repo: Path, libraries: list[str]) -> int:
     with tempfile.TemporaryDirectory() as tempdir:
         tempdir_path = Path(tempdir)
 
@@ -116,6 +116,8 @@ def run_cybind(cybind_repo: Path, cuda_python_repo: Path, libraries: list[str]) 
             print("If necessary, you can edit the headers and re-run this script.")
             return 1
 
+    return 0
+
 
 def update_version_file(version: str, version_path: Path, is_prev: bool) -> str:
     if is_prev:
@@ -129,7 +131,7 @@ def update_version_file(version: str, version_path: Path, is_prev: bool) -> str:
     content["cuda"][key]["version"] = version
 
     with version_path.open("w") as f:
-        content = json.dump(content, f, indent=2)
+        json.dump(content, f, indent=2)
         # json.dump doesn't add a trailing newline
         f.write("\n")
 
@@ -197,6 +199,7 @@ if __name__ == "__main__":
     resp = input().strip().lower()
     if resp != "y":
         print("Aborting")
+        sys.exit(0)
 
     main(args.version, cuda_python_repo, args.cybind_repo, args.is_prev)
 
