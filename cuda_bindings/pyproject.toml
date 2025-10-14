@@ -44,6 +44,7 @@ test = [
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
+    "pyglet>=2.1.9"
 ]
 
 [project.urls]
