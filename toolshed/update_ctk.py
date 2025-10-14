@@ -150,16 +150,58 @@ def update_matrix(existing_version: str, new_version: str, matrix_path: Path) ->
         f.write(content)
 
 
-def main(version: str, cuda_python_repo: Path, cybind_repo: Path, is_prev: bool):
+def regenerate_cython_gen(cuda_python_private_repo: Path, cuda_python_repo: Path) -> int:
+    with tempfile.TemporaryDirectory() as tempdir:
+        tempdir_path = Path(tempdir)
+
+        venv.create(tempdir_path, with_pip=True)
+        subprocess.check_call(  # noqa: S603
+            [
+                str(tempdir_path / "bin" / "python"),
+                "-m",
+                "pip",
+                "install",
+                "-r",
+                str(cuda_python_private_repo / "requirements.txt"),
+            ]
+        )
+        try:
+            subprocess.check_call(  # noqa: S603
+                [
+                    str(tempdir_path / "bin" / "python"),
+                    str(cuda_python_private_repo / "regenerate.py"),
+                    "-t",
+                    "driver",
+                    "-t",
+                    "runtime",
+                    "-t",
+                    "nvrtc",
+                    "-o",
+                    str(cuda_python_repo),
+                ],
+                cwd=cuda_python_private_repo,
+            )
+        except subprocess.CalledProcessError:
+            print("Error running cython-gen.")
+            print("This probably indicates an issue introduced with the new headers.")
+            return 1
+
+    return 0
+
+
+def main(version: str, cuda_python_repo: Path, cybind_repo: Path, cuda_python_private_repo: Path, is_prev: bool):
     cybind_headers_path = cybind_repo / "assets" / "headers"
     cybind_config_path = cybind_repo / "assets" / "configs"
+
+    existing_version = update_version_file(version, cuda_python_repo / "ci" / "versions.json", is_prev)
+    update_matrix(existing_version, version, cuda_python_repo / "ci" / "test-matrix.json")
+
+    if regenerate_cython_gen(cuda_python_private_repo, cuda_python_repo):
+        sys.exit(1)
 
     for libname, distname, subdir in CYBIND_GENERATED_LIBRARIES:
         fetch_headers(version, distname, cybind_headers_path / subdir)
         update_config(version, cybind_config_path / f"config_{libname}.py")
-
-    existing_version = update_version_file(version, cuda_python_repo / "ci" / "versions.json", is_prev)
-    update_matrix(existing_version, version, cuda_python_repo / "ci" / "test-matrix.json")
 
     # Do this last, because, if anything, it's the thing that's likely to fail
     if run_cybind(cybind_repo, cuda_python_repo, [x[0] for x in CYBIND_GENERATED_LIBRARIES]):
@@ -172,6 +214,11 @@ if __name__ == "__main__":
         "--cybind-repo",
         type=Path,
         help="Path to a checkout of cybind (default: ../cybind relative to cuda-python)",
+    )
+    parser.add_argument(
+        "--cuda-python-private-repo",
+        type=Path,
+        help="Path to a checkout of cuda-python-private (default: ../cuda-python-private relative to cuda-python)",
     )
     parser.add_argument(
         "--is-prev",
@@ -190,9 +237,16 @@ if __name__ == "__main__":
     if args.cybind_repo is None:
         args.cybind_repo = cuda_python_repo.parent / "cybind"
 
+    if args.cuda_python_private_repo is None:
+        args.cuda_python_private_repo = cuda_python_repo.parent / "cuda-python-private"
+
     print("Before running this script, you need to:")
     print("  - Create a new branch in this repo based on upstream/main")
     print(f"  - Create a new branch in a cybind checkout at {args.cybind_repo} based on upstream/main")
+    print(
+        f"  - Create a new branch in a cuda-python-private checkout at {cuda_python_repo} based on upstream/cython-gen"
+    )
+    print("  - Install the version of CTK you are adding and make sure CUDA_HOME is pointing to it.")
     print()
     print(f"This will add CTK {args.version} as the {'previous' if args.is_prev else 'latest'} version.")
     print("Proceed? [y/N]")
@@ -201,12 +255,15 @@ if __name__ == "__main__":
         print("Aborting")
         sys.exit(0)
 
-    main(args.version, cuda_python_repo, args.cybind_repo, args.is_prev)
+    main(args.version, cuda_python_repo, args.cybind_repo, args.cuda_python_private_repo, args.is_prev)
 
     print("Remaining manual steps:")
-    print("- Add a changelog entry:")
+    print("- Add a changelog entry, for example:")
+    print()
     print(
         f"* Updated the ``cuda.bindings.runtime`` module to statically link "
         f"against the CUDA Runtime library from CUDA Toolkit {args.version}."
     )
-    print("- Inspect the changes to this repo and cybind, commit and submit PRs.")
+    print()
+    print("- Inspect the changes to this repo, cuda-python-private and cybind, ")
+    print("  commit and submit PRs.")
