@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.0.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.0.2. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -116,8 +116,8 @@ cpdef intptr_t create(uint32_t num_options, options) except -1:
     get_nested_resource_ptr[char](_options_, options, <char*>NULL)
     cdef Handle handle
     with nogil:
-        status = nvJitLinkCreate(&handle, num_options, <const char**>(_options_.ptrs.data()))
-    check_status(status)
+        __status__ = nvJitLinkCreate(&handle, num_options, <const char**>(_options_.ptrs.data()))
+    check_status(__status__)
     return <intptr_t>handle
 
 
@@ -139,8 +139,8 @@ cpdef add_data(intptr_t handle, int input_type, data, size_t size, name):
     cdef bytes _temp_name_ = (<str>name).encode()
     cdef char* _name_ = _temp_name_
     with nogil:
-        status = nvJitLinkAddData(<Handle>handle, <_InputType>input_type, <const void*>_data_, size, <const char*>_name_)
-    check_status(status)
+        __status__ = nvJitLinkAddData(<Handle>handle, <_InputType>input_type, <const void*>_data_, size, <const char*>_name_)
+    check_status(__status__)
 
 
 cpdef add_file(intptr_t handle, int input_type, file_name):
@@ -158,8 +158,8 @@ cpdef add_file(intptr_t handle, int input_type, file_name):
     cdef bytes _temp_file_name_ = (<str>file_name).encode()
     cdef char* _file_name_ = _temp_file_name_
     with nogil:
-        status = nvJitLinkAddFile(<Handle>handle, <_InputType>input_type, <const char*>_file_name_)
-    check_status(status)
+        __status__ = nvJitLinkAddFile(<Handle>handle, <_InputType>input_type, <const char*>_file_name_)
+    check_status(__status__)
 
 
 cpdef complete(intptr_t handle):
@@ -171,8 +171,8 @@ cpdef complete(intptr_t handle):
     .. seealso:: `nvJitLinkComplete`
     """
     with nogil:
-        status = nvJitLinkComplete(<Handle>handle)
-    check_status(status)
+        __status__ = nvJitLinkComplete(<Handle>handle)
+    check_status(__status__)
 
 
 cpdef size_t get_linked_cubin_size(intptr_t handle) except? 0:
@@ -188,8 +188,8 @@ cpdef size_t get_linked_cubin_size(intptr_t handle) except? 0:
     """
     cdef size_t size
     with nogil:
-        status = nvJitLinkGetLinkedCubinSize(<Handle>handle, &size)
-    check_status(status)
+        __status__ = nvJitLinkGetLinkedCubinSize(<Handle>handle, &size)
+    check_status(__status__)
     return size
 
 
@@ -204,8 +204,8 @@ cpdef get_linked_cubin(intptr_t handle, cubin):
     """
     cdef void* _cubin_ = get_buffer_pointer(cubin, -1, readonly=False)
     with nogil:
-        status = nvJitLinkGetLinkedCubin(<Handle>handle, <void*>_cubin_)
-    check_status(status)
+        __status__ = nvJitLinkGetLinkedCubin(<Handle>handle, <void*>_cubin_)
+    check_status(__status__)
 
 
 cpdef size_t get_linked_ptx_size(intptr_t handle) except? 0:
@@ -221,8 +221,8 @@ cpdef size_t get_linked_ptx_size(intptr_t handle) except? 0:
     """
     cdef size_t size
     with nogil:
-        status = nvJitLinkGetLinkedPtxSize(<Handle>handle, &size)
-    check_status(status)
+        __status__ = nvJitLinkGetLinkedPtxSize(<Handle>handle, &size)
+    check_status(__status__)
     return size
 
 
@@ -237,8 +237,8 @@ cpdef get_linked_ptx(intptr_t handle, ptx):
     """
     cdef void* _ptx_ = get_buffer_pointer(ptx, -1, readonly=False)
     with nogil:
-        status = nvJitLinkGetLinkedPtx(<Handle>handle, <char*>_ptx_)
-    check_status(status)
+        __status__ = nvJitLinkGetLinkedPtx(<Handle>handle, <char*>_ptx_)
+    check_status(__status__)
 
 
 cpdef size_t get_error_log_size(intptr_t handle) except? 0:
@@ -254,8 +254,8 @@ cpdef size_t get_error_log_size(intptr_t handle) except? 0:
     """
     cdef size_t size
     with nogil:
-        status = nvJitLinkGetErrorLogSize(<Handle>handle, &size)
-    check_status(status)
+        __status__ = nvJitLinkGetErrorLogSize(<Handle>handle, &size)
+    check_status(__status__)
     return size
 
 
@@ -270,8 +270,8 @@ cpdef get_error_log(intptr_t handle, log):
     """
     cdef void* _log_ = get_buffer_pointer(log, -1, readonly=False)
     with nogil:
-        status = nvJitLinkGetErrorLog(<Handle>handle, <char*>_log_)
-    check_status(status)
+        __status__ = nvJitLinkGetErrorLog(<Handle>handle, <char*>_log_)
+    check_status(__status__)
 
 
 cpdef size_t get_info_log_size(intptr_t handle) except? 0:
@@ -287,8 +287,8 @@ cpdef size_t get_info_log_size(intptr_t handle) except? 0:
     """
     cdef size_t size
     with nogil:
-        status = nvJitLinkGetInfoLogSize(<Handle>handle, &size)
-    check_status(status)
+        __status__ = nvJitLinkGetInfoLogSize(<Handle>handle, &size)
+    check_status(__status__)
     return size
 
 
@@ -303,8 +303,8 @@ cpdef get_info_log(intptr_t handle, log):
     """
     cdef void* _log_ = get_buffer_pointer(log, -1, readonly=False)
     with nogil:
-        status = nvJitLinkGetInfoLog(<Handle>handle, <char*>_log_)
-    check_status(status)
+        __status__ = nvJitLinkGetInfoLog(<Handle>handle, <char*>_log_)
+    check_status(__status__)
 
 
 cpdef tuple version():
@@ -321,6 +321,6 @@ cpdef tuple version():
     cdef unsigned int major
     cdef unsigned int minor
     with nogil:
-        status = nvJitLinkVersion(&major, &minor)
-    check_status(status)
+        __status__ = nvJitLinkVersion(&major, &minor)
+    check_status(__status__)
     return (major, minor)

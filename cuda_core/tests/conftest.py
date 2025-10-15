@@ -1,17 +1,17 @@
-# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import multiprocessing
+
 import helpers
+import pytest
 
 try:
     from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-import multiprocessing
 
-import pytest
-
-from cuda.core.experimental import Device, _device
+from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, _device
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
@@ -69,6 +69,37 @@ def deinit_all_contexts_function():
             raise RuntimeError(f"Number of iterations popping current CUDA contexts, exceded {max_iters}")
 
     return pop_all_contexts
+
+
+@pytest.fixture
+def ipc_device():
+    """Obtains a device suitable for IPC-enabled mempool tests, or skips."""
+    # Check if IPC is supported on this platform/device
+    device = Device()
+    device.set_current()
+
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
+    # Note: Linux specific. Once Windows support for IPC is implemented, this
+    # test should be updated.
+    if not device.properties.handle_type_posix_file_descriptor_supported:
+        pytest.skip("Device does not support IPC")
+
+    # Skip on WSL or if driver rejects IPC-enabled mempool creation on this platform/device
+    if helpers.IS_WSL or not helpers.supports_ipc_mempool(device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
+
+    return device
+
+
+@pytest.fixture
+def ipc_memory_resource(ipc_device):
+    POOL_SIZE = 2097152
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+    mr = DeviceMemoryResource(ipc_device, options=options)
+    assert mr.is_ipc_enabled
+    return mr
 
 
 skipif_need_cuda_headers = pytest.mark.skipif(helpers.CUDA_INCLUDE_PATH is None, reason="need CUDA header")

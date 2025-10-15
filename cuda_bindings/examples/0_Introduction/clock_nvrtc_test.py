@@ -6,7 +6,6 @@ import platform
 import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
-
 from cuda.bindings import driver as cuda
 
 clock_nvrtc = """\

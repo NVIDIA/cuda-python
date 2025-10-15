@@ -11,8 +11,6 @@ except ImportError:
     cp = None
 import numpy as np
 import pytest
-from conftest import skipif_need_cuda_headers
-
 from cuda.core.experimental import (
     Device,
     DeviceMemoryResource,
@@ -24,6 +22,8 @@ from cuda.core.experimental import (
 )
 from cuda.core.experimental._memory import _SynchronousMemoryResource
 from cuda.core.experimental._utils.cuda_utils import CUDAError
+
+from conftest import skipif_need_cuda_headers
 
 
 def test_launch_config_init(init_cuda):
@@ -370,4 +370,4 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
     cp.cuda.Stream.null.use()  # reset CuPy's current stream to the null stream
 
     # Verify buffer is properly closed
-    assert buffer.handle is None, f"{name} buffer should be closed"
+    assert buffer.handle == 0, f"{name} buffer should be closed"
