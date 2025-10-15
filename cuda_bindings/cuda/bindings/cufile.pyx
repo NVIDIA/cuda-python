@@ -1241,6 +1241,13 @@ cpdef stream_deregister(intptr_t stream):
 
 
 cpdef int get_version() except? 0:
+    """Get the cuFile library version.
+
+    Returns:
+        int: Pointer to an integer where the version will be stored.
+
+    .. seealso:: `cuFileGetVersion`
+    """
     cdef int version
     with nogil:
         __status__ = cuFileGetVersion(&version)
@@ -1288,12 +1295,6 @@ cpdef set_parameter_bool(int param, bint value):
 cpdef set_parameter_string(int param, intptr_t desc_str):
     with nogil:
         __status__ = cuFileSetParameterString(<_StringConfigParameter>param, <const char*>desc_str)
-    check_status(__status__)
-
-
-cpdef driver_close():
-    with nogil:
-        __status__ = cuFileDriverClose()
     check_status(__status__)
 
 
@@ -1458,3 +1459,11 @@ cpdef str op_status_error(int status):
     cdef bytes _output_
     _output_ = cufileop_status_error(<_OpError>status)
     return _output_.decode()
+
+
+cpdef driver_close():
+    """reset the cuFile library and release the nvidia-fs driver
+    """
+    with nogil:
+        status = cuFileDriverClose_v2()
+    check_status(status)

@@ -41,6 +41,10 @@ cdef CUfileError_t cuFileDriverOpen() except?<CUfileError_t>CUFILE_LOADING_ERROR
     return _cufile._cuFileDriverOpen()
 
 
+cdef CUfileError_t cuFileDriverClose_v2() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileDriverClose_v2()
+
+
 cdef long cuFileUseCount() except* nogil:
     return _cufile._cuFileUseCount()
 
