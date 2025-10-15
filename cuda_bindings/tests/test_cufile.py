@@ -1820,7 +1820,9 @@ def test_set_get_parameter_bool():
     finally:
         cuda.cuDevicePrimaryCtxRelease(device)
 
-
+@pytest.mark.skipif(
+    cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
+)
 def test_set_get_parameter_string():
     """Test setting and getting string parameters with cuFile validation."""
 
@@ -1953,6 +1955,47 @@ def test_set_stats_level():
 
     finally:
         # Close cuFile driver
+        cufile.driver_close()
+        cuda.cuDevicePrimaryCtxRelease(device)
+
+
+@pytest.mark.skipif(
+    cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
+)
+def test_get_parameter_min_max_value():
+    """Test getting minimum and maximum values for size_t parameters."""
+    (err,) = cuda.cuInit(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, device = cuda.cuDeviceGet(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuCtxSetCurrent(ctx)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    cufile.driver_open()
+
+    try:
+        # Test with poll threshold parameter
+        param = cufile.SizeTConfigParameter.POLLTHRESHOLD_SIZE_KB
+
+        # Allocate ctypes variables for min and max values
+        min_value = ctypes.c_size_t()
+        max_value = ctypes.c_size_t()
+
+        # Get min/max values
+        cufile.get_parameter_min_max_value(param, ctypes.addressof(min_value), ctypes.addressof(max_value))
+
+        # Verify that min <= max and both are reasonable values
+        assert min_value.value >= 0, f"Invalid min value: {min_value.value}"
+        assert max_value.value >= min_value.value, f"Max value {max_value.value} < min value {min_value.value}"
+        assert max_value.value > 0, f"Invalid max value: {max_value.value}"
+
+        logging.info(f"POLLTHRESHOLD_SIZE_KB: min={min_value.value}, max={max_value.value}")
+
+    finally:
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
 
