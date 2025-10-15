@@ -18,7 +18,6 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 )
 
 import cython
-import os
 import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Protocol, Union
@@ -29,7 +28,6 @@ if TYPE_CHECKING:
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._graph import GraphBuilder
-from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
     driver,
 )

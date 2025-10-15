@@ -78,5 +78,12 @@ repos:
     hooks:
       - id: actionlint
 
+  - repo: https://github.com/MarcoGorelli/cython-lint
+    rev: "d9ff7ce99ef4f2ae8fba93079ca9d76c4651d4ac"  # frozen: v0.18.0
+    hooks:
+      - id: cython-lint
+        args: [--no-pycodestyle]
+        exclude: ^cuda_bindings/
+
 default_language_version:
       python: python3
