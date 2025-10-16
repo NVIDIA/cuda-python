@@ -1907,7 +1907,7 @@ def test_set_get_parameter_string():
 
 
 @pytest.mark.skipif(
-    cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
+    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
 )
 def test_set_stats_level():
     """Test cuFile statistics level configuration."""
@@ -1960,7 +1960,7 @@ def test_set_stats_level():
 
 
 @pytest.mark.skipif(
-    cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
+    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
 )
 def test_get_parameter_min_max_value():
     """Test getting minimum and maximum values for size_t parameters."""
