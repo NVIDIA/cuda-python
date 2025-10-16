@@ -4851,7 +4851,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_REUSE_ALLOW_INTERNAL_DEPENDENCIES
 
 
-        (value type = int) Allow cuMemAllocAsync to insert new stream dependencies in order to establish the stream ordering required to reuse a piece of memory released by cuFreeAsync (default enabled).
+        (value type = int) Allow cuMemAllocAsync to insert new stream dependencies in order to establish the stream ordering required to reuse a piece of memory released by cuMemFreeAsync (default enabled).
 
 
     .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD

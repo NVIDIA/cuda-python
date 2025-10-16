@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core 0.X.Y Release Notes &#8212; cuda.core</title>
+    <title>cuda.core.experimental.DeviceMemoryResourceOptions &#8212; cuda.core</title>
   
   
   
@@ -42,25 +42,25 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=5e23c587"></script>
+    <script src="../_static/documentation_options.js?v=6c02275b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'release/0.X.Y-notes';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.experimental.DeviceMemoryResourceOptions';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.3.3a0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
-    <link rel="canonical" href="docs/release/0.X.Y-notes.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.experimental.DeviceMemoryResourceOptions.html" />
     <link rel="icon" href="../_static/favicon.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core 0.3.2 Release Notes" href="0.3.2-notes.html" />
-    <link rel="prev" title="Release Notes" href="../release.html" />
+    <link rel="next" title="cuda.core.experimental.EventOptions" href="cuda.core.experimental.EventOptions.html" />
+    <link rel="prev" title="cuda.core.experimental.VirtualMemoryResource" href="cuda.core.experimental.VirtualMemoryResource.html" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -196,7 +196,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core.experimental API Reference
   </a>
@@ -231,7 +231,7 @@
 </li>
 
 
-<li class=" current active">
+<li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../release.html">
     Release Notes
   </a>
@@ -385,7 +385,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core.experimental API Reference
   </a>
@@ -413,7 +413,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../release.html">
     Release Notes
   </a>
@@ -450,34 +450,37 @@
      aria-label="Table of Contents">
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Device.html">cuda.core.experimental.Device</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.launch.html">cuda.core.experimental.launch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Buffer.html">cuda.core.experimental.Buffer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Stream.html">cuda.core.experimental.Stream</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Event.html">cuda.core.experimental.Event</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.StreamOptions.html">cuda.core.experimental.StreamOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.ObjectCode.html">cuda.core.experimental.ObjectCode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Kernel.html">cuda.core.experimental.Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.ProgramOptions.html">cuda.core.experimental.ProgramOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.LinkerOptions.html">cuda.core.experimental.LinkerOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.utils.args_viewable_as_strided_memory.html">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.utils.StridedMemoryView.html">cuda.core.experimental.utils.StridedMemoryView</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Device.html">cuda.core.experimental.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.launch.html">cuda.core.experimental.launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Buffer.html">cuda.core.experimental.Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Stream.html">cuda.core.experimental.Stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Event.html">cuda.core.experimental.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.VirtualMemoryResource.html">cuda.core.experimental.VirtualMemoryResource</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.experimental.DeviceMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.StreamOptions.html">cuda.core.experimental.StreamOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.VirtualMemoryResourceOptions.html">cuda.core.experimental.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html">cuda.core.experimental.ObjectCode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Kernel.html">cuda.core.experimental.Kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ProgramOptions.html">cuda.core.experimental.ProgramOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LinkerOptions.html">cuda.core.experimental.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.utils.args_viewable_as_strided_memory.html">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.utils.StridedMemoryView.html">cuda.core.experimental.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
@@ -486,15 +489,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">Software License Agreement</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">0.X.Y</a></li>
-<li class="toctree-l2"><a class="reference internal" href="0.3.2-notes.html">0.3.2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="0.3.1-notes.html">0.3.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="0.3.0-notes.html">0.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="0.2.0-notes.html">0.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="0.1.1-notes.html">0.1.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="0.1.0-notes.html">0.1.0</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.4.0-notes.html">0.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.3.2-notes.html">0.3.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.3.1-notes.html">0.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.3.0-notes.html">0.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.2.0-notes.html">0.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.1.1-notes.html">0.1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.1.0-notes.html">0.1.0</a></li>
 </ul>
 </details></li>
 </ul>
@@ -532,9 +535,9 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../release.html" class="nav-link">Release Notes</a></li>
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.X.Y Release Notes</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.experimental.DeviceMemoryResourceOptions</span></li>
   </ul>
 </nav>
 </div>
@@ -551,47 +554,46 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-0-x-y-release-notes">
-<h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.X.Y Release Notes<a class="headerlink" href="#cuda-core-0-x-y-release-notes" title="Link to this heading">#</a></h1>
-<p>Released on TBD</p>
-<section id="highlights">
-<h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>Fix for <a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig" title="cuda.core.experimental.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a> grid parameter unit conversion when thread block clusters are used.</p></li>
-</ul>
-</section>
-<section id="breaking-changes">
-<h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p><strong>CUDA 11 support dropped</strong>: CUDA 11 support is no longer tested and it may or may not work with cuda.bindings and CTK 11.x. Users are encouraged to migrate to CUDA 12.x or 13.x.</p></li>
-<li><p><strong>LaunchConfig grid parameter interpretation</strong>: When <a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig.cluster" title="cuda.core.experimental.LaunchConfig.cluster"><code class="xref py py-attr docutils literal notranslate"><span class="pre">LaunchConfig.cluster</span></code></a> is specified, the <a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig.grid" title="cuda.core.experimental.LaunchConfig.grid"><code class="xref py py-attr docutils literal notranslate"><span class="pre">LaunchConfig.grid</span></code></a> parameter now correctly represents the number of clusters instead of blocks. Previously, the grid parameter was incorrectly interpreted as blocks, causing a mismatch with the expected C++ behavior. This change ensures that <code class="docutils literal notranslate"><span class="pre">LaunchConfig(grid=4,</span> <span class="pre">cluster=2,</span> <span class="pre">block=32)</span></code> correctly produces 4 clusters × 2 blocks/cluster = 8 total blocks, matching the C++ equivalent <code class="docutils literal notranslate"><span class="pre">cudax::make_hierarchy(cudax::grid_dims(4),</span> <span class="pre">cudax::cluster_dims(2),</span> <span class="pre">cudax::block_dims(32))</span></code>.</p></li>
-<li><p>When <a class="reference internal" href="../generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> is closed, <code class="xref py py-attr docutils literal notranslate"><span class="pre">Buffer.handle</span></code> is now set to <code class="docutils literal notranslate"><span class="pre">None</span></code>. It was previously set to <code class="docutils literal notranslate"><span class="pre">0</span></code> by accident.</p></li>
-</ul>
-</section>
-<section id="new-features">
-<h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>Added <a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.arch" title="cuda.core.experimental.Device.arch"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Device.arch</span></code></a> property that returns the compute capability as a string (e.g., ‘75’ for CC 7.5), providing a convenient alternative to manually concatenating the compute capability tuple.</p></li>
-<li><p>CUDA 13.x testing support through new <code class="docutils literal notranslate"><span class="pre">test-cu13</span></code> dependency group.</p></li>
-<li><p>Stream-ordered memory allocation can now be shared on Linux via <a class="reference internal" href="../generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource" title="cuda.core.experimental.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>.</p></li>
-<li><p>Added NVVM IR support to <a class="reference internal" href="../generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program" title="cuda.core.experimental.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a>. NVVM IR is now understood with <code class="docutils literal notranslate"><span class="pre">code_type=&quot;nvvm&quot;</span></code>.</p></li>
-</ul>
-</section>
-<section id="new-examples">
-<h2>New examples<a class="headerlink" href="#new-examples" title="Link to this heading">#</a></h2>
-<p>None.</p>
-</section>
-<section id="fixes-and-enhancements">
-<h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>Improved <a class="reference internal" href="../generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource" title="cuda.core.experimental.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a> allocation performance when there are no active allocations by setting a higher release threshold (addresses issue #771).</p></li>
-<li><p>Improved <code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> creation time performance by optimizing shape and strides tuple creation using Python/C API (addresses issue #449).</p></li>
-<li><p>Fix <a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig" title="cuda.core.experimental.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a> grid unit conversion when cluster is set (addresses issue #867).</p></li>
-<li><p>Fixed a bug in <a class="reference internal" href="../generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.add_child" title="cuda.core.experimental.GraphBuilder.add_child"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphBuilder.add_child</span></code></a> where dependencies extracted from capturing stream were passed inconsistently with num_dependencies parameter (addresses issue #843).</p></li>
-<li><p>Make <a class="reference internal" href="../generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> creation more performant.</p></li>
-<li><p>Enabled <a class="reference internal" href="../generated/cuda.core.experimental.MemoryResource.html#cuda.core.experimental.MemoryResource" title="cuda.core.experimental.MemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryResource</span></code></a> subclasses to accept <a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> objects, in addition to previously supported device ordinals.</p></li>
-</ul>
-</section>
+  <section id="cuda-core-experimental-devicememoryresourceoptions">
+<h1>cuda.core.experimental.DeviceMemoryResourceOptions<a class="headerlink" href="#cuda-core-experimental-devicememoryresourceoptions" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResourceOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">DeviceMemoryResourceOptions</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">ipc_enabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cython.bint</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cython.int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResourceOptions" title="Link to this definition">#</a></dt>
+<dd><p>Customizable <a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource" title="cuda.core.experimental._memory.DeviceMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a> options.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResourceOptions.ipc_enabled">
+<span class="sig-name descname"><span class="pre">ipc_enabled</span></span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResourceOptions.ipc_enabled" title="Link to this definition">#</a></dt>
+<dd><p>Specifies whether to create an IPC-enabled memory pool. When set to
+True, the memory pool and its allocations can be shared with other
+processes. (Default to False)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResourceOptions.max_size">
+<span class="sig-name descname"><span class="pre">max_size</span></span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResourceOptions.max_size" title="Link to this definition">#</a></dt>
+<dd><p>Maximum pool size. When set to 0, defaults to a system-dependent value.
+(Default to 0)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -605,20 +607,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../release.html"
+       href="cuda.core.experimental.VirtualMemoryResource.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Release Notes</p>
+        <p class="prev-next-title">cuda.core.experimental.VirtualMemoryResource</p>
       </div>
     </a>
     <a class="right-next"
-       href="0.3.2-notes.html"
+       href="cuda.core.experimental.EventOptions.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.2 Release Notes</p>
+        <p class="prev-next-title">cuda.core.experimental.EventOptions</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -643,11 +645,11 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking Changes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-examples">New examples</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResourceOptions"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResourceOptions</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResourceOptions.ipc_enabled"><code class="docutils literal notranslate"><span class="pre">ipc_enabled</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.DeviceMemoryResourceOptions.max_size"><code class="docutils literal notranslate"><span class="pre">max_size</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

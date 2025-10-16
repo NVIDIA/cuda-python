@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=590429e0"></script>
+    <script src="../_static/documentation_options.js?v=bb516dca"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -51,7 +51,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.2.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.3.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -399,6 +399,8 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.3.1-notes.html">1.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/1.3.0-notes.html">1.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.3-notes.html">1.2.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.2-notes.html">1.2.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/1.2.1-notes.html">1.2.1</a></li>
@@ -479,7 +481,16 @@
 <code class="docutils literal notranslate"><span class="pre">&quot;nvvm&quot;</span></code>, etc.).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Object containing the OS library handle and absolute path.</p>
+<dd class="field-even"><p><p>Object containing the OS library handle and absolute path.</p>
+<p><strong>Important:</strong></p>
+<p><strong>Never close the returned handle.</strong> Do <strong>not</strong> call <code class="docutils literal notranslate"><span class="pre">dlclose</span></code> (Linux) or
+<code class="docutils literal notranslate"><span class="pre">FreeLibrary</span></code> (Windows) on the <code class="docutils literal notranslate"><span class="pre">LoadedDL._handle_uint</span></code>.</p>
+<p><strong>Why:</strong> the return value is cached (<code class="docutils literal notranslate"><span class="pre">functools.cache</span></code>) and shared across the
+process. Closing the handle can unload the module while other code still uses
+it, leading to crashes or subtle failures.</p>
+<p>This applies to Linux and Windows. For context, see issue #1011:
+<a class="github reference external" href="https://github.com/NVIDIA/cuda-python/issues/1011">NVIDIA/cuda-python#1011</a></p>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="cuda.pathfinder.LoadedDL.html#cuda.pathfinder.LoadedDL" title="cuda.pathfinder.LoadedDL">LoadedDL</a></p>
@@ -505,20 +516,19 @@ return its absolute path and handle and skip the rest of the search.</p></li>
 shipped in NVIDIA wheels.</p></li>
 </ul>
 </li>
-<li><p><strong>OS default mechanisms / Conda environments</strong></p>
+<li><p><strong>Conda environment</strong></p>
+<ul class="simple">
+<li><p>Conda installations are discovered via <code class="docutils literal notranslate"><span class="pre">CONDA_PREFIX</span></code>, which is
+defined automatically in activated conda environments (see
+<a class="reference external" href="https://docs.conda.io/projects/conda-build/en/stable/user-guide/environment-variables.html">https://docs.conda.io/projects/conda-build/en/stable/user-guide/environment-variables.html</a>).</p></li>
+</ul>
+</li>
+<li><p><strong>OS default mechanisms</strong></p>
 <ul class="simple">
 <li><p>Fall back to the native loader:</p>
 <ul>
 <li><p>Linux: <code class="docutils literal notranslate"><span class="pre">dlopen()</span></code></p></li>
 <li><p>Windows: <code class="docutils literal notranslate"><span class="pre">LoadLibraryW()</span></code></p></li>
-</ul>
-</li>
-<li><p>Conda installations are commonly discovered via:</p>
-<ul>
-<li><p>Linux: <code class="docutils literal notranslate"><span class="pre">$ORIGIN/../lib</span></code> in the <code class="docutils literal notranslate"><span class="pre">RPATH</span></code> of the <code class="docutils literal notranslate"><span class="pre">python</span></code> binary
-(note: this can take precedence over <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> and
-<code class="docutils literal notranslate"><span class="pre">/etc/ld.so.conf.d/</span></code>).</p></li>
-<li><p>Windows: <code class="docutils literal notranslate"><span class="pre">%CONDA_PREFIX%\Library\bin</span></code> on the system <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p></li>
 </ul>
 </li>
 <li><p>CUDA Toolkit (CTK) system installs with system config updates are often

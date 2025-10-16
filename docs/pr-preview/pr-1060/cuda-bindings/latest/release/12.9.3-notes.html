@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda-bindings 12.9.X Release notes &#8212; cuda.bindings</title>
+    <title>cuda-bindings 12.9.3 Release notes &#8212; cuda.bindings</title>
   
   
   
@@ -42,20 +42,20 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4bc04b76"></script>
+    <script src="../_static/documentation_options.js?v=7c38c11c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'release/12.9.X-notes';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release/12.9.3-notes';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.0.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.0.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
-    <link rel="canonical" href="docs/release/12.9.X-notes.html" />
+    <link rel="canonical" href="docs/release/12.9.3-notes.html" />
     <link rel="icon" href="../_static/favicon.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -494,10 +494,10 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="13.X.Y-notes.html">13.X.Y</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.0-notes.html">13.0.0</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">12.9.X</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">12.9.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.2-notes.html">12.9.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.1-notes.html">12.9.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.0-notes.html">12.9.0</a></li>
@@ -637,7 +637,7 @@
     
     <li class="breadcrumb-item"><a href="../release.html" class="nav-link">Release Notes</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.X Release notes</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.3 Release notes</span></li>
   </ul>
 </nav>
 </div>
@@ -654,14 +654,18 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-bindings-12-9-x-release-notes">
-<span id="module-cuda.bindings"></span><h1><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.X Release notes<a class="headerlink" href="#cuda-bindings-12-9-x-release-notes" title="Link to this heading">#</a></h1>
-<p>Released on TBD</p>
+  <section id="cuda-bindings-12-9-3-release-notes">
+<span id="module-cuda.bindings"></span><h1><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 12.9.3 Release notes<a class="headerlink" href="#cuda-bindings-12-9-3-release-notes" title="Link to this heading">#</a></h1>
+<p>Released on Oct 9, 2025</p>
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>This is the last release that officially supports Python 3.9.</p></li>
+<li><p>Python 3.14 is supported.</p></li>
+<li><p><strong>Experimental</strong> free-threaded builds for Python 3.13/3.14 are made available. Any bugs can be reported to <a class="reference external" href="https://github.com/NVIDIA/cuda-python">our GitHub repo</a>. More details are available in our <a class="reference internal" href="../support.html#support"><span class="std std-ref">cuda.bindings Support Policy</span></a> docs.</p></li>
 <li><p>Automatic CUDA library path detection based on <code class="docutils literal notranslate"><span class="pre">CUDA_HOME</span></code>, eliminating the need to manually set <code class="docutils literal notranslate"><span class="pre">LIBRARY_PATH</span></code> environment variables for installation.</p></li>
 <li><p>The Python overhead of calling functions in CUDA bindings in <code class="docutils literal notranslate"><span class="pre">driver</span></code>, <code class="docutils literal notranslate"><span class="pre">runtime</span></code> and <code class="docutils literal notranslate"><span class="pre">nvrtc</span></code> has been reduced by approximately 30%.</p></li>
+<li><p>On Windows, the <code class="docutils literal notranslate"><span class="pre">pywin32</span></code> dependency has been removed. The necessary Windows API functions are now accessed directly.</p></li>
 <li><p>Updated the <code class="docutils literal notranslate"><span class="pre">cuda.bindings.runtime</span></code> module to statically link against the CUDA Runtime library from CUDA Toolkit 12.9.1.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cyruntime.getLocalRuntimeVersion</span></code> now uses pathfinder to find the CUDA runtime.</p></li>
 </ul>
