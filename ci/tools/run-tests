@@ -46,10 +46,12 @@ elif [[ "${test_module}" == "bindings" ]]; then
     pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test
   fi
   echo "Running bindings tests"
+  mkdir /tmp/cufile_logs
   ${SANITIZER_CMD} pytest -rxXs -v tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
     ${SANITIZER_CMD} pytest -rxXs -v tests/cython
   fi
+  cat /tmp/cufile_logs/*
   cat cufile.log
   popd
 elif [[ "${test_module}" == "core" ]]; then
