@@ -19,7 +19,6 @@ def test_system_singleton():
 
 def test_driver_version():
     driver_version = system.driver_version
-    print(driver_version)
     version = handle_return(driver.cuDriverGetVersion())
     expected_driver_version = (version // 1000, (version % 1000) // 10)
     assert driver_version == expected_driver_version, "Driver version does not match expected value"

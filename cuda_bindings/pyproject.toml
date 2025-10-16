@@ -1,6 +1,5 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
-
 [build-system]
 requires = ["setuptools>=77.0.0", "cython>=3.1,<3.2", "pyclibrary>=0.1.7"]
 build-backend = "setuptools.build_meta"
@@ -36,12 +35,14 @@ all = [
     "cuda-toolkit[cufile]==13.*; sys_platform == 'linux'",
 ]
 
+[dependency-groups]
 test = [
     "cython>=3.1,<3.2",
     "setuptools>=77.0.0",
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
+    "pyglet>=2.1.9"
 ]
 
 [project.urls]
@@ -55,58 +56,15 @@ include = ["cuda*"]
 version = { attr = "cuda.bindings._version.__version__" }
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
-[tool.ruff]
-line-length = 120
+[tool.cibuildwheel]
+skip = "*-musllinux_*"
+enable = "cpython-freethreading"
+build-verbosity = 1
 
-[tool.ruff.format]
-docstring-code-format = true
+[tool.cibuildwheel.linux]
+archs = "native"
 
-exclude = ["cuda/bindings/_version.py"]
-
-[tool.ruff.lint]
-select = [
-    # pycodestyle Error
-    "E",
-    # Pyflakes
-    "F",
-    # pycodestyle Warning
-    "W",
-    # pyupgrade
-    "UP",
-    # flake8-bugbear
-    "B",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
-]
-
-ignore = [
-    "UP007",
-    "E741", # ambiguous variable name such as I
-    "B007", # rename unsued loop variable to _name
-    "UP035" # UP006, UP007, UP035 complain about deprecated Typing.<type> use, but disregard backward compatibility of python version
-]
-
-exclude = ["cuda/bindings/_version.py"]
-
-[tool.ruff.lint.per-file-ignores]
-"setup.py" = ["F401"]
-"__init__.py" = ["F401"]
-
-"examples/**/*" = [
-  "E722",
-  "E501" # line too long
-  ]
-
-"tests/**/*" = [
-  "E722",
-  "UP022",
-  "E402", # module level import not at top of file
-  "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
-
-"benchmarks/**/*" = [
-  "E722",
-  "UP022",
-  "E402", # module level import not at top of file
-  "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
+[tool.cibuildwheel.windows]
+archs = "AMD64"
+before-build = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"

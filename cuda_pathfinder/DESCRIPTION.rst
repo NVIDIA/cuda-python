@@ -11,8 +11,8 @@ cuda-pathfinder: Utilities for locating CUDA components
 
 `cuda.pathfinder <https://nvidia.github.io/cuda-python/cuda-pathfinder/>`_
 aims to be a one-stop solution for locating CUDA components. Currently
-it supports locating and loading dynamic libraries (``.so``, ``.dll``);
-support for headers and other artifacts is in progress.
+it supports locating and loading dynamic libraries (``.so``, ``.dll``), and
+locating CTK header directories. Support for other artifacts is in progress.
 
 * `Documentation <https://nvidia.github.io/cuda-python/cuda-pathfinder/>`_
 * `Releases <https://nvidia.github.io/cuda-python/cuda-pathfinder/latest/release.html>`_

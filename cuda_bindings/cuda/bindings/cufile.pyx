@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.0.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.0.2. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
@@ -2709,6 +2709,13 @@ cpdef stream_deregister(intptr_t stream):
 
 
 cpdef int get_version() except? 0:
+    """Get the cuFile library version.
+
+    Returns:
+        int: Pointer to an integer where the version will be stored.
+
+    .. seealso:: `cuFileGetVersion`
+    """
     cdef int version
     with nogil:
         __status__ = cuFileGetVersion(&version)

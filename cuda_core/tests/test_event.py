@@ -2,16 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import pathlib
-import platform
 import time
 
+import cuda.core.experimental
 import helpers
 import numpy as np
 import pytest
-from conftest import skipif_need_cuda_headers
-
-import cuda.core.experimental
 from cuda.core.experimental import (
     Device,
     Event,
@@ -23,9 +19,8 @@ from cuda.core.experimental import (
     launch,
 )
 
-
-def platform_is_wsl():
-    return platform.system() == "Linux" and "microsoft" in pathlib.Path("/proc/version").read_text().lower()
+from conftest import skipif_need_cuda_headers
+from cuda_python_test_helpers import IS_WSL
 
 
 def test_event_init_disabled():
@@ -47,7 +42,7 @@ def test_timing_success(init_cuda):
     # We only want to exercise the __sub__ method, this test is not meant
     # to stress-test the CUDA driver or time.sleep().
     delay_ms = delay_seconds * 1000
-    if os.name == "nt" or platform_is_wsl():  # noqa: SIM108
+    if os.name == "nt" or IS_WSL:  # noqa: SIM108
         # For Python <=3.10, the Windows timer resolution is typically limited to 15.6 ms by default.
         generous_tolerance = 100
     else:

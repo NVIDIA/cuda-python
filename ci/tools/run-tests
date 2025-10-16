@@ -24,9 +24,7 @@ test_module=${1}
 # (it is a direct dependency of bindings, and a transitive dependency of core)
 pushd ./cuda_pathfinder
 echo "Installing pathfinder wheel"
-pwd
-ls
-pip install $(ls *.whl)[test]
+pip install ./*.whl --group test
 popd
 
 if [[ "${test_module}" == "pathfinder" ]]; then
@@ -34,27 +32,20 @@ if [[ "${test_module}" == "pathfinder" ]]; then
   echo "Running pathfinder tests with " \
       "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
       "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS}"
-  pwd
   pytest -ra -s -v tests/ |& tee /tmp/pathfinder_test_log.txt
   # Fail if no "INFO test_" lines are found; capture line count otherwise
   line_count=$(grep '^INFO test_' /tmp/pathfinder_test_log.txt | wc -l)
   echo "Number of \"INFO test_\" lines: $line_count"
   popd
 elif [[ "${test_module}" == "bindings" ]]; then
-  pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
   echo "Installing bindings wheel"
-  pwd
-  ls
-  if [[ "${LOCAL_CTK}" == 1 ]]; then
-    ls "${CUDA_PATH}"
-    pip install $(ls *.whl)[test]
-  else
-    pip install $(ls *.whl)[all,test]
-  fi
-  popd
   pushd ./cuda_bindings
-  echo "Running bindinds tests"
-  pwd
+  if [[ "${LOCAL_CTK}" == 1 ]]; then
+    pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl --group test
+  else
+    pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test
+  fi
+  echo "Running bindings tests"
   ${SANITIZER_CMD} pytest -rxXs -v tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
     ${SANITIZER_CMD} pytest -rxXs -v tests/cython
@@ -65,39 +56,30 @@ elif [[ "${test_module}" == "core" ]]; then
   # If build/test majors match: cuda.bindings is installed in the previous step.
   # If mismatch: cuda.bindings is installed from the backport branch.
   if [[ "${SKIP_CUDA_BINDINGS_TEST}" == 1 ]]; then
-    pushd "${CUDA_BINDINGS_ARTIFACTS_DIR}"
     echo "Installing bindings wheel"
-    pwd
-    ls
     if [[ "${LOCAL_CTK}" == 1 ]]; then
-      pip install *.whl
+      pip install "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl
     else
-      pip install $(ls *.whl)[all]
+      pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all]
     fi
-    popd
   fi
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
-  pushd "${CUDA_CORE_ARTIFACTS_DIR}"
   echo "Installing core wheel"
-  pwd
-  ls
 
   FREE_THREADING=""
   if python -c 'import sys; assert not sys._is_gil_enabled()' 2> /dev/null; then
     FREE_THREADING+="-ft"
   fi
 
+  pushd ./cuda_core
   if [[ "${LOCAL_CTK}" == 1 ]]; then
     # We already installed cuda-bindings, and all CTK components exist locally,
     # so just install the test dependencies.
-    pip install $(ls *.whl)["test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"]
+    pip install "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
   else
-    pip install $(ls *.whl)["cu${TEST_CUDA_MAJOR}","test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"]
+    pip install $(ls "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)["cu${TEST_CUDA_MAJOR}"] --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
   fi
-  popd
-  pushd ./cuda_core
   echo "Running core tests"
-  pwd
   ${SANITIZER_CMD} pytest -rxXs -v tests/
   # Currently our CI always installs the latest bindings (from either major version).
   # This is not compatible with the test requirements.

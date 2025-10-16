@@ -1917,13 +1917,19 @@ cdef cudaError_t getLocalRuntimeVersion(int* runtimeVersion) except ?cudaErrorCa
     cdef cudaError_t err = cudaSuccess
     err = (<cudaError_t (*)(int*) except ?cudaErrorCallRequiresNewerDriver nogil> __cudaRuntimeGetVersion)(runtimeVersion)
 
-    # Unload
-    {{if 'Windows' == platform.system()}}
-    windll.FreeLibrary(handle)
-    {{else}}
-    dlfcn.dlclose(handle)
-    {{endif}}
+    # We explicitly do *NOT* cleanup the library handle here, acknowledging
+    # that, yes, the handle leaks. The reason is that there's a
+    # `functools.cache` on the top-level caller of this function.
+    #
+    # This means this library would be opened once and then immediately closed,
+    # all the while remaining in the cache lurking there for people to call.
+    #
+    # Since we open the library one time (technically once per unique library name),
+    # there's not a ton of leakage, which we deem acceptable for the 1000x speedup
+    # achieved by caching (ultimately) `ctypes.CDLL` calls.
+    #
+    # Long(er)-term we can explore cleaning up the library using higher-level
+    # Python mechanisms, like `__del__` or `weakref.finalizer`s.
 
-    # Return
     return err
 {{endif}}

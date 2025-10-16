@@ -1,19 +1,34 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
+
 try:
     from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-
+try:
+    import numpy as np
+except ImportError:
+    np = None
 import ctypes
 import platform
 
 import pytest
-
-from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, MemoryResource
+from cuda.core.experimental import (
+    Buffer,
+    Device,
+    DeviceMemoryResource,
+    DeviceMemoryResourceOptions,
+    MemoryResource,
+    VirtualMemoryResource,
+    VirtualMemoryResourceOptions,
+)
 from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core.experimental.utils import StridedMemoryView
+
+from cuda_python_test_helpers import IS_WSL, supports_ipc_mempool
 
 POOL_SIZE = 2097152  # 2MB size
 
@@ -218,7 +233,7 @@ def test_buffer_copy_from():
 def buffer_close(dummy_mr: MemoryResource):
     buffer = dummy_mr.allocate(size=1024)
     buffer.close()
-    assert buffer.handle is None
+    assert buffer.handle == 0
     assert buffer.memory_resource is None
 
 
@@ -301,11 +316,154 @@ def test_device_memory_resource_initialization(mempool_device, use_device_object
     buffer.close()
 
 
+def test_vmm_allocator_basic_allocation():
+    """Test basic VMM allocation functionality.
+
+    This test verifies that VirtualMemoryResource can allocate memory
+    using CUDA VMM APIs with default configuration.
+    """
+    if platform.system() == "Windows":
+        pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
+    if IS_WSL:
+        pytest.skip("VirtualMemoryResource is not supported on WSL")
+
+    device = Device()
+    device.set_current()
+    options = VirtualMemoryResourceOptions()
+    # Create VMM allocator with default config
+    vmm_mr = VirtualMemoryResource(device, config=options)
+
+    # Test basic allocation
+    buffer = vmm_mr.allocate(4096)
+    assert buffer.size >= 4096  # May be aligned up
+    assert buffer.device_id == device.device_id
+    assert buffer.memory_resource == vmm_mr
+
+    # Test deallocation
+    buffer.close()
+
+    # Test multiple allocations
+    buffers = []
+    for i in range(5):
+        buf = vmm_mr.allocate(1024 * (i + 1))
+        buffers.append(buf)
+        assert buf.size >= 1024 * (i + 1)
+
+    # Clean up
+    for buf in buffers:
+        buf.close()
+
+
+def test_vmm_allocator_policy_configuration():
+    """Test VMM allocator with different policy configurations.
+
+    This test verifies that VirtualMemoryResource can be configured
+    with different allocation policies and that the configuration affects
+    the allocation behavior.
+    """
+    if platform.system() == "Windows":
+        pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
+    if IS_WSL:
+        pytest.skip("VirtualMemoryResource is not supported on WSL")
+    device = Device()
+    device.set_current()
+
+    # Test with custom VMM config
+    custom_config = VirtualMemoryResourceOptions(
+        allocation_type="pinned",
+        location_type="device",
+        granularity="minimum",
+        gpu_direct_rdma=True,
+        handle_type="posix_fd" if platform.system() != "Windows" else "win32",
+        peers=(),
+        self_access="rw",
+        peer_access="rw",
+    )
+
+    vmm_mr = VirtualMemoryResource(device, config=custom_config)
+
+    # Verify configuration is applied
+    assert vmm_mr.config == custom_config
+    assert vmm_mr.config.gpu_direct_rdma is True
+    assert vmm_mr.config.granularity == "minimum"
+
+    # Test allocation with custom config
+    buffer = vmm_mr.allocate(8192)
+    assert buffer.size >= 8192
+    assert buffer.device_id == device.device_id
+
+    # Test policy modification
+    new_config = VirtualMemoryResourceOptions(
+        allocation_type="pinned",
+        location_type="device",
+        granularity="recommended",
+        gpu_direct_rdma=False,
+        handle_type="posix_fd",
+        peers=(),
+        self_access="r",  # Read-only access
+        peer_access="r",
+    )
+
+    # Modify allocation policy
+    modified_buffer = vmm_mr.modify_allocation(buffer, 16384, config=new_config)
+    assert modified_buffer.size >= 16384
+    assert vmm_mr.config == new_config
+    assert vmm_mr.config.self_access == "r"
+
+    # Clean up
+    modified_buffer.close()
+
+
+def test_vmm_allocator_grow_allocation():
+    """Test VMM allocator's ability to grow existing allocations.
+
+    This test verifies that VirtualMemoryResource can grow existing
+    allocations while preserving the base pointer when possible.
+    """
+    if platform.system() == "Windows":
+        pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
+    if IS_WSL:
+        pytest.skip("VirtualMemoryResource is not supported on WSL")
+    device = Device()
+    device.set_current()
+
+    options = VirtualMemoryResourceOptions()
+
+    vmm_mr = VirtualMemoryResource(device, config=options)
+
+    # Create initial allocation
+    buffer = vmm_mr.allocate(2 * 1024 * 1024)
+    original_size = buffer.size
+
+    # Grow the allocation
+    grown_buffer = vmm_mr.modify_allocation(buffer, 4 * 1024 * 1024)
+
+    # Verify growth
+    assert grown_buffer.size >= 4 * 1024 * 1024
+    assert grown_buffer.size > original_size
+    # Because of the slow path, the pointer may change
+    # We cannot assert that the new pointer is the same,
+    # but we can assert that a new pointer was assigned
+    assert grown_buffer.handle is not None
+
+    # Test growing to same size (should return original buffer)
+    same_buffer = vmm_mr.modify_allocation(grown_buffer, 4 * 1024 * 1024)
+    assert same_buffer.size == grown_buffer.size
+
+    # Test growing to smaller size (should return original buffer)
+    smaller_buffer = vmm_mr.modify_allocation(grown_buffer, 2 * 1024 * 1024)
+    assert smaller_buffer.size == grown_buffer.size
+
+    # Clean up
+    grown_buffer.close()
+
+
 def test_mempool(mempool_device):
     device = mempool_device
 
     # Test basic pool creation
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=False))
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
+    mr = DeviceMemoryResource(device, options=options)
     assert mr.device_id == device.device_id
     assert mr.is_device_accessible
     assert not mr.is_host_accessible
@@ -348,14 +506,14 @@ def test_mempool(mempool_device):
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        mr._get_allocation_handle()
+        mr.get_allocation_handle()
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
-        buffer.export()
+        buffer.get_ipc_descriptor()
 
     with pytest.raises(RuntimeError, match=ipc_error_msg):
         handle = IPCBufferDescriptor._init(b"", 0)
-        Buffer.import_(mr, handle)
+        Buffer.from_ipc_descriptor(mr, handle)
 
     buffer.close()
 
@@ -380,7 +538,11 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
     if platform.system() == "Windows":
         return  # IPC not implemented for Windows
 
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE, ipc_enabled=ipc_enabled))
+    if ipc_enabled and not supports_ipc_mempool(device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
+
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=ipc_enabled)
+    mr = DeviceMemoryResource(device, options=options)
     assert mr.is_ipc_enabled == ipc_enabled
 
     # Get the property value
@@ -417,9 +579,12 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
 def test_mempool_attributes_ownership(mempool_device):
     """Ensure the attributes bundle handles references correctly."""
     device = mempool_device
+    # Skip if IPC mempool is not supported on this platform/device
+    if not supports_ipc_mempool(device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
+
     mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
     attributes = mr.attributes
-    old_handle = mr._mempool_handle
     mr.close()
     del mr
 
@@ -429,12 +594,17 @@ def test_mempool_attributes_ownership(mempool_device):
 
     # Even when a new object is created (we found a case where the same
     # mempool handle was really reused).
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
+    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))  # noqa: F841
     with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
         _ = attributes.used_mem_high
 
-    # Even if we stuff the original handle into a new class.
-    mr._mempool_handle, old_handle = old_handle, mr._mempool_handle
-    with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
-        _ = attributes.used_mem_high
-    mr._mempool_handle = old_handle
+
+# Ensure that memory views dellocate their reference to dlpack tensors
+@pytest.mark.skipif(np is None, reason="numpy is not installed")
+def test_strided_memory_view_leak():
+    arr = np.zeros(1048576, dtype=np.uint8)
+    before = sys.getrefcount(arr)
+    for idx in range(10):
+        StridedMemoryView(arr, stream_ptr=-1)
+    after = sys.getrefcount(arr)
+    assert before == after

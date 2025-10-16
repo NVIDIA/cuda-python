@@ -15,10 +15,10 @@ ci:
 # pre-commit autoupdate --freeze
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 0b19ef1fd6ad680ed7752d6daba883ce1265a6de  # frozen: v0.12.2
+    rev: 9c89adb347f6b973f4905a4be0051eb2ecf85dea  # frozen: v0.13.3
     hooks:
       - id: ruff
-        args: [--fix, --show-fixes, --target-version=py39]
+        args: [--fix, --show-fixes]
       - id: ruff-format
 
   - repo: local
@@ -33,14 +33,15 @@ repos:
       - id: no-markdown-in-docs-source
         name: Prevent markdown files in docs/source directories
         entry: bash -c
-        args: ['if find . -path "*/docs/source/*.md" -not -path "./docs/README.md" | grep -q .; then echo "ERROR: Markdown files found in docs/source/ directories. Use reST (.rst) instead."; exit 1; fi']
+        args:
+          - 'for file in "$@"; do >&2 echo "error: markdown file "$file" found in a docs/source directory. Only reST (.rst) is allowed"; done && exit 1'
+          - "_" # fake script name, because bash considers $0 (the first argument) to be the script name
         language: system
-        pass_filenames: false
-        always_run: true
+        files: '^.*/docs/source/.*\.md$'
 
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: "v5.0.0"
+    rev: "3e8a8703264a2f4a69428a0aa4dcb512790b2c8c"  # frozen: v6.0.0
     hooks:
     - id: check-added-large-files
     - id: check-case-conflict
@@ -58,27 +59,31 @@ repos:
 
   # Checking for common mistakes
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: "v1.10.0"
+    rev: "3a6eb0fadf60b3cccfd80bad9dbb6fae7e47b316"  # frozen: v1.10.0
     hooks:
     - id: rst-backticks
     - id: rst-directive-colons
     - id: rst-inline-touching-normal
 
-  - repo: https://github.com/PyCQA/bandit
-    rev: "36fd65054fc8864b4037d0918904f9331512feb5"  # frozen: 1.7.10 KEEP IN SYNC WITH .github/workflows/bandit.yml
-    hooks:
-      - id: bandit
-        args:
-          - --ini
-          - .bandit
-
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 0f86793af5ef5f6dc63c8d04a3cabfa3ea8f9c6a  # frozen: v1.16.1
+    rev: 9f70dc58c23dfcca1b97af99eaeee3140a807c7e  # frozen: v1.18.2
     hooks:
       - id: mypy
         name: mypy-pathfinder
         files: ^cuda_pathfinder/cuda/.*\.py$  # Exclude tests directory
         args: [--config-file=cuda_pathfinder/pyproject.toml]
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: "03d0035246f3e81f36aed592ffb4bebf33a03106"  # frozen: v1.7.7
+    hooks:
+      - id: actionlint
+
+  - repo: https://github.com/MarcoGorelli/cython-lint
+    rev: "d9ff7ce99ef4f2ae8fba93079ca9d76c4651d4ac"  # frozen: v0.18.0
+    hooks:
+      - id: cython-lint
+        args: [--no-pycodestyle]
+        exclude: ^cuda_bindings/
 
 default_language_version:
       python: python3

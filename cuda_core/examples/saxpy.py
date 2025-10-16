@@ -14,7 +14,6 @@
 import sys
 
 import cupy as cp
-
 from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
 
 # compute out = a * x + y

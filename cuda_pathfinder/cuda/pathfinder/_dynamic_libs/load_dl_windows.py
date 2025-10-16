@@ -100,7 +100,10 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
     return buffer.value
 
 
-def check_if_already_loaded_from_elsewhere(libname: str, have_abs_path: bool) -> Optional[LoadedDL]:
+def check_if_already_loaded_from_elsewhere(
+    libname: str,
+    have_abs_path: bool,
+) -> Optional[LoadedDL]:
     for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
         handle = kernel32.GetModuleHandleW(dll_name)
         if handle:
@@ -110,7 +113,7 @@ def check_if_already_loaded_from_elsewhere(libname: str, have_abs_path: bool) ->
                 # load_with_abs_path(). To make the side-effect more deterministic,
                 # activate it even if the library was already loaded from elsewhere.
                 add_dll_directory(abs_path)
-            return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle))
+            return LoadedDL(abs_path, True, ctypes_handle_to_unsigned_int(handle), "was-already-loaded-from-elsewhere")
     return None
 
 
@@ -128,12 +131,12 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
         handle = kernel32.LoadLibraryExW(dll_name, None, 0)
         if handle:
             abs_path = abs_path_for_dynamic_library(libname, handle)
-            return LoadedDL(abs_path, False, ctypes_handle_to_unsigned_int(handle))
+            return LoadedDL(abs_path, False, ctypes_handle_to_unsigned_int(handle), "system-search")
 
     return None
 
 
-def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
+def load_with_abs_path(libname: str, found_path: str, found_via: Optional[str] = None) -> LoadedDL:
     """Load a dynamic library from the given path.
 
     Args:
@@ -156,4 +159,4 @@ def load_with_abs_path(libname: str, found_path: str) -> LoadedDL:
         error_code = ctypes.GetLastError()  # type: ignore[attr-defined]
         raise RuntimeError(f"Failed to load DLL at {found_path}: Windows error {error_code}")
 
-    return LoadedDL(found_path, False, ctypes_handle_to_unsigned_int(handle))
+    return LoadedDL(found_path, False, ctypes_handle_to_unsigned_int(handle), found_via)
