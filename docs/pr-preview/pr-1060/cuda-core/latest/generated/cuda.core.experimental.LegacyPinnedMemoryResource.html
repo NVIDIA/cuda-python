@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=6c02275b"></script>
+    <script src="../_static/documentation_options.js?v=5e23c587"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -51,7 +51,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.3.3a0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -59,7 +59,7 @@
     <link rel="icon" href="../_static/favicon.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.experimental.VirtualMemoryResource" href="cuda.core.experimental.VirtualMemoryResource.html" />
+    <link rel="next" title="cuda.core.experimental.EventOptions" href="cuda.core.experimental.EventOptions.html" />
     <link rel="prev" title="cuda.core.experimental.DeviceMemoryResource" href="cuda.core.experimental.DeviceMemoryResource.html" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -465,14 +465,11 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.VirtualMemoryResource.html">cuda.core.experimental.VirtualMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResourceOptions.html">cuda.core.experimental.DeviceMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.StreamOptions.html">cuda.core.experimental.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.VirtualMemoryResourceOptions.html">cuda.core.experimental.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html">cuda.core.experimental.ObjectCode</a></li>
@@ -491,7 +488,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../release/0.4.0-notes.html">0.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.X.Y-notes.html">0.X.Y</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.3.2-notes.html">0.3.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.3.1-notes.html">0.3.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.3.0-notes.html">0.3.0</a></li>
@@ -564,7 +561,7 @@ APIs.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.LegacyPinnedMemoryResource.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.LegacyPinnedMemoryResource.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.LegacyPinnedMemoryResource.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -603,7 +600,7 @@ APIs.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">ptr:</span> <span class="pre">DevicePointerT</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.LegacyPinnedMemoryResource.deallocate" title="Link to this definition">#</a></dt>
@@ -613,7 +610,8 @@ APIs.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ptr</strong> (<a class="reference internal" href="cuda.core.experimental._memory.DevicePointerT.html#cuda.core.experimental._memory.DevicePointerT" title="cuda.core.experimental._memory.DevicePointerT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code></a>) – The pointer or handle to the buffer to deallocate.</p></li>
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to deallocate, in bytes.</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><em>Stream</em></a>) – The stream on which to perform the deallocation synchronously.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – The stream on which to perform the deallocation asynchronously.
+If None, no synchronization would happen.</p></li>
 </ul>
 </dd>
 </dl>
@@ -672,11 +670,11 @@ APIs.</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.experimental.VirtualMemoryResource.html"
+       href="cuda.core.experimental.EventOptions.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.experimental.VirtualMemoryResource</p>
+        <p class="prev-next-title">cuda.core.experimental.EventOptions</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

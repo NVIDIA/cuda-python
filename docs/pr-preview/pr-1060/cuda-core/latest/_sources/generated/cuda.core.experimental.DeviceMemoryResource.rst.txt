@@ -17,10 +17,8 @@ cuda.core.experimental.DeviceMemoryResource
    .. automethod:: allocate
    .. automethod:: close
    .. automethod:: deallocate
-   .. automethod:: from_allocation_handle
-   .. automethod:: from_registry
-   .. automethod:: get_allocation_handle
-   .. automethod:: register
+   .. automethod:: from_shared_channel
+   .. automethod:: share_to_channel
 
    
    
@@ -36,8 +34,7 @@ cuda.core.experimental.DeviceMemoryResource
    .. autoproperty:: is_device_accessible
    .. autoproperty:: is_handle_owned
    .. autoproperty:: is_host_accessible
+   .. autoproperty:: is_imported
    .. autoproperty:: is_ipc_enabled
-   .. autoproperty:: is_mapped
-   .. autoproperty:: uuid
    
    

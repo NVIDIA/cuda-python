@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=7c38c11c"></script>
+    <script src="_static/documentation_options.js?v=4bc04b76"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -51,7 +51,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.0.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.0.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -304,10 +304,6 @@
   
 
   
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
 
     </header>
@@ -494,10 +490,10 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="release/13.0.2-notes.html">13.0.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/13.X.Y-notes.html">13.X.Y</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="release/12.9.3-notes.html">12.9.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.X-notes.html">12.9.X</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.2-notes.html">12.9.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.1-notes.html">12.9.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.0-notes.html">12.9.0</a></li>
@@ -652,7 +648,7 @@
                 <article class="bd-article">
                   
   <section id="cuda-bindings-support-policy">
-<span id="support"></span><h1><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy<a class="headerlink" href="#cuda-bindings-support-policy" title="Link to this heading">#</a></h1>
+<h1><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy<a class="headerlink" href="#cuda-bindings-support-policy" title="Link to this heading">#</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> module has the following support policy:</p>
 <ol class="arabic simple">
 <li><p>The module shares the same <code class="docutils literal notranslate"><span class="pre">major.minor</span></code> version with the CUDA Toolkit. The patch version (the
@@ -672,18 +668,8 @@ we strive to keep this layer stable, due to Cython limitations a new <em>minor</
 module could require Cython layer users to rebuild their projects and update their pinning to
 this module.</p></li>
 </ol>
-<section id="free-threading-build-support">
-<h2>Free-threading Build Support<a class="headerlink" href="#free-threading-build-support" title="Link to this heading">#</a></h2>
-<p>As of cuda-bindings 13.0.2/12.9.3, wheels for the <a class="reference external" href="https://docs.python.org/3/howto/free-threading-python.html">free-threaded interpreter</a> are shipped to PyPI.</p>
-<ol class="arabic simple">
-<li><p>Support for these builds is best effort, due to heavy use of <a class="reference external" href="https://github.com/python/cpython/issues/116738">built-in
-modules that are known to be thread-unsafe</a>, such as <code class="docutils literal notranslate"><span class="pre">ctypes</span></code>.</p></li>
-<li><p>For now, you are responsible for making sure that calls into <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code>
-libraries are thread-safe. This is subject to change.</p></li>
-</ol>
 <p>The NVIDIA CUDA Python team reserves rights to amend the above support policy. Any major changes,
 however, will be announced to the users in advance.</p>
-</section>
 </section>
 
 
@@ -721,25 +707,9 @@ however, will be announced to the users in advance.</p>
             
             
 
-
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="bd-sidebar-secondary"></div>
 
 
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#free-threading-build-support">Free-threading Build Support</a></li>
-</ul>
-  </nav></div>
-
-</div></div>
               
             
 

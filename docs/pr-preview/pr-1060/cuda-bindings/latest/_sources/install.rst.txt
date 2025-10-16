@@ -10,7 +10,7 @@ Runtime Requirements
 ``cuda.bindings`` supports the same platforms as CUDA. Runtime dependencies are:
 
 * Linux (x86-64, arm64) and Windows (x86-64)
-* Python 3.9 - 3.14
+* Python 3.9 - 3.13
 * Driver: Linux (580.65.06 or later) Windows (580.88 or later)
 * Optionally, NVRTC, nvJitLink, NVVM, and cuFile from CUDA Toolkit 13.x
 
@@ -19,21 +19,6 @@ Runtime Requirements
    The optional CUDA Toolkit components are now installed via the ``cuda-toolkit`` metapackage from PyPI for improved dependency resolution. Components can also be installed via Conda, OS-specific package managers, or local installers (as described in the CUDA Toolkit `Windows <https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html>`_ and `Linux <https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html>`_ Installation Guides).
 
 Starting from v12.8.0, ``cuda-python`` becomes a meta package which currently depends only on ``cuda-bindings``; in the future more sub-packages will be added to ``cuda-python``. In the instructions below, we still use ``cuda-python`` as example to serve existing users, but everything is applicable to ``cuda-bindings`` as well.
-
-
-Free-threading Build Support
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-As of cuda-bindings 13.0.2 and 12.9.3, **experimental** packages for the `free-threaded interpreter`_ are shipped.
-
-1. Support for these builds is best effort, due to heavy use of `built-in
-   modules that are known to be thread-unsafe`_, such as ``ctypes``.
-2. For now, you are responsible for making sure that calls into the ``cuda-bindings``
-   library are thread-safe. This is subject to change.
-
-.. _built-in modules that are known to be thread-unsafe: https://github.com/python/cpython/issues/116738
-.. _free-threaded interpreter: https://docs.python.org/3/howto/free-threading-python.html
-
 
 Installing from PyPI
 --------------------

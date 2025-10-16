@@ -4,10 +4,6 @@
         "url": "https://nvidia.github.io/cuda-python/cuda-core/latest/"
     },
     {
-        "version": "0.4.0",
-        "url": "https://nvidia.github.io/cuda-python/cuda-core/0.4.0/"
-    },
-    {
         "version": "0.3.2",
         "url": "https://nvidia.github.io/cuda-python/cuda-core/0.3.2/"
     },
