@@ -5,19 +5,13 @@ import os
 import time
 
 import cuda.core.experimental
-import helpers
-import numpy as np
 import pytest
 from cuda.core.experimental import (
     Device,
     Event,
     EventOptions,
-    LaunchConfig,
-    LegacyPinnedMemoryResource,
-    Program,
-    ProgramOptions,
-    launch,
 )
+from helpers.latch import LatchKernel
 
 from conftest import skipif_need_cuda_headers
 from cuda_python_test_helpers import IS_WSL
@@ -122,59 +116,24 @@ def test_error_timing_recorded():
 
 
 @skipif_need_cuda_headers  # libcu++
-@pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_error_timing_incomplete():
     device = Device()
     device.set_current()
-
-    # This kernel is designed to busy loop until a signal is received
-    code = """
-#include <cuda/atomic>
-
-extern "C"
-__global__ void wait(int* val) {
-    cuda::atomic_ref<int, cuda::thread_scope_system> signal{*val};
-    while (true) {
-        if (signal.load(cuda::memory_order_relaxed)) {
-            break;
-        }
-    }
-}
-"""
-
-    arch = "".join(f"{i}" for i in device.compute_capability)
-    program_options = ProgramOptions(
-        std="c++17",
-        arch=f"sm_{arch}",
-        include_path=helpers.CCCL_INCLUDE_PATHS,
-    )
-    prog = Program(code, code_type="c++", options=program_options)
-    mod = prog.compile(target_type="cubin")
-    ker = mod.get_kernel("wait")
-
-    mr = LegacyPinnedMemoryResource()
-    b = mr.allocate(4)
-    arr = np.from_dlpack(b).view(np.int32)
-    arr[0] = 0
-
-    config = LaunchConfig(grid=1, block=1)
-    ker_args = (arr.ctypes.data,)
-
+    latch = LatchKernel(device)
     enabled = EventOptions(enable_timing=True)
     stream = device.create_stream()
 
     event1 = stream.record(options=enabled)
-    launch(stream, config, ker, *ker_args)
+    latch.launch(stream)
     event3 = stream.record(options=enabled)
 
-    # event3 will never complete because the stream is waiting on wait() to complete
+    # event3 will never complete because the latch has not been released
     with pytest.raises(RuntimeError, match="^One or both events have not completed."):
         event3 - event1
 
-    arr[0] = 1
+    latch.release()
     event3.sync()
     event3 - event1  # this should work
-    b.close()
 
 
 def test_event_device(init_cuda):

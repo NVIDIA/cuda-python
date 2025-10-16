@@ -262,7 +262,13 @@ cdef class Stream:
         # and CU_EVENT_RECORD_EXTERNAL, can be set in EventOptions.
         if event is None:
             self._get_device_and_context()
-            event = Event._init(<int>(self._device_id), <uintptr_t>(self._ctx_handle), options)
+            event = Event._init(<int>(self._device_id), <uintptr_t>(self._ctx_handle), options, False)
+        elif event.is_ipc_enabled:
+            raise TypeError(
+                "IPC-enabled events should not be re-recorded, instead create a "
+                "new event by supplying options."
+            )
+
         cdef cydriver.CUevent e = (<cyEvent?>(event))._handle
         with nogil:
             HANDLE_RETURN(cydriver.cuEventRecord(e, self._handle))
