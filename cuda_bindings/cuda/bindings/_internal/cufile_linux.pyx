@@ -68,6 +68,8 @@ cdef void* __cuFileBufDeregister = NULL
 cdef void* __cuFileRead = NULL
 cdef void* __cuFileWrite = NULL
 cdef void* __cuFileDriverOpen = NULL
+cdef void* __cuFileDriverClose = NULL
+cdef void* __cuFileDriverClose_v2 = NULL
 cdef void* __cuFileUseCount = NULL
 cdef void* __cuFileDriverGetProperties = NULL
 cdef void* __cuFileDriverSetPollMode = NULL
@@ -90,7 +92,6 @@ cdef void* __cuFileGetParameterString = NULL
 cdef void* __cuFileSetParameterSizeT = NULL
 cdef void* __cuFileSetParameterBool = NULL
 cdef void* __cuFileSetParameterString = NULL
-cdef void* __cuFileDriverClose = NULL
 cdef void* __cuFileGetParameterMinMaxValue = NULL
 cdef void* __cuFileSetStatsLevel = NULL
 cdef void* __cuFileGetStatsLevel = NULL
@@ -165,6 +166,20 @@ cdef int __check_or_init_cufile() except -1 nogil:
             if handle == NULL:
                 handle = load_library()
             __cuFileDriverOpen = dlsym(handle, 'cuFileDriverOpen')
+
+        global __cuFileDriverClose
+        __cuFileDriverClose = dlsym(RTLD_DEFAULT, 'cuFileDriverClose')
+        if __cuFileDriverClose == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileDriverClose = dlsym(handle, 'cuFileDriverClose')
+
+        global __cuFileDriverClose_v2
+        __cuFileDriverClose_v2 = dlsym(RTLD_DEFAULT, 'cuFileDriverClose_v2')
+        if __cuFileDriverClose_v2 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileDriverClose_v2 = dlsym(handle, 'cuFileDriverClose_v2')
 
         global __cuFileUseCount
         __cuFileUseCount = dlsym(RTLD_DEFAULT, 'cuFileUseCount')
@@ -320,13 +335,6 @@ cdef int __check_or_init_cufile() except -1 nogil:
                 handle = load_library()
             __cuFileSetParameterString = dlsym(handle, 'cuFileSetParameterString')
 
-        global __cuFileDriverClose
-        __cuFileDriverClose = dlsym(RTLD_DEFAULT, 'cuFileDriverClose')
-        if __cuFileDriverClose == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileDriverClose = dlsym(handle, 'cuFileDriverClose')
-
         global __cuFileGetParameterMinMaxValue
         __cuFileGetParameterMinMaxValue = dlsym(RTLD_DEFAULT, 'cuFileGetParameterMinMaxValue')
         if __cuFileGetParameterMinMaxValue == NULL:
@@ -454,6 +462,12 @@ cpdef dict _inspect_function_pointers():
     global __cuFileDriverOpen
     data["__cuFileDriverOpen"] = <intptr_t>__cuFileDriverOpen
 
+    global __cuFileDriverClose
+    data["__cuFileDriverClose"] = <intptr_t>__cuFileDriverClose
+
+    global __cuFileDriverClose_v2
+    data["__cuFileDriverClose_v2"] = <intptr_t>__cuFileDriverClose_v2
+
     global __cuFileUseCount
     data["__cuFileUseCount"] = <intptr_t>__cuFileUseCount
 
@@ -519,9 +533,6 @@ cpdef dict _inspect_function_pointers():
 
     global __cuFileSetParameterString
     data["__cuFileSetParameterString"] = <intptr_t>__cuFileSetParameterString
-
-    global __cuFileDriverClose
-    data["__cuFileDriverClose"] = <intptr_t>__cuFileDriverClose
 
     global __cuFileGetParameterMinMaxValue
     data["__cuFileGetParameterMinMaxValue"] = <intptr_t>__cuFileGetParameterMinMaxValue
@@ -652,6 +663,16 @@ cdef CUfileError_t _cuFileDriverClose() except?<CUfileError_t>CUFILE_LOADING_ERR
         with gil:
             raise FunctionNotFoundError("function cuFileDriverClose is not found")
     return (<CUfileError_t (*)() noexcept nogil>__cuFileDriverClose)(
+        )
+
+
+cdef CUfileError_t _cuFileDriverClose_v2() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileDriverClose_v2
+    _check_or_init_cufile()
+    if __cuFileDriverClose_v2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileDriverClose_v2 is not found")
+    return (<CUfileError_t (*)() noexcept nogil>__cuFileDriverClose_v2)(
         )
 
 
