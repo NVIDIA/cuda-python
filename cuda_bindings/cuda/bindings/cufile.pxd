@@ -18,12 +18,7 @@ ctypedef CUfileBatchHandle_t BatchHandle
 ctypedef CUfileError_t Error
 ctypedef cufileRDMAInfo_t RDMAInfo
 ctypedef CUfileFSOps_t FSOps
-ctypedef CUfileOpCounter_t OpCounter
-ctypedef CUfilePerGpuStats_t PerGpuStats
 ctypedef CUfileDrvProps_t DrvProps
-ctypedef CUfileStatsLevel1_t StatsLevel1
-ctypedef CUfileStatsLevel2_t StatsLevel2
-ctypedef CUfileStatsLevel3_t StatsLevel3
 
 
 ###############################################################################
@@ -77,7 +72,6 @@ cpdef str get_parameter_string(int param, int len)
 cpdef set_parameter_size_t(int param, size_t value)
 cpdef set_parameter_bool(int param, bint value)
 cpdef set_parameter_string(int param, intptr_t desc_str)
-cpdef driver_close()
 cpdef get_parameter_min_max_value(int param, intptr_t min_value, intptr_t max_value)
 cpdef set_stats_level(int level)
 cpdef int get_stats_level() except? 0

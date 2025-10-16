@@ -393,6 +393,608 @@ cdef class IOEvents:
         return obj
 
 
+op_counter_dtype = _numpy.dtype([
+    ("ok", _numpy.uint64, ),
+    ("err", _numpy.uint64, ),
+    ], align=True)
+
+
+cdef class OpCounter:
+    """Empty-initialize an array of `CUfileOpCounter_t`.
+
+    The resulting object is of length `size` and of dtype `op_counter_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+
+    .. seealso:: `CUfileOpCounter_t`
+    """
+    cdef:
+        readonly object _data
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=op_counter_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(CUfileOpCounter_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size {sizeof(CUfileOpCounter_t)}"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.OpCounter_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.OpCounter object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        if not isinstance(other, OpCounter):
+            return False
+        if self._data.size != other._data.size:
+            return False
+        if self._data.dtype != other._data.dtype:
+            return False
+        return bool((self._data == other._data).all())
+
+    @property
+    def ok(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.ok[0])
+        return self._data.ok
+
+    @ok.setter
+    def ok(self, val):
+        self._data.ok = val
+
+    @property
+    def err(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.err[0])
+        return self._data.err
+
+    @err.setter
+    def err(self, val):
+        self._data.err = val
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            size = self._data.size
+            if key >= size or key <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key < 0:
+                key += size
+            return OpCounter.from_data(self._data[key:key+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == op_counter_dtype:
+            return OpCounter.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an OpCounter instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `op_counter_dtype` holding the data.
+        """
+        cdef OpCounter obj = OpCounter.__new__(OpCounter)
+        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != op_counter_dtype:
+            raise ValueError("data array must be of dtype op_counter_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an OpCounter instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef OpCounter obj = OpCounter.__new__(OpCounter)
+        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
+        cdef object buf = PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfileOpCounter_t) * size, flag)
+        data = _numpy.ndarray((size,), buffer=buf,
+                              dtype=op_counter_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
+per_gpu_stats_dtype = _numpy.dtype([
+    ("uuid", _numpy.int8, (16,)),
+    ("read_bytes", _numpy.uint64, ),
+    ("read_bw_bytes_per_sec", _numpy.uint64, ),
+    ("read_utilization", _numpy.uint64, ),
+    ("read_duration_us", _numpy.uint64, ),
+    ("n_total_reads", _numpy.uint64, ),
+    ("n_p2p_reads", _numpy.uint64, ),
+    ("n_nvfs_reads", _numpy.uint64, ),
+    ("n_posix_reads", _numpy.uint64, ),
+    ("n_unaligned_reads", _numpy.uint64, ),
+    ("n_dr_reads", _numpy.uint64, ),
+    ("n_sparse_regions", _numpy.uint64, ),
+    ("n_inline_regions", _numpy.uint64, ),
+    ("n_reads_err", _numpy.uint64, ),
+    ("writes_bytes", _numpy.uint64, ),
+    ("write_bw_bytes_per_sec", _numpy.uint64, ),
+    ("write_utilization", _numpy.uint64, ),
+    ("write_duration_us", _numpy.uint64, ),
+    ("n_total_writes", _numpy.uint64, ),
+    ("n_p2p_writes", _numpy.uint64, ),
+    ("n_nvfs_writes", _numpy.uint64, ),
+    ("n_posix_writes", _numpy.uint64, ),
+    ("n_unaligned_writes", _numpy.uint64, ),
+    ("n_dr_writes", _numpy.uint64, ),
+    ("n_writes_err", _numpy.uint64, ),
+    ("n_mmap", _numpy.uint64, ),
+    ("n_mmap_ok", _numpy.uint64, ),
+    ("n_mmap_err", _numpy.uint64, ),
+    ("n_mmap_free", _numpy.uint64, ),
+    ("reg_bytes", _numpy.uint64, ),
+    ], align=True)
+
+
+cdef class PerGpuStats:
+    """Empty-initialize an array of `CUfilePerGpuStats_t`.
+
+    The resulting object is of length `size` and of dtype `per_gpu_stats_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+
+    .. seealso:: `CUfilePerGpuStats_t`
+    """
+    cdef:
+        readonly object _data
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=per_gpu_stats_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(CUfilePerGpuStats_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size {sizeof(CUfilePerGpuStats_t)}"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.PerGpuStats_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.PerGpuStats object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        if not isinstance(other, PerGpuStats):
+            return False
+        if self._data.size != other._data.size:
+            return False
+        if self._data.dtype != other._data.dtype:
+            return False
+        return bool((self._data == other._data).all())
+
+    @property
+    def uuid(self):
+        """~_numpy.int8: (array of length 16)."""
+        return self._data.uuid
+
+    @uuid.setter
+    def uuid(self, val):
+        self._data.uuid = val
+
+    @property
+    def read_bytes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.read_bytes[0])
+        return self._data.read_bytes
+
+    @read_bytes.setter
+    def read_bytes(self, val):
+        self._data.read_bytes = val
+
+    @property
+    def read_bw_bytes_per_sec(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.read_bw_bytes_per_sec[0])
+        return self._data.read_bw_bytes_per_sec
+
+    @read_bw_bytes_per_sec.setter
+    def read_bw_bytes_per_sec(self, val):
+        self._data.read_bw_bytes_per_sec = val
+
+    @property
+    def read_utilization(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.read_utilization[0])
+        return self._data.read_utilization
+
+    @read_utilization.setter
+    def read_utilization(self, val):
+        self._data.read_utilization = val
+
+    @property
+    def read_duration_us(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.read_duration_us[0])
+        return self._data.read_duration_us
+
+    @read_duration_us.setter
+    def read_duration_us(self, val):
+        self._data.read_duration_us = val
+
+    @property
+    def n_total_reads(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_total_reads[0])
+        return self._data.n_total_reads
+
+    @n_total_reads.setter
+    def n_total_reads(self, val):
+        self._data.n_total_reads = val
+
+    @property
+    def n_p2p_reads(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_p2p_reads[0])
+        return self._data.n_p2p_reads
+
+    @n_p2p_reads.setter
+    def n_p2p_reads(self, val):
+        self._data.n_p2p_reads = val
+
+    @property
+    def n_nvfs_reads(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_nvfs_reads[0])
+        return self._data.n_nvfs_reads
+
+    @n_nvfs_reads.setter
+    def n_nvfs_reads(self, val):
+        self._data.n_nvfs_reads = val
+
+    @property
+    def n_posix_reads(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_posix_reads[0])
+        return self._data.n_posix_reads
+
+    @n_posix_reads.setter
+    def n_posix_reads(self, val):
+        self._data.n_posix_reads = val
+
+    @property
+    def n_unaligned_reads(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_unaligned_reads[0])
+        return self._data.n_unaligned_reads
+
+    @n_unaligned_reads.setter
+    def n_unaligned_reads(self, val):
+        self._data.n_unaligned_reads = val
+
+    @property
+    def n_dr_reads(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_dr_reads[0])
+        return self._data.n_dr_reads
+
+    @n_dr_reads.setter
+    def n_dr_reads(self, val):
+        self._data.n_dr_reads = val
+
+    @property
+    def n_sparse_regions(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_sparse_regions[0])
+        return self._data.n_sparse_regions
+
+    @n_sparse_regions.setter
+    def n_sparse_regions(self, val):
+        self._data.n_sparse_regions = val
+
+    @property
+    def n_inline_regions(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_inline_regions[0])
+        return self._data.n_inline_regions
+
+    @n_inline_regions.setter
+    def n_inline_regions(self, val):
+        self._data.n_inline_regions = val
+
+    @property
+    def n_reads_err(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_reads_err[0])
+        return self._data.n_reads_err
+
+    @n_reads_err.setter
+    def n_reads_err(self, val):
+        self._data.n_reads_err = val
+
+    @property
+    def writes_bytes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.writes_bytes[0])
+        return self._data.writes_bytes
+
+    @writes_bytes.setter
+    def writes_bytes(self, val):
+        self._data.writes_bytes = val
+
+    @property
+    def write_bw_bytes_per_sec(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.write_bw_bytes_per_sec[0])
+        return self._data.write_bw_bytes_per_sec
+
+    @write_bw_bytes_per_sec.setter
+    def write_bw_bytes_per_sec(self, val):
+        self._data.write_bw_bytes_per_sec = val
+
+    @property
+    def write_utilization(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.write_utilization[0])
+        return self._data.write_utilization
+
+    @write_utilization.setter
+    def write_utilization(self, val):
+        self._data.write_utilization = val
+
+    @property
+    def write_duration_us(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.write_duration_us[0])
+        return self._data.write_duration_us
+
+    @write_duration_us.setter
+    def write_duration_us(self, val):
+        self._data.write_duration_us = val
+
+    @property
+    def n_total_writes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_total_writes[0])
+        return self._data.n_total_writes
+
+    @n_total_writes.setter
+    def n_total_writes(self, val):
+        self._data.n_total_writes = val
+
+    @property
+    def n_p2p_writes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_p2p_writes[0])
+        return self._data.n_p2p_writes
+
+    @n_p2p_writes.setter
+    def n_p2p_writes(self, val):
+        self._data.n_p2p_writes = val
+
+    @property
+    def n_nvfs_writes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_nvfs_writes[0])
+        return self._data.n_nvfs_writes
+
+    @n_nvfs_writes.setter
+    def n_nvfs_writes(self, val):
+        self._data.n_nvfs_writes = val
+
+    @property
+    def n_posix_writes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_posix_writes[0])
+        return self._data.n_posix_writes
+
+    @n_posix_writes.setter
+    def n_posix_writes(self, val):
+        self._data.n_posix_writes = val
+
+    @property
+    def n_unaligned_writes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_unaligned_writes[0])
+        return self._data.n_unaligned_writes
+
+    @n_unaligned_writes.setter
+    def n_unaligned_writes(self, val):
+        self._data.n_unaligned_writes = val
+
+    @property
+    def n_dr_writes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_dr_writes[0])
+        return self._data.n_dr_writes
+
+    @n_dr_writes.setter
+    def n_dr_writes(self, val):
+        self._data.n_dr_writes = val
+
+    @property
+    def n_writes_err(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_writes_err[0])
+        return self._data.n_writes_err
+
+    @n_writes_err.setter
+    def n_writes_err(self, val):
+        self._data.n_writes_err = val
+
+    @property
+    def n_mmap(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_mmap[0])
+        return self._data.n_mmap
+
+    @n_mmap.setter
+    def n_mmap(self, val):
+        self._data.n_mmap = val
+
+    @property
+    def n_mmap_ok(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_mmap_ok[0])
+        return self._data.n_mmap_ok
+
+    @n_mmap_ok.setter
+    def n_mmap_ok(self, val):
+        self._data.n_mmap_ok = val
+
+    @property
+    def n_mmap_err(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_mmap_err[0])
+        return self._data.n_mmap_err
+
+    @n_mmap_err.setter
+    def n_mmap_err(self, val):
+        self._data.n_mmap_err = val
+
+    @property
+    def n_mmap_free(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_mmap_free[0])
+        return self._data.n_mmap_free
+
+    @n_mmap_free.setter
+    def n_mmap_free(self, val):
+        self._data.n_mmap_free = val
+
+    @property
+    def reg_bytes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.reg_bytes[0])
+        return self._data.reg_bytes
+
+    @reg_bytes.setter
+    def reg_bytes(self, val):
+        self._data.reg_bytes = val
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            size = self._data.size
+            if key >= size or key <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key < 0:
+                key += size
+            return PerGpuStats.from_data(self._data[key:key+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == per_gpu_stats_dtype:
+            return PerGpuStats.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an PerGpuStats instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `per_gpu_stats_dtype` holding the data.
+        """
+        cdef PerGpuStats obj = PerGpuStats.__new__(PerGpuStats)
+        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != per_gpu_stats_dtype:
+            raise ValueError("data array must be of dtype per_gpu_stats_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an PerGpuStats instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef PerGpuStats obj = PerGpuStats.__new__(PerGpuStats)
+        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
+        cdef object buf = PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfilePerGpuStats_t) * size, flag)
+        data = _numpy.ndarray((size,), buffer=buf,
+                              dtype=per_gpu_stats_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
 descr_dtype = _numpy.dtype([
     ("type", _numpy.int32, ),
     ("handle", _py_anon_pod1_dtype, ),
@@ -633,6 +1235,590 @@ cdef class _py_anon_pod2:
         return obj
 
 
+stats_level1_dtype = _numpy.dtype([
+    ("read_ops", op_counter_dtype, ),
+    ("write_ops", op_counter_dtype, ),
+    ("hdl_register_ops", op_counter_dtype, ),
+    ("hdl_deregister_ops", op_counter_dtype, ),
+    ("buf_register_ops", op_counter_dtype, ),
+    ("buf_deregister_ops", op_counter_dtype, ),
+    ("read_bytes", _numpy.uint64, ),
+    ("write_bytes", _numpy.uint64, ),
+    ("read_bw_bytes_per_sec", _numpy.uint64, ),
+    ("write_bw_bytes_per_sec", _numpy.uint64, ),
+    ("read_lat_avg_us", _numpy.uint64, ),
+    ("write_lat_avg_us", _numpy.uint64, ),
+    ("read_ops_per_sec", _numpy.uint64, ),
+    ("write_ops_per_sec", _numpy.uint64, ),
+    ("read_lat_sum_us", _numpy.uint64, ),
+    ("write_lat_sum_us", _numpy.uint64, ),
+    ("batch_submit_ops", op_counter_dtype, ),
+    ("batch_complete_ops", op_counter_dtype, ),
+    ("batch_setup_ops", op_counter_dtype, ),
+    ("batch_cancel_ops", op_counter_dtype, ),
+    ("batch_destroy_ops", op_counter_dtype, ),
+    ("batch_enqueued_ops", op_counter_dtype, ),
+    ("batch_posix_enqueued_ops", op_counter_dtype, ),
+    ("batch_processed_ops", op_counter_dtype, ),
+    ("batch_posix_processed_ops", op_counter_dtype, ),
+    ("batch_nvfs_submit_ops", op_counter_dtype, ),
+    ("batch_p2p_submit_ops", op_counter_dtype, ),
+    ("batch_aio_submit_ops", op_counter_dtype, ),
+    ("batch_iouring_submit_ops", op_counter_dtype, ),
+    ("batch_mixed_io_submit_ops", op_counter_dtype, ),
+    ("batch_total_submit_ops", op_counter_dtype, ),
+    ("batch_read_bytes", _numpy.uint64, ),
+    ("batch_write_bytes", _numpy.uint64, ),
+    ("batch_read_bw_bytes", _numpy.uint64, ),
+    ("batch_write_bw_bytes", _numpy.uint64, ),
+    ("batch_submit_lat_avg_us", _numpy.uint64, ),
+    ("batch_completion_lat_avg_us", _numpy.uint64, ),
+    ("batch_submit_ops_per_sec", _numpy.uint64, ),
+    ("batch_complete_ops_per_sec", _numpy.uint64, ),
+    ("batch_submit_lat_sum_us", _numpy.uint64, ),
+    ("batch_completion_lat_sum_us", _numpy.uint64, ),
+    ("last_batch_read_bytes", _numpy.uint64, ),
+    ("last_batch_write_bytes", _numpy.uint64, ),
+    ], align=True)
+
+
+cdef class StatsLevel1:
+    """Empty-initialize an array of `CUfileStatsLevel1_t`.
+
+    The resulting object is of length `size` and of dtype `stats_level1_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+
+    .. seealso:: `CUfileStatsLevel1_t`
+    """
+    cdef:
+        readonly object _data
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=stats_level1_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(CUfileStatsLevel1_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size {sizeof(CUfileStatsLevel1_t)}"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.StatsLevel1_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.StatsLevel1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        if not isinstance(other, StatsLevel1):
+            return False
+        if self._data.size != other._data.size:
+            return False
+        if self._data.dtype != other._data.dtype:
+            return False
+        return bool((self._data == other._data).all())
+
+    @property
+    def read_ops(self):
+        """op_counter_dtype: """
+        return self._data.read_ops
+
+    @read_ops.setter
+    def read_ops(self, val):
+        self._data.read_ops = val
+
+    @property
+    def write_ops(self):
+        """op_counter_dtype: """
+        return self._data.write_ops
+
+    @write_ops.setter
+    def write_ops(self, val):
+        self._data.write_ops = val
+
+    @property
+    def hdl_register_ops(self):
+        """op_counter_dtype: """
+        return self._data.hdl_register_ops
+
+    @hdl_register_ops.setter
+    def hdl_register_ops(self, val):
+        self._data.hdl_register_ops = val
+
+    @property
+    def hdl_deregister_ops(self):
+        """op_counter_dtype: """
+        return self._data.hdl_deregister_ops
+
+    @hdl_deregister_ops.setter
+    def hdl_deregister_ops(self, val):
+        self._data.hdl_deregister_ops = val
+
+    @property
+    def buf_register_ops(self):
+        """op_counter_dtype: """
+        return self._data.buf_register_ops
+
+    @buf_register_ops.setter
+    def buf_register_ops(self, val):
+        self._data.buf_register_ops = val
+
+    @property
+    def buf_deregister_ops(self):
+        """op_counter_dtype: """
+        return self._data.buf_deregister_ops
+
+    @buf_deregister_ops.setter
+    def buf_deregister_ops(self, val):
+        self._data.buf_deregister_ops = val
+
+    @property
+    def read_bytes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.read_bytes[0])
+        return self._data.read_bytes
+
+    @read_bytes.setter
+    def read_bytes(self, val):
+        self._data.read_bytes = val
+
+    @property
+    def write_bytes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.write_bytes[0])
+        return self._data.write_bytes
+
+    @write_bytes.setter
+    def write_bytes(self, val):
+        self._data.write_bytes = val
+
+    @property
+    def read_bw_bytes_per_sec(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.read_bw_bytes_per_sec[0])
+        return self._data.read_bw_bytes_per_sec
+
+    @read_bw_bytes_per_sec.setter
+    def read_bw_bytes_per_sec(self, val):
+        self._data.read_bw_bytes_per_sec = val
+
+    @property
+    def write_bw_bytes_per_sec(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.write_bw_bytes_per_sec[0])
+        return self._data.write_bw_bytes_per_sec
+
+    @write_bw_bytes_per_sec.setter
+    def write_bw_bytes_per_sec(self, val):
+        self._data.write_bw_bytes_per_sec = val
+
+    @property
+    def read_lat_avg_us(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.read_lat_avg_us[0])
+        return self._data.read_lat_avg_us
+
+    @read_lat_avg_us.setter
+    def read_lat_avg_us(self, val):
+        self._data.read_lat_avg_us = val
+
+    @property
+    def write_lat_avg_us(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.write_lat_avg_us[0])
+        return self._data.write_lat_avg_us
+
+    @write_lat_avg_us.setter
+    def write_lat_avg_us(self, val):
+        self._data.write_lat_avg_us = val
+
+    @property
+    def read_ops_per_sec(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.read_ops_per_sec[0])
+        return self._data.read_ops_per_sec
+
+    @read_ops_per_sec.setter
+    def read_ops_per_sec(self, val):
+        self._data.read_ops_per_sec = val
+
+    @property
+    def write_ops_per_sec(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.write_ops_per_sec[0])
+        return self._data.write_ops_per_sec
+
+    @write_ops_per_sec.setter
+    def write_ops_per_sec(self, val):
+        self._data.write_ops_per_sec = val
+
+    @property
+    def read_lat_sum_us(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.read_lat_sum_us[0])
+        return self._data.read_lat_sum_us
+
+    @read_lat_sum_us.setter
+    def read_lat_sum_us(self, val):
+        self._data.read_lat_sum_us = val
+
+    @property
+    def write_lat_sum_us(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.write_lat_sum_us[0])
+        return self._data.write_lat_sum_us
+
+    @write_lat_sum_us.setter
+    def write_lat_sum_us(self, val):
+        self._data.write_lat_sum_us = val
+
+    @property
+    def batch_submit_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_submit_ops
+
+    @batch_submit_ops.setter
+    def batch_submit_ops(self, val):
+        self._data.batch_submit_ops = val
+
+    @property
+    def batch_complete_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_complete_ops
+
+    @batch_complete_ops.setter
+    def batch_complete_ops(self, val):
+        self._data.batch_complete_ops = val
+
+    @property
+    def batch_setup_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_setup_ops
+
+    @batch_setup_ops.setter
+    def batch_setup_ops(self, val):
+        self._data.batch_setup_ops = val
+
+    @property
+    def batch_cancel_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_cancel_ops
+
+    @batch_cancel_ops.setter
+    def batch_cancel_ops(self, val):
+        self._data.batch_cancel_ops = val
+
+    @property
+    def batch_destroy_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_destroy_ops
+
+    @batch_destroy_ops.setter
+    def batch_destroy_ops(self, val):
+        self._data.batch_destroy_ops = val
+
+    @property
+    def batch_enqueued_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_enqueued_ops
+
+    @batch_enqueued_ops.setter
+    def batch_enqueued_ops(self, val):
+        self._data.batch_enqueued_ops = val
+
+    @property
+    def batch_posix_enqueued_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_posix_enqueued_ops
+
+    @batch_posix_enqueued_ops.setter
+    def batch_posix_enqueued_ops(self, val):
+        self._data.batch_posix_enqueued_ops = val
+
+    @property
+    def batch_processed_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_processed_ops
+
+    @batch_processed_ops.setter
+    def batch_processed_ops(self, val):
+        self._data.batch_processed_ops = val
+
+    @property
+    def batch_posix_processed_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_posix_processed_ops
+
+    @batch_posix_processed_ops.setter
+    def batch_posix_processed_ops(self, val):
+        self._data.batch_posix_processed_ops = val
+
+    @property
+    def batch_nvfs_submit_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_nvfs_submit_ops
+
+    @batch_nvfs_submit_ops.setter
+    def batch_nvfs_submit_ops(self, val):
+        self._data.batch_nvfs_submit_ops = val
+
+    @property
+    def batch_p2p_submit_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_p2p_submit_ops
+
+    @batch_p2p_submit_ops.setter
+    def batch_p2p_submit_ops(self, val):
+        self._data.batch_p2p_submit_ops = val
+
+    @property
+    def batch_aio_submit_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_aio_submit_ops
+
+    @batch_aio_submit_ops.setter
+    def batch_aio_submit_ops(self, val):
+        self._data.batch_aio_submit_ops = val
+
+    @property
+    def batch_iouring_submit_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_iouring_submit_ops
+
+    @batch_iouring_submit_ops.setter
+    def batch_iouring_submit_ops(self, val):
+        self._data.batch_iouring_submit_ops = val
+
+    @property
+    def batch_mixed_io_submit_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_mixed_io_submit_ops
+
+    @batch_mixed_io_submit_ops.setter
+    def batch_mixed_io_submit_ops(self, val):
+        self._data.batch_mixed_io_submit_ops = val
+
+    @property
+    def batch_total_submit_ops(self):
+        """op_counter_dtype: """
+        return self._data.batch_total_submit_ops
+
+    @batch_total_submit_ops.setter
+    def batch_total_submit_ops(self, val):
+        self._data.batch_total_submit_ops = val
+
+    @property
+    def batch_read_bytes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.batch_read_bytes[0])
+        return self._data.batch_read_bytes
+
+    @batch_read_bytes.setter
+    def batch_read_bytes(self, val):
+        self._data.batch_read_bytes = val
+
+    @property
+    def batch_write_bytes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.batch_write_bytes[0])
+        return self._data.batch_write_bytes
+
+    @batch_write_bytes.setter
+    def batch_write_bytes(self, val):
+        self._data.batch_write_bytes = val
+
+    @property
+    def batch_read_bw_bytes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.batch_read_bw_bytes[0])
+        return self._data.batch_read_bw_bytes
+
+    @batch_read_bw_bytes.setter
+    def batch_read_bw_bytes(self, val):
+        self._data.batch_read_bw_bytes = val
+
+    @property
+    def batch_write_bw_bytes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.batch_write_bw_bytes[0])
+        return self._data.batch_write_bw_bytes
+
+    @batch_write_bw_bytes.setter
+    def batch_write_bw_bytes(self, val):
+        self._data.batch_write_bw_bytes = val
+
+    @property
+    def batch_submit_lat_avg_us(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.batch_submit_lat_avg_us[0])
+        return self._data.batch_submit_lat_avg_us
+
+    @batch_submit_lat_avg_us.setter
+    def batch_submit_lat_avg_us(self, val):
+        self._data.batch_submit_lat_avg_us = val
+
+    @property
+    def batch_completion_lat_avg_us(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.batch_completion_lat_avg_us[0])
+        return self._data.batch_completion_lat_avg_us
+
+    @batch_completion_lat_avg_us.setter
+    def batch_completion_lat_avg_us(self, val):
+        self._data.batch_completion_lat_avg_us = val
+
+    @property
+    def batch_submit_ops_per_sec(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.batch_submit_ops_per_sec[0])
+        return self._data.batch_submit_ops_per_sec
+
+    @batch_submit_ops_per_sec.setter
+    def batch_submit_ops_per_sec(self, val):
+        self._data.batch_submit_ops_per_sec = val
+
+    @property
+    def batch_complete_ops_per_sec(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.batch_complete_ops_per_sec[0])
+        return self._data.batch_complete_ops_per_sec
+
+    @batch_complete_ops_per_sec.setter
+    def batch_complete_ops_per_sec(self, val):
+        self._data.batch_complete_ops_per_sec = val
+
+    @property
+    def batch_submit_lat_sum_us(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.batch_submit_lat_sum_us[0])
+        return self._data.batch_submit_lat_sum_us
+
+    @batch_submit_lat_sum_us.setter
+    def batch_submit_lat_sum_us(self, val):
+        self._data.batch_submit_lat_sum_us = val
+
+    @property
+    def batch_completion_lat_sum_us(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.batch_completion_lat_sum_us[0])
+        return self._data.batch_completion_lat_sum_us
+
+    @batch_completion_lat_sum_us.setter
+    def batch_completion_lat_sum_us(self, val):
+        self._data.batch_completion_lat_sum_us = val
+
+    @property
+    def last_batch_read_bytes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.last_batch_read_bytes[0])
+        return self._data.last_batch_read_bytes
+
+    @last_batch_read_bytes.setter
+    def last_batch_read_bytes(self, val):
+        self._data.last_batch_read_bytes = val
+
+    @property
+    def last_batch_write_bytes(self):
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.last_batch_write_bytes[0])
+        return self._data.last_batch_write_bytes
+
+    @last_batch_write_bytes.setter
+    def last_batch_write_bytes(self, val):
+        self._data.last_batch_write_bytes = val
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            size = self._data.size
+            if key >= size or key <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key < 0:
+                key += size
+            return StatsLevel1.from_data(self._data[key:key+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == stats_level1_dtype:
+            return StatsLevel1.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an StatsLevel1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `stats_level1_dtype` holding the data.
+        """
+        cdef StatsLevel1 obj = StatsLevel1.__new__(StatsLevel1)
+        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != stats_level1_dtype:
+            raise ValueError("data array must be of dtype stats_level1_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an StatsLevel1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef StatsLevel1 obj = StatsLevel1.__new__(StatsLevel1)
+        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
+        cdef object buf = PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfileStatsLevel1_t) * size, flag)
+        data = _numpy.ndarray((size,), buffer=buf,
+                              dtype=stats_level1_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
 io_params_dtype = _numpy.dtype([
     ("mode", _numpy.int32, ),
     ("u", _py_anon_pod2_dtype, ),
@@ -796,6 +1982,288 @@ cdef class IOParams:
             <char*>ptr, sizeof(CUfileIOParams_t) * size, flag)
         data = _numpy.ndarray((size,), buffer=buf,
                               dtype=io_params_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
+stats_level2_dtype = _numpy.dtype([
+    ("basic", stats_level1_dtype, ),
+    ("read_size_kb_hist", _numpy.uint64, (32,)),
+    ("write_size_kb_hist", _numpy.uint64, (32,)),
+    ], align=True)
+
+
+cdef class StatsLevel2:
+    """Empty-initialize an array of `CUfileStatsLevel2_t`.
+
+    The resulting object is of length `size` and of dtype `stats_level2_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+
+    .. seealso:: `CUfileStatsLevel2_t`
+    """
+    cdef:
+        readonly object _data
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=stats_level2_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(CUfileStatsLevel2_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size {sizeof(CUfileStatsLevel2_t)}"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.StatsLevel2_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.StatsLevel2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        if not isinstance(other, StatsLevel2):
+            return False
+        if self._data.size != other._data.size:
+            return False
+        if self._data.dtype != other._data.dtype:
+            return False
+        return bool((self._data == other._data).all())
+
+    @property
+    def basic(self):
+        """stats_level1_dtype: """
+        return self._data.basic
+
+    @basic.setter
+    def basic(self, val):
+        self._data.basic = val
+
+    @property
+    def read_size_kb_hist(self):
+        """~_numpy.uint64: (array of length 32)."""
+        return self._data.read_size_kb_hist
+
+    @read_size_kb_hist.setter
+    def read_size_kb_hist(self, val):
+        self._data.read_size_kb_hist = val
+
+    @property
+    def write_size_kb_hist(self):
+        """~_numpy.uint64: (array of length 32)."""
+        return self._data.write_size_kb_hist
+
+    @write_size_kb_hist.setter
+    def write_size_kb_hist(self, val):
+        self._data.write_size_kb_hist = val
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            size = self._data.size
+            if key >= size or key <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key < 0:
+                key += size
+            return StatsLevel2.from_data(self._data[key:key+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == stats_level2_dtype:
+            return StatsLevel2.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an StatsLevel2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `stats_level2_dtype` holding the data.
+        """
+        cdef StatsLevel2 obj = StatsLevel2.__new__(StatsLevel2)
+        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != stats_level2_dtype:
+            raise ValueError("data array must be of dtype stats_level2_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an StatsLevel2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef StatsLevel2 obj = StatsLevel2.__new__(StatsLevel2)
+        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
+        cdef object buf = PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfileStatsLevel2_t) * size, flag)
+        data = _numpy.ndarray((size,), buffer=buf,
+                              dtype=stats_level2_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
+stats_level3_dtype = _numpy.dtype([
+    ("detailed", stats_level2_dtype, ),
+    ("num_gpus", _numpy.uint32, ),
+    ("per_gpu_stats", per_gpu_stats_dtype, (16,)),
+    ], align=True)
+
+
+cdef class StatsLevel3:
+    """Empty-initialize an array of `CUfileStatsLevel3_t`.
+
+    The resulting object is of length `size` and of dtype `stats_level3_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+
+    .. seealso:: `CUfileStatsLevel3_t`
+    """
+    cdef:
+        readonly object _data
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=stats_level3_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(CUfileStatsLevel3_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size {sizeof(CUfileStatsLevel3_t)}"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.StatsLevel3_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.StatsLevel3 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        if not isinstance(other, StatsLevel3):
+            return False
+        if self._data.size != other._data.size:
+            return False
+        if self._data.dtype != other._data.dtype:
+            return False
+        return bool((self._data == other._data).all())
+
+    @property
+    def detailed(self):
+        """stats_level2_dtype: """
+        return self._data.detailed
+
+    @detailed.setter
+    def detailed(self, val):
+        self._data.detailed = val
+
+    @property
+    def num_gpus(self):
+        """Union[~_numpy.uint32, int]: """
+        if self._data.size == 1:
+            return int(self._data.num_gpus[0])
+        return self._data.num_gpus
+
+    @num_gpus.setter
+    def num_gpus(self, val):
+        self._data.num_gpus = val
+
+    @property
+    def per_gpu_stats(self):
+        """per_gpu_stats_dtype: (array of length 16)."""
+        return self._data.per_gpu_stats
+
+    @per_gpu_stats.setter
+    def per_gpu_stats(self, val):
+        self._data.per_gpu_stats = val
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            size = self._data.size
+            if key >= size or key <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key < 0:
+                key += size
+            return StatsLevel3.from_data(self._data[key:key+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == stats_level3_dtype:
+            return StatsLevel3.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an StatsLevel3 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `stats_level3_dtype` holding the data.
+        """
+        cdef StatsLevel3 obj = StatsLevel3.__new__(StatsLevel3)
+        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != stats_level3_dtype:
+            raise ValueError("data array must be of dtype stats_level3_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an StatsLevel3 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef StatsLevel3 obj = StatsLevel3.__new__(StatsLevel3)
+        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
+        cdef object buf = PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfileStatsLevel3_t) * size, flag)
+        data = _numpy.ndarray((size,), buffer=buf,
+                              dtype=stats_level3_dtype)
         obj._data = data.view(_numpy.recarray)
 
         return obj
@@ -1291,12 +2759,6 @@ cpdef set_parameter_string(int param, intptr_t desc_str):
     check_status(__status__)
 
 
-cpdef driver_close():
-    with nogil:
-        __status__ = cuFileDriverClose()
-    check_status(__status__)
-
-
 cpdef get_parameter_min_max_value(int param, intptr_t min_value, intptr_t max_value):
     """Get both the minimum and maximum settable values for a given size_t parameter in a single call.
 
@@ -1458,3 +2920,11 @@ cpdef str op_status_error(int status):
     cdef bytes _output_
     _output_ = cufileop_status_error(<_OpError>status)
     return _output_.decode()
+
+
+cpdef driver_close():
+    """reset the cuFile library and release the nvidia-fs driver
+    """
+    with nogil:
+        status = cuFileDriverClose_v2()
+    check_status(status)
