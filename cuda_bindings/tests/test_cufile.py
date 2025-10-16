@@ -1820,6 +1820,7 @@ def test_set_get_parameter_bool():
     finally:
         cuda.cuDevicePrimaryCtxRelease(device)
 
+
 @pytest.mark.skipif(
     cufileVersionLessThan(1140), reason="cuFile parameter APIs require cuFile library version 1.14.0 or later"
 )
@@ -2177,7 +2178,7 @@ def test_get_stats_l1():
 
         # Use the exposed StatsLevel1 class from cufile module
         stats = cufile.StatsLevel1()
-        
+
         # Get L1 statistics (basic operation counts)
         cufile.get_stats_l1(stats.ptr)
 
@@ -2186,14 +2187,15 @@ def test_get_stats_l1():
         write_ops = cufile.OpCounter.from_data(stats.write_ops)
         read_bytes = int(stats.read_bytes)
         write_bytes = int(stats.write_bytes)
-        
+
         assert read_ops.ok > 0, f"Expected read operations, got {read_ops.ok}"
         assert write_ops.ok > 0, f"Expected write operations, got {write_ops.ok}"
         assert read_bytes > 0, f"Expected read bytes, got {read_bytes}"
         assert write_bytes > 0, f"Expected write bytes, got {write_bytes}"
 
-        logging.info(f"Stats: reads={read_ops.ok}, writes={write_ops.ok}, "
-                    f"read_bytes={read_bytes}, write_bytes={write_bytes}")
+        logging.info(
+            f"Stats: reads={read_ops.ok}, writes={write_ops.ok}, read_bytes={read_bytes}, write_bytes={write_bytes}"
+        )
 
         # Stop statistics collection
         cufile.stats_stop()
@@ -2209,6 +2211,7 @@ def test_get_stats_l1():
             os.unlink(file_path)
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
+
 
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
@@ -2288,8 +2291,10 @@ def test_get_stats_l2():
         read_ops = cufile.OpCounter.from_data(basic_stats.read_ops)
         write_ops = cufile.OpCounter.from_data(basic_stats.write_ops)
 
-        logging.info(f"L2 Stats: read_hist_total={read_hist_total}, write_hist_total={write_hist_total}, "
-                    f"basic_reads={read_ops.ok}, basic_writes={write_ops.ok}")
+        logging.info(
+            f"L2 Stats: read_hist_total={read_hist_total}, write_hist_total={write_hist_total}, "
+            f"basic_reads={read_ops.ok}, basic_writes={write_ops.ok}"
+        )
 
         # Stop statistics collection
         cufile.stats_stop()
@@ -2388,7 +2393,7 @@ def test_get_stats_l3():
             # stats.per_gpu_stats has shape (1, 16), we need to get [0] first to get the (16,) array
             # then slice [i:i+1] to get a 1-d array view (required by from_data)
             per_gpu_array = stats.per_gpu_stats[0]  # Get the (16,) array
-            gpu_stats = cufile.PerGpuStats.from_data(per_gpu_array[i:i+1])
+            gpu_stats = cufile.PerGpuStats.from_data(per_gpu_array[i : i + 1])
             if gpu_stats.n_total_reads > 0 or gpu_stats.read_bytes > 0:
                 gpu_with_data = True
                 break
@@ -2396,9 +2401,10 @@ def test_get_stats_l3():
         # L3 also contains L2 detailed stats (which includes L1 basic stats)
         detailed_stats = cufile.StatsLevel2.from_data(stats.detailed)
         read_hist_total = int(detailed_stats.read_size_kb_hist.sum())
-        
-        logging.info(f"L3 Stats: num_gpus={num_gpus}, gpu_with_data={gpu_with_data}, "
-                    f"detailed_read_hist={read_hist_total}")
+
+        logging.info(
+            f"L3 Stats: num_gpus={num_gpus}, gpu_with_data={gpu_with_data}, detailed_read_hist={read_hist_total}"
+        )
 
         # Stop statistics collection
         cufile.stats_stop()
