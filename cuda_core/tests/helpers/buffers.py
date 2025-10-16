@@ -3,7 +3,6 @@
 
 import ctypes
 import sys
-import time
 
 from cuda.core.experimental import Buffer, MemoryResource
 from cuda.core.experimental._utils.cuda_utils import driver, handle_return
@@ -12,6 +11,9 @@ if sys.platform.startswith("win"):
     libc = ctypes.CDLL("msvcrt.dll")
 else:
     libc = ctypes.CDLL("libc.so.6")
+
+
+__all__ = ["DummyUnifiedMemoryResource", "PatternGen", "make_scratch_buffer", "compare_equal_buffers"]
 
 
 class DummyUnifiedMemoryResource(MemoryResource):
@@ -38,23 +40,16 @@ class DummyUnifiedMemoryResource(MemoryResource):
         return self.device
 
 
-class IPCBufferTestHelper:
+class PatternGen:
     """
-    A helper for manipulating memory buffers in IPC tests.
-
-    Provides methods to fill a target buffer with a known test pattern and
+    Provides methods to fill a target buffer with  known test patterns and
     verify the expected values.
 
     If a stream is provided, operations are synchronized with respect to that
     stream.  Otherwise, they are synchronized over the device.
 
-    The test pattern is either a fixed value or a cyclic function of the byte
-    offset. The cyclic pattern is based on two arguments:
-
-        `flipped`: whether to flip (invert) each byte.
-        `starting_from`: an offset to start counting from.
-
-    For a fixed pattern, specify `value`. This supercedes the above arguments.
+    The test pattern is either a fixed value or is generated from a 8-bit seed.
+    Only one of `value` or `seed` should be supplied.
 
     Distinct test patterns are stored in separate buffers called pattern
     buffers. Calls to `fill_buffer` copy from a pattern buffer to the target
@@ -62,34 +57,31 @@ class IPCBufferTestHelper:
     buffer and then perform a comparison.
     """
 
-    def __init__(self, device, buffer, stream=None):
+    def __init__(self, device, size, stream=None):
         self.device = device
-        self.buffer = buffer
+        self.size = size
         self.stream = stream if stream is not None else device.create_stream()
         self.sync_target = stream if stream is not None else device
-        self.scratch_buffer = DummyUnifiedMemoryResource(self.device).allocate(self.buffer.size)
+        self.scratch_buffer = DummyUnifiedMemoryResource(self.device).allocate(size)
         self.pattern_buffers = {}
 
-    @property
-    def size(self):
-        """The buffer size in bytes."""
-        return self.buffer.size
-
-    def fill_buffer(self, flipped=False, starting_from=0, value=None, repeat=1, sync=True):
+    def fill_buffer(self, buffer, seed=None, value=None, repeat=1, sync=True):
         """Fill a device buffer with a sequential test pattern using unified memory."""
-        pattern_buffer = self._get_pattern_buffer(flipped, starting_from, value)
+        assert buffer.size == self.size
+        pattern_buffer = self._get_pattern_buffer(seed, value)
         for _ in range(repeat):
-            self.buffer.copy_from(pattern_buffer, stream=self.stream)
+            buffer.copy_from(pattern_buffer, stream=self.stream)
         if sync:
             self.sync()
 
-    def verify_buffer(self, flipped=False, starting_from=0, value=None, repeat=1):
+    def verify_buffer(self, buffer, seed=None, value=None, repeat=1):
         """Verify the buffer contents against a sequential pattern."""
+        assert buffer.size == self.size
         ptr_test = self._ptr(self.scratch_buffer)
-        pattern_buffer = self._get_pattern_buffer(flipped, starting_from, value)
+        pattern_buffer = self._get_pattern_buffer(seed, value)
         ptr_expected = self._ptr(pattern_buffer)
         for _ in range(repeat):
-            self.scratch_buffer.copy_from(self.buffer, stream=self.stream)
+            self.scratch_buffer.copy_from(buffer, stream=self.stream)
             self.sync()
             assert libc.memcmp(ptr_test, ptr_expected, self.size) == 0
 
@@ -102,10 +94,12 @@ class IPCBufferTestHelper:
         """Get a pointer to the specified buffer."""
         return ctypes.cast(int(buffer.handle), ctypes.POINTER(ctypes.c_ubyte))
 
-    def _get_pattern_buffer(self, flipped, starting_from, value):
+    def _get_pattern_buffer(self, seed, value):
         """Get a buffer holding the specified test pattern."""
-        assert value is None or (not flipped and starting_from == 0)
-        key = (value & 0xFF,) if value is not None else (flipped, starting_from)
+        assert seed is None or value is None
+        if value is None:
+            seed = (0 if seed is None else seed) & 0xFF
+        key = seed, value
         pattern_buffer = self.pattern_buffers.get(key, None)
         if pattern_buffer is None:
             if value is not None:
@@ -113,13 +107,8 @@ class IPCBufferTestHelper:
             else:
                 pattern_buffer = DummyUnifiedMemoryResource(self.device).allocate(self.size)
                 ptr = self._ptr(pattern_buffer)
-                pattern = lambda i: (starting_from + i) & 0xFF  # noqa: E731
-                if flipped:
-                    for i in range(self.size):
-                        ptr[i] = ~pattern(i)
-                else:
-                    for i in range(self.size):
-                        ptr[i] = pattern(i)
+                for i in range(self.size):
+                    ptr[i] =  (seed + i) & 0xFF
             self.pattern_buffers[key] = pattern_buffer
         return pattern_buffer
 
@@ -132,55 +121,12 @@ def make_scratch_buffer(device, value, nbytes):
     return buffer
 
 
-def compare_buffers(buffer1, buffer2):
-    """Compare the contents of two host-accessible buffers a la memcmp."""
-    assert buffer1.size == buffer2.size
+def compare_equal_buffers(buffer1, buffer2):
+    """Compare the contents of two host-accessible buffers for bitwise equality."""
+    if buffer1.size != buffer2.size:
+        return False
     ptr1 = ctypes.cast(int(buffer1.handle), ctypes.POINTER(ctypes.c_byte))
     ptr2 = ctypes.cast(int(buffer2.handle), ctypes.POINTER(ctypes.c_byte))
-    return libc.memcmp(ptr1, ptr2, buffer1.size)
+    return libc.memcmp(ptr1, ptr2, buffer1.size) == 0
 
 
-class TimestampedLogger:
-    """
-    A logger that prefixes each output with a timestamp, containing the elapsed
-    time since the logger was created.
-
-    Example:
-
-        import multiprocess as mp
-        import time
-
-        def main():
-            log = TimestampedLogger(prefix="parent: ")
-            log("begin")
-            process = mp.Process(target=child_main, args=(log,))
-            process.start()
-            process.join()
-            log("done")
-
-        def child_main(log):
-            log.prefix = " child: "
-            log("begin")
-            time.sleep(1)
-            log("done")
-
-        if __name__ == "__main__":
-            main()
-
-    Possible output:
-
-        [     0.003 ms] parent: begin
-        [   819.464 ms]  child: begin
-        [  1819.666 ms]  child: done
-        [  1882.954 ms] parent: done
-    """
-
-    def __init__(self, prefix=None, start_time=None, enabled=True):
-        self.prefix = "" if prefix is None else prefix
-        self.start_time = start_time if start_time is not None else time.time_ns()
-        self.enabled = enabled
-
-    def __call__(self, msg):
-        if self.enabled:
-            now = (time.time_ns() - self.start_time) * 1e-6
-            print(f"[{now:>10.3f} ms] {self.prefix}{msg}")

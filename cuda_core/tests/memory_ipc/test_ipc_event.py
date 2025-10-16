@@ -3,11 +3,12 @@
 
 from conftest import skipif_need_cuda_headers
 from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, EventOptions
-from utility import TimestampedLogger, make_scratch_buffer, compare_buffers
+from helpers.buffers import make_scratch_buffer, compare_equal_buffers
 from helpers.latch import LatchKernel
+from helpers.logging import TimestampedLogger
 import ctypes
-import pytest
 import multiprocessing as mp
+import pytest
 import time
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
@@ -71,7 +72,7 @@ class TestIpcEvent:
         # Finish up.
         target.copy_from(buffer, stream=stream1)
         stream1.sync()
-        assert compare_buffers(target, twos) == 0
+        assert compare_equal_buffers(target, twos)
         elapsed_ms = e_copy_end - e_copy_start
         log(f"Elapsed time for {NCOPIES} copies: {int(elapsed_ms)} ms")
 
@@ -154,7 +155,7 @@ class TestIpcEventWithLatch:
         # Finish up.
         target.copy_from(buffer, stream=stream1)
         stream1.sync()
-        assert compare_buffers(target, twos) == 0
+        assert compare_equal_buffers(target, twos)
 
 
     def child_main(self, log, q_in, q_out):

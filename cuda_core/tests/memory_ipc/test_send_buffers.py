@@ -6,7 +6,7 @@ from itertools import cycle
 
 import pytest
 from cuda.core.experimental import DeviceMemoryResource, DeviceMemoryResourceOptions
-from utility import IPCBufferTestHelper
+from helpers.buffers import PatternGen
 
 from cuda_python_test_helpers import supports_ipc_mempool
 
@@ -29,18 +29,12 @@ def test_ipc_send_buffers(ipc_device, nmrs):
 
     # Allocate and fill memory.
     buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
+    pgen = PatternGen(device, NBYTES)
     for buffer in buffers:
-        helper = IPCBufferTestHelper(device, buffer)
-        helper.fill_buffer(flipped=False)
+        pgen.fill_buffer(buffer, seed=False)
 
     # Start the child process.
-    process = mp.Process(
-        target=child_main,
-        args=(
-            device,
-            buffers,
-        ),
-    )
+    process = mp.Process(target=child_main, args=(device, buffers))
     process.start()
 
     # Wait for the child process.
@@ -48,16 +42,16 @@ def test_ipc_send_buffers(ipc_device, nmrs):
     assert process.exitcode == 0
 
     # Verify that the buffers were modified.
+    pgen = PatternGen(device, NBYTES)
     for buffer in buffers:
-        helper = IPCBufferTestHelper(device, buffer)
-        helper.verify_buffer(flipped=True)
+        pgen.verify_buffer(buffer, seed=True)
         buffer.close()
 
 
 def child_main(device, buffers):
     device.set_current()
+    pgen = PatternGen(device, NBYTES)
     for buffer in buffers:
-        helper = IPCBufferTestHelper(device, buffer)
-        helper.verify_buffer(flipped=False)
-        helper.fill_buffer(flipped=True)
+        pgen.verify_buffer(buffer, seed=False)
+        pgen.fill_buffer(buffer, seed=True)
         buffer.close()

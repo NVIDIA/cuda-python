@@ -7,7 +7,7 @@ from itertools import cycle
 
 import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
-from utility import IPCBufferTestHelper
+from helpers.buffers import PatternGen
 
 from cuda_python_test_helpers import supports_ipc_mempool
 
@@ -40,14 +40,16 @@ class TestIpcWorkerPool:
         with mp.Pool(NWORKERS) as pool:
             pool.map(self.process_buffer, buffers)
 
+        pgen = PatternGen(device, NBYTES)
         for buffer in buffers:
-            IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
+            pgen.verify_buffer(buffer, seed=True)
             buffer.close()
 
     def process_buffer(self, buffer):
         device = Device(buffer.memory_resource.device_id)
         device.set_current()
-        IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
+        pgen = PatternGen(device, NBYTES)
+        pgen.fill_buffer(buffer, seed=True)
         buffer.close()
 
 
@@ -79,8 +81,9 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
                 [(mrs.index(buffer.memory_resource), buffer.get_ipc_descriptor()) for buffer in buffers],
             )
 
+        pgen = PatternGen(device, NBYTES)
         for buffer in buffers:
-            IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
+            pgen.verify_buffer(buffer, seed=True)
             buffer.close()
 
     def process_buffer(self, mr_idx, buffer_desc):
@@ -88,7 +91,8 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         device = Device(mr.device_id)
         device.set_current()
         buffer = Buffer.from_ipc_descriptor(mr, buffer_desc)
-        IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
+        pgen = PatternGen(device, NBYTES)
+        pgen.fill_buffer(buffer, seed=True)
         buffer.close()
 
 
@@ -120,12 +124,14 @@ class TestIpcWorkerPoolUsingRegistry:
         with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
             pool.starmap(self.process_buffer, [(device, pickle.dumps(buffer)) for buffer in buffers])
 
+        pgen = PatternGen(device, NBYTES)
         for buffer in buffers:
-            IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
+            pgen.verify_buffer(buffer, seed=True)
             buffer.close()
 
     def process_buffer(self, device, buffer_s):
         device.set_current()
         buffer = pickle.loads(buffer_s)  # noqa: S301
-        IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
+        pgen = PatternGen(device, NBYTES)
+        pgen.fill_buffer(buffer, seed=True)
         buffer.close()

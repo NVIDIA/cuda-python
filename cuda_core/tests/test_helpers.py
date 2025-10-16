@@ -1,12 +1,19 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
 from cuda.core.experimental import Device
 from helpers.latch import LatchKernel
-from memory_ipc.utility import TimestampedLogger, make_scratch_buffer, compare_buffers
+from helpers.logging import TimestampedLogger
+from helpers.buffers import make_scratch_buffer, compare_equal_buffers, PatternGen
 import time
+import pytest
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
 NBYTES = 64
 
 def test_latchkernel():
+    """Test LatchKernel."""
     log = TimestampedLogger()
     log("begin")
     device = Device()
@@ -23,11 +30,38 @@ def test_latchkernel():
     log("going to sleep")
     time.sleep(1)
     log("checking target == 0")
-    assert compare_buffers(target, zeros) == 0
+    assert compare_equal_buffers(target, zeros)
     log("releasing latch and syncing")
     latch.release()
     stream.sync()
     log("checking target == 1")
-    assert compare_buffers(target, ones) == 0
+    assert compare_equal_buffers(target, ones)
     log("done")
+
+def test_patterngen_seeds():
+    """Test PatternGen with seed argument."""
+    device = Device()
+    device.set_current()
+    buffer = make_scratch_buffer(device, 0, NBYTES)
+
+    # All seeds are pairwise different.
+    pgen = PatternGen(device, NBYTES)
+    for i in range(256):
+        pgen.fill_buffer(buffer, seed=i)
+        pgen.verify_buffer(buffer, seed=i)
+        for j in range(i+1, 256):
+            with pytest.raises(AssertionError):
+                pgen.verify_buffer(buffer, seed=j)
+
+def test_patterngen_values():
+    """Test PatternGen with value argument, also compare_equal_buffers."""
+    device = Device()
+    device.set_current()
+    ones = make_scratch_buffer(device, 1, NBYTES)
+    twos = make_scratch_buffer(device, 2, NBYTES)
+    assert compare_equal_buffers(ones, ones)
+    assert not compare_equal_buffers(ones, twos)
+    pgen = PatternGen(device, NBYTES)
+    pgen.verify_buffer(ones, value=1)
+    pgen.verify_buffer(twos, value=2)
 

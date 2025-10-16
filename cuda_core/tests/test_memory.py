@@ -13,6 +13,7 @@ except ImportError:
     np = None
 import ctypes
 import platform
+from helpers.buffers import DummyUnifiedMemoryResource
 
 import pytest
 from cuda.core.experimental import (
@@ -93,30 +94,6 @@ class DummyHostMemoryResource(MemoryResource):
     @property
     def device_id(self) -> int:
         raise RuntimeError("the pinned memory resource is not bound to any GPU")
-
-
-class DummyUnifiedMemoryResource(MemoryResource):
-    def __init__(self, device):
-        self.device = device
-
-    def allocate(self, size, stream=None) -> Buffer:
-        ptr = handle_return(driver.cuMemAllocManaged(size, driver.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
-        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
-
-    def deallocate(self, ptr, size, stream=None):
-        handle_return(driver.cuMemFree(ptr))
-
-    @property
-    def is_device_accessible(self) -> bool:
-        return True
-
-    @property
-    def is_host_accessible(self) -> bool:
-        return True
-
-    @property
-    def device_id(self) -> int:
-        return 0
 
 
 class DummyPinnedMemoryResource(MemoryResource):
