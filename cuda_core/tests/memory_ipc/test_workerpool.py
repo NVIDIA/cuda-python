@@ -9,8 +9,6 @@ import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from helpers.buffers import PatternGen
 
-from cuda_python_test_helpers import supports_ipc_mempool
-
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
 NWORKERS = 2
@@ -30,8 +28,6 @@ class TestIpcWorkerPool:
 
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, nmrs):
-        if not supports_ipc_mempool(ipc_device):
-            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
@@ -68,8 +64,6 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
 
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, nmrs):
-        if not supports_ipc_mempool(ipc_device):
-            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
@@ -114,8 +108,6 @@ class TestIpcWorkerPoolUsingRegistry:
 
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, nmrs):
-        if not supports_ipc_mempool(ipc_device):
-            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
