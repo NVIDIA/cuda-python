@@ -2175,40 +2175,26 @@ def test_get_stats_l1():
         cufile.write(handle, buf_ptr_int, buffer_size, 0, 0)
         cufile.read(handle, buf_ptr_int, buffer_size, 0, 0)
 
-        # Allocate buffer for L1 statistics
-        stats_buffer = ctypes.create_string_buffer(1024)  # Allocate sufficient space
-        stats_ptr = ctypes.addressof(stats_buffer)
-
+        # Use the exposed StatsLevel1 class from cufile module
+        stats = cufile.StatsLevel1()
+        
         # Get L1 statistics (basic operation counts)
-        cufile.get_stats_l1(stats_ptr)
-
-        # Define ctypes structure matching CUfileStatsLevel1_t
-        class OpCounter(ctypes.Structure):
-            _fields_ = [("ok", ctypes.c_uint64), ("err", ctypes.c_uint64)]
-
-        class StatsL1(ctypes.Structure):
-            _fields_ = [
-                ("read_ops", OpCounter), ("write_ops", OpCounter),
-                ("hdl_register_ops", OpCounter), ("hdl_deregister_ops", OpCounter),
-                ("buf_register_ops", OpCounter), ("buf_deregister_ops", OpCounter),
-                ("read_bytes", ctypes.c_uint64), ("write_bytes", ctypes.c_uint64),
-                ("read_bw_bytes_per_sec", ctypes.c_uint64), ("write_bw_bytes_per_sec", ctypes.c_uint64),
-                ("read_lat_avg_us", ctypes.c_uint64), ("write_lat_avg_us", ctypes.c_uint64),
-                ("read_ops_per_sec", ctypes.c_uint64), ("write_ops_per_sec", ctypes.c_uint64),
-                ("read_lat_sum_us", ctypes.c_uint64), ("write_lat_sum_us", ctypes.c_uint64),
-            ]
-
-        # Cast buffer to structure and examine fields
-        stats = ctypes.cast(stats_ptr, ctypes.POINTER(StatsL1)).contents
+        cufile.get_stats_l1(stats.ptr)
 
         # Verify actual field values
-        assert stats.read_ops.ok > 0, f"Expected read operations, got {stats.read_ops.ok}"
-        assert stats.write_ops.ok > 0, f"Expected write operations, got {stats.write_ops.ok}"
-        assert stats.read_bytes > 0, f"Expected read bytes, got {stats.read_bytes}"
-        assert stats.write_bytes > 0, f"Expected write bytes, got {stats.write_bytes}"
+        # Access numpy recarray fields: read_ops returns a recarray with 'ok' and 'err' fields
+        read_ops_ok = int(stats.read_ops['ok'][0])
+        write_ops_ok = int(stats.write_ops['ok'][0])
+        read_bytes = int(stats.read_bytes)
+        write_bytes = int(stats.write_bytes)
+        
+        assert read_ops_ok > 0, f"Expected read operations, got {read_ops_ok}"
+        assert write_ops_ok > 0, f"Expected write operations, got {write_ops_ok}"
+        assert read_bytes > 0, f"Expected read bytes, got {read_bytes}"
+        assert write_bytes > 0, f"Expected write bytes, got {write_bytes}"
 
-        logging.info(f"Stats: reads={stats.read_ops.ok}, writes={stats.write_ops.ok}, "
-                    f"read_bytes={stats.read_bytes}, write_bytes={stats.write_bytes}")
+        logging.info(f"Stats: reads={read_ops_ok}, writes={write_ops_ok}, "
+                    f"read_bytes={read_bytes}, write_bytes={write_bytes}")
 
         # Stop statistics collection
         cufile.stats_stop()
@@ -2286,27 +2272,16 @@ def test_get_stats_l2():
         cufile.write(handle, buf_ptr_int, buffer_size, buffer_size, 0)  # Different offset
         cufile.read(handle, buf_ptr_int, buffer_size, buffer_size, 0)
 
-        # Allocate buffer for L2 statistics
-        stats_buffer = ctypes.create_string_buffer(2048)  # Larger buffer for detailed stats
-        stats_ptr = ctypes.addressof(stats_buffer)
+        # Use the exposed StatsLevel2 class from cufile module
+        stats = cufile.StatsLevel2()
 
         # Get L2 statistics (detailed performance metrics)
-        cufile.get_stats_l2(stats_ptr)
-
-        # Define ctypes structure matching CUfileStatsLevel2_t
-        class StatsL2(ctypes.Structure):
-            _fields_ = [
-                ("basic", ctypes.c_byte * 512),  # L1 data (simplified)
-                ("read_size_kb_hist", ctypes.c_uint64 * 32),
-                ("write_size_kb_hist", ctypes.c_uint64 * 32),
-            ]
-
-        # Cast buffer to structure and examine L2-specific fields
-        stats = ctypes.cast(stats_ptr, ctypes.POINTER(StatsL2)).contents
+        cufile.get_stats_l2(stats.ptr)
 
         # Verify L2 histogram fields contain data
-        read_hist_total = sum(stats.read_size_kb_hist)
-        write_hist_total = sum(stats.write_size_kb_hist)
+        # Access numpy array fields: histograms are numpy arrays
+        read_hist_total = int(stats.read_size_kb_hist.sum())
+        write_hist_total = int(stats.write_size_kb_hist.sum())
         assert read_hist_total > 0 or write_hist_total > 0, "Expected L2 histogram data"
 
         logging.info(f"L2 Stats: read_hist_total={read_hist_total}, write_hist_total={write_hist_total}")
@@ -2391,49 +2366,27 @@ def test_get_stats_l3():
         cufile.write(handle, buf_ptr_int, buffer_size // 2, buffer_size * 2, 0)  # Partial write
         cufile.read(handle, buf_ptr_int, buffer_size // 2, buffer_size * 2, 0)  # Partial read
 
-        # Allocate buffer for L3 statistics
-        stats_buffer = ctypes.create_string_buffer(4096)  # Largest buffer for comprehensive stats
-        stats_ptr = ctypes.addressof(stats_buffer)
+        # Use the exposed StatsLevel3 class from cufile module
+        stats = cufile.StatsLevel3()
 
         # Get L3 statistics (comprehensive diagnostic data)
-        cufile.get_stats_l3(stats_ptr)
-
-        # Define ctypes structure matching CUfileStatsLevel3_t
-        class PerGpuStats(ctypes.Structure):
-            _fields_ = [
-                ("uuid", ctypes.c_char * 16),
-                ("read_bytes", ctypes.c_uint64),
-                ("read_bw_bytes_per_sec", ctypes.c_uint64),
-                ("read_utilization", ctypes.c_uint64),
-                ("read_duration_us", ctypes.c_uint64),
-                ("n_total_reads", ctypes.c_uint64),
-                ("n_p2p_reads", ctypes.c_uint64),
-                ("n_nvfs_reads", ctypes.c_uint64),
-                ("n_posix_reads", ctypes.c_uint64),
-            ]
-
-        class StatsL3(ctypes.Structure):
-            _fields_ = [
-                ("detailed", ctypes.c_byte * 2048),  # L2 data (simplified)
-                ("num_gpus", ctypes.c_uint32),
-                ("per_gpu_stats", PerGpuStats * 16),
-            ]
-
-        # Cast buffer to structure and examine L3-specific fields
-        stats = ctypes.cast(stats_ptr, ctypes.POINTER(StatsL3)).contents
+        cufile.get_stats_l3(stats.ptr)
 
         # Verify L3-specific fields
-        assert stats.num_gpus >= 0, f"Expected valid GPU count, got {stats.num_gpus}"
+        num_gpus = int(stats.num_gpus)
+        assert num_gpus >= 0, f"Expected valid GPU count, got {num_gpus}"
 
         # Check if we have at least one GPU with stats
+        # per_gpu_stats is a numpy recarray with shape (16,)
         gpu_with_data = False
-        for i in range(min(stats.num_gpus, 16)):
+        for i in range(min(num_gpus, 16)):
             gpu_stats = stats.per_gpu_stats[i]
-            if gpu_stats.n_total_reads > 0 or gpu_stats.read_bytes > 0:
+            # Access scalar values from the recarray element
+            if int(gpu_stats['n_total_reads'][0]) > 0 or int(gpu_stats['read_bytes'][0]) > 0:
                 gpu_with_data = True
                 break
 
-        logging.info(f"L3 Stats: num_gpus={stats.num_gpus}, gpu_with_data={gpu_with_data}")
+        logging.info(f"L3 Stats: num_gpus={num_gpus}, gpu_with_data={gpu_with_data}")
 
         # Stop statistics collection
         cufile.stats_stop()
