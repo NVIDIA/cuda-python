@@ -59,6 +59,7 @@ elif [[ "${test_module}" == "bindings" ]]; then
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
     ${SANITIZER_CMD} pytest -rxXs -v tests/cython
   fi
+  cat cufile.log
   popd
 elif [[ "${test_module}" == "core" ]]; then
   # If build/test majors match: cuda.bindings is installed in the previous step.
