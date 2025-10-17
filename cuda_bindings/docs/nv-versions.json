@@ -4,6 +4,10 @@
         "url": "https://nvidia.github.io/cuda-python/cuda-bindings/latest/"
     },
     {
+        "version": "13.0.3",
+        "url": "https://nvidia.github.io/cuda-python/cuda-bindings/13.0.3/"
+    },
+    {
         "version": "13.0.2",
         "url": "https://nvidia.github.io/cuda-python/cuda-bindings/13.0.2/"
     },
@@ -14,6 +18,10 @@
     {
         "version": "13.0.0",
         "url": "https://nvidia.github.io/cuda-python/cuda-bindings/13.0.0/"
+    },
+    {
+        "version": "12.9.4",
+        "url": "https://nvidia.github.io/cuda-python/cuda-bindings/12.9.4/"
     },
     {
         "version": "12.9.0",
