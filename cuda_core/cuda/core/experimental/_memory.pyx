@@ -1123,7 +1123,7 @@ class VirtualMemoryResourceOptions:
         peers: Iterable[int]
             Extra device IDs that should be granted access in addition to ``device``.
         self_access: VirtualMemoryAccessTypeT
-            Access flags for the owning device ('rw' or 'r').
+            Access flags for the owning device.
         peer_access: VirtualMemoryAccessTypeT
             Access flags for peers.
     """
