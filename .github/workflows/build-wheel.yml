@@ -150,6 +150,8 @@ jobs:
             SCCACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=$ACTIONS_RUNTIME_TOKEN
             ACTIONS_RESULTS_URL=$ACTIONS_RESULTS_URL
+            SCCACHE_LOG=debug
+            SCCACHE_NO_DAEMON=1
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
