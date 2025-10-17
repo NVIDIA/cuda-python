@@ -18,6 +18,11 @@ CUDA runtime
 
    _memory.PyCapsule
    _memory.DevicePointerT
+   _memory.VirtualMemoryAllocationTypeT
+   _memory.VirtualMemoryLocationTypeT
+   _memory.VirtualMemoryGranularityT
+   _memory.VirtualMemoryAccessTypeT
+   _memory.VirtualMemoryHandleTypeT
    _device.DeviceProperties
    _memory.IPCAllocationHandle
    _memory.IPCBufferDescriptor
