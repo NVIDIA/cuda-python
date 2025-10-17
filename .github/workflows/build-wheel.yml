@@ -42,6 +42,7 @@ jobs:
                  (inputs.host-platform == 'win-64' && 'windows-2022') }}
     env:
       SCCACHE_GHA_ENABLED: "true"
+      SCCACHE_DIR: ${{ github.workspace }}/.sccache
 
     steps:
       - name: Checkout ${{ github.event.repository.name }}
