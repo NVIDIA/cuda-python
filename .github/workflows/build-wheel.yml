@@ -148,7 +148,8 @@ jobs:
             CC="/host${{ env.SCCACHE_PATH }} cc"
             CXX="/host${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
-            ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
+            ACTIONS_RUNTIME_TOKEN=$ACTIONS_RUNTIME_TOKEN
+            ACTIONS_CACHE_URL=$ACTIONS_CACHE_URL
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
