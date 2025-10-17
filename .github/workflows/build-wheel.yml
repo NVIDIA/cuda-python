@@ -59,7 +59,6 @@ jobs:
 
       - name: Expose Cache URL
         run: |
-          echo "ACTIONS_CACHE_URL=$ACTIONS_CACHE_URL" >> $GITHUB_ENV
           echo "ACTIONS_RUNTIME_TOKEN=$ACTIONS_RUNTIME_TOKEN" >> $GITHUB_ENV
 
       - name: Setup proxy cache
@@ -149,7 +148,6 @@ jobs:
             CC="/host${{ env.SCCACHE_PATH }} cc"
             CXX="/host${{ env.SCCACHE_PATH }} c++"
             SCCACHE_GHA_ENABLED=true
-            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
