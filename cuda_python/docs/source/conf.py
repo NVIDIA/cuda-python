@@ -36,6 +36,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "myst_nb",
     "enum_tools.autoenum",
+    "release_toc",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
