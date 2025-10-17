@@ -1103,27 +1103,27 @@ class VirtualMemoryResourceOptions:
 
     Parameters
     ----------
-        allocation_type: str
-            'pinned' or 'managed'. Controls the type of allocation.
-        location_type: str
-            'device' or 'host'. Controls the location of the allocation.
+        allocation_type: VirtualMemoryAllocationTypeT
+            Controls the type of allocation.
+        location_type: VirtualMemoryLocationTypeT
+            Controls the location of the allocation.
         handle_type: Export handle type for the physical allocation. Use
             CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR on Linux if you plan to
             import/export the allocation (required for cuMemRetainAllocationHandle).
             Use CU_MEM_HANDLE_TYPE_NONE if you don't need an exportable handle.
         gpu_direct_rdma: bool
             Hint that the allocation should be GDR-capable (if supported).
-        granularity: str
-            'recommended' or 'minimum'. Controls granularity query and size rounding.
+        granularity: VirtualMemoryGranularityT
+            Controls granularity query and size rounding.
         addr_hint: int
             A (optional) virtual address hint to try to reserve at. 0 -> let CUDA choose.
         addr_align: int
             Alignment for the VA reservation. If None, use the queried granularity.
         peers: Iterable[int]
             Extra device IDs that should be granted access in addition to `device`.
-        self_access: str
+        self_access: VirtualMemoryAccessTypeT
             Access flags for the owning device ('rw' or 'r').
-        peer_access: str
+        peer_access: VirtualMemoryAccessTypeT
             Access flags for peers ('rw', 'r', or 'none').
     """
     # Human-friendly strings; normalized in __post_init__
