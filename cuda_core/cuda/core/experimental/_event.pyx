@@ -23,7 +23,6 @@ from cuda.core.experimental._context import Context
 from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
     driver,
-    handle_return,
 )
 if TYPE_CHECKING:
     import cuda.bindings
