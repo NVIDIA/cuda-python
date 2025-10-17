@@ -48,10 +48,10 @@ class PatternGen:
     If a stream is provided, operations are synchronized with respect to that
     stream.  Otherwise, they are synchronized over the device.
 
-    The test pattern is either a fixed value or is generated from a 8-bit seed.
-    Only one of `value` or `seed` should be supplied.
+    The test pattern is either a fixed value or a cyclic pattern generated from
+    an 8-bit seed.  Only one of `value` or `seed` should be supplied.
 
-    Distinct test patterns are stored in separate buffers called pattern
+    Distinct test patterns are stored in private buffers called pattern
     buffers. Calls to `fill_buffer` copy from a pattern buffer to the target
     buffer. Calls to `verify_buffer` copy from the target buffer to a scratch
     buffer and then perform a comparison.
@@ -62,32 +62,25 @@ class PatternGen:
         self.size = size
         self.stream = stream if stream is not None else device.create_stream()
         self.sync_target = stream if stream is not None else device
-        self.scratch_buffer = DummyUnifiedMemoryResource(self.device).allocate(size)
         self.pattern_buffers = {}
 
-    def fill_buffer(self, buffer, seed=None, value=None, repeat=1, sync=True):
+    def fill_buffer(self, buffer, seed=None, value=None):
         """Fill a device buffer with a sequential test pattern using unified memory."""
         assert buffer.size == self.size
         pattern_buffer = self._get_pattern_buffer(seed, value)
-        for _ in range(repeat):
-            buffer.copy_from(pattern_buffer, stream=self.stream)
-        if sync:
-            self.sync()
+        buffer.copy_from(pattern_buffer, stream=self.stream)
 
-    def verify_buffer(self, buffer, seed=None, value=None, repeat=1):
+    def verify_buffer(self, buffer, seed=None, value=None):
         """Verify the buffer contents against a sequential pattern."""
         assert buffer.size == self.size
-        ptr_test = self._ptr(self.scratch_buffer)
+        scratch_buffer = DummyUnifiedMemoryResource(self.device).allocate(self.size)
+        ptr_test = self._ptr(scratch_buffer)
         pattern_buffer = self._get_pattern_buffer(seed, value)
         ptr_expected = self._ptr(pattern_buffer)
-        for _ in range(repeat):
-            self.scratch_buffer.copy_from(buffer, stream=self.stream)
-            self.sync()
-            assert libc.memcmp(ptr_test, ptr_expected, self.size) == 0
-
-    def sync(self):
-        """Synchronize against the sync target (a stream or device)."""
+        scratch_buffer.copy_from(buffer, stream=self.stream)
         self.sync_target.sync()
+        assert libc.memcmp(ptr_test, ptr_expected, self.size) == 0
+
 
     @staticmethod
     def _ptr(buffer):
