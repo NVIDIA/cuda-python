@@ -1107,8 +1107,9 @@ class VirtualMemoryResourceOptions:
             Controls the type of allocation.
         location_type: VirtualMemoryLocationTypeT
             Controls the location of the allocation.
-        handle_type: Export handle type for the physical allocation. Use
-            CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR on Linux if you plan to
+        handle_type: VirtualMemoryHandleTypeT
+            Export handle type for the physical allocation. Use
+            `"posix_fd"` on Linux if you plan to
             import/export the allocation (required for cuMemRetainAllocationHandle).
             Use CU_MEM_HANDLE_TYPE_NONE if you don't need an exportable handle.
         gpu_direct_rdma: bool
