@@ -226,11 +226,11 @@ cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
         if stream is None:
             # Note: match this behavior to DeviceMemoryResource.allocate()
             stream = default_stream()
-        cdef cydriver.CUmemPoolPtrExportData share_data
-        memcpy(share_data.reserved, <const void*><const char*>(ipc_buffer._reserved), sizeof(share_data.reserved))
+        cdef cydriver.CUmemPoolPtrExportData data
+        memcpy(data.reserved, <const void*><const char*>(ipc_buffer._reserved), sizeof(data.reserved))
         cdef cydriver.CUdeviceptr ptr
         with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._mempool_handle, &share_data))
+            HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._mempool_handle, &data))
         return Buffer._init(<intptr_t>ptr, ipc_buffer.size, mr, stream)
 
     def copy_to(self, dst: Buffer = None, *, stream: Stream) -> Buffer:
@@ -511,7 +511,7 @@ cdef class DeviceMemoryResourceOptions:
         (Default to 0)
     """
     ipc_enabled : cython.bint = False
-    max_size : cython.int = 0
+    max_size : cython.size_t = 0
 
 
 # TODO: cythonize this?
