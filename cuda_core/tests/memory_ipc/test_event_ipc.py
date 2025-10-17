@@ -1,29 +1,28 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from conftest import skipif_need_cuda_headers
-from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, EventOptions
-from helpers.buffers import make_scratch_buffer, compare_equal_buffers
+import multiprocessing as mp
+
+import pytest
+from cuda.core.experimental import Device, EventOptions
+from helpers.buffers import compare_equal_buffers, make_scratch_buffer
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
-import ctypes
-import multiprocessing as mp
-import pytest
-import time
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
 
+
 class TestEventIpc:
     """Check the basic usage of IPC-enabled events with a latch kernel."""
 
-    @skipif_need_cuda_headers  # libcu++
     def test_main(self, ipc_device, ipc_memory_resource):
         log = TimestampedLogger(prefix="parent: ", enabled=ENABLE_LOGGING)
         device = ipc_device
         mr = ipc_memory_resource
         stream1 = device.create_stream()
+        latch = LatchKernel(device)
 
         # Start the child process.
         q_out, q_in = [mp.Queue() for _ in range(2)]
@@ -41,7 +40,6 @@ class TestEventIpc:
         q_out.put(buffer)
 
         # Stream 1:
-        latch = LatchKernel(device)
         log("enqueuing latch kernel on stream1")
         latch.launch(stream1)
         log("enqueuing copy on stream1")
@@ -68,7 +66,6 @@ class TestEventIpc:
         target.copy_from(buffer, stream=stream1)
         stream1.sync()
         assert compare_equal_buffers(target, twos)
-
 
     def child_main(self, log, q_in, q_out):
         log.prefix = " child: "
@@ -99,13 +96,15 @@ def test_event_is_monadic(ipc_device):
 
     stream = device.create_stream()
     e = stream.record(options={"ipc_enabled": True})
-    with pytest.raises(TypeError, match=r"^IPC-enabled events should not be re-recorded, instead create a new event by supplying options\.$"):
+    with pytest.raises(
+        TypeError,
+        match=r"^IPC-enabled events should not be re-recorded, instead create a new event by supplying options\.$",
+    ):
         stream.record(e)
 
 
 @pytest.mark.parametrize(
-    "options", [ {"ipc_enabled": True, "enable_timing": True},
-                 EventOptions(ipc_enabled=True, enable_timing=True)]
+    "options", [{"ipc_enabled": True, "enable_timing": True}, EventOptions(ipc_enabled=True, enable_timing=True)]
 )
 def test_event_timing_disabled(ipc_device, options):
     """Check that IPC-enabled events cannot be created with timing enabled."""
@@ -114,11 +113,13 @@ def test_event_timing_disabled(ipc_device, options):
     with pytest.raises(TypeError, match=r"^IPC-enabled events cannot use timing\.$"):
         stream.record(options=options)
 
+
 class TestIpcEventProperties:
     """
     Check that event properties are properly set after transfer to a child
     process.
     """
+
     @pytest.mark.parametrize("busy_waited_sync", [True, False])
     @pytest.mark.parametrize("use_options_cls", [True, False])
     @pytest.mark.parametrize("use_option_kw", [True, False])
@@ -132,13 +133,12 @@ class TestIpcEventProperties:
         process.start()
 
         # Create an event and send it.
-        options = \
-            EventOptions(ipc_enabled=True, busy_waited_sync=busy_waited_sync) \
-            if use_options_cls else \
-            {"ipc_enabled": True, "busy_waited_sync": busy_waited_sync}
-        e = stream.record(options=options) \
-            if use_option_kw else \
-            stream.record(None, options)
+        options = (
+            EventOptions(ipc_enabled=True, busy_waited_sync=busy_waited_sync)
+            if use_options_cls
+            else {"ipc_enabled": True, "busy_waited_sync": busy_waited_sync}
+        )
+        e = stream.record(options=options) if use_option_kw else stream.record(None, options)
         q_out.put(e)
 
         # Check its properties.
@@ -156,28 +156,17 @@ class TestIpcEventProperties:
     def child_main(self, q_in, q_out):
         device = Device()
         device.set_current()
-        stream = device.create_stream()
 
         # Get the event.
         e = q_in.get(timeout=CHILD_TIMEOUT_SEC)
 
         # Send its properties.
-        props = (e.get_ipc_descriptor(),
-                 e.is_ipc_enabled,
-                 e.is_timing_disabled,
-                 e.is_sync_busy_waited,
-                 e.device,
-                 e.context,)
+        props = (
+            e.get_ipc_descriptor(),
+            e.is_ipc_enabled,
+            e.is_timing_disabled,
+            e.is_sync_busy_waited,
+            e.device,
+            e.context,
+        )
         q_out.put(props)
-
-
-
-# TODO: daisy chain processes
-
-if __name__ == "__main__":
-    mp.set_start_method("spawn")
-    device = Device()
-    device.set_current()
-    TestIpcEventWithLatch().test_main(device)
-
-

@@ -1,9 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import multiprocessing as mp
+
 from cuda.core.experimental import Buffer, DeviceMemoryResource
 from helpers.buffers import PatternGen
-import multiprocessing as mp
 
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64

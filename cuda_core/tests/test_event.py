@@ -13,7 +13,6 @@ from cuda.core.experimental import (
 )
 from helpers.latch import LatchKernel
 
-from conftest import skipif_need_cuda_headers
 from cuda_python_test_helpers import IS_WSL
 
 
@@ -115,7 +114,6 @@ def test_error_timing_recorded():
         event3 - event2
 
 
-@skipif_need_cuda_headers  # libcu++
 def test_error_timing_incomplete():
     device = Device()
     device.set_current()

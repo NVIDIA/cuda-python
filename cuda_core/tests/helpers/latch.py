@@ -1,6 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import ctypes
+
+import pytest
 from cuda.core.experimental import (
     LaunchConfig,
     LegacyPinnedMemoryResource,
@@ -8,15 +11,18 @@ from cuda.core.experimental import (
     ProgramOptions,
     launch,
 )
+
 import helpers
-import ctypes
+
 
 class LatchKernel:
     """
-    Manages a kernel that blocks progress until released.
+    Manages a kernel that blocks stream progress until released.
     """
 
     def __init__(self, device):
+        if helpers.CUDA_INCLUDE_PATH is None:
+            pytest.skip("need CUDA header")
         code = """
                #include <cuda/atomic>
 
@@ -44,26 +50,14 @@ class LatchKernel:
         self.busy_wait_flag[0] = 0
 
     def launch(self, stream):
+        """Launch the latch kernel, blocking stream progress via busy waiting."""
         config = LaunchConfig(grid=1, block=1)
-        launch(stream, config, self.kernel, self.busy_wait_flag_address)
+        launch(stream, config, self.kernel, int(self.buffer.handle))
 
     def release(self):
+        """Release the latch, allowing stream progress."""
         self.busy_wait_flag[0] = 1
 
     @property
-    def busy_wait_flag_address(self):
-        return int(self.buffer.handle)
-
-    @property
     def busy_wait_flag(self):
-        return ctypes.cast(self.busy_wait_flag_address, ctypes.POINTER(ctypes.c_int32))
-
-    def close(self):
-       buffer = getattr(self, 'buffer', None)
-       if buffer is not None:
-           buffer.close()
-
-    def __del__(self):
-        self.close()
-
-
+        return ctypes.cast(int(self.buffer.handle), ctypes.POINTER(ctypes.c_int32))

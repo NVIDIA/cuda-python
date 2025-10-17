@@ -81,7 +81,6 @@ class PatternGen:
         self.sync_target.sync()
         assert libc.memcmp(ptr_test, ptr_expected, self.size) == 0
 
-
     @staticmethod
     def _ptr(buffer):
         """Get a pointer to the specified buffer."""
@@ -101,7 +100,7 @@ class PatternGen:
                 pattern_buffer = DummyUnifiedMemoryResource(self.device).allocate(self.size)
                 ptr = self._ptr(pattern_buffer)
                 for i in range(self.size):
-                    ptr[i] =  (seed + i) & 0xFF
+                    ptr[i] = (seed + i) & 0xFF
             self.pattern_buffers[key] = pattern_buffer
         return pattern_buffer
 
@@ -121,5 +120,3 @@ def compare_equal_buffers(buffer1, buffer2):
     ptr1 = ctypes.cast(int(buffer1.handle), ctypes.POINTER(ctypes.c_byte))
     ptr2 = ctypes.cast(int(buffer2.handle), ctypes.POINTER(ctypes.c_byte))
     return libc.memcmp(ptr1, ptr2, buffer1.size) == 0
-
-

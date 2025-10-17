@@ -2,15 +2,17 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import time
+
+import pytest
 from cuda.core.experimental import Device
+from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
-from helpers.buffers import make_scratch_buffer, compare_equal_buffers, PatternGen
-import time
-import pytest
 
 ENABLE_LOGGING = False  # Set True for test debugging and development
 NBYTES = 64
+
 
 def test_latchkernel():
     """Test LatchKernel."""
@@ -38,6 +40,7 @@ def test_latchkernel():
     assert compare_equal_buffers(target, ones)
     log("done")
 
+
 def test_patterngen_seeds():
     """Test PatternGen with seed argument."""
     device = Device()
@@ -49,9 +52,10 @@ def test_patterngen_seeds():
     for i in range(256):
         pgen.fill_buffer(buffer, seed=i)
         pgen.verify_buffer(buffer, seed=i)
-        for j in range(i+1, 256):
+        for j in range(i + 1, 256):
             with pytest.raises(AssertionError):
                 pgen.verify_buffer(buffer, seed=j)
+
 
 def test_patterngen_values():
     """Test PatternGen with value argument, also compare_equal_buffers."""
@@ -64,4 +68,3 @@ def test_patterngen_values():
     pgen = PatternGen(device, NBYTES)
     pgen.verify_buffer(ones, value=1)
     pgen.verify_buffer(twos, value=2)
-

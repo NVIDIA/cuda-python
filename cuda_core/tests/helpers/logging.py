@@ -3,6 +3,7 @@
 
 import time
 
+
 class TimestampedLogger:
     """
     A logger that prefixes each output with a timestamp, containing the elapsed

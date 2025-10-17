@@ -13,7 +13,6 @@ except ImportError:
     np = None
 import ctypes
 import platform
-from helpers.buffers import DummyUnifiedMemoryResource
 
 import pytest
 from cuda.core.experimental import (
@@ -28,6 +27,7 @@ from cuda.core.experimental import (
 from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
 from cuda.core.experimental.utils import StridedMemoryView
+from helpers.buffers import DummyUnifiedMemoryResource
 
 from cuda_python_test_helpers import IS_WSL, supports_ipc_mempool
 
