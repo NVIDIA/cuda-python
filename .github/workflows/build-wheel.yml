@@ -42,13 +42,16 @@ jobs:
                  (inputs.host-platform == 'win-64' && 'windows-2022') }}
     env:
       SCCACHE_GHA_ENABLED: "true"
-      SCCACHE_DIR: ${{ github.workspace }}/.sccache
 
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: 0
+
+      - name: Setup SCCACHE_DIR
+        run: |
+          echo "SCCACHE_DIR=${{ github.workspace }}/.sccache" >> $GITHUB_ENV
 
       - name: Enable sccache
         uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad  # 0.0.9

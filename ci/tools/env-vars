@@ -86,5 +86,3 @@ fi
   echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/dist")"
   echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/tests/cython")"
 } >> $GITHUB_ENV
-
-echo "SCCACHE_PATH=$(which sccache)"
