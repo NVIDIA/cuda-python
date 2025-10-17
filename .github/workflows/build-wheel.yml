@@ -42,8 +42,6 @@ jobs:
                  (inputs.host-platform == 'win-64' && 'windows-2022') }}
     env:
       SCCACHE_GHA_ENABLED: "true"
-      CC: "sccache cc"
-      CXX: "sccache c++"
 
     steps:
       - name: Checkout ${{ github.event.repository.name }}
@@ -138,8 +136,8 @@ jobs:
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-            CC=/host$(which sccache) cc
-            CXX=/host$(which sccache) c++
+            CC="/host${{ env.SCCACHE_PATH }} cc"
+            CXX="/host${{ env.SCCACHE_PATH }} c++"
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
