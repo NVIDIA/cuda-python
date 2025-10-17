@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
+import json
 import os
 from unittest.mock import patch
 
@@ -13,6 +14,7 @@ from cuda.pathfinder import SUPPORTED_NVIDIA_LIBNAMES, load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
 from cuda.pathfinder._utils.find_site_packages_dll import find_all_dll_files_via_metadata
 from cuda.pathfinder._utils.find_site_packages_so import find_all_so_files_via_metadata
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
 assert STRICTNESS in ("see_what_works", "all_must_work")
@@ -72,7 +74,7 @@ def test_runtime_error_on_non_64bit_python():
 @functools.cache
 def _get_libnames_for_test_load_nvidia_dynamic_lib():
     result = list(SUPPORTED_NVIDIA_LIBNAMES)
-    if supported_nvidia_libs.IS_WINDOWS:
+    if IS_WINDOWS:
         spld_other = supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER
         all_dyn_libs = find_all_dll_files_via_metadata()
         for libname in spld_other:
@@ -96,11 +98,20 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     # to ensure isolation of global dynamic linking state (e.g., dlopen handles).
     # Without child processes, loading/unloading libraries during testing could
     # interfere across test cases and lead to nondeterministic or platform-specific failures.
-    timeout = 120 if supported_nvidia_libs.IS_WINDOWS else 30
+    timeout = 120 if IS_WINDOWS else 30
     result = spawned_process_runner.run_in_spawned_child_process(child_process_func, args=(libname,), timeout=timeout)
-    if result.returncode == 0:
-        info_summary_append(f"abs_path={result.stdout.rstrip()}")
-    elif STRICTNESS == "see_what_works" or "DynamicLibNotFoundError: Failure finding " in result.stderr:
+
+    def raise_child_process_failed():
+        raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
+
+    if result.returncode != 0:
+        raise_child_process_failed()
+    assert not result.stderr
+    if result.stdout.startswith("CHILD_LOAD_NVIDIA_DYNAMIC_LIB_HELPER_DYNAMIC_LIB_NOT_FOUND_ERROR:"):
+        if STRICTNESS == "all_must_work":
+            raise_child_process_failed()
         info_summary_append(f"Not found: {libname=!r}")
     else:
-        raise RuntimeError(build_child_process_failed_for_libname_message(libname, result))
+        abs_path = json.loads(result.stdout.rstrip())
+        info_summary_append(f"abs_path={quote_for_shell(abs_path)}")
+        assert os.path.isfile(abs_path)  # double-check the abs_path

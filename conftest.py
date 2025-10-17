@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+
 import pytest
 
 
@@ -11,15 +12,9 @@ def pytest_collection_modifyitems(config, items):
         nodeid = item.nodeid.replace("\\", "/")
 
         # Package markers by path
-        if (
-            nodeid.startswith("cuda_pathfinder/tests/")
-            or "/cuda_pathfinder/tests/" in nodeid
-        ):
+        if nodeid.startswith("cuda_pathfinder/tests/") or "/cuda_pathfinder/tests/" in nodeid:
             item.add_marker(pytest.mark.pathfinder)
-        if (
-            nodeid.startswith("cuda_bindings/tests/")
-            or "/cuda_bindings/tests/" in nodeid
-        ):
+        if nodeid.startswith("cuda_bindings/tests/") or "/cuda_bindings/tests/" in nodeid:
             item.add_marker(pytest.mark.bindings)
         if nodeid.startswith("cuda_core/tests/") or "/cuda_core/tests/" in nodeid:
             item.add_marker(pytest.mark.core)
@@ -38,8 +33,4 @@ def pytest_collection_modifyitems(config, items):
 
             # Gate core cython tests on CUDA_HOME
             if "core" in item.keywords and not cuda_home:
-                item.add_marker(
-                    pytest.mark.skip(
-                        reason="CUDA_HOME not set; skipping core cython tests"
-                    )
-                )
+                item.add_marker(pytest.mark.skip(reason="CUDA_HOME not set; skipping core cython tests"))

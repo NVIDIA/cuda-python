@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.0.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.0.2. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -15,7 +15,7 @@ from libc.stddef cimport wchar_t
 from libc.stdint cimport uintptr_t
 from cpython cimport PyUnicode_AsWideCharString, PyMem_Free
 
-from .utils import NotSupportedError
+# You must 'from .utils import NotSupportedError' before using this template
 
 cdef extern from "windows.h" nogil:
     ctypedef void* HMODULE
@@ -61,10 +61,10 @@ cdef int get_cuda_version():
         raise NotSupportedError('CUDA driver is not found')
     cuDriverGetVersion = GetProcAddress(handle, 'cuDriverGetVersion')
     if cuDriverGetVersion == NULL:
-        raise RuntimeError('something went wrong')
+        raise RuntimeError('Did not find cuDriverGetVersion symbol in nvcuda.dll')
     err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
     if err != 0:
-        raise RuntimeError('something went wrong')
+        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
 
     return driver_ver
 
@@ -93,10 +93,8 @@ cdef void* __nvJitLinkGetInfoLog = NULL
 cdef void* __nvJitLinkVersion = NULL
 
 
-cdef int _check_or_init_nvjitlink() except -1 nogil:
+cdef int __check_or_init_nvjitlink() except -1 nogil:
     global __py_nvjitlink_init
-    if __py_nvjitlink_init:
-        return 0
 
     with gil, __symbol_lock:
         # Load library
@@ -147,6 +145,13 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
 
         __py_nvjitlink_init = True
         return 0
+
+
+cdef inline int _check_or_init_nvjitlink() except -1 nogil:
+    if __py_nvjitlink_init:
+        return 0
+
+    return __check_or_init_nvjitlink()
 
 
 cdef dict func_ptrs = None

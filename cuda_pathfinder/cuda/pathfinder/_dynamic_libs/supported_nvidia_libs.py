@@ -7,9 +7,7 @@
 #     SUPPORTED_WINDOWS_DLLS
 #     SUPPORTED_LINUX_SONAMES
 
-import sys
-
-IS_WINDOWS = sys.platform == "win32"
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 SUPPORTED_LIBNAMES_COMMON = (
     # Core CUDA Runtime and Compiler
@@ -239,6 +237,7 @@ SUPPORTED_LINUX_SONAMES_CTK = {
     ),
 }
 SUPPORTED_LINUX_SONAMES_OTHER = {
+    "cublasmp": ("libcublasmp.so.0",),
     "cufftMp": ("libcufftMp.so.11",),
     "mathdx": ("libmathdx.so.0",),
     "cudss": ("libcudss.so.0",),
@@ -445,7 +444,8 @@ SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
     "nvvm": ("nvidia/cu13/lib", "nvidia/cuda_nvcc/nvvm/lib64"),
 }
 SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
-    "cudss": ("nvidia/cu12/lib",),
+    "cublasmp": ("nvidia/cublasmp/cu13/lib", "nvidia/cublasmp/cu12/lib"),
+    "cudss": ("nvidia/cu13/lib", "nvidia/cu12/lib"),
     "cufftMp": ("nvidia/cufftmp/cu12/lib",),
     "mathdx": ("nvidia/cu13/lib", "nvidia/cu12/lib"),
     "nccl": ("nvidia/nccl/lib",),

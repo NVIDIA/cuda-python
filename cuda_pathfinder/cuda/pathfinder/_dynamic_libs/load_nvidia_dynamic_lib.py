@@ -7,7 +7,7 @@ import sys
 
 from cuda.pathfinder._dynamic_libs.find_nvidia_dynamic_lib import _FindNvidiaDynamicLib
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL, load_dependencies
-from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import IS_WINDOWS
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 if IS_WINDOWS:
     from cuda.pathfinder._dynamic_libs.load_dl_windows import (
@@ -24,13 +24,21 @@ else:
 
 
 def _load_lib_no_cache(libname: str) -> LoadedDL:
-    found = _FindNvidiaDynamicLib(libname)
-    have_abs_path = found.abs_path is not None
+    finder = _FindNvidiaDynamicLib(libname)
+    abs_path = finder.try_site_packages()
+
+    abs_path = finder.try_site_packages()
+    if abs_path is not None:
+        found_via = "site-packages"
+    else:
+        abs_path = finder.try_with_conda_prefix()
+        if abs_path is not None:
+            found_via = "conda"
 
     # If the library was already loaded by someone else, reproduce any OS-specific
     # side-effects we would have applied on a direct absolute-path load (e.g.,
     # AddDllDirectory on Windows for libs that require it).
-    loaded = check_if_already_loaded_from_elsewhere(libname, have_abs_path)
+    loaded = check_if_already_loaded_from_elsewhere(libname, abs_path is not None)
 
     # Load dependencies regardless of who loaded the primary lib first.
     # Doing this *after* the side-effect ensures dependencies resolve consistently
@@ -40,15 +48,17 @@ def _load_lib_no_cache(libname: str) -> LoadedDL:
     if loaded is not None:
         return loaded
 
-    if not have_abs_path:
+    if abs_path is None:
         loaded = load_with_system_search(libname)
         if loaded is not None:
             return loaded
-        found.retry_with_cuda_home_priority_last()
-        found.raise_if_abs_path_is_None()
+        abs_path = finder.try_with_cuda_home()
+        if abs_path is None:
+            finder.raise_not_found_error()
+        else:
+            found_via = "CUDA_HOME"
 
-    assert found.abs_path is not None  # for mypy
-    return load_with_abs_path(libname, found.abs_path)
+    return load_with_abs_path(libname, abs_path, found_via)
 
 
 @functools.cache
@@ -61,6 +71,18 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
 
     Returns:
         LoadedDL: Object containing the OS library handle and absolute path.
+
+        **Important:**
+
+        **Never close the returned handle.** Do **not** call ``dlclose`` (Linux) or
+        ``FreeLibrary`` (Windows) on the ``LoadedDL._handle_uint``.
+
+        **Why:** the return value is cached (``functools.cache``) and shared across the
+        process. Closing the handle can unload the module while other code still uses
+        it, leading to crashes or subtle failures.
+
+        This applies to Linux and Windows. For context, see issue #1011:
+        https://github.com/NVIDIA/cuda-python/issues/1011
 
     Raises:
         DynamicLibNotFoundError: If the library cannot be found or loaded.
@@ -77,21 +99,19 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
            - Scan installed distributions (``site-packages``) to find libraries
              shipped in NVIDIA wheels.
 
-        2. **OS default mechanisms / Conda environments**
+        2. **Conda environment**
+
+           - Conda installations are discovered via ``CONDA_PREFIX``, which is
+             defined automatically in activated conda environments (see
+             https://docs.conda.io/projects/conda-build/en/stable/user-guide/environment-variables.html).
+
+        3. **OS default mechanisms**
 
            - Fall back to the native loader:
 
              - Linux: ``dlopen()``
 
              - Windows: ``LoadLibraryW()``
-
-           - Conda installations are commonly discovered via:
-
-             - Linux: ``$ORIGIN/../lib`` in the ``RPATH`` of the ``python`` binary
-               (note: this can take precedence over ``LD_LIBRARY_PATH`` and
-               ``/etc/ld.so.conf.d/``).
-
-             - Windows: ``%CONDA_PREFIX%\\Library\\bin`` on the system ``PATH``.
 
            - CUDA Toolkit (CTK) system installs with system config updates are often
              discovered via:
@@ -101,7 +121,7 @@ def load_nvidia_dynamic_lib(libname: str) -> LoadedDL:
              - Windows: ``C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\vX.Y\\bin``
                on the system ``PATH``.
 
-        3. **Environment variables**
+        4. **Environment variables**
 
            - If set, use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
 

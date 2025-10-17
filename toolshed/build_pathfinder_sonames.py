@@ -10,6 +10,7 @@
 # The output of this script is expected to be usable as-is.
 
 import sys
+from pathlib import Path
 
 LIBNAMES_IN_SCOPE_OF_CUDA_PATHFINDER = (
     "nvJitLink",
@@ -47,7 +48,7 @@ def run(args):
     assert len(args) == 1, "output-of-find_sonames.sh"
 
     sonames_from_file = set()
-    for line in open(args[0]).read().splitlines():
+    for line in Path(args[0]).read_text().splitlines():
         flds = line.split()
         assert len(flds) == 3, flds
         if flds[-1] != "SONAME_NOT_SET":

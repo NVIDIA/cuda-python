@@ -6,7 +6,6 @@ import time
 import numpy as np
 from common import common
 from common.helper_cuda import checkCudaErrors
-
 from cuda.bindings import driver as cuda
 from cuda.bindings import runtime as cudart
 

@@ -2,12 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-cimport cython
-
 from ._dlpack cimport *
 
 import functools
-from typing import Any, Optional
+from typing import Optional
 
 import numpy
 
@@ -104,6 +102,23 @@ cdef class StridedMemoryView:
                 view_as_cai(obj, stream_ptr, self)
         else:
             pass
+
+    def __dealloc__(self):
+        if self.dl_tensor == NULL:
+            return
+
+        if cpython.PyCapsule_IsValid(
+                self.metadata, DLPACK_VERSIONED_TENSOR_USED_NAME):
+            data = cpython.PyCapsule_GetPointer(
+                self.metadata, DLPACK_VERSIONED_TENSOR_USED_NAME)
+            dlm_tensor_ver = <DLManagedTensorVersioned*>data
+            dlm_tensor_ver.deleter(dlm_tensor_ver)
+        elif cpython.PyCapsule_IsValid(
+                self.metadata, DLPACK_TENSOR_USED_NAME):
+            data = cpython.PyCapsule_GetPointer(
+                self.metadata, DLPACK_TENSOR_USED_NAME)
+            dlm_tensor = <DLManagedTensor*>data
+            dlm_tensor.deleter(dlm_tensor)
 
     @property
     def shape(self) -> tuple[int]:
@@ -209,7 +224,7 @@ cdef class _StridedMemoryViewProxy:
 
 
 cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
-    cdef int dldevice, device_id, i
+    cdef int dldevice, device_id
     cdef bint is_device_accessible, is_readonly
     is_device_accessible = False
     dldevice, device_id = obj.__dlpack_device__()

@@ -21,41 +21,125 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       CUDA_BUILD_VER: ${{ steps.get-vars.outputs.cuda_build_ver }}
+      CUDA_PREV_BUILD_VER: ${{ steps.get-vars.outputs.cuda_prev_build_ver }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: 0
-      - name: Get CUDA build version
+      - name: Get CUDA build versions
         id: get-vars
         run: |
           cuda_build_ver=$(jq -r .cuda.build.version ci/versions.json)
           echo "cuda_build_ver=$cuda_build_ver" >> $GITHUB_OUTPUT
 
-  build:
+          cuda_prev_build_ver=$(jq -r .cuda.prev_build.version ci/versions.json)
+          echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
+
+  should-skip:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.get-should-skip.outputs.skip }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+      - name: Compute whether to skip builds and tests
+        id: get-should-skip
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euxo pipefail
+          if ${{ startsWith(github.ref_name, 'pull-request/') }}; then
+            skip="$(gh pr view "$(grep -Po '(\d+)$' <<< '${{ github.ref_name }}')" --json title --jq '.title | contains("[no-ci]")')"
+          else
+            skip=false
+          fi
+          echo "skip=${skip}" >> "$GITHUB_OUTPUT"
+
+  # WARNING: make sure all of the build jobs are in sync
+  build-linux-64:
     needs:
       - ci-vars
+      - should-skip
     strategy:
       fail-fast: false
       matrix:
         host-platform:
           - linux-64
-          - linux-aarch64
-          - win-64
     name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: ${{ github.repository_owner == 'nvidia' }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
       host-platform: ${{ matrix.host-platform }}
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
-  test-linux:
+  # WARNING: make sure all of the build jobs are in sync
+  build-linux-aarch64:
+    needs:
+      - ci-vars
+      - should-skip
+    strategy:
+      fail-fast: false
+      matrix:
+        host-platform:
+          - linux-aarch64
+    name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
+    secrets: inherit
+    uses: ./.github/workflows/build-wheel.yml
+    with:
+      host-platform: ${{ matrix.host-platform }}
+      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+
+  # WARNING: make sure all of the build jobs are in sync
+  build-windows:
+    needs:
+      - ci-vars
+      - should-skip
+    strategy:
+      fail-fast: false
+      matrix:
+        host-platform:
+          - win-64
+    name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
+    secrets: inherit
+    uses: ./.github/workflows/build-wheel.yml
+    with:
+      host-platform: ${{ matrix.host-platform }}
+      cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+      prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
+
+  # WARNING: make sure both Linux test jobs are in sync
+  test-linux-64:
     strategy:
       fail-fast: false
       matrix:
         host-platform:
           - linux-64
+    name: Test ${{ matrix.host-platform }}
+    if: ${{ github.repository_owner == 'nvidia' }}
+    permissions:
+      contents: read  # This is required for actions/checkout
+    needs:
+      - ci-vars
+      - build-linux-64
+    secrets: inherit
+    uses: ./.github/workflows/test-wheel-linux.yml
+    with:
+      build-type: pull-request
+      host-platform: ${{ matrix.host-platform }}
+      build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
+
+  # WARNING: make sure both Linux test jobs are in sync
+  test-linux-aarch64:
+    strategy:
+      fail-fast: false
+      matrix:
+        host-platform:
           - linux-aarch64
     name: Test ${{ matrix.host-platform }}
     if: ${{ github.repository_owner == 'nvidia' }}
@@ -63,7 +147,7 @@ jobs:
       contents: read  # This is required for actions/checkout
     needs:
       - ci-vars
-      - build
+      - build-linux-aarch64
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
     with:
@@ -83,7 +167,7 @@ jobs:
       contents: read  # This is required for actions/checkout
     needs:
       - ci-vars
-      - build
+      - build-windows
     secrets: inherit
     uses: ./.github/workflows/test-wheel-windows.yml
     with:
@@ -101,7 +185,7 @@ jobs:
       pull-requests: write
     needs:
       - ci-vars
-      - build
+      - build-linux-64
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
     with:
@@ -109,12 +193,13 @@ jobs:
 
   checks:
     name: Check job status
-    permissions:
-      checks: read
+    if: always()
+    runs-on: ubuntu-latest
     needs:
-      - build
-      - test-linux
+      - test-linux-64
+      - test-linux-aarch64
       - test-windows
       - doc
-    secrets: inherit
-    uses: ./.github/workflows/status-check.yml
+    steps:
+      - name: Exit
+        run: exit 0

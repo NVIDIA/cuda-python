@@ -16,12 +16,11 @@ if [[ ${#} -ne 1 ]]; then
 fi
 
 PYTHON_VERSION_FORMATTED=$(echo "${PY_VER}" | tr -d '.')
+
 if [[ "${HOST_PLATFORM}" == linux* ]]; then
-  CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-manylinux*"
   REPO_DIR=$(pwd)
   TOOLS_PATH="${REPO_DIR}/ci/tools"
 elif [[ "${HOST_PLATFORM}" == win* ]]; then
-  CIBW_BUILD="cp${PYTHON_VERSION_FORMATTED}-win_amd64"
   PWD=$(pwd)
   REPO_DIR=$(cygpath -w ${PWD})
   TOOLS_PATH=$(cygpath -w ${PWD}/ci/tools)
@@ -30,14 +29,21 @@ fi
 echo "${TOOLS_PATH}" >> $GITHUB_PATH
 echo "CUDA_PYTHON_PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
 CUDA_CORE_ARTIFACT_BASENAME="cuda-core-python${PYTHON_VERSION_FORMATTED}-${HOST_PLATFORM}"
-echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${SHA}" >> $GITHUB_ENV
-echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_core/dist")" >> $GITHUB_ENV
-echo "CUDA_CORE_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_core/tests/cython")" >> $GITHUB_ENV
-echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}" >> $GITHUB_ENV
+{
+  echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}"
+  echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${SHA}"
+  echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_core/dist")"
+  echo "CUDA_CORE_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_core/tests/cython")"
+  echo "PYTHON_VERSION_FORMATTED=${PYTHON_VERSION_FORMATTED}"
+} >> $GITHUB_ENV
 
 if [[ "${1}" == "build" ]]; then
-  echo "CIBW_BUILD=${CIBW_BUILD}" >> $GITHUB_ENV
+  # platform is handled by the default value of platform (`auto`) in cibuildwheel
+  # here we only need to specify the python version we want
+  echo "CIBW_BUILD=cp${PYTHON_VERSION_FORMATTED}-*" >> $GITHUB_ENV
+  BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
+  echo "BUILD_CUDA_MAJOR=${BUILD_CUDA_MAJOR}" >> $GITHUB_ENV
+  echo "BUILD_PREV_CUDA_MAJOR=$((${BUILD_CUDA_MAJOR} - 1))" >> $GITHUB_ENV
   CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${CUDA_VER}-${HOST_PLATFORM}"
 elif [[ "${1}" == "test" ]]; then
   BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${BUILD_CUDA_VER})"
@@ -66,13 +72,17 @@ elif [[ "${1}" == "test" ]]; then
     SETUP_SANITIZER=0
     echo "SANITIZER_CMD=" >> $GITHUB_ENV
   fi
-  echo "SETUP_SANITIZER=${SETUP_SANITIZER}" >> $GITHUB_ENV
-  echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}" >> $GITHUB_ENV
-  echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}" >> $GITHUB_ENV
-  echo "TEST_CUDA_MAJOR=${TEST_CUDA_MAJOR}" >> $GITHUB_ENV
+  {
+    echo "SETUP_SANITIZER=${SETUP_SANITIZER}"
+    echo "SKIP_CUDA_BINDINGS_TEST=${SKIP_CUDA_BINDINGS_TEST}"
+    echo "SKIP_CYTHON_TEST=${SKIP_CYTHON_TEST}"
+    echo "TEST_CUDA_MAJOR=${TEST_CUDA_MAJOR}"
+  } >> $GITHUB_ENV
 fi
 
-echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
-echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${SHA}" >> $GITHUB_ENV
-echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/dist")" >> $GITHUB_ENV
-echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/tests/cython")" >> $GITHUB_ENV
+{
+  echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}"
+  echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${SHA}"
+  echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/dist")"
+  echo "CUDA_BINDINGS_CYTHON_TESTS_DIR=$(realpath "${REPO_DIR}/cuda_bindings/tests/cython")"
+} >> $GITHUB_ENV

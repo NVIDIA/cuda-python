@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.0.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.0.2. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
@@ -15,6 +15,8 @@ from cuda.pathfinder import load_nvidia_dynamic_lib
 ###############################################################################
 # Extern
 ###############################################################################
+
+# You must 'from .utils import NotSupportedError' before using this template
 
 cdef extern from "<dlfcn.h>" nogil:
     void* dlopen(const char*, int)
@@ -49,6 +51,7 @@ cdef int get_cuda_version():
     return driver_ver
 
 
+
 ###############################################################################
 # Wrapper init
 ###############################################################################
@@ -77,10 +80,8 @@ cdef void* load_library() except* with gil:
     return <void*>handle
 
 
-cdef int _check_or_init_nvjitlink() except -1 nogil:
+cdef int __check_or_init_nvjitlink() except -1 nogil:
     global __py_nvjitlink_init
-    if __py_nvjitlink_init:
-        return 0
 
     cdef void* handle = NULL
 
@@ -187,6 +188,12 @@ cdef int _check_or_init_nvjitlink() except -1 nogil:
         __py_nvjitlink_init = True
         return 0
 
+
+cdef inline int _check_or_init_nvjitlink() except -1 nogil:
+    if __py_nvjitlink_init:
+        return 0
+
+    return __check_or_init_nvjitlink()
 
 cdef dict func_ptrs = None
 
