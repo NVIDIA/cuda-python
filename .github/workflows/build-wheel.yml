@@ -141,7 +141,8 @@ jobs:
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-
+          CC: sccache gcc
+          CXX: sccache g++
       - name: List the cuda.bindings artifacts directory
         run: |
           if [[ "${{ inputs.host-platform }}" == win* ]]; then
