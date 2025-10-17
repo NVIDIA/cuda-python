@@ -46,6 +46,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@bfa03e1de4d7f7c3e80ad9109feedd05c4f5a716
+        if: ${{ !startsWith(inputs.host-platform, 'win') }}
+        with:
+          create-symlink: true
+
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
         continue-on-error: true
