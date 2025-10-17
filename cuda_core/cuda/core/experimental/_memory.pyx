@@ -1121,7 +1121,7 @@ class VirtualMemoryResourceOptions:
         addr_align: int
             Alignment for the VA reservation. If None, use the queried granularity.
         peers: Iterable[int]
-            Extra device IDs that should be granted access in addition to `device`.
+            Extra device IDs that should be granted access in addition to ``device``.
         self_access: VirtualMemoryAccessTypeT
             Access flags for the owning device ('rw' or 'r').
         peer_access: VirtualMemoryAccessTypeT
