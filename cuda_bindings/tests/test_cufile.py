@@ -1951,10 +1951,11 @@ def test_set_stats_level():
         except Exception as e:
             logging.info(f"Correctly caught error for invalid stats level: {e}")
 
-        # Reset to level 0 (disabled) for cleanup
-        cufile.set_stats_level(0)
+
 
     finally:
+        # Reset cuFile statistics to clear all counters
+        cufile.stats_reset()
         # Close cuFile driver
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
@@ -2004,44 +2005,7 @@ def test_get_parameter_min_max_value():
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
 )
-def test_stats_start():
-    """Test cuFile statistics collection start."""
-    # Initialize CUDA
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCtxSetCurrent(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    # Open cuFile driver
-    cufile.driver_open()
-
-    try:
-        # Set statistics level first (required before starting stats)
-        cufile.set_stats_level(1)  # Level 1 = basic statistics
-
-        # Start collecting cuFile statistics
-        cufile.stats_start()
-
-        # Verify statistics collection is active
-        # Note: Additional verification would require stats_get() or similar functions
-        logging.info("cuFile statistics collection started successfully")
-
-    finally:
-        # Close cuFile driver
-        cufile.driver_close()
-        cuda.cuDevicePrimaryCtxRelease(device)
-
-
-@pytest.mark.skipif(
-    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
-)
-def test_stats_stop():
+def test_stats_start_stop():
     """Test cuFile statistics collection stop."""
     # Initialize CUDA
     (err,) = cuda.cuInit(0)
@@ -2071,6 +2035,8 @@ def test_stats_stop():
         logging.info("cuFile statistics collection stopped successfully")
 
     finally:
+        # Reset cuFile statistics to clear all counters
+        cufile.stats_reset()
         # Close cuFile driver
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
@@ -2103,9 +2069,6 @@ def test_stats_reset():
 
         cufile.stats_start()
 
-        # Reset cuFile statistics to clear all counters
-        cufile.stats_reset()
-
         # Verify statistics reset completed successfully
         logging.info("cuFile statistics reset successfully")
 
@@ -2113,6 +2076,8 @@ def test_stats_reset():
         cufile.stats_stop()
 
     finally:
+        # Reset cuFile statistics to clear all counters
+        cufile.stats_reset()
         # Close cuFile driver
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
