@@ -1106,13 +1106,20 @@ class VirtualMemoryResourceOptions:
             CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR on Linux if you plan to
             import/export the allocation (required for cuMemRetainAllocationHandle).
             Use CU_MEM_HANDLE_TYPE_NONE if you don't need an exportable handle.
-        gpu_direct_rdma: Hint that the allocation should be GDR-capable (if supported).
-        granularity: 'recommended' or 'minimum'. Controls granularity query and size rounding.
-        addr_hint: A (optional) virtual address hint to try to reserve at. 0 -> let CUDA choose.
-        addr_align: Alignment for the VA reservation. If None, use the queried granularity.
-        peers: Extra device IDs that should be granted access in addition to `device`.
-        self_access: Access flags for the owning device ('rw', 'r', or 'none').
-        peer_access: Access flags for peers ('rw' or 'r').
+        gpu_direct_rdma: bool
+             Hint that the allocation should be GDR-capable (if supported).
+        granularity: str
+            'recommended' or 'minimum'. Controls granularity query and size rounding.
+        addr_hint: int
+            A (optional) virtual address hint to try to reserve at. 0 -> let CUDA choose.
+        addr_align: int
+            Alignment for the VA reservation. If None, use the queried granularity.
+        peers: Iterable[int]
+            Extra device IDs that should be granted access in addition to `device`.
+        self_access: str
+            Access flags for the owning device ('rw', 'r', or 'none').
+        peer_access: str
+            Access flags for peers ('rw' or 'r').
     """
     # Human-friendly strings; normalized in __post_init__
     allocation_type: VirtualMemoryAllocationTypeT = "pinned"
