@@ -1089,10 +1089,10 @@ class _SynchronousMemoryResource(MemoryResource):
         return self._dev_id
 
 
-VirtualMemoryHandleTypeT = Literal["posix_fd", "generic", "none", "win32", "win32_kmt", "fabric"]
+VirtualMemoryHandleTypeT = Union[Literal["posix_fd", "generic", "win32", "win32_kmt", "fabric"], None]
 VirtualMemoryLocationTypeT = Literal["device", "host", "host_numa", "host_numa_current"]
 VirtualMemoryGranularityT = Literal["minimum", "recommended"]
-VirtualMemoryAccessTypeT = Literal["rw", "r", "none"]
+VirtualMemoryAccessTypeT = Union[Literal["rw", "r"], None]
 VirtualMemoryAllocationTypeT = Literal["pinned", "managed"]
 
 
@@ -1140,9 +1140,9 @@ class VirtualMemoryResourceOptions:
     peer_access: VirtualMemoryAccessTypeT = "rw"
 
     _a = driver.CUmemAccess_flags
-    _access_flags = {"rw": _a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": _a.CU_MEM_ACCESS_FLAGS_PROT_READ, "none": 0}
+    _access_flags = {"rw": _a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": _a.CU_MEM_ACCESS_FLAGS_PROT_READ, None: 0}
     _h = driver.CUmemAllocationHandleType
-    _handle_types = {"none": _h.CU_MEM_HANDLE_TYPE_NONE, "posix_fd": _h.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, "win32": _h.CU_MEM_HANDLE_TYPE_WIN32, "win32_kmt": _h.CU_MEM_HANDLE_TYPE_WIN32_KMT, "fabric": _h.CU_MEM_HANDLE_TYPE_FABRIC}
+    _handle_types = {None: _h.CU_MEM_HANDLE_TYPE_NONE, "posix_fd": _h.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, "win32": _h.CU_MEM_HANDLE_TYPE_WIN32, "win32_kmt": _h.CU_MEM_HANDLE_TYPE_WIN32_KMT, "fabric": _h.CU_MEM_HANDLE_TYPE_FABRIC}
     _g = driver.CUmemAllocationGranularity_flags
     _granularity = {"recommended": _g.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED, "minimum": _g.CU_MEM_ALLOC_GRANULARITY_MINIMUM}
     _l = driver.CUmemLocationType
