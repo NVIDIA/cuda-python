@@ -1122,9 +1122,9 @@ class VirtualMemoryResourceOptions:
         peers: Iterable[int]
             Extra device IDs that should be granted access in addition to `device`.
         self_access: str
-            Access flags for the owning device ('rw', 'r', or 'none').
+            Access flags for the owning device ('rw' or 'r').
         peer_access: str
-            Access flags for peers ('rw' or 'r').
+            Access flags for peers ('rw', 'r', or 'none').
     """
     # Human-friendly strings; normalized in __post_init__
     allocation_type: VirtualMemoryAllocationTypeT = "pinned"
