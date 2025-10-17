@@ -1101,7 +1101,12 @@ class VirtualMemoryResourceOptions:
     """A configuration object for the VirtualMemoryResource
        Stores configuration information which tells the resource how to use the CUDA VMM APIs
 
-    Args:
+    Parameters
+    ----------
+        allocation_type: str
+            'pinned' or 'managed'. Controls the type of allocation.
+        location_type: str
+            'device' or 'host'. Controls the location of the allocation.
         handle_type: Export handle type for the physical allocation. Use
             CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR on Linux if you plan to
             import/export the allocation (required for cuMemRetainAllocationHandle).
