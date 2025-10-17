@@ -1125,7 +1125,7 @@ class VirtualMemoryResourceOptions:
         self_access: VirtualMemoryAccessTypeT
             Access flags for the owning device ('rw' or 'r').
         peer_access: VirtualMemoryAccessTypeT
-            Access flags for peers ('rw', 'r', or 'none').
+            Access flags for peers.
     """
     # Human-friendly strings; normalized in __post_init__
     allocation_type: VirtualMemoryAllocationTypeT = "pinned"
