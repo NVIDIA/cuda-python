@@ -49,10 +49,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup SCCACHE_DIR
-        run: |
-          echo "SCCACHE_DIR=${{ github.workspace }}/.sccache" >> $GITHUB_ENV
-
       - name: Enable sccache
         uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad  # 0.0.9
 
@@ -142,10 +138,12 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CC="/host${{ env.SCCACHE_PATH }} cc"
             CXX="/host${{ env.SCCACHE_PATH }} c++"
-            SCCACHE_DIR=/host${{ env.SCCACHE_DIR }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+            CC="${{ env.SCCACHE_PATH }} cl"
+            CXX="${{ env.SCCACHE_PATH }} cl"
+
       - name: List the cuda.bindings artifacts directory
         run: |
           if [[ "${{ inputs.host-platform }}" == win* ]]; then
