@@ -1107,7 +1107,7 @@ class VirtualMemoryResourceOptions:
             import/export the allocation (required for cuMemRetainAllocationHandle).
             Use CU_MEM_HANDLE_TYPE_NONE if you don't need an exportable handle.
         gpu_direct_rdma: bool
-             Hint that the allocation should be GDR-capable (if supported).
+            Hint that the allocation should be GDR-capable (if supported).
         granularity: str
             'recommended' or 'minimum'. Controls granularity query and size rounding.
         addr_hint: int
