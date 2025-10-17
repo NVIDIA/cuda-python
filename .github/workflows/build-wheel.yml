@@ -40,6 +40,10 @@ jobs:
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
                  (inputs.host-platform == 'win-64' && 'windows-2022') }}
+    env:
+      CC: "sccache cc"
+      CXX: "sccache c++"
+
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
