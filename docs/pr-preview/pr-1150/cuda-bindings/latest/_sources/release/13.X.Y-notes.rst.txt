@@ -1,0 +1,22 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 13.X.Y Release notes
+======================================
+
+
+
+Highlights
+----------
+
+* Updated the ``cuda.bindings.runtime`` module to statically link against the CUDA Runtime library from CUDA Toolkit 13.0.2.
+
+Bug fixes
+---------
+
+
+
+Known issues
+------------
