@@ -138,6 +138,7 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CC="/host${{ env.SCCACHE_PATH }} cc"
             CXX="/host${{ env.SCCACHE_PATH }} c++"
+            SCCACHE_DIR=/host${{ env.SCCACHE_DIR }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
