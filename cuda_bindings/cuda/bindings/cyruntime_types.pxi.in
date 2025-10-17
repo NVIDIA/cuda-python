@@ -1591,6 +1591,20 @@ cdef extern from "library_types.h":
 
     ctypedef cudaEmulationStrategy_t cudaEmulationStrategy
 
+    cdef enum cudaEmulationMantissaControl_t:
+        CUDA_EMULATION_MANTISSA_CONTROL_DYNAMIC = 0
+        CUDA_EMULATION_MANTISSA_CONTROL_FIXED = 1
+
+    ctypedef cudaEmulationMantissaControl_t cudaEmulationMantissaControl
+
+    cdef enum cudaEmulationSpecialValuesSupport_t:
+        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NONE = 0
+        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_INFINITY = 1
+        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_NAN = 2
+        CUDA_EMULATION_SPECIAL_VALUES_SUPPORT_DEFAULT = 65535
+
+    ctypedef cudaEmulationSpecialValuesSupport_t cudaEmulationSpecialValuesSupport
+
     cdef enum libraryPropertyType_t:
         MAJOR_VERSION = 0
         MINOR_VERSION = 1

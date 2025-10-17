@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.0.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.0.2. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -100,8 +100,8 @@ cpdef tuple version():
     cdef int major
     cdef int minor
     with nogil:
-        status = nvvmVersion(&major, &minor)
-    check_status(status)
+        __status__ = nvvmVersion(&major, &minor)
+    check_status(__status__)
     return (major, minor)
 
 
@@ -123,8 +123,8 @@ cpdef tuple ir_version():
     cdef int major_dbg
     cdef int minor_dbg
     with nogil:
-        status = nvvmIRVersion(&major_ir, &minor_ir, &major_dbg, &minor_dbg)
-    check_status(status)
+        __status__ = nvvmIRVersion(&major_ir, &minor_ir, &major_dbg, &minor_dbg)
+    check_status(__status__)
     return (major_ir, minor_ir, major_dbg, minor_dbg)
 
 
@@ -138,8 +138,8 @@ cpdef intptr_t create_program() except? 0:
     """
     cdef Program prog
     with nogil:
-        status = nvvmCreateProgram(&prog)
-    check_status(status)
+        __status__ = nvvmCreateProgram(&prog)
+    check_status(__status__)
     return <intptr_t>prog
 
 
@@ -160,8 +160,8 @@ cpdef add_module_to_program(intptr_t prog, buffer, size_t size, name):
     cdef bytes _temp_name_ = (<str>name).encode()
     cdef char* _name_ = _temp_name_
     with nogil:
-        status = nvvmAddModuleToProgram(<Program>prog, <const char*>_buffer_, size, <const char*>_name_)
-    check_status(status)
+        __status__ = nvvmAddModuleToProgram(<Program>prog, <const char*>_buffer_, size, <const char*>_name_)
+    check_status(__status__)
 
 
 cpdef lazy_add_module_to_program(intptr_t prog, buffer, size_t size, name):
@@ -181,8 +181,8 @@ cpdef lazy_add_module_to_program(intptr_t prog, buffer, size_t size, name):
     cdef bytes _temp_name_ = (<str>name).encode()
     cdef char* _name_ = _temp_name_
     with nogil:
-        status = nvvmLazyAddModuleToProgram(<Program>prog, <const char*>_buffer_, size, <const char*>_name_)
-    check_status(status)
+        __status__ = nvvmLazyAddModuleToProgram(<Program>prog, <const char*>_buffer_, size, <const char*>_name_)
+    check_status(__status__)
 
 
 cpdef compile_program(intptr_t prog, int num_options, options):
@@ -204,8 +204,8 @@ cpdef compile_program(intptr_t prog, int num_options, options):
     cdef nested_resource[ char ] _options_
     get_nested_resource_ptr[char](_options_, options, <char*>NULL)
     with nogil:
-        status = nvvmCompileProgram(<Program>prog, num_options, <const char**>(_options_.ptrs.data()))
-    check_status(status)
+        __status__ = nvvmCompileProgram(<Program>prog, num_options, <const char**>(_options_.ptrs.data()))
+    check_status(__status__)
 
 
 cpdef verify_program(intptr_t prog, int num_options, options):
@@ -227,8 +227,8 @@ cpdef verify_program(intptr_t prog, int num_options, options):
     cdef nested_resource[ char ] _options_
     get_nested_resource_ptr[char](_options_, options, <char*>NULL)
     with nogil:
-        status = nvvmVerifyProgram(<Program>prog, num_options, <const char**>(_options_.ptrs.data()))
-    check_status(status)
+        __status__ = nvvmVerifyProgram(<Program>prog, num_options, <const char**>(_options_.ptrs.data()))
+    check_status(__status__)
 
 
 cpdef size_t get_compiled_result_size(intptr_t prog) except? 0:
@@ -244,8 +244,8 @@ cpdef size_t get_compiled_result_size(intptr_t prog) except? 0:
     """
     cdef size_t buffer_size_ret
     with nogil:
-        status = nvvmGetCompiledResultSize(<Program>prog, &buffer_size_ret)
-    check_status(status)
+        __status__ = nvvmGetCompiledResultSize(<Program>prog, &buffer_size_ret)
+    check_status(__status__)
     return buffer_size_ret
 
 
@@ -260,8 +260,8 @@ cpdef get_compiled_result(intptr_t prog, buffer):
     """
     cdef void* _buffer_ = get_buffer_pointer(buffer, -1, readonly=False)
     with nogil:
-        status = nvvmGetCompiledResult(<Program>prog, <char*>_buffer_)
-    check_status(status)
+        __status__ = nvvmGetCompiledResult(<Program>prog, <char*>_buffer_)
+    check_status(__status__)
 
 
 cpdef size_t get_program_log_size(intptr_t prog) except? 0:
@@ -277,8 +277,8 @@ cpdef size_t get_program_log_size(intptr_t prog) except? 0:
     """
     cdef size_t buffer_size_ret
     with nogil:
-        status = nvvmGetProgramLogSize(<Program>prog, &buffer_size_ret)
-    check_status(status)
+        __status__ = nvvmGetProgramLogSize(<Program>prog, &buffer_size_ret)
+    check_status(__status__)
     return buffer_size_ret
 
 
@@ -293,5 +293,5 @@ cpdef get_program_log(intptr_t prog, buffer):
     """
     cdef void* _buffer_ = get_buffer_pointer(buffer, -1, readonly=False)
     with nogil:
-        status = nvvmGetProgramLog(<Program>prog, <char*>_buffer_)
-    check_status(status)
+        __status__ = nvvmGetProgramLog(<Program>prog, <char*>_buffer_)
+    check_status(__status__)

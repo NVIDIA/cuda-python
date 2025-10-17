@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.0.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.0 to 13.0.2. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 import threading
@@ -17,6 +17,8 @@ import cython
 ###############################################################################
 # Extern
 ###############################################################################
+
+# You must 'from .utils import NotSupportedError' before using this template
 
 cdef extern from "<dlfcn.h>" nogil:
     void* dlopen(const char*, int)
@@ -49,6 +51,7 @@ cdef int get_cuda_version():
         raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
 
     return driver_ver
+
 
 
 ###############################################################################
