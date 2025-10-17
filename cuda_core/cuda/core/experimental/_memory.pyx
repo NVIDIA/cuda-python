@@ -20,8 +20,6 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 )
 
 import abc
-import array
-import contextlib
 import cython
 from dataclasses import dataclass, field
 from typing import Iterable, Literal, Optional, TYPE_CHECKING, TypeVar, Union
@@ -33,9 +31,6 @@ import weakref
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.cuda_utils import ( driver, Transaction, get_binding_version )
-
-if platform.system() == "Linux":
-    import socket
 
 if TYPE_CHECKING:
     from ._device import Device
