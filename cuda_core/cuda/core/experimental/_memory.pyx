@@ -1101,7 +1101,7 @@ class VirtualMemoryResourceOptions:
     """A configuration object for the VirtualMemoryResource
        Stores configuration information which tells the resource how to use the CUDA VMM APIs
 
-    Parameters
+    Attributes
     ----------
         allocation_type: VirtualMemoryAllocationTypeT
             Controls the type of allocation.
