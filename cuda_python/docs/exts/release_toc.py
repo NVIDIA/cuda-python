@@ -11,7 +11,8 @@ def reverse_toctree(app, doctree, docname):
     if docname == "release":
         for node in doctree.traverse():
             if node.tagname == "toctree":
-                node["entries"].sort(key=lambda x: Version(Path(x[1]).name.removesuffix("-notes")), reverse=True)
+                node["entries"] = [(Version(Path(x[1]).name.removesuffix("-notes")), x[1]) for x in node["entries"]]
+                node["entries"].sort(key=lambda x: x[0], reverse=True)
                 break
 
 
