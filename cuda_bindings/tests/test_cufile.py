@@ -2164,6 +2164,7 @@ def test_get_stats_l1():
         cuda.cuMemFree(buf_ptr)
 
     finally:
+        cufile.stats_reset()
         os.close(fd)
         with suppress(OSError):
             os.unlink(file_path)
@@ -2263,6 +2264,7 @@ def test_get_stats_l2():
         cuda.cuMemFree(buf_ptr)
 
     finally:
+        cufile.stats_reset()
         os.close(fd)
         with suppress(OSError):
             os.unlink(file_path)
@@ -2373,6 +2375,7 @@ def test_get_stats_l3():
         cuda.cuMemFree(buf_ptr)
 
     finally:
+        cufile.stats_reset()
         os.close(fd)
         with suppress(OSError):
             os.unlink(file_path)
