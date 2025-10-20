@@ -1950,8 +1950,6 @@ def test_set_stats_level():
         except Exception as e:
             logging.info(f"Correctly caught error for invalid stats level: {e}")
 
-
-
     finally:
         # Reset cuFile statistics to clear all counters
         cufile.stats_reset()
@@ -1982,12 +1980,8 @@ def test_get_parameter_min_max_value():
         # Test with poll threshold parameter
         param = cufile.SizeTConfigParameter.POLLTHRESHOLD_SIZE_KB
 
-        # Allocate ctypes variables for min and max values
-        min_value = ctypes.c_size_t()
-        max_value = ctypes.c_size_t()
-
         # Get min/max values
-        cufile.get_parameter_min_max_value(param, ctypes.addressof(min_value), ctypes.addressof(max_value))
+        min_value, max_value = cufile.get_parameter_min_max_value(param)
 
         # Verify that min <= max and both are reasonable values
         assert min_value.value >= 0, f"Invalid min value: {min_value.value}"
