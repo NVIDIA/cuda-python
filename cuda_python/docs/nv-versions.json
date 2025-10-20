@@ -20,10 +20,6 @@
         "url": "https://nvidia.github.io/cuda-python/13.0.0/"
     },
     {
-        "version": "12.9.4",
-        "url": "https://nvidia.github.io/cuda-python/12.9.4/"
-    },
-    {
         "version": "12.9.0",
         "url": "https://nvidia.github.io/cuda-python/12.9.0/"
     },
