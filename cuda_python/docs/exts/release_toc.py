@@ -6,7 +6,7 @@ from pathlib import Path
 from packaging.version import Version
 
 
-def reverse_toctree(app, doctree, docname):
+def sort_release_toctree(app, doctree, docname):
     """Sort the entries in a release toctree in by version."""
     if docname == "release":
         for node in doctree.traverse():
@@ -17,4 +17,4 @@ def reverse_toctree(app, doctree, docname):
 
 
 def setup(app):
-    app.connect("doctree-resolved", reverse_toctree)
+    app.connect("doctree-resolved", sort_release_toctree)
