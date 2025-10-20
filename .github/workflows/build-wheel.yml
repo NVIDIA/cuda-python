@@ -40,8 +40,8 @@ jobs:
     runs-on: ${{ (inputs.host-platform == 'linux-64' && 'linux-amd64-cpu8') ||
                  (inputs.host-platform == 'linux-aarch64' && 'linux-arm64-cpu8') ||
                  (inputs.host-platform == 'win-64' && 'windows-2022') }}
-    env:
-      SCCACHE_GHA_ENABLED: "true"
+#    env:
+#      SCCACHE_GHA_ENABLED: "true"
 
     steps:
       - name: Checkout ${{ github.event.repository.name }}
@@ -52,14 +52,14 @@ jobs:
       - name: Enable sccache
         uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad  # 0.0.9
 
-      - name: Start sccache
-        # Since we actually /use/ this from a container, we need to start the server
-        # in the host first.
-        run: sccache --start-server
-
-      - name: Expose Cache URL
-        run: |
-          echo "ACTIONS_RUNTIME_TOKEN=$ACTIONS_RUNTIME_TOKEN" >> $GITHUB_ENV
+#      - name: Start sccache
+#        # Since we actually /use/ this from a container, we need to start the server
+#        # in the host first.
+#        run: sccache --start-server
+#
+#      - name: Expose Cache URL
+#        run: |
+#          echo "ACTIONS_RUNTIME_TOKEN=$ACTIONS_RUNTIME_TOKEN" >> $GITHUB_ENV
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -144,6 +144,9 @@ jobs:
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST: >
             "/host${{ env.SCCACHE_PATH }}" --show-stats
+          # force the test stage to be run (so that before-test is not skipped)
+          CIBW_TEST_COMMAND: >
+            echo "ok!"
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
@@ -160,6 +163,10 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CC="${{ env.SCCACHE_PATH }} cl"
             CXX="${{ env.SCCACHE_PATH }} cl"
+            SCCACHE_GHA_ENABLED=true
+            ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
+            ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
+            SCCACHE_LOG=debug
 
       - name: List the cuda.bindings artifacts directory
         run: |
