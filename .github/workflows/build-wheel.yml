@@ -141,6 +141,9 @@ jobs:
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
+          # check cache stats before leaving cibuildwheel
+          CIBW_BEFORE_TEST: >
+            "/host${{ env.SCCACHE_PATH }}" --show-stats
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
