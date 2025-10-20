@@ -1103,29 +1103,29 @@ class VirtualMemoryResourceOptions:
 
     Attributes
     ----------
-        allocation_type: VirtualMemoryAllocationTypeT
-            Controls the type of allocation.
-        location_type: VirtualMemoryLocationTypeT
-            Controls the location of the allocation.
-        handle_type: VirtualMemoryHandleTypeT
-            Export handle type for the physical allocation. Use
-            `"posix_fd"` on Linux if you plan to
-            import/export the allocation (required for cuMemRetainAllocationHandle).
-            Use CU_MEM_HANDLE_TYPE_NONE if you don't need an exportable handle.
-        gpu_direct_rdma: bool
-            Hint that the allocation should be GDR-capable (if supported).
-        granularity: VirtualMemoryGranularityT
-            Controls granularity query and size rounding.
-        addr_hint: int
-            A (optional) virtual address hint to try to reserve at. 0 -> let CUDA choose.
-        addr_align: int
-            Alignment for the VA reservation. If None, use the queried granularity.
-        peers: Iterable[int]
-            Extra device IDs that should be granted access in addition to ``device``.
-        self_access: VirtualMemoryAccessTypeT
-            Access flags for the owning device.
-        peer_access: VirtualMemoryAccessTypeT
-            Access flags for peers.
+    allocation_type: :obj:`~_memory.VirtualMemoryAllocationTypeT`
+        Controls the type of allocation.
+    location_type: :obj:`~_memory.VirtualMemoryLocationTypeT`
+        Controls the location of the allocation.
+    handle_type: :obj:`~_memory.VirtualMemoryHandleTypeT`
+        Export handle type for the physical allocation. Use
+        ``"posix_fd"`` on Linux if you plan to
+        import/export the allocation (required for cuMemRetainAllocationHandle).
+        Use ``CU_MEM_HANDLE_TYPE_NONE`` if you don't need an exportable handle.
+    gpu_direct_rdma: bool
+        Hint that the allocation should be GDR-capable (if supported).
+    granularity: :obj:`~_memory.VirtualMemoryGranularityT`
+        Controls granularity query and size rounding.
+    addr_hint: int
+        A (optional) virtual address hint to try to reserve at. 0 -> let CUDA choose.
+    addr_align: int
+        Alignment for the VA reservation. If None, use the queried granularity.
+    peers: Iterable[int]
+        Extra device IDs that should be granted access in addition to ``device``.
+    self_access: :obj:`~_memory.VirtualMemoryAccessTypeT`
+        Access flags for the owning device.
+    peer_access: :obj:`~_memory.VirtualMemoryAccessTypeT`
+        Access flags for peers.
     """
     # Human-friendly strings; normalized in __post_init__
     allocation_type: VirtualMemoryAllocationTypeT = "pinned"
