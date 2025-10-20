@@ -1984,11 +1984,11 @@ def test_get_parameter_min_max_value():
         min_value, max_value = cufile.get_parameter_min_max_value(param)
 
         # Verify that min <= max and both are reasonable values
-        assert min_value.value >= 0, f"Invalid min value: {min_value.value}"
-        assert max_value.value >= min_value.value, f"Max value {max_value.value} < min value {min_value.value}"
-        assert max_value.value > 0, f"Invalid max value: {max_value.value}"
+        assert min_value >= 0, f"Invalid min value: {min_value}"
+        assert max_value >= min_value, f"Max value {max_value} < min value {min_value}"
+        assert max_value > 0, f"Invalid max value: {max_value}"
 
-        logging.info(f"POLLTHRESHOLD_SIZE_KB: min={min_value.value}, max={max_value.value}")
+        logging.info(f"POLLTHRESHOLD_SIZE_KB: min={min_value}, max={max_value}")
 
     finally:
         cufile.driver_close()
