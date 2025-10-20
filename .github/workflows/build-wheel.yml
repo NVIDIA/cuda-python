@@ -150,6 +150,8 @@ jobs:
             SCCACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
+            SCCACHE_DIR=${{ env.SCCACHE_DIR }}
+            SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
             SCCACHE_LOG=debug
 #            SCCACHE_NO_DAEMON=1
           CIBW_ENVIRONMENT_WINDOWS: >
