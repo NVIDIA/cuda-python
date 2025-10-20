@@ -46,11 +46,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@bfa03e1de4d7f7c3e80ad9109feedd05c4f5a716
+      - name: Intall ccache
         if: ${{ !startsWith(inputs.host-platform, 'win') }}
-        with:
-          create-symlink: true
+        run:
+          sudo apt install -y ccache
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -77,6 +76,14 @@ jobs:
           PY_VER: ${{ matrix.python-version }}
           SHA: ${{ github.sha }}
         run: ./ci/tools/env-vars build
+
+      - name: Setup ccache
+        id: cache-
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          enableCrossOsArchive: true
+          key: ccache
 
       - name: Dump environment
         run: |
@@ -136,6 +143,9 @@ jobs:
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+            CC="/host${{ env.CCACHE_BIN }} cc"
+            CXX="/host${{ env.CCACHE_BIN }} c++"
+            CCACHE_DIR="/host${{ env.CCACHE_DIR }}"
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
@@ -386,3 +396,8 @@ jobs:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
           if-no-files-found: error
+
+      - name: Display ccache stats
+        if: ${{ !startsWith(inputs.host-platform, 'win') }}
+        run:
+          ccache -s
