@@ -18,12 +18,7 @@ ctypedef CUfileBatchHandle_t BatchHandle
 ctypedef CUfileError_t Error
 ctypedef cufileRDMAInfo_t RDMAInfo
 ctypedef CUfileFSOps_t FSOps
-ctypedef CUfileOpCounter_t OpCounter
-ctypedef CUfilePerGpuStats_t PerGpuStats
 ctypedef CUfileDrvProps_t DrvProps
-ctypedef CUfileStatsLevel1_t StatsLevel1
-ctypedef CUfileStatsLevel2_t StatsLevel2
-ctypedef CUfileStatsLevel3_t StatsLevel3
 
 
 ###############################################################################

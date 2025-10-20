@@ -1795,7 +1795,6 @@ def test_set_get_parameter_string(tmp_path):
         cuda.cuDevicePrimaryCtxRelease(device)
 
 
-@pytest.skip("Disabling")
 @pytest.mark.skipif(
     cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
 )
@@ -1817,6 +1816,8 @@ def test_set_stats_level():
     cufile.driver_open()
 
     try:
+        old_level = cufile.get_stats_level()
+
         # Test setting different statistics levels
         valid_levels = [0, 1, 2, 3]  # 0=disabled, 1=basic, 2=detailed, 3=verbose
 
@@ -1843,6 +1844,7 @@ def test_set_stats_level():
     finally:
         # Reset cuFile statistics to clear all counters
         cufile.stats_reset()
+        cufile.set_stats_level(old_level)
         # Close cuFile driver
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
@@ -1906,6 +1908,8 @@ def test_stats_start_stop():
     cufile.driver_open()
 
     try:
+        old_level = cufile.get_stats_level()
+
         # Set statistics level first (required before starting stats)
         cufile.set_stats_level(1)  # Level 1 = basic statistics
         # Start collecting cuFile statistics first
@@ -1920,47 +1924,7 @@ def test_stats_start_stop():
     finally:
         # Reset cuFile statistics to clear all counters
         cufile.stats_reset()
-        # Close cuFile driver
-        cufile.driver_close()
-        cuda.cuDevicePrimaryCtxRelease(device)
-
-
-@pytest.mark.skipif(
-    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
-)
-def test_stats_reset():
-    """Test cuFile statistics reset."""
-    # Initialize CUDA
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    err, ctx = cuda.cuDevicePrimaryCtxRetain(device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCtxSetCurrent(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    # Open cuFile driver
-    cufile.driver_open()
-
-    try:
-        # Set statistics level first (required before starting stats)
-        cufile.set_stats_level(1)  # Level 1 = basic statistics
-        # Start collecting cuFile statistics first
-
-        cufile.stats_start()
-
-        # Verify statistics reset completed successfully
-        logging.info("cuFile statistics reset successfully")
-
-        # Stop statistics collection
-        cufile.stats_stop()
-
-    finally:
-        # Reset cuFile statistics to clear all counters
-        cufile.stats_reset()
+        cufile.set_stats_level(old_level)
         # Close cuFile driver
         cufile.driver_close()
         cuda.cuDevicePrimaryCtxRelease(device)
@@ -1992,6 +1956,8 @@ def test_get_stats_l1():
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
     try:
+        old_level = cufile.get_stats_level()
+
         cufile.set_stats_level(1)  # L1 = basic operation counts
         # Start collecting cuFile statistics
         cufile.stats_start()
@@ -2055,6 +2021,7 @@ def test_get_stats_l1():
 
     finally:
         cufile.stats_reset()
+        cufile.set_stats_level(old_level)
         os.close(fd)
         with suppress(OSError):
             os.unlink(file_path)
@@ -2088,6 +2055,8 @@ def test_get_stats_l2():
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
     try:
+        old_level = cufile.get_stats_level()
+
         cufile.set_stats_level(2)  # L2 = detailed performance metrics
 
         # Start collecting cuFile statistics
@@ -2155,6 +2124,7 @@ def test_get_stats_l2():
 
     finally:
         cufile.stats_reset()
+        cufile.set_stats_level(old_level)
         os.close(fd)
         with suppress(OSError):
             os.unlink(file_path)
@@ -2188,6 +2158,8 @@ def test_get_stats_l3():
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
 
     try:
+        old_level = cufile.get_stats_level()
+
         cufile.set_stats_level(3)  # L3 = comprehensive diagnostic data
 
         # Start collecting cuFile statistics
@@ -2266,6 +2238,7 @@ def test_get_stats_l3():
 
     finally:
         cufile.stats_reset()
+        cufile.set_stats_level(old_level)
         os.close(fd)
         with suppress(OSError):
             os.unlink(file_path)
