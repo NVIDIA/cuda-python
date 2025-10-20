@@ -141,12 +141,6 @@ jobs:
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
-          # check cache stats before leaving cibuildwheel
-          CIBW_BEFORE_TEST: >
-            "/host${{ env.SCCACHE_PATH }}" --show-stats
-          # force the test stage to be run (so that before-test is not skipped)
-          CIBW_TEST_COMMAND: >
-            echo "ok!"
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
@@ -167,6 +161,16 @@ jobs:
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
             SCCACHE_LOG=debug
+          # check cache stats before leaving cibuildwheel
+          CIBW_BEFORE_TEST_LINUX: >
+            "/host${{ env.SCCACHE_PATH }}" --show-stats
+          CIBW_BEFORE_TEST_WINDOWS: >
+            "${{ env.SCCACHE_PATH }}" --show-stats
+          # force the test stage to be run (so that before-test is not skipped)
+          # TODO: we might want to think twice on adding this, it does a lot of
+          # steps.
+          CIBW_TEST_COMMAND: >
+            echo "ok!"
 
       - name: List the cuda.bindings artifacts directory
         run: |
