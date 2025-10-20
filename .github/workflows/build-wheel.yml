@@ -54,10 +54,14 @@ jobs:
       - name: Enable sccache
         uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad  # 0.0.9
 
-      - name: Start sccache
-        # Since we actually /use/ this from a container, we need to start the server
-        # in the host first.
-        run: sccache --start-server
+#      - name: Start sccache
+#        # Since we actually /use/ this from a container, we need to start the server
+#        # in the host first.
+#        run: sccache --start-server
+#
+#      - name: Expose Cache URL
+#        run: |
+#          echo "ACTIONS_RUNTIME_TOKEN=$ACTIONS_RUNTIME_TOKEN" >> $GITHUB_ENV
 
       # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
       - name: Adding addtional GHA cache-related env vars
@@ -149,7 +153,6 @@ jobs:
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
         env:
           CIBW_BUILD: ${{ env.CIBW_BUILD }}
-          CIBW_CONTAINER_ENGINE: "docker; create_args: --network=host"
           # CIBW mounts the host filesystem under /host
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
