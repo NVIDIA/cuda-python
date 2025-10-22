@@ -593,25 +593,6 @@ and they should instead be created through a <a class="reference internal" href=
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.Event.from_ipc_descriptor">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ipc_descriptor</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">IPCEventDescriptor</span> <span class="pre">ipc_descriptor:</span> <span class="pre">IPCEventDescriptor</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.experimental.Event" title="cuda.core.experimental.Event"><span class="pre">Event</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Event.from_ipc_descriptor" title="Link to this definition">#</a></dt>
-<dd><p>Import an event that was exported from another process.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.Event.get_ipc_descriptor">
-<span class="sig-name descname"><span class="pre">get_ipc_descriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">IPCEventDescriptor</span></span></span><a class="headerlink" href="#cuda.core.experimental.Event.get_ipc_descriptor" title="Link to this definition">#</a></dt>
-<dd><p>Export an event allocated for sharing between processes.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.Event.sync">
 <span class="sig-name descname"><span class="pre">sync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Event.sync" title="Link to this definition">#</a></dt>
 <dd><p>Synchronize until the event completes.</p>
@@ -679,8 +660,6 @@ has been completed.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Event.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Event.close"><code class="docutils literal notranslate"><span class="pre">close()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Event.from_ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">from_ipc_descriptor()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Event.get_ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">get_ipc_descriptor()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Event.sync"><code class="docutils literal notranslate"><span class="pre">sync()</span></code></a></li>
 </ul>
 </li>
