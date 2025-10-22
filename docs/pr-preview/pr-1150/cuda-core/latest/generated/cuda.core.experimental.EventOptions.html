@@ -563,7 +563,7 @@
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">enable_timing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">busy_waited_sync</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">support_ipc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">ipc_enabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.EventOptions" title="Link to this definition">#</a></dt>
@@ -595,8 +595,8 @@ been completed. (Default to False)</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.experimental.EventOptions.support_ipc">
-<span class="sig-name descname"><span class="pre">support_ipc</span></span><a class="headerlink" href="#cuda.core.experimental.EventOptions.support_ipc" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.EventOptions.ipc_enabled">
+<span class="sig-name descname"><span class="pre">ipc_enabled</span></span><a class="headerlink" href="#cuda.core.experimental.EventOptions.ipc_enabled" title="Link to this definition">#</a></dt>
 <dd><p>Event will be suitable for interprocess use.
 Note that enable_timing must be False. (Default to False)</p>
 <dl class="field-list simple">
@@ -662,7 +662,7 @@ Note that enable_timing must be False. (Default to False)</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.EventOptions"><code class="docutils literal notranslate"><span class="pre">EventOptions</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.EventOptions.enable_timing"><code class="docutils literal notranslate"><span class="pre">enable_timing</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.EventOptions.busy_waited_sync"><code class="docutils literal notranslate"><span class="pre">busy_waited_sync</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.EventOptions.support_ipc"><code class="docutils literal notranslate"><span class="pre">support_ipc</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.EventOptions.ipc_enabled"><code class="docutils literal notranslate"><span class="pre">ipc_enabled</span></code></a></li>
 </ul>
 </li>
 </ul>

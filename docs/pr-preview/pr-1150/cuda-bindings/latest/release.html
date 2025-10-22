@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=7c38c11c"></script>
+    <script src="_static/documentation_options.js?v=d8404505"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -51,7 +51,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.0.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.0.3';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -59,7 +59,7 @@
     <link rel="icon" href="_static/favicon.png"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="cuda-bindings 13.0.2 Release notes" href="release/13.0.2-notes.html" />
+    <link rel="next" title="cuda-bindings 13.0.3 Release notes" href="release/13.0.3-notes.html" />
     <link rel="prev" title="cuda.bindings: Low-level Python Bindings for CUDA" href="index.html" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -490,9 +490,11 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/13.0.3-notes.html">13.0.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.4-notes.html">12.9.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.3-notes.html">12.9.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.2-notes.html">12.9.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.1-notes.html">12.9.1</a></li>
@@ -651,6 +653,12 @@
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="release/13.0.3-notes.html">13.0.3</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/13.0.3-notes.html#highlights">Highlights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/13.0.3-notes.html#bug-fixes">Bug fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/13.0.3-notes.html#known-issues">Known issues</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="release/13.0.2-notes.html">13.0.2</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.2-notes.html#highlights">Highlights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.2-notes.html#bug-fixes">Bug fixes</a></li>
@@ -668,6 +676,12 @@
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html#bug-fixes">Bug fixes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html#miscellaneous">Miscellaneous</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html#known-issues">Known issues</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="release/12.9.4-notes.html">12.9.4</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.4-notes.html#highlights">Highlights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.4-notes.html#bug-fixes">Bug fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.4-notes.html#known-issues">Known issues</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="release/12.9.3-notes.html">12.9.3</a><ul>
@@ -925,11 +939,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="release/13.0.2-notes.html"
+       href="release/13.0.3-notes.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.0.2 Release notes</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.0.3 Release notes</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

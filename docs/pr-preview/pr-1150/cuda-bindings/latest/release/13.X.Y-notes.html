@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=7c38c11c"></script>
+    <script src="../_static/documentation_options.js?v=d8404505"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -51,7 +51,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.0.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.0.3';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -492,9 +492,11 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="13.0.3-notes.html">13.0.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12.9.4-notes.html">12.9.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.3-notes.html">12.9.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.2-notes.html">12.9.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12.9.1-notes.html">12.9.1</a></li>
@@ -653,15 +655,16 @@
 <span id="module-cuda.bindings"></span><h1><code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> 13.X.Y Release notes<a class="headerlink" href="#cuda-bindings-13-x-y-release-notes" title="Link to this heading">#</a></h1>
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>Updated the <code class="docutils literal notranslate"><span class="pre">cuda.bindings.runtime</span></code> module to statically link against the CUDA Runtime library from CUDA Toolkit 13.0.2.</p></li>
-</ul>
 </section>
 <section id="bug-fixes">
 <h2>Bug fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h2>
 </section>
 <section id="known-issues">
 <h2>Known issues<a class="headerlink" href="#known-issues" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Updating from older versions (v12.6.2.post1 and below) via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">cuda-python</span></code> might not work. Please do a clean re-installation by uninstalling <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">uninstall</span> <span class="pre">-y</span> <span class="pre">cuda-python</span></code> followed by installing <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-python</span></code>.</p></li>
+<li><p>The graphics APIs in <code class="docutils literal notranslate"><span class="pre">cuda.bindings.runtime</span></code> are inadvertently disabled in 13.0.2.  Users needing these APIs should update to 13.0.3.</p></li>
+</ul>
 </section>
 </section>
 
