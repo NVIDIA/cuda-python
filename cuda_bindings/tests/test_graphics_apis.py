@@ -25,7 +25,7 @@ def test_graphics_api_smoketest():
     if error_name == "cudaSuccess":
         assert int(gfx_resource) != 0
     else:
-        assert error_name in ("cudaErrorInvalidValue", "cudaErrorUnknown", "cudaErrorOperatingSystem")
+        assert error_name in ("cudaErrorInvalidValue", "cudaErrorUnknown")
 
 
 @pytest.mark.skipif(IS_WSL, reason="Graphics interop not supported on this platform")
