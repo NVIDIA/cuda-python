@@ -1111,15 +1111,15 @@ class VirtualMemoryResourceOptions:
         Export handle type for the physical allocation. Use
         ``"posix_fd"`` on Linux if you plan to
         import/export the allocation (required for cuMemRetainAllocationHandle).
-        Use ``CU_MEM_HANDLE_TYPE_NONE`` if you don't need an exportable handle.
+        Use `None` if you don't need an exportable handle.
     gpu_direct_rdma: bool
         Hint that the allocation should be GDR-capable (if supported).
     granularity: :obj:`~_memory.VirtualMemoryGranularityT`
         Controls granularity query and size rounding.
     addr_hint: int
-        A (optional) virtual address hint to try to reserve at. 0 -> let CUDA choose.
+        A (optional) virtual address hint to try to reserve at. Setting it to 0 lets the CUDA driver decide.
     addr_align: int
-        Alignment for the VA reservation. If None, use the queried granularity.
+        Alignment for the VA reservation. If `None`, use the queried granularity.
     peers: Iterable[int]
         Extra device IDs that should be granted access in addition to ``device``.
     self_access: :obj:`~_memory.VirtualMemoryAccessTypeT`
