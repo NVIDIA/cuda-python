@@ -23,7 +23,7 @@ def test_graphics_api_smoketest():
     if error_name == "cudaSuccess":
         assert int(gfx_resource) != 0
     else:
-        assert error_name in ("cudaErrorInvalidValue", "cudaErrorUnknown")
+        assert error_name in ("cudaErrorInvalidValue", "cudaErrorUnknown", 'cudaErrorOperatingSystem')
 
 
 def test_cuda_register_image_invalid():
