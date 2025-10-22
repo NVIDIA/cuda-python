@@ -325,7 +325,6 @@ def test_vmm_allocator_basic_allocation():
     if platform.system() == "Windows":
         pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
 
-
     device = Device()
     device.set_current()
 
