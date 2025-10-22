@@ -11,6 +11,8 @@ cdef class Event:
         cydriver.CUevent _handle
         bint _timing_disabled
         bint _busy_waited
+        bint _ipc_enabled
+        object _ipc_descriptor
         int _device_id
         object _ctx_handle
 
