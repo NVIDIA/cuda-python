@@ -26,7 +26,7 @@ except ImportError:
     import cuda_python_test_helpers
 
 # If we imported the package instead of the module, get the actual module
-if hasattr(cuda_python_test_helpers, '__path__'):
+if hasattr(cuda_python_test_helpers, "__path__"):
     # We imported the package, need to get the actual module
     import cuda_python_test_helpers.cuda_python_test_helpers as cuda_python_test_helpers
 

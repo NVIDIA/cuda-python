@@ -3,8 +3,8 @@
 
 import pytest
 from cuda.bindings import runtime as cudart
-
 from helpers import IS_WSL
+
 
 @pytest.mark.skipif(IS_WSL, reason="Graphics interop not supported on this platform")
 def test_graphics_api_smoketest():
