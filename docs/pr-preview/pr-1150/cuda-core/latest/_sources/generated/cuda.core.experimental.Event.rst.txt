@@ -15,8 +15,6 @@ cuda.core.experimental.Event
    
    .. automethod:: __init__
    .. automethod:: close
-   .. automethod:: from_ipc_descriptor
-   .. automethod:: get_ipc_descriptor
    .. automethod:: sync
 
    
@@ -31,7 +29,7 @@ cuda.core.experimental.Event
    .. autoproperty:: device
    .. autoproperty:: handle
    .. autoproperty:: is_done
-   .. autoproperty:: is_ipc_enabled
+   .. autoproperty:: is_ipc_supported
    .. autoproperty:: is_sync_busy_waited
    .. autoproperty:: is_timing_disabled
    
