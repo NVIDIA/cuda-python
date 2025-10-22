@@ -1,0 +1,41 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+CUDA Python 12.6.2 Release notes
+================================
+
+Released on November 5, 2024. Post 1 rebuild released on November 12, 2024.
+
+Highlights
+----------
+- Resolve `Issue #215 <https://github.com/NVIDIA/cuda-python/issues/215>`_: module ``cuda.ccudart`` has no attribute ``__pyx_capi__``
+- Resolve `Issue #226 <https://github.com/NVIDIA/cuda-python/issues/226>`_: top-level Cython source files not packaged
+
+Limitations
+-----------
+
+CUDA Functions Not Supported in this Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Symbol APIs
+    - cudaGraphExecMemcpyNodeSetParamsFromSymbol
+    - cudaGraphExecMemcpyNodeSetParamsToSymbol
+    - cudaGraphAddMemcpyNodeToSymbol
+    - cudaGraphAddMemcpyNodeFromSymbol
+    - cudaGraphMemcpyNodeSetParamsToSymbol
+    - cudaGraphMemcpyNodeSetParamsFromSymbol
+    - cudaMemcpyToSymbol
+    - cudaMemcpyFromSymbol
+    - cudaMemcpyToSymbolAsync
+    - cudaMemcpyFromSymbolAsync
+    - cudaGetSymbolAddress
+    - cudaGetSymbolSize
+    - cudaGetFuncBySymbol
+- Launch Options
+    - cudaLaunchKernel
+    - cudaLaunchCooperativeKernel
+    - cudaLaunchCooperativeKernelMultiDevice
+- cudaSetValidDevices
+- cudaVDPAUSetVDPAUDevice
+- cudaFuncGetName
+- cudaFuncGetParamInfo
