@@ -1197,6 +1197,11 @@ class VirtualMemoryResource(MemoryResource):
             self.device = None
         if platform.system() == "Windows":
             raise NotImplementedError("VirtualMemoryResource is not supported on Windows")
+        
+        # Validate RDMA support if requested
+        if self.config.gpu_direct_rdma and self.device is not None:
+            if not self.device.properties.gpu_direct_rdma_supported:
+                raise RuntimeError("GPU Direct RDMA is not supported on this device")
 
     @staticmethod
     def _align_up(size: int, gran: int) -> int:
