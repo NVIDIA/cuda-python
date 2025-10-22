@@ -1119,7 +1119,7 @@ class VirtualMemoryResourceOptions:
     location_type: VirtualMemoryLocationTypeT = "device"
     handle_type: VirtualMemoryHandleTypeT = "posix_fd"
     granularity: VirtualMemoryGranularityT = "recommended"
-    gpu_direct_rdma: bool = True
+    gpu_direct_rdma: bool = False
     addr_hint: Optional[int] = 0
     addr_align: Optional[int] = None
     peers: Iterable[int] = field(default_factory=tuple)
@@ -1197,7 +1197,7 @@ class VirtualMemoryResource(MemoryResource):
             self.device = None
         if platform.system() == "Windows":
             raise NotImplementedError("VirtualMemoryResource is not supported on Windows")
-        
+
         # Validate RDMA support if requested
         if self.config.gpu_direct_rdma and self.device is not None:
             if not self.device.properties.gpu_direct_rdma_supported:
