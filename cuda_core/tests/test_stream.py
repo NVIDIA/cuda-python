@@ -49,6 +49,12 @@ def test_stream_record(init_cuda):
     assert isinstance(event, Event)
 
 
+def test_stream_record_invalid_event(init_cuda):
+    stream = Device().create_stream(options=StreamOptions())
+    with pytest.raises(TypeError):
+        stream.record(event="invalid_event")
+
+
 def test_stream_wait_event(init_cuda):
     s1 = Device().create_stream()
     s2 = Device().create_stream()

@@ -6,7 +6,7 @@ import multiprocessing.reduction
 import os
 
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource
-from helpers.buffers import PatternGen
+from utility import IPCBufferTestHelper
 
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
@@ -46,9 +46,8 @@ class TestObjectSerializationDirect:
         assert process.exitcode == 0
 
         # Confirm buffers were modified.
-        pgen = PatternGen(device, NBYTES)
-        pgen.verify_buffer(buffer1, seed=True)
-        pgen.verify_buffer(buffer2, seed=True)
+        IPCBufferTestHelper(device, buffer1).verify_buffer(flipped=True)
+        IPCBufferTestHelper(device, buffer2).verify_buffer(flipped=True)
         buffer1.close()
         buffer2.close()
 
@@ -68,9 +67,8 @@ class TestObjectSerializationDirect:
         buffer2 = Buffer.from_ipc_descriptor(mr, buffer_desc)  # by descriptor
 
         # Modify the buffers.
-        pgen = PatternGen(device, NBYTES)
-        pgen.fill_buffer(buffer1, seed=True)
-        pgen.fill_buffer(buffer2, seed=True)
+        IPCBufferTestHelper(device, buffer1).fill_buffer(flipped=True)
+        IPCBufferTestHelper(device, buffer2).fill_buffer(flipped=True)
         buffer1.close()
         buffer2.close()
 
@@ -102,8 +100,7 @@ class TestObjectSerializationWithMR:
         assert process.exitcode == 0
 
         # Confirm buffer was modified.
-        pgen = PatternGen(device, NBYTES)
-        pgen.verify_buffer(buffer, seed=True)
+        IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
         buffer.close()
 
     def child_main(self, pipe, _):
@@ -117,8 +114,7 @@ class TestObjectSerializationWithMR:
         # Buffer.
         buffer = pipe[0].get(timeout=CHILD_TIMEOUT_SEC)
         assert buffer.memory_resource.handle == mr.handle
-        pgen = PatternGen(device, NBYTES)
-        pgen.fill_buffer(buffer, seed=True)
+        IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
         buffer.close()
 
 
@@ -138,8 +134,8 @@ def test_object_passing(ipc_device, ipc_memory_resource):
     buffer = mr.allocate(NBYTES)
     buffer_desc = buffer.get_ipc_descriptor()
 
-    pgen = PatternGen(device, NBYTES)
-    pgen.fill_buffer(buffer, seed=False)
+    helper = IPCBufferTestHelper(device, buffer)
+    helper.fill_buffer(flipped=False)
 
     # Start the child process.
     process = mp.Process(target=child_main, args=(alloc_handle, mr, buffer_desc, buffer))
@@ -147,7 +143,7 @@ def test_object_passing(ipc_device, ipc_memory_resource):
     process.join(timeout=CHILD_TIMEOUT_SEC)
     assert process.exitcode == 0
 
-    pgen.verify_buffer(buffer, seed=True)
+    helper.verify_buffer(flipped=True)
     buffer.close()
 
 
@@ -155,37 +151,40 @@ def child_main(alloc_handle, mr1, buffer_desc, buffer1):
     device = Device()
     device.set_current()
     mr2 = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
-    pgen = PatternGen(device, NBYTES)
 
     # OK to build the buffer from either mr and the descriptor.
     # All buffer* objects point to the same memory.
     buffer2 = Buffer.from_ipc_descriptor(mr1, buffer_desc)
     buffer3 = Buffer.from_ipc_descriptor(mr2, buffer_desc)
 
-    pgen.verify_buffer(buffer1, seed=False)
-    pgen.verify_buffer(buffer2, seed=False)
-    pgen.verify_buffer(buffer3, seed=False)
+    helper1 = IPCBufferTestHelper(device, buffer1)
+    helper2 = IPCBufferTestHelper(device, buffer2)
+    helper3 = IPCBufferTestHelper(device, buffer3)
+
+    helper1.verify_buffer(flipped=False)
+    helper2.verify_buffer(flipped=False)
+    helper3.verify_buffer(flipped=False)
 
     # Modify 1.
-    pgen.fill_buffer(buffer1, seed=True)
+    helper1.fill_buffer(flipped=True)
 
-    pgen.verify_buffer(buffer1, seed=True)
-    pgen.verify_buffer(buffer2, seed=True)
-    pgen.verify_buffer(buffer3, seed=True)
+    helper1.verify_buffer(flipped=True)
+    helper2.verify_buffer(flipped=True)
+    helper3.verify_buffer(flipped=True)
 
     # Modify 2.
-    pgen.fill_buffer(buffer2, seed=False)
+    helper2.fill_buffer(flipped=False)
 
-    pgen.verify_buffer(buffer1, seed=False)
-    pgen.verify_buffer(buffer2, seed=False)
-    pgen.verify_buffer(buffer3, seed=False)
+    helper1.verify_buffer(flipped=False)
+    helper2.verify_buffer(flipped=False)
+    helper3.verify_buffer(flipped=False)
 
     # Modify 3.
-    pgen.fill_buffer(buffer3, seed=True)
+    helper3.fill_buffer(flipped=True)
 
-    pgen.verify_buffer(buffer1, seed=True)
-    pgen.verify_buffer(buffer2, seed=True)
-    pgen.verify_buffer(buffer3, seed=True)
+    helper1.verify_buffer(flipped=True)
+    helper2.verify_buffer(flipped=True)
+    helper3.verify_buffer(flipped=True)
 
     # Close any one buffer.
     buffer1.close()
