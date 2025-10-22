@@ -22,13 +22,14 @@ try:
     import cuda_python_test_helpers
 except ImportError:
     # Import shared platform helpers for tests across repos
-    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "cuda_python_test_helpers"))
-    import cuda_python_test_helpers
-
-# If we imported the package instead of the module, get the actual module
-if hasattr(cuda_python_test_helpers, "__path__"):
-    # We imported the package, need to get the actual module
-    import cuda_python_test_helpers.cuda_python_test_helpers as cuda_python_test_helpers
+    test_helpers_path = str(pathlib.Path(__file__).resolve().parents[2] / "cuda_python_test_helpers")
+    try:
+        sys.path.insert(0, test_helpers_path)
+        import cuda_python_test_helpers
+    finally:
+        # Clean up sys.path modification
+        if test_helpers_path in sys.path:
+            sys.path.remove(test_helpers_path)
 
 
 IS_WSL = cuda_python_test_helpers.IS_WSL

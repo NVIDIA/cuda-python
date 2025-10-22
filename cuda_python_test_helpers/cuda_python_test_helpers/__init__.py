@@ -6,8 +6,6 @@ import os
 from contextlib import suppress
 from typing import Union
 
-from cuda.core.experimental._utils.cuda_utils import handle_return
-
 
 def _detect_wsl() -> bool:
     data = ""
@@ -38,6 +36,9 @@ def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
             from cuda.bindings import driver  # type: ignore
         except Exception:
             from cuda import cuda as driver  # type: ignore
+
+        # Lazy import handle_return to avoid hard dependency on cuda.core
+        from cuda.core.experimental._utils.cuda_utils import handle_return
 
         # Initialize CUDA
         handle_return(driver.cuInit(0))
