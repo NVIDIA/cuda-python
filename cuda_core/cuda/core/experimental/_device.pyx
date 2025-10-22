@@ -28,7 +28,6 @@ from cuda.core.experimental._utils.cuda_utils import (
 from cuda.core.experimental._stream cimport default_stream
 
 
-
 # TODO: I prefer to type these as "cdef object" and avoid accessing them from within Python,
 # but it seems it is very convenient to expose them for testing purposes...
 _tls = threading.local()
@@ -1274,7 +1273,7 @@ class Device:
         """
         self._check_context_initialized()
         ctx = self._get_current_context()
-        return Event._init(self._id, ctx, options, True)
+        return Event._init(self._id, ctx, options)
 
     def allocate(self, size, stream: Optional[Stream] = None) -> Buffer:
         """Allocate device memory from a specified stream.

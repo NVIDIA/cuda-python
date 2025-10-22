@@ -4,9 +4,7 @@
 
 from __future__ import annotations
 
-cimport cpython
 from libc.stdint cimport uintptr_t
-from libc.string cimport memcpy
 
 from cuda.bindings cimport cydriver
 
@@ -16,7 +14,6 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 )
 
 from dataclasses import dataclass
-import multiprocessing
 from typing import TYPE_CHECKING, Optional
 
 from cuda.core.experimental._context import Context
@@ -43,7 +40,7 @@ cdef class EventOptions:
         has actually been completed.
         Otherwise, the CPU thread will busy-wait until the event has
         been completed. (Default to False)
-    ipc_enabled : bool, optional
+    support_ipc : bool, optional
         Event will be suitable for interprocess use.
         Note that enable_timing must be False. (Default to False)
 
@@ -51,7 +48,7 @@ cdef class EventOptions:
 
     enable_timing: Optional[bool] = False
     busy_waited_sync: Optional[bool] = False
-    ipc_enabled: Optional[bool] = False
+    support_ipc: Optional[bool] = False
 
 
 cdef class Event:
@@ -89,35 +86,24 @@ cdef class Event:
         raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
 
     @classmethod
-    def _init(cls, device_id: int, ctx_handle: Context, options=None, is_free=False):
+    def _init(cls, device_id: int, ctx_handle: Context, options=None):
         cdef Event self = Event.__new__(cls)
         cdef EventOptions opts = check_or_create_options(EventOptions, options, "Event options")
         cdef unsigned int flags = 0x0
         self._timing_disabled = False
         self._busy_waited = False
-        self._ipc_enabled = False
-        self._ipc_descriptor = None
         if not opts.enable_timing:
             flags |= cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING
             self._timing_disabled = True
         if opts.busy_waited_sync:
             flags |= cydriver.CUevent_flags.CU_EVENT_BLOCKING_SYNC
             self._busy_waited = True
-        if opts.ipc_enabled:
-            if is_free:
-                raise TypeError(
-                    "IPC-enabled events must be bound; use Stream.record for creation."
-                )
-            flags |= cydriver.CUevent_flags.CU_EVENT_INTERPROCESS
-            self._ipc_enabled = True
-            if not self._timing_disabled:
-                raise TypeError("IPC-enabled events cannot use timing.")
+        if opts.support_ipc:
+            raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
         with nogil:
             HANDLE_RETURN(cydriver.cuEventCreate(&self._handle, flags))
         self._device_id = device_id
         self._ctx_handle = ctx_handle
-        if opts.ipc_enabled:
-            self.get_ipc_descriptor()
         return self
 
     cpdef close(self):
@@ -165,40 +151,6 @@ cdef class Event:
                 raise CUDAError(err)
             raise RuntimeError(explanation)
 
-    def get_ipc_descriptor(self) -> IPCEventDescriptor:
-        """Export an event allocated for sharing between processes."""
-        if self._ipc_descriptor is not None:
-            return self._ipc_descriptor
-        if not self.is_ipc_enabled:
-            raise RuntimeError("Event is not IPC-enabled")
-        cdef cydriver.CUipcEventHandle data
-        with nogil:
-            HANDLE_RETURN(cydriver.cuIpcGetEventHandle(&data, <cydriver.CUevent>(self._handle)))
-        cdef bytes data_b = cpython.PyBytes_FromStringAndSize(<char*>(data.reserved), sizeof(data.reserved))
-        self._ipc_descriptor = IPCEventDescriptor._init(data_b, self._busy_waited)
-        return self._ipc_descriptor
-
-    @classmethod
-    def from_ipc_descriptor(cls, ipc_descriptor: IPCEventDescriptor) -> Event:
-        """Import an event that was exported from another process."""
-        cdef cydriver.CUipcEventHandle data
-        memcpy(data.reserved, <const void*><const char*>(ipc_descriptor._reserved), sizeof(data.reserved))
-        cdef Event self = Event.__new__(cls)
-        with nogil:
-            HANDLE_RETURN(cydriver.cuIpcOpenEventHandle(&self._handle, data))
-        self._timing_disabled = True
-        self._busy_waited = ipc_descriptor._busy_waited
-        self._ipc_enabled = True
-        self._ipc_descriptor = ipc_descriptor
-        self._device_id = -1  # ??
-        self._ctx_handle = None  # ??
-        return self
-
-    @property
-    def is_ipc_enabled(self) -> bool:
-        """Return True if the event can be shared across process boundaries, otherwise False."""
-        return self._ipc_enabled
-
     @property
     def is_timing_disabled(self) -> bool:
         """Return True if the event does not record timing data, otherwise False."""
@@ -208,6 +160,11 @@ cdef class Event:
     def is_sync_busy_waited(self) -> bool:
         """Return True if the event synchronization would keep the CPU busy-waiting, otherwise False."""
         return self._busy_waited
+
+    @property
+    def is_ipc_supported(self) -> bool:
+        """Return True if this event can be used as an interprocess event, otherwise False."""
+        raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/103")
 
     def sync(self):
         """Synchronize until the event completes.
@@ -255,43 +212,12 @@ cdef class Event:
         context is set current after a event is created.
 
         """
-        if self._device_id >= 0:
-            from ._device import Device  # avoid circular import
-            return Device(self._device_id)
+
+        from cuda.core.experimental._device import Device  # avoid circular import
+
+        return Device(self._device_id)
 
     @property
     def context(self) -> Context:
         """Return the :obj:`~_context.Context` associated with this event."""
-        if self._ctx_handle is not None and self._device_id >= 0:
-            return Context._from_ctx(self._ctx_handle, self._device_id)
-
-
-cdef class IPCEventDescriptor:
-    """Serializable object describing an event that can be shared between processes."""
-
-    cdef:
-        bytes _reserved
-        bint _busy_waited
-
-    def __init__(self, *arg, **kwargs):
-        raise RuntimeError("IPCEventDescriptor objects cannot be instantiated directly. Please use Event APIs.")
-
-    @classmethod
-    def _init(cls, reserved: bytes, busy_waited: bint):
-        cdef IPCEventDescriptor self = IPCEventDescriptor.__new__(cls)
-        self._reserved = reserved
-        self._busy_waited = busy_waited
-        return self
-
-    def __eq__(self, IPCEventDescriptor rhs):
-        # No need to check self._busy_waited.
-        return self._reserved == rhs._reserved
-
-    def __reduce__(self):
-        return self._init, (self._reserved, self._busy_waited)
-
-
-def _reduce_event(event):
-    return event.from_ipc_descriptor, (event.get_ipc_descriptor(),)
-
-multiprocessing.reduction.register(Event, _reduce_event)
+        return Context._from_ctx(self._ctx_handle, self._device_id)
