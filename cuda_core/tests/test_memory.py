@@ -28,7 +28,7 @@ from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
 from cuda.core.experimental.utils import StridedMemoryView
 
-from cuda_python_test_helpers import IS_WSL, supports_ipc_mempool
+from cuda_python_test_helpers import supports_ipc_mempool
 
 POOL_SIZE = 2097152  # 2MB size
 
@@ -324,11 +324,15 @@ def test_vmm_allocator_basic_allocation():
     """
     if platform.system() == "Windows":
         pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
-    if IS_WSL:
-        pytest.skip("VirtualMemoryResource is not supported on WSL")
+
 
     device = Device()
     device.set_current()
+
+    # Validate GPU Direct RDMA support before using it
+    if not device.properties.gpu_direct_rdma_supported:
+        pytest.skip("GPU Direct RDMA is not supported on this device")
+
     options = VirtualMemoryResourceOptions()
     # Create VMM allocator with default config
     vmm_mr = VirtualMemoryResource(device, config=options)
@@ -363,10 +367,13 @@ def test_vmm_allocator_policy_configuration():
     """
     if platform.system() == "Windows":
         pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
-    if IS_WSL:
-        pytest.skip("VirtualMemoryResource is not supported on WSL")
+
     device = Device()
     device.set_current()
+
+    # Validate GPU Direct RDMA support before using it
+    if not device.properties.gpu_direct_rdma_supported:
+        pytest.skip("GPU Direct RDMA is not supported on this device")
 
     # Test with custom VMM config
     custom_config = VirtualMemoryResourceOptions(
@@ -422,10 +429,13 @@ def test_vmm_allocator_grow_allocation():
     """
     if platform.system() == "Windows":
         pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
-    if IS_WSL:
-        pytest.skip("VirtualMemoryResource is not supported on WSL")
+
     device = Device()
     device.set_current()
+
+    # Validate GPU Direct RDMA support before using it
+    if not device.properties.gpu_direct_rdma_supported:
+        pytest.skip("GPU Direct RDMA is not supported on this device")
 
     options = VirtualMemoryResourceOptions()
 
