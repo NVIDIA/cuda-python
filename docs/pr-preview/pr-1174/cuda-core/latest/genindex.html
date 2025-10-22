@@ -604,6 +604,10 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.add_child">add_child() (cuda.core.experimental.GraphBuilder method)</a>
 </li>
+      <li><a href="generated/cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions.addr_align">addr_align (cuda.core.experimental.VirtualMemoryResourceOptions attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions.addr_hint">addr_hint (cuda.core.experimental.VirtualMemoryResourceOptions attribute)</a>
+</li>
       <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.allocate">allocate() (cuda.core.experimental.Device method)</a>
 
       <ul>
@@ -616,6 +620,10 @@
         <li><a href="generated/cuda.core.experimental.VirtualMemoryResource.html#cuda.core.experimental.VirtualMemoryResource.allocate">(cuda.core.experimental.VirtualMemoryResource method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions.allocation_type">allocation_type (cuda.core.experimental.VirtualMemoryResourceOptions attribute)</a>
+</li>
       <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.arch">arch (cuda.core.experimental.Device property)</a>
 
       <ul>
@@ -624,8 +632,6 @@
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.arch">(cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.experimental.utils.args_viewable_as_strided_memory.html#cuda.core.experimental.utils.args_viewable_as_strided_memory">args_viewable_as_strided_memory() (in module cuda.core.experimental.utils)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.Kernel.html#cuda.core.experimental.Kernel.arguments_info">arguments_info (cuda.core.experimental.Kernel property)</a>
@@ -922,9 +928,13 @@
 </li>
       <li><a href="generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer.get_ipc_descriptor">get_ipc_descriptor() (cuda.core.experimental.Buffer method)</a>
 </li>
+      <li><a href="generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode.get_kernel">get_kernel() (cuda.core.experimental.ObjectCode method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode.get_kernel">get_kernel() (cuda.core.experimental.ObjectCode method)</a>
+      <li><a href="generated/cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions.gpu_direct_rdma">gpu_direct_rdma (cuda.core.experimental.VirtualMemoryResourceOptions attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions.granularity">granularity (cuda.core.experimental.VirtualMemoryResourceOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.Graph.html#cuda.core.experimental.Graph">Graph (class in cuda.core.experimental)</a>
 </li>
@@ -952,6 +962,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions.handle_type">handle_type (cuda.core.experimental.VirtualMemoryResourceOptions attribute)</a>
+</li>
       <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.handles">handles (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.host_node_params">host_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
@@ -1067,6 +1079,8 @@
       <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions">LinkerOptions (class in cuda.core.experimental)</a>
 </li>
       <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.local_size_bytes">local_size_bytes() (cuda.core.experimental._module.KernelAttributes method)</a>
+</li>
+      <li><a href="generated/cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions.location_type">location_type (cuda.core.experimental.VirtualMemoryResourceOptions attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1185,6 +1199,10 @@
 </li>
       <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.pci_bus_id">pci_bus_id (cuda.core.experimental.Device property)</a>
 </li>
+      <li><a href="generated/cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions.peer_access">peer_access (cuda.core.experimental.VirtualMemoryResourceOptions attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions.peers">peers (cuda.core.experimental.VirtualMemoryResourceOptions attribute)</a>
+</li>
       <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.pre_include">pre_include (cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions.prec_div">prec_div (cuda.core.experimental.LinkerOptions attribute)</a>
@@ -1201,10 +1219,10 @@
       </ul></li>
       <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.preferred_shared_memory_carveout">preferred_shared_memory_carveout() (cuda.core.experimental._module.KernelAttributes method)</a>
 </li>
-      <li><a href="generated/cuda.core.experimental.StreamOptions.html#cuda.core.experimental.StreamOptions.priority">priority (cuda.core.experimental.StreamOptions attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.experimental.StreamOptions.html#cuda.core.experimental.StreamOptions.priority">priority (cuda.core.experimental.StreamOptions attribute)</a>
+</li>
       <li><a href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program">Program (class in cuda.core.experimental)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions">ProgramOptions (class in cuda.core.experimental)</a>
@@ -1257,6 +1275,8 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions.self_access">self_access (cuda.core.experimental.VirtualMemoryResourceOptions attribute)</a>
+</li>
       <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.set_current">set_current() (cuda.core.experimental.Device method)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView.shape">shape (cuda.core.experimental.utils.StridedMemoryView attribute)</a>
@@ -1279,10 +1299,10 @@
 </li>
       <li><a href="generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream">Stream (class in cuda.core.experimental)</a>
 </li>
-      <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.stream">stream (cuda.core.experimental.GraphBuilder property)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.stream">stream (cuda.core.experimental.GraphBuilder property)</a>
+</li>
       <li><a href="generated/cuda.core.experimental.StreamOptions.html#cuda.core.experimental.StreamOptions">StreamOptions (class in cuda.core.experimental)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView">StridedMemoryView (class in cuda.core.experimental.utils)</a>
@@ -1355,8 +1375,18 @@
         <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions.verbose">(cuda.core.experimental.LinkerOptions attribute)</a>
 </li>
       </ul></li>
+      <li><a href="generated/cuda.core.experimental._memory.VirtualMemoryAccessTypeT.html#cuda.core.experimental._memory.VirtualMemoryAccessTypeT">VirtualMemoryAccessTypeT (in module cuda.core.experimental._memory)</a>
+</li>
+      <li><a href="generated/cuda.core.experimental._memory.VirtualMemoryAllocationTypeT.html#cuda.core.experimental._memory.VirtualMemoryAllocationTypeT">VirtualMemoryAllocationTypeT (in module cuda.core.experimental._memory)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.experimental._memory.VirtualMemoryGranularityT.html#cuda.core.experimental._memory.VirtualMemoryGranularityT">VirtualMemoryGranularityT (in module cuda.core.experimental._memory)</a>
+</li>
+      <li><a href="generated/cuda.core.experimental._memory.VirtualMemoryHandleTypeT.html#cuda.core.experimental._memory.VirtualMemoryHandleTypeT">VirtualMemoryHandleTypeT (in module cuda.core.experimental._memory)</a>
+</li>
+      <li><a href="generated/cuda.core.experimental._memory.VirtualMemoryLocationTypeT.html#cuda.core.experimental._memory.VirtualMemoryLocationTypeT">VirtualMemoryLocationTypeT (in module cuda.core.experimental._memory)</a>
+</li>
       <li><a href="generated/cuda.core.experimental.VirtualMemoryResource.html#cuda.core.experimental.VirtualMemoryResource">VirtualMemoryResource (class in cuda.core.experimental)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions">VirtualMemoryResourceOptions (class in cuda.core.experimental)</a>
