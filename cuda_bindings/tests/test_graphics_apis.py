@@ -4,7 +4,9 @@
 import pytest
 from cuda.bindings import runtime as cudart
 
+from helpers import IS_WSL
 
+@pytest.mark.skipif(IS_WSL, reason="Graphics interop not supported on this platform")
 def test_graphics_api_smoketest():
     # Due to lazy importing in pyglet, pytest.importorskip doesn't work
     try:
@@ -26,6 +28,7 @@ def test_graphics_api_smoketest():
         assert error_name in ("cudaErrorInvalidValue", "cudaErrorUnknown", "cudaErrorOperatingSystem")
 
 
+@pytest.mark.skipif(IS_WSL, reason="Graphics interop not supported on this platform")
 def test_cuda_register_image_invalid():
     """Exercise cudaGraphicsGLRegisterImage with dummy handle only using CUDA runtime API."""
     fake_gl_texture_id = 1
