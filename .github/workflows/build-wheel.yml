@@ -87,7 +87,7 @@ jobs:
             exit 1
           fi
           function normpath() {
-            echo "$(echo $(cygpath -w $1) | sed 's/\\/\\\\/g')"
+            echo "$(echo $(cygpath -w "$1") | sed 's/\\/\\\\/g')"
           }
           echo "Found cl.exe at: ${CL_EXE}"
           echo "CL_EXE=$(normpath ${CL_EXE})" >> $GITHUB_ENV
@@ -103,6 +103,9 @@ jobs:
           sccache "%CL_EXE%" %*
           EOF
           cat sccache_wrapper/cl.exe
+          function normpath() {
+            echo "$(echo $(cygpath -w "$1") | sed 's/\\/\\\\/g')"
+          }
           # Prepend the wrapper directory to PATH
           echo "$(normpath $(pwd)/sccache_wrapper)" >> $GITHUB_PATH
 
