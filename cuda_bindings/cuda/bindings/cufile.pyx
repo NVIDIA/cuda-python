@@ -2281,40 +2281,6 @@ cpdef buf_deregister(intptr_t buf_ptr_base):
     check_status(__status__)
 
 
-cpdef read(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):
-    """read data from a registered file handle to a specified device or host memory.
-
-    Args:
-        fh (intptr_t): ``CUfileHandle_t`` opaque file handle.
-        buf_ptr_base (intptr_t): base address of buffer in device or host memory.
-        size (size_t): size bytes to read.
-        file_offset (off_t): file-offset from begining of the file.
-        buf_ptr_offset (off_t): offset relative to the buf_ptr_base pointer to read into.
-
-    .. seealso:: `cuFileRead`
-    """
-    with nogil:
-        __status__ = cuFileRead(<Handle>fh, <void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
-    check_status(__status__)
-
-
-cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):
-    """write data from a specified device or host memory to a registered file handle.
-
-    Args:
-        fh (intptr_t): ``CUfileHandle_t`` opaque file handle.
-        buf_ptr_base (intptr_t): base address of buffer in device or host memory.
-        size (size_t): size bytes to write.
-        file_offset (off_t): file-offset from begining of the file.
-        buf_ptr_offset (off_t): offset relative to the buf_ptr_base pointer to write from.
-
-    .. seealso:: `cuFileWrite`
-    """
-    with nogil:
-        __status__ = cuFileWrite(<Handle>fh, <const void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
-    check_status(__status__)
-
-
 cpdef driver_open():
     """Initialize the cuFile library and open the nvidia-fs driver.
 
@@ -2689,3 +2655,29 @@ cpdef driver_close():
     with nogil:
         status = cuFileDriverClose_v2()
     check_status(status)
+
+cpdef read(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):
+    """read data from a registered file handle to a specified device or host memory.
+    """
+    with nogil:
+        status = cuFileRead(<Handle>fh, <void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
+    check_status(status)
+    return status
+
+
+cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):
+    """write data from a specified device or host memory to a registered file handle.
+
+    Args:
+        fh (intptr_t): ``CUfileHandle_t`` opaque file handle.
+        buf_ptr_base (intptr_t): base address of buffer in device or host memory.
+        size (size_t): size bytes to write.
+        file_offset (off_t): file-offset from begining of the file.
+        buf_ptr_offset (off_t): offset relative to the buf_ptr_base pointer to write from.
+
+    .. seealso:: `cuFileWrite`
+    """
+    with nogil:
+        status = cuFileWrite(<Handle>fh, <const void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
+    check_status(status)
+    return status
