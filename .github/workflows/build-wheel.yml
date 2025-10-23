@@ -89,19 +89,24 @@ jobs:
           echo "Found cl.exe at: ${CL_EXE}"
           echo "CL_EXE=$(cygpath -w "${CL_EXE}")" >> $GITHUB_ENV
 
-      - name: Generate sccache wrapper script
+      #- name: Generate sccache wrapper script
+      #  if: ${{ startsWith(inputs.host-platform, 'win') }}
+      #  run: |
+      #    # Create a wrapper directory
+      #    mkdir -p sccache_wrapper
+      #    # Generate the wrapper script named cl.exe
+      #    cat > sccache_wrapper/cl.exe <<'EOF'
+      #    @echo off
+      #    sccache "%CL_EXE%" %*
+      #    EOF
+      #    cat sccache_wrapper/cl.exe
+      #    # Record the wrapper path for later use
+      #    echo "SCCACHE_WRAPPER_DIR=$(realpath "./sccache_wrapper")" >> $GITHUB_ENV
+
+      - name: Replace cl.exe by sccache.exe
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         run: |
-          # Create a wrapper directory
-          mkdir -p sccache_wrapper
-          # Generate the wrapper script named cl.exe
-          cat > sccache_wrapper/cl.exe <<'EOF'
-          @echo off
-          sccache "%CL_EXE%" %*
-          EOF
-          cat sccache_wrapper/cl.exe
-          # Record the wrapper path for later use
-          echo "SCCACHE_WRAPPER_DIR=$(realpath "./sccache_wrapper")" >> $GITHUB_ENV
+          cp "${{ env.SCCACHE_PATH }}" "{{ env.CL_EXE }}"
 
       - name: Set environment variables
         env:
@@ -190,9 +195,9 @@ jobs:
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
             SCCACHE_DIR=${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
-            PATH="$(cygpath -w "${{ env.SCCACHE_WRAPPER_DIR }}");$PATH"
-            CL_EXE="${{ env.CL_EXE }}"
             SCCACHE_LOG=debug
+          #CL_EXE="${{ env.CL_EXE }}"
+          #PATH="$(cygpath -w "${{ env.SCCACHE_WRAPPER_DIR }}");$PATH"
           CIBW_BEFORE_ALL_WINDOWS: >
             echo %PATH%
           # check cache stats before leaving cibuildwheel
