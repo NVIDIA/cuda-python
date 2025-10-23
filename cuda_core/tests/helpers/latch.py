@@ -20,19 +20,32 @@ class LatchKernel:
     Manages a kernel that blocks stream progress until released.
     """
 
-    def __init__(self, device):
+    def __init__(self, device, timeout_sec=60):
         if helpers.CUDA_INCLUDE_PATH is None:
             pytest.skip("need CUDA header")
         code = """
                #include <cuda/atomic>
 
                extern "C"
-               __global__ void latch(int* val) {
+               __global__ void latch(int* val, unsigned long long timeout_cycles) {
                    cuda::atomic_ref<int, cuda::thread_scope_system> signal{*val};
+
+                   // Start time
+                   unsigned long long start = clock64();
+
                    while (true) {
+                       // Check if signal is set
                        if (signal.load(cuda::memory_order_relaxed)) {
                            break;
                        }
+
+                       // Check for timeout
+                       if (clock64() - start >= timeout_cycles) {
+                           break;  // Timeout reached
+                       }
+
+                       // Avoid 100% spin.
+                       __nanosleep(10000000); // 10 ms
                    }
                }
                """
@@ -48,11 +61,13 @@ class LatchKernel:
         mr = LegacyPinnedMemoryResource()
         self.buffer = mr.allocate(4)
         self.busy_wait_flag[0] = 0
+        clock_rate_hz = device.properties.clock_rate * 1000
+        self.timeout_cycles = int(timeout_sec * clock_rate_hz)
 
     def launch(self, stream):
         """Launch the latch kernel, blocking stream progress via busy waiting."""
         config = LaunchConfig(grid=1, block=1)
-        launch(stream, config, self.kernel, int(self.buffer.handle))
+        launch(stream, config, self.kernel, int(self.buffer.handle), self.timeout_cycles)
 
     def release(self):
         """Release the latch, allowing stream progress."""
