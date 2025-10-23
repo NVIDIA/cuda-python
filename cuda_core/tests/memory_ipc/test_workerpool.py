@@ -7,7 +7,9 @@ from itertools import cycle
 
 import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
-from helpers.buffers import PatternGen
+from utility import IPCBufferTestHelper
+
+from cuda_python_test_helpers import supports_ipc_mempool
 
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64
@@ -28,6 +30,8 @@ class TestIpcWorkerPool:
 
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, nmrs):
+        if not supports_ipc_mempool(ipc_device):
+            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
@@ -36,16 +40,14 @@ class TestIpcWorkerPool:
         with mp.Pool(NWORKERS) as pool:
             pool.map(self.process_buffer, buffers)
 
-        pgen = PatternGen(device, NBYTES)
         for buffer in buffers:
-            pgen.verify_buffer(buffer, seed=True)
+            IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
             buffer.close()
 
     def process_buffer(self, buffer):
         device = Device(buffer.memory_resource.device_id)
         device.set_current()
-        pgen = PatternGen(device, NBYTES)
-        pgen.fill_buffer(buffer, seed=True)
+        IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
         buffer.close()
 
 
@@ -64,6 +66,8 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
 
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, nmrs):
+        if not supports_ipc_mempool(ipc_device):
+            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
@@ -75,9 +79,8 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
                 [(mrs.index(buffer.memory_resource), buffer.get_ipc_descriptor()) for buffer in buffers],
             )
 
-        pgen = PatternGen(device, NBYTES)
         for buffer in buffers:
-            pgen.verify_buffer(buffer, seed=True)
+            IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
             buffer.close()
 
     def process_buffer(self, mr_idx, buffer_desc):
@@ -85,8 +88,7 @@ class TestIpcWorkerPoolUsingIPCDescriptors:
         device = Device(mr.device_id)
         device.set_current()
         buffer = Buffer.from_ipc_descriptor(mr, buffer_desc)
-        pgen = PatternGen(device, NBYTES)
-        pgen.fill_buffer(buffer, seed=True)
+        IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
         buffer.close()
 
 
@@ -108,6 +110,8 @@ class TestIpcWorkerPoolUsingRegistry:
 
     @pytest.mark.parametrize("nmrs", (1, NMRS))
     def test_main(self, ipc_device, nmrs):
+        if not supports_ipc_mempool(ipc_device):
+            pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
         device = ipc_device
         options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
         mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
@@ -116,14 +120,12 @@ class TestIpcWorkerPoolUsingRegistry:
         with mp.Pool(NWORKERS, initializer=self.init_worker, initargs=(mrs,)) as pool:
             pool.starmap(self.process_buffer, [(device, pickle.dumps(buffer)) for buffer in buffers])
 
-        pgen = PatternGen(device, NBYTES)
         for buffer in buffers:
-            pgen.verify_buffer(buffer, seed=True)
+            IPCBufferTestHelper(device, buffer).verify_buffer(flipped=True)
             buffer.close()
 
     def process_buffer(self, device, buffer_s):
         device.set_current()
         buffer = pickle.loads(buffer_s)  # noqa: S301
-        pgen = PatternGen(device, NBYTES)
-        pgen.fill_buffer(buffer, seed=True)
+        IPCBufferTestHelper(device, buffer).fill_buffer(flipped=True)
         buffer.close()
