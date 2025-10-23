@@ -86,8 +86,11 @@ jobs:
             echo "Error: cl.exe not found in PATH"
             exit 1
           fi
+          function normpath() {
+            echo "$(echo $(cygpath -w $1) | sed 's/\\/\\\\/g')"
+          }
           echo "Found cl.exe at: ${CL_EXE}"
-          echo "CL_EXE=$(cygpath -w ${CL_EXE})" >> $GITHUB_ENV
+          echo "CL_EXE=$(normpath ${CL_EXE})" >> $GITHUB_ENV
 
       - name: Generate sccache wrapper script
         if: ${{ startsWith(inputs.host-platform, 'win') }}
@@ -101,7 +104,7 @@ jobs:
           EOF
           cat sccache_wrapper/cl.exe
           # Prepend the wrapper directory to PATH
-          echo "$(cygpath -w $(pwd)/sccache_wrapper)" >> $GITHUB_PATH
+          echo "$(normpath $(pwd)/sccache_wrapper)" >> $GITHUB_PATH
 
       - name: Set environment variables
         env:
