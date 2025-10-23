@@ -76,41 +76,6 @@ jobs:
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         uses: ilammy/msvc-dev-cmd@v1  # TODO: ask admin to allow pinning commits
 
-      # at this point, cl.exe already exists in PATH
-      - name: Find cl.exe and set CL_EXE environment variable
-        if: ${{ startsWith(inputs.host-platform, 'win') }}
-        run: |
-          # Find the full path of cl.exe
-          CL_EXE=$(which cl.exe)
-          if [ -z "${CL_EXE}" ]; then
-            echo "Error: cl.exe not found in PATH"
-            exit 1
-          fi
-          echo "Found cl.exe at: ${CL_EXE}"
-          echo "CL_EXE=$(cygpath -w "${CL_EXE}")" >> $GITHUB_ENV
-
-      #- name: Generate sccache wrapper script
-      #  if: ${{ startsWith(inputs.host-platform, 'win') }}
-      #  run: |
-      #    # Create a wrapper directory
-      #    mkdir -p sccache_wrapper
-      #    # Generate the wrapper script named cl.exe
-      #    cat > sccache_wrapper/cl.exe <<'EOF'
-      #    @echo off
-      #    sccache "%CL_EXE%" %*
-      #    EOF
-      #    cat sccache_wrapper/cl.exe
-      #    # Record the wrapper path for later use
-      #    echo "SCCACHE_WRAPPER_DIR=$(realpath "./sccache_wrapper")" >> $GITHUB_ENV
-
-      - name: Replace cl.exe by sccache.exe
-        if: ${{ startsWith(inputs.host-platform, 'win') }}
-        run: |
-          ls -lt "${{ env.CL_EXE }}"
-          cp "${{ env.SCCACHE_PATH }}" "${{ env.CL_EXE }}"
-          ls -lt "${{ env.CL_EXE }}"
-          "${{ env.SCCACHE_PATH }}" --start-server
-
       - name: Set environment variables
         env:
           CUDA_VER: ${{ inputs.cuda-version }}
@@ -190,24 +155,9 @@ jobs:
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-            SCCACHE_GHA_ENABLED=true
-            ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
-            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
-            ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
-            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
-            ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
-            SCCACHE_DIR="$(cygpath -w ${{ env.SCCACHE_DIR }})"
-            SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
-            SCCACHE_LOG=debug
-          #CL_EXE="${{ env.CL_EXE }}"
-          #PATH="$(cygpath -w "${{ env.SCCACHE_WRAPPER_DIR }}");$PATH"
-          CIBW_BEFORE_ALL_WINDOWS: >
-            echo %PATH%
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host/${{ env.SCCACHE_PATH }}" --show-stats
-          CIBW_BEFORE_TEST_WINDOWS: >
-            "${{ env.SCCACHE_PATH }}" --show-stats
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
           # things before reaching this command.
