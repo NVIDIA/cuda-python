@@ -6,11 +6,7 @@ import sys
 
 from cuda.core.experimental import Buffer, MemoryResource
 from cuda.core.experimental._utils.cuda_utils import driver, handle_return
-
-if sys.platform.startswith("win"):
-    libc = ctypes.CDLL("msvcrt.dll")
-else:
-    libc = ctypes.CDLL("libc.so.6")
+from . import libc
 
 
 __all__ = ["DummyUnifiedMemoryResource", "PatternGen", "make_scratch_buffer", "compare_equal_buffers"]
