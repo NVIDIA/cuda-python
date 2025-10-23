@@ -569,43 +569,139 @@
 <dd><em class="sig-param"><span class="n"><span class="pre">'host_numa_current']</span> <span class="pre">=</span> <span class="pre">'device'</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">handle_type:</span> <span class="pre">~typing.Literal['posix_fd'</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">'generic'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'none'</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">'win32'</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">'win32_kmt'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'fabric']</span> <span class="pre">=</span> <span class="pre">'posix_fd'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">'fabric']</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">'posix_fd'</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">granularity:</span> <span class="pre">~typing.Literal['minimum'</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">'recommended']</span> <span class="pre">=</span> <span class="pre">'recommended'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">gpu_direct_rdma:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">gpu_direct_rdma:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">addr_hint:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">0</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">addr_align:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">peers:</span> <span class="pre">~typing.Iterable[int]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">self_access:</span> <span class="pre">~typing.Literal['rw'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'r'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'none']</span> <span class="pre">=</span> <span class="pre">'rw'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">'r']</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">'rw'</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">peer_access:</span> <span class="pre">~typing.Literal['rw'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'r'</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">'none']</span> <span class="pre">=</span> <span class="pre">'rw'</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">'r']</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">'rw'</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResourceOptions" title="Link to this definition">#</a></dt>
-<dd><dl>
+<dd><dl class="simple">
 <dt>A configuration object for the VirtualMemoryResource</dt><dd><p>Stores configuration information which tells the resource how to use the CUDA VMM APIs</p>
 </dd>
-<dt>Args:</dt><dd><dl class="simple">
-<dt>handle_type: Export handle type for the physical allocation. Use</dt><dd><p>CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR on Linux if you plan to
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResourceOptions.allocation_type">
+<span class="sig-name descname"><span class="pre">allocation_type</span></span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResourceOptions.allocation_type" title="Link to this definition">#</a></dt>
+<dd><p>Controls the type of allocation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._memory.VirtualMemoryAllocationTypeT.html#cuda.core.experimental._memory.VirtualMemoryAllocationTypeT" title="cuda.core.experimental._memory.VirtualMemoryAllocationTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAllocationTypeT</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResourceOptions.location_type">
+<span class="sig-name descname"><span class="pre">location_type</span></span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResourceOptions.location_type" title="Link to this definition">#</a></dt>
+<dd><p>Controls the location of the allocation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._memory.VirtualMemoryLocationTypeT.html#cuda.core.experimental._memory.VirtualMemoryLocationTypeT" title="cuda.core.experimental._memory.VirtualMemoryLocationTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryLocationTypeT</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResourceOptions.handle_type">
+<span class="sig-name descname"><span class="pre">handle_type</span></span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResourceOptions.handle_type" title="Link to this definition">#</a></dt>
+<dd><p>Export handle type for the physical allocation. Use
+<code class="docutils literal notranslate"><span class="pre">&quot;posix_fd&quot;</span></code> on Linux if you plan to
 import/export the allocation (required for cuMemRetainAllocationHandle).
-Use CU_MEM_HANDLE_TYPE_NONE if you don’t need an exportable handle.</p>
+Use <cite>None</cite> if you don’t need an exportable handle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._memory.VirtualMemoryHandleTypeT.html#cuda.core.experimental._memory.VirtualMemoryHandleTypeT" title="cuda.core.experimental._memory.VirtualMemoryHandleTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryHandleTypeT</span></code></a></p>
 </dd>
 </dl>
-<p>gpu_direct_rdma: Hint that the allocation should be GDR-capable (if supported).
-granularity: ‘recommended’ or ‘minimum’. Controls granularity query and size rounding.
-addr_hint: A (optional) virtual address hint to try to reserve at. 0 -&gt; let CUDA choose.
-addr_align: Alignment for the VA reservation. If None, use the queried granularity.
-peers: Extra device IDs that should be granted access in addition to <cite>device</cite>.
-self_access: Access flags for the owning device (‘rw’, ‘r’, or ‘none’).
-peer_access: Access flags for peers (‘rw’ or ‘r’).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResourceOptions.gpu_direct_rdma">
+<span class="sig-name descname"><span class="pre">gpu_direct_rdma</span></span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResourceOptions.gpu_direct_rdma" title="Link to this definition">#</a></dt>
+<dd><p>Hint that the allocation should be GDR-capable (if supported).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResourceOptions.granularity">
+<span class="sig-name descname"><span class="pre">granularity</span></span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResourceOptions.granularity" title="Link to this definition">#</a></dt>
+<dd><p>Controls granularity query and size rounding.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._memory.VirtualMemoryGranularityT.html#cuda.core.experimental._memory.VirtualMemoryGranularityT" title="cuda.core.experimental._memory.VirtualMemoryGranularityT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryGranularityT</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResourceOptions.addr_hint">
+<span class="sig-name descname"><span class="pre">addr_hint</span></span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResourceOptions.addr_hint" title="Link to this definition">#</a></dt>
+<dd><p>A (optional) virtual address hint to try to reserve at. Setting it to 0 lets the CUDA driver decide.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResourceOptions.addr_align">
+<span class="sig-name descname"><span class="pre">addr_align</span></span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResourceOptions.addr_align" title="Link to this definition">#</a></dt>
+<dd><p>Alignment for the VA reservation. If <cite>None</cite>, use the queried granularity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResourceOptions.peers">
+<span class="sig-name descname"><span class="pre">peers</span></span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResourceOptions.peers" title="Link to this definition">#</a></dt>
+<dd><p>Extra device IDs that should be granted access in addition to <code class="docutils literal notranslate"><span class="pre">device</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Iterable[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResourceOptions.self_access">
+<span class="sig-name descname"><span class="pre">self_access</span></span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResourceOptions.self_access" title="Link to this definition">#</a></dt>
+<dd><p>Access flags for the owning device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._memory.VirtualMemoryAccessTypeT.html#cuda.core.experimental._memory.VirtualMemoryAccessTypeT" title="cuda.core.experimental._memory.VirtualMemoryAccessTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAccessTypeT</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.experimental.VirtualMemoryResourceOptions.peer_access">
+<span class="sig-name descname"><span class="pre">peer_access</span></span><a class="headerlink" href="#cuda.core.experimental.VirtualMemoryResourceOptions.peer_access" title="Link to this definition">#</a></dt>
+<dd><p>Access flags for peers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental._memory.VirtualMemoryAccessTypeT.html#cuda.core.experimental._memory.VirtualMemoryAccessTypeT" title="cuda.core.experimental._memory.VirtualMemoryAccessTypeT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualMemoryAccessTypeT</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -659,7 +755,19 @@ peer_access: Access flags for peers (‘rw’ or ‘r’).</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResourceOptions"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResourceOptions"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResourceOptions.allocation_type"><code class="docutils literal notranslate"><span class="pre">allocation_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResourceOptions.location_type"><code class="docutils literal notranslate"><span class="pre">location_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResourceOptions.handle_type"><code class="docutils literal notranslate"><span class="pre">handle_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResourceOptions.gpu_direct_rdma"><code class="docutils literal notranslate"><span class="pre">gpu_direct_rdma</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResourceOptions.granularity"><code class="docutils literal notranslate"><span class="pre">granularity</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResourceOptions.addr_hint"><code class="docutils literal notranslate"><span class="pre">addr_hint</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResourceOptions.addr_align"><code class="docutils literal notranslate"><span class="pre">addr_align</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResourceOptions.peers"><code class="docutils literal notranslate"><span class="pre">peers</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResourceOptions.self_access"><code class="docutils literal notranslate"><span class="pre">self_access</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.VirtualMemoryResourceOptions.peer_access"><code class="docutils literal notranslate"><span class="pre">peer_access</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
