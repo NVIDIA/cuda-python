@@ -202,4 +202,28 @@ jobs:
       - doc
     steps:
       - name: Exit
-        run: exit 0
+        run: |
+          # if any dependencies were cancelled, that's a failure
+          #
+          # see https://docs.github.com/en/actions/reference/workflows-and-actions/expressions#always
+          # and https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+          # for why this cannot be encoded in the job-level `if:` field
+          #
+          # TL; DR: `$REASONS`
+          #
+          # The intersection of skipped-as-success and required status checks
+          # creates a scenario where if you DON'T `always()` run this job, the
+          # status check UI will block merging and if you DO `always()` run and
+          # a dependency is _cancelled_ (due to a critical failure, which is
+          # somehow not considered a failure ¯\_(ツ)_/¯) then the critically
+          # failing job(s) will timeout causing a cancellation here and the
+          # build to succeed which we don't want (originally this was just
+          # 'exit 0')
+          if ${{ needs.test-linux-64.result == 'cancelled' ||
+                 needs.test-linux-aarch64.result == 'cancelled' ||
+                 needs.test-windows.result == 'cancelled' ||
+                 needs.doc.result == 'cancelled' }}; then
+            exit 1
+          else
+            exit 0
+          fi

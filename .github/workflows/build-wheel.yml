@@ -33,7 +33,6 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-          - "3.13t"
           - "3.14"
           - "3.14t"
     name: py${{ matrix.python-version }}
@@ -287,9 +286,7 @@ jobs:
           cuda-path: "./cuda_toolkit_prev"
 
       - name: Download cuda.bindings build artifacts from the prior branch
-        if: ${{ matrix.python-version == '3.13t'
-                || matrix.python-version == '3.14'
-                || matrix.python-version == '3.14t' }}
+        if: startsWith(matrix.python-version, '3.14')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
