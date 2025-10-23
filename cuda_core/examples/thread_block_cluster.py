@@ -22,6 +22,10 @@ from cuda.core.experimental import (
     launch,
 )
 
+if np.lib.NumpyVersion(np.__version__) < "2.2.5":
+    print("This example requires NumPy 2.2.5 or later", file=sys.stderr)
+    sys.exit(0)
+
 # prepare include
 cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
 if cuda_path is None:
