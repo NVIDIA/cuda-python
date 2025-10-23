@@ -28,7 +28,7 @@ from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
 from cuda.core.experimental.utils import StridedMemoryView
 
-from cuda_python_test_helpers import IS_WSL, supports_ipc_mempool
+from cuda_python_test_helpers import supports_ipc_mempool
 
 POOL_SIZE = 2097152  # 2MB size
 
@@ -322,13 +322,13 @@ def test_vmm_allocator_basic_allocation():
     This test verifies that VirtualMemoryResource can allocate memory
     using CUDA VMM APIs with default configuration.
     """
-    if platform.system() == "Windows":
-        pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
-    if IS_WSL:
-        pytest.skip("VirtualMemoryResource is not supported on WSL")
-
     device = Device()
     device.set_current()
+
+    # Skip if virtual memory management is not supported
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
     options = VirtualMemoryResourceOptions()
     # Create VMM allocator with default config
     vmm_mr = VirtualMemoryResource(device, config=options)
@@ -361,12 +361,16 @@ def test_vmm_allocator_policy_configuration():
     with different allocation policies and that the configuration affects
     the allocation behavior.
     """
-    if platform.system() == "Windows":
-        pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
-    if IS_WSL:
-        pytest.skip("VirtualMemoryResource is not supported on WSL")
     device = Device()
     device.set_current()
+
+    # Skip if virtual memory management is not supported
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    # Skip if GPU Direct RDMA is supported (we want to test the unsupported case)
+    if not device.properties.gpu_direct_rdma_supported:
+        pytest.skip("This test requires a device that doesn't support GPU Direct RDMA")
 
     # Test with custom VMM config
     custom_config = VirtualMemoryResourceOptions(
@@ -420,12 +424,12 @@ def test_vmm_allocator_grow_allocation():
     This test verifies that VirtualMemoryResource can grow existing
     allocations while preserving the base pointer when possible.
     """
-    if platform.system() == "Windows":
-        pytest.skip("VirtualMemoryResource is not supported on Windows TCC")
-    if IS_WSL:
-        pytest.skip("VirtualMemoryResource is not supported on WSL")
     device = Device()
     device.set_current()
+
+    # Skip if virtual memory management is not supported (we need it for VMM)
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
 
     options = VirtualMemoryResourceOptions()
 
@@ -456,6 +460,29 @@ def test_vmm_allocator_grow_allocation():
 
     # Clean up
     grown_buffer.close()
+
+
+def test_vmm_allocator_rdma_unsupported_exception():
+    """Test that VirtualMemoryResource throws an exception when RDMA is requested but device doesn't support it.
+
+    This test verifies that the VirtualMemoryResource constructor throws a RuntimeError
+    when gpu_direct_rdma=True is requested but the device doesn't support virtual memory management.
+    """
+    device = Device()
+    device.set_current()
+
+    # Skip if virtual memory management is not supported (we need it for VMM)
+    if not device.properties.virtual_memory_management_supported:
+        pytest.skip("Virtual memory management is not supported on this device")
+
+    # Skip if GPU Direct RDMA is supported (we want to test the unsupported case)
+    if device.properties.gpu_direct_rdma_supported:
+        pytest.skip("This test requires a device that doesn't support GPU Direct RDMA")
+
+    # Test that requesting RDMA on an unsupported device throws an exception
+    options = VirtualMemoryResourceOptions(gpu_direct_rdma=True)
+    with pytest.raises(RuntimeError, match="GPU Direct RDMA is not supported on this device"):
+        VirtualMemoryResource(device, config=options)
 
 
 def test_mempool(mempool_device):
