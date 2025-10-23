@@ -81,7 +81,7 @@ jobs:
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         run: |
           # Find the full path of cl.exe
-          CL_EXE=$(which cl.exe)
+          CL_EXE=$(cygpath -w $(which cl.exe))
           if [ -z "${CL_EXE}" ]; then
             echo "Error: cl.exe not found in PATH"
             exit 1
@@ -99,6 +99,7 @@ jobs:
           @echo off
           sccache "%CL_EXE%" %*
           EOF
+          cat sccache_wrapper/cl.exe
           # Prepend the wrapper directory to PATH
           echo "$(cygpath -w $(pwd)/sccache_wrapper)" >> $GITHUB_PATH
 
@@ -189,6 +190,7 @@ jobs:
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
             SCCACHE_DIR=${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
+            CL_EXE=${{ env.CL_EXE }}
             SCCACHE_LOG=debug
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
