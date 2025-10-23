@@ -1,12 +1,22 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import ctypes
 import functools
 import os
+import platform
+import sys
 from contextlib import suppress
 from typing import Union
 
 from cuda.core.experimental._utils.cuda_utils import handle_return
+
+__all__ = [
+    "IS_WINDOWS",
+    "IS_WSL",
+    "libc",
+    "supports_ipc_mempool",
+]
 
 
 def _detect_wsl() -> bool:
@@ -19,6 +29,12 @@ def _detect_wsl() -> bool:
 
 
 IS_WSL: bool = _detect_wsl()
+IS_WINDOWS: bool = platform.system() == "Windows" or sys.platform.startswith("win")
+
+if IS_WINDOWS:
+    libc = ctypes.CDLL("msvcrt.dll")
+else:
+    libc = ctypes.CDLL("libc.so.6")
 
 
 @functools.cache
@@ -54,9 +70,3 @@ def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
         return (int(mask) & int(posix_fd)) != 0
     except Exception:
         return False
-
-
-__all__ = [
-    "IS_WSL",
-    "supports_ipc_mempool",
-]

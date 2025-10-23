@@ -45,7 +45,7 @@ class LatchKernel:
                        }
 
                        // Avoid 100% spin.
-                       __nanosleep(10000000); // 10 ms
+                       __nanosleep(1000000); // 1 ms
                    }
                }
                """
