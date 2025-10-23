@@ -45,6 +45,9 @@ if [[ "${1}" == "build" ]]; then
   echo "BUILD_CUDA_MAJOR=${BUILD_CUDA_MAJOR}" >> $GITHUB_ENV
   echo "BUILD_PREV_CUDA_MAJOR=$((${BUILD_CUDA_MAJOR} - 1))" >> $GITHUB_ENV
   CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${CUDA_VER}-${HOST_PLATFORM}"
+  # Enforce an explicit cache dir so that we can reuse this path later
+  echo "SCCACHE_DIR=${HOME}/.cache/sccache" >> $GITHUB_ENV
+  echo "SCCACHE_CACHE_SIZE=1G" >> $GITHUB_ENV
 elif [[ "${1}" == "test" ]]; then
   BUILD_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${BUILD_CUDA_VER})"
   TEST_CUDA_MAJOR="$(cut -d '.' -f 1 <<< ${CUDA_VER})"
