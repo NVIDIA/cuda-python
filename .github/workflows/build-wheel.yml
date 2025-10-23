@@ -106,7 +106,7 @@ jobs:
       - name: Replace cl.exe by sccache.exe
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         run: |
-          cp "${{ env.SCCACHE_PATH }}" "{{ env.CL_EXE }}"
+          cp "${{ env.SCCACHE_PATH }}" "${{ env.CL_EXE }}"
 
       - name: Set environment variables
         env:
