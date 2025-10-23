@@ -3,6 +3,7 @@
 
 import os
 import pathlib
+import platform
 import sys
 
 CUDA_PATH = os.environ.get("CUDA_PATH")
@@ -22,12 +23,13 @@ try:
     import cuda_python_test_helpers
 except ImportError:
     # Import shared platform helpers for tests across repos
-    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "cuda_python_test_helpers"))
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3] / "cuda_python_test_helpers"))
     import cuda_python_test_helpers
 
 
 IS_WSL = cuda_python_test_helpers.IS_WSL
 supports_ipc_mempool = cuda_python_test_helpers.supports_ipc_mempool
+IS_WINDOWS = platform.system() == "Windows"
 
 
 del cuda_python_test_helpers
