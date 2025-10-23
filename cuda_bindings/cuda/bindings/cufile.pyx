@@ -2658,6 +2658,18 @@ cpdef driver_close():
 
 cpdef read(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):
     """read data from a registered file handle to a specified device or host memory.
+
+    Args:
+        fh (intptr_t): ``CUfileHandle_t`` opaque file handle.
+        buf_ptr_base (intptr_t): base address of buffer in device or host memory.
+        size (size_t): size bytes to read.
+        file_offset (off_t): file-offset from begining of the file.
+        buf_ptr_offset (off_t): offset relative to the buf_ptr_base pointer to read into.
+
+    Returns:
+        ssize_t: number of bytes read on success.
+
+    .. seealso:: `cuFileRead`
     """
     with nogil:
         status = cuFileRead(<Handle>fh, <void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
@@ -2674,6 +2686,9 @@ cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, 
         size (size_t): size bytes to write.
         file_offset (off_t): file-offset from begining of the file.
         buf_ptr_offset (off_t): offset relative to the buf_ptr_base pointer to write from.
+
+    Returns:
+        ssize_t: number of bytes written on success.
 
     .. seealso:: `cuFileWrite`
     """
