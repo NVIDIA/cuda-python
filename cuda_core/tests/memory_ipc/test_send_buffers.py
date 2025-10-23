@@ -21,7 +21,7 @@ def test_ipc_send_buffers(ipc_device, nmrs):
     # Set up several IPC-enabled memory pools.
     device = ipc_device
     options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-    mrs = [DeviceMemoryResource(device, options=options) for _ in range(NMRS)]
+    mrs = [DeviceMemoryResource(device, options=options) for _ in range(nmrs)]
 
     # Allocate and fill memory.
     buffers = [mr.allocate(NBYTES) for mr, _ in zip(cycle(mrs), range(NTASKS))]
