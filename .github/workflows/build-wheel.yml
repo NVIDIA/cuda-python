@@ -77,6 +77,32 @@ jobs:
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         uses: ilammy/msvc-dev-cmd@v1  # TODO: ask admin to allow pinning commits
 
+      # at this point, cl.exe already exists in PATH
+      - name: Find cl.exe and set CL_EXE environment variable
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        run: |
+          # Find the full path of cl.exe
+          CL_EXE=$(which cl.exe)
+          if [ -z "${CL_EXE}" ]; then
+            echo "Error: cl.exe not found in PATH"
+            exit 1
+          fi
+          echo "Found cl.exe at: ${CL_EXE}"
+          echo "CL_EXE=${CL_EXE}" >> $GITHUB_ENV
+
+      - name: Generate sccache wrapper script
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        run: |
+          # Create a wrapper directory
+          mkdir -p sccache_wrapper
+          # Generate the wrapper script named cl.exe
+          cat > sccache_wrapper/cl.exe <<'EOF'
+          @echo off
+          sccache "%CL_EXE%" %*
+          EOF
+          # Prepend the wrapper directory to PATH
+          echo "$(cygpath -w $(pwd)/sccache_wrapper)" >> $GITHUB_PATH
+
       - name: Set environment variables
         env:
           CUDA_VER: ${{ inputs.cuda-version }}
@@ -156,11 +182,14 @@ jobs:
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
-            CC="${{ env.SCCACHE_PATH }} cl"
-            CXX="${{ env.SCCACHE_PATH }} cl"
             SCCACHE_GHA_ENABLED=true
             ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
+            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
             ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
+            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
+            ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
+            SCCACHE_DIR=${{ env.SCCACHE_DIR }}
+            SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
             SCCACHE_LOG=debug
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
