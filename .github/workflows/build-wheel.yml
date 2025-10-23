@@ -194,11 +194,10 @@ jobs:
             CL_EXE="${{ env.CL_EXE }}"
             SCCACHE_LOG=debug
           CIBW_BEFORE_ALL_WINDOWS: >
-            echo $PATH
-            echo $(which cl.exe)
+            echo %PATH%
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host${{ env.SCCACHE_PATH }}" --show-stats
+            "/host/${{ env.SCCACHE_PATH }}" --show-stats
           CIBW_BEFORE_TEST_WINDOWS: >
             "${{ env.SCCACHE_PATH }}" --show-stats
           # force the test stage to be run (so that before-test is not skipped)
