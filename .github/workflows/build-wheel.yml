@@ -81,13 +81,13 @@ jobs:
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         run: |
           # Find the full path of cl.exe
-          CL_EXE=$(cygpath -w $(which cl.exe))
+          CL_EXE=$(which cl.exe)
           if [ -z "${CL_EXE}" ]; then
             echo "Error: cl.exe not found in PATH"
             exit 1
           fi
           echo "Found cl.exe at: ${CL_EXE}"
-          echo "CL_EXE=${CL_EXE}" >> $GITHUB_ENV
+          echo "CL_EXE=$(cygpath -w ${CL_EXE})" >> $GITHUB_ENV
 
       - name: Generate sccache wrapper script
         if: ${{ startsWith(inputs.host-platform, 'win') }}
