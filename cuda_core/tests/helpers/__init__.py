@@ -3,6 +3,7 @@
 
 import os
 import pathlib
+import platform
 import sys
 
 CUDA_PATH = os.environ.get("CUDA_PATH")
@@ -28,6 +29,7 @@ except ImportError:
 
 IS_WSL = cuda_python_test_helpers.IS_WSL
 supports_ipc_mempool = cuda_python_test_helpers.supports_ipc_mempool
+IS_WINDOWS = platform.system() == "Windows"
 
 
 del cuda_python_test_helpers

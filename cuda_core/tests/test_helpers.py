@@ -6,6 +6,7 @@ import time
 
 import pytest
 from cuda.core.experimental import Device
+from helpers import IS_WINDOWS, IS_WSL
 from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
@@ -16,7 +17,7 @@ NBYTES = 64
 
 def test_latchkernel():
     """Test LatchKernel."""
-    log = TimestampedLogger()
+    log = TimestampedLogger(enabled=ENABLE_LOGGING)
     log("begin")
     device = Device()
     device.set_current()
@@ -31,8 +32,11 @@ def test_latchkernel():
     target.copy_from(ones, stream=stream)
     log("going to sleep")
     time.sleep(1)
-    log("checking target == 0")
-    assert compare_equal_buffers(target, zeros)
+    if not IS_WINDOWS and not IS_WSL:
+        # On any sort of Windows system, checking the memory before stream
+        # sync results in a page error.
+        log("checking target == 0")
+        assert compare_equal_buffers(target, zeros)
     log("releasing latch and syncing")
     latch.release()
     stream.sync()
