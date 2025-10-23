@@ -21,9 +21,8 @@ from cuda.core.experimental import (
     ProgramOptions,
     launch,
 )
-from packaging import version
 
-if version.parse(np.__version__) < version.parse("2.2.5"):
+if np.lib.NumpyVersion(np.__version__) < "2.2.5":
     print("This example requires NumPy 2.2.5 or later", file=sys.stderr)
     sys.exit(0)
 
