@@ -190,9 +190,12 @@ jobs:
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
             SCCACHE_DIR=${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
-            PATH="$(cygpath -w ${{ env.SCCACHE_WRAPPER_DIR }});$PATH"
+            PATH="$(cygpath -w "${{ env.SCCACHE_WRAPPER_DIR }}");$PATH"
             CL_EXE="${{ env.CL_EXE }}"
             SCCACHE_LOG=debug
+          CIBW_BEFORE_ALL_WINDOWS: >
+            echo $PATH
+            echo $(which cl.exe)
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host${{ env.SCCACHE_PATH }}" --show-stats
