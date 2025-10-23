@@ -101,7 +101,7 @@ jobs:
           EOF
           cat sccache_wrapper/cl.exe
           # Prepend the wrapper directory to PATH
-          echo "$(cygpath -w "$(pwd)/sccache_wrapper")" >> $GITHUB_PATH
+          echo "$(realpath "./sccache_wrapper")" >> $GITHUB_PATH
 
       - name: Set environment variables
         env:
@@ -190,7 +190,7 @@ jobs:
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
             SCCACHE_DIR=${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
-            CL_EXE=${{ env.CL_EXE }}
+            CL_EXE="${{ env.CL_EXE }}"
             SCCACHE_LOG=debug
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
