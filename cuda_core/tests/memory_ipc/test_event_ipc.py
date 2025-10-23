@@ -58,7 +58,7 @@ class TestEventIpc:
 
         log("releasing stream1")
         latch.release()
-        process.join()
+        process.join(timeout=CHILD_TIMEOUT_SEC)
         assert process.exitcode == 0
         log("done")
 
@@ -150,7 +150,7 @@ class TestIpcEventProperties:
         assert props[4] is None
         assert props[5] is None
 
-        process.join()
+        process.join(timeout=CHILD_TIMEOUT_SEC)
         assert process.exitcode == 0
 
     def child_main(self, q_in, q_out):
