@@ -94,7 +94,7 @@ jobs:
         shell: pwsh
         run: |
           # Compile into cl.exe
-          cl /nologo /O2 cl_shim.c /Fe:cl.exe
+          cl /nologo /O2 .\ci\tools\cl_shim.c /Fe:cl.exe
 
           # Verify
           if (-not (Test-Path .\cl.exe)) {
