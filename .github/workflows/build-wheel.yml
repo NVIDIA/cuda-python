@@ -103,6 +103,7 @@ jobs:
           } else {
             Write-Host "cl.exe shim created successfully."
           }
+          ls
 
           Add-Content -Path $env:GITHUB_ENV -Value "SCCACHE_WRAPPER_DIR=$((Get-Location).ProviderPath)"
 
