@@ -91,18 +91,20 @@ jobs:
 
       - name: Write and compile cl shim (creates cl.exe that calls sccache)
         if: ${{ startsWith(inputs.host-platform, 'win') }}
+        shell: pwsh
         run: |
-          cl "/nologo" "/O2" ci/tools/cl_shim.c "/Fe:cl.exe"
-          RC=$?
-          if [ $RC -ne 0 ]; then
-            echo "cl failed with exit code $RC" >&2
-            exit $RC
-          fi
-          if [ ! -f ./cl.exe ]; then
-            echo "Failed to build cl_shim.c: output not found" >&2
+          # Compile into cl.exe
+          cl /nologo /O2 cl_shim.c /Fe:cl.exe
+
+          # Verify
+          if (-not (Test-Path .\cl.exe)) {
+            Write-Error "Failed to build cl.exe"
             exit 1
-          fi
-          echo "SCCACHE_WRAPPER_DIR=$(realpath .)" >> $GITHUB_ENV
+          } else {
+            Write-Host "cl.exe shim created successfully."
+          }
+
+          Add-Content -Path $env:GITHUB_ENV -Value "SCCACHE_WRAPPER_DIR=$((Get-Location).ProviderPath)"
 
       - name: Set environment variables
         env:
