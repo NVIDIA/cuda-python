@@ -15,7 +15,7 @@
   "summarySection": {
     "included": true,
     "collapsible": true,
-    "defaultOopen": false
+    "defaultOpen": false
   },
   "includeBranches": [
     "main"
