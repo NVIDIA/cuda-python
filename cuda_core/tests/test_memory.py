@@ -623,4 +623,5 @@ def test_strided_memory_view_refcnt():
     assert sys.getrefcount(av.shape) >= 2
 
     assert av.strides[0] == 1
+    assert av.strides[1] == 11171
     assert sys.getrefcount(av.strides) >= 2
