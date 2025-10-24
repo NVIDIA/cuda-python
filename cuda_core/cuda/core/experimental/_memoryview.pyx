@@ -122,16 +122,17 @@ cdef class StridedMemoryView:
 
     @property
     def shape(self) -> tuple[int]:
-        if self._shape is None and self.exporting_obj is not None:
-            if self.dl_tensor != NULL:
-                self._shape = cuda_utils.carray_int64_t_to_tuple(
-                    self.dl_tensor.shape,
-                    self.dl_tensor.ndim
-                )
+        if self._shape is None:
+            if self.exporting_obj is not None:
+                if self.dl_tensor != NULL:
+                    self._shape = cuda_utils.carray_int64_t_to_tuple(
+                        self.dl_tensor.shape,
+                        self.dl_tensor.ndim
+                    )
+                else:
+                    self._shape = self.metadata["shape"]
             else:
-                self._shape = self.metadata["shape"]
-        else:
-            self._shape = ()
+                self._shape = ()
         return self._shape
 
     @property
@@ -146,14 +147,12 @@ cdef class StridedMemoryView:
                             self.dl_tensor.ndim
                         )
                 else:
+                    # This is a Python interface anyway, so not much point
+                    # to using the optimization in cuda_utils.carray_int64_t_to_tuple
                     strides = self.metadata.get("strides")
                     if strides is not None:
                         itemsize = self.dtype.itemsize
-                        self._strides = cpython.PyTuple_New(len(strides))
-                        for i in range(len(strides)):
-                            cpython.PyTuple_SET_ITEM(
-                                self._strides, i, strides[i] // itemsize
-                            )
+                        self._strides = tuple(x // itemsize for x in strides)
             self._strides_init = True
         return self._strides
 
