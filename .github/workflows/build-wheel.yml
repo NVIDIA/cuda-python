@@ -107,6 +107,14 @@ jobs:
 
           Add-Content -Path $env:GITHUB_ENV -Value "SCCACHE_WRAPPER_DIR=$((Get-Location).ProviderPath)"
 
+      - name: debug
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        run: |
+          pushd ..
+          which cl.exe
+          where cl.exe
+          popd
+
       - name: Set environment variables
         env:
           CUDA_VER: ${{ inputs.cuda-version }}
@@ -183,6 +191,8 @@ jobs:
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
+          CIBW_BEFORE_ALL_WINDOWS: >
+            echo %PATH%
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
