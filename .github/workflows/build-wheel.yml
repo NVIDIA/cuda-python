@@ -87,7 +87,7 @@ jobs:
             exit 1
           fi
           echo "Found cl.exe at: ${CL_EXE}"
-          echo "CL_EXE=$(cygpath -w "${CL_EXE}")" >> $GITHUB_ENV
+          echo "CL_EXE=${CL_EXE}" >> $GITHUB_ENV
 
       - name: Generate sccache wrapper script
         if: ${{ startsWith(inputs.host-platform, 'win') }}
@@ -193,7 +193,7 @@ jobs:
             SCCACHE_LOG=debug
             DISTUTILS_USE_SDK=1
             PATH="$(cygpath -w "${{ env.SCCACHE_WRAPPER_DIR }}");$(dirname "${{ env.SCCACHE_PATH }}");$PATH"
-            CL_EXE="${{ env.CL_EXE }}"
+            CL_EXE="$(cygpath -w ${{ env.CL_EXE }})"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
             "/host/${{ env.SCCACHE_PATH }}" --show-stats
