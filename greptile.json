@@ -15,11 +15,10 @@
   "summarySection": {
     "included": true,
     "collapsible": true,
-    "defaultOopen": false
+    "defaultOpen": false
   },
   "includeBranches": [
-    "main",
-    "vNext"
+    "main"
   ],
   "triggerOnUpdates": false,
   "issuesTableSection": {
@@ -59,5 +58,6 @@
         "description": ""
       }
     ]
-  }
+  },
+  "skipReviews": "AUTOMATIC"
 }
