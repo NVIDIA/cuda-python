@@ -95,9 +95,10 @@ jobs:
           # Create a wrapper directory
           mkdir -p sccache_wrapper
           # Generate the wrapper script named cl.exe
+          CL_EXE=$(cygpath -w "${CL_EXE}")
           cat > sccache_wrapper/cl.exe <<'EOF'
           @echo off
-          sccache "%CL_EXE%" %*
+          ${{ env.SCCACHE_PATH }} ${CL_EXE} %*
           EOF
           cat sccache_wrapper/cl.exe
           # Record the wrapper path for later use
