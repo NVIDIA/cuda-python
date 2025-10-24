@@ -105,15 +105,10 @@ jobs:
           }
           ls
 
-          Add-Content -Path $env:GITHUB_ENV -Value "SCCACHE_WRAPPER_DIR=$((Get-Location).ProviderPath)"
-
       - name: debug
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         run: |
-          pushd ..
-          which cl.exe
-          where cl.exe
-          popd
+          echo "SCCACHE_WRAPPER_DIR=$(realpath .)" >> $GITHUB_ENV
 
       - name: Set environment variables
         env:
@@ -206,7 +201,7 @@ jobs:
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
             SCCACHE_LOG=debug
             DISTUTILS_USE_SDK=1
-            PATH="${{ env.SCCACHE_WRAPPER_DIR }};$(dirname "${{ env.SCCACHE_PATH }}");$PATH"
+            PATH="$(cygpath -w ${{ env.SCCACHE_WRAPPER_DIR }});$(dirname "${{ env.SCCACHE_PATH }}");$PATH"
             CL_EXE="$(cygpath -w ${{ env.CL_EXE }})"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
