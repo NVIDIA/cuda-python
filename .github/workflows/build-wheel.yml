@@ -87,9 +87,14 @@ jobs:
             exit 1
           fi
           echo "Found cl.exe at: ${CL_EXE}"
+
+          # This env var is passed to cibuildwheel later
           echo "CL_EXE=${CL_EXE}" >> $GITHUB_ENV
 
-      - name: Write and compile cl shim (creates cl.exe that calls sccache)
+          # Make the shim executable from the next step discoverable
+          echo "SCCACHE_WRAPPER_DIR=$(realpath .)" >> $GITHUB_ENV
+
+      - name: Compile a shim cl.exe
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         shell: pwsh
         run: |
@@ -104,11 +109,6 @@ jobs:
             Write-Host "cl.exe shim created successfully."
           }
           ls
-
-      - name: debug
-        if: ${{ startsWith(inputs.host-platform, 'win') }}
-        run: |
-          echo "SCCACHE_WRAPPER_DIR=$(realpath .)" >> $GITHUB_ENV
 
       - name: Set environment variables
         env:
@@ -186,8 +186,6 @@ jobs:
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
             SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
-          CIBW_BEFORE_ALL_WINDOWS: >
-            echo %PATH%
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
@@ -199,7 +197,6 @@ jobs:
             ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
             SCCACHE_DIR="$(cygpath -w ${{ env.SCCACHE_DIR }})"
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
-            SCCACHE_LOG=debug
             DISTUTILS_USE_SDK=1
             PATH="$(cygpath -w ${{ env.SCCACHE_WRAPPER_DIR }});$PATH"
             CL_EXE="$(cygpath -w "${{ env.CL_EXE }}")"
@@ -263,9 +260,22 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
+            SCCACHE_GHA_ENABLED=true
+            ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
+            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
+            ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
+            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
+            ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
+            SCCACHE_DIR="$(cygpath -w ${{ env.SCCACHE_DIR }})"
+            SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
+            DISTUTILS_USE_SDK=1
+            PATH="$(cygpath -w ${{ env.SCCACHE_WRAPPER_DIR }});$PATH"
+            CL_EXE="$(cygpath -w "${{ env.CL_EXE }}")"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host${{ env.SCCACHE_PATH }}" --show-stats
+            "/host/${{ env.SCCACHE_PATH }}" --show-stats
+          CIBW_BEFORE_TEST_WINDOWS: >
+            "${{ env.SCCACHE_PATH }}" --show-stats
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
           # things before reaching this command.
@@ -444,9 +454,22 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
+            SCCACHE_GHA_ENABLED=true
+            ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
+            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
+            ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
+            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
+            ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
+            SCCACHE_DIR="$(cygpath -w ${{ env.SCCACHE_DIR }})"
+            SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
+            DISTUTILS_USE_SDK=1
+            PATH="$(cygpath -w ${{ env.SCCACHE_WRAPPER_DIR }});$PATH"
+            CL_EXE="$(cygpath -w "${{ env.CL_EXE }}")"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
-            "/host${{ env.SCCACHE_PATH }}" --show-stats
+            "/host/${{ env.SCCACHE_PATH }}" --show-stats
+          CIBW_BEFORE_TEST_WINDOWS: >
+            "${{ env.SCCACHE_PATH }}" --show-stats
           # force the test stage to be run (so that before-test is not skipped)
           # TODO: we might want to think twice on adding this, it does a lot of
           # things before reaching this command.
