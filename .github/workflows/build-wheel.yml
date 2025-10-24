@@ -201,7 +201,7 @@ jobs:
             SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
             SCCACHE_LOG=debug
             DISTUTILS_USE_SDK=1
-            PATH="$(cygpath -w ${{ env.SCCACHE_WRAPPER_DIR }});$(cygpath -w dirname $(cygpath "${{ env.SCCACHE_PATH }}"));$PATH"
+            PATH="$(cygpath -w ${{ env.SCCACHE_WRAPPER_DIR }});$(cygpath -w "$(dirname "$(cygpath "${{ env.SCCACHE_PATH }}")")");$PATH"
             CL_EXE="$(cygpath -w ${{ env.CL_EXE }})"
           # check cache stats before leaving cibuildwheel
           CIBW_BEFORE_TEST_LINUX: >
