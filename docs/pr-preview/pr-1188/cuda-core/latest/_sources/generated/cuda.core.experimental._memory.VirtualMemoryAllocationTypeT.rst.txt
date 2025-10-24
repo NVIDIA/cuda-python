@@ -1,0 +1,6 @@
+﻿cuda.core.experimental.\_memory.VirtualMemoryAllocationTypeT
+============================================================
+
+.. currentmodule:: cuda.core.experimental._memory
+
+.. autodata:: VirtualMemoryAllocationTypeT
