@@ -89,20 +89,20 @@ jobs:
           echo "Found cl.exe at: ${CL_EXE}"
           echo "CL_EXE=${CL_EXE}" >> $GITHUB_ENV
 
-      - name: Generate sccache wrapper script
+      - name: Write and compile cl shim (creates cl.exe that calls sccache)
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         run: |
-          # Create a wrapper directory
-          mkdir -p sccache_wrapper
-          # Generate the wrapper script named cl.exe
-          CL_EXE=$(cygpath -w "${CL_EXE}")
-          cat > sccache_wrapper/cl.exe <<'EOF'
-          @echo off
-          ${{ env.SCCACHE_PATH }} ${CL_EXE} %*
-          EOF
-          cat sccache_wrapper/cl.exe
-          # Record the wrapper path for later use
-          echo "SCCACHE_WRAPPER_DIR=$(realpath "./sccache_wrapper")" >> $GITHUB_ENV
+          cl "/nologo" "/O2" ci/tools/cl_shim.c "/Fe:cl.exe"
+          RC=$?
+          if [ $RC -ne 0 ]; then
+            echo "cl failed with exit code $RC" >&2
+            exit $RC
+          fi
+          if [ ! -f ./cl.exe ]; then
+            echo "Failed to build cl_shim.c: output not found" >&2
+            exit 1
+          fi
+          echo "SCCACHE_WRAPPER_DIR=$(realpath .)" >> $GITHUB_ENV
 
       - name: Set environment variables
         env:
