@@ -151,6 +151,7 @@ cdef class StridedMemoryView:
                     # to using the optimization in cuda_utils.carray_int64_t_to_tuple
                     strides = self.metadata.get("strides")
                     if strides is not None:
+                        itemsize = self.dtype.itemsize
                         self._strides = tuple(x // itemsize for x in strides)
             self._strides_init = True
         return self._strides
