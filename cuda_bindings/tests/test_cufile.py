@@ -535,6 +535,11 @@ def test_cufile_read_write():
         # Read data back using cuFile
         bytes_read = cufile.read(handle, read_buf_int, write_size, 0, 0)
 
+        # Verify bytes written equals bytes read
+        assert bytes_written == write_size, f"Expected to write {write_size} bytes, but wrote {bytes_written}"
+        assert bytes_read == write_size, f"Expected to read {write_size} bytes, but read {bytes_read}"
+        assert bytes_written == bytes_read, f"Bytes written ({bytes_written}) doesn't match bytes read ({bytes_read})"
+
         # Copy read data back to host
         cuda.cuMemcpyDtoHAsync(host_buf, read_buf, write_size, 0)
         cuda.cuStreamSynchronize(0)
@@ -635,6 +640,11 @@ def test_cufile_read_write_host_memory():
 
         # Read data back using cuFile
         bytes_read = cufile.read(handle, read_buf_int, write_size, 0, 0)
+
+        # Verify bytes written equals bytes read
+        assert bytes_written == write_size, f"Expected to write {write_size} bytes, but wrote {bytes_written}"
+        assert bytes_read == write_size, f"Expected to read {write_size} bytes, but read {bytes_read}"
+        assert bytes_written == bytes_read, f"Bytes written ({bytes_written}) doesn't match bytes read ({bytes_read})"
 
         # Verify the data
         read_data = ctypes.string_at(read_buf, write_size)
@@ -737,6 +747,11 @@ def test_cufile_read_write_large():
 
         # Read data back using cuFile
         bytes_read = cufile.read(handle, read_buf_int, write_size, 0, 0)
+
+        # Verify bytes written equals bytes read
+        assert bytes_written == write_size, f"Expected to write {write_size} bytes, but wrote {bytes_written}"
+        assert bytes_read == write_size, f"Expected to read {write_size} bytes, but read {bytes_read}"
+        assert bytes_written == bytes_read, f"Bytes written ({bytes_written}) doesn't match bytes read ({bytes_read})"
 
         # Copy read data back to host
         cuda.cuMemcpyDtoHAsync(host_buf, read_buf, write_size, 0)
