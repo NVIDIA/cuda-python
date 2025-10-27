@@ -509,9 +509,15 @@ cdef class DeviceMemoryResourceOptions:
     max_size : int, optional
         Maximum pool size. When set to 0, defaults to a system-dependent value.
         (Default to 0)
+
+    use_pool : bool, optional
+        Whether to use a memory pool. Pool-based allocations cannot be captured
+        in a graph but are the only ones that support sharing via IPC.
+        (Default to True)
     """
     ipc_enabled : cython.bint = False
     max_size : cython.size_t = 0
+    use_pool : cython.bint = True
 
 
 # TODO: cythonize this?
@@ -533,6 +539,8 @@ class DeviceMemoryResourceAttributes:
                 mr = self._mr()
                 if mr is None:
                     raise RuntimeError("DeviceMemoryResource is expired")
+                if mr.handle is None:
+                    raise RuntimeError("DeviceMemoryResource is not configured to use a memory pool")
                 # TODO: this implementation does not allow lowering to Cython + nogil
                 err, value = driver.cuMemPoolGetAttribute(mr.handle, attr_enum)
                 raise_if_driver_error(err)
@@ -715,29 +723,39 @@ cdef class DeviceMemoryResource(MemoryResource):
                         &max_threshold
                     ))
         else:
-            # Create a new memory pool.
-            if opts.ipc_enabled and _IPC_HANDLE_TYPE == cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE:
-                raise RuntimeError("IPC is not available on {platform.system()}")
+            if opts.use_pool:
+                # Create a new memory pool.
+                if opts.ipc_enabled and _IPC_HANDLE_TYPE == cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE:
+                    raise RuntimeError("IPC is not available on {platform.system()}")
 
-            memset(&properties, 0, sizeof(cydriver.CUmemPoolProps))
-            properties.allocType = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-            properties.handleTypes = _IPC_HANDLE_TYPE if opts.ipc_enabled else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
-            properties.location.id = dev_id
-            properties.location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-            properties.maxSize = opts.max_size
-            properties.win32SecurityAttributes = NULL
-            properties.usage = 0
+                memset(&properties, 0, sizeof(cydriver.CUmemPoolProps))
+                properties.allocType = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+                properties.handleTypes = _IPC_HANDLE_TYPE if opts.ipc_enabled else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+                properties.location.id = dev_id
+                properties.location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+                properties.maxSize = opts.max_size
+                properties.win32SecurityAttributes = NULL
+                properties.usage = 0
 
-            self._dev_id = dev_id
-            self._ipc_handle_type = properties.handleTypes
-            self._mempool_owned = True
+                self._dev_id = dev_id
+                self._ipc_handle_type = properties.handleTypes
+                self._mempool_owned = True
 
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemPoolCreate(&(self._mempool_handle), &properties))
-                # TODO: should we also set the threshold here?
+                with nogil:
+                    HANDLE_RETURN(cydriver.cuMemPoolCreate(&(self._mempool_handle), &properties))
+                    # TODO: should we also set the threshold here?
 
-            if opts.ipc_enabled:
-                self.get_allocation_handle()  # enables Buffer.get_ipc_descriptor, sets uuid
+                if opts.ipc_enabled:
+                    self.get_allocation_handle()  # enables Buffer.get_ipc_descriptor, sets uuid
+            else:
+                if opts.ipc_enabled:
+                    raise RuntimeError("Cannot supply ipc_enabled=True with use_pool=False")
+                self._dev_id = dev_id
+                self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+                self._mempool_owned = False
+                self._is_mapped = False
+                self._uuid = None
+                self._alloc_handle = None
 
     def __dealloc__(self):
         self.close()
@@ -887,8 +905,12 @@ cdef class DeviceMemoryResource(MemoryResource):
     cdef Buffer _allocate(self, size_t size, cyStream stream):
         cdef cydriver.CUstream s = stream._handle
         cdef cydriver.CUdeviceptr devptr
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, self._mempool_handle, s))
+        if self.is_using_pool:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, self._mempool_handle, s))
+        else:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemAllocAsync(&devptr, size, s))
         cdef Buffer buf = Buffer.__new__(Buffer)
         buf._ptr = <intptr_t>(devptr)
         buf._ptr_obj = None
@@ -986,6 +1008,11 @@ cdef class DeviceMemoryResource(MemoryResource):
     def is_ipc_enabled(self) -> bool:
         """Whether this memory resource has IPC enabled."""
         return self._ipc_handle_type != cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+
+    @property
+    def is_using_pool(self) -> bool:
+        """Whether this memory resource uses a memory pool."""
+        return self._mempool_handle != NULL
 
 
 def _deep_reduce_device_memory_resource(mr):
