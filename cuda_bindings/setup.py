@@ -125,7 +125,7 @@ class Struct:
         next_seen = set(seen)
         next_seen.add(self._name)
 
-        for memberName, memberType in zip(self._member_names, self._member_types):
+        for memberName, memberType in zip(self._member_names, self._member_types, strict=True):
             if memberName:
                 discovered.append(".".join([prefix, memberName]))
 

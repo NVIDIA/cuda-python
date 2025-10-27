@@ -35,5 +35,5 @@ def test_devices():
     expected_num_devices = handle_return(runtime.cudaGetDeviceCount())
     expected_devices = tuple(Device(device_id) for device_id in range(expected_num_devices))
     assert len(devices) == len(expected_devices), "Number of devices does not match expected value"
-    for device, expected_device in zip(devices, expected_devices):
+    for device, expected_device in zip(devices, expected_devices, strict=True):
         assert device.device_id == expected_device.device_id, "Device ID does not match expected value"

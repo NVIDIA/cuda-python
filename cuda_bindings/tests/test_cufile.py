@@ -318,7 +318,7 @@ def test_buf_register_multiple_buffers():
     try:
         # Register all buffers
         flags = 0
-        for buf_ptr, size in zip(buffers, buffer_sizes):
+        for buf_ptr, size in zip(buffers, buffer_sizes, strict=True):
             buf_ptr_int = int(buf_ptr)
             cufile.buf_register(buf_ptr_int, size, flags)
 

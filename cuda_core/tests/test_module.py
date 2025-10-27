@@ -248,9 +248,9 @@ def test_saxpy_arguments(get_saxpy_kernel_cubin, cuda12_4_prerequisite_check):
     sizes = [p.size for p in arg_info]
     members = [getattr(ExpectedStruct, name) for name, _ in ExpectedStruct._fields_]
     expected_offsets = tuple(m.offset for m in members)
-    assert all(actual == expected for actual, expected in zip(offsets, expected_offsets))
+    assert all(actual == expected for actual, expected in zip(offsets, expected_offsets, strict=True))
     expected_sizes = tuple(m.size for m in members)
-    assert all(actual == expected for actual, expected in zip(sizes, expected_sizes))
+    assert all(actual == expected for actual, expected in zip(sizes, expected_sizes, strict=True))
 
 
 @pytest.mark.parametrize("nargs", [0, 1, 2, 3, 16])
@@ -274,8 +274,8 @@ def test_num_arguments(init_cuda, nargs, c_type_name, c_type, cuda12_4_prerequis
     members = tuple(getattr(ExpectedStruct, f"arg_{i}") for i in range(nargs))
 
     arg_info = krn.arguments_info
-    assert all([actual.offset == expected.offset for actual, expected in zip(arg_info, members)])
-    assert all([actual.size == expected.size for actual, expected in zip(arg_info, members)])
+    assert all([actual.offset == expected.offset for actual, expected in zip(arg_info, members, strict=True)])
+    assert all([actual.size == expected.size for actual, expected in zip(arg_info, members, strict=True)])
 
 
 def test_num_args_error_handling(deinit_all_contexts_function, cuda12_4_prerequisite_check):

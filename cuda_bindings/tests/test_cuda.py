@@ -432,7 +432,7 @@ def test_cuda_pointer_attr():
     # List version
     err, attr_value_list_v2 = cuda.cuPointerGetAttributes(len(attr_type_list), attr_type_list, ptr)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    for attr1, attr2 in zip(attr_value_list, attr_value_list_v2):
+    for attr1, attr2 in zip(attr_value_list, attr_value_list_v2, strict=True):
         assert str(attr1) == str(attr2)
 
     # Test setting values
@@ -512,7 +512,7 @@ def test_cuda_mem_range_attr():
         attr_type_size_list, attr_type_list, len(attr_type_list), ptr, size
     )
     assert err == cuda.CUresult.CUDA_SUCCESS
-    for attr1, attr2 in zip(attr_value_list, attr_value_list_v2):
+    for attr1, attr2 in zip(attr_value_list, attr_value_list_v2, strict=True):
         assert str(attr1) == str(attr2)
 
     (err,) = cuda.cuMemFree(ptr)

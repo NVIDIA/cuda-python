@@ -34,7 +34,7 @@ PTX_KERNEL = """
 
 
 def _build_arch_ptx_parametrized_callable():
-    av = tuple(zip(ARCHITECTURES, PTX_VERSIONS))
+    av = tuple(zip(ARCHITECTURES, PTX_VERSIONS, strict=True))
     return pytest.mark.parametrize(
         ("arch", "ptx_bytes"),
         [(a, (PTX_HEADER.format(VERSION=v, ARCH=a) + PTX_KERNEL).encode("utf-8")) for a, v in av],
