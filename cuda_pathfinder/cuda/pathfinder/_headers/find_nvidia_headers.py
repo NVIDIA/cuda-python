@@ -46,7 +46,7 @@ def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) 
     return None
 
 
-def _find_based_on_conda_layout(libname: str, h_basename: str) -> Optional[str]:
+def _find_based_on_conda_layout(libname: str, h_basename: str, ctk_layout: bool) -> Optional[str]:
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if not conda_prefix:
         return None
@@ -55,14 +55,18 @@ def _find_based_on_conda_layout(libname: str, h_basename: str) -> Optional[str]:
         if not os.path.isdir(anchor_point):
             return None
     else:
-        targets_include_path = glob.glob(os.path.join(conda_prefix, "targets", "*", "include"))
-        if not targets_include_path:
-            return None
-        if len(targets_include_path) != 1:
-            # Conda does not support multiple architectures.
-            # QUESTION(PR#956): Do we want to issue a warning?
-            return None
-        anchor_point = os.path.dirname(targets_include_path[0])
+        if ctk_layout:
+            targets_include_path = glob.glob(os.path.join(conda_prefix, "targets", "*", "include"))
+            if not targets_include_path:
+                return None
+            if len(targets_include_path) != 1:
+                # Conda does not support multiple architectures.
+                # QUESTION(PR#956): Do we want to issue a warning?
+                return None
+            include_path = targets_include_path[0]
+        else:
+            include_path = os.path.join(conda_prefix, "include")
+        anchor_point = os.path.dirname(include_path)
     return _find_based_on_ctk_layout(libname, h_basename, anchor_point)
 
 
@@ -74,10 +78,7 @@ def _find_ctk_header_directory(libname: str) -> Optional[str]:
         if hdr_dir := _find_under_site_packages(cdir, h_basename):
             return hdr_dir
 
-        if result := _find_based_on_conda_layout(libname, h_basename):
-            return result
-
-    if hdr_dir := _find_based_on_conda_layout(libname, h_basename):
+    if hdr_dir := _find_based_on_conda_layout(libname, h_basename, True):
         return hdr_dir
 
     cuda_home = get_cuda_home_or_path()
@@ -140,7 +141,7 @@ def find_nvidia_header_directory(libname: str) -> Optional[str]:
         if hdr_dir := _find_under_site_packages(cdir, h_basename):
             return hdr_dir
 
-    if hdr_dir := _find_based_on_conda_layout(libname, h_basename):
+    if hdr_dir := _find_based_on_conda_layout(libname, h_basename, False):
         return hdr_dir
 
     candidate_dirs = supported_nvidia_headers.SUPPORTED_INSTALL_DIRS_NON_CTK.get(libname, [])
