@@ -4,7 +4,6 @@
 
 import weakref
 from collections import namedtuple
-from typing import Union
 from warnings import warn
 
 from cuda.core.experimental._launch_config import LaunchConfig, _to_native_launch_config
@@ -239,7 +238,7 @@ class KernelOccupancy:
         )
 
     def max_potential_block_size(
-        self, dynamic_shared_memory_needed: Union[int, driver.CUoccupancyB2DSize], block_size_limit: int
+        self, dynamic_shared_memory_needed: int | driver.CUoccupancyB2DSize, block_size_limit: int
     ) -> MaxPotentialBlockSizeOccupancyResult:
         """MaxPotentialBlockSizeOccupancyResult: Suggested launch configuration for reasonable occupancy.
 
@@ -248,7 +247,7 @@ class KernelOccupancy:
 
         Parameters
         ----------
-            dynamic_shared_memory_needed: Union[int, driver.CUoccupancyB2DSize]
+            dynamic_shared_memory_needed: int | driver.CUoccupancyB2DSize
                 The amount of dynamic shared memory in bytes needed by block.
                 Use `0` if block does not need shared memory. Use C-callable
                 represented by :obj:`~driver.CUoccupancyB2DSize` to encode
@@ -437,7 +436,7 @@ class Kernel:
     # TODO: implement from_handle()
 
 
-CodeTypeT = Union[bytes, bytearray, str]
+CodeTypeT = bytes | bytearray | str
 
 
 class ObjectCode:
@@ -496,12 +495,12 @@ class ObjectCode:
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
 
     @staticmethod
-    def from_cubin(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_cubin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing cubin.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes | str
             Either a bytes object containing the in-memory cubin to load, or
             a file path string pointing to the on-disk cubin to load.
         name : Optional[str]
@@ -514,12 +513,12 @@ class ObjectCode:
         return ObjectCode._init(module, "cubin", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ptx(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_ptx(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing PTX.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes | str
             Either a bytes object containing the in-memory ptx code to load, or
             a file path string pointing to the on-disk ptx file to load.
         name : Optional[str]
@@ -532,12 +531,12 @@ class ObjectCode:
         return ObjectCode._init(module, "ptx", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_ltoir(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_ltoir(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing LTOIR.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes, str
             Either a bytes object containing the in-memory ltoir code to load, or
             a file path string pointing to the on-disk ltoir file to load.
         name : Optional[str]
@@ -550,12 +549,12 @@ class ObjectCode:
         return ObjectCode._init(module, "ltoir", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_fatbin(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_fatbin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing fatbin.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes| str
             Either a bytes object containing the in-memory fatbin to load, or
             a file path string pointing to the on-disk fatbin to load.
         name : Optional[str]
@@ -568,12 +567,12 @@ class ObjectCode:
         return ObjectCode._init(module, "fatbin", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_object(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing object code.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes | str
             Either a bytes object containing the in-memory object code to load, or
             a file path string pointing to the on-disk object code to load.
         name : Optional[str]
@@ -586,12 +585,12 @@ class ObjectCode:
         return ObjectCode._init(module, "object", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_library(module: Union[bytes, str], *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
         """Create an :class:`ObjectCode` instance from an existing library.
 
         Parameters
         ----------
-        module : Union[bytes, str]
+        module : bytes | str
             Either a bytes object containing the in-memory library to load, or
             a file path string pointing to the on-disk library to load.
         name : Optional[str]

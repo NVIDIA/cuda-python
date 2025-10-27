@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from dataclasses import dataclass
-from typing import Union
 
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._utils.cuda_utils import (
@@ -45,15 +44,15 @@ class LaunchConfig:
 
     Attributes
     ----------
-    grid : Union[tuple, int]
+    grid : tuple | int
         Collection of threads that will execute a kernel function. When cluster
         is not specified, this represents the number of blocks, otherwise
         this represents the number of clusters.
-    cluster : Union[tuple, int]
+    cluster : tuple | int
         Group of blocks (Thread Block Cluster) that will execute on the same
         GPU Processing Cluster (GPC). Blocks within a cluster have access to
         distributed shared memory and can be explicitly synchronized.
-    block : Union[tuple, int]
+    block : tuple | int
         Group of threads (Thread Block) that will execute on the same
         streaming multiprocessor (SM). Threads within a thread blocks have
         access to shared memory and can be explicitly synchronized.
@@ -65,9 +64,9 @@ class LaunchConfig:
     """
 
     # TODO: expand LaunchConfig to include other attributes
-    grid: Union[tuple, int] = None
-    cluster: Union[tuple, int] = None
-    block: Union[tuple, int] = None
+    grid: tuple | int = None
+    cluster: tuple | int = None
+    block: tuple | int = None
     shmem_size: int | None = None
     cooperative_launch: bool | None = False
 

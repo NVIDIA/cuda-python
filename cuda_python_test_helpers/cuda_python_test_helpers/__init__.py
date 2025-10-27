@@ -7,7 +7,6 @@ import os
 import platform
 import sys
 from contextlib import suppress
-from typing import Union
 
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
@@ -38,7 +37,7 @@ else:
 
 
 @functools.cache
-def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
+def supports_ipc_mempool(device_id: int | object) -> bool:
     """Return True if mempool IPC via POSIX file descriptor is supported.
 
     Uses cuDeviceGetAttribute(CU_DEVICE_ATTRIBUTE_MEMPOOL_SUPPORTED_HANDLE_TYPES)
