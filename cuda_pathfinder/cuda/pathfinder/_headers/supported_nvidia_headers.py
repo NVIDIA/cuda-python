@@ -57,3 +57,17 @@ SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK = {
     "nvrtc": ("nvidia/cu13/include", "nvidia/cuda_nvrtc/include"),
     "nvvm": ("nvidia/cu13/include", "nvidia/cuda_nvcc/nvvm/include"),
 }
+
+SUPPORTED_HEADERS_NON_CTK = {
+    "cutensor": "cutensor.h",
+    "nvshmem": "nvshmem.h",
+}
+
+SUPPORTED_SITE_PACKAGE_HEADER_DIRS_NON_CTK = {
+    "cutensor": ("cutensor/include",),
+    "nvshmem": ("nvidia/nvshmem/include",),
+}
+
+SUPPORTED_INSTALL_DIRS_NON_CTK = {
+    "nvshmem": ("/usr/include/nvshmem_*",),
+}

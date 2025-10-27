@@ -18,6 +18,7 @@ test = [
 cu12 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl]==12.*",
     "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
+    "cutensor-cu12",
     "nvidia-cublasmp-cu12; sys_platform != 'win32'",
     "nvidia-cudss-cu12",
     "nvidia-cufftmp-cu12; sys_platform != 'win32'",
@@ -28,6 +29,7 @@ cu12 = [
 cu13 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,nvvm]==13.*",
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
+    "cutensor-cu13",
     "nvidia-cublasmp-cu13; sys_platform != 'win32'",
     "nvidia-cudss-cu13",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
