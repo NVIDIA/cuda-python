@@ -503,9 +503,9 @@ class ObjectCode:
         module : bytes | str
             Either a bytes object containing the in-memory cubin to load, or
             a file path string pointing to the on-disk cubin to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -521,9 +521,9 @@ class ObjectCode:
         module : bytes | str
             Either a bytes object containing the in-memory ptx code to load, or
             a file path string pointing to the on-disk ptx file to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -539,9 +539,9 @@ class ObjectCode:
         module : bytes, str
             Either a bytes object containing the in-memory ltoir code to load, or
             a file path string pointing to the on-disk ltoir file to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -554,12 +554,12 @@ class ObjectCode:
 
         Parameters
         ----------
-        module : bytes| str
+        module : bytes | str
             Either a bytes object containing the in-memory fatbin to load, or
             a file path string pointing to the on-disk fatbin to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -575,9 +575,9 @@ class ObjectCode:
         module : bytes | str
             Either a bytes object containing the in-memory object code to load, or
             a file path string pointing to the on-disk object code to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
@@ -593,9 +593,9 @@ class ObjectCode:
         module : bytes | str
             Either a bytes object containing the in-memory library to load, or
             a file path string pointing to the on-disk library to load.
-        name : Optional[str]
+        name : str | None
             A human-readable identifier representing this code object.
-        symbol_mapping : Optional[dict]
+        symbol_mapping : dict | None
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).

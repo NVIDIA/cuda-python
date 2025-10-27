@@ -288,9 +288,9 @@ class ProgramOptions:
     device_int128: bool | None = None
     optimization_info: str | None = None
     no_display_error_number: bool | None = None
-    diag_error: int | list[int] | tuple[int] | None = None
-    diag_suppress: int | list[int] | tuple[int] | None = None
-    diag_warn: int | list[int] | tuple[int] | None = None
+    diag_error: int | list[int] | tuple[int, ...] | None = None
+    diag_suppress: int | list[int] | tuple[int, ...] | None = None
+    diag_warn: int | list[int] | tuple[int, ...] | None = None
     brief_diagnostics: bool | None = None
     time: str | None = None
     split_compile: int | None = None
