@@ -8,7 +8,6 @@
 import argparse
 import os
 import re
-from typing import Dict, Set
 
 _SITE_PACKAGES_RE = re.compile(r"(?i)^.*?/site-packages/")
 
@@ -19,7 +18,7 @@ def strip_site_packages_prefix(p: str) -> str:
     return _SITE_PACKAGES_RE.sub("", p)
 
 
-def parse_lines_linux(lines) -> Dict[str, Set[str]]:
+def parse_lines_linux(lines) -> dict[str, set[str]]:
     d = {}  # name -> set of dirs
     for raw in lines:
         line = raw.strip()
@@ -53,9 +52,9 @@ def extract_libname_from_dll(fname: str) -> str | None:
     return name or None
 
 
-def parse_lines_windows(lines) -> Dict[str, Set[str]]:
+def parse_lines_windows(lines) -> dict[str, set[str]]:
     """Collect {libname: set(dirnames)} with deduped directories."""
-    m: Dict[str, Set[str]] = {}
+    m: dict[str, set[str]] = {}
     for raw in lines:
         line = raw.strip()
         if not line or line.startswith("#"):
@@ -69,7 +68,7 @@ def parse_lines_windows(lines) -> Dict[str, Set[str]]:
     return m
 
 
-def dict_literal(d: Dict[str, Set[str]]) -> str:
+def dict_literal(d: dict[str, set[str]]) -> str:
     """Pretty, stable dict literal with tuple values (singletons keep trailing comma)."""
     lines = ["{"]
     for k in sorted(d):
