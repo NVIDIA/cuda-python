@@ -5,7 +5,6 @@ import ctypes
 import ctypes.wintypes
 import os
 import struct
-from typing import Optional
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL
 from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
@@ -100,10 +99,7 @@ def abs_path_for_dynamic_library(libname: str, handle: ctypes.wintypes.HMODULE) 
     return buffer.value
 
 
-def check_if_already_loaded_from_elsewhere(
-    libname: str,
-    have_abs_path: bool,
-) -> Optional[LoadedDL]:
+def check_if_already_loaded_from_elsewhere(libname: str, have_abs_path: bool) -> LoadedDL | None:
     for dll_name in SUPPORTED_WINDOWS_DLLS.get(libname, ()):
         handle = kernel32.GetModuleHandleW(dll_name)
         if handle:
@@ -117,7 +113,7 @@ def check_if_already_loaded_from_elsewhere(
     return None
 
 
-def load_with_system_search(libname: str) -> Optional[LoadedDL]:
+def load_with_system_search(libname: str) -> LoadedDL | None:
     """Try to load a DLL using system search paths.
 
     Args:
@@ -136,7 +132,7 @@ def load_with_system_search(libname: str) -> Optional[LoadedDL]:
     return None
 
 
-def load_with_abs_path(libname: str, found_path: str, found_via: Optional[str] = None) -> LoadedDL:
+def load_with_abs_path(libname: str, found_path: str, found_via: str | None = None) -> LoadedDL:
     """Load a dynamic library from the given path.
 
     Args:
