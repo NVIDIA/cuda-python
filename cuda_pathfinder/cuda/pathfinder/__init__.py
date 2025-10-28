@@ -11,14 +11,17 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
 )
 from cuda.pathfinder._headers.find_nvidia_headers import find_nvidia_header_directory as find_nvidia_header_directory
 from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_CTK as _SUPPORTED_HEADERS_CTK
+from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_NON_CTK as _SUPPORTED_HEADERS_NON_CTK
 from cuda.pathfinder._version import __version__ as __version__
 
-# Indirection to help Sphinx find the docstring.
+# Indirections to help Sphinx find the docstrings.
 #: Mapping from short CUDA Toolkit (CTK) library names to their canonical
 #: header basenames (used to validate a discovered include directory).
 #: Example: ``"cublas" → "cublas.h"``. The key set is platform-aware
 #: (e.g., ``"cufile"`` may be Linux-only).
 SUPPORTED_HEADERS_CTK = _SUPPORTED_HEADERS_CTK
+#: Mapping from non-CTK library names to their canonical header basenames.
+SUPPORTED_HEADERS_NON_CTK = _SUPPORTED_HEADERS_NON_CTK
 
 # Backward compatibility: _find_nvidia_header_directory was added in release 1.2.2.
 # It will be removed in release 1.2.4.
