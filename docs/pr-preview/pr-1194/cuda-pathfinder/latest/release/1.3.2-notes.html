@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda-pathfinder 1.2.0 Release notes &#8212; cuda.pathfinder</title>
+    <title>cuda-pathfinder 1.3.2 Release notes &#8212; cuda.pathfinder</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'release/1.2.0-notes';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release/1.3.2-notes';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-pathfinder/nv-versions.json';
@@ -55,12 +55,11 @@
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
-    <link rel="canonical" href="docs/release/1.2.0-notes.html" />
+    <link rel="canonical" href="docs/release/1.3.2-notes.html" />
     <link rel="icon" href="../_static/favicon.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda-pathfinder 1.2.1 Release notes" href="1.2.1-notes.html" />
-    <link rel="prev" title="cuda-pathfinder 1.1.0 Release notes" href="1.1.0-notes.html" />
+    <link rel="prev" title="cuda-pathfinder 1.3.1 Release notes" href="1.3.1-notes.html" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -400,13 +399,13 @@
 </ul>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="1.3.2-notes.html">1.3.2</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">1.3.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.3.1-notes.html">1.3.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.3.0-notes.html">1.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.2.3-notes.html">1.2.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.2.2-notes.html">1.2.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.2.1-notes.html">1.2.1</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">1.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1.2.0-notes.html">1.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.1.0-notes.html">1.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="1.0.0-notes.html">1.0.0</a></li>
 </ul>
@@ -448,7 +447,7 @@
     
     <li class="breadcrumb-item"><a href="../release.html" class="nav-link">Release Notes</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> 1.2.0 Release notes</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> 1.3.2 Release notes</span></li>
   </ul>
 </nav>
 </div>
@@ -465,36 +464,14 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-pathfinder-1-2-0-release-notes">
-<h1><code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> 1.2.0 Release notes<a class="headerlink" href="#cuda-pathfinder-1-2-0-release-notes" title="Link to this heading">#</a></h1>
-<p>Released on Aug 29, 2025</p>
+  <section id="cuda-pathfinder-1-3-2-release-notes">
+<h1><code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> 1.3.2 Release notes<a class="headerlink" href="#cuda-pathfinder-1-3-2-release-notes" title="Link to this heading">#</a></h1>
+<p>Released on Oct 29, 2025</p>
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Reverse tabulated names to achieve new → old search order (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/921">PR #921</a>)</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">SUPPORTED_LINUX_SONAMES</span></code> and <code class="docutils literal notranslate"><span class="pre">SUPPORTED_WINDOWS_DLLS</span></code> lists of DSOs are searched from new → old</p></li>
-</ul>
-</li>
-<li><p>Support non-CTK Nvidia libraries (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/864">PR #864</a>)</p>
-<ul>
-<li><p>Adds support for non-CTK Nvidia libraries: <code class="docutils literal notranslate"><span class="pre">mathdx</span></code>, <code class="docutils literal notranslate"><span class="pre">cufftMp</span></code>, <code class="docutils literal notranslate"><span class="pre">nvshmem_host</span></code>, <code class="docutils literal notranslate"><span class="pre">nvpl_fftw</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">RTLD_DI_LINKMAP</span></code>-based new implementation of <code class="docutils literal notranslate"><span class="pre">abs_path_for_dynamic_library()</span></code> (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/834">PR #834</a>)</p>
-<ul>
-<li><p>Eliminates <code class="docutils literal notranslate"><span class="pre">supported_nvidia_libs.EXPECTED_LIB_SYMBOLS</span></code> entirely, providing major simplification</p></li>
-<li><p>Step towards resolving library discovery issues</p></li>
-<li><p>Includes minor fixes and cleanup</p></li>
-</ul>
-</li>
-<li><p>Make <code class="docutils literal notranslate"><span class="pre">add_dll_directory()</span></code> and <code class="docutils literal notranslate"><span class="pre">load_dependencies()</span></code> side-effects more deterministic (<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/855">PR #855</a>)</p>
-<ul>
-<li><p>Improves stability in general and supports nvmath specifically</p></li>
-<li><p>Proactive change to improve library loading consistency</p></li>
-<li><p>Drops boilerplate docstrings for private functions</p></li>
-</ul>
-</li>
+<li><p>Add cuTENSOR support &amp; bug fixes discovered while working on conda testing
+(<a class="reference external" href="https://github.com/NVIDIA/cuda-python/pull/1194">PR #1194</a>)</p></li>
 </ul>
 </section>
 </section>
@@ -510,22 +487,13 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="1.1.0-notes.html"
+       href="1.3.1-notes.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> 1.1.0 Release notes</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> 1.3.1 Release notes</p>
       </div>
-    </a>
-    <a class="right-next"
-       href="1.2.1-notes.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda-pathfinder</span></code> 1.2.1 Release notes</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>
