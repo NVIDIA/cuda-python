@@ -27,6 +27,7 @@ from cuda.pathfinder._headers.supported_nvidia_headers import (
     SUPPORTED_HEADERS_CTK,
     SUPPORTED_HEADERS_CTK_ALL,
     SUPPORTED_HEADERS_NON_CTK,
+    SUPPORTED_HEADERS_NON_CTK_ALL,
     SUPPORTED_INSTALL_DIRS_NON_CTK,
     SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK,
 )
@@ -47,7 +48,7 @@ def test_unknown_libname():
 
 def test_non_ctk_importlib_metadata_distributions_names():
     # Ensure the dict keys above stay in sync with supported_nvidia_headers
-    assert sorted(NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES) == sorted(SUPPORTED_HEADERS_NON_CTK)
+    assert sorted(NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES) == sorted(SUPPORTED_HEADERS_NON_CTK_ALL)
 
 
 @functools.cache
