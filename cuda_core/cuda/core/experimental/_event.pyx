@@ -7,14 +7,13 @@ from __future__ import annotations
 cimport cpython
 from libc.stdint cimport uintptr_t
 from libc.string cimport memcpy
-
 from cuda.bindings cimport cydriver
-
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN
 )
 
+import cython
 from dataclasses import dataclass
 import multiprocessing
 from typing import TYPE_CHECKING, Optional
@@ -277,7 +276,7 @@ cdef class IPCEventDescriptor:
         raise RuntimeError("IPCEventDescriptor objects cannot be instantiated directly. Please use Event APIs.")
 
     @classmethod
-    def _init(cls, reserved: bytes, busy_waited: bint):
+    def _init(cls, reserved: bytes, busy_waited: cython.bint):
         cdef IPCEventDescriptor self = IPCEventDescriptor.__new__(cls)
         self._reserved = reserved
         self._busy_waited = busy_waited
