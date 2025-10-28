@@ -20,7 +20,7 @@ $cpkgs = @(
     "libcufftmp-dev",
     "libmathdx-dev",
     "libnvshmem3",
-    "libnvshmem-dev"
+    "libnvshmem-dev",
     "libnvpl-fft-dev"
 )
 
