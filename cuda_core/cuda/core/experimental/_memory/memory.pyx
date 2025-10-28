@@ -8,11 +8,8 @@ cimport cpython
 from libc.limits cimport ULLONG_MAX
 from libc.stdint cimport uintptr_t, intptr_t
 from libc.string cimport memset, memcpy
-
 from cuda.bindings cimport cydriver
-
-from cuda.core.experimental._stream cimport Stream as cyStream
-from cuda.core.experimental._stream cimport default_stream
+from cuda.core.experimental._stream cimport default_stream, Stream as cyStream
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
     check_or_create_options,
@@ -33,7 +30,7 @@ from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.cuda_utils import ( driver, Transaction, get_binding_version )
 
 if TYPE_CHECKING:
-    from ._device import Device
+    from .._device import Device
     import uuid
 
 
@@ -42,19 +39,6 @@ PyCapsule = TypeVar("PyCapsule")
 
 DevicePointerT = Union[driver.CUdeviceptr, int, None]
 """A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting :attr:`Buffer.handle`."""
-
-
-cdef class _cyBuffer:
-    """
-    Internal only. Responsible for offering fast C method access.
-    """
-    cdef:
-        intptr_t _ptr
-        size_t _size
-        _cyMemoryResource _mr
-        object _ptr_obj
-        cyStream _alloc_stream
-
 
 cdef class _cyMemoryResource:
     """
@@ -354,7 +338,6 @@ cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
         """
         # TODO: It is better to take a stream for latter deallocation
         return Buffer._init(ptr, size, mr=mr)
-
 
 cdef class MemoryResource(_cyMemoryResource, MemoryResourceAttributes, abc.ABC):
     """Abstract base class for memory resources that manage allocation and deallocation of buffers.
@@ -989,7 +972,7 @@ cdef class DeviceMemoryResource(MemoryResource):
 
 
 def _deep_reduce_device_memory_resource(mr):
-    from . import Device
+    from .._device import Device
     device = Device(mr.device_id)
     alloc_handle = mr.get_allocation_handle()
     return mr.from_allocation_handle, (device, alloc_handle)
