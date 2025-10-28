@@ -36,7 +36,7 @@ None.
 Fixes and enhancements
 ----------------------
 
-- Fixed a segmentation fault when accessing :class:`StridedMemoryView` ``shape`` and ``strides`` members.
+- Fixed a segmentation fault when accessing :class:`~utils.StridedMemoryView`'s ``shape`` and ``strides`` members.
 - Fixed :attr:`DeviceMemoryResourceOptions.max_size` not accepting values above ``INT_MAX``.
 - Fixed rendering of the documentation for :class:`VirtualMemoryResourceOptions`.
 - Fixed NumPy version requirement for the code sample ``thread_block_cluster.py``.
