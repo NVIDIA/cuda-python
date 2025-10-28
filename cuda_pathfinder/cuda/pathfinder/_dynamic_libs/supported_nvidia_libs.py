@@ -493,8 +493,8 @@ SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = {
 }
 SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER = {
     "mathdx": ("nvidia/cu13/bin/x86_64", "nvidia/cu12/bin"),
-    "cutensor": ("nvidia/cutensor/bin",),
-    "cutensorMg": ("nvidia/cutensor/bin",),
+    "cutensor": ("cutensor/bin",),
+    "cutensorMg": ("cutensor/bin",),
 }
 SITE_PACKAGES_LIBDIRS_WINDOWS = SITE_PACKAGES_LIBDIRS_WINDOWS_CTK | SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER
 
