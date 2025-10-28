@@ -82,6 +82,7 @@ DIRECT_DEPENDENCIES_CTK = {
 }
 DIRECT_DEPENDENCIES = DIRECT_DEPENDENCIES_CTK | {
     "mathdx": ("nvrtc",),
+    "cublasmp": ("cublas", "cublasLt", "nvshmem_host"),
     "cufftMp": ("nvshmem_host",),
     "cudss": ("cublas", "cublasLt"),
     "cutensor": ("cublasLt",),
