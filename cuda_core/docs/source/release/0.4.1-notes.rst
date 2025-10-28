@@ -6,7 +6,7 @@
 ``cuda.core`` 0.4.1 Release Notes
 =================================
 
-Released on Oct 28, 2025
+Released on Oct 29, 2025
 
 
 Highlights
@@ -37,3 +37,7 @@ Fixes and enhancements
 ----------------------
 
 - Fixed a segmentation fault when accessing :class:`StridedMemoryView` ``shape`` and ``strides`` members.
+- Fixed :attr:`DeviceMemoryResourceOptions.max_size` not accepting values above ``INT_MAX``.
+- Fixed redendering of the documentation for :class:`VirtualMemoryResourceOptions`.
+- Fixed NumPy version requirement for the code sample ``thread_block_cluster.py``.
+- Fixed VMM-related tests.
