@@ -147,15 +147,15 @@ def find_nvidia_header_directory(libname: str) -> Optional[str]:
     hdr_dir: Optional[str]  # help mypy
     for cdir in candidate_dirs:
         if hdr_dir := _find_under_site_packages(cdir, h_basename):
-            return hdr_dir
+            return _abs_norm(hdr_dir)
 
     if hdr_dir := _find_based_on_conda_layout(libname, h_basename, False):
-        return hdr_dir
+        return _abs_norm(hdr_dir)
 
     candidate_dirs = supported_nvidia_headers.SUPPORTED_INSTALL_DIRS_NON_CTK.get(libname, [])
     for cdir in candidate_dirs:
         for hdr_dir in sorted(glob.glob(cdir), reverse=True):
             if _joined_isfile(hdr_dir, h_basename):
-                return hdr_dir
+                return _abs_norm(hdr_dir)
 
     return None
