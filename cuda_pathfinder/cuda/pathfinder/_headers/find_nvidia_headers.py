@@ -38,6 +38,14 @@ def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) 
     parts.append("include")
     idir = os.path.join(*parts)
     if libname == "cccl":
+        if IS_WINDOWS:
+            cdir_ctk12 = os.path.join(idir, "targets", "x64")
+            cdir_ctk13 = os.path.join(cdir_ctk12, "cccl")
+            if _joined_isfile(cdir_ctk13, h_basename):
+                return cdir_ctk13
+            if _joined_isfile(cdir_ctk12, h_basename):
+                return cdir_ctk12
+            return None
         cdir = os.path.join(idir, "cccl")  # CTK 13
         if _joined_isfile(cdir, h_basename):
             return cdir
