@@ -71,6 +71,7 @@ def test_runtime_error_on_non_64bit_python():
 
 
 IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
+    "cufftMp": r"^nvidia-cufftmp-.*$",
     "mathdx": r"^nvidia-libmathdx-.*$",
 }
 
