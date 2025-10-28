@@ -3,10 +3,7 @@
 
 # Currently these installations are only manually tested:
 
-# conda create --yes -n pathfinder_cu13 python=3.13 cuda-toolkit=13.0.2
-# conda activate pathfinder_cu13
-# conda install -y conda-forge::cutensor
-# conda install -y conda-forge::libnvshmem3 conda-forge::libnvshmem-dev
+# ../toolshed/conda_create_for_pathfinder_testing.*
 
 # wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
 # sudo dpkg -i cuda-keyring_1.1-1_all.deb
