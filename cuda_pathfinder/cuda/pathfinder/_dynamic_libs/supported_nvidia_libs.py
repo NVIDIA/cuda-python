@@ -241,7 +241,7 @@ SUPPORTED_LINUX_SONAMES_CTK = {
 }
 SUPPORTED_LINUX_SONAMES_OTHER = {
     "cublasmp": ("libcublasmp.so.0",),
-    "cufftMp": ("libcufftMp.so.11",),
+    "cufftMp": ("libcufftMp.so.12", "libcufftMp.so.11"),
     "mathdx": ("libmathdx.so.0",),
     "cudss": ("libcudss.so.0",),
     "cutensor": ("libcutensor.so.2",),
@@ -453,7 +453,7 @@ SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
 SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
     "cublasmp": ("nvidia/cublasmp/cu13/lib", "nvidia/cublasmp/cu12/lib"),
     "cudss": ("nvidia/cu13/lib", "nvidia/cu12/lib"),
-    "cufftMp": ("nvidia/cufftmp/cu12/lib",),
+    "cufftMp": ("nvidia/cufftmp/cu13/lib", "nvidia/cufftmp/cu12/lib"),
     "cutensor": ("cutensor/lib",),
     "cutensorMg": ("cutensor/lib",),
     "mathdx": ("nvidia/cu13/lib", "nvidia/cu12/lib"),
