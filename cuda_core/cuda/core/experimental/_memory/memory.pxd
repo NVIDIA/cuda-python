@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from libc.stdint cimport uintptr_t, intptr_t
-from cuda.core.experimental._stream cimport Stream as cyStream
+from cuda.core.experimental._stream cimport Stream as _cyStream
 
 from cuda.core.experimental._stream import Stream
 
@@ -17,7 +17,7 @@ cdef class _cyBuffer:
         size_t _size
         _cyMemoryResource _mr
         object _ptr_obj
-        cyStream _alloc_stream
+        _cyStream _alloc_stream
 
 
 cdef class Buffer(_cyBuffer):
@@ -28,9 +28,9 @@ cdef class _cyMemoryResource:
     """
     Internal only. Responsible for offering fast C method access.
     """
-    cdef Buffer _allocate(self, size_t size, cyStream stream)
-    cdef void _deallocate(self, intptr_t ptr, size_t size, cyStream stream) noexcept
+    cdef Buffer _allocate(self, size_t size, _cyStream stream)
+    cdef void _deallocate(self, intptr_t ptr, size_t size, _cyStream stream) noexcept
 
 
 cdef class MemoryResource(_cyMemoryResource):
-    cdef void _deallocate(self, intptr_t ptr, size_t size, cyStream stream) noexcept
+    cdef void _deallocate(self, intptr_t ptr, size_t size, _cyStream stream) noexcept

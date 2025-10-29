@@ -9,7 +9,7 @@ from libc.limits cimport ULLONG_MAX
 from libc.stdint cimport uintptr_t, intptr_t
 from libc.string cimport memset, memcpy
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._stream cimport default_stream, Stream as cyStream
+from cuda.core.experimental._stream cimport default_stream, Stream as _cyStream
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
     check_or_create_options,
@@ -44,10 +44,10 @@ cdef class _cyMemoryResource:
     """
     Internal only. Responsible for offering fast C method access.
     """
-    cdef Buffer _allocate(self, size_t size, cyStream stream):
+    cdef Buffer _allocate(self, size_t size, _cyStream stream):
         raise NotImplementedError
 
-    cdef void _deallocate(self, intptr_t ptr, size_t size, cyStream stream) noexcept:
+    cdef void _deallocate(self, intptr_t ptr, size_t size, _cyStream stream) noexcept:
         raise NotImplementedError
 
 
@@ -106,7 +106,7 @@ cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
         self._ptr_obj = ptr
         self._size = size
         self._mr = mr
-        self._alloc_stream = <cyStream>(stream) if stream is not None else None
+        self._alloc_stream = <_cyStream>(stream) if stream is not None else None
         return self
 
     def __dealloc__(self):
@@ -128,16 +128,16 @@ cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
             The stream object to use for asynchronous deallocation. If None,
             the behavior depends on the underlying memory resource.
         """
-        cdef cyStream s
+        cdef _cyStream s
         if self._ptr and self._mr is not None:
             if stream is None:
                 if self._alloc_stream is not None:
                     s = self._alloc_stream
                 else:
                     # TODO: remove this branch when from_handle takes a stream
-                    s = <cyStream>(default_stream())
+                    s = <_cyStream>(default_stream())
             else:
-                s = <cyStream>stream
+                s = <_cyStream>stream
             self._mr._deallocate(self._ptr, self._size, s)
             self._ptr = 0
             self._mr = None
@@ -348,7 +348,7 @@ cdef class MemoryResource(_cyMemoryResource, MemoryResourceAttributes, abc.ABC):
     hold a reference to self, the buffer properties are retrieved simply by looking up the underlying
     memory resource's respective property.)
     """
-    cdef void _deallocate(self, intptr_t ptr, size_t size, cyStream stream) noexcept:
+    cdef void _deallocate(self, intptr_t ptr, size_t size, _cyStream stream) noexcept:
         self.deallocate(ptr, size, stream)
 
     @abc.abstractmethod
@@ -867,7 +867,7 @@ cdef class DeviceMemoryResource(MemoryResource):
                 raise
         return self._alloc_handle
 
-    cdef Buffer _allocate(self, size_t size, cyStream stream):
+    cdef Buffer _allocate(self, size_t size, _cyStream stream):
         cdef cydriver.CUstream s = stream._handle
         cdef cydriver.CUdeviceptr devptr
         with nogil:
@@ -901,9 +901,9 @@ cdef class DeviceMemoryResource(MemoryResource):
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         if stream is None:
             stream = default_stream()
-        return self._allocate(size, <cyStream>stream)
+        return self._allocate(size, <_cyStream>stream)
 
-    cdef void _deallocate(self, intptr_t ptr, size_t size, cyStream stream) noexcept:
+    cdef void _deallocate(self, intptr_t ptr, size_t size, _cyStream stream) noexcept:
         cdef cydriver.CUstream s = stream._handle
         cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
         with nogil:
@@ -923,7 +923,7 @@ cdef class DeviceMemoryResource(MemoryResource):
             If the buffer is deallocated without an explicit stream, the allocation stream
             is used.
         """
-        self._deallocate(<intptr_t>ptr, size, <cyStream>stream)
+        self._deallocate(<intptr_t>ptr, size, <_cyStream>stream)
 
     @property
     def attributes(self) -> DeviceMemoryResourceAttributes:
