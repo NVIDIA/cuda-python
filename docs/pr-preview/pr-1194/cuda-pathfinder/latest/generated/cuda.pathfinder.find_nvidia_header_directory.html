@@ -60,7 +60,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Contributing" href="../contribute.html" />
-    <link rel="prev" title="cuda.pathfinder.SUPPORTED_HEADERS_NON_CTK" href="cuda.pathfinder.SUPPORTED_HEADERS_NON_CTK.html" />
+    <link rel="prev" title="cuda.pathfinder.SUPPORTED_HEADERS_CTK" href="cuda.pathfinder.SUPPORTED_HEADERS_CTK.html" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -391,7 +391,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.LoadedDL.html">cuda.pathfinder.LoadedDL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.DynamicLibNotFoundError.html">cuda.pathfinder.DynamicLibNotFoundError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.SUPPORTED_HEADERS_CTK.html">cuda.pathfinder.SUPPORTED_HEADERS_CTK</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.pathfinder.SUPPORTED_HEADERS_NON_CTK.html">cuda.pathfinder.SUPPORTED_HEADERS_NON_CTK</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.pathfinder.find_nvidia_header_directory</a></li>
 </ul>
 </details></li>
@@ -509,15 +508,6 @@ include directory layouts.</p></li>
 </ol>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<ul>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">SUPPORTED_HEADERS_CTK</span></code> dictionary maps each supported CUDA Toolkit
-(CTK) libname to the name of its canonical header (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;cublas&quot;</span> <span class="pre">→</span>
-<span class="pre">&quot;cublas.h&quot;</span></code>). This is used to verify that the located directory is valid.</p>
-<p>Similarly, the <code class="docutils literal notranslate"><span class="pre">SUPPORTED_HEADERS_NON_CTK</span></code> dictionary maps non-CTK
-libnames to the name of the corresponding canonical header.</p>
-</li>
-</ul>
 </dd></dl>
 
 </section>
@@ -533,12 +523,12 @@ libnames to the name of the corresponding canonical header.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.pathfinder.SUPPORTED_HEADERS_NON_CTK.html"
+       href="cuda.pathfinder.SUPPORTED_HEADERS_CTK.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.pathfinder.SUPPORTED_HEADERS_NON_CTK</p>
+        <p class="prev-next-title">cuda.pathfinder.SUPPORTED_HEADERS_CTK</p>
       </div>
     </a>
     <a class="right-next"
