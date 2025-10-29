@@ -125,14 +125,6 @@ def find_nvidia_header_directory(libname: str) -> Optional[str]:
         3. **CUDA Toolkit environment variables**
 
            - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
-
-    Notes:
-        - The ``SUPPORTED_HEADERS_CTK`` dictionary maps each supported CUDA Toolkit
-          (CTK) libname to the name of its canonical header (e.g., ``"cublas" →
-          "cublas.h"``). This is used to verify that the located directory is valid.
-
-          Similarly, the ``SUPPORTED_HEADERS_NON_CTK`` dictionary maps non-CTK
-          libnames to the name of the corresponding canonical header.
     """
 
     if libname in supported_nvidia_headers.SUPPORTED_HEADERS_CTK:
