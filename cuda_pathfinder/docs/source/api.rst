@@ -18,4 +18,5 @@ and experimental APIs for locating NVIDIA C/C++ header directories.
    DynamicLibNotFoundError
 
    SUPPORTED_HEADERS_CTK
+   SUPPORTED_HEADERS_NON_CTK
    find_nvidia_header_directory
