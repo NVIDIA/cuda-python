@@ -82,8 +82,11 @@ DIRECT_DEPENDENCIES_CTK = {
 }
 DIRECT_DEPENDENCIES = DIRECT_DEPENDENCIES_CTK | {
     "mathdx": ("nvrtc",),
+    "cublasmp": ("cublas", "cublasLt", "nvshmem_host"),
     "cufftMp": ("nvshmem_host",),
     "cudss": ("cublas", "cublasLt"),
+    "cutensor": ("cublasLt",),
+    "cutensorMg": ("cutensor", "cublasLt"),
 }
 
 # Based on these released files:
@@ -238,9 +241,11 @@ SUPPORTED_LINUX_SONAMES_CTK = {
 }
 SUPPORTED_LINUX_SONAMES_OTHER = {
     "cublasmp": ("libcublasmp.so.0",),
-    "cufftMp": ("libcufftMp.so.11",),
+    "cufftMp": ("libcufftMp.so.12", "libcufftMp.so.11"),
     "mathdx": ("libmathdx.so.0",),
     "cudss": ("libcudss.so.0",),
+    "cutensor": ("libcutensor.so.2",),
+    "cutensorMg": ("libcutensorMg.so.2",),
     "nccl": ("libnccl.so.2",),
     "nvpl_fftw": ("libnvpl_fftw.so.0",),
     "nvshmem_host": ("libnvshmem_host.so.3",),
@@ -402,6 +407,8 @@ SUPPORTED_WINDOWS_DLLS_CTK = {
 SUPPORTED_WINDOWS_DLLS_OTHER = {
     "mathdx": ("mathdx64_0.dll",),
     "cudss": ("cudss64_0.dll",),
+    "cutensor": ("cutensor.dll",),
+    "cutensorMg": ("cutensorMg.dll",),
 }
 SUPPORTED_WINDOWS_DLLS = SUPPORTED_WINDOWS_DLLS_CTK | SUPPORTED_WINDOWS_DLLS_OTHER
 
@@ -446,7 +453,9 @@ SITE_PACKAGES_LIBDIRS_LINUX_CTK = {
 SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
     "cublasmp": ("nvidia/cublasmp/cu13/lib", "nvidia/cublasmp/cu12/lib"),
     "cudss": ("nvidia/cu13/lib", "nvidia/cu12/lib"),
-    "cufftMp": ("nvidia/cufftmp/cu12/lib",),
+    "cufftMp": ("nvidia/cufftmp/cu13/lib", "nvidia/cufftmp/cu12/lib"),
+    "cutensor": ("cutensor/lib",),
+    "cutensorMg": ("cutensor/lib",),
     "mathdx": ("nvidia/cu13/lib", "nvidia/cu12/lib"),
     "nccl": ("nvidia/nccl/lib",),
     "nvpl_fftw": ("nvpl/lib",),
@@ -484,7 +493,10 @@ SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = {
     "nvvm": ("nvidia/cu13/bin/x86_64", "nvidia/cuda_nvcc/nvvm/bin"),
 }
 SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER = {
+    "cudss": ("nvidia/cu13/bin", "nvidia/cu12/bin"),
     "mathdx": ("nvidia/cu13/bin/x86_64", "nvidia/cu12/bin"),
+    "cutensor": ("cutensor/bin",),
+    "cutensorMg": ("cutensor/bin",),
 }
 SITE_PACKAGES_LIBDIRS_WINDOWS = SITE_PACKAGES_LIBDIRS_WINDOWS_CTK | SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER
 
