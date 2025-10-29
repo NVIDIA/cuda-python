@@ -967,34 +967,3 @@ def _deep_reduce_device_memory_resource(mr):
 multiprocessing.reduction.register(DeviceMemoryResource, _deep_reduce_device_memory_resource)
 
 
-class _SynchronousMemoryResource(MemoryResource):
-    __slots__ = ("_dev_id",)
-
-    def __init__(self, device_id : int | Device):
-        self._dev_id = getattr(device_id, 'device_id', device_id)
-
-    def allocate(self, size, stream=None) -> Buffer:
-        if stream is None:
-            stream = default_stream()
-        err, ptr = driver.cuMemAlloc(size)
-        raise_if_driver_error(err)
-        return Buffer._init(ptr, size, self)
-
-    def deallocate(self, ptr, size, stream):
-        stream.sync()
-        err, = driver.cuMemFree(ptr)
-        raise_if_driver_error(err)
-
-    @property
-    def is_device_accessible(self) -> bool:
-        return True
-
-    @property
-    def is_host_accessible(self) -> bool:
-        return False
-
-    @property
-    def device_id(self) -> int:
-        return self._dev_id
-
-

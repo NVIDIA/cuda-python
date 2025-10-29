@@ -1,5 +1,4 @@
 from .memory import *
-from .memory import _SynchronousMemoryResource
-from .legacy import LegacyPinnedMemoryResource
+from .legacy import LegacyPinnedMemoryResource, _SynchronousMemoryResource
 from .vmm import VirtualMemoryResourceOptions, VirtualMemoryResource
 
