@@ -9,6 +9,7 @@ hashed and used as dictionary keys and in sets, following the pattern
 established by PyTorch and CuPy.
 """
 
+import pytest
 from cuda.core.experimental import Device, Stream
 from cuda.core.experimental._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
 
@@ -261,7 +262,8 @@ def test_device_inequality_different_id(init_cuda):
         assert dev0 != dev1, "Different devices should not be equal"
         assert hash(dev0) != hash(dev1), "Different devices should have different hashes"
     except (ValueError, Exception):
-        pass
+        # Test is skipped if only one device available
+        pytest.skip("Test requires at least 2 CUDA devices")
 
 
 def test_device_dict_key(init_cuda):
@@ -346,13 +348,13 @@ def test_cache_pattern_example(init_cuda):
     assert result1 == result2, "Should get same cached result"
 
     # Third call with same stream - another hit
-    result3 = compute_on_stream(s1, "input1")
+    _ = compute_on_stream(s1, "input1")
     assert cache_hits == 2, "Third call should be cache hit"
     assert cache_misses == 1, "Should still have 1 cache miss"
 
     # Different stream - should miss
     s2 = device.create_stream()
-    result4 = compute_on_stream(s2, "input1")
+    _ = compute_on_stream(s2, "input1")
     assert cache_hits == 2, "Different stream should not affect hit count"
     assert cache_misses == 2, "Should have 2 cache misses now"
     assert len(stream_results) == 2, "Should have 2 cache entries"
