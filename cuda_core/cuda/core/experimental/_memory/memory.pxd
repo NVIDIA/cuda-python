@@ -5,6 +5,7 @@
 from libc.stdint cimport uintptr_t, intptr_t
 from cuda.bindings cimport cydriver
 
+from cuda.core.experimental._memory.ipc cimport IPCAllocationHandle
 from cuda.core.experimental._stream cimport Stream as _cyStream
 
 
@@ -28,20 +29,6 @@ cdef class Buffer(_cyBuffer):
 
 cdef class MemoryResource(_cyMemoryResource):
     cdef void _deallocate(self, intptr_t ptr, size_t size, _cyStream stream) noexcept
-
-
-cdef class IPCBufferDescriptor:
-    cdef:
-        bytes _reserved
-        size_t _size
-
-
-cdef class IPCAllocationHandle:
-    cdef:
-        int _handle
-        object _uuid
-
-    cpdef close(self)
 
 
 cdef class DeviceMemoryResource(MemoryResource):

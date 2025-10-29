@@ -9,6 +9,7 @@ from libc.limits cimport ULLONG_MAX
 from libc.stdint cimport uintptr_t, intptr_t
 from libc.string cimport memset, memcpy
 from cuda.bindings cimport cydriver
+from cuda.core.experimental._memory.ipc cimport IPCAllocationHandle, IPCBufferDescriptor
 from cuda.core.experimental._stream cimport default_stream, Stream as _cyStream
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
@@ -343,6 +344,7 @@ cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
         # TODO: It is better to take a stream for latter deallocation
         return Buffer._init(ptr, size, mr=mr)
 
+
 cdef class MemoryResource(_cyMemoryResource, MemoryResourceAttributes, abc.ABC):
     """Abstract base class for memory resources that manage allocation and deallocation of buffers.
 
@@ -398,80 +400,6 @@ cdef class MemoryResource(_cyMemoryResource, MemoryResourceAttributes, abc.ABC):
 # type is set equal to the no-IPC handle type.
 cdef cydriver.CUmemAllocationHandleType _IPC_HANDLE_TYPE = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR \
     if platform.system() == "Linux" else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
-
-
-cdef class IPCBufferDescriptor:
-    """Serializable object describing a buffer that can be shared between processes."""
-
-    def __init__(self, *arg, **kwargs):
-        raise RuntimeError("IPCBufferDescriptor objects cannot be instantiated directly. Please use MemoryResource APIs.")
-
-    @classmethod
-    def _init(cls, reserved: bytes, size: int):
-        cdef IPCBufferDescriptor self = IPCBufferDescriptor.__new__(cls)
-        self._reserved = reserved
-        self._size = size
-        return self
-
-    def __reduce__(self):
-        return self._init, (self._reserved, self._size)
-
-    @property
-    def size(self):
-        return self._size
-
-
-cdef class IPCAllocationHandle:
-    """Shareable handle to an IPC-enabled device memory pool."""
-
-    def __init__(self, *arg, **kwargs):
-        raise RuntimeError("IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.")
-
-    @classmethod
-    def _init(cls, handle: int, uuid: uuid.UUID):
-        cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)
-        assert handle >= 0
-        self._handle = handle
-        self._uuid = uuid
-        return self
-
-    cpdef close(self):
-        """Close the handle."""
-        if self._handle >= 0:
-            try:
-                os.close(self._handle)
-            finally:
-                self._handle = -1
-                self._uuid = None
-
-    def __dealloc__(self):
-        self.close()
-
-    def __int__(self) -> int:
-        if self._handle < 0:
-            raise ValueError(
-                f"Cannot convert IPCAllocationHandle to int: the handle (id={id(self)}) is closed."
-            )
-        return self._handle
-
-    @property
-    def handle(self) -> int:
-        return self._handle
-
-    @property
-    def uuid(self) -> uuid.UUID:
-        return self._uuid
-
-
-def _reduce_allocation_handle(alloc_handle):
-    df = multiprocessing.reduction.DupFd(alloc_handle.handle)
-    return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)
-
-def _reconstruct_allocation_handle(cls, df, uuid):
-    return cls._init(df.detach(), uuid)
-
-
-multiprocessing.reduction.register(IPCAllocationHandle, _reduce_allocation_handle)
 
 
 @dataclass
