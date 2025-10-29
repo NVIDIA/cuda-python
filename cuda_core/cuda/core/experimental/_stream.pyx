@@ -197,6 +197,48 @@ cdef class Stream:
         """Return an instance of a __cuda_stream__ protocol."""
         return (0, <uintptr_t>(self._handle))
 
+    def __hash__(self) -> int:
+        """Return hash based on the underlying CUstream handle address.
+        
+        This enables Stream objects to be used as dictionary keys and in sets.
+        Two Stream objects wrapping the same underlying CUDA stream will hash
+        to the same value and be considered equal.
+        
+        Returns
+        -------
+        int
+            Hash value based on the stream handle address.
+        
+        Warning
+        -------
+        Using a closed or destroyed stream as a dictionary key or in a set
+        results in undefined behavior. The stream handle may be reused by
+        the CUDA driver for new streams.
+        """
+        return hash(<uintptr_t>(self._handle))
+
+    def __eq__(self, other) -> bool:
+        """Check equality based on the underlying CUstream handle address.
+        
+        Two Stream objects are considered equal if they wrap the same
+        underlying CUDA stream, regardless of whether they are the same
+        Python object.
+        
+        Parameters
+        ----------
+        other : object
+            Another object to compare with.
+        
+        Returns
+        -------
+        bool
+            True if other is a Stream wrapping the same handle, False otherwise.
+            Returns NotImplemented if other is not a Stream.
+        """
+        if not isinstance(other, Stream):
+            return NotImplemented
+        return <uintptr_t>(self._handle) == <uintptr_t>((<Stream>other)._handle)
+
     @property
     def handle(self) -> cuda.bindings.driver.CUstream:
         """Return the underlying ``CUstream`` object.

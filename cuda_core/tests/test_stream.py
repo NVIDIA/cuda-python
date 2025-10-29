@@ -80,8 +80,9 @@ def test_stream_from_foreign_stream(init_cuda):
     device = Device()
     other_stream = device.create_stream(options=StreamOptions())
     stream = device.create_stream(obj=other_stream)
-    # convert to int to work around NVIDIA/cuda-python#465
-    assert int(other_stream.handle) == int(stream.handle)
+    # Now that __eq__ is implemented (issue #664), we can compare directly
+    assert other_stream == stream
+    assert hash(other_stream) == hash(stream)
     device = stream.device
     assert isinstance(device, Device)
     context = stream.context

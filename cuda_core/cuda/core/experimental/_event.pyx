@@ -165,6 +165,48 @@ cdef class Event:
                 raise CUDAError(err)
             raise RuntimeError(explanation)
 
+    def __hash__(self) -> int:
+        """Return hash based on the underlying CUevent handle address.
+        
+        This enables Event objects to be used as dictionary keys and in sets.
+        Two Event objects wrapping the same underlying CUDA event will hash
+        to the same value and be considered equal.
+        
+        Returns
+        -------
+        int
+            Hash value based on the event handle address.
+        
+        Warning
+        -------
+        Using a closed or destroyed event as a dictionary key or in a set
+        results in undefined behavior. The event handle may be reused by
+        the CUDA driver for new events.
+        """
+        return hash(<uintptr_t>(self._handle))
+
+    def __eq__(self, other) -> bool:
+        """Check equality based on the underlying CUevent handle address.
+        
+        Two Event objects are considered equal if they wrap the same
+        underlying CUDA event, regardless of whether they are the same
+        Python object.
+        
+        Parameters
+        ----------
+        other : object
+            Another object to compare with.
+        
+        Returns
+        -------
+        bool
+            True if other is an Event wrapping the same handle, False otherwise.
+            Returns NotImplemented if other is not an Event.
+        """
+        if not isinstance(other, Event):
+            return NotImplemented
+        return <uintptr_t>(self._handle) == <uintptr_t>((<Event>other)._handle)
+
     def get_ipc_descriptor(self) -> IPCEventDescriptor:
         """Export an event allocated for sharing between processes."""
         if self._ipc_descriptor is not None:

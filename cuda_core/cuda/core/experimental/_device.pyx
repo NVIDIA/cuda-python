@@ -1145,6 +1145,49 @@ class Device:
     def __repr__(self):
         return f"<Device {self._id} ({self.name})>"
 
+    def __hash__(self) -> int:
+        """Return hash based on the device ordinal.
+        
+        This enables Device objects to be used as dictionary keys and in sets.
+        Device objects with the same device_id will hash to the same value
+        and be considered equal, even if they are different Python objects or
+        exist on different threads.
+        
+        Returns
+        -------
+        int
+            Hash value based on the device ordinal (device_id).
+        
+        Notes
+        -----
+        Device is a per-thread singleton, but equality is based on logical
+        device identity (device_id), not Python object identity. This means
+        Device(0) on thread A equals Device(0) on thread B.
+        """
+        return hash(self._id)
+
+    def __eq__(self, other) -> bool:
+        """Check equality based on the device ordinal.
+        
+        Two Device objects are considered equal if they have the same device_id,
+        regardless of whether they are the same Python object or exist on
+        different threads.
+        
+        Parameters
+        ----------
+        other : object
+            Another object to compare with.
+        
+        Returns
+        -------
+        bool
+            True if other is a Device with the same device_id, False otherwise.
+            Returns NotImplemented if other is not a Device.
+        """
+        if not isinstance(other, Device):
+            return NotImplemented
+        return self._id == other._id
+
     def __reduce__(self):
         return Device, (self.device_id,)
 
