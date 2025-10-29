@@ -399,10 +399,6 @@ cdef cydriver.CUmemAllocationHandleType _IPC_HANDLE_TYPE = cydriver.CUmemAllocat
 cdef class IPCBufferDescriptor:
     """Serializable object describing a buffer that can be shared between processes."""
 
-    cdef:
-        bytes _reserved
-        size_t _size
-
     def __init__(self, *arg, **kwargs):
         raise RuntimeError("IPCBufferDescriptor objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
@@ -423,10 +419,6 @@ cdef class IPCBufferDescriptor:
 
 cdef class IPCAllocationHandle:
     """Shareable handle to an IPC-enabled device memory pool."""
-
-    cdef:
-        int _handle
-        object _uuid
 
     def __init__(self, *arg, **kwargs):
         raise RuntimeError("IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.")
@@ -643,16 +635,6 @@ cdef class DeviceMemoryResource(MemoryResource):
     methods.  The reconstruction procedure uses the registry to find the
     associated MMR.
     """
-    cdef:
-        int _dev_id
-        cydriver.CUmemoryPool _mempool_handle
-        object _attributes
-        cydriver.CUmemAllocationHandleType _ipc_handle_type
-        bint _mempool_owned
-        bint _is_mapped
-        object _uuid
-        IPCAllocationHandle _alloc_handle
-        object __weakref__
 
     def __cinit__(self):
         self._dev_id = cydriver.CU_DEVICE_INVALID
