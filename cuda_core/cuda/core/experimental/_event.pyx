@@ -183,7 +183,7 @@ cdef class Event:
         results in undefined behavior. The event handle may be reused by
         the CUDA driver for new events.
         """
-        return hash(int(self._handle))
+        return hash(<uintptr_t>(self._handle))
 
     def __eq__(self, other) -> bool:
         """Check equality based on the underlying CUevent handle address.
