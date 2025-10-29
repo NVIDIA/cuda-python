@@ -51,7 +51,7 @@ def test_stream_equality_symmetric(init_cuda):
 
 
 def test_stream_type_safety(init_cuda):
-    """Comparing Stream with wrong type should return NotImplemented/False."""
+    """Comparing Stream with wrong type should return False."""
     stream = Device().create_stream()
 
     # These should not raise exceptions
@@ -98,7 +98,7 @@ def test_event_inequality_different_events(init_cuda):
 
 
 def test_event_type_safety(init_cuda):
-    """Comparing Event with wrong type should return NotImplemented/False."""
+    """Comparing Event with wrong type should return False."""
     device = Device()
     stream = device.create_stream()
     event = stream.record()
@@ -137,7 +137,7 @@ def test_context_equality_reflexive(init_cuda):
 
 
 def test_context_type_safety(init_cuda):
-    """Comparing Context with wrong type should return NotImplemented/False."""
+    """Comparing Context with wrong type should return False."""
     device = Device()
     context = device.create_stream().context
 
@@ -180,7 +180,7 @@ def test_device_inequality_different_id(init_cuda):
 
 
 def test_device_type_safety(init_cuda):
-    """Comparing Device with wrong type should return NotImplemented/False."""
+    """Comparing Device with wrong type should return False."""
     device = Device(0)
 
     assert (device == "not a device") is False

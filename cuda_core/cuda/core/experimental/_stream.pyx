@@ -233,10 +233,9 @@ cdef class Stream:
         -------
         bool
             True if other is a Stream wrapping the same handle, False otherwise.
-            Returns NotImplemented if other is not a Stream.
         """
         if not isinstance(other, Stream):
-            return NotImplemented
+            return False
         return <uintptr_t>(self._handle) == <uintptr_t>((<Stream>other)._handle)
 
     @property

@@ -201,10 +201,9 @@ cdef class Event:
         -------
         bool
             True if other is an Event wrapping the same handle, False otherwise.
-            Returns NotImplemented if other is not an Event.
         """
         if not isinstance(other, Event):
-            return NotImplemented
+            return False
         return <uintptr_t>(self._handle) == <uintptr_t>((<Event>other)._handle)
 
     def get_ipc_descriptor(self) -> IPCEventDescriptor:
