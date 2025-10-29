@@ -36983,7 +36983,6 @@ def cuStreamBeginCaptureToGraph(hStream, hGraph, dependencies : Optional[tuple[C
     elif len(dependencyData) == 1:
         cydependencyData = (<CUgraphEdgeData>dependencyData[0])._pvt_ptr
     if numDependencies > <size_t>len(dependencies): raise RuntimeError("List is too small: " + str(len(dependencies)) + " < " + str(numDependencies))
-    if numDependencies > <size_t>len(dependencyData): raise RuntimeError("List is too small: " + str(len(dependencyData)) + " < " + str(numDependencies))
     cdef cydriver.CUstreamCaptureMode cymode = mode.value
     with nogil:
         err = cydriver.cuStreamBeginCaptureToGraph(cyhStream, cyhGraph, cydependencies, cydependencyData, numDependencies, cymode)
