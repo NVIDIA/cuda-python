@@ -34,9 +34,6 @@ if TYPE_CHECKING:
     import uuid
 
 
-PyCapsule = TypeVar("PyCapsule")
-"""Represent the capsule type."""
-
 DevicePointerT = Union[driver.CUdeviceptr, int, None]
 """A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting :attr:`Buffer.handle`."""
 
@@ -291,7 +288,7 @@ cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
         max_version: tuple[int, int] | None = None,
         dl_device: tuple[int, int] | None = None,
         copy: bool | None = None,
-    ) -> PyCapsule:
+    ) -> TypeVar("PyCapsule"):
         # Note: we ignore the stream argument entirely (as if it is -1).
         # It is the user's responsibility to maintain stream order.
         if dl_device is not None:
