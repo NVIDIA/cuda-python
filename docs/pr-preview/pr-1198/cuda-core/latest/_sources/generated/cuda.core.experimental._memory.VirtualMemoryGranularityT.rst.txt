@@ -1,0 +1,6 @@
+﻿cuda.core.experimental.\_memory.VirtualMemoryGranularityT
+=========================================================
+
+.. currentmodule:: cuda.core.experimental._memory
+
+.. autodata:: VirtualMemoryGranularityT
