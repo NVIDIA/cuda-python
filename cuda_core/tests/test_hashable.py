@@ -9,15 +9,13 @@ hashed and used as dictionary keys and in sets, following the pattern
 established by PyTorch and CuPy.
 """
 
-import pytest
-from cuda.core.experimental import Device, Stream, Event, EventOptions
-from cuda.core.experimental._context import Context
+from cuda.core.experimental import Device, Stream
 from cuda.core.experimental._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
-
 
 # ============================================================================
 # Stream Tests
 # ============================================================================
+
 
 def test_stream_hash_consistency(init_cuda):
     """Hash of same Stream object should be consistent."""
@@ -125,6 +123,7 @@ def test_default_stream_consistency(init_cuda):
 # Event Tests
 # ============================================================================
 
+
 def test_event_hash_consistency(init_cuda):
     """Hash of same Event object should be consistent."""
     device = Device()
@@ -190,6 +189,7 @@ def test_event_set_membership(init_cuda):
 # Context Tests
 # ============================================================================
 
+
 def test_context_hash_consistency(init_cuda):
     """Hash of same Context object should be consistent."""
     device = Device()
@@ -230,6 +230,7 @@ def test_context_dict_key(init_cuda):
 # Device Tests
 # ============================================================================
 
+
 def test_device_hash_consistency(init_cuda):
     """Hash of same Device object should be consistent."""
     device = Device(0)
@@ -262,6 +263,7 @@ def test_device_inequality_different_id(init_cuda):
     except (ValueError, Exception):
         pass
 
+
 def test_device_dict_key(init_cuda):
     """Devices should be usable as dictionary keys."""
     dev0 = Device(0)
@@ -290,6 +292,7 @@ def test_device_set_membership(init_cuda):
 # Integration Tests
 # ============================================================================
 
+
 def test_mixed_object_dict():
     """Test that different object types don't conflict in dicts."""
     device = Device(0)
@@ -300,12 +303,7 @@ def test_mixed_object_dict():
     context = stream.context
 
     # All should be usable in same dict without conflicts
-    mixed_cache = {
-        stream: "stream_data",
-        event: "event_data",
-        context: "context_data",
-        device: "device_data"
-    }
+    mixed_cache = {stream: "stream_data", event: "event_data", context: "context_data", device: "device_data"}
 
     assert len(mixed_cache) == 4
     assert mixed_cache[stream] == "stream_data"
@@ -335,40 +333,38 @@ def test_cache_pattern_example(init_cuda):
         return stream_results[stream]
 
     s1 = device.create_stream()
-    
+
     # First call - should miss
     result1 = compute_on_stream(s1, "input1")
     assert cache_hits == 0, "First call should be cache miss"
     assert cache_misses == 1, "Should have 1 cache miss"
-    
+
     # Second call with same stream - should hit
     result2 = compute_on_stream(s1, "input1")
     assert cache_hits == 1, "Second call should be cache hit"
     assert cache_misses == 1, "Should still have 1 cache miss"
     assert result1 == result2, "Should get same cached result"
-    
+
     # Third call with same stream - another hit
     result3 = compute_on_stream(s1, "input1")
     assert cache_hits == 2, "Third call should be cache hit"
     assert cache_misses == 1, "Should still have 1 cache miss"
-    
+
     # Different stream - should miss
     s2 = device.create_stream()
     result4 = compute_on_stream(s2, "input1")
     assert cache_hits == 2, "Different stream should not affect hit count"
     assert cache_misses == 2, "Should have 2 cache misses now"
     assert len(stream_results) == 2, "Should have 2 cache entries"
-    
+
     # Wrapped stream with same handle - should hit!
     s1_wrapped = Stream.from_handle(int(s1.handle))
     result5 = compute_on_stream(s1_wrapped, "input1")
     assert cache_hits == 3, "Wrapped stream should cause cache hit"
     assert cache_misses == 2, "Should still have 2 cache misses"
     assert result5 == result1, "Wrapped stream should get same result"
-    
+
     # Final validation
     assert cache_hits == 3, "Expected 3 cache hits total"
     assert cache_misses == 2, "Expected 2 cache misses total"
     assert len(stream_results) == 2, "Expected 2 unique streams in cache"
-
-

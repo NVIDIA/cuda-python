@@ -30,15 +30,15 @@ cdef class Context:
 
     def __eq__(self, other):
         """Check equality based on the underlying CUcontext handle address.
-        
+
         Two Context objects are considered equal if they wrap the same
         underlying CUDA context.
-        
+
         Parameters
         ----------
         other : object
             Another object to compare with.
-        
+
         Returns
         -------
         bool
@@ -50,11 +50,11 @@ cdef class Context:
 
     def __hash__(self) -> int:
         """Return hash based on the underlying CUcontext handle address.
-        
+
         This enables Context objects to be used as dictionary keys and in sets.
         Two Context objects wrapping the same underlying CUDA context will hash
         to the same value and be considered equal.
-        
+
         Returns
         -------
         int

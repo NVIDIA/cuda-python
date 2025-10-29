@@ -1147,17 +1147,17 @@ class Device:
 
     def __hash__(self) -> int:
         """Return hash based on the device ordinal.
-        
+
         This enables Device objects to be used as dictionary keys and in sets.
         Device objects with the same device_id will hash to the same value
         and be considered equal, even if they are different Python objects or
         exist on different threads.
-        
+
         Returns
         -------
         int
             Hash value based on the device ordinal (device_id).
-        
+
         Notes
         -----
         Device is a per-thread singleton, but equality is based on logical
@@ -1168,16 +1168,16 @@ class Device:
 
     def __eq__(self, other) -> bool:
         """Check equality based on the device ordinal.
-        
+
         Two Device objects are considered equal if they have the same device_id,
         regardless of whether they are the same Python object or exist on
         different threads.
-        
+
         Parameters
         ----------
         other : object
             Another object to compare with.
-        
+
         Returns
         -------
         bool

@@ -199,16 +199,16 @@ cdef class Stream:
 
     def __hash__(self) -> int:
         """Return hash based on the underlying CUstream handle address.
-        
+
         This enables Stream objects to be used as dictionary keys and in sets.
         Two Stream objects wrapping the same underlying CUDA stream will hash
         to the same value and be considered equal.
-        
+
         Returns
         -------
         int
             Hash value based on the stream handle address.
-        
+
         Warning
         -------
         Using a closed or destroyed stream as a dictionary key or in a set
@@ -219,16 +219,16 @@ cdef class Stream:
 
     def __eq__(self, other) -> bool:
         """Check equality based on the underlying CUstream handle address.
-        
+
         Two Stream objects are considered equal if they wrap the same
         underlying CUDA stream, regardless of whether they are the same
         Python object.
-        
+
         Parameters
         ----------
         other : object
             Another object to compare with.
-        
+
         Returns
         -------
         bool

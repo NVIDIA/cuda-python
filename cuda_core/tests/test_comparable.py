@@ -8,14 +8,12 @@ These tests verify that Stream, Event, Context, and Device objects implement
 proper equality and inequality comparisons, including type safety.
 """
 
-import pytest
-from cuda.core.experimental import Device, Stream, Event, EventOptions
-from cuda.core.experimental._context import Context
-
+from cuda.core.experimental import Device, Stream
 
 # ============================================================================
 # Stream Equality Tests
 # ============================================================================
+
 
 def test_stream_equality_same_handle(init_cuda):
     """Two Stream objects wrapping same handle should be equal."""
@@ -79,6 +77,7 @@ def test_stream_not_equal_operator(init_cuda):
 # Event Equality Tests
 # ============================================================================
 
+
 def test_event_equality_reflexive(init_cuda):
     """Event should equal itself (reflexive property)."""
     device = Device()
@@ -114,6 +113,7 @@ def test_event_type_safety(init_cuda):
 # ============================================================================
 # Context Equality Tests
 # ============================================================================
+
 
 def test_context_equality_same_context(init_cuda):
     """Contexts from same device should be equal."""
@@ -152,6 +152,7 @@ def test_context_type_safety(init_cuda):
 # Device Equality Tests
 # ============================================================================
 
+
 def test_device_equality_same_id(init_cuda):
     """Devices with same device_id should be equal."""
     dev1 = Device(0)
@@ -180,6 +181,7 @@ def test_device_inequality_different_id(init_cuda):
     except (ValueError, Exception):
         pass
 
+
 def test_device_type_safety(init_cuda):
     """Comparing Device with wrong type should return NotImplemented/False."""
     device = Device(0)
@@ -192,6 +194,7 @@ def test_device_type_safety(init_cuda):
 # ============================================================================
 # Equality Contract Tests
 # ============================================================================
+
 
 def test_equality_contract_consistency():
     """Test that a == b implies hash(a) == hash(b) (hash contract)."""

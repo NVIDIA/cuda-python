@@ -167,16 +167,16 @@ cdef class Event:
 
     def __hash__(self) -> int:
         """Return hash based on the underlying CUevent handle address.
-        
+
         This enables Event objects to be used as dictionary keys and in sets.
         Two Event objects wrapping the same underlying CUDA event will hash
         to the same value and be considered equal.
-        
+
         Returns
         -------
         int
             Hash value based on the event handle address.
-        
+
         Warning
         -------
         Using a closed or destroyed event as a dictionary key or in a set
@@ -187,16 +187,16 @@ cdef class Event:
 
     def __eq__(self, other) -> bool:
         """Check equality based on the underlying CUevent handle address.
-        
+
         Two Event objects are considered equal if they wrap the same
         underlying CUDA event, regardless of whether they are the same
         Python object.
-        
+
         Parameters
         ----------
         other : object
             Another object to compare with.
-        
+
         Returns
         -------
         bool
