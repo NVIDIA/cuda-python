@@ -397,12 +397,6 @@ cdef class MemoryResource(_cyMemoryResource, MemoryResourceAttributes, abc.ABC):
         ...
 
 
-# IPC is currently only supported on Linux. On other platforms, the IPC handle
-# type is set equal to the no-IPC handle type.
-cdef cydriver.CUmemAllocationHandleType _IPC_HANDLE_TYPE = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR \
-    if platform.system() == "Linux" else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
-
-
 @dataclass
 cdef class DeviceMemoryResourceOptions:
     """Customizable :obj:`~_memory.DeviceMemoryResource` options.
@@ -607,12 +601,12 @@ cdef class DeviceMemoryResource(MemoryResource):
                     ))
         else:
             # Create a new memory pool.
-            if opts.ipc_enabled and _IPC_HANDLE_TYPE == cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE:
+            if opts.ipc_enabled and ipc.IPC_HANDLE_TYPE == cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE:
                 raise RuntimeError("IPC is not available on {platform.system()}")
 
             memset(&properties, 0, sizeof(cydriver.CUmemPoolProps))
             properties.allocType = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-            properties.handleTypes = _IPC_HANDLE_TYPE if opts.ipc_enabled else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+            properties.handleTypes = ipc.IPC_HANDLE_TYPE if opts.ipc_enabled else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
             properties.location.id = dev_id
             properties.location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
             properties.maxSize = opts.max_size
@@ -665,11 +659,7 @@ cdef class DeviceMemoryResource(MemoryResource):
         RuntimeError
             If no mapped memory resource is found in the registry.
         """
-
-        try:
-            return ipc.registry[uuid]
-        except KeyError:
-            raise RuntimeError(f"Memory resource {uuid} was not found") from None
+        return ipc.DMR_from_registry(uuid)
 
     def register(self, uuid: uuid.UUID) -> DeviceMemoryResource:
         """
@@ -680,13 +670,7 @@ cdef class DeviceMemoryResource(MemoryResource):
         The registered mapped memory resource. If one was previously registered
         with the given key, it is returned.
         """
-        existing = ipc.registry.get(uuid)
-        if existing is not None:
-            return existing
-        assert self._uuid is None or self._uuid == uuid
-        ipc.registry[uuid] = self
-        self._uuid = uuid
-        return self
+        return ipc.DMR_register(self, uuid)
 
     @classmethod
     def from_allocation_handle(cls, device_id: int | Device, alloc_handle: int | IPCAllocationHandle) -> DeviceMemoryResource:
@@ -709,30 +693,8 @@ cdef class DeviceMemoryResource(MemoryResource):
         -------
             A new device memory resource instance with the imported handle.
         """
-         # Quick exit for registry hits.
-        uuid = getattr(alloc_handle, 'uuid', None)
-        mr = ipc.registry.get(uuid)
-        if mr is not None:
-            return mr
+        return ipc.DMR_from_allocation_handle(cls, device_id, alloc_handle)
 
-        device_id = getattr(device_id, 'device_id', device_id)
-
-        cdef DeviceMemoryResource self = DeviceMemoryResource.__new__(cls)
-        self._dev_id = device_id
-        self._ipc_handle_type = _IPC_HANDLE_TYPE
-        self._mempool_owned = True
-        self._is_mapped = True
-        #self._alloc_handle = None  # only used for non-imported
-
-        cdef int handle = int(alloc_handle)
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolImportFromShareableHandle(
-                &(self._mempool_handle), <void*><intptr_t>(handle), _IPC_HANDLE_TYPE, 0)
-            )
-        if uuid is not None:
-            registered = self.register(uuid)
-            assert registered is self
-        return self
 
     cpdef IPCAllocationHandle get_allocation_handle(self):
         """Export the memory pool handle to be shared (requires IPC).
@@ -744,28 +706,7 @@ cdef class DeviceMemoryResource(MemoryResource):
         -------
             The shareable handle for the memory pool.
         """
-        # Note: This is Linux only (int for file descriptor)
-        cdef int alloc_handle
-
-        if self._alloc_handle is None:
-            if not self.is_ipc_enabled:
-                raise RuntimeError("Memory resource is not IPC-enabled")
-            if self._is_mapped:
-                raise RuntimeError("Imported memory resource cannot be exported")
-
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(
-                    &alloc_handle, self._mempool_handle, _IPC_HANDLE_TYPE, 0)
-                )
-            try:
-                assert self._uuid is None
-                import uuid
-                self._uuid = uuid.uuid4()
-                self._alloc_handle = IPCAllocationHandle._init(alloc_handle, self._uuid)
-            except:
-                os.close(alloc_handle)
-                raise
-        return self._alloc_handle
+        return ipc.DMR_get_allocation_handle(self)
 
     cdef Buffer _allocate(self, size_t size, _cyStream stream):
         cdef cydriver.CUstream s = stream._handle
