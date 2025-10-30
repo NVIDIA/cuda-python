@@ -14,7 +14,7 @@ conda create --yes -n "pathfinder_testing_cu$1" python=3.13 cuda-toolkit="$1"
 conda activate "pathfinder_testing_cu$1"
 
 for cpkg in \
-    cusparselt \
+    cusparselt-dev \
     cutensor \
     libcublasmp-dev \
     libcudss-dev \
