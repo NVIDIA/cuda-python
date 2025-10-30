@@ -21,7 +21,7 @@ def _joined_isfile(dirpath: str, basename: str) -> bool:
     return os.path.isfile(os.path.join(dirpath, basename))
 
 
-def _find_under_site_packages(sub_dir: str, h_basename: str) -> Optional[str]:
+def _find_under_site_packages(sub_dir: str, h_basename: str) -> str | None:
     # Installed from a wheel
     hdr_dir: str  # help mypy
     for hdr_dir in find_sub_dirs_all_sitepackages(tuple(sub_dir.split("/"))):
@@ -52,7 +52,7 @@ def _find_based_on_ctk_layout(libname: str, h_basename: str, anchor_point: str) 
     return None
 
 
-def _find_based_on_conda_layout(libname: str, h_basename: str, ctk_layout: bool) -> Optional[str]:
+def _find_based_on_conda_layout(libname: str, h_basename: str, ctk_layout: bool) -> str | None:
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if not conda_prefix:
         return None
@@ -134,7 +134,7 @@ def find_nvidia_header_directory(libname: str) -> str | None:
         raise RuntimeError(f"UNKNOWN {libname=}")
 
     candidate_dirs = supported_nvidia_headers.SUPPORTED_SITE_PACKAGE_HEADER_DIRS_NON_CTK.get(libname, [])
-    hdr_dir: Optional[str]  # help mypy
+    hdr_dir: str | None  # help mypy
     for cdir in candidate_dirs:
         if hdr_dir := _find_under_site_packages(cdir, h_basename):
             return _abs_norm(hdr_dir)
