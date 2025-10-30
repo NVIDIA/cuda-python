@@ -9,25 +9,18 @@ from cuda.core.experimental._memory.ipc cimport IPCAllocationHandle
 from cuda.core.experimental._stream cimport Stream as _cyStream
 
 
-cdef class _cyBuffer:
+cdef class Buffer:
     cdef:
         intptr_t _ptr
         size_t _size
-        _cyMemoryResource _mr
+        MemoryResource _mr
         object _ptr_obj
         _cyStream _alloc_stream
 
-
-cdef class _cyMemoryResource:
-    cdef Buffer _allocate(self, size_t size, _cyStream stream)
-    cdef void _deallocate(self, intptr_t ptr, size_t size, _cyStream stream) noexcept
-
-
-cdef class Buffer(_cyBuffer):
     cpdef close(self, stream=*)
 
 
-cdef class MemoryResource(_cyMemoryResource):
+cdef class MemoryResource:
     cdef void _deallocate(self, intptr_t ptr, size_t size, _cyStream stream) noexcept
 
 

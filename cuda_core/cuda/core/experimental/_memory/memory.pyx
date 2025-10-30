@@ -37,18 +37,7 @@ if TYPE_CHECKING:
 DevicePointerT = Union[driver.CUdeviceptr, int, None]
 """A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting :attr:`Buffer.handle`."""
 
-cdef class _cyMemoryResource:
-    """
-    Internal only. Responsible for offering fast C method access.
-    """
-    cdef Buffer _allocate(self, size_t size, _cyStream stream):
-        raise NotImplementedError
-
-    cdef void _deallocate(self, intptr_t ptr, size_t size, _cyStream stream) noexcept:
-        raise NotImplementedError
-
-
-cdef class Buffer(_cyBuffer):
+cdef class Buffer:
     """Represent a handle to allocated memory.
 
     This generic object provides a unified representation for how
@@ -299,7 +288,7 @@ cdef class Buffer(_cyBuffer):
         return self._size
 
 
-cdef class MemoryResource(_cyMemoryResource):
+cdef class MemoryResource:
     """Abstract base class for memory resources that manage allocation and deallocation of buffers.
 
     Subclasses must implement methods for allocating and deallocation, as well as properties
