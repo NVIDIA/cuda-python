@@ -17,11 +17,9 @@ cdef class Buffer:
         object _ptr_obj
         _cyStream _alloc_stream
 
-    cpdef close(self, stream=*)
-
 
 cdef class MemoryResource:
-    cdef void _deallocate(self, intptr_t ptr, size_t size, _cyStream stream) noexcept
+    pass
 
 
 cdef class DeviceMemoryResource(MemoryResource):

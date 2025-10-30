@@ -105,7 +105,7 @@ cdef class Buffer:
         """Export a buffer allocated for sharing between processes."""
         return ipc.Buffer_get_ipc_descriptor(self)
 
-    cpdef close(self, stream: Stream = None):
+    def close(self, stream: Stream = None):
         """Deallocate this buffer asynchronously on the given stream.
 
         This buffer is released back to their memory resource
@@ -117,21 +117,7 @@ cdef class Buffer:
             The stream object to use for asynchronous deallocation. If None,
             the behavior depends on the underlying memory resource.
         """
-        cdef _cyStream s
-        if self._ptr and self._mr is not None:
-            if stream is None:
-                if self._alloc_stream is not None:
-                    s = self._alloc_stream
-                else:
-                    # TODO: remove this branch when from_handle takes a stream
-                    s = <_cyStream>(default_stream())
-            else:
-                s = <_cyStream>stream
-            self._mr._deallocate(self._ptr, self._size, s)
-            self._ptr = 0
-            self._mr = None
-            self._ptr_obj = None
-            self._alloc_stream = None
+        Buffer_close(self, stream)
 
     def copy_to(self, dst: Buffer = None, *, stream: Stream) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
@@ -288,6 +274,24 @@ cdef class Buffer:
         return self._size
 
 
+cdef Buffer_close(Buffer self, stream):
+    cdef _cyStream s
+    if self._ptr and self._mr is not None:
+        if stream is None:
+            if self._alloc_stream is not None:
+                s = self._alloc_stream
+            else:
+                # TODO: remove this branch when from_handle takes a stream
+                s = <_cyStream>(default_stream())
+        else:
+            s = <_cyStream>stream
+        self._mr.deallocate(self._ptr, self._size, s)
+        self._ptr = 0
+        self._mr = None
+        self._ptr_obj = None
+        self._alloc_stream = None
+
+
 cdef class MemoryResource:
     """Abstract base class for memory resources that manage allocation and deallocation of buffers.
 
@@ -297,8 +301,6 @@ cdef class MemoryResource:
     hold a reference to self, the buffer properties are retrieved simply by looking up the underlying
     memory resource's respective property.)
     """
-    cdef void _deallocate(self, intptr_t ptr, size_t size, _cyStream stream) noexcept:
-        self.deallocate(ptr, size, stream)
 
     @abc.abstractmethod
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
@@ -745,7 +747,7 @@ cdef void DMR_deallocate(DeviceMemoryResource self, intptr_t ptr, size_t size, _
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:
-            HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
+        HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
 
 
 cdef DMR_close(DeviceMemoryResource self):
