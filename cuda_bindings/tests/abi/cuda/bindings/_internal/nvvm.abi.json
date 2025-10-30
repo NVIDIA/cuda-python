@@ -1,0 +1,15 @@
+{
+  "_nvvmAddModuleToProgram": "nvvmResult (nvvmProgram, char const *, size_t, char const *)",
+  "_nvvmCompileProgram": "nvvmResult (nvvmProgram, int, char const **)",
+  "_nvvmCreateProgram": "nvvmResult (nvvmProgram *)",
+  "_nvvmDestroyProgram": "nvvmResult (nvvmProgram *)",
+  "_nvvmGetCompiledResult": "nvvmResult (nvvmProgram, char *)",
+  "_nvvmGetCompiledResultSize": "nvvmResult (nvvmProgram, size_t *)",
+  "_nvvmGetErrorString": "char const *(nvvmResult)",
+  "_nvvmGetProgramLog": "nvvmResult (nvvmProgram, char *)",
+  "_nvvmGetProgramLogSize": "nvvmResult (nvvmProgram, size_t *)",
+  "_nvvmIRVersion": "nvvmResult (int *, int *, int *, int *)",
+  "_nvvmLazyAddModuleToProgram": "nvvmResult (nvvmProgram, char const *, size_t, char const *)",
+  "_nvvmVerifyProgram": "nvvmResult (nvvmProgram, int, char const **)",
+  "_nvvmVersion": "nvvmResult (int *, int *)"
+}
