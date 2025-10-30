@@ -688,14 +688,6 @@ cdef class DeviceMemoryResource(MemoryResource):
         self._uuid = uuid
         return self
 
-    @property
-    def uuid(self) -> Optional[uuid.UUID]:
-        """
-        A universally unique identifier for this memory resource. Meaningful
-        only for IPC-enabled memory resources.
-        """
-        return self._uuid
-
     @classmethod
     def from_allocation_handle(cls, device_id: int | Device, alloc_handle: int | IPCAllocationHandle) -> DeviceMemoryResource:
         """Create a device memory resource from an allocation handle.
@@ -851,22 +843,14 @@ cdef class DeviceMemoryResource(MemoryResource):
         return driver.CUmemoryPool(<uintptr_t>(self._mempool_handle))
 
     @property
-    def is_handle_owned(self) -> bool:
-        """Whether the memory resource handle is owned. If False, ``close`` has no effect."""
-        return self._mempool_owned
-
-    @property
-    def is_mapped(self) -> bool:
-        """
-        Whether this is a mapping of an IPC-enabled memory resource from
-        another process.  If True, allocation is not permitted.
-        """
-        return self._is_mapped
-
-    @property
     def is_device_accessible(self) -> bool:
         """Return True. This memory resource provides device-accessible buffers."""
         return True
+
+    @property
+    def is_handle_owned(self) -> bool:
+        """Whether the memory resource handle is owned. If False, ``close`` has no effect."""
+        return self._mempool_owned
 
     @property
     def is_host_accessible(self) -> bool:
@@ -877,6 +861,22 @@ cdef class DeviceMemoryResource(MemoryResource):
     def is_ipc_enabled(self) -> bool:
         """Whether this memory resource has IPC enabled."""
         return self._ipc_handle_type != cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+
+    @property
+    def is_mapped(self) -> bool:
+        """
+        Whether this is a mapping of an IPC-enabled memory resource from
+        another process.  If True, allocation is not permitted.
+        """
+        return self._is_mapped
+
+    @property
+    def uuid(self) -> Optional[uuid.UUID]:
+        """
+        A universally unique identifier for this memory resource. Meaningful
+        only for IPC-enabled memory resources.
+        """
+        return self._uuid
 
 
 def _deep_reduce_device_memory_resource(mr):
