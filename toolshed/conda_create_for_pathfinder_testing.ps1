@@ -14,6 +14,7 @@ conda create --yes -n "pathfinder_testing_cu$CudaVersion" python=3.13 "cuda-tool
 conda activate "pathfinder_testing_cu$CudaVersion"
 
 $cpkgs = @(
+    "cusparselt-dev",
     "cutensor",
     "libcublasmp-dev",
     "libcudss-dev",

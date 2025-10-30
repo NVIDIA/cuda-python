@@ -59,6 +59,7 @@ SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK = {
 }
 
 SUPPORTED_HEADERS_NON_CTK_COMMON = {
+    "cusparseLt": "cusparseLt.h",
     "cutensor": "cutensor.h",
 }
 SUPPORTED_HEADERS_NON_CTK_LINUX_ONLY = {
@@ -75,6 +76,7 @@ SUPPORTED_HEADERS_NON_CTK: Final[dict[str, str]] = (
 )
 
 SUPPORTED_SITE_PACKAGE_HEADER_DIRS_NON_CTK = {
+    "cusparseLt": ("nvidia/cusparselt/include",),
     "cutensor": ("cutensor/include",),
     "nvshmem": ("nvidia/nvshmem/include",),
 }

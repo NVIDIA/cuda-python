@@ -244,6 +244,7 @@ SUPPORTED_LINUX_SONAMES_OTHER = {
     "cufftMp": ("libcufftMp.so.12", "libcufftMp.so.11"),
     "mathdx": ("libmathdx.so.0",),
     "cudss": ("libcudss.so.0",),
+    "cusparseLt": ("libcusparseLt.so.0",),
     "cutensor": ("libcutensor.so.2",),
     "cutensorMg": ("libcutensorMg.so.2",),
     "nccl": ("libnccl.so.2",),
@@ -407,6 +408,7 @@ SUPPORTED_WINDOWS_DLLS_CTK = {
 SUPPORTED_WINDOWS_DLLS_OTHER = {
     "mathdx": ("mathdx64_0.dll",),
     "cudss": ("cudss64_0.dll",),
+    "cusparseLt": ("cusparseLt.dll",),
     "cutensor": ("cutensor.dll",),
     "cutensorMg": ("cutensorMg.dll",),
 }
@@ -454,6 +456,7 @@ SITE_PACKAGES_LIBDIRS_LINUX_OTHER = {
     "cublasmp": ("nvidia/cublasmp/cu13/lib", "nvidia/cublasmp/cu12/lib"),
     "cudss": ("nvidia/cu13/lib", "nvidia/cu12/lib"),
     "cufftMp": ("nvidia/cufftmp/cu13/lib", "nvidia/cufftmp/cu12/lib"),
+    "cusparseLt": ("nvidia/cusparselt/lib",),
     "cutensor": ("cutensor/lib",),
     "cutensorMg": ("cutensor/lib",),
     "mathdx": ("nvidia/cu13/lib", "nvidia/cu12/lib"),
@@ -495,6 +498,7 @@ SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = {
 SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER = {
     "cudss": ("nvidia/cu13/bin", "nvidia/cu12/bin"),
     "mathdx": ("nvidia/cu13/bin/x86_64", "nvidia/cu12/bin"),
+    "cusparseLt": ("nvidia/cusparselt/bin",),
     "cutensor": ("cutensor/bin",),
     "cutensorMg": ("cutensor/bin",),
 }
