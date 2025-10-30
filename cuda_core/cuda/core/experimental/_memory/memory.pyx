@@ -515,58 +515,11 @@ cdef class DeviceMemoryResource(MemoryResource):
         opts = check_or_create_options(
             DeviceMemoryResourceOptions, options, "DeviceMemoryResource options", keep_none=True
         )
-        cdef cydriver.cuuint64_t current_threshold
-        cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX
-        cdef cydriver.CUmemPoolProps properties
 
         if opts is None:
-            # Get the current memory pool.
-            self._dev_id = dev_id
-            self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
-            self._mempool_owned = False
-
-            with nogil:
-                HANDLE_RETURN(cydriver.cuDeviceGetMemPool(&(self._mempool_handle), dev_id))
-
-                # Set a higher release threshold to improve performance when there are no active allocations.
-                # By default, the release threshold is 0, which means memory is immediately released back
-                # to the OS when there are no active suballocations, causing performance issues.
-                # Check current release threshold
-                HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(
-                    self._mempool_handle, cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD, &current_threshold)
-                )
-
-                # If threshold is 0 (default), set it to maximum to retain memory in the pool
-                if current_threshold == 0:
-                    HANDLE_RETURN(cydriver.cuMemPoolSetAttribute(
-                        self._mempool_handle,
-                        cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
-                        &max_threshold
-                    ))
+            DMR_init_current(self, dev_id)
         else:
-            # Create a new memory pool.
-            if opts.ipc_enabled and ipc.IPC_HANDLE_TYPE == cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE:
-                raise RuntimeError("IPC is not available on {platform.system()}")
-
-            memset(&properties, 0, sizeof(cydriver.CUmemPoolProps))
-            properties.allocType = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-            properties.handleTypes = ipc.IPC_HANDLE_TYPE if opts.ipc_enabled else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
-            properties.location.id = dev_id
-            properties.location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
-            properties.maxSize = opts.max_size
-            properties.win32SecurityAttributes = NULL
-            properties.usage = 0
-
-            self._dev_id = dev_id
-            self._ipc_handle_type = properties.handleTypes
-            self._mempool_owned = True
-
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemPoolCreate(&(self._mempool_handle), &properties))
-                # TODO: should we also set the threshold here?
-
-            if opts.ipc_enabled:
-                self.get_allocation_handle()  # enables Buffer.get_ipc_descriptor, sets uuid
+            DMR_init_create(self, dev_id, opts)
 
     def __dealloc__(self):
         DMR_close(self)
@@ -602,7 +555,9 @@ cdef class DeviceMemoryResource(MemoryResource):
         return ipc.DMR_register(self, uuid)
 
     @classmethod
-    def from_allocation_handle(cls, device_id: int | Device, alloc_handle: int | IPCAllocationHandle) -> DeviceMemoryResource:
+    def from_allocation_handle(
+        cls, device_id: int | Device, alloc_handle: int | IPCAllocationHandle
+    ) -> DeviceMemoryResource:
         """Create a device memory resource from an allocation handle.
 
         Construct a new `DeviceMemoryResource` instance that imports a memory
@@ -729,6 +684,63 @@ cdef class DeviceMemoryResource(MemoryResource):
         return self._uuid
 
 
+cdef void DMR_init_current(DeviceMemoryResource self, int dev_id):
+    # Get the current memory pool.
+    cdef cydriver.cuuint64_t current_threshold
+    cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX
+
+    self._dev_id = dev_id
+    self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+    self._mempool_owned = False
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuDeviceGetMemPool(&(self._mempool_handle), dev_id))
+
+        # Set a higher release threshold to improve performance when there are no active allocations.
+        # By default, the release threshold is 0, which means memory is immediately released back
+        # to the OS when there are no active suballocations, causing performance issues.
+        # Check current release threshold
+        HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(
+            self._mempool_handle, cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD, &current_threshold)
+        )
+
+        # If threshold is 0 (default), set it to maximum to retain memory in the pool
+        if current_threshold == 0:
+            HANDLE_RETURN(cydriver.cuMemPoolSetAttribute(
+                self._mempool_handle,
+                cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+                &max_threshold
+            ))
+
+
+cdef void DMR_init_create(DeviceMemoryResource self, int dev_id, DeviceMemoryResourceOptions opts):
+    # Create a new memory pool.
+    cdef cydriver.CUmemPoolProps properties
+
+    if opts.ipc_enabled and ipc.IPC_HANDLE_TYPE == cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE:
+        raise RuntimeError("IPC is not available on {platform.system()}")
+
+    memset(&properties, 0, sizeof(cydriver.CUmemPoolProps))
+    properties.allocType = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
+    properties.handleTypes = ipc.IPC_HANDLE_TYPE if opts.ipc_enabled else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+    properties.location.id = dev_id
+    properties.location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    properties.maxSize = opts.max_size
+    properties.win32SecurityAttributes = NULL
+    properties.usage = 0
+
+    self._dev_id = dev_id
+    self._ipc_handle_type = properties.handleTypes
+    self._mempool_owned = True
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuMemPoolCreate(&(self._mempool_handle), &properties))
+        # TODO: should we also set the threshold here?
+
+    if opts.ipc_enabled:
+        self.get_allocation_handle()  # enables Buffer.get_ipc_descriptor, sets uuid
+
+
 cdef Buffer DMR_allocate(DeviceMemoryResource self, size_t size, _cyStream stream):
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr
@@ -767,3 +779,4 @@ cdef DMR_close(DeviceMemoryResource self):
         self._is_mapped = False
         self._uuid = None
         self._alloc_handle = None
+
