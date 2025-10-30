@@ -567,26 +567,11 @@ cdef class DeviceMemoryResource(MemoryResource):
                 self.get_allocation_handle()  # enables Buffer.get_ipc_descriptor, sets uuid
 
     def __dealloc__(self):
-        self.close()
+        DMR_close(self)
 
-    cpdef close(self):
+    def close(self):
         """Close the device memory resource and destroy the associated memory pool if owned."""
-        if self._mempool_handle == NULL:
-            return
-
-        try:
-            if self._mempool_owned:
-                with nogil:
-                    HANDLE_RETURN(cydriver.cuMemPoolDestroy(self._mempool_handle))
-        finally:
-            self._dev_id = cydriver.CU_DEVICE_INVALID
-            self._mempool_handle = NULL
-            self._attributes = None
-            self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_MAX
-            self._mempool_owned = False
-            self._is_mapped = False
-            self._uuid = None
-            self._alloc_handle = None
+        DMR_close(self)
 
     def __reduce__(self):
         return DeviceMemoryResource.from_registry, (self.uuid,)
@@ -637,7 +622,6 @@ cdef class DeviceMemoryResource(MemoryResource):
         """
         return ipc.DMR_from_allocation_handle(cls, device_id, alloc_handle)
 
-
     def get_allocation_handle(self) -> IPCAllocationHandle:
         """Export the memory pool handle to be shared (requires IPC).
 
@@ -649,19 +633,6 @@ cdef class DeviceMemoryResource(MemoryResource):
             The shareable handle for the memory pool.
         """
         return ipc.DMR_get_allocation_handle(self)
-
-    cdef Buffer _allocate(self, size_t size, _cyStream stream):
-        cdef cydriver.CUstream s = stream._handle
-        cdef cydriver.CUdeviceptr devptr
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, self._mempool_handle, s))
-        cdef Buffer buf = Buffer.__new__(Buffer)
-        buf._ptr = <intptr_t>(devptr)
-        buf._ptr_obj = None
-        buf._size = size
-        buf._mr = self
-        buf._alloc_stream = stream
-        return buf
 
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
@@ -684,15 +655,9 @@ cdef class DeviceMemoryResource(MemoryResource):
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         if stream is None:
             stream = default_stream()
-        return self._allocate(size, <_cyStream>stream)
+        return DMR_allocate(self, size, <_cyStream>stream)
 
-    cdef void _deallocate(self, intptr_t ptr, size_t size, _cyStream stream) noexcept:
-        cdef cydriver.CUstream s = stream._handle
-        cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
-
-    cpdef deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -706,7 +671,7 @@ cdef class DeviceMemoryResource(MemoryResource):
             If the buffer is deallocated without an explicit stream, the allocation stream
             is used.
         """
-        self._deallocate(<intptr_t>ptr, size, <_cyStream>stream)
+        DMR_deallocate(self, <intptr_t>ptr, size, <_cyStream>stream)
 
     @property
     def attributes(self) -> DeviceMemoryResourceAttributes:
@@ -762,3 +727,41 @@ cdef class DeviceMemoryResource(MemoryResource):
         return self._uuid
 
 
+cdef Buffer DMR_allocate(DeviceMemoryResource self, size_t size, _cyStream stream):
+    cdef cydriver.CUstream s = stream._handle
+    cdef cydriver.CUdeviceptr devptr
+    with nogil:
+        HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, self._mempool_handle, s))
+    cdef Buffer buf = Buffer.__new__(Buffer)
+    buf._ptr = <intptr_t>(devptr)
+    buf._ptr_obj = None
+    buf._size = size
+    buf._mr = self
+    buf._alloc_stream = stream
+    return buf
+
+
+cdef void DMR_deallocate(DeviceMemoryResource self, intptr_t ptr, size_t size, _cyStream stream) noexcept:
+    cdef cydriver.CUstream s = stream._handle
+    cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
+    with nogil:
+            HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
+
+
+cdef DMR_close(DeviceMemoryResource self):
+    if self._mempool_handle == NULL:
+        return
+
+    try:
+        if self._mempool_owned:
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemPoolDestroy(self._mempool_handle))
+    finally:
+        self._dev_id = cydriver.CU_DEVICE_INVALID
+        self._mempool_handle = NULL
+        self._attributes = None
+        self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_MAX
+        self._mempool_owned = False
+        self._is_mapped = False
+        self._uuid = None
+        self._alloc_handle = None

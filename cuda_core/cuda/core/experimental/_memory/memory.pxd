@@ -36,7 +36,3 @@ cdef class DeviceMemoryResource(MemoryResource):
         IPCAllocationHandle _alloc_handle
         object __weakref__
 
-    cpdef close(self)
-    cdef Buffer _allocate(self, size_t size, _cyStream stream)
-    cdef void _deallocate(self, intptr_t ptr, size_t size, _cyStream stream) noexcept
-    cpdef deallocate(self, ptr, size_t size, stream=*)
