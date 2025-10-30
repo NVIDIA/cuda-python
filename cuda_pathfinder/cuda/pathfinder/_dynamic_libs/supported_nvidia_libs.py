@@ -408,7 +408,7 @@ SUPPORTED_WINDOWS_DLLS_CTK = {
 SUPPORTED_WINDOWS_DLLS_OTHER = {
     "mathdx": ("mathdx64_0.dll",),
     "cudss": ("cudss64_0.dll",),
-    "cusparseLt": ("TODO",),
+    "cusparseLt": ("cusparseLt.dll",),
     "cutensor": ("cutensor.dll",),
     "cutensorMg": ("cutensorMg.dll",),
 }
@@ -498,7 +498,7 @@ SITE_PACKAGES_LIBDIRS_WINDOWS_CTK = {
 SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER = {
     "cudss": ("nvidia/cu13/bin", "nvidia/cu12/bin"),
     "mathdx": ("nvidia/cu13/bin/x86_64", "nvidia/cu12/bin"),
-    "cusparseLt": ("TODO"),
+    "cusparseLt": ("nvidia/cusparselt/bin",),
     "cutensor": ("cutensor/bin",),
     "cutensorMg": ("cutensor/bin",),
 }
