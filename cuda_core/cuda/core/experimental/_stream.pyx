@@ -234,9 +234,12 @@ cdef class Stream:
         bool
             True if other is a Stream wrapping the same handle, False otherwise.
         """
-        if not isinstance(other, Stream):
+        cdef Stream _other
+        try:
+            _other = <Stream>other
+        except TypeError:
             return False
-        return <uintptr_t>(self._handle) == <uintptr_t>((<Stream>other)._handle)
+        return <uintptr_t>(self._handle) == <uintptr_t>((_other)._handle)
 
     @property
     def handle(self) -> cuda.bindings.driver.CUstream:
