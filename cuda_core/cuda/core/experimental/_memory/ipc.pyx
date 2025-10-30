@@ -6,10 +6,13 @@
 from typing import Iterable, Literal, Optional, TYPE_CHECKING, TypeVar, Union
 import multiprocessing
 import os
+import weakref
 
 if TYPE_CHECKING:
     import uuid
 
+
+cdef object registry = weakref.WeakValueDictionary()
 
 cdef class IPCBufferDescriptor:
     """Serializable object describing a buffer that can be shared between processes."""

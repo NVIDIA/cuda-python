@@ -10,6 +10,7 @@ from libc.stdint cimport uintptr_t, intptr_t
 from libc.string cimport memset, memcpy
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory.ipc cimport IPCAllocationHandle, IPCBufferDescriptor
+from cuda.core.experimental._memory cimport ipc
 from cuda.core.experimental._stream cimport default_stream, Stream as _cyStream
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
@@ -482,13 +483,6 @@ class DeviceMemoryResourceAttributes:
     del mempool_property
 
 
-# Holds DeviceMemoryResource objects imported by this process.
-# This enables buffer serialization, as buffers can reduce to a pair
-# of comprising the memory resource UUID (the key into this registry)
-# and the serialized buffer descriptor.
-cdef object _ipc_registry = weakref.WeakValueDictionary()
-
-
 cdef class DeviceMemoryResource(MemoryResource):
     """
     Create a device memory resource managing a stream-ordered memory pool.
@@ -673,7 +667,7 @@ cdef class DeviceMemoryResource(MemoryResource):
         """
 
         try:
-            return _ipc_registry[uuid]
+            return ipc.registry[uuid]
         except KeyError:
             raise RuntimeError(f"Memory resource {uuid} was not found") from None
 
@@ -686,11 +680,11 @@ cdef class DeviceMemoryResource(MemoryResource):
         The registered mapped memory resource. If one was previously registered
         with the given key, it is returned.
         """
-        existing = _ipc_registry.get(uuid)
+        existing = ipc.registry.get(uuid)
         if existing is not None:
             return existing
         assert self._uuid is None or self._uuid == uuid
-        _ipc_registry[uuid] = self
+        ipc.registry[uuid] = self
         self._uuid = uuid
         return self
 
@@ -725,7 +719,7 @@ cdef class DeviceMemoryResource(MemoryResource):
         """
          # Quick exit for registry hits.
         uuid = getattr(alloc_handle, 'uuid', None)
-        mr = _ipc_registry.get(uuid)
+        mr = ipc.registry.get(uuid)
         if mr is not None:
             return mr
 
