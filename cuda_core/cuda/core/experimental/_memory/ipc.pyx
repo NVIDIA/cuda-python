@@ -2,9 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+cimport cpython
 from libc.stdint cimport intptr_t
+from libc.string cimport memcpy
 
 from cuda.bindings cimport cydriver
+from cuda.core.experimental._stream cimport default_stream
 from cuda.core.experimental._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
@@ -106,6 +109,31 @@ def _deep_reduce_device_memory_resource(mr):
 
 multiprocessing.reduction.register(DeviceMemoryResource, _deep_reduce_device_memory_resource)
 
+
+# Buffer IPC Implementation
+# ------
+cpdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
+    if not self._mr.is_ipc_enabled:
+        raise RuntimeError("Memory resource is not IPC-enabled")
+    cdef cydriver.CUmemPoolPtrExportData data
+    with nogil:
+        HANDLE_RETURN(cydriver.cuMemPoolExportPointer(&data, <cydriver.CUdeviceptr>(self._ptr)))
+    cdef bytes data_b = cpython.PyBytes_FromStringAndSize(<char*>(data.reserved), sizeof(data.reserved))
+    return IPCBufferDescriptor._init(data_b, self.size)
+
+cpdef Buffer Buffer_from_ipc_descriptor(cls, DeviceMemoryResource mr, IPCBufferDescriptor ipc_buffer, stream):
+    """Import a buffer that was exported from another process."""
+    if not mr.is_ipc_enabled:
+        raise RuntimeError("Memory resource is not IPC-enabled")
+    if stream is None:
+        # Note: match this behavior to DeviceMemoryResource.allocate()
+        stream = default_stream()
+    cdef cydriver.CUmemPoolPtrExportData data
+    memcpy(data.reserved, <const void*><const char*>(ipc_buffer._reserved), sizeof(data.reserved))
+    cdef cydriver.CUdeviceptr ptr
+    with nogil:
+        HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._mempool_handle, &data))
+    return Buffer._init(<intptr_t>ptr, ipc_buffer.size, mr, stream)
 
 # DeviceMemoryResource IPC Implementation
 # ------

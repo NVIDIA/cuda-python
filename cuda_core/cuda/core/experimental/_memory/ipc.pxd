@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._memory.memory cimport DeviceMemoryResource
+from cuda.core.experimental._memory.memory cimport Buffer, DeviceMemoryResource
 
 
 # Holds DeviceMemoryResource objects imported by this process.  This enables
@@ -29,6 +29,12 @@ cdef class IPCAllocationHandle:
         object _uuid
 
     cpdef close(self)
+
+
+# Buffer IPC Implementation
+# ------
+cpdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer)
+cpdef Buffer Buffer_from_ipc_descriptor(cls, DeviceMemoryResource, IPCBufferDescriptor, stream)
 
 
 # DeviceMemoryResource IPC Implementation
