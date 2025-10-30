@@ -231,14 +231,15 @@ cdef class Stream:
 
         Returns
         -------
-        bool
-            True if other is a Stream wrapping the same handle, False otherwise.
+        bool or NotImplemented
+            True if other is a Stream wrapping the same handle, False if not equal,
+            NotImplemented if other is not a Stream.
         """
         cdef Stream _other
         try:
             _other = <Stream>other
         except TypeError:
-            return False
+            return NotImplemented
         return <uintptr_t>(self._handle) == <uintptr_t>((_other)._handle)
 
     @property

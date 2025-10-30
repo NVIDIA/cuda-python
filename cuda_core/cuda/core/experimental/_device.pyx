@@ -1180,11 +1180,12 @@ class Device:
 
         Returns
         -------
-        bool
-            True if other is a Device with the same device_id, False otherwise.
+        bool or NotImplemented
+            True if other is a Device with the same device_id, False if not equal,
+            NotImplemented if other is not a Device.
         """
         if not isinstance(other, Device):
-            return False
+            return NotImplemented
         return self._id == other._id
 
     def __reduce__(self):

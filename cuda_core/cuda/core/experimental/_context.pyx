@@ -41,11 +41,12 @@ cdef class Context:
 
         Returns
         -------
-        bool
-            True if other is a Context wrapping the same handle, False otherwise.
+        bool or NotImplemented
+            True if other is a Context wrapping the same handle, False if not equal,
+            NotImplemented if other is not a Context.
         """
         if not isinstance(other, Context):
-            return False
+            return NotImplemented
         return int(self._handle) == int(other._handle)
 
     def __hash__(self) -> int:
