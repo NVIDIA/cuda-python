@@ -22,7 +22,6 @@ import abc
 import cython
 from dataclasses import dataclass, field
 from typing import Iterable, Literal, Optional, TYPE_CHECKING, TypeVar, Union
-import multiprocessing
 import os
 import platform
 import weakref
@@ -50,36 +49,7 @@ cdef class _cyMemoryResource:
         raise NotImplementedError
 
 
-class MemoryResourceAttributes(abc.ABC):
-
-    __slots__ = ()
-
-    @property
-    @abc.abstractmethod
-    def is_device_accessible(self) -> bool:
-        """bool: True if buffers allocated by this resource can be accessed on the device."""
-        ...
-
-    @property
-    @abc.abstractmethod
-    def is_host_accessible(self) -> bool:
-        """bool: True if buffers allocated by this resource can be accessed on the host."""
-        ...
-
-    @property
-    @abc.abstractmethod
-    def device_id(self) -> int:
-        """int: The device ordinal for which this memory resource is responsible.
-
-        Raises
-        ------
-        RuntimeError
-            If the resource is not bound to a specific device.
-        """
-        ...
-
-
-cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
+cdef class Buffer(_cyBuffer):
     """Represent a handle to allocated memory.
 
     This generic object provides a unified representation for how
@@ -122,6 +92,47 @@ cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
         # Must not serialize the parent's stream!
         return Buffer.from_ipc_descriptor, (self.memory_resource, self.get_ipc_descriptor())
 
+    @staticmethod
+    def from_handle(ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None) -> Buffer:
+        """Create a new :class:`Buffer` object from a pointer.
+
+        Parameters
+        ----------
+        ptr : :obj:`~_memory.DevicePointerT`
+            Allocated buffer handle object
+        size : int
+            Memory size of the buffer
+        mr : :obj:`~_memory.MemoryResource`, optional
+            Memory resource associated with the buffer
+        """
+        # TODO: It is better to take a stream for latter deallocation
+        return Buffer._init(ptr, size, mr=mr)
+
+    @classmethod
+    def from_ipc_descriptor(cls, mr: DeviceMemoryResource, ipc_buffer: IPCBufferDescriptor, stream: Stream = None) -> Buffer:
+        """Import a buffer that was exported from another process."""
+        if not mr.is_ipc_enabled:
+            raise RuntimeError("Memory resource is not IPC-enabled")
+        if stream is None:
+            # Note: match this behavior to DeviceMemoryResource.allocate()
+            stream = default_stream()
+        cdef cydriver.CUmemPoolPtrExportData data
+        memcpy(data.reserved, <const void*><const char*>(ipc_buffer._reserved), sizeof(data.reserved))
+        cdef cydriver.CUdeviceptr ptr
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._mempool_handle, &data))
+        return Buffer._init(<intptr_t>ptr, ipc_buffer.size, mr, stream)
+
+    def get_ipc_descriptor(self) -> IPCBufferDescriptor:
+        """Export a buffer allocated for sharing between processes."""
+        if not self._mr.is_ipc_enabled:
+            raise RuntimeError("Memory resource is not IPC-enabled")
+        cdef cydriver.CUmemPoolPtrExportData data
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPoolExportPointer(&data, <cydriver.CUdeviceptr>(self._ptr)))
+        cdef bytes data_b = cpython.PyBytes_FromStringAndSize(<char*>(data.reserved), sizeof(data.reserved))
+        return IPCBufferDescriptor._init(data_b, self.size)
+
     cpdef close(self, stream: Stream = None):
         """Deallocate this buffer asynchronously on the given stream.
 
@@ -149,79 +160,6 @@ cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
             self._mr = None
             self._ptr_obj = None
             self._alloc_stream = None
-
-    @property
-    def handle(self) -> DevicePointerT:
-        """Return the buffer handle object.
-
-        .. caution::
-
-            This handle is a Python object. To get the memory address of the underlying C
-            handle, call ``int(Buffer.handle)``.
-        """
-        if self._ptr_obj is not None:
-            return self._ptr_obj
-        elif self._ptr:
-            return self._ptr
-        else:
-            # contract: Buffer is closed
-            return 0
-
-    @property
-    def size(self) -> int:
-        """Return the memory size of this buffer."""
-        return self._size
-
-    @property
-    def memory_resource(self) -> MemoryResource:
-        """Return the memory resource associated with this buffer."""
-        return self._mr
-
-    @property
-    def is_device_accessible(self) -> bool:
-        """Return True if this buffer can be accessed by the GPU, otherwise False."""
-        if self._mr is not None:
-            return self._mr.is_device_accessible
-        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
-
-    @property
-    def is_host_accessible(self) -> bool:
-        """Return True if this buffer can be accessed by the CPU, otherwise False."""
-        if self._mr is not None:
-            return self._mr.is_host_accessible
-        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
-
-    @property
-    def device_id(self) -> int:
-        """Return the device ordinal of this buffer."""
-        if self._mr is not None:
-            return self._mr.device_id
-        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
-
-    def get_ipc_descriptor(self) -> IPCBufferDescriptor:
-        """Export a buffer allocated for sharing between processes."""
-        if not self._mr.is_ipc_enabled:
-            raise RuntimeError("Memory resource is not IPC-enabled")
-        cdef cydriver.CUmemPoolPtrExportData data
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolExportPointer(&data, <cydriver.CUdeviceptr>(self._ptr)))
-        cdef bytes data_b = cpython.PyBytes_FromStringAndSize(<char*>(data.reserved), sizeof(data.reserved))
-        return IPCBufferDescriptor._init(data_b, self.size)
-
-    @classmethod
-    def from_ipc_descriptor(cls, mr: DeviceMemoryResource, ipc_buffer: IPCBufferDescriptor, stream: Stream = None) -> Buffer:
-        """Import a buffer that was exported from another process."""
-        if not mr.is_ipc_enabled:
-            raise RuntimeError("Memory resource is not IPC-enabled")
-        if stream is None:
-            # Note: match this behavior to DeviceMemoryResource.allocate()
-            stream = default_stream()
-        cdef cydriver.CUmemPoolPtrExportData data
-        memcpy(data.reserved, <const void*><const char*>(ipc_buffer._reserved), sizeof(data.reserved))
-        cdef cydriver.CUdeviceptr ptr
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._mempool_handle, &data))
-        return Buffer._init(<intptr_t>ptr, ipc_buffer.size, mr, stream)
 
     def copy_to(self, dst: Buffer = None, *, stream: Stream) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
@@ -329,24 +267,56 @@ cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
         # Supporting method paired with __buffer__.
         raise NotImplementedError("WIP: Buffer.__release_buffer__ hasn't been implemented yet.")
 
-    @staticmethod
-    def from_handle(ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None) -> Buffer:
-        """Create a new :class:`Buffer` object from a pointer.
+    @property
+    def device_id(self) -> int:
+        """Return the device ordinal of this buffer."""
+        if self._mr is not None:
+            return self._mr.device_id
+        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
-        Parameters
-        ----------
-        ptr : :obj:`~_memory.DevicePointerT`
-            Allocated buffer handle object
-        size : int
-            Memory size of the buffer
-        mr : :obj:`~_memory.MemoryResource`, optional
-            Memory resource associated with the buffer
+    @property
+    def handle(self) -> DevicePointerT:
+        """Return the buffer handle object.
+
+        .. caution::
+
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(Buffer.handle)``.
         """
-        # TODO: It is better to take a stream for latter deallocation
-        return Buffer._init(ptr, size, mr=mr)
+        if self._ptr_obj is not None:
+            return self._ptr_obj
+        elif self._ptr:
+            return self._ptr
+        else:
+            # contract: Buffer is closed
+            return 0
+
+    @property
+    def is_device_accessible(self) -> bool:
+        """Return True if this buffer can be accessed by the GPU, otherwise False."""
+        if self._mr is not None:
+            return self._mr.is_device_accessible
+        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
+
+    @property
+    def is_host_accessible(self) -> bool:
+        """Return True if this buffer can be accessed by the CPU, otherwise False."""
+        if self._mr is not None:
+            return self._mr.is_host_accessible
+        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
+
+    @property
+    def memory_resource(self) -> MemoryResource:
+        """Return the memory resource associated with this buffer."""
+        return self._mr
+
+    @property
+    def size(self) -> int:
+        """Return the memory size of this buffer."""
+        return self._size
 
 
-cdef class MemoryResource(_cyMemoryResource, MemoryResourceAttributes, abc.ABC):
+cdef class MemoryResource(_cyMemoryResource):
     """Abstract base class for memory resources that manage allocation and deallocation of buffers.
 
     Subclasses must implement methods for allocating and deallocation, as well as properties
@@ -696,7 +666,7 @@ cdef class DeviceMemoryResource(MemoryResource):
         return ipc.DMR_from_allocation_handle(cls, device_id, alloc_handle)
 
 
-    cpdef IPCAllocationHandle get_allocation_handle(self):
+    def get_allocation_handle(self) -> IPCAllocationHandle:
         """Export the memory pool handle to be shared (requires IPC).
 
         The handle can be used to share the memory pool with other processes.
@@ -818,15 +788,5 @@ cdef class DeviceMemoryResource(MemoryResource):
         only for IPC-enabled memory resources.
         """
         return self._uuid
-
-
-def _deep_reduce_device_memory_resource(mr):
-    from .._device import Device
-    device = Device(mr.device_id)
-    alloc_handle = mr.get_allocation_handle()
-    return mr.from_allocation_handle, (device, alloc_handle)
-
-
-multiprocessing.reduction.register(DeviceMemoryResource, _deep_reduce_device_memory_resource)
 
 

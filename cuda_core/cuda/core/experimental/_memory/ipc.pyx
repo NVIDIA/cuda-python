@@ -50,7 +50,7 @@ cdef class IPCAllocationHandle:
         raise RuntimeError("IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, handle: int, uuid: uuid.UUID):
+    def _init(cls, handle: int, uuid):
         cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)
         assert handle >= 0
         self._handle = handle
@@ -89,12 +89,26 @@ def _reduce_allocation_handle(alloc_handle):
     df = multiprocessing.reduction.DupFd(alloc_handle.handle)
     return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)
 
+
 def _reconstruct_allocation_handle(cls, df, uuid):
     return cls._init(df.detach(), uuid)
 
 
 multiprocessing.reduction.register(IPCAllocationHandle, _reduce_allocation_handle)
 
+
+def _deep_reduce_device_memory_resource(mr):
+    from .._device import Device
+    device = Device(mr.device_id)
+    alloc_handle = mr.get_allocation_handle()
+    return mr.from_allocation_handle, (device, alloc_handle)
+
+
+multiprocessing.reduction.register(DeviceMemoryResource, _deep_reduce_device_memory_resource)
+
+
+# DeviceMemoryResource IPC Implementation
+# ------
 
 cpdef IPCAllocationHandle DMR_get_allocation_handle(DeviceMemoryResource self):
     # Note: This is Linux only (int for file descriptor)
@@ -120,7 +134,7 @@ cpdef IPCAllocationHandle DMR_get_allocation_handle(DeviceMemoryResource self):
     return self._alloc_handle
 
 
-cpdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id: int | Device, alloc_handle: int | IPCAllocationHandle):
+cpdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handle):
     # Quick exit for registry hits.
     uuid = getattr(alloc_handle, 'uuid', None)
     mr = registry.get(uuid)
@@ -147,7 +161,7 @@ cpdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id: int | Devi
     return self
 
 
-cpdef DeviceMemoryResource DMR_register(DeviceMemoryResource self, uuid: uuid.UUID):
+cpdef DeviceMemoryResource DMR_register(DeviceMemoryResource self, uuid):
     existing = registry.get(uuid)
     if existing is not None:
         return existing
@@ -156,7 +170,7 @@ cpdef DeviceMemoryResource DMR_register(DeviceMemoryResource self, uuid: uuid.UU
     self._uuid = uuid
     return self
 
-cpdef DeviceMemoryResource DMR_from_registry(uuid: uuid.UUID):
+cpdef DeviceMemoryResource DMR_from_registry(uuid):
     try:
         return registry[uuid]
     except KeyError:

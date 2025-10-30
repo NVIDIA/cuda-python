@@ -5,8 +5,6 @@
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory.memory cimport DeviceMemoryResource
 
-import uuid as uuid_module
-
 
 # Holds DeviceMemoryResource objects imported by this process.  This enables
 # buffer serialization, as buffers can reduce to a pair comprising the memory
@@ -35,9 +33,7 @@ cdef class IPCAllocationHandle:
 
 # DeviceMemoryResource IPC Implementation
 # ------
-cpdef IPCAllocationHandle DMR_get_allocation_handle(DeviceMemoryResource self)
-cpdef DeviceMemoryResource DMR_from_allocation_handle(
-    cls, device_id: int | Device, alloc_handle: int | IPCAllocationHandle
-)
-cpdef DeviceMemoryResource DMR_register(DeviceMemoryResource self, uuid: uuid.UUID)
-cpdef DeviceMemoryResource DMR_from_registry(uuid: uuid.UUID)
+cpdef IPCAllocationHandle DMR_get_allocation_handle(DeviceMemoryResource)
+cpdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handle)
+cpdef DeviceMemoryResource DMR_register(DeviceMemoryResource, uuid)
+cpdef DeviceMemoryResource DMR_from_registry(uuid)
