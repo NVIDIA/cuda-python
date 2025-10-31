@@ -295,6 +295,31 @@ def test_device_set_membership(init_cuda):
 # ============================================================================
 
 
+def test_hash_salt_type_disambiguation(init_cuda):
+    """Test that hash salt (type(self)) prevents collisions between different types.
+    
+    This test validates that including type(self) in the hash calculation ensures
+    different types with potentially similar underlying values (like monotonically
+    increasing handles or IDs) produce different hashes and don't collide.
+    """
+    device = Device(0)
+    device.set_current()
+    
+    # Create objects of different types
+    stream = device.create_stream()
+    event = stream.record()
+    context = stream.context
+    
+    # Get hashes for all objects
+    hashes = {hash(device), hash(stream), hash(event), hash(context)}
+    
+    # Verify all hashes are unique (no collisions between different types)
+    assert len(hashes) == 4, (
+        f"Hash collision detected! Expected 4 unique hashes, got {len(hashes)}. "
+        f"This indicates the type salt is not working correctly."
+    )
+
+
 def test_mixed_object_dict():
     """Test that different object types don't conflict in dicts."""
     device = Device(0)

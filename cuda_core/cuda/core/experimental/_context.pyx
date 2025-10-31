@@ -61,4 +61,4 @@ cdef class Context:
         int
             Hash value based on the context handle address.
         """
-        return hash(int(self._handle))
+        return hash((type(self), int(self._handle)))

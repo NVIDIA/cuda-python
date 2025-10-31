@@ -215,7 +215,7 @@ cdef class Stream:
         results in undefined behavior. The stream handle may be reused by
         the CUDA driver for new streams.
         """
-        return hash(<uintptr_t>(self._handle))
+        return hash((type(self), <uintptr_t>(self._handle)))
 
     def __eq__(self, other) -> bool:
         """Check equality based on the underlying CUstream handle address.

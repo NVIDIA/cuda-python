@@ -1164,7 +1164,7 @@ class Device:
         device identity (device_id), not Python object identity. This means
         Device(0) on thread A equals Device(0) on thread B.
         """
-        return hash(self._id)
+        return hash((type(self), self._id))
 
     def __eq__(self, other) -> bool:
         """Check equality based on the device ordinal.
