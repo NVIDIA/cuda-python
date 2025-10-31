@@ -166,7 +166,7 @@ cdef class Event:
             raise RuntimeError(explanation)
 
     def __hash__(self) -> int:
-        """Return hash based on the underlying CUevent handle address.
+        """Return hash based on the underlying CUevent handle address and context.
 
         This enables Event objects to be used as dictionary keys and in sets.
         Two Event objects wrapping the same underlying CUDA event will hash
@@ -175,7 +175,14 @@ cdef class Event:
         Returns
         -------
         int
-            Hash value based on the event handle address.
+            Hash value based on the event handle address and context handle.
+
+        Notes
+        -----
+        Includes the context handle in the hash to prevent collisions when
+        handles are reused across different contexts. While handles are
+        context-scoped and typically not reused across contexts, including
+        the context provides defense-in-depth against hash collisions.
 
         Warning
         -------
@@ -183,7 +190,8 @@ cdef class Event:
         results in undefined behavior. The event handle may be reused by
         the CUDA driver for new events.
         """
-        return hash((type(self), <uintptr_t>(self._handle)))
+        # Context should always be set as a post-condition of Event construction
+        return hash((type(self), <uintptr_t>(int(self._ctx_handle)), <uintptr_t>(self._handle)))
 
     def __eq__(self, other) -> bool:
         """Check equality based on the underlying CUevent handle address.
