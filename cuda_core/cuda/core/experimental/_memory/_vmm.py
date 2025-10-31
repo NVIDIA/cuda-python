@@ -4,7 +4,7 @@
 
 import platform
 from dataclasses import dataclass, field
-from typing import Iterable, Literal, Optional, Union
+from typing import Iterable, Literal, Union
 
 from cuda.core.experimental._memory._buffer import Buffer, MemoryResource
 from cuda.core.experimental._stream import Stream
@@ -65,8 +65,8 @@ class VirtualMemoryResourceOptions:
     handle_type: VirtualMemoryHandleTypeT = "posix_fd"
     granularity: VirtualMemoryGranularityT = "recommended"
     gpu_direct_rdma: bool = False
-    addr_hint: Optional[int] = 0
-    addr_align: Optional[int] = None
+    addr_hint: int | None = 0
+    addr_align: int | None = None
     peers: Iterable[int] = field(default_factory=tuple)
     self_access: VirtualMemoryAccessTypeT = "rw"
     peer_access: VirtualMemoryAccessTypeT = "rw"

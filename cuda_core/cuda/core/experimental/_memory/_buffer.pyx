@@ -39,11 +39,7 @@ cdef class Buffer:
     Support for data interchange mechanisms are provided by DLPack.
     """
     def __cinit__(self):
-        self._ptr = 0
-        self._size = 0
-        self._mr = None
-        self._ptr_obj = None
-        self._alloc_stream = None
+        self._clear()
 
     def _clear(self):
         self._ptr = 0

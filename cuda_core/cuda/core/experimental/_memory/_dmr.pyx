@@ -14,7 +14,6 @@ from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle, IPCData
 from cuda.core.experimental._stream cimport default_stream, Stream
 from cuda.core.experimental._utils.cuda_utils cimport (
-    _check_driver_error as raise_if_driver_error,
     check_or_create_options,
     HANDLE_RETURN,
 )
@@ -75,9 +74,8 @@ class DeviceMemoryResourceAttributes:
                 mr = self._mr()
                 if mr is None:
                     raise RuntimeError("DeviceMemoryResource is expired")
-                # TODO: this implementation does not allow lowering to Cython + nogil
-                err, value = driver.cuMemPoolGetAttribute(mr.handle, attr_enum)
-                raise_if_driver_error(err)
+                value = DMRA_getattribute(<cydriver.CUmemoryPool><uintptr_t> mr.handle,
+                                          <cydriver.CUmemPool_attribute><uintptr_t> attr_enum)
                 return property_type(value)
             return property(fget=fget, doc=stub.__doc__)
         return decorator
@@ -115,6 +113,15 @@ class DeviceMemoryResourceAttributes:
         """High watermark of memory in use."""
 
     del mempool_property
+
+
+cdef int DMRA_getattribute(
+    cydriver.CUmemoryPool pool_handle, cydriver.CUmemPool_attribute attr_enum
+):
+    cdef int value
+    with nogil:
+        HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(pool_handle, attr_enum, <void *> &value))
+    return value
 
 
 cdef class DeviceMemoryResource(MemoryResource):
@@ -199,9 +206,9 @@ cdef class DeviceMemoryResource(MemoryResource):
     def __cinit__(self):
         self._dev_id = cydriver.CU_DEVICE_INVALID
         self._handle = NULL
-        self._attributes = None
         self._mempool_owned = False
         self._ipc_data = None
+        self._attributes = None
 
     def __init__(self, device_id: int | Device, options=None):
         cdef int dev_id = getattr(device_id, 'device_id', device_id)
