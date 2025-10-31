@@ -57,3 +57,30 @@ SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK = {
     "nvrtc": ("nvidia/cu13/include", "nvidia/cuda_nvrtc/include"),
     "nvvm": ("nvidia/cu13/include", "nvidia/cuda_nvcc/nvvm/include"),
 }
+
+SUPPORTED_HEADERS_NON_CTK_COMMON = {
+    "cusparseLt": "cusparseLt.h",
+    "cutensor": "cutensor.h",
+}
+SUPPORTED_HEADERS_NON_CTK_LINUX_ONLY = {
+    "nvshmem": "nvshmem.h",
+}
+SUPPORTED_HEADERS_NON_CTK_WINDOWS_ONLY: Final[dict[str, str]] = {}
+SUPPORTED_HEADERS_NON_CTK_LINUX = SUPPORTED_HEADERS_NON_CTK_COMMON | SUPPORTED_HEADERS_NON_CTK_LINUX_ONLY
+SUPPORTED_HEADERS_NON_CTK_WINDOWS = SUPPORTED_HEADERS_NON_CTK_COMMON | SUPPORTED_HEADERS_NON_CTK_WINDOWS_ONLY
+SUPPORTED_HEADERS_NON_CTK_ALL = (
+    SUPPORTED_HEADERS_NON_CTK_COMMON | SUPPORTED_HEADERS_NON_CTK_LINUX_ONLY | SUPPORTED_HEADERS_NON_CTK_WINDOWS_ONLY
+)
+SUPPORTED_HEADERS_NON_CTK: Final[dict[str, str]] = (
+    SUPPORTED_HEADERS_NON_CTK_WINDOWS if IS_WINDOWS else SUPPORTED_HEADERS_NON_CTK_LINUX
+)
+
+SUPPORTED_SITE_PACKAGE_HEADER_DIRS_NON_CTK = {
+    "cusparseLt": ("nvidia/cusparselt/include",),
+    "cutensor": ("cutensor/include",),
+    "nvshmem": ("nvidia/nvshmem/include",),
+}
+
+SUPPORTED_INSTALL_DIRS_NON_CTK = {
+    "nvshmem": ("/usr/include/nvshmem_*",),
+}
