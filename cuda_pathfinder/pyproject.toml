@@ -6,7 +6,7 @@ name = "cuda-pathfinder"
 description = "Pathfinder for CUDA components"
 authors = [{ name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com" }]
 license = "Apache-2.0"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dynamic = ["version", "readme"]
 dependencies = []
 
@@ -22,6 +22,7 @@ cu12 = [
     "nvidia-cublasmp-cu12; sys_platform != 'win32'",
     "nvidia-cudss-cu12",
     "nvidia-cufftmp-cu12; sys_platform != 'win32'",
+    "nvidia-cusparselt-cu12",
     "nvidia-libmathdx-cu12",
     "nvidia-nccl-cu12; sys_platform != 'win32'",
     "nvidia-nvshmem-cu12; sys_platform != 'win32'",
@@ -32,6 +33,7 @@ cu13 = [
     "cutensor-cu13",
     "nvidia-cublasmp-cu13; sys_platform != 'win32'",
     "nvidia-cudss-cu13",
+    "nvidia-cusparselt-cu13",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
     "nvidia-nvshmem-cu13; sys_platform != 'win32'",
 ]
@@ -109,7 +111,7 @@ inline-quotes = "double"
 
 [tool.mypy]
 # Basic settings
-python_version = "3.9"
+python_version = "3.10"
 explicit_package_bases = true
 warn_return_any = true
 warn_unused_configs = true
