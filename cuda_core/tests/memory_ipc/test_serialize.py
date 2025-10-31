@@ -3,7 +3,6 @@
 
 import multiprocessing as mp
 import multiprocessing.reduction
-import os
 
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource
 from helpers.buffers import PatternGen
@@ -60,7 +59,6 @@ class TestObjectSerializationDirect:
         # Receive the memory resource.
         handle = mp.reduction.recv_handle(conn)
         mr = DeviceMemoryResource.from_allocation_handle(device, handle)
-        os.close(handle)
 
         # Receive the buffers.
         buffer1 = conn.recv()  # directly
