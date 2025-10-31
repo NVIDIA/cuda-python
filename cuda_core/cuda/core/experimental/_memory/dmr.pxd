@@ -13,10 +13,11 @@ cdef class DeviceMemoryResource(MemoryResource):
         int _dev_id
         cydriver.CUmemoryPool _mempool_handle
         object _attributes
-        cydriver.CUmemAllocationHandleType _ipc_handle_type
         bint _mempool_owned
+        object __weakref__
+
+        cydriver.CUmemAllocationHandleType _ipc_handle_type
         bint _is_mapped
         object _uuid
         IPCAllocationHandle _alloc_handle
-        object __weakref__
 

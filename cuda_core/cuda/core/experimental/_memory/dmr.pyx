@@ -22,7 +22,9 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 import cython
 from dataclasses import dataclass
 from typing import Optional, TYPE_CHECKING
+import os
 import platform
+import uuid
 import weakref
 
 from cuda.core.experimental._stream import Stream
@@ -31,7 +33,6 @@ from cuda.core.experimental._utils.cuda_utils import driver
 if TYPE_CHECKING:
     from cuda.core.experimental._memory.buffer import DevicePointerT
     from .._device import Device
-    import uuid
 
 
 @dataclass
@@ -197,8 +198,8 @@ cdef class DeviceMemoryResource(MemoryResource):
         self._dev_id = cydriver.CU_DEVICE_INVALID
         self._mempool_handle = NULL
         self._attributes = None
-        self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_MAX
         self._mempool_owned = False
+        self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
         self._is_mapped = False
         self._uuid = None
         self._alloc_handle = None
@@ -383,8 +384,8 @@ cdef void DMR_init_current(DeviceMemoryResource self, int dev_id):
     cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX
 
     self._dev_id = dev_id
-    self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
     self._mempool_owned = False
+    self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
 
     with nogil:
         HANDLE_RETURN(cydriver.cuDeviceGetMemPool(&(self._mempool_handle), dev_id))
@@ -423,15 +424,28 @@ cdef void DMR_init_create(DeviceMemoryResource self, int dev_id, DeviceMemoryRes
     properties.usage = 0
 
     self._dev_id = dev_id
-    self._ipc_handle_type = properties.handleTypes
     self._mempool_owned = True
 
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolCreate(&(self._mempool_handle), &properties))
         # TODO: should we also set the threshold here?
 
+    # Note: This is Linux only (int for file descriptor)
+    cdef int alloc_handle
+
     if opts.ipc_enabled:
-        self.get_allocation_handle()  # enables Buffer.get_ipc_descriptor, sets uuid
+        self._ipc_handle_type = ipc.IPC_HANDLE_TYPE
+        self._is_mapped = False
+        self._uuid = uuid.uuid4()
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(
+                &alloc_handle, self._mempool_handle, ipc.IPC_HANDLE_TYPE, 0)
+            )
+        try:
+            self._alloc_handle = IPCAllocationHandle._init(alloc_handle, self._uuid)
+        except:
+            os.close(alloc_handle)
+            raise
 
 
 cdef Buffer DMR_allocate(DeviceMemoryResource self, size_t size, _cyStream stream):
@@ -467,8 +481,8 @@ cdef DMR_close(DeviceMemoryResource self):
         self._dev_id = cydriver.CU_DEVICE_INVALID
         self._mempool_handle = NULL
         self._attributes = None
-        self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_MAX
         self._mempool_owned = False
+        self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
         self._is_mapped = False
         self._uuid = None
         self._alloc_handle = None

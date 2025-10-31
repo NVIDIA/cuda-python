@@ -139,26 +139,11 @@ cpdef Buffer Buffer_from_ipc_descriptor(cls, DeviceMemoryResource mr, IPCBufferD
 # ------
 
 cpdef IPCAllocationHandle DMR_get_allocation_handle(DeviceMemoryResource self):
-    # Note: This is Linux only (int for file descriptor)
-    cdef int alloc_handle
-
-    if self._alloc_handle is None:
-        if not self.is_ipc_enabled:
-            raise RuntimeError("Memory resource is not IPC-enabled")
-        if self._is_mapped:
-            raise RuntimeError("Imported memory resource cannot be exported")
-
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(
-                &alloc_handle, self._mempool_handle, IPC_HANDLE_TYPE, 0)
-            )
-        try:
-            assert self._uuid is None
-            self._uuid = uuid.uuid4()
-            self._alloc_handle = IPCAllocationHandle._init(alloc_handle, self._uuid)
-        except:
-            os.close(alloc_handle)
-            raise
+    if not self.is_ipc_enabled:
+        raise RuntimeError("Memory resource is not IPC-enabled")
+    if self._is_mapped:
+        raise RuntimeError("Imported memory resource cannot be exported")
+    assert self._alloc_handle is not None
     return self._alloc_handle
 
 
@@ -173,8 +158,8 @@ cpdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_hand
 
     cdef DeviceMemoryResource self = DeviceMemoryResource.__new__(cls)
     self._dev_id = device_id
-    self._ipc_handle_type = IPC_HANDLE_TYPE
     self._mempool_owned = True
+    self._ipc_handle_type = IPC_HANDLE_TYPE
     self._is_mapped = True
     #self._alloc_handle = None  # only used for non-imported
 
