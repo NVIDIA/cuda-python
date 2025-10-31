@@ -1,0 +1,283 @@
+#!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# A utility script to clean up PR preview documentation folders for closed/merged PRs.
+# This script checks all pr-XXXXX folders in the gh-pages branch docs/pr-preview/ directory,
+# verifies if the corresponding PR XXXXX is still open, and removes preview folders
+# for PRs that have been closed or merged.
+
+set -euo pipefail
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Usage information
+usage() {
+    cat << EOF
+PR Preview Cleanup Script - Clean up stale PR preview documentation folders
+
+This script fetches all pr-XXXXX folders from docs/pr-preview/ in the gh-pages branch,
+checks PR status via GitHub API, and removes folders for closed/merged/deleted PRs.
+
+USAGE: $0 [OPTIONS]
+
+OPTIONS:
+    -n, --dry-run    Preview what would be deleted without actually deleting
+    --push           Commit and push changes to gh-pages (default: false, requires manual push)
+    -h, --help       Show this help message
+
+EXAMPLES:
+    $0 -n                     # Preview what would be cleaned up (RECOMMENDED FIRST)
+    $0                        # Clean up folders locally (no push)
+    $0 --push                 # Clean up folders and push to gh-pages branch
+    $0 --dry-run --push       # Invalid combination (dry-run takes precedence)
+
+REQUIREMENTS:
+    - GH_TOKEN environment variable must be set with appropriate permissions
+    - 'gh' (GitHub CLI) must be installed and authenticated
+    - 'jq' must be installed for JSON parsing
+
+SAFETY:
+Always run with --dry-run first to verify expected behavior before actual cleanup.
+The script will show a summary of what would be removed. Use --push to automatically
+commit and push changes, otherwise manual git operations are required.
+
+This script is specifically designed for the NVIDIA/cuda-python repository structure.
+EOF
+    exit 1
+}
+
+# Configuration - hardcoded for this specific repository
+REPOSITORY="NVIDIA/cuda-python"
+DRY_RUN="false"
+PUSH_CHANGES="false"
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -n|--dry-run)
+            DRY_RUN="true"
+            shift
+            ;;
+        --push)
+            PUSH_CHANGES="true"
+            shift
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            echo -e "${RED}[ERROR]${NC} Unknown option: $1" >&2
+            echo "Use --help for usage information" >&2
+            exit 1
+            ;;
+    esac
+done
+
+# Validate required tools and environment
+echo -e "${YELLOW}[INFO]${NC} Checking prerequisites..."
+
+if [[ -z "${GH_TOKEN:-}" ]]; then
+    echo -e "${RED}[ERROR]${NC} GH_TOKEN environment variable is required" >&2
+    exit 1
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+    echo -e "${RED}[ERROR]${NC} jq is required but not installed" >&2
+    exit 1
+fi
+
+if ! command -v gh >/dev/null 2>&1; then
+    echo -e "${RED}[ERROR]${NC} GitHub CLI (gh) is required but not installed" >&2
+    exit 1
+fi
+
+echo -e "${GREEN}[INFO]${NC} All prerequisites satisfied"
+
+# Fetch PR preview folders from gh-pages branch
+echo -e "${YELLOW}[INFO]${NC} Fetching PR preview folders from gh-pages branch..."
+
+# Get the list of pr-XXXXX folders from gh-pages branch
+PR_FOLDERS=$(gh api repos/"${REPOSITORY}"/contents/docs/pr-preview?ref=gh-pages \
+    --header "Accept: application/vnd.github+json" \
+    --jq '.[] | select(.type == "dir" and (.name | test("^pr-[0-9]+$"))) | .name' \
+    2>/dev/null || true)
+
+if [[ -z "$PR_FOLDERS" ]]; then
+    echo -e "${YELLOW}[INFO]${NC} No PR preview folders found in gh-pages branch"
+    exit 0
+fi
+
+echo -e "${GREEN}[INFO]${NC} Found $(echo "$PR_FOLDERS" | wc -l) PR preview folders"
+
+# Check each PR folder
+FOLDERS_TO_REMOVE=()
+TOTAL_FOLDERS=0
+OPEN_PRS=0
+
+while IFS= read -r folder; do
+    if [[ -z "$folder" ]]; then
+        continue
+    fi
+
+    TOTAL_FOLDERS=$((TOTAL_FOLDERS + 1))
+
+    # Extract PR number from folder name (pr-XXXXX -> XXXXX)
+    PR_NUMBER="${folder#pr-}"
+
+    echo -e "${YELLOW}[CHECK]${NC} Checking PR #${PR_NUMBER}..."
+
+    # Check PR status using GitHub API
+    PR_STATUS=$(gh api repos/"${REPOSITORY}"/pulls/"${PR_NUMBER}" \
+        --header "Accept: application/vnd.github+json" \
+        --jq '.state' 2>/dev/null || echo "not_found")
+
+    case "$PR_STATUS" in
+        "open")
+            echo -e "${GREEN}[KEEP]${NC} PR #${PR_NUMBER} is still open"
+            OPEN_PRS=$((OPEN_PRS + 1))
+            ;;
+        "closed")
+            echo -e "${RED}[REMOVE]${NC} PR #${PR_NUMBER} is closed"
+            FOLDERS_TO_REMOVE+=("$folder")
+            ;;
+        "not_found")
+            echo -e "${RED}[REMOVE]${NC} PR #${PR_NUMBER} not found (may have been deleted)"
+            FOLDERS_TO_REMOVE+=("$folder")
+            ;;
+        *)
+            echo -e "${YELLOW}[UNKNOWN]${NC} PR #${PR_NUMBER} has unexpected status: ${PR_STATUS}"
+            ;;
+    esac
+done <<< "$PR_FOLDERS"
+
+# Summary
+echo ""
+echo -e "${YELLOW}[SUMMARY]${NC}"
+echo "Total PR preview folders: ${TOTAL_FOLDERS}"
+echo "Open PRs: ${OPEN_PRS}"
+echo "Folders to remove: ${#FOLDERS_TO_REMOVE[@]}"
+
+if [[ ${#FOLDERS_TO_REMOVE[@]} -eq 0 ]]; then
+    echo -e "${GREEN}[INFO]${NC} No cleanup needed - all preview folders correspond to open PRs"
+    exit 0
+fi
+
+# List folders to be removed
+echo ""
+echo -e "${YELLOW}[FOLDERS TO REMOVE]${NC}"
+for folder in "${FOLDERS_TO_REMOVE[@]}"; do
+    pr_num="${folder#pr-}"
+    echo "  - $folder (PR #${pr_num})"
+done
+
+# Perform cleanup or show what would be done
+echo ""
+if [[ "$DRY_RUN" == "true" ]]; then
+    echo -e "${YELLOW}[DRY RUN]${NC} Would remove ${#FOLDERS_TO_REMOVE[@]} folders (run without --dry-run to actually remove)"
+else
+    echo -e "${RED}[CLEANUP]${NC} Proceeding to remove ${#FOLDERS_TO_REMOVE[@]} folders..."
+
+    # Create a git worktree for gh-pages branch
+    TEMP_DIR="./gh-pages-cleanup"
+
+    # Safely remove any existing worktree and directory
+    if [[ -d "$TEMP_DIR" ]]; then
+        echo -e "${YELLOW}[INFO]${NC} Cleaning up existing worktree at $TEMP_DIR..."
+        # Try to remove existing worktree first (if it's registered)
+        git worktree remove "$TEMP_DIR" --force >/dev/null 2>&1 || true
+        # Now remove the directory
+        rm -rf "$TEMP_DIR"
+    fi
+
+    # Cleanup function to properly remove worktree and temp directory
+    cleanup_worktree() {
+        cd - >/dev/null 2>&1 || true  # Go back to original directory
+        # Only cleanup if changes have been pushed or if no changes were made
+        if [[ "${CHANGES_PUSHED:-false}" == "true" ]] || [[ "${REMOVED_COUNT:-0}" -eq 0 ]]; then
+            if [[ -n "$TEMP_DIR" && -d "$TEMP_DIR" ]]; then
+                git worktree remove "$TEMP_DIR" --force >/dev/null 2>&1 || true
+            fi
+            rm -rf "$TEMP_DIR" >/dev/null 2>&1 || true
+        else
+            echo -e "${YELLOW}[INFO]${NC} Worktree preserved at $TEMP_DIR for manual verification" >&2
+            echo -e "${YELLOW}[INFO]${NC} Remove manually with: git worktree remove $TEMP_DIR && rm -rf $TEMP_DIR" >&2
+        fi
+    }
+    trap cleanup_worktree EXIT
+
+    # Ensure the local gh-pages branch is up-to-date
+    git fetch origin gh-pages:gh-pages
+
+    echo -e "${YELLOW}[INFO]${NC} Creating git worktree for gh-pages branch..."
+    if ! git worktree add "$TEMP_DIR" gh-pages >/dev/null 2>&1; then
+        echo -e "${RED}[ERROR]${NC} Failed to create git worktree for gh-pages branch" >&2
+
+        # Check if the issue might be a leftover worktree registration
+        if git worktree list | grep -q "$TEMP_DIR" 2>/dev/null; then
+            echo -e "${YELLOW}[INFO]${NC} Found existing worktree registration, attempting to clean up..." >&2
+            git worktree remove "$TEMP_DIR" --force >/dev/null 2>&1 || true
+            rm -rf "$TEMP_DIR" >/dev/null 2>&1 || true
+
+            # Try again
+            if ! git worktree add "$TEMP_DIR" gh-pages >/dev/null 2>&1; then
+                echo -e "${RED}[ERROR]${NC} Still unable to create worktree after cleanup" >&2
+                exit 1
+            fi
+        else
+            echo "Make sure the gh-pages branch exists and is accessible" >&2
+            exit 1
+        fi
+    fi
+
+    cd "$TEMP_DIR"
+
+    # Remove each folder
+    REMOVED_COUNT=0
+    for folder in "${FOLDERS_TO_REMOVE[@]}"; do
+        pr_num="${folder#pr-}"
+        folder_path="docs/pr-preview/$folder"
+
+        if [[ -d "$folder_path" ]]; then
+            echo -e "${YELLOW}[REMOVE]${NC} Removing $folder_path"
+            rm -rf "$folder_path"
+            git add "$folder_path"
+            REMOVED_COUNT=$((REMOVED_COUNT + 1))
+        else
+            echo -e "${YELLOW}[SKIP]${NC} Folder $folder_path not found locally"
+        fi
+    done
+
+    if [[ $REMOVED_COUNT -gt 0 ]]; then
+        # Commit and push changes
+        commit_message="Clean up PR preview folders for ${REMOVED_COUNT} closed/merged PRs
+
+Removed preview folders for the following PRs:
+$(printf '%s\n' "${FOLDERS_TO_REMOVE[@]}" | sed 's/^pr-/- PR #/' | head -20)
+$(if [[ ${#FOLDERS_TO_REMOVE[@]} -gt 20 ]]; then echo "... and $((${#FOLDERS_TO_REMOVE[@]} - 20)) more"; fi)"
+
+        echo -e "${YELLOW}[INFO]${NC} Committing changes..."
+        git commit -m "$commit_message"
+
+        if [[ "$PUSH_CHANGES" == "true" ]]; then
+            echo -e "${YELLOW}[INFO]${NC} Pushing to gh-pages branch..."
+            git push origin gh-pages
+            CHANGES_PUSHED="true"
+            echo -e "${GREEN}[SUCCESS]${NC} Cleanup completed! Removed ${REMOVED_COUNT} PR preview folders and pushed changes"
+        else
+            CHANGES_PUSHED="false"
+            echo -e "${GREEN}[SUCCESS]${NC} Cleanup completed! Removed ${REMOVED_COUNT} PR preview folders"
+            echo -e "${YELLOW}[INFO]${NC} Changes have been committed locally but not pushed. Use 'git push origin gh-pages' to push manually."
+            echo -e "${YELLOW}[WARNING]${NC} Worktree will be preserved for manual verification."
+        fi
+    else
+        CHANGES_PUSHED="true"  # No changes made, safe to cleanup
+        echo -e "${YELLOW}[INFO]${NC} No folders were actually removed (they may have been cleaned up already)"
+    fi
+fi
