@@ -67,7 +67,6 @@ cdef class IPCAllocationHandle:
                 os.close(self._handle)
             finally:
                 self._handle = -1
-                self._uuid = None
 
     def __dealloc__(self):
         self.close()
@@ -149,6 +148,8 @@ cpdef IPCAllocationHandle DMR_get_allocation_handle(DeviceMemoryResource self):
 
 cpdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handle):
     # Quick exit for registry hits.
+    if isinstance(alloc_handle, int):
+        alloc_handle = IPCAllocationHandle._init(alloc_handle, None)
     uuid = getattr(alloc_handle, 'uuid', None)
     mr = registry.get(uuid)
     if mr is not None:
@@ -161,7 +162,7 @@ cpdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_hand
     self._mempool_owned = True
     self._ipc_handle_type = IPC_HANDLE_TYPE
     self._is_mapped = True
-    #self._alloc_handle = None  # only used for non-imported
+    self._alloc_handle = alloc_handle
 
     cdef int handle = int(alloc_handle)
     with nogil:
@@ -171,6 +172,7 @@ cpdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_hand
     if uuid is not None:
         registered = self.register(uuid)
         assert registered is self
+    self._alloc_handle.close()
     return self
 
 
@@ -178,9 +180,10 @@ cpdef DeviceMemoryResource DMR_register(DeviceMemoryResource self, uuid):
     existing = registry.get(uuid)
     if existing is not None:
         return existing
-    assert self._uuid is None or self._uuid == uuid
+    assert self._alloc_handle is not None
+    assert self._alloc_handle._uuid is None or self._alloc_handle._uuid == uuid
     registry[uuid] = self
-    self._uuid = uuid
+    self._alloc_handle._uuid = uuid
     return self
 
 cpdef DeviceMemoryResource DMR_from_registry(uuid):

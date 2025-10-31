@@ -201,7 +201,6 @@ cdef class DeviceMemoryResource(MemoryResource):
         self._mempool_owned = False
         self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
         self._is_mapped = False
-        self._uuid = None
         self._alloc_handle = None
 
     def __init__(self, device_id: int | Device, options=None):
@@ -375,7 +374,8 @@ cdef class DeviceMemoryResource(MemoryResource):
         A universally unique identifier for this memory resource. Meaningful
         only for IPC-enabled memory resources.
         """
-        return self._uuid
+        if self._alloc_handle is not None:
+            return self._alloc_handle._uuid
 
 
 cdef void DMR_init_current(DeviceMemoryResource self, int dev_id):
@@ -436,13 +436,12 @@ cdef void DMR_init_create(DeviceMemoryResource self, int dev_id, DeviceMemoryRes
     if opts.ipc_enabled:
         self._ipc_handle_type = ipc.IPC_HANDLE_TYPE
         self._is_mapped = False
-        self._uuid = uuid.uuid4()
         with nogil:
             HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(
                 &alloc_handle, self._mempool_handle, ipc.IPC_HANDLE_TYPE, 0)
             )
         try:
-            self._alloc_handle = IPCAllocationHandle._init(alloc_handle, self._uuid)
+            self._alloc_handle = IPCAllocationHandle._init(alloc_handle, uuid.uuid4())
         except:
             os.close(alloc_handle)
             raise
@@ -484,6 +483,5 @@ cdef DMR_close(DeviceMemoryResource self):
         self._mempool_owned = False
         self._ipc_handle_type = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
         self._is_mapped = False
-        self._uuid = None
         self._alloc_handle = None
 

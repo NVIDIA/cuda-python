@@ -60,7 +60,6 @@ class TestObjectSerializationDirect:
         # Receive the memory resource.
         handle = mp.reduction.recv_handle(conn)
         mr = DeviceMemoryResource.from_allocation_handle(device, handle)
-        os.close(handle)
 
         # Receive the buffers.
         buffer1 = conn.recv()  # directly

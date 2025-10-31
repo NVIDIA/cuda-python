@@ -18,6 +18,5 @@ cdef class DeviceMemoryResource(MemoryResource):
 
         cydriver.CUmemAllocationHandleType _ipc_handle_type
         bint _is_mapped
-        object _uuid
         IPCAllocationHandle _alloc_handle
 
