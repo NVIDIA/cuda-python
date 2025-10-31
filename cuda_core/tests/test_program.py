@@ -176,6 +176,7 @@ def ptx_code_object():
     [
         ProgramOptions(name="abc"),
         ProgramOptions(device_code_optimize=True, debug=True),
+        ProgramOptions(device_code_optimize=True, debug=True, numba_debug=True),
         ProgramOptions(relocatable_device_code=True, max_register_count=32),
         ProgramOptions(ftz=True, prec_sqrt=False, prec_div=False),
         ProgramOptions(fma=False, use_fast_math=True),
@@ -210,6 +211,7 @@ def test_cpp_program_with_various_options(init_cuda, options):
 options = [
     ProgramOptions(max_register_count=32),
     ProgramOptions(debug=True),
+    ProgramOptions(debug=True, numba_debug=True),
     ProgramOptions(lineinfo=True),
     ProgramOptions(ftz=True),
     ProgramOptions(prec_div=True),

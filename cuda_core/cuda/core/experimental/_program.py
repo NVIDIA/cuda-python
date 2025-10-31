@@ -255,6 +255,9 @@ class ProgramOptions:
     minimal : bool, optional
         Omit certain language features to reduce compile time for small programs.
         Default: False
+    numba_debug : bool, optional
+        Enable Numba-specific flag for debugging.
+        Default: False
     """
 
     name: str | None = "<default program>"
@@ -298,6 +301,7 @@ class ProgramOptions:
     split_compile: int | None = None
     fdevice_syntax_only: bool | None = None
     minimal: bool | None = None
+    numba_debug: bool | None = None  # Custom option for Numba debugging
 
     def __post_init__(self):
         self._name = self.name.encode()
@@ -418,6 +422,8 @@ class ProgramOptions:
             self._formatted_options.append("--fdevice-syntax-only")
         if self.minimal is not None and self.minimal:
             self._formatted_options.append("--minimal")
+        if self.numba_debug:
+            self._formatted_options.append("--numba-debug")
 
     def _as_bytes(self):
         # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
