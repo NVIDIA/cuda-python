@@ -240,7 +240,7 @@ cdef class Stream:
         # hierarchies via Python's type checking mechanism, even when other is
         # already a Stream. In contrast, a direct cast succeeds immediately in
         # the common case (other is a Stream), and exception handling has very
-        # low overhead when no exception occurs. 
+        # low overhead when no exception occurs.
         cdef Stream _other
         try:
             _other = <Stream>other
