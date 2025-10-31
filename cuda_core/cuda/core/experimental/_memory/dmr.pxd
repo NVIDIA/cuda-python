@@ -2,24 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from libc.stdint cimport uintptr_t, intptr_t
 from cuda.bindings cimport cydriver
 
+from cuda.core.experimental._memory.buffer cimport MemoryResource
 from cuda.core.experimental._memory.ipc cimport IPCAllocationHandle
-from cuda.core.experimental._stream cimport Stream as _cyStream
-
-
-cdef class Buffer:
-    cdef:
-        intptr_t _ptr
-        size_t _size
-        MemoryResource _mr
-        object _ptr_obj
-        _cyStream _alloc_stream
-
-
-cdef class MemoryResource:
-    pass
 
 
 cdef class DeviceMemoryResource(MemoryResource):

@@ -2,15 +2,20 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Union
+from __future__ import annotations
 
-from cuda.core.experimental._memory.memory import Buffer, MemoryResource
+from typing import TYPE_CHECKING
+
+from cuda.core.experimental._memory.buffer import Buffer, MemoryResource
 from cuda.core.experimental._utils.cuda_utils import (
     driver,
     _check_driver_error as raise_if_driver_error,
 )
 
-DevicePointerT = Union[driver.CUdeviceptr, int, None]
+if TYPE_CHECKING:
+    from cuda.core.experimental._memory.buffer import DevicePointerT
+
+__all__ = ["LegacyPinnedMemoryResource", "_SynchronousMemoryResource"]
 
 
 class LegacyPinnedMemoryResource(MemoryResource):

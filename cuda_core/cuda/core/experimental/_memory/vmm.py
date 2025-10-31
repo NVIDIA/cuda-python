@@ -7,12 +7,14 @@ from typing import Iterable, Literal, Optional, Union
 import platform
 
 from cuda.core.experimental._stream import Stream
-from cuda.core.experimental._memory.memory import Buffer, MemoryResource
+from cuda.core.experimental._memory.buffer import Buffer, MemoryResource
 from cuda.core.experimental._utils.cuda_utils import (driver, Transaction, get_binding_version )
 from cuda.core.experimental._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
     check_or_create_options,
 )
+
+__all__ = ["VirtualMemoryResourceOptions", "VirtualMemoryResource"]
 
 VirtualMemoryHandleTypeT = Union[Literal["posix_fd", "generic", "win32", "win32_kmt", "fabric"], None]
 VirtualMemoryLocationTypeT = Literal["device", "host", "host_numa", "host_numa_current"]

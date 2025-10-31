@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._memory.memory cimport Buffer, DeviceMemoryResource
+from cuda.core.experimental._memory.buffer cimport Buffer
+from cuda.core.experimental._memory.dmr cimport DeviceMemoryResource
 
 
 # Holds DeviceMemoryResource objects imported by this process.  This enables
