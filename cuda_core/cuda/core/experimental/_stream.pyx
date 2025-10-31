@@ -235,6 +235,12 @@ cdef class Stream:
             True if other is a Stream wrapping the same handle, False if not equal,
             NotImplemented if other is not a Stream.
         """
+        # Use cast with exception handling instead of isinstance(other, Stream)
+        # for performance: isinstance with cdef classes must traverse inheritance
+        # hierarchies via Python's type checking mechanism, even when other is
+        # already a Stream. In contrast, a direct cast succeeds immediately in
+        # the common case (other is a Stream), and exception handling has very
+        # low overhead when no exception occurs. 
         cdef Stream _other
         try:
             _other = <Stream>other

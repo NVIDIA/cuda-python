@@ -203,9 +203,18 @@ cdef class Event:
             True if other is an Event wrapping the same handle, False if not equal,
             NotImplemented if other is not an Event.
         """
-        if not isinstance(other, Event):
+        # Use cast with exception handling instead of isinstance(other, Event)
+        # for performance: isinstance with cdef classes must traverse inheritance
+        # hierarchies via Python's type checking mechanism, even when other is
+        # already an Event. In contrast, a direct cast succeeds immediately in
+        # the common case (other is an Event), and exception handling has very
+        # low overhead when no exception occurs.
+        cdef Event _other
+        try:
+            _other = <Event>other
+        except TypeError:
             return NotImplemented
-        return <uintptr_t>(self._handle) == <uintptr_t>((<Event>other)._handle)
+        return <uintptr_t>(self._handle) == <uintptr_t>(_other._handle)
 
     def get_ipc_descriptor(self) -> IPCEventDescriptor:
         """Export an event allocated for sharing between processes."""
