@@ -34,6 +34,8 @@ if TYPE_CHECKING:
     from cuda.core.experimental._memory.buffer import DevicePointerT
     from .._device import Device
 
+__all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
+
 
 @dataclass
 cdef class DeviceMemoryResourceOptions:

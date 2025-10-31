@@ -21,6 +21,8 @@ from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.cuda_utils import driver
 
+__all__ = ['Buffer', 'MemoryResource']
+
 
 DevicePointerT = Union[driver.CUdeviceptr, int, None]
 """A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting :attr:`Buffer.handle`."""

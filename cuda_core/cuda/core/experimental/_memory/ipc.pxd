@@ -13,6 +13,7 @@ from cuda.core.experimental._memory.dmr cimport DeviceMemoryResource
 # descriptor.
 cdef object registry
 
+
 # IPC is currently only supported on Linux. On other platforms, the IPC handle
 # type is set equal to the no-IPC handle type.
 cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE
