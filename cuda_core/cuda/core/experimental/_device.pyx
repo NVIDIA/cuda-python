@@ -949,7 +949,7 @@ class Device:
         Default value of `None` return the currently used device.
 
     """
-    __slots__ = ("_id", "_mr", "_has_inited", "_properties")
+    __slots__ = ("_id", "_mr", "_has_inited", "_properties", "_uuid")
 
     def __new__(cls, device_id: int | None = None):
         global _is_cuInit
@@ -1002,6 +1002,7 @@ class Device:
 
                 device._has_inited = False
                 device._properties = None
+                device._uuid = None
                 devices.append(device)
 
         try:
@@ -1146,25 +1147,30 @@ class Device:
         return f"<Device {self._id} ({self.name})>"
 
     def __hash__(self) -> int:
-        """Return hash based on the device ordinal.
+        """Return hash based on the device UUID.
 
         This enables Device objects to be used as dictionary keys and in sets.
-        Device objects with the same device_id will hash to the same value
-        and be considered equal, even if they are different Python objects or
-        exist on different threads.
+        Device objects representing the same physical device will hash to the
+        same value, even if they have different device_id values due to
+        CUDA_VISIBLE_DEVICES or exist across different processes.
 
         Returns
         -------
         int
-            Hash value based on the device ordinal (device_id).
+            Hash value based on the device UUID.
 
         Notes
         -----
-        Device is a per-thread singleton, but equality is based on logical
-        device identity (device_id), not Python object identity. This means
-        Device(0) on thread A equals Device(0) on thread B.
+        Uses UUID to ensure consistency across processes where
+        CUDA_VISIBLE_DEVICES may change the device ordinal mapping. The UUID
+        uniquely identifies the physical device and remains stable regardless of
+        how devices are ordered or filtered.
+
+        The UUID is cached after first access to avoid repeated CUDA API calls.
         """
-        return hash((type(self), self._id))
+        if self._uuid is None:
+            self._uuid = self.uuid
+        return hash((type(self), self._uuid))
 
     def __eq__(self, other) -> bool:
         """Check equality based on the device ordinal.
