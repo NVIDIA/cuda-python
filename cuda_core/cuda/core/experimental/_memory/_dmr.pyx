@@ -9,9 +9,9 @@ from libc.stdint cimport uintptr_t, intptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._memory.buffer cimport Buffer, MemoryResource
-from cuda.core.experimental._memory cimport ipc
-from cuda.core.experimental._memory.ipc cimport IPCAllocationHandle
+from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
+from cuda.core.experimental._memory cimport _ipc
+from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle
 from cuda.core.experimental._stream cimport default_stream, Stream as _cyStream
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
@@ -236,7 +236,7 @@ cdef class DeviceMemoryResource(MemoryResource):
         RuntimeError
             If no mapped memory resource is found in the registry.
         """
-        return ipc.DMR_from_registry(uuid)
+        return _ipc.DMR_from_registry(uuid)
 
     def register(self, uuid: uuid.UUID) -> DeviceMemoryResource:
         """
@@ -247,7 +247,7 @@ cdef class DeviceMemoryResource(MemoryResource):
         The registered mapped memory resource. If one was previously registered
         with the given key, it is returned.
         """
-        return ipc.DMR_register(self, uuid)
+        return _ipc.DMR_register(self, uuid)
 
     @classmethod
     def from_allocation_handle(
@@ -272,7 +272,7 @@ cdef class DeviceMemoryResource(MemoryResource):
         -------
             A new device memory resource instance with the imported handle.
         """
-        return ipc.DMR_from_allocation_handle(cls, device_id, alloc_handle)
+        return _ipc.DMR_from_allocation_handle(cls, device_id, alloc_handle)
 
     def get_allocation_handle(self) -> IPCAllocationHandle:
         """Export the memory pool handle to be shared (requires IPC).
@@ -284,7 +284,7 @@ cdef class DeviceMemoryResource(MemoryResource):
         -------
             The shareable handle for the memory pool.
         """
-        return ipc.DMR_get_allocation_handle(self)
+        return _ipc.DMR_get_allocation_handle(self)
 
     def allocate(self, size_t size, stream: Stream = None) -> Buffer:
         """Allocate a buffer of the requested size.
@@ -413,12 +413,12 @@ cdef void DMR_init_create(DeviceMemoryResource self, int dev_id, DeviceMemoryRes
     # Create a new memory pool.
     cdef cydriver.CUmemPoolProps properties
 
-    if opts.ipc_enabled and ipc.IPC_HANDLE_TYPE == cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE:
+    if opts.ipc_enabled and _ipc.IPC_HANDLE_TYPE == cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE:
         raise RuntimeError("IPC is not available on {platform.system()}")
 
     memset(&properties, 0, sizeof(cydriver.CUmemPoolProps))
     properties.allocType = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
-    properties.handleTypes = ipc.IPC_HANDLE_TYPE if opts.ipc_enabled else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+    properties.handleTypes = _ipc.IPC_HANDLE_TYPE if opts.ipc_enabled else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
     properties.location.id = dev_id
     properties.location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
     properties.maxSize = opts.max_size
@@ -436,11 +436,11 @@ cdef void DMR_init_create(DeviceMemoryResource self, int dev_id, DeviceMemoryRes
     cdef int alloc_handle
 
     if opts.ipc_enabled:
-        self._ipc_handle_type = ipc.IPC_HANDLE_TYPE
+        self._ipc_handle_type = _ipc.IPC_HANDLE_TYPE
         self._is_mapped = False
         with nogil:
             HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(
-                &alloc_handle, self._mempool_handle, ipc.IPC_HANDLE_TYPE, 0)
+                &alloc_handle, self._mempool_handle, _ipc.IPC_HANDLE_TYPE, 0)
             )
         try:
             self._alloc_handle = IPCAllocationHandle._init(alloc_handle, uuid.uuid4())

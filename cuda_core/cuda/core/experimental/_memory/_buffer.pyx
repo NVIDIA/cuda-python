@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from libc.stdint cimport intptr_t
 
-from cuda.core.experimental._memory.dmr cimport DeviceMemoryResource
-from cuda.core.experimental._memory.ipc cimport IPCBufferDescriptor
-from cuda.core.experimental._memory cimport ipc
+from cuda.core.experimental._memory._dmr cimport DeviceMemoryResource
+from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor
+from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._stream cimport default_stream, Stream as _cyStream
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
@@ -89,11 +89,11 @@ cdef class Buffer:
     @classmethod
     def from_ipc_descriptor(cls, mr: DeviceMemoryResource, ipc_buffer: IPCBufferDescriptor, stream: Stream = None) -> Buffer:
         """Import a buffer that was exported from another process."""
-        return ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_buffer, stream)
+        return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_buffer, stream)
 
     def get_ipc_descriptor(self) -> IPCBufferDescriptor:
         """Export a buffer allocated for sharing between processes."""
-        return ipc.Buffer_get_ipc_descriptor(self)
+        return _ipc.Buffer_get_ipc_descriptor(self)
 
     def close(self, stream: Stream = None):
         """Deallocate this buffer asynchronously on the given stream.

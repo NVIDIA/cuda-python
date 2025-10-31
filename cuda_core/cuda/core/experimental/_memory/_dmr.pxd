@@ -4,8 +4,8 @@
 
 from cuda.bindings cimport cydriver
 
-from cuda.core.experimental._memory.buffer cimport MemoryResource
-from cuda.core.experimental._memory.ipc cimport IPCAllocationHandle
+from cuda.core.experimental._memory._buffer cimport MemoryResource
+from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle
 
 
 cdef class DeviceMemoryResource(MemoryResource):

@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from .buffer import *
-from .dmr import *
-from .ipc import *
-from .legacy import *
-from .vmm import *
+from ._buffer import *
+from ._dmr import *
+from ._ipc import *
+from ._legacy import *
+from ._vmm import *
 

@@ -7,7 +7,7 @@ from typing import Iterable, Literal, Optional, Union
 import platform
 
 from cuda.core.experimental._stream import Stream
-from cuda.core.experimental._memory.buffer import Buffer, MemoryResource
+from cuda.core.experimental._memory._buffer import Buffer, MemoryResource
 from cuda.core.experimental._utils.cuda_utils import (driver, Transaction, get_binding_version )
 from cuda.core.experimental._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,

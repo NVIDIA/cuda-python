@@ -24,7 +24,8 @@ from cuda.core.experimental import (
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
-from cuda.core.experimental._memory import DLDeviceType, IPCBufferDescriptor
+from cuda.core.experimental._dlpack import DLDeviceType
+from cuda.core.experimental._memory import IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
 from cuda.core.experimental.utils import StridedMemoryView
 from helpers.buffers import DummyUnifiedMemoryResource
@@ -125,6 +126,22 @@ class NullMemoryResource(DummyHostMemoryResource):
     def is_host_accessible(self) -> bool:
         return False
 
+def test_package_contents():
+    expected = [
+        'Buffer',
+        'MemoryResource',
+        'DeviceMemoryResource',
+        'DeviceMemoryResourceOptions',
+        'IPCBufferDescriptor',
+        'IPCAllocationHandle',
+        'LegacyPinnedMemoryResource',
+        'VirtualMemoryResourceOptions',
+        'VirtualMemoryResource'
+    ]
+    d = {}
+    exec("from cuda.core.experimental._memory import *", d)
+    d = {k:v for k,v in d.items() if not k.startswith("__")}
+    assert sorted(expected) == sorted(d.keys())
 
 def buffer_initialization(dummy_mr: MemoryResource):
     buffer = dummy_mr.allocate(size=1024)

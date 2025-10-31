@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from cuda.core.experimental._memory.buffer import Buffer, MemoryResource
+from cuda.core.experimental._memory._buffer import Buffer, MemoryResource
 from cuda.core.experimental._utils.cuda_utils import (
     driver,
     _check_driver_error as raise_if_driver_error,
