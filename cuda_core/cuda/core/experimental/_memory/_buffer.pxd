@@ -4,19 +4,17 @@
 
 from libc.stdint cimport intptr_t
 
-from cuda.core.experimental._stream cimport Stream as _cyStream
+from cuda.core.experimental._stream cimport Stream
 
 
 cdef class Buffer:
     cdef:
-        intptr_t _ptr
-        size_t _size
+        intptr_t       _ptr
+        size_t         _size
         MemoryResource _mr
-        object _ptr_obj
-        _cyStream _alloc_stream
+        object         _ptr_obj
+        Stream         _alloc_stream
 
 
 cdef class MemoryResource:
     pass
-
-

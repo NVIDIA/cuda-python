@@ -3,7 +3,6 @@
 
 import multiprocessing as mp
 import multiprocessing.reduction
-import os
 
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource
 from helpers.buffers import PatternGen

@@ -14,40 +14,45 @@ from cuda.core.experimental._memory._dmr cimport DeviceMemoryResource
 cdef object registry
 
 
-# IPC is currently only supported on Linux. On other platforms, the IPC handle
-# type is set equal to the no-IPC handle type.
+# The IPC handle type for this platform.  IPC is currently only supported on
+# Linux. On other platforms, the IPC handle type is set equal to the no-IPC
+# handle type.
 cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE
+
+
+# Whether IPC is supported on this platform.
+cdef is_supported()
 
 
 cdef class IPCData:
     cdef:
-        bint _is_mapped
         IPCAllocationHandle _alloc_handle
+        bint                _is_mapped
 
 
 cdef class IPCBufferDescriptor:
     cdef:
-        bytes _reserved
+        bytes  _payload
         size_t _size
 
 
 cdef class IPCAllocationHandle:
     cdef:
-        int _handle
+        int    _handle
         object _uuid
 
     cpdef close(self)
 
 
 # Buffer IPC Implementation
-# ------
-cpdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer)
-cpdef Buffer Buffer_from_ipc_descriptor(cls, DeviceMemoryResource, IPCBufferDescriptor, stream)
+# -------------------------
+cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer)
+cdef Buffer Buffer_from_ipc_descriptor(cls, DeviceMemoryResource, IPCBufferDescriptor, stream)
 
 
 # DeviceMemoryResource IPC Implementation
-# ------
-cpdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handle)
-cpdef DeviceMemoryResource DMR_from_registry(uuid)
-cpdef DeviceMemoryResource DMR_register(DeviceMemoryResource, uuid)
-cpdef IPCAllocationHandle DMR_export_mempool(DeviceMemoryResource)
+# ---------------------------------------
+cdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handle)
+cdef DeviceMemoryResource DMR_from_registry(uuid)
+cdef DeviceMemoryResource DMR_register(DeviceMemoryResource, uuid)
+cdef IPCAllocationHandle DMR_export_mempool(DeviceMemoryResource)

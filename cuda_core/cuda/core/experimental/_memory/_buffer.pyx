@@ -9,7 +9,7 @@ from libc.stdint cimport intptr_t
 from cuda.core.experimental._memory._dmr cimport DeviceMemoryResource
 from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor
 from cuda.core.experimental._memory cimport _ipc
-from cuda.core.experimental._stream cimport default_stream, Stream as _cyStream
+from cuda.core.experimental._stream cimport default_stream, Stream
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
 )
@@ -18,14 +18,16 @@ import abc
 from typing import TypeVar, Union
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
-from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.cuda_utils import driver
 
 __all__ = ['Buffer', 'MemoryResource']
 
 
 DevicePointerT = Union[driver.CUdeviceptr, int, None]
-"""A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting :attr:`Buffer.handle`."""
+"""
+A type union of :obj:`~driver.CUdeviceptr`, `int` and `None` for hinting
+:attr:`Buffer.handle`.
+"""
 
 cdef class Buffer:
     """Represent a handle to allocated memory.
@@ -51,16 +53,20 @@ cdef class Buffer:
         self._alloc_stream = None
 
     def __init__(self, *args, **kwargs):
-        raise RuntimeError("Buffer objects cannot be instantiated directly. Please use MemoryResource APIs.")
+        raise RuntimeError("Buffer objects cannot be instantiated directly. "
+                           "Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None, stream: Stream | None = None):
+    def _init(
+        cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
+        stream: Stream | None = None
+    ):
         cdef Buffer self = Buffer.__new__(cls)
         self._ptr = <intptr_t>(int(ptr))
         self._ptr_obj = ptr
         self._size = size
         self._mr = mr
-        self._alloc_stream = <_cyStream>(stream) if stream is not None else None
+        self._alloc_stream = <Stream>(stream) if stream is not None else None
         return self
 
     def __dealloc__(self):
@@ -71,7 +77,9 @@ cdef class Buffer:
         return Buffer.from_ipc_descriptor, (self.memory_resource, self.get_ipc_descriptor())
 
     @staticmethod
-    def from_handle(ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None) -> Buffer:
+    def from_handle(
+        ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None
+    ) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
         Parameters
@@ -87,7 +95,10 @@ cdef class Buffer:
         return Buffer._init(ptr, size, mr=mr)
 
     @classmethod
-    def from_ipc_descriptor(cls, mr: DeviceMemoryResource, ipc_buffer: IPCBufferDescriptor, stream: Stream = None) -> Buffer:
+    def from_ipc_descriptor(
+        cls, mr: DeviceMemoryResource, ipc_buffer: IPCBufferDescriptor,
+        stream: Stream = None
+    ) -> Buffer:
         """Import a buffer that was exported from another process."""
         return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_buffer, stream)
 
@@ -132,13 +143,14 @@ cdef class Buffer:
 
         if dst is None:
             if self._mr is None:
-                raise ValueError("a destination buffer must be provided (this buffer does not have a memory_resource)")
+                raise ValueError("a destination buffer must be provided (this "
+                                 "buffer does not have a memory_resource)")
             dst = self._mr.allocate(src_size, stream)
 
         cdef size_t dst_size = dst._size
         if dst_size != src_size:
-            raise ValueError(
-                f"buffer sizes mismatch between src and dst (sizes are: src={src_size}, dst={dst_size})"
+            raise ValueError( "buffer sizes mismatch between src and dst (sizes "
+                             f"are: src={src_size}, dst={dst_size})"
             )
         err, = driver.cuMemcpyAsync(dst._ptr, self._ptr, src_size, stream.handle)
         raise_if_driver_error(err)
@@ -163,8 +175,8 @@ cdef class Buffer:
         cdef size_t src_size = src._size
 
         if src_size != dst_size:
-            raise ValueError(
-                f"buffer sizes mismatch between src and dst (sizes are: src={src_size}, dst={dst_size})"
+            raise ValueError( "buffer sizes mismatch between src and dst (sizes "
+                             f"are: src={src_size}, dst={dst_size})"
             )
         err, = driver.cuMemcpyAsync(self._ptr, src._ptr, dst_size, stream.handle)
         raise_if_driver_error(err)
@@ -264,17 +276,19 @@ cdef class Buffer:
         return self._size
 
 
+# Buffer Implementation
+# ---------------------
 cdef Buffer_close(Buffer self, stream):
-    cdef _cyStream s
+    cdef Stream s
     if self._ptr and self._mr is not None:
         if stream is None:
             if self._alloc_stream is not None:
                 s = self._alloc_stream
             else:
                 # TODO: remove this branch when from_handle takes a stream
-                s = <_cyStream>(default_stream())
+                s = <Stream>(default_stream())
         else:
-            s = <_cyStream>stream
+            s = <Stream>stream
         self._mr.deallocate(self._ptr, self._size, s)
         self._ptr = 0
         self._mr = None
@@ -283,13 +297,15 @@ cdef Buffer_close(Buffer self, stream):
 
 
 cdef class MemoryResource:
-    """Abstract base class for memory resources that manage allocation and deallocation of buffers.
+    """Abstract base class for memory resources that manage allocation and
+    deallocation of buffers.
 
-    Subclasses must implement methods for allocating and deallocation, as well as properties
-    associated with this memory resource from which all allocated buffers will inherit. (Since
-    all :class:`Buffer` instances allocated and returned by the :meth:`allocate` method would
-    hold a reference to self, the buffer properties are retrieved simply by looking up the underlying
-    memory resource's respective property.)
+    Subclasses must implement methods for allocating and deallocation, as well
+    as properties associated with this memory resource from which all allocated
+    buffers will inherit. (Since all :class:`Buffer` instances allocated and
+    returned by the :meth:`allocate` method would hold a reference to self, the
+    buffer properties are retrieved simply by looking up the underlying memory
+    resource's respective property.)
     """
 
     @abc.abstractmethod
@@ -329,5 +345,3 @@ cdef class MemoryResource:
             and document the behavior.
         """
         ...
-
-

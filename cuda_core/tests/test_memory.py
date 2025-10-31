@@ -126,22 +126,24 @@ class NullMemoryResource(DummyHostMemoryResource):
     def is_host_accessible(self) -> bool:
         return False
 
+
 def test_package_contents():
     expected = [
-        'Buffer',
-        'MemoryResource',
-        'DeviceMemoryResource',
-        'DeviceMemoryResourceOptions',
-        'IPCBufferDescriptor',
-        'IPCAllocationHandle',
-        'LegacyPinnedMemoryResource',
-        'VirtualMemoryResourceOptions',
-        'VirtualMemoryResource'
+        "Buffer",
+        "MemoryResource",
+        "DeviceMemoryResource",
+        "DeviceMemoryResourceOptions",
+        "IPCBufferDescriptor",
+        "IPCAllocationHandle",
+        "LegacyPinnedMemoryResource",
+        "VirtualMemoryResourceOptions",
+        "VirtualMemoryResource",
     ]
     d = {}
-    exec("from cuda.core.experimental._memory import *", d)
-    d = {k:v for k,v in d.items() if not k.startswith("__")}
+    exec("from cuda.core.experimental._memory import *", d)  # noqa: S102
+    d = {k: v for k, v in d.items() if not k.startswith("__")}
     assert sorted(expected) == sorted(d.keys())
+
 
 def buffer_initialization(dummy_mr: MemoryResource):
     buffer = dummy_mr.allocate(size=1024)

@@ -8,8 +8,10 @@ from typing import TYPE_CHECKING
 
 from cuda.core.experimental._memory._buffer import Buffer, MemoryResource
 from cuda.core.experimental._utils.cuda_utils import (
-    driver,
     _check_driver_error as raise_if_driver_error,
+)
+from cuda.core.experimental._utils.cuda_utils import (
+    driver,
 )
 
 if TYPE_CHECKING:
@@ -25,7 +27,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
 
     # TODO: support creating this MR with flags that are later passed to cuMemHostAlloc?
 
-    def allocate(self, size, stream = None) -> Buffer:
+    def allocate(self, size, stream=None) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
@@ -42,6 +44,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
         """
         if stream is None:
             from cuda.core.experimental._stream import default_stream
+
             stream = default_stream()
         err, ptr = driver.cuMemAllocHost(size)
         raise_if_driver_error(err)
@@ -60,7 +63,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
             The stream on which to perform the deallocation synchronously.
         """
         stream.sync()
-        err, = driver.cuMemFreeHost(ptr)
+        (err,) = driver.cuMemFreeHost(ptr)
         raise_if_driver_error(err)
 
     @property
@@ -83,11 +86,12 @@ class _SynchronousMemoryResource(MemoryResource):
     __slots__ = ("_dev_id",)
 
     def __init__(self, device_id):
-        self._dev_id = getattr(device_id, 'device_id', device_id)
+        self._dev_id = getattr(device_id, "device_id", device_id)
 
     def allocate(self, size, stream=None) -> Buffer:
         if stream is None:
             from cuda.core.experimental._stream import default_stream
+
             stream = default_stream()
         err, ptr = driver.cuMemAlloc(size)
         raise_if_driver_error(err)
@@ -95,7 +99,7 @@ class _SynchronousMemoryResource(MemoryResource):
 
     def deallocate(self, ptr, size, stream):
         stream.sync()
-        err, = driver.cuMemFree(ptr)
+        (err,) = driver.cuMemFree(ptr)
         raise_if_driver_error(err)
 
     @property
@@ -109,5 +113,3 @@ class _SynchronousMemoryResource(MemoryResource):
     @property
     def device_id(self) -> int:
         return self._dev_id
-
-

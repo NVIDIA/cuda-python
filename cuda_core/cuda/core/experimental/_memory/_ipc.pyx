@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 cimport cpython
-from libc.stdint cimport intptr_t, uintptr_t
+from libc.stdint cimport intptr_t
 from libc.string cimport memcpy
 
 from cuda.bindings cimport cydriver
@@ -12,7 +12,6 @@ from cuda.core.experimental._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
 
-from typing import Iterable, Literal, Optional, TypeVar, Union
 import multiprocessing
 import os
 import platform
@@ -24,19 +23,24 @@ __all__ = ['IPCBufferDescriptor', 'IPCAllocationHandle']
 
 cdef object registry = weakref.WeakValueDictionary()
 
-cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE = cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR \
-    if platform.system() == "Linux" else cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
 
+cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE =                       \
+    cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR \
+    if platform.system() == "Linux" else                                        \
+    cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
+
+cdef is_supported():
+    return IPC_HANDLE_TYPE != cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
 
 cdef class IPCData:
     """Data members related to sharing memory pools via IPC."""
     def __cinit__(self):
-        self._is_mapped = False
         self._alloc_handle = None
+        self._is_mapped = False
 
     def __init__(self, IPCAllocationHandle alloc_handle, bint mapped):
-        self._is_mapped = mapped
         self._alloc_handle = alloc_handle
+        self._is_mapped = mapped
 
     @property
     def alloc_handle(self):
@@ -60,12 +64,12 @@ cdef class IPCBufferDescriptor:
     @classmethod
     def _init(cls, reserved: bytes, size: int):
         cdef IPCBufferDescriptor self = IPCBufferDescriptor.__new__(cls)
-        self._reserved = reserved
+        self._payload = reserved
         self._size = size
         return self
 
     def __reduce__(self):
-        return self._init, (self._reserved, self._size)
+        return self._init, (self._payload, self._size)
 
     @property
     def size(self):
@@ -79,7 +83,7 @@ cdef class IPCAllocationHandle:
         raise RuntimeError("IPCAllocationHandle objects cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, handle: int, uuid):
+    def _init(cls, handle: int, uuid):  # no-cython-lint
         cdef IPCAllocationHandle self = IPCAllocationHandle.__new__(cls)
         assert handle >= 0
         self._handle = handle
@@ -118,7 +122,7 @@ def _reduce_allocation_handle(alloc_handle):
     return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)
 
 
-def _reconstruct_allocation_handle(cls, df, uuid):
+def _reconstruct_allocation_handle(cls, df, uuid):  # no-cython-lint
     return cls._init(df.detach(), uuid)
 
 
@@ -136,17 +140,23 @@ multiprocessing.reduction.register(DeviceMemoryResource, _deep_reduce_device_mem
 
 
 # Buffer IPC Implementation
-# ------
-cpdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
+# -------------------------
+cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
     if not self._mr.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
     cdef cydriver.CUmemPoolPtrExportData data
     with nogil:
-        HANDLE_RETURN(cydriver.cuMemPoolExportPointer(&data, <cydriver.CUdeviceptr>(self._ptr)))
-    cdef bytes data_b = cpython.PyBytes_FromStringAndSize(<char*>(data.reserved), sizeof(data.reserved))
+        HANDLE_RETURN(
+            cydriver.cuMemPoolExportPointer(&data, <cydriver.CUdeviceptr>(self._ptr))
+        )
+    cdef bytes data_b = cpython.PyBytes_FromStringAndSize(
+        <char*>(data.reserved), sizeof(data.reserved)
+    )
     return IPCBufferDescriptor._init(data_b, self.size)
 
-cpdef Buffer Buffer_from_ipc_descriptor(cls, DeviceMemoryResource mr, IPCBufferDescriptor ipc_buffer, stream):
+cdef Buffer Buffer_from_ipc_descriptor(
+    cls, DeviceMemoryResource mr, IPCBufferDescriptor ipc_buffer, stream
+):
     """Import a buffer that was exported from another process."""
     if not mr.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
@@ -154,20 +164,25 @@ cpdef Buffer Buffer_from_ipc_descriptor(cls, DeviceMemoryResource mr, IPCBufferD
         # Note: match this behavior to DeviceMemoryResource.allocate()
         stream = default_stream()
     cdef cydriver.CUmemPoolPtrExportData data
-    memcpy(data.reserved, <const void*><const char*>(ipc_buffer._reserved), sizeof(data.reserved))
+    memcpy(
+        data.reserved,
+        <const void*><const char*>(ipc_buffer._payload),
+        sizeof(data.reserved)
+    )
     cdef cydriver.CUdeviceptr ptr
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._handle, &data))
     return Buffer._init(<intptr_t>ptr, ipc_buffer.size, mr, stream)
 
-# DeviceMemoryResource IPC Implementation
-# ------
 
-cpdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handle):
+# DeviceMemoryResource IPC Implementation
+# ---------------------------------------
+
+cdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handle):
     # Quick exit for registry hits.
     if isinstance(alloc_handle, int):
         alloc_handle = IPCAllocationHandle._init(alloc_handle, None)
-    uuid = getattr(alloc_handle, 'uuid', None)
+    uuid = getattr(alloc_handle, 'uuid', None)  # no-cython-lint
     mr = registry.get(uuid)
     if mr is not None:
         return mr
@@ -196,14 +211,14 @@ cpdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_hand
     return self
 
 
-cpdef DeviceMemoryResource DMR_from_registry(uuid):
+cdef DeviceMemoryResource DMR_from_registry(uuid):
     try:
         return registry[uuid]
     except KeyError:
         raise RuntimeError(f"Memory resource {uuid} was not found") from None
 
 
-cpdef DeviceMemoryResource DMR_register(DeviceMemoryResource self, uuid):
+cdef DeviceMemoryResource DMR_register(DeviceMemoryResource self, uuid):
     existing = registry.get(uuid)
     if existing is not None:
         return existing
@@ -213,10 +228,9 @@ cpdef DeviceMemoryResource DMR_register(DeviceMemoryResource self, uuid):
     return self
 
 
-cpdef IPCAllocationHandle DMR_export_mempool(DeviceMemoryResource self):
+cdef IPCAllocationHandle DMR_export_mempool(DeviceMemoryResource self):
     # Note: This is Linux only (int for file descriptor)
     cdef int fd
-    cdef IPCAllocationHandle alloc_handle
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(
             &fd, self._handle, IPC_HANDLE_TYPE, 0)
@@ -226,4 +240,3 @@ cpdef IPCAllocationHandle DMR_export_mempool(DeviceMemoryResource self):
     except:
         os.close(fd)
         raise
-

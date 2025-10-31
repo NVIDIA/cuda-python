@@ -12,7 +12,7 @@ from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle, IPCData
-from cuda.core.experimental._stream cimport default_stream, Stream as _cyStream
+from cuda.core.experimental._stream cimport default_stream, Stream
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
     check_or_create_options,
@@ -22,12 +22,10 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 import cython
 from dataclasses import dataclass
 from typing import Optional, TYPE_CHECKING
-import os
-import platform
+import platform  # no-cython-lint
 import uuid
 import weakref
 
-from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.cuda_utils import driver
 
 if TYPE_CHECKING:
@@ -69,7 +67,9 @@ class DeviceMemoryResourceAttributes:
 
     def mempool_property(property_type: type):
         def decorator(stub):
-            attr_enum = getattr(driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{stub.__name__.upper()}")
+            attr_enum = getattr(
+                driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{stub.__name__.upper()}"
+            )
 
             def fget(self) -> property_type:
                 mr = self._mr()
@@ -206,7 +206,8 @@ cdef class DeviceMemoryResource(MemoryResource):
     def __init__(self, device_id: int | Device, options=None):
         cdef int dev_id = getattr(device_id, 'device_id', device_id)
         opts = check_or_create_options(
-            DeviceMemoryResourceOptions, options, "DeviceMemoryResource options", keep_none=True
+            DeviceMemoryResourceOptions, options, "DeviceMemoryResource options",
+            keep_none=True
         )
 
         if opts is None:
@@ -218,14 +219,17 @@ cdef class DeviceMemoryResource(MemoryResource):
         DMR_close(self)
 
     def close(self):
-        """Close the device memory resource and destroy the associated memory pool if owned."""
+        """
+        Close the device memory resource and destroy the associated memory pool
+        if owned.
+        """
         DMR_close(self)
 
     def __reduce__(self):
         return DeviceMemoryResource.from_registry, (self.uuid,)
 
     @staticmethod
-    def from_registry(uuid: uuid.UUID) -> DeviceMemoryResource:
+    def from_registry(uuid: uuid.UUID) -> DeviceMemoryResource:  # no-cython-lint
         """
         Obtain a registered mapped memory resource.
 
@@ -236,7 +240,7 @@ cdef class DeviceMemoryResource(MemoryResource):
         """
         return _ipc.DMR_from_registry(uuid)
 
-    def register(self, uuid: uuid.UUID) -> DeviceMemoryResource:
+    def register(self, uuid: uuid.UUID) -> DeviceMemoryResource:  # no-cython-lint
         """
         Register a mapped memory resource.
 
@@ -309,7 +313,7 @@ cdef class DeviceMemoryResource(MemoryResource):
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
         if stream is None:
             stream = default_stream()
-        return DMR_allocate(self, size, <_cyStream>stream)
+        return DMR_allocate(self, size, <Stream>stream)
 
     def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
         """Deallocate a buffer previously allocated by this resource.
@@ -325,7 +329,7 @@ cdef class DeviceMemoryResource(MemoryResource):
             If the buffer is deallocated without an explicit stream, the allocation stream
             is used.
         """
-        DMR_deallocate(self, <intptr_t>ptr, size, <_cyStream>stream)
+        DMR_deallocate(self, <intptr_t>ptr, size, <Stream>stream)
 
     @property
     def attributes(self) -> DeviceMemoryResourceAttributes:
@@ -381,6 +385,9 @@ cdef class DeviceMemoryResource(MemoryResource):
         return getattr(self._ipc_data, 'uuid', None)
 
 
+# DeviceMemoryResource Implementation
+# -----------------------------------
+
 cdef void DMR_init_current(DeviceMemoryResource self, int dev_id):
     # Get the current memory pool.
     cdef cydriver.cuuint64_t current_threshold
@@ -392,15 +399,19 @@ cdef void DMR_init_current(DeviceMemoryResource self, int dev_id):
     with nogil:
         HANDLE_RETURN(cydriver.cuDeviceGetMemPool(&(self._handle), dev_id))
 
-        # Set a higher release threshold to improve performance when there are no active allocations.
-        # By default, the release threshold is 0, which means memory is immediately released back
-        # to the OS when there are no active suballocations, causing performance issues.
-        # Check current release threshold
-        HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(
-            self._handle, cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD, &current_threshold)
+        # Set a higher release threshold to improve performance when there are
+        # no active allocations.  By default, the release threshold is 0, which
+        # means memory is immediately released back to the OS when there are no
+        # active suballocations, causing performance issues.
+        HANDLE_RETURN(
+            cydriver.cuMemPoolGetAttribute(
+                self._handle,
+                cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+                &current_threshold
+            )
         )
 
-        # If threshold is 0 (default), set it to maximum to retain memory in the pool
+        # If threshold is 0 (default), set it to maximum to retain memory in the pool.
         if current_threshold == 0:
             HANDLE_RETURN(cydriver.cuMemPoolSetAttribute(
                 self._handle,
@@ -409,11 +420,13 @@ cdef void DMR_init_current(DeviceMemoryResource self, int dev_id):
             ))
 
 
-cdef void DMR_init_create(DeviceMemoryResource self, int dev_id, DeviceMemoryResourceOptions opts):
+cdef void DMR_init_create(
+    DeviceMemoryResource self, int dev_id, DeviceMemoryResourceOptions opts
+):
     # Create a new memory pool.
     cdef cydriver.CUmemPoolProps properties
 
-    if opts.ipc_enabled and _ipc.IPC_HANDLE_TYPE == cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE:
+    if opts.ipc_enabled and not _ipc.is_supported():
         raise RuntimeError("IPC is not available on {platform.system()}")
 
     memset(&properties, 0, sizeof(cydriver.CUmemPoolProps))
@@ -437,7 +450,7 @@ cdef void DMR_init_create(DeviceMemoryResource self, int dev_id, DeviceMemoryRes
         self._ipc_data = IPCData(alloc_handle, mapped=False)
 
 
-cdef Buffer DMR_allocate(DeviceMemoryResource self, size_t size, _cyStream stream):
+cdef Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream stream):
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr
     with nogil:
@@ -451,7 +464,9 @@ cdef Buffer DMR_allocate(DeviceMemoryResource self, size_t size, _cyStream strea
     return buf
 
 
-cdef void DMR_deallocate(DeviceMemoryResource self, intptr_t ptr, size_t size, _cyStream stream) noexcept:
+cdef void DMR_deallocate(
+    DeviceMemoryResource self, intptr_t ptr, size_t size, Stream stream
+) noexcept:
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:
@@ -472,4 +487,3 @@ cdef DMR_close(DeviceMemoryResource self):
         self._attributes = None
         self._mempool_owned = False
         self._ipc_data = None
-
