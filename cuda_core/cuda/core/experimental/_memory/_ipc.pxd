@@ -19,6 +19,12 @@ cdef object registry
 cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE
 
 
+cdef class IPCData:
+    cdef:
+        bint _is_mapped
+        IPCAllocationHandle _alloc_handle
+
+
 cdef class IPCBufferDescriptor:
     cdef:
         bytes _reserved
@@ -41,7 +47,7 @@ cpdef Buffer Buffer_from_ipc_descriptor(cls, DeviceMemoryResource, IPCBufferDesc
 
 # DeviceMemoryResource IPC Implementation
 # ------
-cpdef IPCAllocationHandle DMR_get_allocation_handle(DeviceMemoryResource)
 cpdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handle)
-cpdef DeviceMemoryResource DMR_register(DeviceMemoryResource, uuid)
 cpdef DeviceMemoryResource DMR_from_registry(uuid)
+cpdef DeviceMemoryResource DMR_register(DeviceMemoryResource, uuid)
+cpdef IPCAllocationHandle DMR_export_mempool(DeviceMemoryResource)

@@ -5,18 +5,15 @@
 from cuda.bindings cimport cydriver
 
 from cuda.core.experimental._memory._buffer cimport MemoryResource
-from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle
+from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle, IPCData
 
 
 cdef class DeviceMemoryResource(MemoryResource):
     cdef:
+        object __weakref__
         int _dev_id
-        cydriver.CUmemoryPool _mempool_handle
+        cydriver.CUmemoryPool _handle
         object _attributes
         bint _mempool_owned
-        object __weakref__
-
-        cydriver.CUmemAllocationHandleType _ipc_handle_type
-        bint _is_mapped
-        IPCAllocationHandle _alloc_handle
+        IPCData _ipc_data
 
