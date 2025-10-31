@@ -949,7 +949,7 @@ class Device:
         Default value of `None` return the currently used device.
 
     """
-    __slots__ = ("_id", "_mr", "_has_inited", "_properties")
+    __slots__ = ("_id", "_mr", "_has_inited", "_properties", "_uuid")
 
     def __new__(cls, device_id: int | None = None):
         global _is_cuInit
@@ -1002,6 +1002,7 @@ class Device:
 
                 device._has_inited = False
                 device._properties = None
+                device._uuid = None
                 devices.append(device)
 
         try:
@@ -1144,6 +1145,62 @@ class Device:
 
     def __repr__(self):
         return f"<Device {self._id} ({self.name})>"
+
+    def __hash__(self) -> int:
+        """Return hash based on the device UUID.
+
+        This enables Device objects to be used as dictionary keys and in sets.
+        Device objects representing the same physical device will hash to the
+        same value, even if they have different device_id values due to
+        CUDA_VISIBLE_DEVICES or exist across different processes.
+
+        Returns
+        -------
+        int
+            Hash value based on the device UUID.
+
+        Notes
+        -----
+        Uses UUID to ensure consistency across processes where
+        CUDA_VISIBLE_DEVICES may change the device ordinal mapping. The UUID
+        uniquely identifies the physical device and remains stable regardless of
+        how devices are ordered or filtered.
+
+        The UUID is cached after first access to avoid repeated CUDA API calls.
+        """
+        if self._uuid is None:
+            self._uuid = self.uuid
+        return hash((type(self), self._uuid))
+
+    def __eq__(self, other) -> bool:
+        """Check equality based on the device ordinal.
+
+        Two Device objects are considered equal if they have the same device_id,
+        regardless of whether they are the same Python object or exist on
+        different threads.
+
+        Parameters
+        ----------
+        other : object
+            Another object to compare with.
+
+        Returns
+        -------
+        bool or NotImplemented
+            True if other is a Device with the same device_id, False if not equal,
+            NotImplemented if other is not a Device.
+        """
+        # Use cast with exception handling instead of isinstance(other, Device)
+        # for performance: isinstance with Python classes still involves type checking
+        # overhead. In contrast, a direct cast succeeds immediately in the common
+        # case (other is a Device), and exception handling has very low overhead
+        # when no exception occurs.
+        cdef Device _other
+        try:
+            _other = <Device>other
+        except TypeError:
+            return NotImplemented
+        return self._id == _other._id
 
     def __reduce__(self):
         return Device, (self.device_id,)

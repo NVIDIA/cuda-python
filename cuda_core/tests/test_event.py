@@ -154,3 +154,105 @@ def test_event_subclassing():
     dev.set_current()
     event = MyEvent._init(dev.device_id, dev.context)
     assert isinstance(event, MyEvent)
+
+
+# ============================================================================
+# Event Equality Tests
+# ============================================================================
+
+
+def test_event_equality_reflexive(init_cuda):
+    """Event should equal itself (reflexive property)."""
+    device = Device()
+    stream = device.create_stream()
+    event = stream.record()
+
+    assert event == event, "Event should equal itself"
+
+
+def test_event_inequality_different_events(init_cuda):
+    """Different events should not be equal."""
+    device = Device()
+    stream = device.create_stream()
+
+    e1 = stream.record()
+    e2 = stream.record()
+
+    assert e1 != e2, "Different events should not be equal"
+
+
+def test_event_type_safety(init_cuda):
+    """Comparing Event with wrong type should return False."""
+    device = Device()
+    stream = device.create_stream()
+    event = stream.record()
+
+    assert (event == "not an event") is False
+    assert (event == 123) is False
+    assert (event is None) is False
+
+
+# ============================================================================
+# Event Hash Tests
+# ============================================================================
+
+
+def test_event_hash_consistency(init_cuda):
+    """Hash of same Event object should be consistent."""
+    device = Device()
+    stream = device.create_stream()
+    event = stream.record()
+
+    hash1 = hash(event)
+    hash2 = hash(event)
+    assert hash1 == hash2, "Hash should be consistent for same object"
+
+
+def test_event_hash_equality(init_cuda):
+    """Events with same underlying handle should hash equal."""
+    device = Device()
+    stream = device.create_stream()
+
+    # Create events
+    e1 = stream.record()
+    e2 = stream.record()
+
+    # Different events should have different hashes
+    assert e1 != e2
+    assert hash(e1) != hash(e2)
+
+    # Same event should equal itself
+    assert e1 == e1
+    assert hash(e1) == hash(e1)
+
+
+def test_event_dict_key(init_cuda):
+    """Events should be usable as dictionary keys."""
+    device = Device()
+    stream = device.create_stream()
+
+    e1 = stream.record()
+    e2 = stream.record()
+
+    # Use events as keys
+    event_cache = {e1: "timing1", e2: "timing2"}
+
+    assert len(event_cache) == 2
+    assert event_cache[e1] == "timing1"
+    assert event_cache[e2] == "timing2"
+
+
+def test_event_set_membership(init_cuda):
+    """Events should work correctly in sets."""
+    device = Device()
+    stream = device.create_stream()
+
+    e1 = stream.record()
+    e2 = stream.record()
+
+    event_set = {e1, e2}
+    assert len(event_set) == 2
+
+    # Same event should not add duplicate
+    event_set.add(e1)
+    assert len(event_set) == 2

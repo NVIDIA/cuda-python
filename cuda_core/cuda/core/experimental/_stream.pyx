@@ -126,15 +126,23 @@ cdef class Stream:
     @classmethod
     def _legacy_default(cls):
         cdef Stream self = Stream.__new__(cls)
+        cdef cydriver.CUcontext ctx
         self._handle = <cydriver.CUstream>(cydriver.CU_STREAM_LEGACY)
         self._builtin = True
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+        self._ctx_handle = ctx
         return self
 
     @classmethod
     def _per_thread_default(cls):
         cdef Stream self = Stream.__new__(cls)
+        cdef cydriver.CUcontext ctx
         self._handle = <cydriver.CUstream>(cydriver.CU_STREAM_PER_THREAD)
         self._builtin = True
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+        self._ctx_handle = ctx
         return self
 
     @classmethod
@@ -144,9 +152,16 @@ cdef class Stream:
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
         if obj is not None:
+            cdef cydriver.CUcontext ctx
+            cdef cydriver.CUresult err
             self._handle = _try_to_get_stream_ptr(obj)
             # TODO: check if obj is created under the current context/device
             self._owner = obj
+            with nogil:
+                err = cydriver.cuStreamGetCtx(self._handle, &ctx)
+                if err != cydriver.CUresult.CUDA_SUCCESS:
+                    HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
+            self._ctx_handle = ctx
             return self
 
         cdef StreamOptions opts = check_or_create_options(StreamOptions, options, "Stream options")
@@ -167,12 +182,15 @@ cdef class Stream:
             prio = high
 
         cdef cydriver.CUstream s
+        cdef cydriver.CUcontext ctx
         with nogil:
             HANDLE_RETURN(cydriver.cuStreamCreateWithPriority(&s, flags, prio))
+            HANDLE_RETURN(cydriver.cuStreamGetCtx(s, &ctx))
         self._handle = s
         self._nonblocking = int(nonblocking)
         self._priority = prio
         self._device_id = device_id if device_id is not None else self._device_id
+        self._ctx_handle = ctx
         return self
 
     def __dealloc__(self):
@@ -196,6 +214,66 @@ cdef class Stream:
     def __cuda_stream__(self) -> tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""
         return (0, <uintptr_t>(self._handle))
+
+    def __hash__(self) -> int:
+        """Return hash based on the underlying CUstream handle address and context.
+
+        This enables Stream objects to be used as dictionary keys and in sets.
+        Two Stream objects wrapping the same underlying CUDA stream will hash
+        to the same value and be considered equal.
+
+        Returns
+        -------
+        int
+            Hash value based on the stream handle address and context handle.
+
+        Notes
+        -----
+        Includes the context handle in the hash to prevent collisions when
+        handles are reused across different contexts. While handles are
+        context-scoped and typically not reused across contexts, including
+        the context provides defense-in-depth against hash collisions.
+        The context is fetched and cached during Stream construction.
+
+        Warning
+        -------
+        Using a closed or destroyed stream as a dictionary key or in a set
+        results in undefined behavior. The stream handle may be reused by
+        the CUDA driver for new streams.
+        """
+        # Context should always be set as a post-condition of Stream construction
+        return hash((type(self), <uintptr_t>(self._ctx_handle), <uintptr_t>(self._handle)))
+
+    def __eq__(self, other) -> bool:
+        """Check equality based on the underlying CUstream handle address.
+
+        Two Stream objects are considered equal if they wrap the same
+        underlying CUDA stream, regardless of whether they are the same
+        Python object.
+
+        Parameters
+        ----------
+        other : object
+            Another object to compare with.
+
+        Returns
+        -------
+        bool or NotImplemented
+            True if other is a Stream wrapping the same handle, False if not equal,
+            NotImplemented if other is not a Stream.
+        """
+        # Use cast with exception handling instead of isinstance(other, Stream)
+        # for performance: isinstance with cdef classes must traverse inheritance
+        # hierarchies via Python's type checking mechanism, even when other is
+        # already a Stream. In contrast, a direct cast succeeds immediately in
+        # the common case (other is a Stream), and exception handling has very
+        # low overhead when no exception occurs.
+        cdef Stream _other
+        try:
+            _other = <Stream>other
+        except TypeError:
+            return NotImplemented
+        return <uintptr_t>(self._handle) == <uintptr_t>((_other)._handle)
 
     @property
     def handle(self) -> cuda.bindings.driver.CUstream:
