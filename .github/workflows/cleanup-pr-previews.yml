@@ -33,20 +33,10 @@ jobs:
           # Fetch all history and branches for worktree operations
           fetch-depth: 0
 
-      - name: Set up GitHub CLI
-        run: |
-          # GitHub CLI is pre-installed on ubuntu-latest
-          gh --version
-
-      - name: Install jq
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
-
       - name: Configure git identity
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "cuda-python-bot"
+          git config --global user.email "cuda-python-bot@users.noreply.github.com"
 
       - name: Run PR preview cleanup script
         env:
