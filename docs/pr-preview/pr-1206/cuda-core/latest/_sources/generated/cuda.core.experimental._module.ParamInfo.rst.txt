@@ -1,0 +1,31 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.experimental.\_module.ParamInfo
+=========================================
+
+.. currentmodule:: cuda.core.experimental._module
+
+.. autoclass:: ParamInfo
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: count
+   .. automethod:: index
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoproperty:: offset
+   .. autoproperty:: size
+   
+   
