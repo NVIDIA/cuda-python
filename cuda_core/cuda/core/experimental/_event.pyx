@@ -191,7 +191,7 @@ cdef class Event:
         the CUDA driver for new events.
         """
         # Context should always be set as a post-condition of Event construction
-        return hash((type(self), <uintptr_t>(int(self._ctx_handle)), <uintptr_t>(self._handle)))
+        return hash((type(self), self._ctx_handle, <uintptr_t>(self._handle)))
 
     def __eq__(self, other) -> bool:
         """Check equality based on the underlying CUevent handle address.
