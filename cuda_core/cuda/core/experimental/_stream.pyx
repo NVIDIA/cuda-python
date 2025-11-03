@@ -413,7 +413,12 @@ cdef class Stream:
 
     cdef int _get_context(self) except?-1 nogil:
         if self._ctx_handle == CU_CONTEXT_INVALID:
-            HANDLE_RETURN(cydriver.cuStreamGetCtx(self._handle, &(self._ctx_handle)))
+            if self._builtin:
+                # For builtin streams (LEGACY/PER_THREAD), use cuCtxGetCurrent
+                # since cuStreamGetCtx doesn't work on these special handles
+                HANDLE_RETURN(cydriver.cuCtxGetCurrent(&(self._ctx_handle)))
+            else:
+                HANDLE_RETURN(cydriver.cuStreamGetCtx(self._handle, &(self._ctx_handle)))
         return 0
 
     cdef int _get_device_and_context(self) except?-1:
