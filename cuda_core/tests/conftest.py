@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing
+import os
 
 import helpers
 import pytest
@@ -29,6 +30,13 @@ def init_cuda():
     # TODO: rename this to e.g. init_context
     device = Device()
     device.set_current()
+
+    # Set option to avoid spin-waiting on synchronization.
+    if os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC") is not None:
+        handle_return(
+            driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
+        )
+
     yield
     _ = _device_unset_current()
 
