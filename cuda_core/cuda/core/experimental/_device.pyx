@@ -923,6 +923,21 @@ cdef cydriver.CUcontext _get_primary_context(int dev_id) except?NULL:
     return ctx
 
 
+cdef str _compute_device_uuid(int device_id):
+    """Compute the UUID for a device. Internal helper function."""
+    cdef cydriver.CUuuid uuid
+    cdef cydriver.CUdevice dev = device_id
+    with nogil:
+        IF CUDA_CORE_BUILD_MAJOR == "12":
+            HANDLE_RETURN(cydriver.cuDeviceGetUuid_v2(&uuid, dev))
+        ELSE:  # 13.0+
+            HANDLE_RETURN(cydriver.cuDeviceGetUuid(&uuid, dev))
+    cdef bytes uuid_b = cpython.PyBytes_FromStringAndSize(uuid.bytes, sizeof(uuid.bytes))
+    cdef str uuid_hex = uuid_b.hex()
+    # 8-4-4-4-12
+    return f"{uuid_hex[:8]}-{uuid_hex[8:12]}-{uuid_hex[12:16]}-{uuid_hex[16:20]}-{uuid_hex[20:]}"
+
+
 class Device:
     """Represent a GPU and act as an entry point for cuda.core features.
 
@@ -1058,17 +1073,7 @@ class Device:
 
         """
         if self._uuid is None:
-            cdef cydriver.CUuuid uuid
-            cdef cydriver.CUdevice this_dev = self._id
-            with nogil:
-                IF CUDA_CORE_BUILD_MAJOR == "12":
-                    HANDLE_RETURN(cydriver.cuDeviceGetUuid_v2(&uuid, this_dev))
-                ELSE:  # 13.0+
-                    HANDLE_RETURN(cydriver.cuDeviceGetUuid(&uuid, this_dev))
-            cdef bytes uuid_b = cpython.PyBytes_FromStringAndSize(uuid.bytes, sizeof(uuid.bytes))
-            cdef str uuid_hex = uuid_b.hex()
-            # 8-4-4-4-12
-            self._uuid = f"{uuid_hex[:8]}-{uuid_hex[8:12]}-{uuid_hex[12:16]}-{uuid_hex[16:20]}-{uuid_hex[20:]}"
+            self._uuid = _compute_device_uuid(self._id)
         return self._uuid
 
     @property
