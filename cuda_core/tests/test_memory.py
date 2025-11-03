@@ -285,19 +285,28 @@ def test_buffer_dunder_dlpack_device_failure():
         buffer.__dlpack_device__()
 
 
+@pytest.mark.parametrize("use_mempool", [True, False])
 @pytest.mark.parametrize("use_device_object", [True, False])
-def test_device_memory_resource_initialization(mempool_device, use_device_object):
+def test_device_memory_resource_initialization(use_mempool, use_device_object):
     """Test that DeviceMemoryResource can be initialized successfully.
 
     This test verifies that the DeviceMemoryResource initializes properly,
     including the release threshold configuration for performance optimization.
     """
-    device = mempool_device
+    device = Device()
+
+    if use_mempool and not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
+    device.set_current()
 
     # This should succeed and configure the memory pool release threshold.
     # The resource can be constructed from either a device or device ordinal.
     device_arg = device if use_device_object else device.device_id
-    mr = DeviceMemoryResource(device_arg)
+    if use_mempool:
+        mr = DeviceMemoryResource(device_arg)
+    else:
+        mr = DeviceMemoryResource(device_arg, options={'mempool_enabled': False})
 
     # Verify basic properties
     assert mr.device_id == device.device_id
@@ -310,6 +319,18 @@ def test_device_memory_resource_initialization(mempool_device, use_device_object
     assert buffer.size == 1024
     assert buffer.device_id == device.device_id
     buffer.close()
+
+
+def test_device_memory_resource_initialization_errors():
+    """Test illegal construct option combinations."""
+    device = Device()
+    device.set_current()
+
+    with pytest.raises(TypeError, match="Cannot create an IPC-enabled memory resource without memory pooling enabled"):
+        DeviceMemoryResource(device, {"mempool_enabled": False, "ipc_enabled": True})
+
+    with pytest.raises(TypeError, match="Cannot supply max_size without memory pooling enabled"):
+        DeviceMemoryResource(device, {"mempool_enabled": False, "max_size": 1024})
 
 
 def test_vmm_allocator_basic_allocation():
@@ -481,12 +502,23 @@ def test_vmm_allocator_rdma_unsupported_exception():
         VirtualMemoryResource(device, config=options)
 
 
-def test_mempool(mempool_device):
-    device = mempool_device
+@pytest.mark.parametrize("use_mempool", [True, False])
+def test_device_memory_resource(use_mempool):
+
+    device = Device()
+
+    if use_mempool and not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
+    device.set_current()
 
     # Test basic pool creation
-    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
-    mr = DeviceMemoryResource(device, options=options)
+    if use_mempool:
+        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE)
+        mr = DeviceMemoryResource(device, options=options)
+    else:
+        options = DeviceMemoryResourceOptions(mempool_enabled=False)
+        mr = DeviceMemoryResource(device, options=options)
     assert mr.device_id == device.device_id
     assert mr.is_device_accessible
     assert not mr.is_host_accessible
@@ -523,8 +555,12 @@ def test_mempool(mempool_device):
     dst_buffer.close()
     src_buffer.close()
 
-    # Test error cases
-    # Test IPC operations are disabled
+
+def test_mempool_ipc_errors(mempool_device):
+    """Test error cases when IPC operations are disabled."""
+    device = mempool_device
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
+    mr = DeviceMemoryResource(device, options=options)
     buffer = mr.allocate(64)
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
@@ -599,6 +635,14 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
         assert value >= current_value, f"{property_name} should be >= {current_prop}"
 
 
+def test_mempool_no_attributes():
+    """Ensure mempool attributes cannot be accessed when memory pooling is disabled."""
+    device = Device()
+    device.set_current()
+    mr = DeviceMemoryResource(device, options={"mempool_enabled": False})
+    assert mr.attributes is None
+
+
 def test_mempool_attributes_ownership(mempool_device):
     """Ensure the attributes bundle handles references correctly."""
     device = mempool_device
@@ -644,3 +688,4 @@ def test_strided_memory_view_refcnt():
     assert av.strides[0] == 1
     assert av.strides[1] == 64
     assert sys.getrefcount(av.strides) >= 2
+

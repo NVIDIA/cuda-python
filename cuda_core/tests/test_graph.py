@@ -11,6 +11,8 @@ except ImportError:
     from cuda import nvrtc
 from cuda.core.experimental import (
     Device,
+    DeviceMemoryResource,
+    DeviceMemoryResourceOptions,
     GraphBuilder,
     GraphCompleteOptions,
     GraphDebugPrintOptions,
@@ -21,6 +23,7 @@ from cuda.core.experimental import (
     launch,
 )
 from cuda.core.experimental._utils.cuda_utils import NVRTCError, handle_return
+from helpers.buffers import compare_equal_buffers, make_scratch_buffer
 
 
 def _common_kernels():
@@ -58,6 +61,30 @@ def _common_kernels_conditional():
             raise e
         nvrtcVersion = handle_return(nvrtc.nvrtcVersion())
         pytest.skip(f"NVRTC version {nvrtcVersion} does not support conditionals")
+    return mod
+
+
+def _common_kernels_alloc():
+    code = """
+    __global__ void set_zero(char *a, size_t nbytes) {
+        size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+        size_t stride = blockDim.x * gridDim.x;
+        for (size_t i = idx; i < nbytes; i += stride) {
+            a[i] = 0;
+        }
+    }
+    __global__ void add_one(char *a, size_t nbytes) {
+        size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+        size_t stride = blockDim.x * gridDim.x;
+        for (size_t i = idx; i < nbytes; i += stride) {
+            a[i] += 1;
+        }
+    }
+    """
+    arch = "".join(f"{i}" for i in Device().compute_capability)
+    program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
+    prog = Program(code, code_type="c++", options=program_options)
+    mod = prog.compile("cubin", name_expressions=("set_zero", "add_one"))
     return mod
 
 
@@ -747,3 +774,44 @@ def test_graph_build_mode(init_cuda):
 
     with pytest.raises(ValueError, match="^Unsupported build mode:"):
         gb = Device().create_graph_builder().begin_building(mode=None)
+
+
+def test_graph_alloc(init_cuda):
+    device = Device()
+    stream = device.create_stream()
+    options = DeviceMemoryResourceOptions(mempool_enabled=False)
+    mr = DeviceMemoryResource(device, options=options)
+
+    # Get kernels.
+    mod = _common_kernels_alloc()
+    set_zero = mod.get_kernel("set_zero")
+    add_one = mod.get_kernel("add_one")
+
+    NBYTES = 64
+    target = mr.allocate(NBYTES, stream=stream)
+
+    # Begin graph capture.
+    gb = Device().create_graph_builder().begin_building(mode="thread_local")
+
+    work_buffer = mr.allocate(NBYTES, stream=gb.stream)
+    launch(gb, LaunchConfig(grid=1, block=1), set_zero, int(work_buffer.handle), NBYTES)
+    launch(gb, LaunchConfig(grid=1, block=1), add_one, int(work_buffer.handle), NBYTES)
+    launch(gb, LaunchConfig(grid=1, block=1), add_one, int(work_buffer.handle), NBYTES)
+    target.copy_from(work_buffer, stream=gb.stream)
+
+    # Finalize the graph.
+    graph = gb.end_building().complete()
+
+    # Upload and launch
+    graph.upload(stream)
+    graph.launch(stream)
+    stream.sync()
+
+    # Check the result.
+    expected_buffer = make_scratch_buffer(device, 2, NBYTES)
+    compare_buffer = make_scratch_buffer(device, 0, NBYTES)
+    compare_buffer.copy_from(target, stream=stream)
+    stream.sync()
+    assert compare_equal_buffers(expected_buffer, compare_buffer)
+
+# TODO: check that mr.attributes is None with mempool_enabled=False
