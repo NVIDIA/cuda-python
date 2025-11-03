@@ -1054,18 +1054,22 @@ class Device:
         MIG UUID is only returned when device is in MIG mode and the
         driver is older than CUDA 11.4.
 
+        The UUID is cached after first access to avoid repeated CUDA API calls.
+
         """
-        cdef cydriver.CUuuid uuid
-        cdef cydriver.CUdevice this_dev = self._id
-        with nogil:
-            IF CUDA_CORE_BUILD_MAJOR == "12":
-                HANDLE_RETURN(cydriver.cuDeviceGetUuid_v2(&uuid, this_dev))
-            ELSE:  # 13.0+
-                HANDLE_RETURN(cydriver.cuDeviceGetUuid(&uuid, this_dev))
-        cdef bytes uuid_b = cpython.PyBytes_FromStringAndSize(uuid.bytes, sizeof(uuid.bytes))
-        cdef str uuid_hex = uuid_b.hex()
-        # 8-4-4-4-12
-        return f"{uuid_hex[:8]}-{uuid_hex[8:12]}-{uuid_hex[12:16]}-{uuid_hex[16:20]}-{uuid_hex[20:]}"
+        if self._uuid is None:
+            cdef cydriver.CUuuid uuid
+            cdef cydriver.CUdevice this_dev = self._id
+            with nogil:
+                IF CUDA_CORE_BUILD_MAJOR == "12":
+                    HANDLE_RETURN(cydriver.cuDeviceGetUuid_v2(&uuid, this_dev))
+                ELSE:  # 13.0+
+                    HANDLE_RETURN(cydriver.cuDeviceGetUuid(&uuid, this_dev))
+            cdef bytes uuid_b = cpython.PyBytes_FromStringAndSize(uuid.bytes, sizeof(uuid.bytes))
+            cdef str uuid_hex = uuid_b.hex()
+            # 8-4-4-4-12
+            self._uuid = f"{uuid_hex[:8]}-{uuid_hex[8:12]}-{uuid_hex[12:16]}-{uuid_hex[16:20]}-{uuid_hex[20:]}"
+        return self._uuid
 
     @property
     def name(self) -> str:
@@ -1166,11 +1170,9 @@ class Device:
         uniquely identifies the physical device and remains stable regardless of
         how devices are ordered or filtered.
 
-        The UUID is cached after first access to avoid repeated CUDA API calls.
+        The UUID is cached in the uuid property after first access to avoid repeated CUDA API calls.
         """
-        if self._uuid is None:
-            self._uuid = self.uuid
-        return hash((type(self), self._uuid))
+        return hash((type(self), self.uuid))
 
     def __eq__(self, other) -> bool:
         """Check equality based on the device ordinal.
