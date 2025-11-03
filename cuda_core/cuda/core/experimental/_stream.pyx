@@ -148,12 +148,12 @@ cdef class Stream:
     @classmethod
     def _init(cls, obj: Optional[IsStreamT] = None, options=None, device_id: int = None):
         cdef Stream self = Stream.__new__(cls)
+        cdef cydriver.CUcontext ctx
+        cdef cydriver.CUresult err
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
         if obj is not None:
-            cdef cydriver.CUcontext ctx
-            cdef cydriver.CUresult err
             self._handle = _try_to_get_stream_ptr(obj)
             # TODO: check if obj is created under the current context/device
             self._owner = obj
@@ -182,7 +182,6 @@ cdef class Stream:
             prio = high
 
         cdef cydriver.CUstream s
-        cdef cydriver.CUcontext ctx
         with nogil:
             HANDLE_RETURN(cydriver.cuStreamCreateWithPriority(&s, flags, prio))
             HANDLE_RETURN(cydriver.cuStreamGetCtx(s, &ctx))

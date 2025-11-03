@@ -1190,17 +1190,15 @@ class Device:
             True if other is a Device with the same device_id, False if not equal,
             NotImplemented if other is not a Device.
         """
-        # Use cast with exception handling instead of isinstance(other, Device)
+        # Use attribute access with exception handling instead of isinstance(other, Device)
         # for performance: isinstance with Python classes still involves type checking
-        # overhead. In contrast, a direct cast succeeds immediately in the common
+        # overhead. In contrast, a direct attribute access succeeds immediately in the common
         # case (other is a Device), and exception handling has very low overhead
         # when no exception occurs.
-        cdef Device _other
         try:
-            _other = <Device>other
-        except TypeError:
+            return self._id == other._id
+        except AttributeError:
             return NotImplemented
-        return self._id == _other._id
 
     def __reduce__(self):
         return Device, (self.device_id,)
