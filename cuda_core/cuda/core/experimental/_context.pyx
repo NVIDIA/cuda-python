@@ -45,17 +45,15 @@ cdef class Context:
             True if other is a Context wrapping the same handle, False if not equal,
             NotImplemented if other is not a Context.
         """
-        # Use cast with exception handling instead of isinstance(other, Context)
+        # Use type identity check + cast with exception handling instead of isinstance(other, Context)
         # for performance: isinstance with cdef classes must traverse inheritance
         # hierarchies via Python's type checking mechanism, even when other is
-        # already a Context. In contrast, a direct cast succeeds immediately in
-        # the common case (other is a Context), and exception handling has very
-        # low overhead when no exception occurs.
-        cdef Context _other
-        try:
-            _other = <Context>other
-        except TypeError:
+        # already a Context. A type identity check (type(other) is Context) is very fast
+        # and catches non-Context types before attempting the cast, preventing potential
+        # segfaults from unsafe casts.
+        if type(other) is not Context:
             return NotImplemented
+        cdef Context _other = <Context>other
         return int(self._handle) == int(_other._handle)
 
     def __hash__(self) -> int:
