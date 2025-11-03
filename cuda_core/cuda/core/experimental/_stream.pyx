@@ -127,22 +127,32 @@ cdef class Stream:
     def _legacy_default(cls):
         cdef Stream self = Stream.__new__(cls)
         cdef cydriver.CUcontext ctx
+        cdef cydriver.CUresult err
         self._handle = <cydriver.CUstream>(cydriver.CU_STREAM_LEGACY)
         self._builtin = True
         with nogil:
-            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-        self._ctx_handle = ctx
+            err = cydriver.cuCtxGetCurrent(&ctx)
+        if err == cydriver.CUresult.CUDA_SUCCESS:
+            self._ctx_handle = ctx
+        else:
+            # CUDA not initialized yet, will be lazily initialized later
+            self._ctx_handle = CU_CONTEXT_INVALID
         return self
 
     @classmethod
     def _per_thread_default(cls):
         cdef Stream self = Stream.__new__(cls)
         cdef cydriver.CUcontext ctx
+        cdef cydriver.CUresult err
         self._handle = <cydriver.CUstream>(cydriver.CU_STREAM_PER_THREAD)
         self._builtin = True
         with nogil:
-            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-        self._ctx_handle = ctx
+            err = cydriver.cuCtxGetCurrent(&ctx)
+        if err == cydriver.CUresult.CUDA_SUCCESS:
+            self._ctx_handle = ctx
+        else:
+            # CUDA not initialized yet, will be lazily initialized later
+            self._ctx_handle = CU_CONTEXT_INVALID
         return self
 
     @classmethod
