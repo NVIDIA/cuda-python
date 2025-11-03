@@ -1,0 +1,29 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core.experimental
+
+``cuda.core`` 0.4.X Release Notes
+=================================
+
+
+Highlights
+----------
+
+
+Breaking Changes
+----------------
+
+
+New features
+------------
+
+
+New examples
+------------
+
+
+Fixes and enhancements
+----------------------
+
+- Fixed a segmentation fault when accessing :class:`StridedMemoryView` ``shape`` and ``strides`` members.
