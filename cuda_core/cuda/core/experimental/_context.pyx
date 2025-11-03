@@ -29,43 +29,10 @@ cdef class Context:
         return ctx
 
     def __eq__(self, other):
-        """Check equality based on the underlying CUcontext handle address.
-
-        Two Context objects are considered equal if they wrap the same
-        underlying CUDA context.
-
-        Parameters
-        ----------
-        other : object
-            Another object to compare with.
-
-        Returns
-        -------
-        bool or NotImplemented
-            True if other is a Context wrapping the same handle, False if not equal,
-            NotImplemented if other is not a Context.
-        """
-        # Use type identity check + cast with exception handling instead of isinstance(other, Context)
-        # for performance: isinstance with cdef classes must traverse inheritance
-        # hierarchies via Python's type checking mechanism, even when other is
-        # already a Context. A type identity check (type(other) is Context) is very fast
-        # and catches non-Context types before attempting the cast, preventing potential
-        # segfaults from unsafe casts.
         if type(other) is not Context:
             return NotImplemented
         cdef Context _other = <Context>other
         return int(self._handle) == int(_other._handle)
 
     def __hash__(self) -> int:
-        """Return hash based on the underlying CUcontext handle address.
-
-        This enables Context objects to be used as dictionary keys and in sets.
-        Two Context objects wrapping the same underlying CUDA context will hash
-        to the same value and be considered equal.
-
-        Returns
-        -------
-        int
-            Hash value based on the context handle address.
-        """
         return hash((type(self), int(self._handle)))

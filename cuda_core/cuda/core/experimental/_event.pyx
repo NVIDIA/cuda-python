@@ -166,57 +166,9 @@ cdef class Event:
             raise RuntimeError(explanation)
 
     def __hash__(self) -> int:
-        """Return hash based on the underlying CUevent handle address and context.
-
-        This enables Event objects to be used as dictionary keys and in sets.
-        Two Event objects wrapping the same underlying CUDA event will hash
-        to the same value and be considered equal.
-
-        Returns
-        -------
-        int
-            Hash value based on the event handle address and context handle.
-
-        Notes
-        -----
-        Includes the context handle in the hash to prevent collisions when
-        handles are reused across different contexts. While handles are
-        context-scoped and typically not reused across contexts, including
-        the context provides defense-in-depth against hash collisions.
-
-        Warning
-        -------
-        Using a closed or destroyed event as a dictionary key or in a set
-        results in undefined behavior. The event handle may be reused by
-        the CUDA driver for new events.
-        """
-        # Context should always be set as a post-condition of Event construction
         return hash((type(self), self._ctx_handle, <uintptr_t>(self._handle)))
 
     def __eq__(self, other) -> bool:
-        """Check equality based on the underlying CUevent handle address.
-
-        Two Event objects are considered equal if they wrap the same
-        underlying CUDA event, regardless of whether they are the same
-        Python object.
-
-        Parameters
-        ----------
-        other : object
-            Another object to compare with.
-
-        Returns
-        -------
-        bool or NotImplemented
-            True if other is an Event wrapping the same handle, False if not equal,
-            NotImplemented if other is not an Event.
-        """
-        # Use cast with exception handling instead of isinstance(other, Event)
-        # for performance: isinstance with cdef classes must traverse inheritance
-        # hierarchies via Python's type checking mechanism, even when other is
-        # already an Event. In contrast, a direct cast succeeds immediately in
-        # the common case (other is an Event), and exception handling has very
-        # low overhead when no exception occurs.
         cdef Event _other
         try:
             _other = <Event>other

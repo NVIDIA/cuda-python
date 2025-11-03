@@ -1156,52 +1156,9 @@ class Device:
         return f"<Device {self._id} ({self.name})>"
 
     def __hash__(self) -> int:
-        """Return hash based on the device UUID.
-
-        This enables Device objects to be used as dictionary keys and in sets.
-        Device objects representing the same physical device will hash to the
-        same value, even if they have different device_id values due to
-        CUDA_VISIBLE_DEVICES or exist across different processes.
-
-        Returns
-        -------
-        int
-            Hash value based on the device UUID.
-
-        Notes
-        -----
-        Uses UUID to ensure consistency across processes where
-        CUDA_VISIBLE_DEVICES may change the device ordinal mapping. The UUID
-        uniquely identifies the physical device and remains stable regardless of
-        how devices are ordered or filtered.
-
-        The UUID is cached in the uuid property after first access to avoid repeated CUDA API calls.
-        """
         return hash((type(self), self.uuid))
 
     def __eq__(self, other) -> bool:
-        """Check equality based on the device ordinal.
-
-        Two Device objects are considered equal if they have the same device_id,
-        regardless of whether they are the same Python object or exist on
-        different threads.
-
-        Parameters
-        ----------
-        other : object
-            Another object to compare with.
-
-        Returns
-        -------
-        bool or NotImplemented
-            True if other is a Device with the same device_id, False if not equal,
-            NotImplemented if other is not a Device.
-        """
-        # Use attribute access with exception handling instead of isinstance(other, Device)
-        # for performance: isinstance with Python classes still involves type checking
-        # overhead. In contrast, a direct attribute access succeeds immediately in the common
-        # case (other is a Device), and exception handling has very low overhead
-        # when no exception occurs.
         try:
             return self._id == other._id
         except AttributeError:

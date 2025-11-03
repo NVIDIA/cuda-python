@@ -225,58 +225,9 @@ cdef class Stream:
         return (0, <uintptr_t>(self._handle))
 
     def __hash__(self) -> int:
-        """Return hash based on the underlying CUstream handle address and context.
-
-        This enables Stream objects to be used as dictionary keys and in sets.
-        Two Stream objects wrapping the same underlying CUDA stream will hash
-        to the same value and be considered equal.
-
-        Returns
-        -------
-        int
-            Hash value based on the stream handle address and context handle.
-
-        Notes
-        -----
-        Includes the context handle in the hash to prevent collisions when
-        handles are reused across different contexts. While handles are
-        context-scoped and typically not reused across contexts, including
-        the context provides defense-in-depth against hash collisions.
-        The context is fetched and cached during Stream construction.
-
-        Warning
-        -------
-        Using a closed or destroyed stream as a dictionary key or in a set
-        results in undefined behavior. The stream handle may be reused by
-        the CUDA driver for new streams.
-        """
-        # Context should always be set as a post-condition of Stream construction
         return hash((type(self), <uintptr_t>(self._ctx_handle), <uintptr_t>(self._handle)))
 
     def __eq__(self, other) -> bool:
-        """Check equality based on the underlying CUstream handle address.
-
-        Two Stream objects are considered equal if they wrap the same
-        underlying CUDA stream, regardless of whether they are the same
-        Python object.
-
-        Parameters
-        ----------
-        other : object
-            Another object to compare with.
-
-        Returns
-        -------
-        bool or NotImplemented
-            True if other is a Stream wrapping the same handle, False if not equal,
-            NotImplemented if other is not a Stream.
-        """
-        # Use cast with exception handling instead of isinstance(other, Stream)
-        # for performance: isinstance with cdef classes must traverse inheritance
-        # hierarchies via Python's type checking mechanism, even when other is
-        # already a Stream. In contrast, a direct cast succeeds immediately in
-        # the common case (other is a Stream), and exception handling has very
-        # low overhead when no exception occurs.
         cdef Stream _other
         try:
             _other = <Stream>other
