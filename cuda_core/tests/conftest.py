@@ -32,7 +32,7 @@ def init_cuda():
     device.set_current()
 
     # Set option to avoid spin-waiting on synchronization.
-    if os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC") is not None:
+    if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
         handle_return(
             driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
         )
