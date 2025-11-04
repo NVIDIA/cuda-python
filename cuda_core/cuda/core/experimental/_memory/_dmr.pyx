@@ -53,66 +53,67 @@ cdef class DeviceMemoryResourceOptions:
     max_size : cython.size_t = 0
 
 
-# TODO: cythonize this?
-class DeviceMemoryResourceAttributes:
+cdef class DeviceMemoryResourceAttributes:
+    cdef:
+        object _mr_weakref
+
     def __init__(self, *args, **kwargs):
         raise RuntimeError("DeviceMemoryResourceAttributes cannot be instantiated directly. Please use MemoryResource APIs.")
 
     @classmethod
-    def _init(cls, mr : DeviceMemoryReference):
-        self = DeviceMemoryResourceAttributes.__new__(cls)
-        self._mr = mr
+    def _init(cls, mr):
+        cdef DeviceMemoryResourceAttributes self = DeviceMemoryResourceAttributes.__new__(cls)
+        self._mr_weakref = mr
         return self
 
-    def mempool_property(property_type: type):
-        def decorator(stub):
-            attr_enum = getattr(
-                driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{stub.__name__.upper()}"
-            )
-
-            def fget(self) -> property_type:
-                mr = self._mr()
-                if mr is None:
-                    raise RuntimeError("DeviceMemoryResource is expired")
-                value = DMRA_getattribute(<cydriver.CUmemoryPool><uintptr_t> mr.handle,
-                                          <cydriver.CUmemPool_attribute><uintptr_t> attr_enum)
-                return property_type(value)
-            return property(fget=fget, doc=stub.__doc__)
-        return decorator
-
-    @mempool_property(bool)
+    @DMRA_mempool_attribute(bool)
     def reuse_follow_event_dependencies(self):
         """Allow memory to be reused when there are event dependencies between streams."""
 
-    @mempool_property(bool)
+    @DMRA_mempool_attribute(bool)
     def reuse_allow_opportunistic(self):
         """Allow reuse of completed frees without dependencies."""
 
-    @mempool_property(bool)
+    @DMRA_mempool_attribute(bool)
     def reuse_allow_internal_dependencies(self):
         """Allow insertion of new stream dependencies for memory reuse."""
 
-    @mempool_property(int)
+    @DMRA_mempool_attribute(int)
     def release_threshold(self):
         """Amount of reserved memory to hold before OS release."""
 
-    @mempool_property(int)
+    @DMRA_mempool_attribute(int)
     def reserved_mem_current(self):
         """Current amount of backing memory allocated."""
 
-    @mempool_property(int)
+    @DMRA_mempool_attribute(int)
     def reserved_mem_high(self):
         """High watermark of backing memory allocated."""
 
-    @mempool_property(int)
+    @DMRA_mempool_attribute(int)
     def used_mem_current(self):
         """Current amount of memory in use."""
 
-    @mempool_property(int)
+    @DMRA_mempool_attribute(int)
     def used_mem_high(self):
         """High watermark of memory in use."""
 
-    del mempool_property
+
+cdef DMRA_mempool_attribute(property_type: type):
+    def decorator(stub):
+        attr_enum = getattr(
+            driver.CUmemPool_attribute, f"CU_MEMPOOL_ATTR_{stub.__name__.upper()}"
+        )
+
+        def fget(DeviceMemoryResourceAttributes self) -> property_type:
+            cdef DeviceMemoryResource mr = <DeviceMemoryResource> self._mr_weakref()
+            if mr is None:
+                raise RuntimeError("DeviceMemoryResource is expired")
+            value = DMRA_getattribute(<cydriver.CUmemoryPool><uintptr_t> mr.handle,
+                                      <cydriver.CUmemPool_attribute><uintptr_t> attr_enum)
+            return property_type(value)
+        return property(fget=fget, doc=stub.__doc__)
+    return decorator
 
 
 cdef int DMRA_getattribute(
