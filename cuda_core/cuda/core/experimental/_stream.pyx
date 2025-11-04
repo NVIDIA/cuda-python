@@ -201,11 +201,9 @@ cdef class Stream:
         return hash((type(self), <uintptr_t>(self._ctx_handle), <uintptr_t>(self._handle)))
 
     def __eq__(self, other) -> bool:
-        cdef Stream _other
-        try:
-            _other = <Stream>other
-        except TypeError:
+        if not isinstance(other, Stream):
             return NotImplemented
+        cdef Stream _other = <Stream>other
         return <uintptr_t>(self._handle) == <uintptr_t>((_other)._handle)
 
     @property
