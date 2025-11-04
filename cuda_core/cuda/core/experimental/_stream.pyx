@@ -126,40 +126,20 @@ cdef class Stream:
     @classmethod
     def _legacy_default(cls):
         cdef Stream self = Stream.__new__(cls)
-        cdef cydriver.CUcontext ctx
-        cdef cydriver.CUresult err
         self._handle = <cydriver.CUstream>(cydriver.CU_STREAM_LEGACY)
         self._builtin = True
-        with nogil:
-            err = cydriver.cuCtxGetCurrent(&ctx)
-        if err == cydriver.CUresult.CUDA_SUCCESS:
-            self._ctx_handle = ctx
-        else:
-            # CUDA not initialized yet, will be lazily initialized later
-            self._ctx_handle = CU_CONTEXT_INVALID
         return self
 
     @classmethod
     def _per_thread_default(cls):
         cdef Stream self = Stream.__new__(cls)
-        cdef cydriver.CUcontext ctx
-        cdef cydriver.CUresult err
         self._handle = <cydriver.CUstream>(cydriver.CU_STREAM_PER_THREAD)
         self._builtin = True
-        with nogil:
-            err = cydriver.cuCtxGetCurrent(&ctx)
-        if err == cydriver.CUresult.CUDA_SUCCESS:
-            self._ctx_handle = ctx
-        else:
-            # CUDA not initialized yet, will be lazily initialized later
-            self._ctx_handle = CU_CONTEXT_INVALID
         return self
 
     @classmethod
     def _init(cls, obj: Optional[IsStreamT] = None, options=None, device_id: int = None):
         cdef Stream self = Stream.__new__(cls)
-        cdef cydriver.CUcontext ctx
-        cdef cydriver.CUresult err
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
@@ -167,11 +147,6 @@ cdef class Stream:
             self._handle = _try_to_get_stream_ptr(obj)
             # TODO: check if obj is created under the current context/device
             self._owner = obj
-            with nogil:
-                err = cydriver.cuStreamGetCtx(self._handle, &ctx)
-                if err != cydriver.CUresult.CUDA_SUCCESS:
-                    HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-            self._ctx_handle = ctx
             return self
 
         cdef StreamOptions opts = check_or_create_options(StreamOptions, options, "Stream options")
@@ -194,12 +169,10 @@ cdef class Stream:
         cdef cydriver.CUstream s
         with nogil:
             HANDLE_RETURN(cydriver.cuStreamCreateWithPriority(&s, flags, prio))
-            HANDLE_RETURN(cydriver.cuStreamGetCtx(s, &ctx))
         self._handle = s
         self._nonblocking = int(nonblocking)
         self._priority = prio
         self._device_id = device_id if device_id is not None else self._device_id
-        self._ctx_handle = ctx
         return self
 
     def __dealloc__(self):
@@ -364,12 +337,7 @@ cdef class Stream:
 
     cdef int _get_context(self) except?-1 nogil:
         if self._ctx_handle == CU_CONTEXT_INVALID:
-            if self._builtin:
-                # For builtin streams (LEGACY/PER_THREAD), use cuCtxGetCurrent
-                # since cuStreamGetCtx doesn't work on these special handles
-                HANDLE_RETURN(cydriver.cuCtxGetCurrent(&(self._ctx_handle)))
-            else:
-                HANDLE_RETURN(cydriver.cuStreamGetCtx(self._handle, &(self._ctx_handle)))
+            HANDLE_RETURN(cydriver.cuStreamGetCtx(self._handle, &(self._ctx_handle)))
         return 0
 
     cdef int _get_device_and_context(self) except?-1:

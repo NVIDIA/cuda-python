@@ -192,20 +192,16 @@ cdef class Event:
     def from_ipc_descriptor(cls, ipc_descriptor: IPCEventDescriptor) -> Event:
         """Import an event that was exported from another process."""
         cdef cydriver.CUipcEventHandle data
-        cdef cydriver.CUcontext curr_ctx
-        cdef cydriver.CUdevice dev
         memcpy(data.reserved, <const void*><const char*>(ipc_descriptor._reserved), sizeof(data.reserved))
         cdef Event self = Event.__new__(cls)
         with nogil:
             HANDLE_RETURN(cydriver.cuIpcOpenEventHandle(&self._handle, data))
-            HANDLE_RETURN(cydriver.cuCtxGetCurrent(&curr_ctx))
-            HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
         self._timing_disabled = True
         self._busy_waited = ipc_descriptor._busy_waited
         self._ipc_enabled = True
         self._ipc_descriptor = ipc_descriptor
-        self._device_id = <int>dev
-        self._ctx_handle = driver.CUcontext(<uintptr_t>curr_ctx)
+        self._device_id = -1  # ??
+        self._ctx_handle = None  # ??
         return self
 
     @property
