@@ -169,11 +169,10 @@ cdef class Event:
         return hash((type(self), self._ctx_handle, <uintptr_t>(self._handle)))
 
     def __eq__(self, other) -> bool:
-        cdef Event _other
-        try:
-            _other = <Event>other
-        except TypeError:
+        # Note: using isinstance because `Event` can be subclassed.
+        if not isinstance(other, Event):
             return NotImplemented
+        cdef Event _other = <Event>other
         return <uintptr_t>(self._handle) == <uintptr_t>(_other._handle)
 
     def get_ipc_descriptor(self) -> IPCEventDescriptor:
