@@ -180,12 +180,20 @@ cdef Buffer Buffer_from_ipc_descriptor(
 
 cdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handle):
     # Quick exit for registry hits.
-    if isinstance(alloc_handle, int):
-        alloc_handle = IPCAllocationHandle._init(alloc_handle, None)
     uuid = getattr(alloc_handle, 'uuid', None)  # no-cython-lint
     mr = registry.get(uuid)
     if mr is not None:
         return mr
+
+    # Ensure we have an allocation handle. Duplicate the file descriptor, if
+    # necessary.
+    if isinstance(alloc_handle, int):
+        fd = os.dup(alloc_handle)
+        try:
+            alloc_handle = IPCAllocationHandle._init(fd, None)
+        except:
+            os.close(fd)
+            raise
 
     # Construct a new DMR.
     cdef DeviceMemoryResource self = DeviceMemoryResource.__new__(cls)
@@ -205,7 +213,7 @@ cdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handl
         registered = self.register(uuid)
         assert registered is self
 
-    # Always close the file handle (caller can dup it, if needed).
+    # Always close the file handle.
     alloc_handle.close()
 
     return self

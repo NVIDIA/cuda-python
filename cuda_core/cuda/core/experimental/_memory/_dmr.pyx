@@ -276,7 +276,9 @@ cdef class DeviceMemoryResource(MemoryResource):
             resource is created.
 
         alloc_handle : int | IPCAllocationHandle
-            The shareable handle of the device memory resource to import.
+            The shareable handle of the device memory resource to import. If an
+            integer is supplied, it must represent a valid platform-specific
+            handle. It is the caller's responsibility to close that handle.
 
         Returns
         -------
