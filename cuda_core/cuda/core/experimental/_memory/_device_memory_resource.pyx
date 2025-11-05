@@ -133,7 +133,7 @@ cdef int DMRA_getattribute(
 
 cdef class DeviceMemoryResource(MemoryResource):
     """
-    Create a device memory resource managing a stream-ordered memory pool.
+    A device memory resource managing a stream-ordered memory pool.
 
     Parameters
     ----------

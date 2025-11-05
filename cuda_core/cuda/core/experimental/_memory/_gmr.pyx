@@ -132,10 +132,35 @@ cdef class cyGraphMemoryResource(MemoryResource):
 
 
 class GraphMemoryResource(cyGraphMemoryResource):
-    @cache
+    """
+    A memory resource managing the graph-specific memory pool.
+
+    Graph-captured memory operations use a special internal memory pool, which
+    is a per-device singleton. This class serves as the interface to that pool.
+    The only supported operations are allocation, deallocation, and a limited
+    set of status queries.
+
+    This memory resource should be used to allocate memory when graph capturing
+    is enabled. Using this when graphs are not being captured will result in a
+    runtime error.
+
+    Conversely, allocating memory from a `DeviceMemoryResource` when graph
+    capturing is enabled results in a runtime error.
+
+    Parameters
+    ----------
+    device_id : int | Device
+        Device or Device ordinal for which a graph memory resource is obtained.
+    """
+
     def __new__(cls, device_id: int | Device):
         cdef int c_device_id = getattr(device_id, 'device_id', device_id)
-        return cyGraphMemoryResource.__new__(cls, c_device_id)
+        return cls._create(c_device_id)
+
+    @classmethod
+    @cache
+    def _create(cls, int device_id):
+        return cyGraphMemoryResource.__new__(cls, device_id)
 
 
 cdef Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream stream):

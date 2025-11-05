@@ -682,7 +682,8 @@ def test_graph_memory_resource_object(init_cuda):
     device = Device()
     gmr1 = GraphMemoryResource(device)
     gmr2 = GraphMemoryResource(device)
+    gmr3 = GraphMemoryResource(device.device_id)
 
     # These objects are interned.
-    assert gmr1 is gmr2
-    assert gmr1 == gmr2
+    assert gmr1 is gmr2 is gmr3
+    assert gmr1 == gmr2 == gmr3
