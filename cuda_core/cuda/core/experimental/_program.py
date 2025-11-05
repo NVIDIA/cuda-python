@@ -255,9 +255,6 @@ class ProgramOptions:
     minimal : bool, optional
         Omit certain language features to reduce compile time for small programs.
         Default: False
-    numba_debug : bool, optional
-        Enable Numba-specific flag for debugging.
-        Default: False
     """
 
     name: str | None = "<default program>"
