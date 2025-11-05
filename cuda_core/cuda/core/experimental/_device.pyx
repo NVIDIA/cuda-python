@@ -1158,10 +1158,9 @@ class Device:
         return hash((type(self), self.uuid))
 
     def __eq__(self, other) -> bool:
-        try:
-            return self._id == other._id
-        except AttributeError:
+        if type(self) is not type(other):
             return NotImplemented
+        return self._id == other._id
 
     def __reduce__(self):
         return Device, (self.device_id,)
