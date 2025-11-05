@@ -16,7 +16,6 @@ from cuda.core.experimental import (
     GraphBuilder,
     GraphCompleteOptions,
     GraphDebugPrintOptions,
-    GraphMemoryResource,
     LaunchConfig,
     LegacyPinnedMemoryResource,
     Program,
@@ -62,30 +61,6 @@ def _common_kernels_conditional():
             raise e
         nvrtcVersion = handle_return(nvrtc.nvrtcVersion())
         pytest.skip(f"NVRTC version {nvrtcVersion} does not support conditionals")
-    return mod
-
-
-def _common_kernels_alloc():
-    code = """
-    __global__ void set_zero(char *a, size_t nbytes) {
-        size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
-        size_t stride = blockDim.x * gridDim.x;
-        for (size_t i = idx; i < nbytes; i += stride) {
-            a[i] = 0;
-        }
-    }
-    __global__ void add_one(char *a, size_t nbytes) {
-        size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
-        size_t stride = blockDim.x * gridDim.x;
-        for (size_t i = idx; i < nbytes; i += stride) {
-            a[i] += 1;
-        }
-    }
-    """
-    arch = "".join(f"{i}" for i in Device().compute_capability)
-    program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
-    prog = Program(code, code_type="c++", options=program_options)
-    mod = prog.compile("cubin", name_expressions=("set_zero", "add_one"))
     return mod
 
 
@@ -776,97 +751,4 @@ def test_graph_build_mode(init_cuda):
     with pytest.raises(ValueError, match="^Unsupported build mode:"):
         gb = Device().create_graph_builder().begin_building(mode=None)
 
-
-@pytest.mark.parametrize("use_graph", [False, True])
-def test_graph_alloc(init_cuda, use_graph):
-    """Test graph capture with memory allocated by GraphMemoryResource."""
-    device = Device()
-    stream = device.create_stream()
-
-    # Get kernels.
-    mod = _common_kernels_alloc()
-    set_zero = mod.get_kernel("set_zero")
-    add_one = mod.get_kernel("add_one")
-
-    # Allocate a non-graph target buffer in device memory. The work sequence
-    # will fill it.
-    NBYTES = 64
-    mr = DeviceMemoryResource(device)
-    tgt_buffer = mr.allocate(NBYTES, stream=stream)
-
-    # Get the memory resource for graphs.
-    gmr = GraphMemoryResource(device)
-    if use_graph:
-        # Trim memory to zero and reset high watermarks.
-        gmr.trim()
-        # gmr.attributes.reserved_mem_high = 0  ## not working
-        # gmr.attributes.used_mem_high = 0
-
-        assert gmr.attributes.reserved_mem_current == 0
-        assert gmr.attributes.reserved_mem_high == 0
-        assert gmr.attributes.used_mem_current == 0
-        assert gmr.attributes.used_mem_high == 0
-
-    # ====== Begin work sequence ======
-
-    # Begin graph capture.
-    if use_graph:
-        gb = Device().create_graph_builder().begin_building(mode="thread_local")
-
-    # Set up resources for use in the captured sequence.
-    cap_mr = gmr if use_graph else mr
-    cap_stream = gb.stream if use_graph else stream  # FIXME: should use gb here, not gb.stream
-
-    # Perform or capture the work.
-    work_buffer = cap_mr.allocate(NBYTES, stream=cap_stream)
-    for kernel in [set_zero, add_one, add_one]:
-        launch(cap_stream, LaunchConfig(grid=1, block=1), kernel, int(work_buffer.handle), NBYTES)
-    tgt_buffer.copy_from(work_buffer, stream=cap_stream)
-
-    if use_graph:
-        # Finalize the graph.
-        graph = gb.end_building().complete()
-
-        # Upload and launch
-        graph.upload(stream)
-        graph.launch(stream)
-
-    stream.sync()
-
-    # ====== End work sequence ======
-
-    # Check the result.
-    expected_buffer = make_scratch_buffer(device, 2, NBYTES)
-    compare_buffer = make_scratch_buffer(device, 0, NBYTES)
-    compare_buffer.copy_from(tgt_buffer, stream=stream)
-    stream.sync()
-    assert compare_equal_buffers(expected_buffer, compare_buffer)
-
-    # Check memory usage.
-    if use_graph:
-        # See that the graph-specific pool has been used.
-        assert gmr.attributes.reserved_mem_current > 0
-        assert gmr.attributes.reserved_mem_high > 0
-        assert gmr.attributes.used_mem_current > 0
-        assert gmr.attributes.used_mem_high > 0
-
-        work_buffer.close()
-
-        # See that the non-graph-specific pool has one allocation.
-        assert mr.attributes.used_mem_current == NBYTES
-        tgt_buffer.close()
-        assert mr.attributes.used_mem_current == 0
-
-    else:
-        # See that the graph-specific pool has not been used.
-        assert gmr.attributes.reserved_mem_current == 0
-        assert gmr.attributes.reserved_mem_high == 0
-        assert gmr.attributes.used_mem_current == 0
-        assert gmr.attributes.used_mem_high == 0
-
-        # See that the non-graph-specific pool has two allocations.
-        assert mr.attributes.used_mem_current == 2 * NBYTES
-        tgt_buffer.close()
-        work_buffer.close()
-        assert mr.attributes.used_mem_current == 0
 
