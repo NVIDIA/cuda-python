@@ -72,6 +72,12 @@ cdef class DeviceMemoryResourceAttributes:
         self._mr_weakref = mr
         return self
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(%s)" % ", ".join(
+            f"{attr}={getattr(self, attr)}" for attr in dir(self)
+                                            if not attr.startswith("_")
+        )
+
     @DMRA_mempool_attribute(bool)
     def reuse_follow_event_dependencies(self):
         """Allow memory to be reused when there are event dependencies between streams."""

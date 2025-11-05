@@ -13,6 +13,7 @@ except ImportError:
     np = None
 import ctypes
 import platform
+import re
 
 import pytest
 from cuda.core.experimental import (
@@ -20,6 +21,7 @@ from cuda.core.experimental import (
     Device,
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
+    GraphMemoryResource,
     MemoryResource,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
@@ -133,6 +135,7 @@ def test_package_contents():
         "MemoryResource",
         "DeviceMemoryResource",
         "DeviceMemoryResourceOptions",
+        "GraphMemoryResource",
         "IPCBufferDescriptor",
         "IPCAllocationHandle",
         "LegacyPinnedMemoryResource",
@@ -306,7 +309,7 @@ def test_device_memory_resource_initialization(use_mempool, use_device_object):
     if use_mempool:
         mr = DeviceMemoryResource(device_arg)
     else:
-        mr = DeviceMemoryResource(device_arg, options={'mempool_enabled': False})
+        mr = DeviceMemoryResource(device_arg, options={"mempool_enabled": False})
 
     # Verify basic properties
     assert mr.device_id == device.device_id
@@ -504,7 +507,6 @@ def test_vmm_allocator_rdma_unsupported_exception():
 
 @pytest.mark.parametrize("use_mempool", [True, False])
 def test_device_memory_resource(use_mempool):
-
     device = Device()
 
     if use_mempool and not device.properties.memory_pools_supported:
@@ -635,6 +637,22 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
         assert value >= current_value, f"{property_name} should be >= {current_prop}"
 
 
+def test_mempool_attributes_repr(mempool_device):
+    device = Device()
+    device.set_current()
+    mr = DeviceMemoryResource(device, options={"max_size": 2048})
+    buffer1 = mr.allocate(64)
+    buffer2 = mr.allocate(64)
+    buffer1.close()
+    assert re.match(
+        r"DeviceMemoryResourceAttributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
+        r"reuse_allow_internal_dependencies=(True|False), reuse_allow_opportunistic=(True|False), "
+        r"reuse_follow_event_dependencies=(True|False), used_mem_current=64, used_mem_high=128\)",
+        str(mr.attributes),
+    )
+    buffer2.close()
+
+
 def test_mempool_no_attributes():
     """Ensure mempool attributes cannot be accessed when memory pooling is disabled."""
     device = Device()
@@ -689,3 +707,11 @@ def test_strided_memory_view_refcnt():
     assert av.strides[1] == 64
     assert sys.getrefcount(av.strides) >= 2
 
+def test_graph_memory_resource_object(init_cuda):
+    device = Device()
+    gmr1 = GraphMemoryResource(device)
+    gmr2 = GraphMemoryResource(device)
+
+    # These objects are interned.
+    assert gmr1 is gmr2
+    assert gmr1 == gmr2
