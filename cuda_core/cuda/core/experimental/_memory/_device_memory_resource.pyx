@@ -48,15 +48,9 @@ cdef class DeviceMemoryResourceOptions:
     max_size : int, optional
         Maximum pool size. When set to 0, defaults to a system-dependent value.
         (Default to 0)
-
-    mempool_enabled : bool, optional
-        Whether to use a memory pool. Pool-based allocations cannot be captured
-        in a graph but are the only ones that support sharing via IPC.
-        (Default to True)
     """
-    ipc_enabled     : cython.bint   = False
-    max_size        : cython.size_t = 0
-    mempool_enabled : cython.bint   = True
+    ipc_enabled: cython.bint   = False
+    max_size   : cython.size_t = 0
 
 
 cdef class DeviceMemoryResourceAttributes:
@@ -232,10 +226,8 @@ cdef class DeviceMemoryResource(MemoryResource):
 
         if opts is None:
             DMR_init_current(self, dev_id)
-        elif opts.mempool_enabled:
-            DMR_init_create_mempool(self, dev_id, opts)
         else:
-            DMR_init_no_mempool(self, dev_id, opts)
+            DMR_init_create(self, dev_id, opts)
 
     def __dealloc__(self):
         DMR_close(self)
@@ -357,8 +349,8 @@ cdef class DeviceMemoryResource(MemoryResource):
 
     @property
     def attributes(self) -> DeviceMemoryResourceAttributes:
-        """Memory pool attributes or None if memory pooling is not enabled."""
-        if self._attributes is None and self.is_mempool_enabled:
+        """Memory pool attributes."""
+        if self._attributes is None:
             ref = weakref.ref(self)
             self._attributes = DeviceMemoryResourceAttributes._init(ref)
         return self._attributes
@@ -371,8 +363,6 @@ cdef class DeviceMemoryResource(MemoryResource):
     @property
     def handle(self) -> driver.CUmemoryPool:
         """Handle to the underlying memory pool."""
-        if self._handle == NULL:
-            raise RuntimeError("Memory resource has no memory pool.")
         return driver.CUmemoryPool(<uintptr_t>(self._handle))
 
     @property
@@ -402,11 +392,6 @@ cdef class DeviceMemoryResource(MemoryResource):
         another process.  If True, allocation is not permitted.
         """
         return self._ipc_data is not None and self._ipc_data._is_mapped
-
-    @property
-    def is_mempool_enabled(self) -> bool:
-        """Whether this memory resource uses a memory pool."""
-        return self._handle != NULL
 
     @property
     def uuid(self) -> Optional[uuid.UUID]:
@@ -452,7 +437,7 @@ cdef void DMR_init_current(DeviceMemoryResource self, int dev_id):
             ))
 
 
-cdef void DMR_init_create_mempool(
+cdef void DMR_init_create(
     DeviceMemoryResource self, int dev_id, DeviceMemoryResourceOptions opts
 ):
     # Create a new memory pool.
@@ -482,28 +467,11 @@ cdef void DMR_init_create_mempool(
         self._ipc_data = IPCData(alloc_handle, mapped=False)
 
 
-cdef void DMR_init_no_mempool(
-    DeviceMemoryResource self, int dev_id, DeviceMemoryResourceOptions opts
-):
-    # Create mr without a memory pool.
-    if opts.ipc_enabled:
-        raise TypeError("Cannot create an IPC-enabled memory resource without "
-                           "memory pooling enabled.")
-    if opts.max_size != 0:
-        raise TypeError("Cannot supply max_size without memory pooling enabled.")
-
-    self._dev_id = dev_id
-
-
 cdef Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream stream):
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr
-    if self.is_mempool_enabled:
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, self._handle, s))
-    else:
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemAllocAsync(&devptr, size, s))
+    with nogil:
+        HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, self._handle, s))
     cdef Buffer buf = Buffer.__new__(Buffer)
     buf._ptr = <uintptr_t>(devptr)
     buf._ptr_obj = None
