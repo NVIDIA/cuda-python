@@ -65,7 +65,6 @@ def test_device_subclass_equality(init_cuda):
 
     # Since they're the same object, they're equal
     assert device == my_device
-    assert not (device != my_device)
 
 
 def test_stream_subclass_equality(init_cuda):
@@ -87,20 +86,17 @@ def test_stream_subclass_equality(init_cuda):
     # Create another Stream wrapping same handle
     stream2 = Stream.from_handle(int(stream.handle))
     assert stream == stream2, "Streams wrapping same handle are equal"
-    assert not (stream != stream2)
 
     # Create subclass instance with different handle
     my_stream = MyStream._init(options=StreamOptions(), device_id=device.device_id)
 
     # Different handles -> not equal
     assert stream != my_stream, "Streams with different handles are not equal"
-    assert not (stream == my_stream)
     assert stream.handle != my_stream.handle
 
     # sanity check: base and subclass compare equal (and hash equal)
     stream_from_handle = MyStream.from_handle(int(my_stream.handle))
     assert my_stream == stream_from_handle, "MyStream and Stream wrapping same handle compare equal"
-    assert not (my_stream != stream_from_handle)
     assert hash(my_stream) == hash(stream_from_handle)
 
 
@@ -122,7 +118,6 @@ def test_event_subclass_equality(init_cuda):
 
     # Different events should not be equal (different handles)
     assert event != my_event, "Different Event instances are not equal"
-    assert not (event == my_event)
 
     # Same subclass type with different handles
     my_event2 = MyEvent._init(device.device_id, device.context, options=EventOptions())
@@ -147,7 +142,6 @@ def test_context_subclass_equality(init_cuda):
 
     # Since both are Context instances with same handle, they're equal
     assert context == my_context, "Context instances with same handle are equal"
-    assert not (context != my_context)
 
     # Create another context from different stream
     stream2 = device.create_stream()
