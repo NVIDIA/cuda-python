@@ -467,10 +467,21 @@ cdef void DMR_init_create(
         self._ipc_data = IPCData(alloc_handle, mapped=False)
 
 
+# Raise an exception if the given stream is capturing.
+# A result of CU_STREAM_CAPTURE_STATUS_INVALIDATED is considered an error.
+cdef void check_not_capturing(cydriver.CUstream s) nogil:
+    cdef cydriver.CUstreamCaptureStatus capturing
+    HANDLE_RETURN(cydriver.cuStreamIsCapturing(s, &capturing))
+    if capturing != cydriver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE:
+        raise RuntimeError("DeviceMemoryResource cannot perform memory operations on "
+                           "a capturing stream (consider using GraphMemoryResource).")
+
+
 cdef Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream stream):
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr
     with nogil:
+        check_not_capturing(s)
         HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, self._handle, s))
     cdef Buffer buf = Buffer.__new__(Buffer)
     buf._ptr = <uintptr_t>(devptr)
@@ -486,7 +497,9 @@ cdef void DMR_deallocate(
 ) noexcept:
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
+    cdef cydriver.CUstreamCaptureStatus capturing
     with nogil:
+        check_not_capturing(s)
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
 
 

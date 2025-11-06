@@ -163,10 +163,21 @@ class GraphMemoryResource(cyGraphMemoryResource):
         return cyGraphMemoryResource.__new__(cls, device_id)
 
 
+# Raise an exception if the given stream is capturing.
+# A result of CU_STREAM_CAPTURE_STATUS_INVALIDATED is considered an error.
+cdef void check_capturing(cydriver.CUstream s) nogil:
+    cdef cydriver.CUstreamCaptureStatus capturing
+    HANDLE_RETURN(cydriver.cuStreamIsCapturing(s, &capturing))
+    if capturing != cydriver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
+        raise RuntimeError("GraphMemoryResource cannot perform memory operations on "
+                           "a non-capturing stream.")
+
+
 cdef Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream stream):
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr
     with nogil:
+        check_capturing(s)
         HANDLE_RETURN(cydriver.cuMemAllocAsync(&devptr, size, s))
     cdef Buffer buf = Buffer.__new__(Buffer)
     buf._ptr = <intptr_t>(devptr)
@@ -181,5 +192,6 @@ cdef void GMR_deallocate(intptr_t ptr, size_t size, Stream stream) noexcept:
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:
+        check_capturing(s)
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
 

@@ -14,7 +14,7 @@ from cuda.core.experimental import (
     launch,
 )
 from cuda.core.experimental._utils.cuda_utils import NVRTCError, handle_return
-from helpers.buffers import compare_equal_buffers, make_scratch_buffer
+from helpers.buffers import compare_buffer_to_constant
 
 def _common_kernels_alloc():
     code = """
@@ -40,8 +40,7 @@ def _common_kernels_alloc():
     return mod
 
 
-
-@pytest.mark.parametrize("repeat", [0,1,2])
+@pytest.mark.parametrize("repeat", range(3))
 @pytest.mark.parametrize("use_graph", [False, True])
 def test_graph_alloc(init_cuda, use_graph, repeat):
     """Test graph capture with memory allocated by GraphMemoryResource."""
@@ -80,6 +79,8 @@ def test_graph_alloc(init_cuda, use_graph, repeat):
 
         # Begin graph capture.
         gb = Device().create_graph_builder().begin_building(mode="thread_local")
+        # import code
+        # code.interact(local=dict(globals(), **locals()))
 
         # Capture work.
         apply_kernels(mr=gmr, stream=gb.stream, out=out)
@@ -98,13 +99,7 @@ def test_graph_alloc(init_cuda, use_graph, repeat):
     # ====== End work sequence ======
 
     # Check the result on the host.
-    host_ans = make_scratch_buffer(device, 2, NBYTES)
-    host_tmp = make_scratch_buffer(device, 0, NBYTES)
-    host_tmp.copy_from(out, stream=stream)
-    stream.sync()
-    assert compare_equal_buffers(host_ans, host_tmp)
-    host_ans.close()
-    host_tmp.close()
+    assert compare_buffer_to_constant(out, 2)
 
     # # Check memory usage.
     # if use_graph:
@@ -117,4 +112,71 @@ def test_graph_alloc(init_cuda, use_graph, repeat):
     #     assert gmr.attributes.used_mem_current == 0
     #     out.close()
     #     assert dmr.attributes.used_mem_current == 0
+
+
+@pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
+def test_gmr_check_capture(init_cuda, mode):
+   """
+   Test expected errors (and non-errors) using GraphMemoryResource with graph
+   capture.
+   """
+   device = Device()
+   stream = device.create_stream()
+   gmr = GraphMemoryResource(device)
+
+   # Not capturing
+   with pytest.raises(RuntimeError,
+       match=r"GraphMemoryResource cannot perform memory operations on a "
+             r"non-capturing stream\."
+   ):
+       gmr.allocate(1, stream=stream)
+
+   # Capturing
+   gb = device.create_graph_builder().begin_building(mode=mode)
+   gmr.allocate(1, stream=gb.stream).close()  # no error
+   gb.end_building().complete()
+
+
+@pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
+def test_mr_check_capture(init_cuda, mode):
+   """
+   Test expected errors (and non-errors) using DeviceMemoryResource with graph
+   capture.
+   """
+   device = Device()
+   stream = device.create_stream()
+   dmr = DeviceMemoryResource(device)
+
+   # Not capturing
+   dmr.allocate(1, stream=stream).close()  # no error
+
+   # Capturing
+   gb = device.create_graph_builder().begin_building(mode=mode)
+   with pytest.raises(RuntimeError,
+       match=r"DeviceMemoryResource cannot perform memory operations on a capturing "
+             r"stream \(consider using GraphMemoryResource\)\."
+   ):
+       dmr.allocate(1, stream=gb.stream)
+   gb.end_building().complete()
+
+
+# This tests causes unraisable errors at shutdown.
+# @pytest.mark.parametrize("mode", ["global", "thread_local"])
+# def test_cross_stream_capture_error(init_cuda, mode):
+#    """
+#    Test errors related to unsafe API calls in global or thread_local capture
+#    mode.
+#    """
+#    # When graph capturing is turned on for an unrelated stream, the driver
+#    # raises an error. Not sure how to detect this.
+#    from cuda.core.experimental._utils.cuda_utils import CUDAError  # FIXME
+#    device = Device()
+#    stream = device.create_stream()
+#    dmr = DeviceMemoryResource(device)
+#
+#    with pytest.raises(RuntimeError, match="Build process encountered an error"):
+#        gb = device.create_graph_builder().begin_building(mode)
+#        with pytest.raises(CUDAError, match="CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED"):
+#            dmr.allocate(1, stream=stream)  # not targeting gb.stream
+#        gb.end_building().complete()
 

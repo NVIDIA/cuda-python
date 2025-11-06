@@ -3,12 +3,18 @@
 
 import ctypes
 
-from cuda.core.experimental import Buffer, MemoryResource
+from cuda.core.experimental import Buffer, Device, MemoryResource
 from cuda.core.experimental._utils.cuda_utils import driver, handle_return
 
 from . import libc
 
-__all__ = ["DummyUnifiedMemoryResource", "PatternGen", "make_scratch_buffer", "compare_equal_buffers"]
+__all__ = [
+    "compare_buffer_to_constant",
+    "compare_equal_buffers",
+    "DummyUnifiedMemoryResource",
+    "make_scratch_buffer",
+    "PatternGen",
+]
 
 
 class DummyUnifiedMemoryResource(MemoryResource):
@@ -102,6 +108,7 @@ class PatternGen:
 
 def make_scratch_buffer(device, value, nbytes):
     """Create a unified memory buffer with the specified value."""
+    assert 0 <= int(value) < 256
     buffer = DummyUnifiedMemoryResource(device).allocate(nbytes)
     ptr = ctypes.cast(int(buffer.handle), ctypes.POINTER(ctypes.c_byte))
     ctypes.memset(ptr, value & 0xFF, nbytes)
@@ -115,3 +122,17 @@ def compare_equal_buffers(buffer1, buffer2):
     ptr1 = ctypes.cast(int(buffer1.handle), ctypes.POINTER(ctypes.c_byte))
     ptr2 = ctypes.cast(int(buffer2.handle), ctypes.POINTER(ctypes.c_byte))
     return libc.memcmp(ptr1, ptr2, buffer1.size) == 0
+
+
+def compare_buffer_to_constant(buffer, value):
+    device_id = buffer.memory_resource.device_id
+    device = Device(device_id)
+    stream = device.create_stream()
+    expected = make_scratch_buffer(device, value, buffer.size)
+    tmp = make_scratch_buffer(device, 0, buffer.size)
+    tmp.copy_from(buffer, stream=stream)
+    stream.sync()
+    result = compare_equal_buffers(expected, tmp)
+    expected.close()
+    tmp.close()
+    return result
