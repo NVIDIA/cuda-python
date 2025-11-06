@@ -108,8 +108,8 @@ jobs:
         uses: ./.github/actions/install_unix_deps
         continue-on-error: false
         with:
-          # for artifact fetching
-          dependencies: "jq wget"
+          # for artifact fetching, libEGL.so
+          dependencies: "jq wget libegl1"
           dependent_exes: "jq wget"
 
       - name: Set environment variables
