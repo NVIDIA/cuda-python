@@ -50,6 +50,7 @@ def test_device_subclass_equality(init_cuda):
     cached instance. This means subclassing Device doesn't create new instances;
     MyDevice(0) returns the original Device(0) instance from the cache.
     """
+
     class MyDevice(Device):
         pass
 
@@ -73,6 +74,7 @@ def test_stream_subclass_equality(init_cuda):
     Stream uses isinstance() for equality checking, which means a Stream instance
     and a MyStream subclass instance wrapping the same handle will compare equal.
     """
+
     class MyStream(Stream):
         pass
 
@@ -107,6 +109,7 @@ def test_event_subclass_equality(init_cuda):
 
     Event uses isinstance() for equality checking, similar to Stream.
     """
+
     class MyEvent(Event):
         pass
 
@@ -127,8 +130,8 @@ def test_event_subclass_equality(init_cuda):
 
 
 def test_context_subclass_equality(init_cuda):
-    """Test Context subclass equality behavior.
-    """
+    """Test Context subclass equality behavior."""
+
     class MyContext(Context):
         pass
 

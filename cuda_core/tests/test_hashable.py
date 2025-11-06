@@ -71,6 +71,7 @@ def test_device_subclass_hash(init_cuda):
     cached instance. This means MyDevice(0) returns the original Device instance,
     not a new MyDevice instance.
     """
+
     class MyDevice(Device):
         pass
 
@@ -90,8 +91,8 @@ def test_device_subclass_hash(init_cuda):
 
 
 def test_stream_subclass_hash(init_cuda):
-    """Test Stream subclass hash behavior.
-    """
+    """Test Stream subclass hash behavior."""
+
     class MyStream(Stream):
         pass
 
@@ -128,8 +129,8 @@ def test_stream_subclass_hash(init_cuda):
 
 
 def test_event_subclass_hash(init_cuda):
-    """Test Event subclass hash behavior.
-    """
+    """Test Event subclass hash behavior."""
+
     class MyEvent(Event):
         pass
 
@@ -163,6 +164,7 @@ def test_context_subclass_hash(init_cuda):
     as MyContext._from_ctx(). This means we can't create actual MyContext
     instances in practice.
     """
+
     class MyContext(Context):
         pass
 
@@ -197,6 +199,7 @@ def test_hash_equality_contract_maintained(init_cuda):
     The fix: removed type(self) from __hash__ while keeping isinstance() in __eq__,
     allowing cross-type equality with consistent hashing.
     """
+
     class MyStream(Stream):
         pass
 
