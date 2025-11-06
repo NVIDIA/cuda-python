@@ -1155,10 +1155,10 @@ class Device:
         return f"<Device {self._id} ({self.name})>"
 
     def __hash__(self) -> int:
-        return hash((type(self), self.uuid))
+        return hash(self.uuid)
 
     def __eq__(self, other) -> bool:
-        if type(self) is not type(other):
+        if not isinstance(other, Device):
             return NotImplemented
         return self._id == other._id
 

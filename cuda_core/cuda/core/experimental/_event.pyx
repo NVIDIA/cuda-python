@@ -166,7 +166,7 @@ cdef class Event:
             raise RuntimeError(explanation)
 
     def __hash__(self) -> int:
-        return hash((type(self), self._ctx_handle, <uintptr_t>(self._handle)))
+        return hash((self._ctx_handle, <uintptr_t>(self._handle)))
 
     def __eq__(self, other) -> bool:
         # Note: using isinstance because `Event` can be subclassed.

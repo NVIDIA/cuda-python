@@ -201,7 +201,7 @@ cdef class Stream:
         # Ensure context is initialized for hash consistency
         if self._ctx_handle == CU_CONTEXT_INVALID:
             self._get_context()
-        return hash((type(self), <uintptr_t>(self._ctx_handle), <uintptr_t>(self._handle)))
+        return hash((<uintptr_t>(self._ctx_handle), <uintptr_t>(self._handle)))
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Stream):

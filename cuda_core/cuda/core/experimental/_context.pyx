@@ -29,10 +29,10 @@ cdef class Context:
         return ctx
 
     def __eq__(self, other):
-        if type(other) is not Context:
+        if not isinstance(other, Context):
             return NotImplemented
         cdef Context _other = <Context>other
         return int(self._handle) == int(_other._handle)
 
     def __hash__(self) -> int:
-        return hash((type(self), int(self._handle)))
+        return hash(int(self._handle))
