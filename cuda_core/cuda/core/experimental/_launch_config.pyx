@@ -147,13 +147,13 @@ cpdef object _to_native_launch_config(LaunchConfig config):
         Native CUDA driver launch configuration
     """
     _lazy_init()
-    
+
     cdef object drv_cfg = driver.CUlaunchConfig()
     cdef list attrs
     cdef object attr
     cdef object dim
     cdef tuple grid_blocks
-    
+
     # Handle grid dimensions and cluster configuration
     if config.cluster is not None:
         # Convert grid from cluster units to block units
