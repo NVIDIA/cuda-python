@@ -147,13 +147,13 @@ cpdef object _to_native_launch_config(LaunchConfig config):
         Native CUDA driver launch configuration
     """
     _lazy_init()
-
+    
     cdef object drv_cfg = driver.CUlaunchConfig()
-    cdef list attrs = []
+    cdef list attrs
     cdef object attr
     cdef object dim
     cdef tuple grid_blocks
-
+    
     # Handle grid dimensions and cluster configuration
     if config.cluster is not None:
         # Convert grid from cluster units to block units
@@ -169,9 +169,10 @@ cpdef object _to_native_launch_config(LaunchConfig config):
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
         dim = attr.value.clusterDim
         dim.x, dim.y, dim.z = config.cluster
-        attrs.append(attr)
+        attrs = [attr]
     else:
         drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = config.grid
+        attrs = []
 
     drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
     drv_cfg.sharedMemBytes = config.shmem_size
