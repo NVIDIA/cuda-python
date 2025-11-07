@@ -26,7 +26,7 @@ cdef void _lazy_init() except *:
 
     cdef tuple _py_major_minor
     cdef int _driver_ver
-    
+
     # binding availability depends on cuda-python version
     _py_major_minor = get_binding_version()
     _driver_ver = handle_return(driver.cuDriverGetVersion())
@@ -65,14 +65,14 @@ cdef class LaunchConfig:
     cooperative_launch : bool, optional
         Whether this config can be used to launch a cooperative kernel.
     """
-    
+
     # TODO: expand LaunchConfig to include other attributes
     # Note: attributes are declared in _launch_config.pxd
 
-    def __init__(self, grid=None, cluster=None, block=None, 
+    def __init__(self, grid=None, cluster=None, block=None,
                  shmem_size=None, cooperative_launch=False):
         """Initialize LaunchConfig with validation.
-        
+
         Parameters
         ----------
         grid : Union[tuple, int], optional
@@ -87,11 +87,11 @@ cdef class LaunchConfig:
             Whether to launch as cooperative kernel (default: False)
         """
         _lazy_init()
-        
+
         # Convert and validate grid and block dimensions
         self.grid = cast_to_3_tuple("LaunchConfig.grid", grid)
         self.block = cast_to_3_tuple("LaunchConfig.block", block)
-        
+
         # FIXME: Calling Device() strictly speaking is not quite right; we should instead
         # look up the device from stream. We probably need to defer the checks related to
         # device compute capability or attributes.
@@ -109,19 +109,19 @@ cdef class LaunchConfig:
             self.cluster = cast_to_3_tuple("LaunchConfig.cluster", cluster)
         else:
             self.cluster = None
-            
+
         # Handle shmem_size default
         if shmem_size is None:
             self.shmem_size = 0
         else:
             self.shmem_size = shmem_size
-            
+
         # Handle cooperative_launch
         if cooperative_launch is None:
             self.cooperative_launch = False
         else:
             self.cooperative_launch = cooperative_launch
-            
+
         # Validate cooperative launch support
         if self.cooperative_launch and not Device().properties.cooperative_launch:
             raise CUDAError("cooperative kernels are not supported on this device")
@@ -135,25 +135,25 @@ cdef class LaunchConfig:
 
 cpdef object _to_native_launch_config(LaunchConfig config):
     """Convert LaunchConfig to native driver CUlaunchConfig.
-    
+
     Parameters
     ----------
     config : LaunchConfig
         High-level launch configuration
-        
+
     Returns
     -------
     driver.CUlaunchConfig
         Native CUDA driver launch configuration
     """
     _lazy_init()
-    
+
     cdef object drv_cfg = driver.CUlaunchConfig()
     cdef list attrs = []
     cdef object attr
     cdef object dim
     cdef tuple grid_blocks
-    
+
     # Handle grid dimensions and cluster configuration
     if config.cluster is not None:
         # Convert grid from cluster units to block units
@@ -175,14 +175,14 @@ cpdef object _to_native_launch_config(LaunchConfig config):
 
     drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = config.block
     drv_cfg.sharedMemBytes = config.shmem_size
-    
+
     if config.cooperative_launch:
         attr = driver.CUlaunchAttribute()
         attr.id = driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE
         attr.value.cooperative = 1
         attrs.append(attr)
-        
+
     drv_cfg.numAttrs = len(attrs)
     drv_cfg.attrs = attrs
-    
+
     return drv_cfg
