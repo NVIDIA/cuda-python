@@ -5,11 +5,11 @@
 from libc.stdint cimport uintptr_t
 
 from cuda.core.experimental._stream cimport _try_to_get_stream_ptr
+from cuda.core.experimental._launch_config cimport LaunchConfig, _to_native_launch_config
 
 from typing import Union
 
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
-from cuda.core.experimental._launch_config import LaunchConfig, _to_native_launch_config
 from cuda.core.experimental._module import Kernel
 from cuda.core.experimental._stream import IsStreamT, Stream
 from cuda.core.experimental._utils.clear_error_support import assert_type
