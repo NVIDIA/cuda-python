@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Public API declarations for _launch_config module
 
 cdef bint _inited
 cdef bint _use_ex
