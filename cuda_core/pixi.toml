@@ -1,0 +1,83 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+[workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "win-64"]
+preview = ["pixi-build"]
+
+[workspace.build-variants]
+python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
+
+[dependencies]
+cuda-core = { path = "." }
+libnvjitlink = "*"
+
+[feature.test.dependencies]
+pytest = "*"
+
+[feature.cu13.system-requirements]
+cuda = "13"
+
+[feature.cu13.dependencies]
+cuda-version = "13.*"
+
+[feature.cu12.system-requirements]
+cuda = "12"
+
+[feature.cu12.dependencies]
+cuda-version = "12.*"
+
+[environments]
+cu13 = { features = ["cu13", "test"], solve-group = "cu13" }
+cu12 = { features = ["cu12", "test"], solve-group = "cu12" }
+
+[target.linux-64.activation.env]
+CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
+
+[target.linux-aarch64.activation.env]
+CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
+
+[target.win.activation.env]
+CUDA_HOME = '%CONDA_PREFIX%\Library'
+
+[package]
+name = "cuda-core"
+version = "0.4.1"
+
+[package.build]
+backend = { name = "pixi-build-python", version = "*" }
+# config.compilers = ["cxx"]
+config.noarch = false
+
+[package.build-dependencies]
+setuptools = ">=77"
+cython = ">=3.1"
+cuda-profiler-api = "*" # for some reason, without this, cuda.h isn't found ¯\_(ツ)_/¯
+ccache = "*"
+gxx = "*"
+gcc = "*"
+
+[package.host-dependencies]
+python = "*"
+setuptools = ">=77"
+cython = ">=3.1"
+cuda-bindings = "*"
+
+[package.run-dependencies]
+python = "*"
+numpy = "*"
+cuda-bindings = "*"
+
+[package.build.target.linux-64.config.env]
+CUDA_HOME = "$BUILD_PREFIX/targets/x86_64-linux"
+SCCACHE_PATH = "$(which sscache)"
+CXX = "ccache c++"
+CC = "ccache cc"
+
+[package.build.target.linux-aarch64.config.env]
+CUDA_HOME = "$BUILD_PREFIX/targets/sbsa-linux"
+
+[package.build.target.win-64.config.env]
+CUDA_HOME = '%BUILD_PREFIX%\Library'
