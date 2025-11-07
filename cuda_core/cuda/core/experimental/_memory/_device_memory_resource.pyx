@@ -469,7 +469,7 @@ cdef void DMR_init_create(
 
 # Raise an exception if the given stream is capturing.
 # A result of CU_STREAM_CAPTURE_STATUS_INVALIDATED is considered an error.
-cdef void check_not_capturing(cydriver.CUstream s) nogil:
+cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
     cdef cydriver.CUstreamCaptureStatus capturing
     HANDLE_RETURN(cydriver.cuStreamIsCapturing(s, &capturing))
     if capturing != cydriver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE:
@@ -477,7 +477,7 @@ cdef void check_not_capturing(cydriver.CUstream s) nogil:
                            "a capturing stream (consider using GraphMemoryResource).")
 
 
-cdef Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream stream):
+cdef inline Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream stream):
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr
     with nogil:
@@ -492,18 +492,17 @@ cdef Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream stream):
     return buf
 
 
-cdef void DMR_deallocate(
+cdef inline void DMR_deallocate(
     DeviceMemoryResource self, uintptr_t ptr, size_t size, Stream stream
 ) noexcept:
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     cdef cydriver.CUstreamCaptureStatus capturing
     with nogil:
-        check_not_capturing(s)
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
 
 
-cdef DMR_close(DeviceMemoryResource self):
+cdef inline DMR_close(DeviceMemoryResource self):
     if self._handle == NULL:
         return
 
@@ -517,3 +516,4 @@ cdef DMR_close(DeviceMemoryResource self):
         self._attributes = None
         self._mempool_owned = False
         self._ipc_data = None
+

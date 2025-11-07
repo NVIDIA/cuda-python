@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from libc.stdint cimport uintptr_t, intptr_t
+from libc.stdint cimport uintptr_t, intptr_t, uint64_t
 
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
@@ -71,8 +71,10 @@ cdef GMRA_mem_attribute(property_type: type, settable : bool = False):
             return property_type(value)
 
         if _settable:
-            def fset(GraphMemoryResourceAttributes self, value: int):
-                GMRA_setattribute(self._dev_id, <cydriver.CUgraphMem_attribute><uintptr_t> attr_enum, value)
+            def fset(GraphMemoryResourceAttributes self, uint64_t value):
+                if value != 0:
+                    raise AttributeError(f"Attribute {stub.__name__!r} may only be set to zero (got {value}).")
+                GMRA_setattribute(self._dev_id, <cydriver.CUgraphMem_attribute><uintptr_t> attr_enum)
         else:
             fset = None
 
@@ -80,16 +82,17 @@ cdef GMRA_mem_attribute(property_type: type, settable : bool = False):
     return decorator
 
 
-cdef int GMRA_getattribute(int device_id, cydriver.CUgraphMem_attribute attr_enum):
-    cdef int value
+cdef inline uint64_t GMRA_getattribute(int device_id, cydriver.CUgraphMem_attribute attr_enum):
+    cdef uint64_t value
     with nogil:
         HANDLE_RETURN(cydriver.cuDeviceGetGraphMemAttribute(device_id, attr_enum, <void *> &value))
     return value
 
 
-cdef int GMRA_setattribute(int device_id, cydriver.CUgraphMem_attribute attr_enum, int value):
+cdef inline void GMRA_setattribute(int device_id, cydriver.CUgraphMem_attribute attr_enum):
+    cdef uint64_t zero = 0
     with nogil:
-        HANDLE_RETURN(cydriver.cuDeviceSetGraphMemAttribute(device_id, attr_enum, <void *> &value))
+        HANDLE_RETURN(cydriver.cuDeviceSetGraphMemAttribute(device_id, attr_enum, <void *> &zero))
 
 
 cdef class cyGraphMemoryResource(MemoryResource):
@@ -165,7 +168,7 @@ class GraphMemoryResource(cyGraphMemoryResource):
 
 # Raise an exception if the given stream is capturing.
 # A result of CU_STREAM_CAPTURE_STATUS_INVALIDATED is considered an error.
-cdef void check_capturing(cydriver.CUstream s) nogil:
+cdef inline int check_capturing(cydriver.CUstream s) except?-1 nogil:
     cdef cydriver.CUstreamCaptureStatus capturing
     HANDLE_RETURN(cydriver.cuStreamIsCapturing(s, &capturing))
     if capturing != cydriver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_ACTIVE:
@@ -173,7 +176,7 @@ cdef void check_capturing(cydriver.CUstream s) nogil:
                            "a non-capturing stream.")
 
 
-cdef Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream stream):
+cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream stream):
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr
     with nogil:
@@ -188,10 +191,9 @@ cdef Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream stream)
     return buf
 
 
-cdef void GMR_deallocate(intptr_t ptr, size_t size, Stream stream) noexcept:
+cdef inline void GMR_deallocate(intptr_t ptr, size_t size, Stream stream) noexcept:
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:
-        check_capturing(s)
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
 

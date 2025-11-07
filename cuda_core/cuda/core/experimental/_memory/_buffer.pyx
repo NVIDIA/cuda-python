@@ -274,7 +274,7 @@ cdef class Buffer:
 
 # Buffer Implementation
 # ---------------------
-cdef Buffer_close(Buffer self, stream):
+cdef inline void Buffer_close(Buffer self, stream):
     cdef Stream s
     if self._ptr and self._memory_resource is not None:
         if stream is None:

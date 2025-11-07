@@ -108,11 +108,15 @@ class PatternGen:
 
 def make_scratch_buffer(device, value, nbytes):
     """Create a unified memory buffer with the specified value."""
-    assert 0 <= int(value) < 256
     buffer = DummyUnifiedMemoryResource(device).allocate(nbytes)
-    ptr = ctypes.cast(int(buffer.handle), ctypes.POINTER(ctypes.c_byte))
-    ctypes.memset(ptr, value & 0xFF, nbytes)
+    set_buffer(buffer, value)
     return buffer
+
+
+def set_buffer(buffer, value):
+    assert 0 <= int(value) < 256
+    ptr = ctypes.cast(int(buffer.handle), ctypes.POINTER(ctypes.c_byte))
+    ctypes.memset(ptr, value & 0xFF, buffer.size)
 
 
 def compare_equal_buffers(buffer1, buffer2):
