@@ -131,7 +131,7 @@ def test_launch_invalid_values(init_cuda):
     ker = mod.get_kernel("my_kernel")
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), shmem_size=0)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         launch(None, ker, config)
 
     with pytest.raises(TypeError):
