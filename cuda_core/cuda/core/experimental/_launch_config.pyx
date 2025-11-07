@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Union
-
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
