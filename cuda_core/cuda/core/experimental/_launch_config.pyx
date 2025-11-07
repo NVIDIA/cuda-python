@@ -115,10 +115,7 @@ cdef class LaunchConfig:
             self.shmem_size = shmem_size
 
         # Handle cooperative_launch
-        if cooperative_launch is None:
-            self.cooperative_launch = False
-        else:
-            self.cooperative_launch = cooperative_launch
+        self.cooperative_launch = cooperative_launch
 
         # Validate cooperative launch support
         if self.cooperative_launch and not Device().properties.cooperative_launch:
