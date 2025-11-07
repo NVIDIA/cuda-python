@@ -2,16 +2,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from libc.stdint cimport intptr_t
+from libc.stdint cimport uintptr_t
 
 from cuda.core.experimental._stream cimport Stream
 
 
 cdef class Buffer:
     cdef:
-        intptr_t       _ptr
+        uintptr_t      _ptr
         size_t         _size
-        MemoryResource _mr
+        MemoryResource _memory_resource
         object         _ptr_obj
         Stream         _alloc_stream
 

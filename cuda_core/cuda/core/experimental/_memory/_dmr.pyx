@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from libc.limits cimport ULLONG_MAX
-from libc.stdint cimport uintptr_t, intptr_t
+from libc.stdint cimport uintptr_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
@@ -339,7 +339,7 @@ cdef class DeviceMemoryResource(MemoryResource):
             If the buffer is deallocated without an explicit stream, the allocation stream
             is used.
         """
-        DMR_deallocate(self, <intptr_t>ptr, size, <Stream>stream)
+        DMR_deallocate(self, <uintptr_t>ptr, size, <Stream>stream)
 
     @property
     def attributes(self) -> DeviceMemoryResourceAttributes:
@@ -466,16 +466,16 @@ cdef Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream stream):
     with nogil:
         HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, self._handle, s))
     cdef Buffer buf = Buffer.__new__(Buffer)
-    buf._ptr = <intptr_t>(devptr)
+    buf._ptr = <uintptr_t>(devptr)
     buf._ptr_obj = None
     buf._size = size
-    buf._mr = self
+    buf._memory_resource = self
     buf._alloc_stream = stream
     return buf
 
 
 cdef void DMR_deallocate(
-    DeviceMemoryResource self, intptr_t ptr, size_t size, Stream stream
+    DeviceMemoryResource self, uintptr_t ptr, size_t size, Stream stream
 ) noexcept:
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr

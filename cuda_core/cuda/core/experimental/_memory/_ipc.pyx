@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 cimport cpython
-from libc.stdint cimport intptr_t
+from libc.stdint cimport uintptr_t
 from libc.string cimport memcpy
 
 from cuda.bindings cimport cydriver
@@ -142,7 +142,7 @@ multiprocessing.reduction.register(DeviceMemoryResource, _deep_reduce_device_mem
 # Buffer IPC Implementation
 # -------------------------
 cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
-    if not self._mr.is_ipc_enabled:
+    if not self.memory_resource.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
     cdef cydriver.CUmemPoolPtrExportData data
     with nogil:
@@ -172,7 +172,7 @@ cdef Buffer Buffer_from_ipc_descriptor(
     cdef cydriver.CUdeviceptr ptr
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._handle, &data))
-    return Buffer._init(<intptr_t>ptr, ipc_buffer.size, mr, stream)
+    return Buffer._init(<uintptr_t>ptr, ipc_buffer.size, mr, stream)
 
 
 # DeviceMemoryResource IPC Implementation
@@ -205,7 +205,7 @@ cdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handl
     cdef int handle = int(alloc_handle)
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolImportFromShareableHandle(
-            &(self._handle), <void*><intptr_t>(handle), IPC_HANDLE_TYPE, 0)
+            &(self._handle), <void*><uintptr_t>(handle), IPC_HANDLE_TYPE, 0)
         )
 
     # Register it.

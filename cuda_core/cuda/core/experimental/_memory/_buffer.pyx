@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from libc.stdint cimport intptr_t
+from libc.stdint cimport uintptr_t
 
 from cuda.core.experimental._memory._dmr cimport DeviceMemoryResource
 from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor
@@ -44,7 +44,7 @@ cdef class Buffer:
     def _clear(self):
         self._ptr = 0
         self._size = 0
-        self._mr = None
+        self._memory_resource = None
         self._ptr_obj = None
         self._alloc_stream = None
 
@@ -58,10 +58,10 @@ cdef class Buffer:
         stream: Stream | None = None
     ):
         cdef Buffer self = Buffer.__new__(cls)
-        self._ptr = <intptr_t>(int(ptr))
+        self._ptr = <uintptr_t>(int(ptr))
         self._ptr_obj = ptr
         self._size = size
-        self._mr = mr
+        self._memory_resource = mr
         self._alloc_stream = <Stream>(stream) if stream is not None else None
         return self
 
@@ -138,10 +138,10 @@ cdef class Buffer:
         cdef size_t src_size = self._size
 
         if dst is None:
-            if self._mr is None:
+            if self._memory_resource is None:
                 raise ValueError("a destination buffer must be provided (this "
                                  "buffer does not have a memory_resource)")
-            dst = self._mr.allocate(src_size, stream)
+            dst = self._memory_resource.allocate(src_size, stream)
 
         cdef size_t dst_size = dst._size
         if dst_size != src_size:
@@ -226,8 +226,8 @@ cdef class Buffer:
     @property
     def device_id(self) -> int:
         """Return the device ordinal of this buffer."""
-        if self._mr is not None:
-            return self._mr.device_id
+        if self._memory_resource is not None:
+            return self._memory_resource.device_id
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     @property
@@ -250,21 +250,21 @@ cdef class Buffer:
     @property
     def is_device_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
-        if self._mr is not None:
-            return self._mr.is_device_accessible
+        if self._memory_resource is not None:
+            return self._memory_resource.is_device_accessible
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     @property
     def is_host_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
-        if self._mr is not None:
-            return self._mr.is_host_accessible
+        if self._memory_resource is not None:
+            return self._memory_resource.is_host_accessible
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     @property
     def memory_resource(self) -> MemoryResource:
         """Return the memory resource associated with this buffer."""
-        return self._mr
+        return self._memory_resource
 
     @property
     def size(self) -> int:
@@ -276,7 +276,7 @@ cdef class Buffer:
 # ---------------------
 cdef Buffer_close(Buffer self, stream):
     cdef Stream s
-    if self._ptr and self._mr is not None:
+    if self._ptr and self._memory_resource is not None:
         if stream is None:
             if self._alloc_stream is not None:
                 s = self._alloc_stream
@@ -285,9 +285,9 @@ cdef Buffer_close(Buffer self, stream):
                 s = <Stream>(default_stream())
         else:
             s = <Stream>stream
-        self._mr.deallocate(self._ptr, self._size, s)
+        self._memory_resource.deallocate(self._ptr, self._size, s)
         self._ptr = 0
-        self._mr = None
+        self._memory_resource = None
         self._ptr_obj = None
         self._alloc_stream = None
 
