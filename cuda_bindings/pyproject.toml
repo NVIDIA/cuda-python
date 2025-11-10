@@ -7,7 +7,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cuda-bindings"
 description = "Python bindings for CUDA"
-authors = [{name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com"},]
+authors = [
+    { name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com" },
+]
 license = "LicenseRef-NVIDIA-SOFTWARE-LICENSE"
 requires-python = ">=3.10"
 classifiers = [
@@ -22,13 +24,8 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Environment :: GPU :: NVIDIA CUDA",
 ]
-dynamic = [
-    "version",
-    "readme",
-]
-dependencies = [
-  "cuda-pathfinder ~=1.1",
-]
+dynamic = ["version", "readme"]
+dependencies = ["cuda-pathfinder ~=1.1"]
 
 [project.optional-dependencies]
 all = [
@@ -43,7 +40,7 @@ test = [
     "numpy>=1.21.1",
     "pytest>=6.2.4",
     "pytest-benchmark>=3.4.1",
-    "pyglet>=2.1.9"
+    "pyglet>=2.1.9",
 ]
 
 [project.urls]
@@ -69,3 +66,8 @@ archs = "native"
 archs = "AMD64"
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wheel}"
+
+[tool.pytest.ini_options]
+required_plugins = "pytest-benchmark"
+addopts = "--benchmark-disable"
+norecursedirs = ["tests/cython", "examples"]
