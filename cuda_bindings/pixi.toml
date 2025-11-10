@@ -97,7 +97,7 @@ pyclibrary = ">=0.1.7"
 
 [package.run-dependencies]
 python = "*"
-cuda-pathfinder = ">=1.1,<1.2"
+cuda-pathfinder = ">=1.1,<2"
 
 [package.target.linux.build-dependencies]
 libcufile-dev = "*"
