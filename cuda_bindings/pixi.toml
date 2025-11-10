@@ -27,15 +27,6 @@ cuda-nvvm = "*"
 [target.linux.dependencies]
 libcufile-dev = "*"
 
-[target.linux-64.dependencies]
-cuda-crt-dev_linux-64 = "*"
-
-[target.linux-aarch64.dependencies]
-cuda-crt-dev_linux-aarch64 = "*"
-
-[target.win-64.dependencies]
-cuda-crt-dev_win-64 = "*"
-
 [feature.test.dependencies]
 pytest = ">=6.2.4"
 pytest-benchmark = ">=3.4.1"
@@ -46,6 +37,17 @@ numpy = "*"
 cython = "*"     # for tests that exercise APIs from cython
 setuptools = "*" # for distutils
 gxx = "*"        # to compile the generated code
+
+# these are necessary because running the cython tests requires compiling
+# *after* the package is built
+[feature.cython-tests.target.linux-64.dependencies]
+cuda-crt-dev_linux-64 = "*"
+
+[feature.cython-tests.target.linux-aarch64.dependencies]
+cuda-crt-dev_linux-aarch64 = "*"
+
+[feature.cython-tests.target.win-64.dependencies]
+cuda-crt-dev_win-64 = "*"
 
 [feature.cu13.system-requirements]
 cuda = "13"
