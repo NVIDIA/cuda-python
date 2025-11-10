@@ -31,6 +31,7 @@ from cuda.core.experimental._memory import IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
 from cuda.core.experimental.utils import StridedMemoryView
 from helpers.buffers import DummyUnifiedMemoryResource
+from helpers.misc import StreamWrapper
 
 from cuda_python_test_helpers import supports_ipc_mempool
 
@@ -167,10 +168,12 @@ def test_buffer_initialization():
     buffer_initialization(DummyPinnedMemoryResource(device))
 
 
-def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
+def buffer_copy_to(dummy_mr: MemoryResource, device: Device, wrap_stream, check=False):
     src_buffer = dummy_mr.allocate(size=1024)
     dst_buffer = dummy_mr.allocate(size=1024)
     stream = device.create_stream()
+    if wrap_stream:
+        stream = StreamWrapper(stream)
 
     if check:
         src_ptr = ctypes.cast(src_buffer.handle, ctypes.POINTER(ctypes.c_byte))
@@ -190,18 +193,21 @@ def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
     src_buffer.close()
 
 
-def test_buffer_copy_to():
+@pytest.mark.parametrize("wrap_stream", [True, False])
+def test_buffer_copy_to(wrap_stream):
     device = Device()
     device.set_current()
-    buffer_copy_to(DummyDeviceMemoryResource(device), device)
-    buffer_copy_to(DummyUnifiedMemoryResource(device), device)
-    buffer_copy_to(DummyPinnedMemoryResource(device), device, check=True)
+    buffer_copy_to(DummyDeviceMemoryResource(device), device, wrap_stream)
+    buffer_copy_to(DummyUnifiedMemoryResource(device), device, wrap_stream)
+    buffer_copy_to(DummyPinnedMemoryResource(device), device, wrap_stream, check=True)
 
 
-def buffer_copy_from(dummy_mr: MemoryResource, device, check=False):
+def buffer_copy_from(dummy_mr: MemoryResource, device, wrap_stream, check=False):
     src_buffer = dummy_mr.allocate(size=1024)
     dst_buffer = dummy_mr.allocate(size=1024)
     stream = device.create_stream()
+    if wrap_stream:
+        stream = StreamWrapper(stream)
 
     if check:
         src_ptr = ctypes.cast(src_buffer.handle, ctypes.POINTER(ctypes.c_byte))
@@ -221,12 +227,13 @@ def buffer_copy_from(dummy_mr: MemoryResource, device, check=False):
     src_buffer.close()
 
 
-def test_buffer_copy_from():
+@pytest.mark.parametrize("wrap_stream", [True, False])
+def test_buffer_copy_from(wrap_stream):
     device = Device()
     device.set_current()
-    buffer_copy_from(DummyDeviceMemoryResource(device), device)
-    buffer_copy_from(DummyUnifiedMemoryResource(device), device)
-    buffer_copy_from(DummyPinnedMemoryResource(device), device, check=True)
+    buffer_copy_from(DummyDeviceMemoryResource(device), device, wrap_stream)
+    buffer_copy_from(DummyUnifiedMemoryResource(device), device, wrap_stream)
+    buffer_copy_from(DummyPinnedMemoryResource(device), device, wrap_stream, check=True)
 
 
 def buffer_close(dummy_mr: MemoryResource):
@@ -526,12 +533,16 @@ def test_device_memory_resource():
     buffer = mr.allocate(1024, stream=stream)
     assert buffer.handle != 0
     buffer.close()
+    buffer = mr.allocate(1024, stream=StreamWrapper(stream))
+    assert buffer.handle != 0
+    buffer.close()
 
     # Test memory copying between buffers from same pool
     src_buffer = mr.allocate(64)
     dst_buffer = mr.allocate(64)
     stream = device.create_stream()
     src_buffer.copy_to(dst_buffer, stream=stream)
+    src_buffer.copy_to(dst_buffer, stream=StreamWrapper(stream))
     device.sync()
     dst_buffer.close()
     src_buffer.close()
