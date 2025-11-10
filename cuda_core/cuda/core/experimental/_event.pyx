@@ -165,6 +165,16 @@ cdef class Event:
                 raise CUDAError(err)
             raise RuntimeError(explanation)
 
+    def __hash__(self) -> int:
+        return hash((self._ctx_handle, <uintptr_t>(self._handle)))
+
+    def __eq__(self, other) -> bool:
+        # Note: using isinstance because `Event` can be subclassed.
+        if not isinstance(other, Event):
+            return NotImplemented
+        cdef Event _other = <Event>other
+        return <uintptr_t>(self._handle) == <uintptr_t>(_other._handle)
+
     def get_ipc_descriptor(self) -> IPCEventDescriptor:
         """Export an event allocated for sharing between processes."""
         if self._ipc_descriptor is not None:

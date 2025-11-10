@@ -949,7 +949,7 @@ class Device:
         Default value of `None` return the currently used device.
 
     """
-    __slots__ = ("_id", "_mr", "_has_inited", "_properties")
+    __slots__ = ("_id", "_mr", "_has_inited", "_properties", "_uuid")
 
     def __new__(cls, device_id: int | None = None):
         global _is_cuInit
@@ -1002,6 +1002,7 @@ class Device:
 
                 device._has_inited = False
                 device._properties = None
+                device._uuid = None
                 devices.append(device)
 
         try:
@@ -1053,18 +1054,26 @@ class Device:
         MIG UUID is only returned when device is in MIG mode and the
         driver is older than CUDA 11.4.
 
+        The UUID is cached after first access to avoid repeated CUDA API calls.
+
         """
         cdef cydriver.CUuuid uuid
-        cdef cydriver.CUdevice this_dev = self._id
-        with nogil:
-            IF CUDA_CORE_BUILD_MAJOR == "12":
-                HANDLE_RETURN(cydriver.cuDeviceGetUuid_v2(&uuid, this_dev))
-            ELSE:  # 13.0+
-                HANDLE_RETURN(cydriver.cuDeviceGetUuid(&uuid, this_dev))
-        cdef bytes uuid_b = cpython.PyBytes_FromStringAndSize(uuid.bytes, sizeof(uuid.bytes))
-        cdef str uuid_hex = uuid_b.hex()
-        # 8-4-4-4-12
-        return f"{uuid_hex[:8]}-{uuid_hex[8:12]}-{uuid_hex[12:16]}-{uuid_hex[16:20]}-{uuid_hex[20:]}"
+        cdef cydriver.CUdevice dev
+        cdef bytes uuid_b
+        cdef str uuid_hex
+
+        if self._uuid is None:
+            dev = self._id
+            with nogil:
+                IF CUDA_CORE_BUILD_MAJOR == "12":
+                    HANDLE_RETURN(cydriver.cuDeviceGetUuid_v2(&uuid, dev))
+                ELSE:  # 13.0+
+                    HANDLE_RETURN(cydriver.cuDeviceGetUuid(&uuid, dev))
+            uuid_b = cpython.PyBytes_FromStringAndSize(uuid.bytes, sizeof(uuid.bytes))
+            uuid_hex = uuid_b.hex()
+            # 8-4-4-4-12
+            self._uuid = f"{uuid_hex[:8]}-{uuid_hex[8:12]}-{uuid_hex[12:16]}-{uuid_hex[16:20]}-{uuid_hex[20:]}"
+        return self._uuid
 
     @property
     def name(self) -> str:
@@ -1144,6 +1153,14 @@ class Device:
 
     def __repr__(self):
         return f"<Device {self._id} ({self.name})>"
+
+    def __hash__(self) -> int:
+        return hash(self.uuid)
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Device):
+            return NotImplemented
+        return self._id == other._id
 
     def __reduce__(self):
         return Device, (self.device_id,)
