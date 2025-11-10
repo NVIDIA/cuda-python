@@ -10,14 +10,42 @@ preview = ["pixi-build"]
 [workspace.build-variants]
 python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 
+[target.linux.tasks.build-cython-tests]
+cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
+
+[target.linux.tasks.test]
+cmd = ["pytest", "$PIXI_PROJECT_ROOT"]
+depends-on = [{ task = "build-cython-tests" }]
+
 [dependencies]
 cuda-bindings = { path = "." }
 libnvjitlink = "*"
+cuda-nvrtc-dev = "*"
+cuda-profiler-api = "*"
+cuda-nvvm = "*"
+
+[target.linux.dependencies]
+libcufile-dev = "*"
+
+[target.linux-64.dependencies]
+cuda-crt-dev_linux-64 = "*"
+
+[target.linux-aarch64.dependencies]
+cuda-crt-dev_linux-aarch64 = "*"
+
+[target.win-64.dependencies]
+cuda-crt-dev_win-64 = "*"
 
 [feature.test.dependencies]
 pytest = ">=6.2.4"
 pytest-benchmark = ">=3.4.1"
 pyglet = ">=2.1.9"
+numpy = "*"
+
+[feature.cython-tests.dependencies]
+cython = "*"     # for tests that exercise APIs from cython
+setuptools = "*" # for distutils
+gxx = "*"        # to compile the generated code
 
 [feature.cu13.system-requirements]
 cuda = "13"
@@ -32,8 +60,8 @@ cuda = "12"
 cuda-version = "12.*"
 
 [environments]
-cu13 = { features = ["cu13", "test"], solve-group = "cu13" }
-cu12 = { features = ["cu12", "test"], solve-group = "cu12" }
+cu13 = { features = ["cu13", "test", "cython-tests"], solve-group = "cu13" }
+cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
 
 [target.linux-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
