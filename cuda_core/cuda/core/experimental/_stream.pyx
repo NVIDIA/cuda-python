@@ -197,6 +197,27 @@ cdef class Stream:
         """Return an instance of a __cuda_stream__ protocol."""
         return (0, <uintptr_t>(self._handle))
 
+    def __hash__(self) -> int:
+        # Ensure context is initialized for hash consistency
+        if self._ctx_handle == CU_CONTEXT_INVALID:
+            self._get_context()
+        return hash((<uintptr_t>(self._ctx_handle), <uintptr_t>(self._handle)))
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Stream):
+            return NotImplemented
+        cdef Stream _other = <Stream>other
+        # Fast path: compare handles first
+        if <uintptr_t>(self._handle) != <uintptr_t>((_other)._handle):
+            return False
+        # Ensure contexts are initialized for both streams
+        if self._ctx_handle == CU_CONTEXT_INVALID:
+            self._get_context()
+        if _other._ctx_handle == CU_CONTEXT_INVALID:
+            _other._get_context()
+        # Compare contexts as well
+        return <uintptr_t>(self._ctx_handle) == <uintptr_t>((_other)._ctx_handle)
+
     @property
     def handle(self) -> cuda.bindings.driver.CUstream:
         """Return the underlying ``CUstream`` object.

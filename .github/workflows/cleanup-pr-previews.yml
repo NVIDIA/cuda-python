@@ -1,0 +1,66 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "Cleanup: PR Preview Documentation"
+
+on:
+  schedule:
+    # Run every night at 11pm EST (4am UTC during EST, 3am UTC during EDT)
+    # Using 4am UTC to be safe during EST (Nov-Mar)
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Run in dry-run mode (preview only, no changes)'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write  # Required to push changes to gh-pages branch
+
+jobs:
+  cleanup:
+    name: Clean up stale PR preview folders
+    runs-on: ubuntu-latest
+    # Only run for NVIDIA org to prevent forks from running this
+    if: github.repository_owner == 'NVIDIA'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history and branches for worktree operations
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config --global user.name "cuda-python-bot"
+          git config --global user.email "cuda-python-bot@users.noreply.github.com"
+
+      - name: Run PR preview cleanup script
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Determine if we should run in dry-run mode
+          if [[ "${{ inputs.dry-run }}" == "true" ]]; then
+            echo "Running in dry-run mode (preview only)"
+            ./ci/cleanup-pr-previews --dry-run
+          else
+            echo "Running cleanup with push to gh-pages"
+            ./ci/cleanup-pr-previews --push
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### PR Preview Cleanup Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ inputs.dry-run }}" == "true" ]]; then
+            echo "✅ Dry-run completed successfully" >> $GITHUB_STEP_SUMMARY
+            echo "No changes were made to the gh-pages branch" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Cleanup completed and changes pushed to gh-pages" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
