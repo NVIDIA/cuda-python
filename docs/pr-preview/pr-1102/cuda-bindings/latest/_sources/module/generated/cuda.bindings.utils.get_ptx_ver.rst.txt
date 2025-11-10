@@ -1,6 +1,0 @@
-﻿cuda.bindings.utils.get\_ptx\_ver
-=================================
-
-.. currentmodule:: cuda.bindings.utils
-
-.. autofunction:: get_ptx_ver
