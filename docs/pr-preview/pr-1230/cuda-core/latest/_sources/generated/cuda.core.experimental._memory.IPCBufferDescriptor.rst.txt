@@ -1,0 +1,31 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.experimental.\_memory.IPCBufferDescriptor
+===================================================
+
+.. currentmodule:: cuda.core.experimental._memory
+
+.. autoclass:: IPCBufferDescriptor
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoproperty:: size
+   
+   

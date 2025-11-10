@@ -1,0 +1,41 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.experimental.Stream
+=============================
+
+.. currentmodule:: cuda.core.experimental
+
+.. autoclass:: Stream
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: close
+   .. automethod:: create_graph_builder
+   .. automethod:: from_handle
+   .. automethod:: record
+   .. automethod:: sync
+   .. automethod:: wait
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoproperty:: context
+   .. autoproperty:: device
+   .. autoproperty:: handle
+   .. autoproperty:: is_nonblocking
+   .. autoproperty:: priority
+   
+   
