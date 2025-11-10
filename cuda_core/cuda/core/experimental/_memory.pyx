@@ -226,11 +226,11 @@ cdef class Buffer(_cyBuffer, MemoryResourceAttributes):
         if stream is None:
             # Note: match this behavior to DeviceMemoryResource.allocate()
             stream = default_stream()
-        cdef cydriver.CUmemPoolPtrExportData share_data
-        memcpy(share_data.reserved, <const void*><const char*>(ipc_buffer._reserved), sizeof(share_data.reserved))
+        cdef cydriver.CUmemPoolPtrExportData data
+        memcpy(data.reserved, <const void*><const char*>(ipc_buffer._reserved), sizeof(data.reserved))
         cdef cydriver.CUdeviceptr ptr
         with nogil:
-            HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._mempool_handle, &share_data))
+            HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._mempool_handle, &data))
         return Buffer._init(<intptr_t>ptr, ipc_buffer.size, mr, stream)
 
     def copy_to(self, dst: Buffer = None, *, stream: Stream) -> Buffer:
@@ -511,7 +511,7 @@ cdef class DeviceMemoryResourceOptions:
         (Default to 0)
     """
     ipc_enabled : cython.bint = False
-    max_size : cython.int = 0
+    max_size : cython.size_t = 0
 
 
 # TODO: cythonize this?
@@ -1089,10 +1089,10 @@ class _SynchronousMemoryResource(MemoryResource):
         return self._dev_id
 
 
-VirtualMemoryHandleTypeT = Literal["posix_fd", "generic", "none", "win32", "win32_kmt", "fabric"]
+VirtualMemoryHandleTypeT = Union[Literal["posix_fd", "generic", "win32", "win32_kmt", "fabric"], None]
 VirtualMemoryLocationTypeT = Literal["device", "host", "host_numa", "host_numa_current"]
 VirtualMemoryGranularityT = Literal["minimum", "recommended"]
-VirtualMemoryAccessTypeT = Literal["rw", "r", "none"]
+VirtualMemoryAccessTypeT = Union[Literal["rw", "r"], None]
 VirtualMemoryAllocationTypeT = Literal["pinned", "managed"]
 
 
@@ -1101,25 +1101,38 @@ class VirtualMemoryResourceOptions:
     """A configuration object for the VirtualMemoryResource
        Stores configuration information which tells the resource how to use the CUDA VMM APIs
 
-    Args:
-        handle_type: Export handle type for the physical allocation. Use
-            CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR on Linux if you plan to
-            import/export the allocation (required for cuMemRetainAllocationHandle).
-            Use CU_MEM_HANDLE_TYPE_NONE if you don't need an exportable handle.
-        gpu_direct_rdma: Hint that the allocation should be GDR-capable (if supported).
-        granularity: 'recommended' or 'minimum'. Controls granularity query and size rounding.
-        addr_hint: A (optional) virtual address hint to try to reserve at. 0 -> let CUDA choose.
-        addr_align: Alignment for the VA reservation. If None, use the queried granularity.
-        peers: Extra device IDs that should be granted access in addition to `device`.
-        self_access: Access flags for the owning device ('rw', 'r', or 'none').
-        peer_access: Access flags for peers ('rw' or 'r').
+    Attributes
+    ----------
+    allocation_type: :obj:`~_memory.VirtualMemoryAllocationTypeT`
+        Controls the type of allocation.
+    location_type: :obj:`~_memory.VirtualMemoryLocationTypeT`
+        Controls the location of the allocation.
+    handle_type: :obj:`~_memory.VirtualMemoryHandleTypeT`
+        Export handle type for the physical allocation. Use
+        ``"posix_fd"`` on Linux if you plan to
+        import/export the allocation (required for cuMemRetainAllocationHandle).
+        Use `None` if you don't need an exportable handle.
+    gpu_direct_rdma: bool
+        Hint that the allocation should be GDR-capable (if supported).
+    granularity: :obj:`~_memory.VirtualMemoryGranularityT`
+        Controls granularity query and size rounding.
+    addr_hint: int
+        A (optional) virtual address hint to try to reserve at. Setting it to 0 lets the CUDA driver decide.
+    addr_align: int
+        Alignment for the VA reservation. If `None`, use the queried granularity.
+    peers: Iterable[int]
+        Extra device IDs that should be granted access in addition to ``device``.
+    self_access: :obj:`~_memory.VirtualMemoryAccessTypeT`
+        Access flags for the owning device.
+    peer_access: :obj:`~_memory.VirtualMemoryAccessTypeT`
+        Access flags for peers.
     """
     # Human-friendly strings; normalized in __post_init__
     allocation_type: VirtualMemoryAllocationTypeT = "pinned"
     location_type: VirtualMemoryLocationTypeT = "device"
     handle_type: VirtualMemoryHandleTypeT = "posix_fd"
     granularity: VirtualMemoryGranularityT = "recommended"
-    gpu_direct_rdma: bool = True
+    gpu_direct_rdma: bool = False
     addr_hint: Optional[int] = 0
     addr_align: Optional[int] = None
     peers: Iterable[int] = field(default_factory=tuple)
@@ -1127,9 +1140,9 @@ class VirtualMemoryResourceOptions:
     peer_access: VirtualMemoryAccessTypeT = "rw"
 
     _a = driver.CUmemAccess_flags
-    _access_flags = {"rw": _a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": _a.CU_MEM_ACCESS_FLAGS_PROT_READ, "none": 0}
+    _access_flags = {"rw": _a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": _a.CU_MEM_ACCESS_FLAGS_PROT_READ, None: 0}
     _h = driver.CUmemAllocationHandleType
-    _handle_types = {"none": _h.CU_MEM_HANDLE_TYPE_NONE, "posix_fd": _h.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, "win32": _h.CU_MEM_HANDLE_TYPE_WIN32, "win32_kmt": _h.CU_MEM_HANDLE_TYPE_WIN32_KMT, "fabric": _h.CU_MEM_HANDLE_TYPE_FABRIC}
+    _handle_types = {None: _h.CU_MEM_HANDLE_TYPE_NONE, "posix_fd": _h.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, "win32": _h.CU_MEM_HANDLE_TYPE_WIN32, "win32_kmt": _h.CU_MEM_HANDLE_TYPE_WIN32_KMT, "fabric": _h.CU_MEM_HANDLE_TYPE_FABRIC}
     _g = driver.CUmemAllocationGranularity_flags
     _granularity = {"recommended": _g.CU_MEM_ALLOC_GRANULARITY_RECOMMENDED, "minimum": _g.CU_MEM_ALLOC_GRANULARITY_MINIMUM}
     _l = driver.CUmemLocationType
@@ -1201,6 +1214,11 @@ class VirtualMemoryResource(MemoryResource):
 
         if not device and self.config.location_type == "device":
             raise ValueError("VirtualMemoryResource requires a device for device memory allocations")
+
+        # Validate RDMA support if requested
+        if self.config.gpu_direct_rdma and self.device is not None:
+            if not self.device.properties.gpu_direct_rdma_supported:
+                raise RuntimeError("GPU Direct RDMA is not supported on this device")
 
     @staticmethod
     def _align_up(size: int, gran: int) -> int:

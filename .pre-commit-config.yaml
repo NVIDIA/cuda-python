@@ -77,6 +77,7 @@ repos:
     rev: "03d0035246f3e81f36aed592ffb4bebf33a03106"  # frozen: v1.7.7
     hooks:
       - id: actionlint
+        args: ["-shellcheck="]
 
   - repo: https://github.com/MarcoGorelli/cython-lint
     rev: "d9ff7ce99ef4f2ae8fba93079ca9d76c4651d4ac"  # frozen: v0.18.0

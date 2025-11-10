@@ -1,0 +1,63 @@
+{
+  "labels": ["ai-review"],
+  "comment": "",
+  "fixWithAI": true,
+  "strictness": 3,
+  "commentTypes": [
+    "logic"
+  ],
+  "instructions": "",
+  "excludeAuthors": [
+    "dependabot[bot]",
+    "renovate[bot]"
+  ],
+  "ignorePatterns": "greptile.json\n",
+  "summarySection": {
+    "included": true,
+    "collapsible": true,
+    "defaultOpen": false
+  },
+  "includeBranches": [
+    "main"
+  ],
+  "triggerOnUpdates": false,
+  "issuesTableSection": {
+    "included": false,
+    "collapsible": false,
+    "defaultOpen": false
+  },
+  "statusCommentsEnabled": false,
+  "confidenceScoreSection": {
+    "included": false,
+    "collapsible": false,
+    "defaultOpen": false
+  },
+  "sequenceDiagramSection": {
+    "included": false,
+    "collapsible": false,
+    "defaultOpen": false
+  },
+  "shouldUpdateDescription": false,
+  "customContext": {
+    "other": [
+      {
+        "scope": [],
+        "content": ""
+      }
+    ],
+    "rules": [
+      {
+        "scope": [],
+        "rule": ""
+      }
+    ],
+    "files": [
+      {
+        "scope": [],
+        "path": "",
+        "description": ""
+      }
+    ]
+  },
+  "skipReviews": "AUTOMATIC"
+}

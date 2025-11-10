@@ -28,12 +28,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
-          - "3.13t"
           - "3.14"
           - "3.14t"
     name: py${{ matrix.python-version }}
@@ -45,6 +43,19 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: 0
+
+      # The env vars ACTIONS_CACHE_SERVICE_V2, ACTIONS_RESULTS_URL, and ACTIONS_RUNTIME_TOKEN
+      # are exposed by this action.
+      - name: Enable sccache
+        uses: mozilla-actions/sccache-action@7d986dd989559c6ecdb630a3fd2557667be217ad  # 0.0.9
+
+      # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
+      - name: Adding addtional GHA cache-related env vars
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'])
+            core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'])
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -120,7 +131,7 @@ jobs:
           cuda-version: ${{ inputs.cuda-version }}
 
       - name: Build cuda.bindings wheel
-        uses: pypa/cibuildwheel@7c619efba910c04005a835b110b057fc28fd6e93  # v3.2.0
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
         with:
           package-dir: ./cuda_bindings/
           output-dir: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
@@ -130,9 +141,27 @@ jobs:
           CIBW_ENVIRONMENT_LINUX: >
             CUDA_PATH=/host/${{ env.CUDA_PATH }}
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+            CC="/host/${{ env.SCCACHE_PATH }} cc"
+            CXX="/host/${{ env.SCCACHE_PATH }} c++"
+            SCCACHE_GHA_ENABLED=true
+            ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
+            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
+            ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
+            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
+            ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
+            SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
+            SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
+          # check cache stats before leaving cibuildwheel
+          CIBW_BEFORE_TEST_LINUX: >
+            "/host/${{ env.SCCACHE_PATH }}" --show-stats
+          # force the test stage to be run (so that before-test is not skipped)
+          # TODO: we might want to think twice on adding this, it does a lot of
+          # things before reaching this command.
+          CIBW_TEST_COMMAND: >
+            echo "ok!"
 
       - name: List the cuda.bindings artifacts directory
         run: |
@@ -156,7 +185,7 @@ jobs:
           if-no-files-found: error
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6  # v3.1.4
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -168,11 +197,29 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
             PIP_FIND_LINKS=/host/${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+            CC="/host/${{ env.SCCACHE_PATH }} cc"
+            CXX="/host/${{ env.SCCACHE_PATH }} c++"
+            SCCACHE_GHA_ENABLED=true
+            ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
+            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
+            ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
+            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
+            ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
+            SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
+            SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_CUDA_MAJOR }}
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
+          # check cache stats before leaving cibuildwheel
+          CIBW_BEFORE_TEST_LINUX: >
+            "/host${{ env.SCCACHE_PATH }}" --show-stats
+          # force the test stage to be run (so that before-test is not skipped)
+          # TODO: we might want to think twice on adding this, it does a lot of
+          # things before reaching this command.
+          CIBW_TEST_COMMAND: >
+            echo "ok!"
 
       - name: List the cuda.core artifacts directory and rename
         run: |
@@ -287,9 +334,7 @@ jobs:
           cuda-path: "./cuda_toolkit_prev"
 
       - name: Download cuda.bindings build artifacts from the prior branch
-        if: ${{ matrix.python-version == '3.13t'
-                || matrix.python-version == '3.14'
-                || matrix.python-version == '3.14t' }}
+        if: startsWith(matrix.python-version, '3.14')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -321,7 +366,7 @@ jobs:
           rmdir $OLD_BASENAME
 
       - name: Build cuda.core wheel
-        uses: pypa/cibuildwheel@c923d83ad9c1bc00211c5041d0c3f73294ff88f6  # v3.1.4
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c  # v3.2.1
         with:
           package-dir: ./cuda_core/
           output-dir: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
@@ -333,11 +378,29 @@ jobs:
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
             PIP_FIND_LINKS=/host/${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+            CC="/host/${{ env.SCCACHE_PATH }} cc"
+            CXX="/host/${{ env.SCCACHE_PATH }} c++"
+            SCCACHE_GHA_ENABLED=true
+            ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
+            ACTIONS_RUNTIME_URL=${{ env.ACTIONS_RUNTIME_URL }}
+            ACTIONS_RESULTS_URL=${{ env.ACTIONS_RESULTS_URL }}
+            ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
+            ACTIONS_CACHE_SERVICE_V2=${{ env.ACTIONS_CACHE_SERVICE_V2 }}
+            SCCACHE_DIR=/host/${{ env.SCCACHE_DIR }}
+            SCCACHE_CACHE_SIZE=${{ env.SCCACHE_CACHE_SIZE }}
           CIBW_ENVIRONMENT_WINDOWS: >
             CUDA_PATH="$(cygpath -w ${{ env.CUDA_PATH }})"
             CUDA_PYTHON_PARALLEL_LEVEL=${{ env.CUDA_PYTHON_PARALLEL_LEVEL }}
             CUDA_CORE_BUILD_MAJOR=${{ env.BUILD_PREV_CUDA_MAJOR }}
             PIP_FIND_LINKS="$(cygpath -w ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }})"
+          # check cache stats before leaving cibuildwheel
+          CIBW_BEFORE_TEST_LINUX: >
+            "/host${{ env.SCCACHE_PATH }}" --show-stats
+          # force the test stage to be run (so that before-test is not skipped)
+          # TODO: we might want to think twice on adding this, it does a lot of
+          # things before reaching this command.
+          CIBW_TEST_COMMAND: >
+            echo "ok!"
 
       - name: List the cuda.core artifacts directory and rename
         run: |

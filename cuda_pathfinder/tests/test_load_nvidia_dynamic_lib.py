@@ -1,19 +1,18 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import functools
 import json
 import os
+import platform
 from unittest.mock import patch
 
 import pytest
 import spawned_process_runner
 from child_load_nvidia_dynamic_lib_helper import build_child_process_failed_for_libname_message, child_process_func
+from local_helpers import have_distribution
 
-from cuda.pathfinder import SUPPORTED_NVIDIA_LIBNAMES, load_nvidia_dynamic_lib
+from cuda.pathfinder import load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
-from cuda.pathfinder._utils.find_site_packages_dll import find_all_dll_files_via_metadata
-from cuda.pathfinder._utils.find_site_packages_so import find_all_so_files_via_metadata
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
 
 STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
@@ -71,28 +70,25 @@ def test_runtime_error_on_non_64bit_python():
         load_nvidia_dynamic_lib("not_used")
 
 
-@functools.cache
-def _get_libnames_for_test_load_nvidia_dynamic_lib():
-    result = list(SUPPORTED_NVIDIA_LIBNAMES)
-    if IS_WINDOWS:
-        spld_other = supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_WINDOWS_OTHER
-        all_dyn_libs = find_all_dll_files_via_metadata()
-        for libname in spld_other:
-            for dll_name in all_dyn_libs:
-                if dll_name.startswith(libname):
-                    result.append(libname)
-    else:
-        spld_other = supported_nvidia_libs.SITE_PACKAGES_LIBDIRS_LINUX_OTHER
-        all_dyn_libs = find_all_so_files_via_metadata()
-        for libname in spld_other:
-            so_basename = f"lib{libname}.so"
-            if so_basename in all_dyn_libs:
-                result.append(libname)
-
-    return tuple(result)
+IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
+    "cufftMp": r"^nvidia-cufftmp-.*$",
+    "mathdx": r"^nvidia-libmathdx-.*$",
+}
 
 
-@pytest.mark.parametrize("libname", _get_libnames_for_test_load_nvidia_dynamic_lib())
+def _is_expected_load_nvidia_dynamic_lib_failure(libname):
+    if libname == "nvpl_fftw" and platform.machine().lower() != "aarch64":
+        return True
+    dist_name_pattern = IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES.get(libname)
+    if dist_name_pattern is not None:
+        return not have_distribution(dist_name_pattern)
+    return False
+
+
+@pytest.mark.parametrize(
+    "libname",
+    supported_nvidia_libs.SUPPORTED_WINDOWS_DLLS if IS_WINDOWS else supported_nvidia_libs.SUPPORTED_LINUX_SONAMES,
+)
 def test_load_nvidia_dynamic_lib(info_summary_append, libname):
     # We intentionally run each dynamic library operation in a child process
     # to ensure isolation of global dynamic linking state (e.g., dlopen handles).
@@ -108,7 +104,7 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
         raise_child_process_failed()
     assert not result.stderr
     if result.stdout.startswith("CHILD_LOAD_NVIDIA_DYNAMIC_LIB_HELPER_DYNAMIC_LIB_NOT_FOUND_ERROR:"):
-        if STRICTNESS == "all_must_work":
+        if STRICTNESS == "all_must_work" and not _is_expected_load_nvidia_dynamic_lib_failure(libname):
             raise_child_process_failed()
         info_summary_append(f"Not found: {libname=!r}")
     else:

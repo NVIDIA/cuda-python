@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 13.0.2. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.0.2. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -18,12 +18,7 @@ ctypedef CUfileBatchHandle_t BatchHandle
 ctypedef CUfileError_t Error
 ctypedef cufileRDMAInfo_t RDMAInfo
 ctypedef CUfileFSOps_t FSOps
-ctypedef CUfileOpCounter_t OpCounter
-ctypedef CUfilePerGpuStats_t PerGpuStats
 ctypedef CUfileDrvProps_t DrvProps
-ctypedef CUfileStatsLevel1_t StatsLevel1
-ctypedef CUfileStatsLevel2_t StatsLevel2
-ctypedef CUfileStatsLevel3_t StatsLevel3
 
 
 ###############################################################################
@@ -52,8 +47,6 @@ cpdef intptr_t handle_register(intptr_t descr) except? 0
 cpdef void handle_deregister(intptr_t fh) except*
 cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags)
 cpdef buf_deregister(intptr_t buf_ptr_base)
-cpdef read(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset)
-cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset)
 cpdef driver_open()
 cpdef use_count()
 cpdef driver_get_properties(intptr_t props)
@@ -77,3 +70,15 @@ cpdef str get_parameter_string(int param, int len)
 cpdef set_parameter_size_t(int param, size_t value)
 cpdef set_parameter_bool(int param, bint value)
 cpdef set_parameter_string(int param, intptr_t desc_str)
+cpdef tuple get_parameter_min_max_value(int param)
+cpdef set_stats_level(int level)
+cpdef int get_stats_level() except? 0
+cpdef stats_start()
+cpdef stats_stop()
+cpdef stats_reset()
+cpdef get_stats_l1(intptr_t stats)
+cpdef get_stats_l2(intptr_t stats)
+cpdef get_stats_l3(intptr_t stats)
+cpdef size_t get_bar_size_in_kb(int gpu_ind_ex) except? 0
+cpdef set_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len)
+cpdef get_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len)
