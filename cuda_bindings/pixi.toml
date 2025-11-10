@@ -57,6 +57,7 @@ cuda-nvrtc-dev = "*"
 cuda-profiler-api = "*"
 cuda-nvvm = "*"
 ccache = "*"
+gxx = "*"
 
 [package.host-dependencies]
 python = "*"
