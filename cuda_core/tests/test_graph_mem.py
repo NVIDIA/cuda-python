@@ -60,7 +60,7 @@ class GraphMemoryTestManager:
     def alloc(self, num, nbytes):
         """Allocate num buffers of size nbytes from graph memory."""
         gb = self.device.create_graph_builder().begin_building(self.mode)
-        buffers = [self.gmr.allocate(nbytes, stream=gb.stream) for _ in range(num)]
+        buffers = [self.gmr.allocate(nbytes, stream=gb) for _ in range(num)]
         graph = gb.end_building().complete()
         graph.upload(self.stream)
         graph.launch(self.stream)
@@ -104,7 +104,7 @@ def test_graph_alloc(init_cuda, mode):
     else:
         # Capture work, then upload and launch.
         gb = device.create_graph_builder().begin_building(mode)
-        apply_kernels(mr=gmr, stream=gb.stream, out=out)
+        apply_kernels(mr=gmr, stream=gb, out=out)
         graph = gb.end_building().complete()
         graph.upload(stream)
         graph.launch(stream)
@@ -135,8 +135,8 @@ def test_graph_alloc_with_output(init_cuda, mode):
     # buffer allocated within the graph.  The auto_free_on_launch option
     # is required to properly use the output buffer.
     gb = device.create_graph_builder().begin_building(mode)
-    out = gmr.allocate(NBYTES, gb.stream)
-    out.copy_from(in_, stream=gb.stream)
+    out = gmr.allocate(NBYTES, gb)
+    out.copy_from(in_, stream=gb)
     launch(gb, LaunchConfig(grid=1, block=1), add_one, out, NBYTES)
     options = GraphCompleteOptions(auto_free_on_launch=True)
     graph = gb.end_building().complete(options)
@@ -234,7 +234,7 @@ def test_gmr_check_capture_state(init_cuda, mode):
 
    # Capturing
    gb = device.create_graph_builder().begin_building(mode=mode)
-   buffer = gmr.allocate(1, stream=gb.stream).close()  # no error
+   buffer = gmr.allocate(1, stream=gb).close()  # no error
    gb.end_building().complete()
 
 
@@ -257,6 +257,6 @@ def test_dmr_check_capture_state(init_cuda, mode):
        match=r"DeviceMemoryResource cannot perform memory operations on a capturing "
              r"stream \(consider using GraphMemoryResource\)\."
    ):
-       dmr.allocate(1, stream=gb.stream)
+       dmr.allocate(1, stream=gb)
    gb.end_building().complete()
 

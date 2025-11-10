@@ -8,11 +8,11 @@ from libc.stdint cimport uintptr_t, intptr_t, uint64_t
 
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
-from cuda.core.experimental._stream cimport Stream
+from cuda.core.experimental._stream cimport default_stream, Stream
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 from functools import cache
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from cuda.core.experimental._utils.cuda_utils import driver
 
@@ -99,13 +99,22 @@ cdef class cyGraphMemoryResource(MemoryResource):
     def __cinit__(self, int device_id):
         self._dev_id = device_id
 
-    def allocate(self, size_t size, Stream stream = None) -> Buffer:
-        return GMR_allocate(self, size, stream)
+    def allocate(self, size_t size, stream: Optional[IsStreamT] = None) -> Buffer:
+        """
+        Allocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
+        """
+        stream = Stream._init(stream) if stream is not None else default_stream()
+        return GMR_allocate(self, size, <Stream> stream)
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, Stream stream = None):
-        return GMR_deallocate(ptr, size, stream)
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Optional[IsStreamT] = None):
+        """
+        Deallocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
+        """
+        stream = Stream._init(stream) if stream is not None else default_stream()
+        return GMR_deallocate(ptr, size, <Stream> stream)
 
     def close(self):
+        """No operation (provided for compatibility)."""
         pass
 
     def trim(self):

@@ -15,9 +15,10 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 )
 
 import abc
-from typing import TypeVar, Union
+from typing import Optional, TypeVar, Union
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
+from cuda.core.experimental._stream import IsStreamT
 from cuda.core.experimental._utils.cuda_utils import driver
 
 __all__ = ['Buffer', 'MemoryResource']
@@ -116,7 +117,7 @@ cdef class Buffer:
         """
         Buffer_close(self, stream)
 
-    def copy_to(self, dst: Buffer = None, *, stream: Stream) -> Buffer:
+    def copy_to(self, dst: Buffer = None, *, stream: IsStreamT) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
         Copies the data from this buffer to the provided dst buffer.
@@ -127,13 +128,12 @@ cdef class Buffer:
         ----------
         dst : :obj:`~_memory.Buffer`
             Source buffer to copy data from
-        stream : Stream
+        stream : IsStreamT
             Keyword argument specifying the stream for the
             asynchronous copy
 
         """
-        if stream is None:
-            raise ValueError("stream must be provided")
+        stream = Stream._init(stream)
 
         cdef size_t src_size = self._size
 
@@ -152,20 +152,19 @@ cdef class Buffer:
         raise_if_driver_error(err)
         return dst
 
-    def copy_from(self, src: Buffer, *, stream: Stream):
+    def copy_from(self, src: Buffer, *, stream: IsStreamT):
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 
         Parameters
         ----------
         src : :obj:`~_memory.Buffer`
             Source buffer to copy data from
-        stream : Stream
+        stream : IsStreamT
             Keyword argument specifying the stream for the
             asynchronous copy
 
         """
-        if stream is None:
-            raise ValueError("stream must be provided")
+        stream = Stream._init(stream)
 
         cdef size_t dst_size = self._size
         cdef size_t src_size = src._size
@@ -305,14 +304,14 @@ cdef class MemoryResource:
     """
 
     @abc.abstractmethod
-    def allocate(self, size_t size, stream: Stream = None) -> Buffer:
+    def allocate(self, size_t size, stream: Optional[IsStreamT] = None) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : Stream, optional
+        stream : IsStreamT, optional
             The stream on which to perform the allocation asynchronously.
             If None, it is up to each memory resource implementation to decide
             and document the behavior.
@@ -326,7 +325,7 @@ cdef class MemoryResource:
         ...
 
     @abc.abstractmethod
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Optional[IsStreamT] = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -335,7 +334,7 @@ cdef class MemoryResource:
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : Stream, optional
+        stream : IsStreamT, optional
             The stream on which to perform the deallocation asynchronously.
             If None, it is up to each memory resource implementation to decide
             and document the behavior.

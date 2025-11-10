@@ -308,14 +308,14 @@ cdef class DeviceMemoryResource(MemoryResource):
             raise RuntimeError("Imported memory resource cannot be exported")
         return self._ipc_data._alloc_handle
 
-    def allocate(self, size_t size, stream: Stream = None) -> Buffer:
+    def allocate(self, size_t size, stream: Optional[IsStreamT] = None) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : Stream, optional
+        stream : IsStreamT, optional
             The stream on which to perform the allocation asynchronously.
             If None, an internal stream is used.
 
@@ -327,11 +327,10 @@ cdef class DeviceMemoryResource(MemoryResource):
         """
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
-        if stream is None:
-            stream = default_stream()
-        return DMR_allocate(self, size, <Stream>stream)
+        stream = Stream._init(stream) if stream is not None else default_stream()
+        return DMR_allocate(self, size, <Stream> stream)
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Optional[IsStreamT] = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -340,12 +339,13 @@ cdef class DeviceMemoryResource(MemoryResource):
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : Stream, optional
+        stream : IsStreamT, optional
             The stream on which to perform the deallocation asynchronously.
             If the buffer is deallocated without an explicit stream, the allocation stream
             is used.
         """
-        DMR_deallocate(self, <uintptr_t>ptr, size, <Stream>stream)
+        stream = Stream._init(stream) if stream is not None else default_stream()
+        DMR_deallocate(self, <uintptr_t>ptr, size, <Stream> stream)
 
     @property
     def attributes(self) -> DeviceMemoryResourceAttributes:

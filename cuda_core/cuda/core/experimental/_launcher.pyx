@@ -37,13 +37,13 @@ def _lazy_init():
     _inited = True
 
 
-def launch(stream: Union[Stream, IsStreamT], config: LaunchConfig, kernel: Kernel, *kernel_args):
+def launch(stream: IsStreamT, config: LaunchConfig, kernel: Kernel, *kernel_args):
     """Launches a :obj:`~_module.Kernel`
     object with launch-time configuration.
 
     Parameters
     ----------
-    stream : :obj:`~_stream.Stream`
+    stream : :obj:`~_stream.IsStreamT`
         The stream establishing the stream ordering semantic of a
         launch.
     config : :obj:`LaunchConfig`
