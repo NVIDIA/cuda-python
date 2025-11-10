@@ -567,7 +567,20 @@
 <h1>cuda.core.experimental.utils.StridedMemoryView<a class="headerlink" href="#cuda-core-experimental-utils-stridedmemoryview" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental.utils.StridedMemoryView">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.utils.</span></span><span class="sig-name descname"><span class="pre">StridedMemoryView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_ptr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.utils.StridedMemoryView" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.utils.</span></span><span class="sig-name descname"><span class="pre">StridedMemoryView</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">ptr:</span> <span class="pre">intptr_t</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">device_id:</span> <span class="pre">int</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">is_device_accessible:</span> <span class="pre">bint</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">readonly:</span> <span class="pre">bint</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">metadata:</span> <span class="pre">object</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">exporting_obj:</span> <span class="pre">object</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">intptr_t</span> <span class="pre">dl_tensor:</span> <span class="pre">intptr_t</span> <span class="pre">=</span> <span class="pre">0</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.utils.StridedMemoryView" title="Link to this definition">#</a></dt>
 <dd><p>A dataclass holding metadata of a strided dense array/tensor.</p>
 <p>A <a class="reference internal" href="#cuda.core.experimental.utils.StridedMemoryView" title="cuda.core.experimental.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> instance can be created in two ways:</p>
 <blockquote>
