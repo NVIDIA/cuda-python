@@ -4,8 +4,6 @@
 
 from libc.stdint cimport uintptr_t
 
-from cuda.core.experimental._stream cimport _try_to_get_stream_ptr
-
 from typing import Union
 
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
@@ -58,17 +56,7 @@ def launch(stream: Union[Stream, IsStreamT], config: LaunchConfig, kernel: Kerne
         launching kernel.
 
     """
-    if stream is None:
-        raise ValueError("stream cannot be None, stream must either be a Stream object or support __cuda_stream__")
-    try:
-        stream_handle = stream.handle
-    except AttributeError:
-        try:
-            stream_handle = driver.CUstream(<uintptr_t>(_try_to_get_stream_ptr(stream)))
-        except Exception:
-            raise ValueError(
-                f"stream must either be a Stream object or support __cuda_stream__ (got {type(stream)})"
-            ) from None
+    stream = Stream._init(stream)
     assert_type(kernel, Kernel)
     _lazy_init()
     config = check_or_create_options(LaunchConfig, config, "launch config")
@@ -85,7 +73,7 @@ def launch(stream: Union[Stream, IsStreamT], config: LaunchConfig, kernel: Kerne
     # rich.
     if _use_ex:
         drv_cfg = _to_native_launch_config(config)
-        drv_cfg.hStream = stream_handle
+        drv_cfg.hStream = stream.handle
         if config.cooperative_launch:
             _check_cooperative_launch(kernel, config, stream)
         handle_return(driver.cuLaunchKernelEx(drv_cfg, int(kernel._handle), args_ptr, 0))
@@ -93,12 +81,12 @@ def launch(stream: Union[Stream, IsStreamT], config: LaunchConfig, kernel: Kerne
         # TODO: check if config has any unsupported attrs
         handle_return(
             driver.cuLaunchKernel(
-                int(kernel._handle), *config.grid, *config.block, config.shmem_size, stream_handle, args_ptr, 0
+                int(kernel._handle), *config.grid, *config.block, config.shmem_size, stream.handle, args_ptr, 0
             )
         )
 
 
-def _check_cooperative_launch(kernel: Kernel, config: LaunchConfig, stream: Stream):
+cdef _check_cooperative_launch(kernel: Kernel, config: LaunchConfig, stream: Stream):
     dev = stream.device
     num_sm = dev.properties.multiprocessor_count
     max_grid_size = (
