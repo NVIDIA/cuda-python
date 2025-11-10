@@ -20,12 +20,11 @@ depends-on = [{ task = "build-cython-tests" }]
 [dependencies]
 cuda-bindings = { path = "." }
 libnvjitlink = "*"
-cuda-nvrtc-dev = "*"
-cuda-profiler-api = "*"
+cuda-nvrtc = "*"
 cuda-nvvm = "*"
 
 [target.linux.dependencies]
-libcufile-dev = "*"
+libcufile = "*"
 
 [feature.test.dependencies]
 pytest = ">=6.2.4"
@@ -55,15 +54,8 @@ cuda = "13"
 [feature.cu13.dependencies]
 cuda-version = "13.*"
 
-[feature.cu12.system-requirements]
-cuda = "12"
-
-[feature.cu12.dependencies]
-cuda-version = "12.*"
-
 [environments]
 cu13 = { features = ["cu13", "test", "cython-tests"], solve-group = "cu13" }
-cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
 
 [target.linux-64.activation.env]
 CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
