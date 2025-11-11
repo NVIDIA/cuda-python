@@ -1206,10 +1206,15 @@ class VirtualMemoryResource(MemoryResource):
         self.config = check_or_create_options(
             VirtualMemoryResourceOptions, config, "VirtualMemoryResource options", keep_none=False
         )
-        if self.config.location_type == "host":
+        # Matches ("host", "host_numa", "host_numa_current")
+        if "host" in self.config.location_type:
             self.device = None
-        if platform.system() == "Windows":
-            raise NotImplementedError("VirtualMemoryResource is not supported on Windows")
+
+        if not self.device and self.config.location_type == "device":
+            raise RuntimeError("VirtualMemoryResource requires a device for device memory allocations")
+
+        if self.device and not self.device.properties.virtual_memory_management_supported:
+            raise RuntimeError("VirtualMemoryResource requires CUDA VMM API support")
 
         # Validate RDMA support if requested
         if self.config.gpu_direct_rdma and self.device is not None:
