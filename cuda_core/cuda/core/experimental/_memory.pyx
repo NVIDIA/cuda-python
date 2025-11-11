@@ -1210,7 +1210,7 @@ class VirtualMemoryResource(MemoryResource):
             self.device = None
 
         if device and not device.properties.virtual_memory_management_supported:
-            raise NotImplementedError("VirtualMemoryResource requires CUDA VMM API support")
+            raise RuntimeError("VirtualMemoryResource requires CUDA VMM API support")
 
         if not device and self.config.location_type == "device":
             raise ValueError("VirtualMemoryResource requires a device for device memory allocations")
