@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.get\_version
-=================================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autofunction:: get_version
