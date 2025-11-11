@@ -12,7 +12,7 @@ python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 
 [dependencies]
 cuda-bindings = { path = "." }
-pip = ">=25.3,<26"  # installed to the workspace for convenience
+pip = "*"  # installed to the workspace for convenience
 
 [feature.test.dependencies]
 pytest = ">=6.2.4"
@@ -81,7 +81,7 @@ CUDA_HOME = "$PREFIX/targets/sbsa-linux"
 [package.build.target.win-64.config.env]
 CUDA_HOME = '%PREFIX%\Library'
 
-# TODO: revisit this once prefix-dev/pixi#4906 is resolved
+# TODO: revisit this
 # [package.build-dependencies]
 # ccache = "*"
 
