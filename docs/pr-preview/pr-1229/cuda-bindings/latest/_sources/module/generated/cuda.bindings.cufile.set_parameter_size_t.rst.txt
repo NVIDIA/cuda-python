@@ -1,0 +1,6 @@
+﻿cuda.bindings.cufile.set\_parameter\_size\_t
+============================================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autofunction:: set_parameter_size_t
