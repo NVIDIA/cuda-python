@@ -14,6 +14,7 @@ import cuda.core.experimental
 import numpy as np
 import pytest
 from cuda.core.experimental import Device
+from cuda.core.experimental._memoryview import view_as_cai
 from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
 
 
@@ -77,7 +78,7 @@ class TestViewCPU:
 
     def test_strided_memory_view_cpu(self, in_arr):
         # stream_ptr=-1 means "the consumer does not care"
-        view = StridedMemoryView.from_any_interface(in_arr, stream_ptr=-1)
+        view = StridedMemoryView(in_arr, stream_ptr=-1)
         self._check_view(view, in_arr)
 
     def _check_view(self, view, in_arr):
@@ -146,7 +147,7 @@ class TestViewGPU:
         # This is the consumer stream
         s = dev.create_stream() if use_stream else None
 
-        view = StridedMemoryView.from_any_interface(in_arr, stream_ptr=s.handle if s else -1)
+        view = StridedMemoryView(in_arr, stream_ptr=s.handle if s else -1)
         self._check_view(view, in_arr, dev)
 
     def _check_view(self, view, in_arr, dev):
@@ -178,7 +179,7 @@ class TestViewCudaArrayInterfaceGPU:
         # The usual path in `StridedMemoryView` prefers the DLPack interface
         # over __cuda_array_interface__, so we call `view_as_cai` directly
         # here so we can test the CAI code path.
-        view = StridedMemoryView.from_cuda_array_interface(in_arr, stream_ptr=s.handle if s else -1)
+        view = view_as_cai(in_arr, stream_ptr=s.handle if s else -1)
         self._check_view(view, in_arr, dev)
 
     def _check_view(self, view, in_arr, dev):
