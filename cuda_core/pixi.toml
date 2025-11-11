@@ -98,8 +98,8 @@ setuptools = ">=77"
 cython = ">=3.1"
 cuda-cudart-dev = "*"
 cuda-profiler-api = "*"
-# TODO: figure out if we can build cuda-bindings from source via relative path
-cuda-bindings = "*"
+# TODO: figure out why we can't set editable=true here
+cuda-bindings = { path = "../cuda_bindings" }
 
 [package.target.linux-64.host-dependencies]
 cuda-crt-dev_linux-64 = "*"
@@ -113,8 +113,8 @@ cuda-crt-dev_win-64 = "*"
 [package.run-dependencies]
 python = "*"
 numpy = "*"
-# TODO: figure out if we can build cuda-bindings from source via relative path
-cuda-bindings = "*"
+# TODO: figure out why we can't set editable=true here
+cuda-bindings = { path = "../cuda_bindings" }
 
 [target.linux.tasks.build-cython-tests]
 cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
