@@ -4,7 +4,7 @@
 
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer
-from cuda.core.experimental._memory._dmr cimport DeviceMemoryResource
+from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
 
 
 # Holds DeviceMemoryResource objects imported by this process.  This enables

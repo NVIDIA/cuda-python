@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from ._buffer import *  # noqa: F403
-from ._dmr import *  # noqa: F403
+from ._device_memory_resource import *  # noqa: F403
 from ._ipc import *  # noqa: F403
 from ._legacy import *  # noqa: F403
-from ._vmm import *  # noqa: F403
+from ._virtual_memory_resource import *  # noqa: F403

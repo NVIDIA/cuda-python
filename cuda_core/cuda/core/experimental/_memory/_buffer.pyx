@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from libc.stdint cimport uintptr_t
 
-from cuda.core.experimental._memory._dmr cimport DeviceMemoryResource
+from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
 from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._stream cimport default_stream, Stream
