@@ -646,7 +646,7 @@ associated MMR.</p>
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.allocate" title="Link to this definition">#</a></dt>
@@ -672,7 +672,8 @@ resource was created for.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.DeviceMemoryResource.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.close" title="Link to this definition">#</a></dt>
-<dd><p>Close the device memory resource and destroy the associated memory pool if owned.</p>
+<dd><p>Close the device memory resource and destroy the associated memory pool
+if owned.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -683,7 +684,7 @@ resource was created for.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">ptr:</span> <span class="pre">DevicePointerT</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.DeviceMemoryResource.deallocate" title="Link to this definition">#</a></dt>
@@ -691,7 +692,7 @@ resource was created for.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptr</strong> (<a class="reference internal" href="cuda.core.experimental._memory.DevicePointerT.html#cuda.core.experimental._memory.DevicePointerT" title="cuda.core.experimental._memory.DevicePointerT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code></a>) – The pointer or handle to the buffer to deallocate.</p></li>
+<li><p><strong>ptr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code>) – The pointer or handle to the buffer to deallocate.</p></li>
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to deallocate, in bytes.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – The stream on which to perform the deallocation asynchronously.
 If the buffer is deallocated without an explicit stream, the allocation stream
@@ -721,7 +722,9 @@ the resource is associated with the specified <cite>device_id</cite>.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>device_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference internal" href="cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><em>Device</em></a>) – The ID of the device or a Device object for which the memory
 resource is created.</p></li>
-<li><p><strong>alloc_handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference internal" href="cuda.core.experimental._memory.IPCAllocationHandle.html#cuda.core.experimental._memory.IPCAllocationHandle" title="cuda.core.experimental._memory.IPCAllocationHandle"><em>IPCAllocationHandle</em></a>) – The shareable handle of the device memory resource to import.</p></li>
+<li><p><strong>alloc_handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference internal" href="cuda.core.experimental._memory.IPCAllocationHandle.html#cuda.core.experimental._memory.IPCAllocationHandle" title="cuda.core.experimental._memory.IPCAllocationHandle"><em>IPCAllocationHandle</em></a>) – The shareable handle of the device memory resource to import. If an
+integer is supplied, it must represent a valid platform-specific
+handle. It is the caller’s responsibility to close that handle.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

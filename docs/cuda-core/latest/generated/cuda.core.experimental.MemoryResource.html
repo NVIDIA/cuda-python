@@ -568,12 +568,14 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.experimental.MemoryResource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">MemoryResource</span></span><a class="headerlink" href="#cuda.core.experimental.MemoryResource" title="Link to this definition">#</a></dt>
-<dd><p>Abstract base class for memory resources that manage allocation and deallocation of buffers.</p>
-<p>Subclasses must implement methods for allocating and deallocation, as well as properties
-associated with this memory resource from which all allocated buffers will inherit. (Since
-all <a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> instances allocated and returned by the <a class="reference internal" href="#cuda.core.experimental.MemoryResource.allocate" title="cuda.core.experimental.MemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">allocate()</span></code></a> method would
-hold a reference to self, the buffer properties are retrieved simply by looking up the underlying
-memory resource’s respective property.)</p>
+<dd><p>Abstract base class for memory resources that manage allocation and
+deallocation of buffers.</p>
+<p>Subclasses must implement methods for allocating and deallocation, as well
+as properties associated with this memory resource from which all allocated
+buffers will inherit. (Since all <a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> instances allocated and
+returned by the <a class="reference internal" href="#cuda.core.experimental.MemoryResource.allocate" title="cuda.core.experimental.MemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">allocate()</span></code></a> method would hold a reference to self, the
+buffer properties are retrieved simply by looking up the underlying memory
+resource’s respective property.)</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.MemoryResource.__init__">
@@ -587,7 +589,7 @@ memory resource’s respective property.)</p>
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.MemoryResource.allocate" title="Link to this definition">#</a></dt>
@@ -619,7 +621,7 @@ depending on the resource’s properties.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">ptr:</span> <span class="pre">DevicePointerT</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.MemoryResource.deallocate" title="Link to this definition">#</a></dt>
@@ -627,49 +629,12 @@ depending on the resource’s properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptr</strong> (<a class="reference internal" href="cuda.core.experimental._memory.DevicePointerT.html#cuda.core.experimental._memory.DevicePointerT" title="cuda.core.experimental._memory.DevicePointerT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code></a>) – The pointer or handle to the buffer to deallocate.</p></li>
+<li><p><strong>ptr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code>) – The pointer or handle to the buffer to deallocate.</p></li>
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to deallocate, in bytes.</p></li>
 <li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – The stream on which to perform the deallocation asynchronously.
 If None, it is up to each memory resource implementation to decide
 and document the behavior.</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-<p class="rubric">Attributes</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.MemoryResource.device_id">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.experimental.MemoryResource.device_id" title="Link to this definition">#</a></dt>
-<dd><p>The device ordinal for which this memory resource is responsible.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If the resource is not bound to a specific device.</p>
-</dd>
-<dt class="field-even">Type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.MemoryResource.is_device_accessible">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_device_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.MemoryResource.is_device_accessible" title="Link to this definition">#</a></dt>
-<dd><p>True if buffers allocated by this resource can be accessed on the device.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.MemoryResource.is_host_accessible">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_host_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.experimental.MemoryResource.is_host_accessible" title="Link to this definition">#</a></dt>
-<dd><p>True if buffers allocated by this resource can be accessed on the host.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -731,9 +696,6 @@ and document the behavior.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.MemoryResource.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.MemoryResource.allocate"><code class="docutils literal notranslate"><span class="pre">allocate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.MemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">deallocate()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.MemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">device_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.MemoryResource.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">is_device_accessible</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.MemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">is_host_accessible</span></code></a></li>
 </ul>
 </li>
 </ul>
