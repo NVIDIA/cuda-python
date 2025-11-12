@@ -6,16 +6,14 @@ cimport cpython
 from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
-
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 import threading
-from typing import Union
+from typing import Union, TYPE_CHECKING
 
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._graph import GraphBuilder
-from cuda.core.experimental._memory import Buffer, DeviceMemoryResource, MemoryResource, _SynchronousMemoryResource
 from cuda.core.experimental._stream import IsStreamT, Stream, StreamOptions
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
@@ -27,7 +25,8 @@ from cuda.core.experimental._utils.cuda_utils import (
 )
 from cuda.core.experimental._stream cimport default_stream
 
-
+if TYPE_CHECKING:
+    from cuda.core.experimental._memory import Buffer, MemoryResource
 
 # TODO: I prefer to type these as "cdef object" and avoid accessing them from within Python,
 # but it seems it is very convenient to expose them for testing purposes...
@@ -996,8 +995,10 @@ class Device:
                         )
                     )
                 if attr == 1:
+                    from cuda.core.experimental._memory import DeviceMemoryResource
                     device._mr = DeviceMemoryResource(dev_id)
                 else:
+                    from cuda.core.experimental._memory import _SynchronousMemoryResource
                     device._mr = _SynchronousMemoryResource(dev_id)
 
                 device._has_inited = False
@@ -1131,6 +1132,7 @@ class Device:
 
     @memory_resource.setter
     def memory_resource(self, mr):
+        from cuda.core.experimental._memory import MemoryResource
         assert_type(mr, MemoryResource)
         self._mr = mr
 

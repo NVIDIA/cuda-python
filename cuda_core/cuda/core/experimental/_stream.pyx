@@ -423,7 +423,7 @@ LEGACY_DEFAULT_STREAM = C_LEGACY_DEFAULT_STREAM
 PER_THREAD_DEFAULT_STREAM = C_PER_THREAD_DEFAULT_STREAM
 
 
-cdef Stream default_stream():
+cpdef Stream default_stream():
     """Return the default CUDA :obj:`~_stream.Stream`.
 
     The type of default stream returned depends on if the environment
