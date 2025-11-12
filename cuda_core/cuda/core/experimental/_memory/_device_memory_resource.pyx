@@ -497,7 +497,6 @@ cdef inline void DMR_deallocate(
 ) noexcept:
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
-    cdef cydriver.CUstreamCaptureStatus capturing
     with nogil:
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
 
@@ -516,4 +515,3 @@ cdef inline DMR_close(DeviceMemoryResource self):
         self._attributes = None
         self._mempool_owned = False
         self._ipc_data = None
-

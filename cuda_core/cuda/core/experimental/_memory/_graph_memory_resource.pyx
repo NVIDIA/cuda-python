@@ -205,4 +205,3 @@ cdef inline void GMR_deallocate(intptr_t ptr, size_t size, Stream stream) noexce
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
-

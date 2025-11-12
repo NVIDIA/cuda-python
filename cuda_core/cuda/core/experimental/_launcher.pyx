@@ -2,10 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from libc.stdint cimport uintptr_t
-
-from typing import Union
-
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
 from cuda.core.experimental._launch_config cimport LaunchConfig, _to_native_launch_config
 from cuda.core.experimental._module import Kernel

@@ -11,8 +11,6 @@ except ImportError:
     from cuda import nvrtc
 from cuda.core.experimental import (
     Device,
-    DeviceMemoryResource,
-    DeviceMemoryResourceOptions,
     GraphBuilder,
     GraphCompleteOptions,
     GraphDebugPrintOptions,
@@ -23,7 +21,6 @@ from cuda.core.experimental import (
     launch,
 )
 from cuda.core.experimental._utils.cuda_utils import NVRTCError, handle_return
-from helpers.buffers import compare_equal_buffers, make_scratch_buffer
 
 
 def _common_kernels():
@@ -750,5 +747,3 @@ def test_graph_build_mode(init_cuda):
 
     with pytest.raises(ValueError, match="^Unsupported build mode:"):
         gb = Device().create_graph_builder().begin_building(mode=None)
-
-

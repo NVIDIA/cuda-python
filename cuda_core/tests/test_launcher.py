@@ -22,9 +22,9 @@ from cuda.core.experimental import (
 )
 from cuda.core.experimental._memory import _SynchronousMemoryResource
 from cuda.core.experimental._utils.cuda_utils import CUDAError
+from helpers.misc import StreamWrapper
 
 from conftest import skipif_need_cuda_headers
-from helpers.misc import StreamWrapper
 
 
 def test_launch_config_init(init_cuda):

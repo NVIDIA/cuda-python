@@ -451,5 +451,3 @@ cdef cydriver.CUstream _handle_from_stream_t(obj) except*:
             f"The first element of the sequence returned by obj.__cuda_stream__ must be 0, got {repr(info[0])}"
         )
     return <cydriver.CUstream><uintptr_t>(info[1])
-
-

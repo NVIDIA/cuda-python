@@ -689,6 +689,7 @@ def test_strided_memory_view_refcnt():
     assert av.strides[1] == 64
     assert sys.getrefcount(av.strides) >= 2
 
+
 def test_graph_memory_resource_object(init_cuda):
     device = Device()
     gmr1 = GraphMemoryResource(device)
