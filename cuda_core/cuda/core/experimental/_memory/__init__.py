@@ -4,7 +4,7 @@
 
 from ._buffer import *  # noqa: F403
 from ._device_memory_resource import *  # noqa: F403
-from ._gmr import *  # noqa: F403
+from ._graph_memory_resource import *  # noqa: F403
 from ._ipc import *  # noqa: F403
 from ._legacy import *  # noqa: F403
 from ._virtual_memory_resource import *  # noqa: F403

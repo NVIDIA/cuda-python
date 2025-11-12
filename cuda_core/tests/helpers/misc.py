@@ -24,3 +24,9 @@ class StreamWrapper:
 
     def sync(self):
         return self._stream.sync()
+
+    def __eq__(self, rhs):
+        return self._stream == Stream._init(rhs)
+
+    def __hash__(self):
+        return hash(self._stream)
