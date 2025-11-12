@@ -60,7 +60,7 @@ cuda = "12"
 [feature.cu12.dependencies]
 cuda-version = "12.*"
 
-[feature.pkg-stats.dependencies]
+[feature.rev-stats.dependencies]
 ibis-framework-core = ">=11"
 python-duckdb = ">=1.4"
 gh = ">=2.83"
@@ -71,9 +71,9 @@ plotnine = ">=0.15"
 [environments]
 cu13 = { features = ["cu13", "test", "cython-tests"], solve-group = "cu13" }
 cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
-pkg-stats = { features = [
-    "pkg-stats",
-], solve-group = "pkg-stats", no-default-feature = true }
+rev-stats = { features = [
+    "rev-stats",
+], solve-group = "rev-stats", no-default-feature = true }
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
