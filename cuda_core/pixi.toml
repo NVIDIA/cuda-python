@@ -12,16 +12,16 @@ python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 
 [dependencies]
 cuda-core = { path = "." }
-pip = "*"  # installed to the workspace for convenience
+pip = "*"                  # installed to the workspace for convenience
 
 [feature.test.dependencies]
 pytest = "*"
 pytest-benchmark = "*"
 
 [feature.cython-tests.dependencies]
-cython = "*"             # for tests that exercise APIs from cython
-setuptools = "*"         # for distutils
-gxx = "*"                # to compile the generated code
+cython = "*"     # for tests that exercise APIs from cython
+setuptools = "*" # for distutils
+gxx = "*"        # to compile the generated code
 # These are necessary because running the Cython tests requires compiling
 # *after* the package is built, and the Cython tests depend on CUDA headers
 # transitively (through cuda-bindings)
@@ -60,10 +60,20 @@ cuda = "12"
 [feature.cu12.dependencies]
 cuda-version = "12.*"
 
+[feature.pkg-stats.dependencies]
+ibis-framework-core = ">=11"
+python-duckdb = ">=1.4"
+gh = ">=2.83"
+jupyterlab = ">=4.4"
+plotnine = ">=0.15"
+
 # We keep both cu12 and cu13 because cuda.core works with either major version
 [environments]
 cu13 = { features = ["cu13", "test", "cython-tests"], solve-group = "cu13" }
 cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
+pkg-stats = { features = [
+    "pkg-stats",
+], solve-group = "pkg-stats", no-default-feature = true }
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
