@@ -12,7 +12,6 @@ python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 
 [dependencies]
 cuda-core = { path = "." }
-pip = "*"  # installed to the workspace for convenience
 
 [feature.test.dependencies]
 pytest = "*"
@@ -93,7 +92,6 @@ CUDA_HOME = '%PREFIX%\Library'
 
 [package.host-dependencies]
 python = "*"
-pip = "*"
 setuptools = ">=77"
 cython = ">=3.1"
 cuda-cudart-dev = "*"
