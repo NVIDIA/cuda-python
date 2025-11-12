@@ -1,0 +1,6 @@
+﻿cuda.core.experimental.\_memory.VirtualMemoryLocationTypeT
+==========================================================
+
+.. currentmodule:: cuda.core.experimental._memory
+
+.. autodata:: VirtualMemoryLocationTypeT
