@@ -628,7 +628,7 @@ def test_strided_memory_view_leak():
     arr = np.zeros(1048576, dtype=np.uint8)
     before = sys.getrefcount(arr)
     for idx in range(10):
-        StridedMemoryView.from_any_interface(arr, stream_ptr=-1)
+        StridedMemoryView(arr, stream_ptr=-1)
     after = sys.getrefcount(arr)
     assert before == after
 
@@ -636,7 +636,7 @@ def test_strided_memory_view_leak():
 def test_strided_memory_view_refcnt():
     # Use Fortran ordering so strides is used
     a = np.zeros((64, 4), dtype=np.uint8, order="F")
-    av = StridedMemoryView.from_any_interface(a, stream_ptr=-1)
+    av = StridedMemoryView(a, stream_ptr=-1)
     # segfaults if refcnt is wrong
     assert av.shape[0] == 64
     assert sys.getrefcount(av.shape) >= 2
