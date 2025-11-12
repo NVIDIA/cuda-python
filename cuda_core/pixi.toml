@@ -74,15 +74,15 @@ version = "0.4.1"
 backend = { name = "pixi-build-python", version = "*" }
 
 [package.build.config]
-env = { CUDA_PYTHON_PARALLEL_LEVEL = "$(nproc)" }
-noarch = false
 compilers = ["c", "cxx"]
 
 [package.build.target.linux-64.config.env]
 CUDA_HOME = "$PREFIX/targets/x86_64-linux"
+CUDA_PYTHON_PARALLEL_LEVEL = "$(nproc)"
 
 [package.build.target.linux-aarch64.config.env]
 CUDA_HOME = "$PREFIX/targets/sbsa-linux"
+CUDA_PYTHON_PARALLEL_LEVEL = "$(nproc)"
 
 [package.build.target.win-64.config.env]
 CUDA_HOME = '%PREFIX%\Library'
