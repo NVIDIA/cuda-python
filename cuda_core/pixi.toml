@@ -96,7 +96,9 @@ setuptools = ">=77"
 cython = ">=3.1"
 cuda-cudart-dev = "*"
 cuda-profiler-api = "*"
-cuda-bindings = { path = "../cuda_bindings" }
+# cuda_bindings = { path = "../cuda_bindings"} causes cuda_core build to fail
+# because cuda_core can't seem to locate cuda/bindings.pxd
+cuda-bindings = "*"
 
 [package.target.linux-64.host-dependencies]
 cuda-crt-dev_linux-64 = "*"
@@ -110,7 +112,7 @@ cuda-crt-dev_win-64 = "*"
 [package.run-dependencies]
 python = "*"
 numpy = "*"
-cuda-bindings = { path = "../cuda_bindings" }
+cuda-bindings = "*"
 
 [target.linux.tasks.build-cython-tests]
 cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
