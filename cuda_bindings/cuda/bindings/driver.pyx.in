@@ -7101,7 +7101,10 @@ cdef class CUstream:
         return <void_ptr>self._pvt_ptr[0]
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
+    def __cuda_stream__(self):
+        return (0, <uintptr_t><void_ptr>(self._pvt_ptr[0]))
 {{endif}}
+
 
 {{if 'CUgraphicsResource' in found_types}}
 
