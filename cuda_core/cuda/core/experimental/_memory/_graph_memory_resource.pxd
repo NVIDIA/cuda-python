@@ -2,10 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport MemoryResource
-from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
-from cuda.core.experimental._memory._ipc cimport IPCData
 
 
 cdef class cyGraphMemoryResource(MemoryResource):

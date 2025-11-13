@@ -47,7 +47,10 @@ cdef class GraphMemoryResourceAttributes:
 
     @GMRA_mem_attribute(int, settable=True)
     def reserved_mem_high(self):
-        """High watermark of backing memory allocated."""
+        """
+        High watermark of backing memory allocated. It can be set to zero to
+        reset it to the current usage.
+        """
 
     @GMRA_mem_attribute(int)
     def used_mem_current(self):
@@ -55,10 +58,13 @@ cdef class GraphMemoryResourceAttributes:
 
     @GMRA_mem_attribute(int, settable=True)
     def used_mem_high(self):
-        """High watermark of memory in use."""
+        """
+        High watermark of memory in use. It can be set to zero to reset it to
+        the current usage.
+        """
 
 
-cdef GMRA_mem_attribute(property_type: type, settable : bool = False):
+cdef GMRA_mem_attribute(property_type: type, settable: bool = False):
     _settable = settable
 
     def decorator(stub):
@@ -161,7 +167,7 @@ class GraphMemoryResource(cyGraphMemoryResource):
 
     Parameters
     ----------
-    device_id : int | Device
+    device_id: int | Device
         Device or Device ordinal for which a graph memory resource is obtained.
     """
 
