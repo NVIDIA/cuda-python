@@ -12,7 +12,6 @@ python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 
 [dependencies]
 cuda-bindings = { path = "." }
-pip = "*"  # installed to the workspace for convenience
 
 [feature.test.dependencies]
 pytest = ">=6.2.4"
@@ -68,15 +67,18 @@ version = "13.0.2"
 backend = { name = "pixi-build-python", version = "*" }
 
 [package.build.config]
-env = { CUDA_PYTHON_PARSER_CACHING = "1", CUDA_PYTHON_PARALLEL_LEVEL = "$(nproc)" }
-noarch = false
 compilers = ["c", "cxx"]
+
+[package.build.config.env]
+CUDA_PYTHON_PARSER_CACHING = "1"
 
 [package.build.target.linux-64.config.env]
 CUDA_HOME = "$PREFIX/targets/x86_64-linux"
+CUDA_PYTHON_PARALLEL_LEVEL = "$(nproc)"
 
 [package.build.target.linux-aarch64.config.env]
 CUDA_HOME = "$PREFIX/targets/sbsa-linux"
+CUDA_PYTHON_PARALLEL_LEVEL = "$(nproc)"
 
 [package.build.target.win-64.config.env]
 CUDA_HOME = '%PREFIX%\Library'
@@ -87,7 +89,6 @@ CUDA_HOME = '%PREFIX%\Library'
 
 [package.host-dependencies]
 python = "*"
-pip = "*"
 setuptools = ">=77"
 cython = ">=3.1,<3.2"
 pyclibrary = ">=0.1.7"
@@ -96,13 +97,14 @@ cuda-nvrtc-dev = "*"
 cuda-profiler-api = "*"
 cuda-nvvm = "*"
 
+[package.target.linux.host-dependencies]
+libcufile-dev = "*"
+
 [package.target.linux-64.host-dependencies]
 cuda-crt-dev_linux-64 = "*"
-libcufile-dev = "*"
 
 [package.target.linux-aarch64.host-dependencies]
 cuda-crt-dev_linux-aarch64 = "*"
-libcufile-dev = "*"
 
 [package.target.win-64.host-dependencies]
 cuda-crt-dev_win-64 = "*"
@@ -110,7 +112,6 @@ cuda-crt-dev_win-64 = "*"
 [package.run-dependencies]
 python = "*"
 cuda-pathfinder = ">=1.1,<2"
-cuda-bindings = { path = "." }
 libnvjitlink = "*"
 cuda-nvrtc = "*"
 cuda-nvvm = "*"
@@ -121,10 +122,14 @@ libcufile = "*"
 [target.linux.tasks.build-cython-tests]
 cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
 
-[target.linux.tasks.run-cython-tests]
-cmd = ["pytest", "$PIXI_PROJECT_ROOT/tests/cython/"]
-depends-on = [{ task = "build-cython-tests" }]
+[target.win-64.tasks.build-cython-tests]
+cmd = ['%PIXI_PROJECT_ROOT%\tests\cython\build_tests.bat']
 
 [target.linux.tasks.test]
 cmd = ["pytest", "$PIXI_PROJECT_ROOT"]
-depends-on = [{ task = "run-cython-tests" }]
+
+[target.win-64.tasks.test]
+cmd = ["pytest", "%PIXI_PROJECT_ROOT%"]
+
+[tasks.test]
+depends-on = [{ task = "build-cython-tests" }]
