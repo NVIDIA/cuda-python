@@ -117,8 +117,14 @@ cuda-bindings = "*"
 [target.linux.tasks.build-cython-tests]
 cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
 
+[target.win-64.tasks.build-cython-tests]
+cmd = ['%PIXI_PROJECT_ROOT%\tests\cython\build_tests.bat']
+
 [target.linux.tasks.test]
-cmd = ["pytest"]
-# this is necessary to be able to run pytest from the root of the package
-env = { PYTHONPATH = "$PIXI_PROJECT_ROOT/../cuda_python_test_helpers" }
+cmd = ["pytest", "$PIXI_PROJECT_ROOT"]
+
+[target.win-64.tasks.test]
+cmd = ["pytest", "%PIXI_PROJECT_ROOT%"]
+
+[tasks.test]
 depends-on = [{ task = "build-cython-tests" }]
