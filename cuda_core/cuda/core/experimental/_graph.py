@@ -318,7 +318,10 @@ class GraphBuilder:
             raise RuntimeError(
                 "Instantiation for device launch failed due to the nodes belonging to different contexts."
             )
-        elif params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED:
+        elif (
+            _py_major_minor >= (12, 8)
+            and params.result_out == driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_CONDITIONAL_HANDLE_UNUSED
+        ):
             raise RuntimeError("One or more conditional handles are not associated with conditional builders.")
         elif params.result_out != driver.CUgraphInstantiateResult.CUDA_GRAPH_INSTANTIATE_SUCCESS:
             raise RuntimeError(f"Graph instantiation failed with unexpected error code: {params.result_out}")
