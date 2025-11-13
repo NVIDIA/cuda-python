@@ -49,8 +49,8 @@ cdef class DeviceMemoryResourceOptions:
         Maximum pool size. When set to 0, defaults to a system-dependent value.
         (Default to 0)
     """
-    ipc_enabled : cython.bint = False
-    max_size : cython.size_t = 0
+    ipc_enabled: cython.bint   = False
+    max_size   : cython.size_t = 0
 
 
 cdef class DeviceMemoryResourceAttributes:
@@ -65,6 +65,12 @@ cdef class DeviceMemoryResourceAttributes:
         cdef DeviceMemoryResourceAttributes self = DeviceMemoryResourceAttributes.__new__(cls)
         self._mr_weakref = mr
         return self
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(%s)" % ", ".join(
+            f"{attr}={getattr(self, attr)}" for attr in dir(self)
+                                            if not attr.startswith("_")
+        )
 
     @DMRA_mempool_attribute(bool)
     def reuse_follow_event_dependencies(self):
@@ -127,7 +133,7 @@ cdef int DMRA_getattribute(
 
 cdef class DeviceMemoryResource(MemoryResource):
     """
-    Create a device memory resource managing a stream-ordered memory pool.
+    A device memory resource managing a stream-ordered memory pool.
 
     Parameters
     ----------
@@ -302,14 +308,14 @@ cdef class DeviceMemoryResource(MemoryResource):
             raise RuntimeError("Imported memory resource cannot be exported")
         return self._ipc_data._alloc_handle
 
-    def allocate(self, size_t size, stream: Stream = None) -> Buffer:
+    def allocate(self, size_t size, stream: Optional[IsStreamT] = None) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : Stream, optional
+        stream : IsStreamT, optional
             The stream on which to perform the allocation asynchronously.
             If None, an internal stream is used.
 
@@ -321,11 +327,10 @@ cdef class DeviceMemoryResource(MemoryResource):
         """
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
-        if stream is None:
-            stream = default_stream()
-        return DMR_allocate(self, size, <Stream>stream)
+        stream = Stream._init(stream) if stream is not None else default_stream()
+        return DMR_allocate(self, size, <Stream> stream)
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Optional[IsStreamT] = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -334,15 +339,17 @@ cdef class DeviceMemoryResource(MemoryResource):
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : Stream, optional
+        stream : IsStreamT, optional
             The stream on which to perform the deallocation asynchronously.
             If the buffer is deallocated without an explicit stream, the allocation stream
             is used.
         """
-        DMR_deallocate(self, <uintptr_t>ptr, size, <Stream>stream)
+        stream = Stream._init(stream) if stream is not None else default_stream()
+        DMR_deallocate(self, <uintptr_t>ptr, size, <Stream> stream)
 
     @property
     def attributes(self) -> DeviceMemoryResourceAttributes:
+        """Memory pool attributes."""
         if self._attributes is None:
             ref = weakref.ref(self)
             self._attributes = DeviceMemoryResourceAttributes._init(ref)
@@ -460,10 +467,21 @@ cdef void DMR_init_create(
         self._ipc_data = IPCData(alloc_handle, mapped=False)
 
 
-cdef Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream stream):
+# Raise an exception if the given stream is capturing.
+# A result of CU_STREAM_CAPTURE_STATUS_INVALIDATED is considered an error.
+cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
+    cdef cydriver.CUstreamCaptureStatus capturing
+    HANDLE_RETURN(cydriver.cuStreamIsCapturing(s, &capturing))
+    if capturing != cydriver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE:
+        raise RuntimeError("DeviceMemoryResource cannot perform memory operations on "
+                           "a capturing stream (consider using GraphMemoryResource).")
+
+
+cdef inline Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream stream):
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr
     with nogil:
+        check_not_capturing(s)
         HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, self._handle, s))
     cdef Buffer buf = Buffer.__new__(Buffer)
     buf._ptr = <uintptr_t>(devptr)
@@ -474,7 +492,7 @@ cdef Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream stream):
     return buf
 
 
-cdef void DMR_deallocate(
+cdef inline void DMR_deallocate(
     DeviceMemoryResource self, uintptr_t ptr, size_t size, Stream stream
 ) noexcept:
     cdef cydriver.CUstream s = stream._handle
@@ -483,7 +501,7 @@ cdef void DMR_deallocate(
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
 
 
-cdef DMR_close(DeviceMemoryResource self):
+cdef inline DMR_close(DeviceMemoryResource self):
     if self._handle == NULL:
         return
 

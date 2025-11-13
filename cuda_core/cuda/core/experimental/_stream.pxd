@@ -5,9 +5,6 @@
 from cuda.bindings cimport cydriver
 
 
-cdef cydriver.CUstream _try_to_get_stream_ptr(obj: IsStreamT) except*
-
-
 cdef class Stream:
 
     cdef:

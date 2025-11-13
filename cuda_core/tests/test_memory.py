@@ -13,6 +13,7 @@ except ImportError:
     np = None
 import ctypes
 import platform
+import re
 
 import pytest
 from cuda.core.experimental import (
@@ -20,6 +21,7 @@ from cuda.core.experimental import (
     Device,
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
+    GraphMemoryResource,
     MemoryResource,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
@@ -29,6 +31,7 @@ from cuda.core.experimental._memory import IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
 from cuda.core.experimental.utils import StridedMemoryView
 from helpers.buffers import DummyUnifiedMemoryResource
+from helpers.misc import StreamWrapper
 
 from cuda_python_test_helpers import supports_ipc_mempool
 
@@ -133,6 +136,7 @@ def test_package_contents():
         "MemoryResource",
         "DeviceMemoryResource",
         "DeviceMemoryResourceOptions",
+        "GraphMemoryResource",
         "IPCBufferDescriptor",
         "IPCAllocationHandle",
         "LegacyPinnedMemoryResource",
@@ -164,10 +168,12 @@ def test_buffer_initialization():
     buffer_initialization(DummyPinnedMemoryResource(device))
 
 
-def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
+def buffer_copy_to(dummy_mr: MemoryResource, device: Device, wrap_stream, check=False):
     src_buffer = dummy_mr.allocate(size=1024)
     dst_buffer = dummy_mr.allocate(size=1024)
     stream = device.create_stream()
+    if wrap_stream:
+        stream = StreamWrapper(stream)
 
     if check:
         src_ptr = ctypes.cast(src_buffer.handle, ctypes.POINTER(ctypes.c_byte))
@@ -187,18 +193,21 @@ def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
     src_buffer.close()
 
 
-def test_buffer_copy_to():
+@pytest.mark.parametrize("wrap_stream", [True, False])
+def test_buffer_copy_to(wrap_stream):
     device = Device()
     device.set_current()
-    buffer_copy_to(DummyDeviceMemoryResource(device), device)
-    buffer_copy_to(DummyUnifiedMemoryResource(device), device)
-    buffer_copy_to(DummyPinnedMemoryResource(device), device, check=True)
+    buffer_copy_to(DummyDeviceMemoryResource(device), device, wrap_stream)
+    buffer_copy_to(DummyUnifiedMemoryResource(device), device, wrap_stream)
+    buffer_copy_to(DummyPinnedMemoryResource(device), device, wrap_stream, check=True)
 
 
-def buffer_copy_from(dummy_mr: MemoryResource, device, check=False):
+def buffer_copy_from(dummy_mr: MemoryResource, device, wrap_stream, check=False):
     src_buffer = dummy_mr.allocate(size=1024)
     dst_buffer = dummy_mr.allocate(size=1024)
     stream = device.create_stream()
+    if wrap_stream:
+        stream = StreamWrapper(stream)
 
     if check:
         src_ptr = ctypes.cast(src_buffer.handle, ctypes.POINTER(ctypes.c_byte))
@@ -218,12 +227,13 @@ def buffer_copy_from(dummy_mr: MemoryResource, device, check=False):
     src_buffer.close()
 
 
-def test_buffer_copy_from():
+@pytest.mark.parametrize("wrap_stream", [True, False])
+def test_buffer_copy_from(wrap_stream):
     device = Device()
     device.set_current()
-    buffer_copy_from(DummyDeviceMemoryResource(device), device)
-    buffer_copy_from(DummyUnifiedMemoryResource(device), device)
-    buffer_copy_from(DummyPinnedMemoryResource(device), device, check=True)
+    buffer_copy_from(DummyDeviceMemoryResource(device), device, wrap_stream)
+    buffer_copy_from(DummyUnifiedMemoryResource(device), device, wrap_stream)
+    buffer_copy_from(DummyPinnedMemoryResource(device), device, wrap_stream, check=True)
 
 
 def buffer_close(dummy_mr: MemoryResource):
@@ -286,13 +296,18 @@ def test_buffer_dunder_dlpack_device_failure():
 
 
 @pytest.mark.parametrize("use_device_object", [True, False])
-def test_device_memory_resource_initialization(mempool_device, use_device_object):
+def test_device_memory_resource_initialization(use_device_object):
     """Test that DeviceMemoryResource can be initialized successfully.
 
     This test verifies that the DeviceMemoryResource initializes properly,
     including the release threshold configuration for performance optimization.
     """
-    device = mempool_device
+    device = Device()
+
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
+    device.set_current()
 
     # This should succeed and configure the memory pool release threshold.
     # The resource can be constructed from either a device or device ordinal.
@@ -481,11 +496,16 @@ def test_vmm_allocator_rdma_unsupported_exception():
         VirtualMemoryResource(device, config=options)
 
 
-def test_mempool(mempool_device):
-    device = mempool_device
+def test_device_memory_resource():
+    device = Device()
+
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
+    device.set_current()
 
     # Test basic pool creation
-    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE)
     mr = DeviceMemoryResource(device, options=options)
     assert mr.device_id == device.device_id
     assert mr.is_device_accessible
@@ -513,18 +533,26 @@ def test_mempool(mempool_device):
     buffer = mr.allocate(1024, stream=stream)
     assert buffer.handle != 0
     buffer.close()
+    buffer = mr.allocate(1024, stream=StreamWrapper(stream))
+    assert buffer.handle != 0
+    buffer.close()
 
     # Test memory copying between buffers from same pool
     src_buffer = mr.allocate(64)
     dst_buffer = mr.allocate(64)
     stream = device.create_stream()
     src_buffer.copy_to(dst_buffer, stream=stream)
+    src_buffer.copy_to(dst_buffer, stream=StreamWrapper(stream))
     device.sync()
     dst_buffer.close()
     src_buffer.close()
 
-    # Test error cases
-    # Test IPC operations are disabled
+
+def test_mempool_ipc_errors(mempool_device):
+    """Test error cases when IPC operations are disabled."""
+    device = mempool_device
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
+    mr = DeviceMemoryResource(device, options=options)
     buffer = mr.allocate(64)
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
@@ -599,6 +627,22 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
         assert value >= current_value, f"{property_name} should be >= {current_prop}"
 
 
+def test_mempool_attributes_repr(mempool_device):
+    device = Device()
+    device.set_current()
+    mr = DeviceMemoryResource(device, options={"max_size": 2048})
+    buffer1 = mr.allocate(64)
+    buffer2 = mr.allocate(64)
+    buffer1.close()
+    assert re.match(
+        r"DeviceMemoryResourceAttributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
+        r"reuse_allow_internal_dependencies=(True|False), reuse_allow_opportunistic=(True|False), "
+        r"reuse_follow_event_dependencies=(True|False), used_mem_current=64, used_mem_high=128\)",
+        str(mr.attributes),
+    )
+    buffer2.close()
+
+
 def test_mempool_attributes_ownership(mempool_device):
     """Ensure the attributes bundle handles references correctly."""
     device = mempool_device
@@ -644,3 +688,14 @@ def test_strided_memory_view_refcnt():
     assert av.strides[0] == 1
     assert av.strides[1] == 64
     assert sys.getrefcount(av.strides) >= 2
+
+
+def test_graph_memory_resource_object(init_cuda):
+    device = Device()
+    gmr1 = GraphMemoryResource(device)
+    gmr2 = GraphMemoryResource(device)
+    gmr3 = GraphMemoryResource(device.device_id)
+
+    # These objects are interned.
+    assert gmr1 is gmr2 is gmr3
+    assert gmr1 == gmr2 == gmr3
