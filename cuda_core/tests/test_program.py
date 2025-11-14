@@ -50,7 +50,7 @@ def _get_nvrtc_version_for_tests():
         nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
         version = nvrtc_major * 1000 + nvrtc_minor * 100
         return version
-    except Exception as e:
+    except Exception:
         return None
 
 
