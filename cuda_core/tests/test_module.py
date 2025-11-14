@@ -134,8 +134,9 @@ def test_read_only_kernel_attributes(get_saxpy_kernel_cubin, attr, expected_type
     value = method()
     assert value is not None
 
-    # get the value for each device on the system
+    # get the value for each device on the system, using either the device object or ordinal
     for device in system.devices:
+        value = method(device)
         value = method(device.device_id)
     assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
 
