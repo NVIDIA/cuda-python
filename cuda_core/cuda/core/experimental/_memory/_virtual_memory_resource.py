@@ -5,6 +5,7 @@
 from dataclasses import dataclass, field
 from typing import Iterable, Literal, Union
 
+from cuda.core.experimental._device import Device
 from cuda.core.experimental._memory._buffer import Buffer, MemoryResource
 from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.cuda_utils import (
@@ -140,15 +141,15 @@ class VirtualMemoryResource(MemoryResource):
 
     Parameters
     ----------
-    device_id : int
-        Device ordinal for which a memory resource is constructed.
+    device_id : Device | int
+        Device for which a memory resource is constructed.
 
     config : VirtualMemoryResourceOptions
         A configuration object for the VirtualMemoryResource
     """
 
-    def __init__(self, device, config: VirtualMemoryResourceOptions = None):
-        self.device = device
+    def __init__(self, device_id: Device | int, config: VirtualMemoryResourceOptions = None):
+        self.device = Device(device_id)
         self.config = check_or_create_options(
             VirtualMemoryResourceOptions, config, "VirtualMemoryResource options", keep_none=False
         )
