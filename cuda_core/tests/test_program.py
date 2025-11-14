@@ -197,7 +197,7 @@ def ptx_code_object():
             ProgramOptions(debug=True, numba_debug=True),
             marks=pytest.mark.skipif(
                 (_get_nvrtc_version_for_tests() or 0) < 13200,
-                reason="numba_debug requires libNVVM >= 13.2",
+                reason="numba_debug requires NVRTC >= 13.2",
             ),
         ),
         ProgramOptions(relocatable_device_code=True, max_register_count=32),
