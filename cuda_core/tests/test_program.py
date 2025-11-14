@@ -234,7 +234,6 @@ def test_cpp_program_with_various_options(init_cuda, options):
 options = [
     ProgramOptions(max_register_count=32),
     ProgramOptions(debug=True),
-    ProgramOptions(debug=True),
     ProgramOptions(lineinfo=True),
     ProgramOptions(ftz=True),
     ProgramOptions(prec_div=True),
