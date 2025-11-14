@@ -41,7 +41,7 @@ except Exception:
 def _get_nvrtc_version_for_tests():
     """
     Get NVRTC version.
-    
+
     Returns:
         int: Version in format major * 1000 + minor * 100 (e.g., 13200 for CUDA 13.2)
         None: If NVRTC is not available
