@@ -13,6 +13,7 @@ Welcome to the documentation for ``cuda.core``.
    getting-started
    install
    interoperability
+   tips-and-tricks
    api
    contribute
 
