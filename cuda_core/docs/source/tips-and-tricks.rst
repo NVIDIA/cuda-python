@@ -34,9 +34,9 @@ Example:
    # These work without setting a device as current
    # Only requires CUDA to be initialized
    dev = Device(0)
-   compute_capability = dev.arch
+   compute_capability = dev.compute_capability
    device_name = dev.name
-   total_memory = dev.memory_total
+   pci_bus = dev.pci_bus_id
 
 **Operations requiring no CUDA initialization**:
 
