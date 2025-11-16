@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Sourced from https://github.com/NVIDIA/cccl
-
 # Install the driver
 function Install-Driver {
 
@@ -60,9 +58,10 @@ function Install-Driver {
     Start-Process -FilePath $filepath -ArgumentList $install_args -Wait
     Write-Output 'Done!'
 
-    # Handle driver mode configuration for data center GPUs
+    # Handle driver mode configuration
     $driver_mode = $env:DRIVER_MODE
     if ($data_center_gpus -contains $gpu_type) {
+        # Data center GPUs: TCC -> MCDM
         if ($driver_mode -eq "MCDM") {
             Write-Output "Setting driver mode to MCDM..."
             nvidia-smi -fdm 2
@@ -70,16 +69,11 @@ function Install-Driver {
             pnputil /enable-device /class Display
             # Give it a minute to settle:
             Start-Sleep -Seconds 5
-        } elseif ($driver_mode -eq "TCC") {
-            Write-Output "Setting driver mode to TCC..."
-            nvidia-smi -fdm 0
-            pnputil /disable-device /class Display
-            pnputil /enable-device /class Display
-            # Give it a minute to settle:
-            Start-Sleep -Seconds 5
-        } else {
-            # Default: TCC -> MCDM on data center GPUs
-            Write-Output "Setting driver mode to MCDM (default)..."
+        }
+    } elseif ($desktop_gpus -contains $gpu_type) {
+        # Desktop GPUs: WDDM -> MCDM
+        if ($driver_mode -eq "MCDM") {
+            Write-Output "Setting driver mode to MCDM..."
             nvidia-smi -fdm 2
             pnputil /disable-device /class Display
             pnputil /enable-device /class Display
