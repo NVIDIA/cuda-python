@@ -84,6 +84,9 @@ jobs:
         continue-on-error: true
 
       - name: Update driver
+        env:
+          DRIVER_MODE: ${{ matrix.DRIVER_MODE }}
+          JOB_RUNNER: windows-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-1
         run: |
           ci/tools/install_gpu_driver.ps1
 
