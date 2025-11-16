@@ -57,28 +57,25 @@ function Install-Driver {
     Write-Output 'Done!'
 
     # Handle driver mode configuration
+    # This assumes we have the prior knowledge on which GPU can use which mode.
     $driver_mode = $env:DRIVER_MODE
-    if ($data_center_gpus -contains $gpu_type) {
-        # Data center GPUs: TCC -> MCDM
-        if ($driver_mode -eq "MCDM") {
-            Write-Output "Setting driver mode to MCDM..."
-            nvidia-smi -fdm 2
-            pnputil /disable-device /class Display
-            pnputil /enable-device /class Display
-            # Give it a minute to settle:
-            Start-Sleep -Seconds 5
-        }
-    } elseif ($desktop_gpus -contains $gpu_type) {
-        # Desktop GPUs: WDDM -> MCDM
-        if ($driver_mode -eq "MCDM") {
-            Write-Output "Setting driver mode to MCDM..."
-            nvidia-smi -fdm 2
-            pnputil /disable-device /class Display
-            pnputil /enable-device /class Display
-            # Give it a minute to settle:
-            Start-Sleep -Seconds 5
-        }
+    if ($driver_mode -eq "WDDM") {
+        Write-Output "Setting driver mode to WDDM..."
+        nvidia-smi -fdm 0
+    } elseif ($driver_mode -eq "TCC") {
+        Write-Output "Setting driver mode to TCC..."
+        nvidia-smi -fdm 1
+    } elseif ($driver_mode -eq "MCDM") {
+        Write-Output "Setting driver mode to MCDM..."
+        nvidia-smi -fdm 2
+    } else {
+        Write-Output "Unknown driver mode: $driver_mode"
+        exit 1
     }
+    pnputil /disable-device /class Display
+    pnputil /enable-device /class Display
+    # Give it a minute to settle:
+    Start-Sleep -Seconds 5
 }
 
 # Run the functions
