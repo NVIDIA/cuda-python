@@ -1,0 +1,6 @@
+﻿cuda.core.experimental.\_memory.VirtualMemoryAccessTypeT
+========================================================
+
+.. currentmodule:: cuda.core.experimental._memory
+
+.. autodata:: VirtualMemoryAccessTypeT
