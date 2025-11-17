@@ -18,9 +18,9 @@ pytest = "*"
 pytest-benchmark = "*"
 
 [feature.cython-tests.dependencies]
-cython = "*"             # for tests that exercise APIs from cython
-setuptools = "*"         # for distutils
-gxx = "*"                # to compile the generated code
+cython = "*"     # for tests that exercise APIs from cython
+setuptools = "*" # for distutils
+gxx = "*"        # to compile the generated code
 # These are necessary because running the Cython tests requires compiling
 # *after* the package is built, and the Cython tests depend on CUDA headers
 # transitively (through cuda-bindings)
@@ -126,9 +126,10 @@ cmd = ['%PIXI_PROJECT_ROOT%\tests\cython\build_tests.bat']
 
 [target.linux.tasks.test]
 cmd = ["pytest", "$PIXI_PROJECT_ROOT"]
+env = { PYTHONPATH = "$PIXI_PROJECT_ROOT/../cuda_python_test_helpers" }
+depends-on = [{ task = "build-cython-tests" }]
 
 [target.win-64.tasks.test]
 cmd = ["pytest", "%PIXI_PROJECT_ROOT%"]
-
-[tasks.test]
+env = { PYTHONPATH = '%PIXI_PROJECT_ROOT%\..\cuda_python_test_helpers' }
 depends-on = [{ task = "build-cython-tests" }]
