@@ -5,6 +5,7 @@
 from ._dlpack cimport *
 
 import functools
+import warnings
 from typing import Optional
 
 import numpy
@@ -78,30 +79,70 @@ cdef class StridedMemoryView:
         bint readonly
         object exporting_obj
 
-    # If using dlpack, this is a strong reference to the result of
-    # obj.__dlpack__() so we can lazily create shape and strides from
-    # it later.  If using CAI, this is a reference to the source
-    # `__cuda_array_interface__` object.
-    cdef object metadata
+    cdef:
+        # If using dlpack, this is a strong reference to the result of
+        # obj.__dlpack__() so we can lazily create shape and strides from
+        # it later.  If using CAI, this is a reference to the source
+        # `__cuda_array_interface__` object.
+        object metadata
 
-    # The tensor object if has obj has __dlpack__, otherwise must be NULL
-    cdef DLTensor *dl_tensor
+        # The tensor object if has obj has __dlpack__, otherwise must be NULL
+        DLTensor *dl_tensor
 
-    # Memoized properties
-    cdef tuple _shape
-    cdef tuple _strides
-    cdef bint _strides_init  # Has the strides tuple been init'ed?
-    cdef object _dtype
+        # Memoized properties
+        tuple _shape
+        tuple _strides
+        # a `None` value for _strides has defined meaning in dlpack and
+        # the cuda array interface, meaning C order, contiguous.
+        #
+        # this flag helps prevent unnecessary recompuation of _strides
+        bint _strides_init
+        object _dtype
 
-    def __init__(self, obj=None, stream_ptr=None):
+    def __init__(self, obj: object = None, stream_ptr: int | None = None) -> None:
+        cdef str clsname = self.__class__.__name__
         if obj is not None:
             # populate self's attributes
             if check_has_dlpack(obj):
+                warnings.warn(
+                    f"Constructing a {clsname} directly from a DLPack-supporting object is deprecated; "
+                    "Use `StridedMemoryView.from_dlpack` or `StridedMemoryView.from_any_interface` instead."
+                )
                 view_as_dlpack(obj, stream_ptr, self)
             else:
+                warnings.warn(
+                    f"Constructing a {clsname} directly from a CUDA-array-interface-supporting object is deprecated; "
+                    "Use `StridedMemoryView.from_cuda_array_interface` or `StridedMemoryView.from_any_interface` instead."
+                )
                 view_as_cai(obj, stream_ptr, self)
         else:
-            pass
+            warnings.warn(
+                f"Constructing an empty {clsname} is deprecated; "
+                "use one of the classmethods `from_dlpack`, `from_cuda_array_interface` or `from_any_interface` "
+                "to construct a StridedMemoryView from an object"
+            )
+
+    @classmethod
+    def from_dlpack(cls, obj: object, stream_ptr: int | None=None) -> StridedMemoryView:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            buf = cls()
+        view_as_dlpack(obj, stream_ptr, buf)
+        return buf
+
+    @classmethod
+    def from_cuda_array_interface(cls, obj: object, stream_ptr: int | None=None) -> StridedMemoryView:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            buf = cls()
+        view_as_cai(obj, stream_ptr, buf)
+        return buf
+
+    @classmethod
+    def from_any_interface(cls, obj: object, stream_ptr: int | None = None) -> StridedMemoryView:
+        if check_has_dlpack(obj):
+            return cls.from_dlpack(obj, stream_ptr)
+        return cls.from_cuda_array_interface(obj, stream_ptr)
 
     def __dealloc__(self):
         if self.dl_tensor == NULL:
@@ -121,7 +162,7 @@ cdef class StridedMemoryView:
             dlm_tensor.deleter(dlm_tensor)
 
     @property
-    def shape(self) -> tuple[int]:
+    def shape(self) -> tuple[int, ...]:
         if self._shape is None:
             if self.exporting_obj is not None:
                 if self.dl_tensor != NULL:
@@ -136,7 +177,7 @@ cdef class StridedMemoryView:
         return self._shape
 
     @property
-    def strides(self) -> Optional[tuple[int]]:
+    def strides(self) -> Optional[tuple[int, ...]]:
         cdef int itemsize
         if self._strides_init is False:
             if self.exporting_obj is not None:
@@ -193,6 +234,7 @@ cdef str get_simple_repr(obj):
     return obj_repr
 
 
+
 cdef bint check_has_dlpack(obj) except*:
     cdef bint has_dlpack
     if hasattr(obj, "__dlpack__") and hasattr(obj, "__dlpack_device__"):
@@ -206,8 +248,7 @@ cdef bint check_has_dlpack(obj) except*:
 
 
 cdef class _StridedMemoryViewProxy:
-
-    cdef:
+    cdef readonly:
         object obj
         bint has_dlpack
 
@@ -217,9 +258,9 @@ cdef class _StridedMemoryViewProxy:
 
     cpdef StridedMemoryView view(self, stream_ptr=None):
         if self.has_dlpack:
-            return view_as_dlpack(self.obj, stream_ptr)
+            return StridedMemoryView.from_dlpack(self.obj, stream_ptr)
         else:
-            return view_as_cai(self.obj, stream_ptr)
+            return StridedMemoryView.from_cuda_array_interface(self.obj, stream_ptr)
 
 
 cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
@@ -354,7 +395,6 @@ cdef object dtype_dlpack_to_numpy(DLDataType* dtype):
     return numpy.dtype(np_dtype)
 
 
-# Also generate for Python so we can test this code path
 cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
     cdef dict cai_data = obj.__cuda_array_interface__
     if cai_data["version"] < 3:
