@@ -127,9 +127,8 @@ cmd = ['%PIXI_PROJECT_ROOT%\tests\cython\build_tests.bat']
 
 [target.linux.tasks.test]
 cmd = ["pytest", "$PIXI_PROJECT_ROOT"]
+depends-on = [{ task = "build-cython-tests" }]
 
 [target.win-64.tasks.test]
 cmd = ["pytest", "%PIXI_PROJECT_ROOT%"]
-
-[tasks.test]
 depends-on = [{ task = "build-cython-tests" }]
