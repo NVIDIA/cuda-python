@@ -125,11 +125,21 @@ cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
 cmd = ['%PIXI_PROJECT_ROOT%\tests\cython\build_tests.bat']
 
 [target.linux.tasks.test]
-cmd = ["pytest", "$PIXI_PROJECT_ROOT"]
+cmd = [
+    "pytest",
+    "$PIXI_PROJECT_ROOT",
+    "--override-ini",
+    "norecursedirs=\"\"", # include cython tests (ignore by default config)
+]
 env = { PYTHONPATH = "$PIXI_PROJECT_ROOT/../cuda_python_test_helpers" }
 depends-on = [{ task = "build-cython-tests" }]
 
 [target.win-64.tasks.test]
-cmd = ["pytest", "%PIXI_PROJECT_ROOT%"]
+cmd = [
+    "pytest",
+    "%PIXI_PROJECT_ROOT%",
+    "--override-ini",
+    "norecursedirs=\"\"",  # include cython tests (ignore by default config)
+]
 env = { PYTHONPATH = '%PIXI_PROJECT_ROOT%\..\cuda_python_test_helpers' }
 depends-on = [{ task = "build-cython-tests" }]

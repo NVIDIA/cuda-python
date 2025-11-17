@@ -70,4 +70,4 @@ repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wh
 [tool.pytest.ini_options]
 required_plugins = "pytest-benchmark"
 addopts = "--benchmark-disable"
-norecursedirs = ["examples"]
+norecursedirs = ["tests/cython", "examples"]
