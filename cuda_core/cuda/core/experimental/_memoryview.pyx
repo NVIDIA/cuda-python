@@ -124,6 +124,7 @@ cdef class StridedMemoryView:
 
     @classmethod
     def from_dlpack(cls, obj: object, stream_ptr: int | None=None) -> StridedMemoryView:
+        cdef StridedMemoryView buf
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             buf = cls()
@@ -132,6 +133,7 @@ cdef class StridedMemoryView:
 
     @classmethod
     def from_cuda_array_interface(cls, obj: object, stream_ptr: int | None=None) -> StridedMemoryView:
+        cdef StridedMemoryView buf
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             buf = cls()
