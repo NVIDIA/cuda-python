@@ -47,6 +47,8 @@ cdef class Buffer:
         self._memory_resource = None
         self._ptr_obj = None
         self._alloc_stream = None
+        self._owner = None
+        self._mem_attrs_inited = False
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError("Buffer objects cannot be instantiated directly. "
@@ -55,14 +57,17 @@ cdef class Buffer:
     @classmethod
     def _init(
         cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
-        stream: Stream | None = None
+        stream: Stream | None = None, owner : object | None = None,
     ):
         cdef Buffer self = Buffer.__new__(cls)
         self._ptr = <uintptr_t>(int(ptr))
         self._ptr_obj = ptr
         self._size = size
+        if mr is not None and owner is not None:
+            raise ValueError("owner and memory resource cannot be both specified together")
         self._memory_resource = mr
         self._alloc_stream = <Stream>(stream) if stream is not None else None
+        self._owner = owner
         return self
 
     def __dealloc__(self):
@@ -74,7 +79,8 @@ cdef class Buffer:
 
     @staticmethod
     def from_handle(
-        ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None
+        ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
+        owner: object | None = None,
     ) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
@@ -86,9 +92,13 @@ cdef class Buffer:
             Memory size of the buffer
         mr : :obj:`~_memory.MemoryResource`, optional
             Memory resource associated with the buffer
+        owner : object, optional
+            An object holding external allocation that the ``ptr`` points to.
+            The reference is kept as long as the buffer is alive.
+            The ``owner`` and ``mr`` cannot be specified together.
         """
         # TODO: It is better to take a stream for latter deallocation
-        return Buffer._init(ptr, size, mr=mr)
+        return Buffer._init(ptr, size, mr=mr, owner=owner)
 
     @classmethod
     def from_ipc_descriptor(
@@ -224,7 +234,9 @@ cdef class Buffer:
         """Return the device ordinal of this buffer."""
         if self._memory_resource is not None:
             return self._memory_resource.device_id
-        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
+        else:
+            Buffer_init_mem_attrs(self)
+            return self._mem_attrs.device_id
 
     @property
     def handle(self) -> DevicePointerT:
@@ -248,14 +260,18 @@ cdef class Buffer:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
         if self._memory_resource is not None:
             return self._memory_resource.is_device_accessible
-        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
+        else:
+            Buffer_init_mem_attrs(self)
+            return self._mem_attrs.is_device_accessible
 
     @property
     def is_host_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
         if self._memory_resource is not None:
             return self._memory_resource.is_host_accessible
-        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
+        else:
+            Buffer_init_mem_attrs(self)
+            return self._mem_attrs.is_host_accessible
 
     @property
     def memory_resource(self) -> MemoryResource:
@@ -267,18 +283,73 @@ cdef class Buffer:
         """Return the memory size of this buffer."""
         return self._size
 
+    @property
+    def owner(self) -> object:
+        """Return the object holding external allocation."""
+        return self._owner
+
 
 # Buffer Implementation
 # ---------------------
 cdef inline void Buffer_close(Buffer self, stream):
     cdef Stream s
-    if self._ptr and self._memory_resource is not None:
-        s = Stream_accept(stream) if stream is not None else self._alloc_stream
-        self._memory_resource.deallocate(self._ptr, self._size, s)
+    if self._ptr:
+        if self._memory_resource is not None:
+            s = Stream_accept(stream) if stream is not None else self._alloc_stream
+            self._memory_resource.deallocate(self._ptr, self._size, s)
         self._ptr = 0
         self._memory_resource = None
+        self._owner = None
         self._ptr_obj = None
         self._alloc_stream = None
+
+
+cdef Buffer_init_mem_attrs(Buffer self):
+    if not self._mem_attrs_inited:
+        query_memory_attrs(self._mem_attrs, self._ptr)
+        self._mem_attrs_inited = True
+
+
+cdef int query_memory_attrs(_MemAttrs &out, uintptr_t ptr) except -1:
+    cdef int memory_type
+    ret, attrs = _query_memory_attrs(ptr)
+    if ret == driver.CUresult.CUDA_ERROR_NOT_INITIALIZED:
+        # Device class handles the cuInit call internally
+        from cuda.core.experimental import Device as _Device
+        _Device()
+    ret, attrs = _query_memory_attrs(ptr)
+    raise_if_driver_error(ret)
+    memory_type = attrs[0]
+
+    if memory_type == 0:
+        # unregistered host pointer
+        out.is_host_accessible = True
+        out.is_device_accessible = False
+        out.device_id = -1
+    elif (
+        memory_type == driver.CUmemorytype.CU_MEMORYTYPE_HOST
+        or memory_type == driver.CUmemorytype.CU_MEMORYTYPE_UNIFIED
+    ):
+        # TODO(ktokarski): should we compare host/device ptrs using cuPointerGetAttribute
+        # for exceptional cases when the same data can end up with different ptrs
+        # for host and device?
+        out.is_host_accessible = True
+        out.is_device_accessible = True
+        out.device_id = attrs[1]
+    else:
+        # device/texture
+        out.is_host_accessible = False
+        out.is_device_accessible = True
+        out.device_id = attrs[1]
+    return 0
+
+
+cdef inline _query_memory_attrs(uintptr_t ptr):
+    cdef tuple attrs = (
+        driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
+        driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
+    )
+    return driver.cuPointerGetAttributes(len(attrs), attrs, ptr)
 
 
 cdef class MemoryResource:
