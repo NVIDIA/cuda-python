@@ -94,16 +94,14 @@ jobs:
         run: nvidia-smi
 
       - name: Verify driver mode
-        env:
-          EXPECTED_MODE: ${{ matrix.DRIVER_MODE }}
         run: |
-          $mode_output = nvidia-smi -q | Select-String -Pattern "Driver Model"
+          $mode_output = nvidia-smi | Select-String -Pattern "${{ matrix.DRIVER_MODE }}"
           Write-Output "Driver mode check: $mode_output"
-          if ($mode_output -notmatch "$env:EXPECTED_MODE") {
-            Write-Error "Expected driver mode $env:EXPECTED_MODE but got: $mode_output"
+          if ($mode_output -notmatch "${{ matrix.DRIVER_MODE }}") {
+            Write-Error "Expected driver mode ${{ matrix.DRIVER_MODE }} but got: $mode_output"
             exit 1
           }
-          Write-Output "Driver mode verified: $env:EXPECTED_MODE"
+          Write-Output "Driver mode verified: ${{ matrix.DRIVER_MODE }}"
 
       - name: Set environment variables
         env:
