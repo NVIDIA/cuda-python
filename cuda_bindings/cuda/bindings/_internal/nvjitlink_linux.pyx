@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 12.9.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.0.2. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
@@ -15,6 +15,8 @@ from cuda.pathfinder import load_nvidia_dynamic_lib
 ###############################################################################
 # Extern
 ###############################################################################
+
+# You must 'from .utils import NotSupportedError' before using this template
 
 cdef extern from "<dlfcn.h>" nogil:
     void* dlopen(const char*, int)
@@ -30,6 +32,25 @@ cdef extern from "<dlfcn.h>" nogil:
 
     const void* RTLD_DEFAULT 'RTLD_DEFAULT'
 
+cdef int get_cuda_version():
+    cdef void* handle = NULL
+    cdef int err, driver_ver = 0
+
+    # Load driver to check version
+    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
+    if handle == NULL:
+        err_msg = dlerror()
+        raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
+    cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
+    if cuDriverGetVersion == NULL:
+        raise RuntimeError('Did not find cuDriverGetVersion symbol in libcuda.so.1')
+    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
+    if err != 0:
+        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
+
+    return driver_ver
+
+
 
 ###############################################################################
 # Wrapper init
@@ -37,7 +58,6 @@ cdef extern from "<dlfcn.h>" nogil:
 
 cdef object __symbol_lock = threading.Lock()
 cdef bint __py_nvjitlink_init = False
-cdef void* __cuDriverGetVersion = NULL
 
 cdef void* __nvJitLinkCreate = NULL
 cdef void* __nvJitLinkDestroy = NULL
@@ -60,12 +80,16 @@ cdef void* load_library() except* with gil:
     return <void*>handle
 
 
-cdef int __check_or_init_nvjitlink() except -1 nogil:
+cdef int _init_nvjitlink() except -1 nogil:
     global __py_nvjitlink_init
 
     cdef void* handle = NULL
 
     with gil, __symbol_lock:
+        # Recheck the flag after obtaining the locks
+        if __py_nvjitlink_init:
+            return 0
+
         # Load function
         global __nvJitLinkCreate
         __nvJitLinkCreate = dlsym(RTLD_DEFAULT, 'nvJitLinkCreate')
@@ -173,7 +197,7 @@ cdef inline int _check_or_init_nvjitlink() except -1 nogil:
     if __py_nvjitlink_init:
         return 0
 
-    return __check_or_init_nvjitlink()
+    return _init_nvjitlink()
 
 cdef dict func_ptrs = None
 

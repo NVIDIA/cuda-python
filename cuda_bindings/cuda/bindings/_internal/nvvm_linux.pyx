@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 12.9.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.0.2. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
@@ -15,6 +15,8 @@ from cuda.pathfinder import load_nvidia_dynamic_lib
 ###############################################################################
 # Extern
 ###############################################################################
+
+# You must 'from .utils import NotSupportedError' before using this template
 
 cdef extern from "<dlfcn.h>" nogil:
     void* dlopen(const char*, int)
@@ -49,13 +51,13 @@ cdef int get_cuda_version():
     return driver_ver
 
 
+
 ###############################################################################
 # Wrapper init
 ###############################################################################
 
 cdef object __symbol_lock = threading.Lock()
 cdef bint __py_nvvm_init = False
-cdef void* __cuDriverGetVersion = NULL
 
 cdef void* __nvvmGetErrorString = NULL
 cdef void* __nvvmVersion = NULL
@@ -77,12 +79,16 @@ cdef void* load_library() except* with gil:
     return <void*>handle
 
 
-cdef int __check_or_init_nvvm() except -1 nogil:
+cdef int _init_nvvm() except -1 nogil:
     global __py_nvvm_init
 
     cdef void* handle = NULL
 
     with gil, __symbol_lock:
+        # Recheck the flag after obtaining the locks
+        if __py_nvvm_init:
+            return 0
+
         # Load function
         global __nvvmGetErrorString
         __nvvmGetErrorString = dlsym(RTLD_DEFAULT, 'nvvmGetErrorString')
@@ -179,11 +185,11 @@ cdef int __check_or_init_nvvm() except -1 nogil:
         return 0
 
 
-cdef int _check_or_init_nvvm() except -1 nogil:
+cdef inline int _check_or_init_nvvm() except -1 nogil:
     if __py_nvvm_init:
         return 0
 
-    return __check_or_init_nvvm()
+    return _init_nvvm()
 
 
 cdef dict func_ptrs = None
