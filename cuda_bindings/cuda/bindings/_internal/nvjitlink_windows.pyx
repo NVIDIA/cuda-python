@@ -93,10 +93,14 @@ cdef void* __nvJitLinkGetInfoLog = NULL
 cdef void* __nvJitLinkVersion = NULL
 
 
-cdef int __check_or_init_nvjitlink() except -1 nogil:
+cdef int _init_nvjitlink() except -1 nogil:
     global __py_nvjitlink_init
 
     with gil, __symbol_lock:
+        # Recheck the flag after obtaining the locks
+        if __py_nvjitlink_init:
+            return 0
+
         # Load library
         handle = load_nvidia_dynamic_lib("nvJitLink")._handle_uint
 
@@ -151,7 +155,7 @@ cdef inline int _check_or_init_nvjitlink() except -1 nogil:
     if __py_nvjitlink_init:
         return 0
 
-    return __check_or_init_nvjitlink()
+    return _init_nvjitlink()
 
 
 cdef dict func_ptrs = None
