@@ -96,7 +96,7 @@ jobs:
 
           $mode_output = nvidia-smi | Select-String -Pattern "${{ matrix.DRIVER_MODE }}"
           Write-Output "Driver mode check: $mode_output"
-          if ($mode_output -eq "") {
+          if ("$mode_output" -eq "") {
             Write-Error "Switching to driver mode ${{ matrix.DRIVER_MODE }} failed!"
             exit 1
           }
