@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.OpError
-============================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autoenum:: OpError
