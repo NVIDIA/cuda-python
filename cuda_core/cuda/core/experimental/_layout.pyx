@@ -29,18 +29,29 @@ cdef class StridedLayout:
 
     @classmethod
     def dense_like(cls, StridedLayout other, object stride_order="K"):
-        cdef StridedLayout new_layout = StridedLayout.__new__(cls)
         cdef OrderFlag order_flag
         cdef axis_vec_t stride_order_vec
 
         if stride_order == "K":
+            if other.get_is_dense():
+                return other
             other.get_stride_order(stride_order_vec)
             order_flag = ORDER_PERM
         else:
             order_flag = _stride_order2vec(stride_order_vec, stride_order)
             if order_flag == ORDER_NONE:
-                raise ValueError(f"The stride_order must be 'K', 'C', 'F', or a permutation tuple. Got: {stride_order}")
+                raise ValueError(
+                    f"The stride_order must be 'K', 'C', 'F', "
+                    f"or a permutation tuple. Got: {stride_order}"
+                )
+            elif order_flag == ORDER_C:
+                if other.get_is_contiguous_c():
+                    return other
+            elif order_flag == ORDER_F:
+                if other.get_is_contiguous_f():
+                    return other
 
+        cdef StridedLayout new_layout = StridedLayout.__new__(cls)
         new_layout.init_dense_from_ptr(
             other.base.ndim,
             other.base.shape,
@@ -93,34 +104,121 @@ cdef class StridedLayout:
 
     @property
     def is_contiguous_c(StridedLayout self):
+        """
+        True iff the layout is contiguous in C-order, i.e.
+        the rightmost stride is 1 and each subsequent
+        stride to the left is the product of the
+        next extent and the stride.
+        In C-contigious layout, the strides are non-negative,
+        increase from the right to the left and the mapping
+        from indices to memory offsets is 1 to 1.
+        """
         return self.get_is_contiguous_c()
 
     @property
     def is_contiguous_f(StridedLayout self):
+        """
+        True iff the layout is contiguous in F-order, i.e.
+        the leftmost stride is 1 and each subsequent
+        stride to the right is the product of the
+        next stride and extent.
+        In F-contigious layout, the strides are non-negative,
+        increase from the left to the right and the mapping
+        from indices to memory offsets is 1 to 1.
+        """
         return self.get_is_contiguous_f()
 
     @property
-    def is_contiguous_any(StridedLayout self):
-        return self.get_is_contiguous_any()
+    def is_dense(StridedLayout self):
+        """
+        True iff the layout is contiguous in some axis order, i.e.
+        there exists a permutation of axes such that the layout
+        is C-contiguous.
+        In dense layout, the strides are non-negative and the mapping
+        from indices to memory offsets is 1 to 1.
+        """
+        return self.get_is_dense()
 
     @property
     def offset_bounds(StridedLayout self):
+        """
+        A tuple of ``(min_offset, max_offset)`` representing the
+        minimum and maximum offsets (as a number of elements, not bytes)
+        that the layout can map to.
+        I.e. there exist two ndim-tuples ``idx_min`` and ``idx_max``,
+        where ``0 <= idx[i] < shape[i]`` for ``0 <= i < ndim``,
+        such that:
+        ``min_offset = sum(idx_min[i] * strides[i] for i in range(ndim))``
+        ``max_offset = sum(idx_max[i] * strides[i] for i in range(ndim))``,
+        and all other valid ndim-indices are mapped to offsets
+        in the range ``[min_offset, max_offset]``.
+        """
         cdef stride_t min_offset = 0
         cdef stride_t max_offset = 0
         self.get_offset_bounds(min_offset, max_offset)
         return min_offset, max_offset
 
     @property
-    def required_size_in_bytes(StridedLayout self):
-        return self.get_required_size_in_bytes()
+    def min_offset(StridedLayout self):
+        """
+        See ``offset_bounds`` for details.
+        """
+        cdef stride_t min_offset = 0
+        cdef stride_t max_offset = 0
+        self.get_offset_bounds(min_offset, max_offset)
+        return min_offset
+
+    @property
+    def max_offset(StridedLayout self):
+        """
+        See ``offset_bounds`` for details.
+        """
+        cdef stride_t min_offset = 0
+        cdef stride_t max_offset = 0
+        self.get_offset_bounds(min_offset, max_offset)
+        return max_offset
 
     @property
     def slice_offset_in_bytes(StridedLayout self):
+        """
+        The memory offset (as a number of bytes)
+        of the element at index ``(0,) * ndim``.
+        The only way for the index 0 to be mapped to
+        non-zero offset in memory is if the layout
+        was sliced.
+        """
         return self.get_slice_offset_in_bytes()
-    
+
+    def required_size_in_bytes(StridedLayout self):
+        """
+        The memory allocation size in bytes needed for all
+        elements of the ndim-tensor to be mapped to
+        offsets within the allocated memory range.
+        I.e. for any ndim-tuple ``idx``, such that
+        ``0 <= idx[i] < shape[i]`` for ``0 <= i < ndim``,
+        the ``sum(idx[i] * strides[i] for i in range(ndim))``
+        is in the range ``[0, required_size_in_bytes - 1]``.
+        The function raises an error if the layout maps any element
+        to a negative memory offset (i.e. layout.offset_bounds[0] < 0).
+        """
+        return self.get_required_size_in_bytes()
+
     def flattened_axis_mask(StridedLayout self):
+        """
+        A mask describing which axes can be merged
+        together preserving the index to memory offset mapping
+        (see more details in ``flattened`` method documentation).
+        The only supported operation is the logical ``&``
+        between masks coming from the layouts with equal ndim.
+        If such a mask is passed to the
+        ``flattened`` method, only the axes that are mergable
+        for all the layouts will be flattened.
+        """
         return self.get_flattened_axis_mask()
-    
+
+    def to_dense(StridedLayout self, object stride_order="K"):
+        return StridedLayout.dense_like(self, stride_order)
+
     def reshaped(StridedLayout self, object shape):
         cdef StridedLayout new_layout = StridedLayout.__new__(StridedLayout)
         cdef BaseLayout new_shape
@@ -138,6 +236,21 @@ cdef class StridedLayout:
         return new_layout
 
     def flattened(StridedLayout self, start_axis=0, end_axis=-1, mask=None):
+        """
+        Merges consecutive axes into a single axis (where the new extent
+        is the product of merged extents) if the mapping of indices to
+        memory offsets is preserved (assuming the indices are iterated
+        in C-order, i.e. the rightmost axis is incremented first).
+        E.g. for ``StridedLayout((2, 2), (4, 2), 1)``
+        and the C-ordered indices ``[(0, 0), (0, 1), (1, 0), (1, 1)]`` would
+        be mapped to offsets ``[0, 2, 4, 6]``, same as for the
+        flattened layout ``StridedLayout((4,), (2,), 1)``
+        and the indices ``[0, 1, 2, 3]``.
+        If ``start_axis`` and ``end_axis`` are provided, only the axes in the
+        inclusive range ``[start_axis, end_axis]`` are considered for flattening.
+        Alternatively, a mask specifying which axes to consider can be provided
+        (see ``flattened_axis_mask`` method documentation for details).
+        """
         cdef StridedLayout new_layout = StridedLayout.__new__(StridedLayout)
         cdef axes_mask_t axis_mask
         if mask is None:
@@ -206,14 +319,14 @@ cdef class StridedLayout:
 
     cdef axes_mask_t get_flattened_axis_mask(StridedLayout self) except? -1 nogil:
         return flattened_strides_in_c_index_order_mask(self.base)
-    
+
     cdef int get_max_compatible_itemsize(StridedLayout self, int max_itemsize, intptr_t data_ptr, int axis=-1) except -1 nogil:
         return max_compatible_itemsize(self.base, self.slice_offset, self.itemsize, max_itemsize, data_ptr, axis)
 
     cdef int reshape_into(StridedLayout self, StridedLayout out_layout, BaseLayout& new_shape) except -1 nogil:
         cdef int64_t old_volume = self.get_volume()
         validate_reshaped_shape(new_shape, old_volume)
-        
+
         cdef int ndim = new_shape.ndim
         _zero_strides(new_shape)
 
@@ -222,7 +335,7 @@ cdef class StridedLayout:
             flatten_strides_in_c_index_order(flattened, self.base, AXIS_MASK_ALL)
             if not split_strides_in_c_index_order(new_shape, flattened):
                 raise ValueError("Layout strides are incompatible with the new shape")
-        
+
         # Reset all memoized properties
         out_layout._prop_mask = 0
 
@@ -241,7 +354,7 @@ cdef class StridedLayout:
 
         cdef BaseLayout permuted
         permute_extents(permuted, self.base, axis_order)
-    
+
         # Reset all memoized properties
         out_layout._prop_mask = 0
 
@@ -327,7 +440,7 @@ cdef class StridedLayout:
         return 0
 
     cdef int pack_into(StridedLayout self, StridedLayout out_layout, int itemsize, intptr_t data_ptr, bint keep_dim, int axis=-1) except -1 nogil:
-        
+
         cdef BaseLayout packed
         cdef stride_t new_slice_offset = 0
         cdef int vec_size = pack_extents(
@@ -365,9 +478,9 @@ cdef class StridedLayout:
         )
         if vec_size == 1 and out_layout is self:
             return 0
-        
+
         cdef int64_t new_slice_offset = _overflow_checked_mul(self.slice_offset, vec_size)
-        
+
         # Reset all memoized properties
         out_layout._prop_mask = 0
 
@@ -387,7 +500,7 @@ cdef class StridedLayout:
 
         # Preserved attributes
         out_layout.itemsize = self.itemsize
-        
+
         # Set new attributes
         _swap_layout(out_layout.base, sliced)
         out_layout.slice_offset = new_slice_offset
@@ -452,7 +565,7 @@ cdef inline int flatten_strides_in_c_index_order(BaseLayout& out_layout, BaseLay
     cdef extent_t* in_shape = in_layout.shape
     cdef stride_t* in_strides = get_strides_ptr(in_layout)
     while group_start < ndim:
-        group_vol = in_shape[group_start] 
+        group_vol = in_shape[group_start]
         group_stride = in_strides[group_start]
         group_end = group_start + 1
         while (
@@ -482,7 +595,7 @@ cdef inline axes_mask_t flattened_strides_in_c_index_order_mask(BaseLayout& layo
     cdef int64_t group_vol
     cdef int64_t group_stride
     while group_start < ndim:
-        group_vol = layout.shape[group_start] 
+        group_vol = layout.shape[group_start]
         group_stride = layout.strides[group_start]
         group_end = group_start + 1
         while group_end < ndim and group_stride == layout.strides[group_end] * layout.shape[group_end]:
@@ -763,7 +876,7 @@ cdef inline int unpack_extents(BaseLayout &out_layout, BaseLayout &in_layout, in
         raise ValueError(f"The axis {axis} extent must be non-zero, got {shape[axis]}.")
     if strides[axis] != 1:
         raise ValueError(f"The axis {axis} stride must be 1, got {strides[axis]}.")
-    
+
     cdef int vec_size = itemsize // new_itemsize
     init_base_layout(out_layout, ndim)
     out_layout.shape[axis] = _overflow_checked_mul(shape[axis], vec_size)
