@@ -45,7 +45,7 @@
       { "ARCH": "amd64", "PY_VER": "3.14", "CUDA_VER": "12.9.1", "LOCAL_CTK": "0", "GPU": "a100", "DRIVER": "latest", "DRIVER_MODE": "TCC" },
       { "ARCH": "amd64", "PY_VER": "3.14", "CUDA_VER": "13.0.2", "LOCAL_CTK": "1", "GPU": "rtx4090", "DRIVER": "latest", "DRIVER_MODE": "MCDM" },
       { "ARCH": "amd64", "PY_VER": "3.14t", "CUDA_VER": "12.9.1", "LOCAL_CTK": "1", "GPU": "l4", "DRIVER": "latest", "DRIVER_MODE": "TCC" },
-      { "ARCH": "amd64", "PY_VER": "3.14t", "CUDA_VER": "13.0.2", "LOCAL_CTK": "0", "GPU": "v100", "DRIVER": "latest", "DRIVER_MODE": "MCDM" }
+      { "ARCH": "amd64", "PY_VER": "3.14t", "CUDA_VER": "13.0.2", "LOCAL_CTK": "0", "GPU": "rtxpro6000", "DRIVER": "latest", "DRIVER_MODE": "MCDM" }
     ],
     "nightly": []
   }

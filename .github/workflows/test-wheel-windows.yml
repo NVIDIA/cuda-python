@@ -93,6 +93,18 @@ jobs:
       - name: Ensure GPU is working
         run: nvidia-smi
 
+      - name: Verify driver mode
+        env:
+          EXPECTED_MODE: ${{ matrix.DRIVER_MODE }}
+        run: |
+          $mode_output = nvidia-smi -q | Select-String -Pattern "Driver Model"
+          Write-Output "Driver mode check: $mode_output"
+          if ($mode_output -notmatch "$env:EXPECTED_MODE") {
+            Write-Error "Expected driver mode $env:EXPECTED_MODE but got: $mode_output"
+            exit 1
+          }
+          Write-Output "Driver mode verified: $env:EXPECTED_MODE"
+
       - name: Set environment variables
         env:
           BUILD_CUDA_VER: ${{ inputs.build-ctk-ver }}
