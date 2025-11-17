@@ -36,8 +36,6 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
-        with:
-          fetch-depth: 1
 
       - name: Validate Test Type
         run: |
@@ -97,8 +95,6 @@ jobs:
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
-        with:
-          fetch-depth: 0
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
