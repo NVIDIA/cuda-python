@@ -56,6 +56,7 @@ test-cu12 = ["cuda-core[test]", "cupy-cuda12x; python_version < '3.14'", "cuda-t
 test-cu13 = ["cuda-core[test]", "cupy-cuda13x; python_version < '3.14'", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
 # free threaded build, cupy doesn't support free-threaded builds yet, so avoid installing it for now
 # TODO: cupy should support free threaded builds
+test-cu12-ft = ["cuda-core[test]", "cuda-toolkit[cudart]==12.*"]
 test-cu13-ft = ["cuda-core[test]", "cuda-toolkit[cudart]==13.*"]
 
 [project.urls]
