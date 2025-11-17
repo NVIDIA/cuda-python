@@ -124,20 +124,6 @@ def isSupportedFilesystem():
 pytestmark = pytest.mark.skipif(not cufileLibraryAvailable(), reason="cuFile library not available on this system")
 
 
-def safe_decode_string(raw_value):
-    """Safely decode a string value from ctypes buffer."""
-    # Find null terminator if present
-    null_pos = raw_value.find(b"\x00")
-    if null_pos != -1:
-        raw_value = raw_value[:null_pos]
-    # Decode with error handling
-    try:
-        return raw_value.decode("utf-8", errors="ignore")
-    except UnicodeDecodeError:
-        # If UTF-8 fails, try to decode as bytes
-        return str(raw_value)
-
-
 def test_cufile_success_defined():
     """Check if CUFILE_SUCCESS is defined in OpError enum."""
     assert hasattr(cufile.OpError, "SUCCESS")
@@ -1829,9 +1815,7 @@ def test_set_get_parameter_string():
             cufile.set_parameter_string(
                 cufile.StringConfigParameter.LOGGING_LEVEL, int(ctypes.addressof(logging_level_buffer))
             )
-            retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.LOGGING_LEVEL, 256)
-            # Use safe_decode_string to handle null terminators and padding
-            retrieved_value = safe_decode_string(retrieved_value_raw.encode("utf-8"))
+            retrieved_value = cufile.get_parameter_string(cufile.StringConfigParameter.LOGGING_LEVEL, 256)
             logging.info(f"Logging level test: set {logging_level}, got {retrieved_value}")
             # The retrieved value should be a string, so we can compare directly
             assert retrieved_value == logging_level, (
@@ -1851,9 +1835,7 @@ def test_set_get_parameter_string():
             cufile.set_parameter_string(
                 cufile.StringConfigParameter.ENV_LOGFILE_PATH, int(ctypes.addressof(logfile_buffer))
             )
-            retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.ENV_LOGFILE_PATH, 256)
-            # Use safe_decode_string to handle null terminators and padding
-            retrieved_value = safe_decode_string(retrieved_value_raw.encode("utf-8"))
+            retrieved_value = cufile.get_parameter_string(cufile.StringConfigParameter.ENV_LOGFILE_PATH, 256)
             logging.info(f"Log file path test: set {logfile_path}, got {retrieved_value}")
             # The retrieved value should be a string, so we can compare directly
             assert retrieved_value == logfile_path, f"Log file path mismatch: set {logfile_path}, got {retrieved_value}"
@@ -1869,9 +1851,7 @@ def test_set_get_parameter_string():
             log_dir_bytes = log_dir.encode("utf-8") + b"\x00"
             log_dir_buffer = ctypes.create_string_buffer(log_dir_bytes)
             cufile.set_parameter_string(cufile.StringConfigParameter.LOG_DIR, int(ctypes.addressof(log_dir_buffer)))
-            retrieved_value_raw = cufile.get_parameter_string(cufile.StringConfigParameter.LOG_DIR, 256)
-            # Use safe_decode_string to handle null terminators and padding
-            retrieved_value = safe_decode_string(retrieved_value_raw.encode("utf-8"))
+            retrieved_value = cufile.get_parameter_string(cufile.StringConfigParameter.LOG_DIR, 256)
             logging.info(f"Log directory test: set {log_dir}, got {retrieved_value}")
             # The retrieved value should be a string, so we can compare directly
             assert retrieved_value == log_dir, f"Log directory mismatch: set {log_dir}, got {retrieved_value}"

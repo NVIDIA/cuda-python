@@ -12,6 +12,7 @@ import numpy as _numpy
 from cpython cimport buffer as _buffer
 from cpython.memoryview cimport PyMemoryView_FromMemory
 from enum import IntEnum as _IntEnum
+cimport cpython
 
 import cython
 
@@ -1254,7 +1255,7 @@ cpdef str get_parameter_string(int param, int len):
     with nogil:
         status = cuFileGetParameterString(<_StringConfigParameter>param, desc_str, len)
     check_status(status)
-    return _desc_str_.decode()
+    return cpython.PyUnicode_FromString(desc_str)
 
 
 cpdef set_parameter_size_t(int param, size_t value):
