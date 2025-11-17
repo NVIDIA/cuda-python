@@ -312,7 +312,8 @@ def test_device_memory_resource_initialization(mempool_device, use_device_object
     buffer.close()
 
 
-def test_vmm_allocator_basic_allocation():
+@pytest.mark.parametrize("use_device_object", [True, False])
+def test_vmm_allocator_basic_allocation(use_device_object):
     """Test basic VMM allocation functionality.
 
     This test verifies that VirtualMemoryResource can allocate memory
@@ -327,7 +328,8 @@ def test_vmm_allocator_basic_allocation():
 
     options = VirtualMemoryResourceOptions()
     # Create VMM allocator with default config
-    vmm_mr = VirtualMemoryResource(device, config=options)
+    device_arg = device if use_device_object else device.device_id
+    vmm_mr = VirtualMemoryResource(device_arg, config=options)
 
     # Test basic allocation
     buffer = vmm_mr.allocate(4096)
