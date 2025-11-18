@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ctypes
-from ctypes import wintypes
 import sys
+from ctypes import wintypes
 
 try:
     from cuda.bindings import driver
@@ -13,7 +13,6 @@ try:
     import numpy as np
 except ImportError:
     np = None
-import ctypes
 import platform
 
 import pytest
@@ -30,7 +29,6 @@ from cuda.core.experimental._dlpack import DLDeviceType
 from cuda.core.experimental._memory import IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
 from cuda.core.experimental.utils import StridedMemoryView
-
 from helpers import IS_WINDOWS
 from helpers.buffers import DummyUnifiedMemoryResource
 
@@ -322,7 +320,7 @@ def get_handle_type():
             _fields_ = [
                 ("nLength", wintypes.DWORD),
                 ("lpSecurityDescriptor", wintypes.LPVOID),
-                ("bInheritHandle", wintypes.BOOL)
+                ("bInheritHandle", wintypes.BOOL),
             ]
 
         sa = SECURITY_ATTRIBUTES()
@@ -356,7 +354,8 @@ def test_vmm_allocator_basic_allocation(use_device_object, handle_type):
     handle_type, security_attribute = handle_type  # unpack
     win32_handle_metadata = ctypes.addressof(security_attribute) if security_attribute else 0
     options = VirtualMemoryResourceOptions(
-        handle_type=handle_type, win32_handle_metadata=win32_handle_metadata,
+        handle_type=handle_type,
+        win32_handle_metadata=win32_handle_metadata,
     )
     # Create VMM allocator with default config
     device_arg = device if use_device_object else device.device_id
@@ -464,7 +463,8 @@ def test_vmm_allocator_grow_allocation(handle_type):
     handle_type, security_attribute = handle_type  # unpack
     win32_handle_metadata = ctypes.addressof(security_attribute) if security_attribute else 0
     options = VirtualMemoryResourceOptions(
-        handle_type=handle_type, win32_handle_metadata=win32_handle_metadata,
+        handle_type=handle_type,
+        win32_handle_metadata=win32_handle_metadata,
     )
 
     vmm_mr = VirtualMemoryResource(device, config=options)
