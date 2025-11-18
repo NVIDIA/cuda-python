@@ -63,7 +63,7 @@ jobs:
           echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
 
   test:
-    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, GPU ${{ matrix.GPU }}
+    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, ${{ matrix.GPU }} (${{ matrix.DRIVER_MODE }})
     # The build stage could fail but we want the CI to keep moving.
     needs: compute-matrix
     strategy:
@@ -80,11 +80,23 @@ jobs:
         continue-on-error: true
 
       - name: Update driver
+        env:
+          DRIVER_MODE: ${{ matrix.DRIVER_MODE }}
+          GPU_TYPE: ${{ matrix.GPU }}
         run: |
-          .github/workflows/install_gpu_driver.ps1
+          ci/tools/install_gpu_driver.ps1
 
       - name: Ensure GPU is working
-        run: nvidia-smi
+        run: |
+          nvidia-smi
+
+          $mode_output = nvidia-smi | Select-String -Pattern "${{ matrix.DRIVER_MODE }}"
+          Write-Output "Driver mode check: $mode_output"
+          if ("$mode_output" -eq "") {
+            Write-Error "Switching to driver mode ${{ matrix.DRIVER_MODE }} failed!"
+            exit 1
+          }
+          Write-Output "Driver mode verified: ${{ matrix.DRIVER_MODE }}"
 
       - name: Set environment variables
         env:
