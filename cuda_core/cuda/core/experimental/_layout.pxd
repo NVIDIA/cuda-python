@@ -5,7 +5,7 @@
 cimport cython
 from cython.operator cimport dereference as deref
 
-from libc.stdint cimport int64_t, uint32_t, intptr_t
+from libc.stdint cimport int64_t, uint32_t, uintptr_t
 from libcpp cimport vector
 
 ctypedef int64_t extent_t
@@ -49,14 +49,15 @@ cdef enum Property:
     PROP_IS_UNIQUE = 1 << 0
     PROP_IS_CONTIGUOUS_C = 1 << 1
     PROP_IS_CONTIGUOUS_F = 1 << 2
-    PROP_IS_DENSE = 1 << 3
-    PROP_OFFSET_BOUNDS = 1 << 4
-    PROP_REQUIRED_SIZE_IN_BYTES = 1 << 5
-    PROP_SHAPE = 1 << 6
-    PROP_STRIDES = 1 << 7
-    PROP_STRIDES_IN_BYTES = 1 << 8
-    PROP_STRIDE_ORDER = 1 << 9
-    PROP_VOLUME = 1 << 10
+    PROP_IS_CONTIGUOUS_ANY = 1 << 3
+    PROP_IS_DENSE = 1 << 4
+    PROP_OFFSET_BOUNDS = 1 << 5
+    PROP_REQUIRED_SIZE_IN_BYTES = 1 << 6
+    PROP_SHAPE = 1 << 7
+    PROP_STRIDES = 1 << 8
+    PROP_STRIDES_IN_BYTES = 1 << 9
+    PROP_STRIDE_ORDER = 1 << 10
+    PROP_VOLUME = 1 << 11
 
 
 cdef struct BaseLayout:
@@ -109,14 +110,15 @@ cdef class StridedLayout:
     # Initialization
     # ==============================
 
-    cdef inline int _init(StridedLayout self, BaseLayout& base, int itemsize, bint strides_in_bytes=False) except -1 nogil:
+    cdef inline int _init(StridedLayout self, BaseLayout& base, int itemsize, bint divide_strides=False) except -1 nogil:
         _validate_itemsize(itemsize)
 
-        if base.strides != NULL and strides_in_bytes:
+        if base.strides != NULL and divide_strides:
             _divide_strides(base, itemsize)
 
         self.itemsize = itemsize
         self.slice_offset = 0
+
         _swap_layout(self.base, base)
         return 0
 
@@ -142,20 +144,20 @@ cdef class StridedLayout:
         _mark_property_valid(self, PROP_VOLUME)
         return 0
 
-    cdef inline int init_from_ptr(StridedLayout self, int ndim, extent_t* shape, stride_t* strides, int itemsize, bint strides_in_bytes=False) except -1 nogil:
+    cdef inline int init_from_ptr(StridedLayout self, int ndim, extent_t* shape, stride_t* strides, int itemsize, bint divide_strides=False) except -1 nogil:
         cdef BaseLayout base
         _init_base_layout_from_ptr(base, ndim, shape, strides)
-        return self._init(base, itemsize, strides_in_bytes)
+        return self._init(base, itemsize, divide_strides)
 
     cdef inline int init_dense_from_ptr(StridedLayout self, int ndim, extent_t* shape, int itemsize, OrderFlag order_flag, axis_vec_t* stride_order=NULL) except -1 nogil:
         cdef BaseLayout base
         _init_base_layout_from_ptr(base, ndim, shape, NULL)
         return self._init_dense(base, itemsize, order_flag, stride_order)
 
-    cdef inline int init_from_tuple(StridedLayout self, tuple shape, tuple strides, int itemsize, bint strides_in_bytes=False) except -1:
+    cdef inline int init_from_tuple(StridedLayout self, tuple shape, tuple strides, int itemsize, bint divide_strides=False) except -1:
         cdef BaseLayout base
         _init_base_layout_from_tuple(base, shape, strides)
-        return self._init(base, itemsize, strides_in_bytes)
+        return self._init(base, itemsize, divide_strides)
 
     cdef inline int init_dense_from_tuple(StridedLayout self, tuple shape, int itemsize, object stride_order) except -1:
         cdef axis_vec_t stride_order_vec
@@ -237,28 +239,24 @@ cdef class StridedLayout:
     cdef inline bint get_is_contiguous_c(StridedLayout self) except -1 nogil:
         if _has_valid_property(self, PROP_IS_CONTIGUOUS_C):
             return _boolean_property(self, PROP_IS_CONTIGUOUS_C)
-        cdef bint is_contiguous_c = (
-            self.slice_offset == 0 and _is_contiguous_c(self.get_volume(), self.base)
-        )
-        return _set_boolean_property(self, PROP_IS_CONTIGUOUS_C, is_contiguous_c)
+        return _set_boolean_property(self, PROP_IS_CONTIGUOUS_C, _is_contiguous_c(self.get_volume(), self.base))
 
     cdef inline bint get_is_contiguous_f(StridedLayout self) except -1 nogil:
         if _has_valid_property(self, PROP_IS_CONTIGUOUS_F):
             return _boolean_property(self, PROP_IS_CONTIGUOUS_F)
-        cdef bint is_contiguous_f = (
-            self.slice_offset == 0 and _is_contiguous_f(self.get_volume(), self.base)
-        )
-        return _set_boolean_property(self, PROP_IS_CONTIGUOUS_F, is_contiguous_f)
+        return _set_boolean_property(self, PROP_IS_CONTIGUOUS_F, _is_contiguous_f(self.get_volume(), self.base))
+
+    cdef inline bint get_is_contiguous_any(StridedLayout self) except -1 nogil:
+        if _has_valid_property(self, PROP_IS_CONTIGUOUS_ANY):
+            return _boolean_property(self, PROP_IS_CONTIGUOUS_ANY)
+        cdef axis_vec_t stride_order
+        self.get_stride_order(stride_order)
+        return _set_boolean_property(self, PROP_IS_CONTIGUOUS_ANY, _is_contiguous_any(self.get_volume(), self.base, stride_order))
 
     cdef inline bint get_is_dense(StridedLayout self) except -1 nogil:
         if _has_valid_property(self, PROP_IS_DENSE):
             return _boolean_property(self, PROP_IS_DENSE)
-        cdef axis_vec_t stride_order
-        self.get_stride_order(stride_order)
-        cdef bint is_dense = (
-            self.slice_offset == 0 and _is_dense(self.get_volume(), self.base, stride_order)
-        )
-        return _set_boolean_property(self, PROP_IS_DENSE, is_dense)
+        return _set_boolean_property(self, PROP_IS_DENSE, self.slice_offset == 0 and self.get_is_contiguous_any())
 
     cdef inline int get_offset_bounds(StridedLayout self, stride_t& min_offset, stride_t& max_offset) except -1 nogil:
         if _has_valid_property(self, PROP_OFFSET_BOUNDS):
@@ -314,7 +312,7 @@ cdef class StridedLayout:
         return _overflow_checked_mul(self.slice_offset, self.itemsize)
 
     cdef axes_mask_t get_flattened_axis_mask(StridedLayout self) except? -1 nogil
-    cdef int get_max_compatible_itemsize(StridedLayout self, int max_itemsize, intptr_t data_ptr, int axis=*) except -1 nogil
+    cdef int get_max_compatible_itemsize(StridedLayout self, int max_itemsize, uintptr_t data_ptr, int axis=*) except -1 nogil
 
     # ==============================
     # Layout manipulation
@@ -328,7 +326,7 @@ cdef class StridedLayout:
     cdef int squeeze_into(StridedLayout self, StridedLayout out_layout) except -1 nogil
     cdef int unsqueeze_into(StridedLayout self, StridedLayout out_layout, axis_vec_t& axis_vec) except -1 nogil
     cdef int broadcast_into(StridedLayout self, StridedLayout out_layout, BaseLayout& broadcast) except -1 nogil
-    cdef int pack_into(StridedLayout self, StridedLayout out_layout, int itemsize, intptr_t data_ptr, bint keep_dim, int axis=*) except -1 nogil
+    cdef int pack_into(StridedLayout self, StridedLayout out_layout, int itemsize, uintptr_t data_ptr, bint keep_dim, int axis=*) except -1 nogil
     cdef int unpack_into(StridedLayout self, StridedLayout out_layout, int itemsize, int axis=*) except -1 nogil
     cdef int slice_into(StridedLayout self, StridedLayout out_layout, tuple slices) except -1
 
@@ -522,7 +520,7 @@ cdef inline bint _is_contiguous_f(int64_t volume, BaseLayout& base) except -1 no
     return True
 
 
-cdef inline bint _is_dense(int64_t volume, BaseLayout& base, axis_vec_t& axis_order) except -1 nogil:
+cdef inline bint _is_contiguous_any(int64_t volume, BaseLayout& base, axis_vec_t& axis_order) except -1 nogil:
     if volume == 0 or base.strides == NULL:
         return True
     cdef int64_t stride = 1
