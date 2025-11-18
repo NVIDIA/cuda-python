@@ -126,8 +126,8 @@ cdef inline int _setup_dl_tensor_dtype(DLTensor* dl_tensor, object dtype) except
 
 cpdef object make_py_capsule(
     object buf,
-    intptr_t data_ptr,
     bint versioned,
+    intptr_t data_ptr,
     StridedLayout layout=None,
     object dtype=None,
 ):
