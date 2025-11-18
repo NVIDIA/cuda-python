@@ -333,7 +333,7 @@ def get_handle_type():
     if IS_WINDOWS:
         return (("win32", get_sa()), ("win32_kmt", None))
     else:
-        return (("posix", None),)
+        return (("posix_fd", None),)
 
 
 @pytest.mark.parametrize("use_device_object", [True, False])
