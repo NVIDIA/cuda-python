@@ -9,13 +9,13 @@ description: Get the PR number without relying on the pull_request* event trigge
 runs:
   using: composite
   steps:
-    - name: Get PR info (non-main branch)
-      if: ${{ github.ref_name != 'main' }}
+    - name: Get PR info (non-main, non-release branch)
+      if: ${{ github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
       uses: nv-gha-runners/get-pr-info@main
       id: get-pr-info
 
-    - name: Extract PR number (non-main branch)
-      if: ${{ github.ref_name != 'main' }}
+    - name: Extract PR number (non-main, non-release branch)
+      if: ${{ github.ref_name != 'main' && !startsWith(github.ref_name, 'release/') }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         trap 'echo "Error at line $LINENO"; exit 1' ERR
@@ -27,8 +27,8 @@ runs:
         echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
         echo "BUILD_PREVIEW=1" >> $GITHUB_ENV
 
-    - name: Get PR data (main branch)
-      if: ${{ github.ref_name == 'main' }}
+    - name: Get PR data (main or release/* branch)
+      if: ${{ github.ref_name == 'main' || startsWith(github.ref_name, 'release/') }}
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1
       id: get-pr-data
       with:
@@ -39,19 +39,19 @@ runs:
             repo: context.repo.repo,
           });
           if (!prs.data.length) {
-            core.setFailed("No PR associated with this commit on 'main'.");
+            core.setFailed("No PR associated with this commit on 'main' or 'release/*'.");
           } else {
             return prs.data[0];
           }
 
-    - name: Extract PR number (main branch)
-      if: ${{ github.ref_name == 'main' }}
+    - name: Extract PR number (main or release/* branch)
+      if: ${{ github.ref_name == 'main' || startsWith(github.ref_name, 'release/') }}
       shell: bash --noprofile --norc -xeuo pipefail {0}
       run: |
         trap 'echo "Error at line $LINENO"; exit 1' ERR
         PR_NUMBER="${{ fromJSON(steps.get-pr-data.outputs.result).number }}"
         if [[ -z "$PR_NUMBER" ]]; then
-          echo "No associated PR found for the commit in 'main'."
+          echo "No associated PR found for the commit in 'main' or 'release/*'."
           exit 1
         fi
         echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
