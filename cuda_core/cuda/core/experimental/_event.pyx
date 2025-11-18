@@ -25,7 +25,6 @@ from cuda.core.experimental._utils.cuda_utils import (
 )
 if TYPE_CHECKING:
     import cuda.bindings
-    from cuda.core.experimental._device import Device
 
 
 @dataclass

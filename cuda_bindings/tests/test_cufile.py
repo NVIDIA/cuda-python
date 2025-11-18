@@ -121,20 +121,6 @@ def isSupportedFilesystem():
 pytestmark = pytest.mark.skipif(not cufileLibraryAvailable(), reason="cuFile library not available on this system")
 
 
-def safe_decode_string(raw_value):
-    """Safely decode a string value from ctypes buffer."""
-    # Find null terminator if present
-    null_pos = raw_value.find(b"\x00")
-    if null_pos != -1:
-        raw_value = raw_value[:null_pos]
-    # Decode with error handling
-    try:
-        return raw_value.decode("utf-8", errors="ignore")
-    except UnicodeDecodeError:
-        # If UTF-8 fails, try to decode as bytes
-        return str(raw_value)
-
-
 def test_cufile_success_defined():
     """Check if CUFILE_SUCCESS is defined in OpError enum."""
     assert hasattr(cufile.OpError, "SUCCESS")
@@ -1774,8 +1760,6 @@ def test_set_get_parameter_string(tmp_path):
 
     def test_param(param, val, default_val):
         orig_val = cufile.get_parameter_string(param, 256)
-        # Use safe_decode_string to handle null terminators and padding
-        orig_val = safe_decode_string(orig_val.encode("utf-8"))
 
         val_b = val.encode("utf-8")
         val_buf = ctypes.create_string_buffer(val_b)
@@ -1787,7 +1771,6 @@ def test_set_get_parameter_string(tmp_path):
         # Round-trip test
         cufile.set_parameter_string(param, int(ctypes.addressof(val_buf)))
         retrieved_val = cufile.get_parameter_string(param, 256)
-        retrieved_val = safe_decode_string(retrieved_val.encode("utf-8"))
         assert retrieved_val == val
 
         # Restore

@@ -111,12 +111,15 @@ cdef void* load_library() except* with gil:
     return <void*>handle
 
 
-cdef int __check_or_init_cufile() except -1 nogil:
+cdef int _init_cufile() except -1 nogil:
     global __py_cufile_init
 
     cdef void* handle = NULL
 
     with gil, __symbol_lock:
+        # Recheck the flag after obtaining the locks
+        if __py_cufile_init:
+            return 0
         # Load function
         global __cuFileHandleRegister
         __cuFileHandleRegister = dlsym(RTLD_DEFAULT, 'cuFileHandleRegister')
@@ -427,7 +430,7 @@ cdef inline int _check_or_init_cufile() except -1 nogil:
     if __py_cufile_init:
         return 0
 
-    return __check_or_init_cufile()
+    return _init_cufile()
 
 
 cdef dict func_ptrs = None

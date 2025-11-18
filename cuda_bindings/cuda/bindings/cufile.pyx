@@ -12,6 +12,7 @@ import numpy as _numpy
 from cpython cimport buffer as _buffer
 from cpython.memoryview cimport PyMemoryView_FromMemory
 from enum import IntEnum as _IntEnum
+cimport cpython
 
 import cython
 
@@ -51,6 +52,10 @@ cdef class _py_anon_pod1:
 
     @property
     def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
@@ -154,6 +159,10 @@ cdef class _py_anon_pod3:
 
     @property
     def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
@@ -283,6 +292,10 @@ cdef class IOEvents:
 
     @property
     def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
@@ -422,6 +435,10 @@ cdef class OpCounter:
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
+    cdef intptr_t _get_ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
     def __int__(self):
         return self._data.ctypes.data
 
@@ -548,6 +565,10 @@ cdef class PerGpuStats:
 
     @property
     def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
@@ -914,6 +935,10 @@ cdef class Descr:
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
+    cdef intptr_t _get_ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
     def __int__(self):
         if self._data.size > 1:
             raise TypeError("int() argument must be a bytes-like object of size 1. "
@@ -1052,6 +1077,10 @@ cdef class _py_anon_pod2:
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
+    cdef intptr_t _get_ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
     def __int__(self):
         return self._data.ctypes.data
 
@@ -1182,6 +1211,10 @@ cdef class StatsLevel1:
 
     @property
     def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
@@ -1667,6 +1700,10 @@ cdef class IOParams:
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
+    cdef intptr_t _get_ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
     def __int__(self):
         if self._data.size > 1:
             raise TypeError("int() argument must be a bytes-like object of size 1. "
@@ -1824,6 +1861,10 @@ cdef class StatsLevel2:
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
+    cdef intptr_t _get_ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
     def __int__(self):
         return self._data.ctypes.data
 
@@ -1932,6 +1973,10 @@ cdef class StatsLevel3:
 
     @property
     def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
@@ -2458,7 +2503,7 @@ cpdef str get_parameter_string(int param, int len):
     with nogil:
         __status__ = cuFileGetParameterString(<_StringConfigParameter>param, desc_str, len)
     check_status(__status__)
-    return _desc_str_.decode()
+    return cpython.PyUnicode_FromString(desc_str)
 
 
 cpdef set_parameter_size_t(int param, size_t value):

@@ -18,9 +18,9 @@ from cuda.core.experimental._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
 
-import cython
 from dataclasses import dataclass
 from typing import Optional, TYPE_CHECKING
+import cython
 import platform  # no-cython-lint
 import uuid
 import weakref
@@ -131,7 +131,7 @@ cdef class DeviceMemoryResource(MemoryResource):
 
     Parameters
     ----------
-    device_id : int | Device
+    device_id : Device | int
         Device or Device ordinal for which a memory resource is constructed.
 
     options : DeviceMemoryResourceOptions
@@ -211,8 +211,9 @@ cdef class DeviceMemoryResource(MemoryResource):
         self._ipc_data = None
         self._attributes = None
 
-    def __init__(self, device_id: int | Device, options=None):
-        cdef int dev_id = getattr(device_id, 'device_id', device_id)
+    def __init__(self, device_id: Device | int, options=None):
+        from .._device import Device
+        cdef int dev_id = Device(device_id).device_id
         opts = check_or_create_options(
             DeviceMemoryResourceOptions, options, "DeviceMemoryResource options",
             keep_none=True
@@ -261,7 +262,7 @@ cdef class DeviceMemoryResource(MemoryResource):
 
     @classmethod
     def from_allocation_handle(
-        cls, device_id: int | Device, alloc_handle: int | IPCAllocationHandle
+        cls, device_id: Device | int, alloc_handle: int | IPCAllocationHandle
     ) -> DeviceMemoryResource:
         """Create a device memory resource from an allocation handle.
 
