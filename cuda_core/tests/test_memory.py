@@ -396,9 +396,9 @@ def test_vmm_allocator_policy_configuration():
     if not device.properties.virtual_memory_management_supported:
         pytest.skip("Virtual memory management is not supported on this device")
 
-    # Skip if GPU Direct RDMA is supported (we want to test the unsupported case)
+    # Skip if GPU Direct RDMA is not supported
     if not device.properties.gpu_direct_rdma_supported:
-        pytest.skip("This test requires a device that doesn't support GPU Direct RDMA")
+        pytest.skip("This test requires a device that supports GPU Direct RDMA")
 
     # Test with custom VMM config
     custom_config = VirtualMemoryResourceOptions(
