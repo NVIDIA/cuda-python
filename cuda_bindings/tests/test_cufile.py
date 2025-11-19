@@ -94,6 +94,7 @@ def cufileVersionLessThan(target):
 def isSupportedFilesystem():
     """Check if the current filesystem is supported (ext4 or xfs)."""
     try:
+        current_dir = os.getcwd()
         # Try to get filesystem type from /proc/mounts
         with open("/proc/mounts") as f:
             for line in f:
@@ -103,7 +104,6 @@ def isSupportedFilesystem():
                     fs_type = parts[2]
 
                     # Check if current directory is under this mount point
-                    current_dir = os.path.abspath(".")
                     if current_dir.startswith(mount_point):
                         fs_type_lower = fs_type.lower()
                         logging.info(f"Current filesystem type: {fs_type_lower}")
