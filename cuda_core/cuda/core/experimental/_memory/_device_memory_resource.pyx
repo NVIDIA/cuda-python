@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from libc.limits cimport ULLONG_MAX
-from libc.stdint cimport uintptr_t
+from libc.stdint cimport uintptr_t, uint64_t
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
@@ -116,10 +116,10 @@ cdef DMRA_mempool_attribute(property_type: type):
     return decorator
 
 
-cdef int DMRA_getattribute(
+cdef uint64_t DMRA_getattribute(
     cydriver.CUmemoryPool pool_handle, cydriver.CUmemPool_attribute attr_enum
 ):
-    cdef int value
+    cdef uint64_t value = 0
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(pool_handle, attr_enum, <void *> &value))
     return value
