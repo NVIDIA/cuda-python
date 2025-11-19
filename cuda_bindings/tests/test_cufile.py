@@ -14,7 +14,6 @@ from pathlib import Path
 
 import cuda.bindings.driver as cuda
 import pytest
-from cuda.bindings.cufile import cuFileError
 
 # Configure logging to show INFO level and above
 logging.basicConfig(
@@ -26,7 +25,9 @@ logging.basicConfig(
 try:
     from cuda.bindings import cufile
 except ImportError:
-    cufile = None
+    cufile = cuFileError = None
+else:
+    from cuda.bindings.cufile import cuFileError
 
 
 def platform_is_wsl():
