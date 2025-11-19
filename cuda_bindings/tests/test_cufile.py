@@ -107,7 +107,8 @@ def isSupportedFilesystem():
                     if current_dir.startswith(mount_point):
                         fs_type_lower = fs_type.lower()
                         logging.info(f"Current filesystem type: {fs_type_lower}")
-                        return fs_type_lower in ["ext4", "xfs"]
+                        if fs_type_lower in ("ext4", "xfs"):
+                            return True
 
         # If we get here, we couldn't determine the filesystem type
         logging.warning("Could not determine filesystem type from /proc/mounts")
