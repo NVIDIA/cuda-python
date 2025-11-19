@@ -10,6 +10,7 @@ import platform
 import tempfile
 from contextlib import suppress
 from functools import cache
+from pathlib import Path
 
 import cuda.bindings.driver as cuda
 import pytest
@@ -90,21 +91,28 @@ def cufileVersionLessThan(target):
         return True  # Assume old version if any error occurs
 
 
+def find_mount_point(path):
+    return next((str(parent) for parent in Path(path).absolute().parents if parent.is_mount()), None)
+
+
 @cache
 def isSupportedFilesystem():
     """Check if the current filesystem is supported (ext4 or xfs)."""
+
     try:
         current_dir = os.getcwd()
         # Try to get filesystem type from /proc/mounts
+        mount = find_mount_point(current_dir)
+        assert mount is not None
         with open("/proc/mounts") as f:
             for line in f:
                 parts = line.split()
-                if len(parts) >= 2:
+                if len(parts) >= 3:
                     mount_point = parts[1]
                     fs_type = parts[2]
 
                     # Check if current directory is under this mount point
-                    if current_dir.startswith(mount_point):
+                    if mount == mount_point:
                         fs_type_lower = fs_type.lower()
                         logging.info(f"Current filesystem type: {fs_type_lower}")
                         if fs_type_lower in ("ext4", "xfs"):
