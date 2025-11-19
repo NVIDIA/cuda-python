@@ -1,6 +1,0 @@
-﻿cuda.core.experimental.launch
-=============================
-
-.. currentmodule:: cuda.core.experimental
-
-.. autofunction:: launch
