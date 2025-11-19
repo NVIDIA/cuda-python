@@ -1,11 +1,13 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+from cuda.core.experimental._launch_config cimport LaunchConfig, _to_native_launch_config
+from cuda.core.experimental._stream cimport Stream_accept
+
 
 from cuda.core.experimental._kernel_arg_handler import ParamHolder
-from cuda.core.experimental._launch_config cimport LaunchConfig, _to_native_launch_config
 from cuda.core.experimental._module import Kernel
-from cuda.core.experimental._stream import IsStreamT, Stream
+from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
     _reduce_3_tuple,
@@ -33,13 +35,13 @@ def _lazy_init():
     _inited = True
 
 
-def launch(stream: IsStreamT, config: LaunchConfig, kernel: Kernel, *kernel_args):
+def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kernel: Kernel, *kernel_args):
     """Launches a :obj:`~_module.Kernel`
     object with launch-time configuration.
 
     Parameters
     ----------
-    stream : :obj:`~_stream.IsStreamT`
+    stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
         The stream establishing the stream ordering semantic of a
         launch.
     config : :obj:`LaunchConfig`
@@ -52,7 +54,7 @@ def launch(stream: IsStreamT, config: LaunchConfig, kernel: Kernel, *kernel_args
         launching kernel.
 
     """
-    stream = Stream._init(stream)
+    stream = Stream_accept(stream, allow_default=False, default_value=None, allow_stream_protocol=True)
     assert_type(kernel, Kernel)
     _lazy_init()
     config = check_or_create_options(LaunchConfig, config, "launch config")

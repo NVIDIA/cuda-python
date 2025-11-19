@@ -1242,7 +1242,7 @@ class Device:
         """
         raise NotImplementedError("WIP: https://github.com/NVIDIA/cuda-python/issues/189")
 
-    def create_stream(self, obj: Optional[IsStreamT] = None, options: StreamOptions | None = None) -> Stream:
+    def create_stream(self, obj: IsStreamT | None = None, options: StreamOptions | None = None) -> Stream:
         """Create a Stream object.
 
         New stream objects can be created in two different ways:
@@ -1295,7 +1295,7 @@ class Device:
         ctx = self._get_current_context()
         return Event._init(self._id, ctx, options, True)
 
-    def allocate(self, size, stream: Optional[IsStreamT] = None) -> Buffer:
+    def allocate(self, size, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """Allocate device memory from a specified stream.
 
         Allocates device memory of `size` bytes on the specified `stream`
@@ -1311,7 +1311,7 @@ class Device:
         ----------
         size : int
             Number of bytes to allocate.
-        stream : :obj:`~_stream.IsStreamT`, optional
+        stream : :obj:`~_stream.Stream`, optional
             The stream establishing the stream ordering semantic.
             Default value of `None` uses default stream.
 
@@ -1322,8 +1322,6 @@ class Device:
 
         """
         self._check_context_initialized()
-        if stream is None:
-            stream = default_stream()
         return self._mr.allocate(size, stream)
 
     def sync(self):

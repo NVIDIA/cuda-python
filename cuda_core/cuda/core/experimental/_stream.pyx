@@ -108,16 +108,13 @@ cdef class Stream:
         return self
 
     @classmethod
-    def _init(cls, obj: Optional[IsStreamT] = None, options=None, device_id: int = None):
-        if isinstance(obj, Stream):
-            return obj
-
+    def _init(cls, obj: IsStreamT | None = None, options=None, device_id: int = None):
         cdef Stream self = Stream.__new__(cls)
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
         if obj is not None:
-            self._handle = _handle_from_stream_t(obj)
+            self._handle = _handle_from_stream_protocol(obj)
             # TODO: check if obj is created under the current context/device
             self._owner = obj
             return self
@@ -420,7 +417,7 @@ cpdef Stream default_stream():
         return C_LEGACY_DEFAULT_STREAM
 
 
-cdef cydriver.CUstream _handle_from_stream_t(obj) except*:
+cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:
     if isinstance(obj, Stream):
         return <cydriver.CUstream><uintptr_t>(obj.handle)
 
@@ -451,3 +448,20 @@ cdef cydriver.CUstream _handle_from_stream_t(obj) except*:
             f"The first element of the sequence returned by obj.__cuda_stream__ must be 0, got {repr(info[0])}"
         )
     return <cydriver.CUstream><uintptr_t>(info[1])
+
+# Helper for API functions that accept either Stream or GraphBuilder. Performs
+# needed checks and returns the relevant stream.
+cdef Stream Stream_accept(arg, bint allow_default=False, Stream default_value=None, bint allow_stream_protocol=False):
+    if arg is None:
+        if allow_default:
+            if default_value is not None:
+                return default_value
+            else:
+                return default_stream()
+    elif isinstance(arg, Stream):
+        return <Stream> arg
+    elif isinstance(arg, GraphBuilder):
+        return <Stream> arg.stream
+    elif allow_stream_protocol and isinstance(arg, IsStreamT):
+        return Stream._init(arg)
+    raise TypeError(f"Stream or GraphBuilder expected, got {type(arg).__name__}")

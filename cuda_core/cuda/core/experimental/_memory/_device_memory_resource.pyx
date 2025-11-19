@@ -12,7 +12,7 @@ from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle, IPCData
-from cuda.core.experimental._stream cimport default_stream, Stream
+from cuda.core.experimental._stream cimport Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
@@ -308,14 +308,14 @@ cdef class DeviceMemoryResource(MemoryResource):
             raise RuntimeError("Imported memory resource cannot be exported")
         return self._ipc_data._alloc_handle
 
-    def allocate(self, size_t size, stream: Optional[IsStreamT] = None) -> Buffer:
+    def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : IsStreamT, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
             The stream on which to perform the allocation asynchronously.
             If None, an internal stream is used.
 
@@ -327,10 +327,10 @@ cdef class DeviceMemoryResource(MemoryResource):
         """
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
-        stream = Stream._init(stream) if stream is not None else default_stream()
+        stream = Stream_accept(stream, allow_default=True)
         return DMR_allocate(self, size, <Stream> stream)
 
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Optional[IsStreamT] = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream | GraphBuilder | None = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -339,12 +339,12 @@ cdef class DeviceMemoryResource(MemoryResource):
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : IsStreamT, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
             The stream on which to perform the deallocation asynchronously.
             If the buffer is deallocated without an explicit stream, the allocation stream
             is used.
         """
-        stream = Stream._init(stream) if stream is not None else default_stream()
+        stream = Stream_accept(stream, allow_default=True)
         DMR_deallocate(self, <uintptr_t>ptr, size, <Stream> stream)
 
     @property
@@ -497,8 +497,11 @@ cdef inline void DMR_deallocate(
 ) noexcept:
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
+    cdef cydriver.CUresult r
     with nogil:
-        HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
+        r = cydriver.cuMemFreeAsync(devptr, s)
+        if r != cydriver.CUDA_ERROR_INVALID_CONTEXT:
+            HANDLE_RETURN(r)
 
 
 cdef inline DMR_close(DeviceMemoryResource self):

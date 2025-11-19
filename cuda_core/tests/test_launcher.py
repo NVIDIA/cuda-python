@@ -22,7 +22,6 @@ from cuda.core.experimental import (
 )
 from cuda.core.experimental._memory import _SynchronousMemoryResource
 from cuda.core.experimental._utils.cuda_utils import CUDAError
-from helpers.misc import StreamWrapper
 
 from conftest import skipif_need_cuda_headers
 
@@ -180,10 +179,9 @@ if helpers.CCCL_INCLUDE_PATHS is not None:
     )
 
 
-@pytest.mark.parametrize("wrap_stream", [True, False])
 @pytest.mark.parametrize("python_type, cpp_type, init_value", PARAMS)
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
-def test_launch_scalar_argument(python_type, cpp_type, init_value, wrap_stream):
+def test_launch_scalar_argument(python_type, cpp_type, init_value):
     dev = Device()
     dev.set_current()
 
@@ -222,8 +220,6 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value, wrap_stream):
 
     # Launch with 1 thread
     stream = dev.default_stream
-    if wrap_stream:
-        stream = StreamWrapper(stream)
     config = LaunchConfig(grid=1, block=1)
     launch(stream, config, ker, arr.ctypes.data, scalar)
     stream.sync()
@@ -233,13 +229,10 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value, wrap_stream):
 
 
 @skipif_need_cuda_headers  # cg
-@pytest.mark.parametrize("wrap_stream", [True, False])
-def test_cooperative_launch(wrap_stream):
+def test_cooperative_launch():
     dev = Device()
     dev.set_current()
     s = dev.create_stream(options={"nonblocking": True})
-    if wrap_stream:
-        s = StreamWrapper(s)
 
     # CUDA kernel templated on type T
     code = r"""
@@ -280,7 +273,6 @@ def test_cooperative_launch(wrap_stream):
 
 
 @pytest.mark.skipif(cp is None, reason="cupy not installed")
-@pytest.mark.parametrize("wrap_stream", [True, False])
 @pytest.mark.parametrize(
     "memory_resource_class",
     [
@@ -294,13 +286,11 @@ def test_cooperative_launch(wrap_stream):
         ),
     ],
 )
-def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_resource_class, wrap_stream):
+def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_resource_class):
     """Test that kernels can access memory allocated by memory resources."""
     dev = Device()
     dev.set_current()
     stream = dev.create_stream()
-    if wrap_stream:
-        stream = StreamWrapper(stream)
     # tell CuPy to use our stream as the current stream:
     cp.cuda.ExternalStream(int(stream.handle)).use()
 

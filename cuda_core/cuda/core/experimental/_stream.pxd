@@ -22,3 +22,5 @@ cdef class Stream:
 
 
 cpdef Stream default_stream()
+cdef Stream Stream_accept(arg, bint allow_default=*, Stream default_value=*, bint allow_stream_protocol=*)
+# from cuda.core.experimental._stream cimport Stream_accept
