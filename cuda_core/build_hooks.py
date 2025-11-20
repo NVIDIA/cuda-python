@@ -98,12 +98,18 @@ def _build_cuda_core():
             sources.append("cuda/core/experimental/_utils/hags_status.c")
         return sources
 
+    def get_libraries(mod):
+        if os.name == "nt" and mod == "_event":
+            return ["user32", "gdi32"]  # for hags_status.c
+        return None
+
     ext_modules = tuple(
         Extension(
             f"cuda.core.experimental.{mod.replace(os.path.sep, '.')}",
             sources=get_sources(mod),
             include_dirs=common_include_dirs,
             language="c++",
+            libraries=get_libraries(mod),
         )
         for mod in module_names
     )
