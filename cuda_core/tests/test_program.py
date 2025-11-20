@@ -387,3 +387,33 @@ def test_nvvm_program_options(init_cuda, nvvm_ir, options):
     assert ".visible .entry simple(" in ptx_text
 
     program.close()
+
+@nvvm_available
+@pytest.mark.parametrize(
+    "options",
+    [
+       ProgramOptions(name="ltoir_test1", arch="sm_90", device_code_optimize=False),
+       ProgramOptions(name="ltoir_test2", arch="sm_100", link_time_optimization=True),
+       ProgramOptions(
+            name="ltoir_test3",
+            arch="sm_90",
+            ftz=True,
+            prec_sqrt=False,
+            prec_div=False,
+            fma=True,
+            device_code_optimize=True,
+            link_time_optimization=True,
+       ),
+    ],
+)
+def test_nvvm_program_options_ltoir(init_cuda, nvvm_ir, options):
+    """Test NVVM programs for LTOIR with different options"""
+    program = Program(nvvm_ir, "nvvm", options)
+    assert program.backend == "NVVM"
+
+    ltoir_code = program.compile("ltoir")
+    assert isinstance(ltoir_code, ObjectCode)
+    assert ltoir_code.name == options.name
+    code_content = ltoir_code.code
+    assert len(ltoir_code.code) > 0
+    program.close()
