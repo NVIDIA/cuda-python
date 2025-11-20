@@ -340,7 +340,7 @@ def get_win32_object_attributes():
             InitializeObjectAttributes(&objAttributes, NULL, 0, NULL, NULL);
             objAttributesConfigured = true;
         }
-        return static_cast<uintptr_t>(&objAttributes);
+        return reinterpret_cast<uintptr_t>(&objAttributes);
     }
     """
     prog.set_source(
