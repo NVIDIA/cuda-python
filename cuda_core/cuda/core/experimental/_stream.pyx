@@ -462,6 +462,18 @@ cdef Stream Stream_accept(arg, bint allow_default=False, Stream default_value=No
         return <Stream> arg
     elif isinstance(arg, GraphBuilder):
         return <Stream> arg.stream
-    elif allow_stream_protocol and isinstance(arg, IsStreamT):
-        return Stream._init(arg)
+    elif allow_stream_protocol:
+        try:
+            stream = Stream._init(arg)
+        except:
+            pass
+        else:
+            warnings.warn(
+                "Passing foreign stream objects to this function via the "
+                "stream protocol is deprecated. Convert the object explicitly "
+                "using Stream(obj) instead.",
+                stacklevel=2,
+                category=DeprecationWarning,
+            )
+            return <Stream> stream
     raise TypeError(f"Stream or GraphBuilder expected, got {type(arg).__name__}")
