@@ -54,7 +54,7 @@ def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kern
         launching kernel.
 
     """
-    stream = Stream_accept(stream, allow_default=False, default_value=None, allow_stream_protocol=True)
+    stream = Stream_accept(stream, allow_stream_protocol=True)
     assert_type(kernel, Kernel)
     _lazy_init()
     config = check_or_create_options(LaunchConfig, config, "launch config")

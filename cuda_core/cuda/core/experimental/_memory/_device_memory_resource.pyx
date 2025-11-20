@@ -12,7 +12,7 @@ from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle, IPCData
-from cuda.core.experimental._stream cimport Stream_accept, Stream
+from cuda.core.experimental._stream cimport default_stream, Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
@@ -334,7 +334,7 @@ cdef class DeviceMemoryResource(MemoryResource):
         """
         if self.is_mapped:
             raise TypeError("Cannot allocate from a mapped IPC-enabled memory resource")
-        stream = Stream_accept(stream, allow_default=True)
+        stream = Stream_accept(stream) if stream is not None else default_stream()
         return DMR_allocate(self, size, <Stream> stream)
 
     def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream | GraphBuilder | None = None):
@@ -351,7 +351,7 @@ cdef class DeviceMemoryResource(MemoryResource):
             If the buffer is deallocated without an explicit stream, the allocation stream
             is used.
         """
-        stream = Stream_accept(stream, allow_default=True)
+        stream = Stream_accept(stream) if stream is not None else default_stream()
         DMR_deallocate(self, <uintptr_t>ptr, size, <Stream> stream)
 
     @property

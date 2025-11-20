@@ -8,7 +8,7 @@ from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
-from cuda.core.experimental._stream cimport Stream_accept, Stream
+from cuda.core.experimental._stream cimport default_stream, Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 from functools import cache
@@ -106,14 +106,14 @@ cdef class cyGraphMemoryResource(MemoryResource):
         """
         Allocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
         """
-        stream = Stream_accept(stream, allow_default=True)
+        stream = Stream_accept(stream) if stream is not None else default_stream()
         return GMR_allocate(self, size, <Stream> stream)
 
     def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream | GraphBuilder | None = None):
         """
         Deallocate a buffer of the requested size. See documentation for :obj:`~_memory.MemoryResource`.
         """
-        stream = Stream_accept(stream, allow_default=True)
+        stream = Stream_accept(stream) if stream is not None else default_stream()
         return GMR_deallocate(ptr, size, <Stream> stream)
 
     def close(self):

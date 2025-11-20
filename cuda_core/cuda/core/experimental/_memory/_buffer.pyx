@@ -273,7 +273,7 @@ cdef class Buffer:
 cdef inline void Buffer_close(Buffer self, stream):
     cdef Stream s
     if self._ptr and self._memory_resource is not None:
-        s = Stream_accept(stream, allow_default=True, default_value=self._alloc_stream)
+        s = Stream_accept(stream) if stream is not None else self._alloc_stream
         self._memory_resource.deallocate(self._ptr, self._size, s)
         self._ptr = 0
         self._memory_resource = None

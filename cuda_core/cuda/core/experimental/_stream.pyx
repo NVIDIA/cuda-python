@@ -451,14 +451,8 @@ cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:
 
 # Helper for API functions that accept either Stream or GraphBuilder. Performs
 # needed checks and returns the relevant stream.
-cdef Stream Stream_accept(arg, bint allow_default=False, Stream default_value=None, bint allow_stream_protocol=False):
-    if arg is None:
-        if allow_default:
-            if default_value is not None:
-                return default_value
-            else:
-                return default_stream()
-    elif isinstance(arg, Stream):
+cdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
+    if isinstance(arg, Stream):
         return <Stream> arg
     elif isinstance(arg, GraphBuilder):
         return <Stream> arg.stream
