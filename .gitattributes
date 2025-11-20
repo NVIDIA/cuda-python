@@ -9,3 +9,5 @@ cuda/_version.py export-subst
 *.png binary
 # SCM syntax highlighting & preventing 3-way merges
 pixi.lock merge=binary linguist-language=YAML linguist-generated=true
+
+cuda_core/cuda/core/experimental/_utils/hags_status.h text eol=lf

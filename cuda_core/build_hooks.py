@@ -84,11 +84,25 @@ def _build_cuda_core():
         print("CUDA paths:", CUDA_PATH)
         return CUDA_PATH
 
+    common_include_dirs = [
+        # CUDA include paths (for driver/runtime headers)
+        *(os.path.join(root, "include") for root in get_cuda_paths()),
+        # Local experimental utils headers (for hags_status.h, etc.)
+        os.path.join("cuda", "core", "experimental", "_utils"),
+    ]
+
+    def get_sources(mod):
+        sources = [f"cuda/core/experimental/{mod}.pyx"]
+        # Add hags_status.c for _event module
+        if mod == "_event":
+            sources.append("cuda/core/experimental/_utils/hags_status.c")
+        return sources
+
     ext_modules = tuple(
         Extension(
             f"cuda.core.experimental.{mod.replace(os.path.sep, '.')}",
-            sources=[f"cuda/core/experimental/{mod}.pyx"],
-            include_dirs=list(os.path.join(root, "include") for root in get_cuda_paths()),
+            sources=get_sources(mod),
+            include_dirs=common_include_dirs,
             language="c++",
         )
         for mod in module_names

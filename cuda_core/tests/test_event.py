@@ -11,9 +11,15 @@ from cuda.core.experimental import (
     Event,
     EventOptions,
 )
+from cuda.core.experimental._event import hags_status
 from helpers.latch import LatchKernel
 
 from cuda_python_test_helpers import IS_WSL
+
+
+def inspect_hags_status():
+    stat = hags_status()
+    print(f"\nLOOOK {stat=!r}", flush=True)
 
 
 def test_event_init_disabled():
@@ -22,6 +28,7 @@ def test_event_init_disabled():
 
 
 def test_timing_success(init_cuda):
+    inspect_hags_status()
     options = EventOptions(enable_timing=True)
     stream = Device().create_stream()
     delay_seconds = 0.5

@@ -13,6 +13,9 @@ from cuda.core.experimental._utils.cuda_utils cimport (
     HANDLE_RETURN
 )
 
+cdef extern from "hags_status.h":
+    int _hags_status_impl "hags_status"()
+
 import cython
 from dataclasses import dataclass
 import multiprocessing
@@ -303,3 +306,18 @@ def _reduce_event(event):
     return event.from_ipc_descriptor, (event.get_ipc_descriptor(),)
 
 multiprocessing.reduction.register(Event, _reduce_event)
+
+cpdef int hags_status():
+    """Check Hardware Accelerated GPU Scheduling (HAGS) status on Windows.
+
+    Returns
+    -------
+    int
+        Status code indicating HAGS state:
+
+        - -1: Not available on this platform (not compiled with MSVC on Windows)
+        - 0: Failure obtaining HwSchSupported/HwSchEnabled
+        - 1: HwSchSupported == 0 or HwSchEnabled == 0 (HAGS not fully enabled)
+        - 2: HwSchSupported == 1 and HwSchEnabled == 1 (HAGS fully enabled)
+    """
+    return _hags_status_impl()
