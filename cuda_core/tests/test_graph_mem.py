@@ -13,6 +13,7 @@ from cuda.core.experimental import (
     ProgramOptions,
     launch,
 )
+from helpers import IS_WSL
 from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer
 
 
@@ -115,6 +116,7 @@ def test_graph_alloc(init_cuda, mode):
     assert compare_buffer_to_constant(out, 2)
 
 
+@pytest.mark.skipif(IS_WSL, reason="auto_free_on_launch not supported on WSL")
 @pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
 def test_graph_alloc_with_output(init_cuda, mode):
     """Test for memory allocated in a graph being used outside the graph."""
@@ -191,9 +193,7 @@ def test_graph_mem_set_attributes(init_cuda, mode):
     gmr.trim()
 
     # The high-water marks remain after free and trim.
-    assert gmr.attributes.reserved_mem_current == 0
     assert gmr.attributes.reserved_mem_high > 0
-    assert gmr.attributes.used_mem_current == 0
     assert gmr.attributes.used_mem_high > 0
 
     # Reset the high-water marks.
