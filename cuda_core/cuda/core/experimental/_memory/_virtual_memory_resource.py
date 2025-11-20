@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Iterable, Literal, Union
 
+from cuda.core.experimental._device import Device
 from cuda.core.experimental._memory._buffer import Buffer, MemoryResource
 from cuda.core.experimental._utils.cuda_utils import (
     Transaction,
@@ -74,6 +75,7 @@ class VirtualMemoryResourceOptions:
     peers: Iterable[int] = field(default_factory=tuple)
     self_access: VirtualMemoryAccessTypeT = "rw"
     peer_access: VirtualMemoryAccessTypeT = "rw"
+    win32_handle_metadata: int | None = 0
 
     _a = driver.CUmemAccess_flags
     _access_flags = {"rw": _a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": _a.CU_MEM_ACCESS_FLAGS_PROT_READ, None: 0}
@@ -145,15 +147,15 @@ class VirtualMemoryResource(MemoryResource):
 
     Parameters
     ----------
-    device_id : int
-        Device ordinal for which a memory resource is constructed.
+    device_id : Device | int
+        Device for which a memory resource is constructed.
 
     config : VirtualMemoryResourceOptions
         A configuration object for the VirtualMemoryResource
     """
 
-    def __init__(self, device, config: VirtualMemoryResourceOptions = None):
-        self.device = device
+    def __init__(self, device_id: Device | int, config: VirtualMemoryResourceOptions = None):
+        self.device = Device(device_id)
         self.config = check_or_create_options(
             VirtualMemoryResourceOptions, config, "VirtualMemoryResource options", keep_none=False
         )
@@ -216,6 +218,7 @@ class VirtualMemoryResource(MemoryResource):
         prop.location.id = self.device.device_id
         prop.allocFlags.gpuDirectRDMACapable = 1 if self.config.gpu_direct_rdma else 0
         prop.requestedHandleTypes = VirtualMemoryResourceOptions._handle_type_to_driver(self.config.handle_type)
+        prop.win32HandleMetaData = self.config.win32_handle_metadata if self.config.win32_handle_metadata else 0
 
         # Query granularity
         gran_flag = VirtualMemoryResourceOptions._granularity_to_driver(self.config.granularity)
@@ -499,11 +502,11 @@ class VirtualMemoryResource(MemoryResource):
         # ---- Build allocation properties ----
         prop = driver.CUmemAllocationProp()
         prop.type = VirtualMemoryResourceOptions._allocation_type_to_driver(config.allocation_type)
-
         prop.location.type = VirtualMemoryResourceOptions._location_type_to_driver(config.location_type)
         prop.location.id = self.device.device_id if config.location_type == "device" else -1
         prop.allocFlags.gpuDirectRDMACapable = 1 if config.gpu_direct_rdma else 0
         prop.requestedHandleTypes = VirtualMemoryResourceOptions._handle_type_to_driver(config.handle_type)
+        prop.win32HandleMetaData = self.config.win32_handle_metadata if self.config.win32_handle_metadata else 0
 
         # ---- Query and apply granularity ----
         # Choose min vs recommended granularity per config

@@ -86,7 +86,9 @@ class _SynchronousMemoryResource(MemoryResource):
     __slots__ = ("_dev_id",)
 
     def __init__(self, device_id):
-        self._dev_id = getattr(device_id, "device_id", device_id)
+        from .._device import Device
+
+        self._dev_id = Device(device_id).device_id
 
     def allocate(self, size, stream=None) -> Buffer:
         if stream is None:

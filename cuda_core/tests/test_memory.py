@@ -1,7 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import ctypes
 import sys
+from ctypes import wintypes
 
 try:
     from cuda.bindings import driver
@@ -11,7 +13,6 @@ try:
     import numpy as np
 except ImportError:
     np = None
-import ctypes
 import platform
 import re
 
@@ -30,6 +31,7 @@ from cuda.core.experimental._dlpack import DLDeviceType
 from cuda.core.experimental._memory import IPCBufferDescriptor
 from cuda.core.experimental._utils.cuda_utils import handle_return
 from cuda.core.experimental.utils import StridedMemoryView
+from helpers import IS_WINDOWS
 from helpers.buffers import DummyUnifiedMemoryResource
 
 from cuda_python_test_helpers import supports_ipc_mempool
@@ -320,7 +322,31 @@ def test_device_memory_resource_initialization(use_device_object):
     buffer.close()
 
 
-def test_vmm_allocator_basic_allocation():
+def get_handle_type():
+    def get_sa():
+        class SECURITY_ATTRIBUTES(ctypes.Structure):
+            _fields_ = [
+                ("nLength", wintypes.DWORD),
+                ("lpSecurityDescriptor", wintypes.LPVOID),
+                ("bInheritHandle", wintypes.BOOL),
+            ]
+
+        sa = SECURITY_ATTRIBUTES()
+        sa.nLength = ctypes.sizeof(sa)
+        sa.lpSecurityDescriptor = None
+        sa.bInheritHandle = False  # TODO: why?
+
+        return sa
+
+    if IS_WINDOWS:
+        return (("win32", get_sa()), ("win32_kmt", None))
+    else:
+        return (("posix_fd", None),)
+
+
+@pytest.mark.parametrize("use_device_object", [True, False])
+@pytest.mark.parametrize("handle_type", get_handle_type())
+def test_vmm_allocator_basic_allocation(use_device_object, handle_type):
     """Test basic VMM allocation functionality.
 
     This test verifies that VirtualMemoryResource can allocate memory
@@ -333,9 +359,15 @@ def test_vmm_allocator_basic_allocation():
     if not device.properties.virtual_memory_management_supported:
         pytest.skip("Virtual memory management is not supported on this device")
 
-    options = VirtualMemoryResourceOptions()
+    handle_type, security_attribute = handle_type  # unpack
+    win32_handle_metadata = ctypes.addressof(security_attribute) if security_attribute else 0
+    options = VirtualMemoryResourceOptions(
+        handle_type=handle_type,
+        win32_handle_metadata=win32_handle_metadata,
+    )
     # Create VMM allocator with default config
-    vmm_mr = VirtualMemoryResource(device, config=options)
+    device_arg = device if use_device_object else device.device_id
+    vmm_mr = VirtualMemoryResource(device_arg, config=options)
 
     # Test basic allocation
     buffer = vmm_mr.allocate(4096)
@@ -372,9 +404,9 @@ def test_vmm_allocator_policy_configuration():
     if not device.properties.virtual_memory_management_supported:
         pytest.skip("Virtual memory management is not supported on this device")
 
-    # Skip if GPU Direct RDMA is supported (we want to test the unsupported case)
+    # Skip if GPU Direct RDMA is not supported
     if not device.properties.gpu_direct_rdma_supported:
-        pytest.skip("This test requires a device that doesn't support GPU Direct RDMA")
+        pytest.skip("This test requires a device that supports GPU Direct RDMA")
 
     # Test with custom VMM config
     custom_config = VirtualMemoryResourceOptions(
@@ -382,7 +414,7 @@ def test_vmm_allocator_policy_configuration():
         location_type="device",
         granularity="minimum",
         gpu_direct_rdma=True,
-        handle_type="posix_fd" if platform.system() != "Windows" else "win32",
+        handle_type="posix_fd" if not IS_WINDOWS else "win32_kmt",
         peers=(),
         self_access="rw",
         peer_access="rw",
@@ -406,7 +438,7 @@ def test_vmm_allocator_policy_configuration():
         location_type="device",
         granularity="recommended",
         gpu_direct_rdma=False,
-        handle_type="posix_fd",
+        handle_type="posix_fd" if not IS_WINDOWS else "win32_kmt",
         peers=(),
         self_access="r",  # Read-only access
         peer_access="r",
@@ -422,7 +454,8 @@ def test_vmm_allocator_policy_configuration():
     modified_buffer.close()
 
 
-def test_vmm_allocator_grow_allocation():
+@pytest.mark.parametrize("handle_type", get_handle_type())
+def test_vmm_allocator_grow_allocation(handle_type):
     """Test VMM allocator's ability to grow existing allocations.
 
     This test verifies that VirtualMemoryResource can grow existing
@@ -435,7 +468,12 @@ def test_vmm_allocator_grow_allocation():
     if not device.properties.virtual_memory_management_supported:
         pytest.skip("Virtual memory management is not supported on this device")
 
-    options = VirtualMemoryResourceOptions()
+    handle_type, security_attribute = handle_type  # unpack
+    win32_handle_metadata = ctypes.addressof(security_attribute) if security_attribute else 0
+    options = VirtualMemoryResourceOptions(
+        handle_type=handle_type,
+        win32_handle_metadata=win32_handle_metadata,
+    )
 
     vmm_mr = VirtualMemoryResource(device, config=options)
 
