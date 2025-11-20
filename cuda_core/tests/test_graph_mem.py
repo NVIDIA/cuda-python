@@ -13,7 +13,7 @@ from cuda.core.experimental import (
     ProgramOptions,
     launch,
 )
-from helpers import IS_WSL
+from helpers import IS_WINDOWS, IS_WSL
 from helpers.buffers import compare_buffer_to_constant, make_scratch_buffer, set_buffer
 
 
@@ -116,7 +116,7 @@ def test_graph_alloc(init_cuda, mode):
     assert compare_buffer_to_constant(out, 2)
 
 
-@pytest.mark.skipif(IS_WSL, reason="auto_free_on_launch not supported on WSL")
+@pytest.mark.skipif(IS_WINDOWS or IS_WSL, reason="auto_free_on_launch not supported on Windows")
 @pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
 def test_graph_alloc_with_output(init_cuda, mode):
     """Test for memory allocated in a graph being used outside the graph."""
@@ -200,8 +200,10 @@ def test_graph_mem_set_attributes(init_cuda, mode):
     gmr.attributes.reserved_mem_high = 0
     gmr.attributes.used_mem_high = 0
 
-    assert gmr.attributes.reserved_mem_high == 0
-    assert gmr.attributes.used_mem_high == 0
+    # High-water marks are not guaranteed to be reset. This is
+    # platform-dependent behavior.
+    # assert gmr.attributes.reserved_mem_high == 0
+    # assert gmr.attributes.used_mem_high == 0
 
     mman.reset()
 

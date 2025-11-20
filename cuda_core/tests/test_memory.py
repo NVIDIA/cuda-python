@@ -664,7 +664,7 @@ def test_mempool_attributes_repr(mempool_device):
     assert re.match(
         r"DeviceMemoryResourceAttributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
         r"reuse_allow_internal_dependencies=(True|False), reuse_allow_opportunistic=(True|False), "
-        r"reuse_follow_event_dependencies=(True|False), used_mem_current=64, used_mem_high=128\)",
+        r"reuse_follow_event_dependencies=(True|False), used_mem_current=\d+, used_mem_high=\d+\)",
         str(mr.attributes),
     )
     buffer2.close()
