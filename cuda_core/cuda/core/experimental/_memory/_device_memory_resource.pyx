@@ -71,7 +71,6 @@ cdef class DeviceMemoryResourceAttributes:
                                             if not attr.startswith("_")
         )
 
-    @DMRA_mempool_attribute(bool)
     cdef int _getattribute(self, cydriver.CUmemPool_attribute attr_enum, void* value) except?-1:
         cdef DeviceMemoryResource mr = <DeviceMemoryResource>(self._mr_weakref())
         if mr is None:

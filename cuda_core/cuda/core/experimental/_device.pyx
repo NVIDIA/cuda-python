@@ -1333,7 +1333,7 @@ class Device:
 
         """
         self._check_context_initialized()
-        return self._mr.allocate(size, stream)
+        return self.memory_resource.allocate(size, stream)
 
     def sync(self):
         """Synchronize the device.
