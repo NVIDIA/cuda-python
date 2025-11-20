@@ -1,0 +1,6 @@
+﻿cuda.bindings.cufile.driver\_set\_max\_cache\_size
+==================================================
+
+.. currentmodule:: cuda.bindings.cufile
+
+.. autofunction:: driver_set_max_cache_size
