@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from libc.stdint cimport uintptr_t, intptr_t, uint64_t
+from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
@@ -13,8 +13,6 @@ from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 from functools import cache
 from typing import TYPE_CHECKING
-
-from cuda.core.experimental._utils.cuda_utils import driver
 
 if TYPE_CHECKING:
     from cuda.core.experimental._memory.buffer import DevicePointerT
@@ -41,64 +39,63 @@ cdef class GraphMemoryResourceAttributes:
                                             if not attr.startswith("_")
         )
 
-    @GMRA_mem_attribute(int)
+    cdef int _getattribute(self, cydriver.CUgraphMem_attribute attr_enum, void* value) except?-1:
+        with nogil:
+            HANDLE_RETURN(cydriver.cuDeviceGetGraphMemAttribute(self._dev_id, attr_enum, value))
+        return 0
+
+    cdef int _setattribute(self, cydriver.CUgraphMem_attribute attr_enum, void* value) except?-1:
+        with nogil:
+            HANDLE_RETURN(cydriver.cuDeviceSetGraphMemAttribute(self._dev_id, attr_enum, value))
+        return 0
+
+    @property
     def reserved_mem_current(self):
         """Current amount of backing memory allocated."""
+        cdef cydriver.cuuint64_t value
+        self._getattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT, &value)
+        return int(value)
 
-    @GMRA_mem_attribute(int, settable=True)
+    @property
     def reserved_mem_high(self):
         """
         High watermark of backing memory allocated. It can be set to zero to
         reset it to the current usage.
         """
+        cdef cydriver.cuuint64_t value
+        self._getattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH, &value)
+        return int(value)
 
-    @GMRA_mem_attribute(int)
+    @reserved_mem_high.setter
+    def reserved_mem_high(self, value: int):
+        if value != 0:
+            raise AttributeError(f"Attribute 'reserved_mem_high' may only be set to zero (got {value}).")
+        cdef cydriver.cuuint64_t zero = 0
+        self._setattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH, &zero)
+
+    @property
     def used_mem_current(self):
         """Current amount of memory in use."""
+        cdef cydriver.cuuint64_t value
+        self._getattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT, &value)
+        return int(value)
 
-    @GMRA_mem_attribute(int, settable=True)
+    @property
     def used_mem_high(self):
         """
         High watermark of memory in use. It can be set to zero to reset it to
         the current usage.
         """
+        cdef cydriver.cuuint64_t value
+        self._getattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_USED_MEM_HIGH, &value)
+        return int(value)
 
-
-cdef GMRA_mem_attribute(property_type: type, settable: bool = False):
-    _settable = settable
-
-    def decorator(stub):
-        attr_enum = getattr(
-            driver.CUgraphMem_attribute, f"CU_GRAPH_MEM_ATTR_{stub.__name__.upper()}"
-        )
-
-        def fget(GraphMemoryResourceAttributes self) -> property_type:
-            value = GMRA_getattribute(self._dev_id, <cydriver.CUgraphMem_attribute><uintptr_t> attr_enum)
-            return property_type(value)
-
-        if _settable:
-            def fset(GraphMemoryResourceAttributes self, uint64_t value):
-                if value != 0:
-                    raise AttributeError(f"Attribute {stub.__name__!r} may only be set to zero (got {value}).")
-                GMRA_setattribute(self._dev_id, <cydriver.CUgraphMem_attribute><uintptr_t> attr_enum)
-        else:
-            fset = None
-
-        return property(fget=fget, fset=fset, doc=stub.__doc__)
-    return decorator
-
-
-cdef inline uint64_t GMRA_getattribute(int device_id, cydriver.CUgraphMem_attribute attr_enum):
-    cdef uint64_t value
-    with nogil:
-        HANDLE_RETURN(cydriver.cuDeviceGetGraphMemAttribute(device_id, attr_enum, <void *> &value))
-    return value
-
-
-cdef inline void GMRA_setattribute(int device_id, cydriver.CUgraphMem_attribute attr_enum):
-    cdef uint64_t zero = 0
-    with nogil:
-        HANDLE_RETURN(cydriver.cuDeviceSetGraphMemAttribute(device_id, attr_enum, <void *> &zero))
+    @used_mem_high.setter
+    def used_mem_high(self, value: int):
+        if value != 0:
+            raise AttributeError(f"Attribute 'used_mem_high' may only be set to zero (got {value}).")
+        cdef cydriver.cuuint64_t zero = 0
+        self._setattribute(cydriver.CUgraphMem_attribute.CU_GRAPH_MEM_ATTR_USED_MEM_HIGH, &zero)
 
 
 cdef class cyGraphMemoryResource(MemoryResource):
