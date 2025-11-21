@@ -453,9 +453,9 @@ cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:
 # needed checks and returns the relevant stream.
 cdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
     if isinstance(arg, Stream):
-        return <Stream> arg
+        return <Stream>(arg)
     elif isinstance(arg, GraphBuilder):
-        return <Stream> arg.stream
+        return <Stream>(arg.stream)
     elif allow_stream_protocol:
         try:
             stream = Stream._init(arg)
@@ -469,5 +469,5 @@ cdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
                 stacklevel=2,
                 category=DeprecationWarning,
             )
-            return <Stream> stream
+            return <Stream>(stream)
     raise TypeError(f"Stream or GraphBuilder expected, got {type(arg).__name__}")

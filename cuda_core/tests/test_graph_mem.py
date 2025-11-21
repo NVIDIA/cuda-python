@@ -34,8 +34,7 @@ def _common_kernels_alloc():
         }
     }
     """
-    arch = "".join(f"{i}" for i in Device().compute_capability)
-    program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
+    program_options = ProgramOptions(std="c++17", arch=f"sm_{Device().arch}")
     prog = Program(code, code_type="c++", options=program_options)
     mod = prog.compile("cubin", name_expressions=("set_zero", "add_one"))
     return mod
@@ -76,10 +75,10 @@ class GraphMemoryTestManager:
 
 
 @pytest.mark.parametrize("mode", ["no_graph", "global", "thread_local", "relaxed"])
-def test_graph_alloc(init_cuda, mode):
+def test_graph_alloc(mempool_device, mode):
     """Test basic graph capture with memory allocated and deallocated by GraphMemoryResource."""
     NBYTES = 64
-    device = Device()
+    device = mempool_device
     stream = device.create_stream()
     dmr = DeviceMemoryResource(device)
     gmr = GraphMemoryResource(device)
@@ -118,10 +117,10 @@ def test_graph_alloc(init_cuda, mode):
 
 @pytest.mark.skipif(IS_WINDOWS or IS_WSL, reason="auto_free_on_launch not supported on Windows")
 @pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
-def test_graph_alloc_with_output(init_cuda, mode):
+def test_graph_alloc_with_output(mempool_device, mode):
     """Test for memory allocated in a graph being used outside the graph."""
     NBYTES = 64
-    device = Device()
+    device = mempool_device
     stream = device.create_stream()
     gmr = GraphMemoryResource(device)
 
@@ -157,8 +156,8 @@ def test_graph_alloc_with_output(init_cuda, mode):
 
 
 @pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
-def test_graph_mem_set_attributes(init_cuda, mode):
-    device = Device()
+def test_graph_mem_set_attributes(mempool_device, mode):
+    device = mempool_device
     stream = device.create_stream()
     gmr = GraphMemoryResource(device)
     mman = GraphMemoryTestManager(gmr, stream, mode)
@@ -209,12 +208,12 @@ def test_graph_mem_set_attributes(init_cuda, mode):
 
 
 @pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
-def test_gmr_check_capture_state(init_cuda, mode):
+def test_gmr_check_capture_state(mempool_device, mode):
     """
     Test expected errors (and non-errors) using GraphMemoryResource with graph
     capture.
     """
-    device = Device()
+    device = mempool_device
     stream = device.create_stream()
     gmr = GraphMemoryResource(device)
 
@@ -233,12 +232,12 @@ def test_gmr_check_capture_state(init_cuda, mode):
 
 
 @pytest.mark.parametrize("mode", ["global", "thread_local", "relaxed"])
-def test_dmr_check_capture_state(init_cuda, mode):
+def test_dmr_check_capture_state(mempool_device, mode):
     """
     Test expected errors (and non-errors) using DeviceMemoryResource with graph
     capture.
     """
-    device = Device()
+    device = mempool_device
     stream = device.create_stream()
     dmr = DeviceMemoryResource(device)
 

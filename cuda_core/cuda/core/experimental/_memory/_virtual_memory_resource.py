@@ -20,7 +20,6 @@ from cuda.core.experimental._utils.cuda_utils import (
 )
 
 if TYPE_CHECKING:
-    from cuda.core.experimental._graph import GraphBuilder
     from cuda.core.experimental._stream import Stream
 
 __all__ = ["VirtualMemoryResourceOptions", "VirtualMemoryResource"]
@@ -465,7 +464,7 @@ class VirtualMemoryResource(MemoryResource):
 
         return descs
 
-    def allocate(self, size: int, stream: Stream | GraphBuilder | None = None) -> Buffer:
+    def allocate(self, size: int, stream: Stream | None = None) -> Buffer:
         """
         Allocate a buffer of the given size using CUDA virtual memory.
 
@@ -549,7 +548,7 @@ class VirtualMemoryResource(MemoryResource):
         buf = Buffer.from_handle(ptr=ptr, size=aligned_size, mr=self)
         return buf
 
-    def deallocate(self, ptr: int, size: int, stream: Stream | GraphBuilder | None = None) -> None:
+    def deallocate(self, ptr: int, size: int, stream: Stream | None = None) -> None:
         """
         Deallocate memory on the device using CUDA VMM APIs.
         """

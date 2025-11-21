@@ -39,18 +39,6 @@ from cuda_python_test_helpers import supports_ipc_mempool
 POOL_SIZE = 2097152  # 2MB size
 
 
-@pytest.fixture(scope="function")
-def mempool_device():
-    """Obtains a device suitable for mempool tests, or skips."""
-    device = Device()
-    device.set_current()
-
-    if not device.properties.memory_pools_supported:
-        pytest.skip("Device does not support mempool operations")
-
-    return device
-
-
 class DummyDeviceMemoryResource(MemoryResource):
     def __init__(self, device):
         self.device = device

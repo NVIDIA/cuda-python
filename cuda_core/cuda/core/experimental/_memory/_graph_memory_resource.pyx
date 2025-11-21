@@ -148,16 +148,13 @@ cdef class cyGraphMemoryResource(MemoryResource):
 
 class GraphMemoryResource(cyGraphMemoryResource):
     """
-    A memory resource managing the graph-specific memory pool.
+    A memory resource for memory related to graphs.
 
-    Graph-captured memory operations use a special internal memory pool, which
-    is a per-device singleton. This class serves as the interface to that pool.
     The only supported operations are allocation, deallocation, and a limited
     set of status queries.
 
-    This memory resource should be used to allocate memory when graph capturing
-    is enabled. Using this when graphs are not being captured will result in a
-    runtime error.
+    This memory resource should be used when building graphs.  Using this when
+    graphs capture is not enabled will result in a runtime error.
 
     Conversely, allocating memory from a `DeviceMemoryResource` when graph
     capturing is enabled results in a runtime error.

@@ -62,7 +62,8 @@ class LegacyPinnedMemoryResource(MemoryResource):
         stream : Stream
             The stream on which to perform the deallocation synchronously.
         """
-        stream.sync()
+        if stream is not None:
+            stream.sync()
         (err,) = driver.cuMemFreeHost(ptr)
         raise_if_driver_error(err)
 
@@ -97,10 +98,11 @@ class _SynchronousMemoryResource(MemoryResource):
             stream = default_stream()
         err, ptr = driver.cuMemAlloc(size)
         raise_if_driver_error(err)
-        return Buffer._init(ptr, size, self)
+        return Buffer._init(ptr, size, self, stream)
 
     def deallocate(self, ptr, size, stream):
-        stream.sync()
+        if stream is not None:
+            stream.sync()
         (err,) = driver.cuMemFree(ptr)
         raise_if_driver_error(err)
 
