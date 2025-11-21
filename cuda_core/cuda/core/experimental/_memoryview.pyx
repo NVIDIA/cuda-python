@@ -3,6 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from ._dlpack cimport *
+from libc.stdint cimport uintptr_t
+from cuda.core.experimental._layout cimport StridedLayout
+from cuda.core.experimental._stream import Stream
 
 import functools
 from typing import Optional
@@ -10,21 +13,25 @@ from typing import Optional
 import numpy
 
 from cuda.core.experimental._utils.cuda_utils import handle_return, driver
-from cuda.core.experimental._utils cimport cuda_utils
 
+
+from cuda.core.experimental._dlpack import make_py_capsule
+from cuda.core.experimental._memory import Buffer
 
 # TODO(leofang): support NumPy structured dtypes
 
 
 cdef class StridedMemoryView:
-    """A dataclass holding metadata of a strided dense array/tensor.
+    """A class holding metadata of a strided dense array/tensor.
 
-    A :obj:`StridedMemoryView` instance can be created in two ways:
+    A :obj:`StridedMemoryView` instance can be created in three ways:
 
       1. Using the :obj:`args_viewable_as_strided_memory` decorator (recommended)
-      2. Explicit construction, see below
+      2. Explicit construction relying on DLPack or CUDA Array Interface, see below.
+      3. From :obj:`~_memory.Buffer` and a :obj:`StridedLayout` (see :meth:`from_buffer` classmethod)
 
-    This object supports both DLPack (up to v1.0) and CUDA Array Interface
+    ``StridedMemoryView(obj, stream_ptr)`` can be used to create a view from
+    objects supporting either DLPack (up to v1.0) or CUDA Array Interface
     (CAI) v3. When wrapping an arbitrary object it will try the DLPack protocol
     first, then the CAI protocol. A :obj:`BufferError` is raised if neither is
     supported.
@@ -42,16 +49,26 @@ cdef class StridedMemoryView:
     consistent with the CAI's semantics. For DLPack, ``stream=-1`` will be
     internally passed to ``obj.__dlpack__()`` instead.
 
-    Attributes
+    Parameters
     ----------
+    obj : Any
+        Any objects that supports either DLPack (up to v1.0) or CUDA Array
+        Interface (v3).
+    stream_ptr: int
+        The pointer address (as Python `int`) to the **consumer** stream.
+        Stream ordering will be properly established unless ``-1`` is passed.
+
+
+    .. note::
+        The StridedMemoryView can be exported with DLPack, in which case
+        no synchronization is performed. It is the user's responsibility to ensure
+        the data in ``exporting_obj`` is properly synchronized when consuming the view.
+
+
+    Attributes
+    -----------
     ptr : int
         Pointer to the tensor buffer (as a Python `int`).
-    shape : tuple
-        Shape of the tensor.
-    strides : Optional[tuple]
-        Strides of the tensor (in **counts**, not bytes).
-    dtype: numpy.dtype
-        Data type of the tensor.
     device_id : int
         The device ID for where the tensor is located. It is -1 for CPU tensors
         (meaning those only accessible from the host).
@@ -61,18 +78,12 @@ cdef class StridedMemoryView:
         Whether the tensor data can be modified in place.
     exporting_obj : Any
         A reference to the original tensor object that is being viewed.
+        If the view is created with :meth:`from_buffer`,
+        it will be the Buffer instance passed to the method.
 
-    Parameters
-    ----------
-    obj : Any
-        Any objects that supports either DLPack (up to v1.0) or CUDA Array
-        Interface (v3).
-    stream_ptr: int
-        The pointer address (as Python `int`) to the **consumer** stream.
-        Stream ordering will be properly established unless ``-1`` is passed.
     """
     cdef readonly:
-        intptr_t ptr
+        uintptr_t ptr
         int device_id
         bint is_device_accessible
         bint readonly
@@ -88,10 +99,17 @@ cdef class StridedMemoryView:
     cdef DLTensor *dl_tensor
 
     # Memoized properties
-    cdef tuple _shape
-    cdef tuple _strides
-    cdef bint _strides_init  # Has the strides tuple been init'ed?
+    # Either lazily inferred from dl_tensor/metadata,
+    # or explicitly provided if created with from_buffer().
+    cdef StridedLayout _layout
+    # Either exporting_obj if it is a Buffer, otherwise a Buffer instance
+    # with owner set to the exporting object.
+    cdef object _buffer
+    # Either lazily inferred from dl_tensor/metadata,
+    # or explicitly provided if created with from_buffer().
+    # In the latter case, it can be None.
     cdef object _dtype
+
 
     def __init__(self, obj=None, stream_ptr=None):
         if obj is not None:
@@ -120,62 +138,228 @@ cdef class StridedMemoryView:
             dlm_tensor = <DLManagedTensor*>data
             dlm_tensor.deleter(dlm_tensor)
 
+    @classmethod
+    def from_buffer(
+        cls, buffer : Buffer, layout : StridedLayout,
+        dtype : numpy.dtype | None = None,
+        is_readonly : bool = False
+    ) -> StridedMemoryView:
+        """
+        Creates a :obj:`StridedMemoryView` instance from a :obj:`~_memory.Buffer` and a :obj:`StridedLayout`.
+        The Buffer can be either allocation coming from a :obj:`MemoryResource` or an external allocation
+        wrapped in a :obj:`~_memory.Buffer` object with ``Buffer.from_handle(ptr, size, owner=...)``.
+
+        .. hint::
+            When allocating the memory for a given layout, the required allocation size
+            can be obtained with the :meth:`StridedLayout.required_size_in_bytes` method.
+            It is best to use the :meth:`StridedLayout.to_dense` method
+            first to make sure the layout is contiguous, to avoid overallocating memory
+            for layouts with gaps.
+
+        .. caution::
+            When creating a :obj:`StridedMemoryView` from a :obj:`~_memory.Buffer`,
+            no synchronization is performed. It is the user's responsibility to ensure
+            the data in ``buffer`` is properly synchronized when consuming the view.
+
+        Parameters
+        ----------
+        buffer : :obj:`~_memory.Buffer`
+            The buffer to create the view from.
+        layout : :obj:`StridedLayout`
+            The layout describing the shape, strides and itemsize of the elements in
+            the buffer.
+        dtype : :obj:`numpy.dtype`, optional
+            Optional dtype. The dtype is required for exporting the view with DLPack.
+            If specified, the dtype's itemsize must match the layout's itemsize.
+            To view the buffer with a different itemsize, please use :meth:`StridedLayout.repacked`
+            first to transform the layout to the desired itemsize.
+        is_readonly : bool, optional
+            Whether the mark the view as readonly. The flag will be forwarded to the DLPack capsule.
+        """
+        cdef StridedMemoryView view = StridedMemoryView.__new__(cls)
+        view_buffer_strided(view, buffer, layout, dtype, is_readonly)
+        return view
+
+    def view(
+        self, layout : StridedLayout | None = None, dtype : numpy.dtype | None = None
+    ) -> StridedMemoryView:
+        """
+        Creates a new view with adjusted layout and dtype.
+        Same as calling :meth:`from_buffer` with the current buffer, layout and dtype.
+        """
+        cdef StridedMemoryView view = StridedMemoryView.__new__(self.__class__)
+        if layout is None and dtype is None:
+            return self
+        if layout is None:
+            layout = self.get_layout()
+        if dtype is None:
+            dtype = self.get_dtype()
+        view_buffer_strided(view, self.get_buffer(), layout, dtype, self.readonly)
+        return view
+
+    def copy_from(
+        self, other : StridedMemoryView, stream : Stream,
+        allocator : MemoryResource | None = None,
+        blocking : bool | None = None,
+    ):
+        """
+        Copies the data from the other view into this view.
+
+        The copy can be performed between following memory spaces:
+        host-to-device, device-to-host, device-to-device (on the same device).
+
+        The following conditions must be met:
+            * Both views must have compatible shapes, i.e. the shapes must be equal
+              or the source view's shape must be broadcastable to the target view's shape
+              (see :meth:`StridedLayout.broadcast_to`).
+            * Both views must have the same :attr:`dtype` (or :attr:`StridedLayout.itemsize`
+              if :attr:`dtype` is not specified).
+            * The destination's layout must be unique (see :meth:`StridedLayout.is_unique`).
+
+        Parameters
+        ----------
+        other : StridedMemoryView
+            The view to copy data from.
+        stream : Stream | None, optional
+            The stream to schedule the copy on.
+        allocator : MemoryResource | None, optional
+            If temporary buffers are needed, the specifed memory resources
+            will be used to allocate the memory. If not specified, default
+            resources will be used.
+        blocking : bool | None, optional
+            Whether the call should block until the copy is complete.
+                * ``True``: the ``stream`` is synchronized with the host at the end of the call,
+                  blocking until the copy is complete.
+                * ``False``: if possible, the call returns immediately once the copy is scheduled.
+                  However, in some cases of host-to-device or device-to-host copies, the call may
+                  still synchronize with the host if necessary.
+                * ``None`` (default):
+                    * for device-to-device, it defaults to ``False`` (non-blocking),
+                    * for host-to-device or device-to-host, it defaults to ``True`` (blocking).
+        """
+        raise NotImplementedError("Sorry, not supported: copy_from")
+
+    def copy_to(
+        self, other : StridedMemoryView, stream : Stream | None = None,
+        allocator : MemoryResource | None = None,
+        blocking : bool | None = None,
+    ):
+        """
+        Copies the data from this view into the other view.
+
+        For details, see :meth:`copy_from`.
+        """
+        raise NotImplementedError("Sorry, not supported: copy_to")
+
+    @property
+    def layout(self) -> StridedLayout:
+        """
+        The layout of the tensor. For StridedMemoryView created from DLPack or CAI,
+        the layout is inferred from the tensor object's metadata.
+        """
+        return self.get_layout()
+
     @property
     def shape(self) -> tuple[int]:
-        if self._shape is None:
-            if self.exporting_obj is not None:
-                if self.dl_tensor != NULL:
-                    self._shape = cuda_utils.carray_int64_t_to_tuple(
-                        self.dl_tensor.shape,
-                        self.dl_tensor.ndim
-                    )
-                else:
-                    self._shape = self.metadata["shape"]
-            else:
-                self._shape = ()
-        return self._shape
+        """
+        Shape of the tensor.
+        """
+        return self.get_layout().get_shape_tuple()
 
     @property
     def strides(self) -> Optional[tuple[int]]:
-        cdef int itemsize
-        if self._strides_init is False:
-            if self.exporting_obj is not None:
-                if self.dl_tensor != NULL:
-                    if self.dl_tensor.strides:
-                        self._strides = cuda_utils.carray_int64_t_to_tuple(
-                            self.dl_tensor.strides,
-                            self.dl_tensor.ndim
-                        )
-                else:
-                    # This is a Python interface anyway, so not much point
-                    # to using the optimization in cuda_utils.carray_int64_t_to_tuple
-                    strides = self.metadata.get("strides")
-                    if strides is not None:
-                        itemsize = self.dtype.itemsize
-                        self._strides = tuple(x // itemsize for x in strides)
-            self._strides_init = True
-        return self._strides
+        """
+        Strides of the tensor (in **counts**, not bytes).
+        """
+        return self.get_layout().get_strides_tuple()
 
     @property
     def dtype(self) -> Optional[numpy.dtype]:
-        if self._dtype is None:
-            if self.exporting_obj is not None:
-                if self.dl_tensor != NULL:
-                    self._dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
-                else:
-                    # TODO: this only works for built-in numeric types
-                    self._dtype = numpy.dtype(self.metadata["typestr"])
-        return self._dtype
+        """
+        Data type of the tensor.
+        """
+        return self.get_dtype()
 
     def __repr__(self):
         return (f"StridedMemoryView(ptr={self.ptr},\n"
               + f"                  shape={self.shape},\n"
               + f"                  strides={self.strides},\n"
+              + f"                  itemsize={self.layout.itemsize},\n"
               + f"                  dtype={get_simple_repr(self.dtype)},\n"
               + f"                  device_id={self.device_id},\n"
               + f"                  is_device_accessible={self.is_device_accessible},\n"
               + f"                  readonly={self.readonly},\n"
               + f"                  exporting_obj={get_simple_repr(self.exporting_obj)})")
+
+    def __dlpack__(
+        self,
+        *,
+        stream: int | None = None,
+        max_version: tuple[int, int] | None = None,
+        dl_device: tuple[int, int] | None = None,
+        copy: bool | None = None,
+    ) -> PyCapsule:
+        # Note: we ignore the stream argument entirely (as if it is -1).
+        # It is the user's responsibility to maintain stream order.
+        if dl_device is not None:
+            raise BufferError("Sorry, not supported: dl_device other than None")
+        if copy is True:
+            raise BufferError("Sorry, not supported: copy=True")
+        if max_version is None:
+            versioned = False
+        else:
+            if not isinstance(max_version, tuple) or len(max_version) != 2:
+                raise BufferError(f"Expected max_version tuple[int, int], got {max_version}")
+            versioned = max_version >= (1, 0)
+        cdef object dtype = self.get_dtype()
+        if dtype is None:
+            raise ValueError(
+                "Cannot export the StridedMemoryView without a dtype. "
+                "You can create a dtyped view calling view(dtype=...) method."
+            )
+        capsule = make_py_capsule(
+            self.get_buffer(),
+            versioned,
+            self.ptr,
+            self.get_layout(),
+            _numpy2dlpack_dtype[dtype],
+        )
+        return capsule
+
+    def __dlpack_device__(self) -> tuple[int, int]:
+        return self.get_buffer().__dlpack_device__()
+
+    cdef inline StridedLayout get_layout(self):
+        if self._layout is None:
+            if self.dl_tensor:
+                self._layout = layout_from_dlpack(self.dl_tensor)
+            elif self.metadata is not None:
+                self._layout = layout_from_cai(self.metadata)
+            else:
+                raise ValueError("Cannot infer layout from the exporting object")
+        return self._layout
+
+    cdef inline object get_buffer(self):
+        """
+        Returns Buffer instance with the underlying data.
+        If the SMV was created from a Buffer, it will return the same Buffer instance.
+        Otherwise, it will create a new instance with owner set to the exporting object.
+        """
+        if self._buffer is None:
+            if isinstance(self.exporting_obj, Buffer):
+                self._buffer = self.exporting_obj
+            else:
+                self._buffer = Buffer.from_handle(self.ptr, 0, owner=self.exporting_obj)
+        return self._buffer
+
+    cdef inline object get_dtype(self):
+        if self._dtype is None:
+            if self.dl_tensor != NULL:
+                self._dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
+            elif self.metadata is not None:
+                # TODO: this only works for built-in numeric types
+                self._dtype = _typestr2dtype[self.metadata["typestr"]]
+        return self._dtype
 
 
 cdef str get_simple_repr(obj):
@@ -285,13 +469,33 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
     buf.dl_tensor = dl_tensor
     buf.metadata = capsule
-    buf.ptr = <intptr_t>(dl_tensor.data)
+    buf.ptr = <uintptr_t>(dl_tensor.data)
     buf.device_id = device_id
     buf.is_device_accessible = is_device_accessible
     buf.readonly = is_readonly
     buf.exporting_obj = obj
 
     return buf
+
+
+_numpy2dlpack_dtype = {
+    numpy.dtype("uint8"): (<uint8_t>kDLUInt, 8, 1),
+    numpy.dtype("uint16"): (<uint8_t>kDLUInt, 16, 1),
+    numpy.dtype("uint32"): (<uint8_t>kDLUInt, 32, 1),
+    numpy.dtype("uint64"): (<uint8_t>kDLUInt, 64, 1),
+    numpy.dtype("int8"): (<uint8_t>kDLInt, 8, 1),
+    numpy.dtype("int16"): (<uint8_t>kDLInt, 16, 1),
+    numpy.dtype("int32"): (<uint8_t>kDLInt, 32, 1),
+    numpy.dtype("int64"): (<uint8_t>kDLInt, 64, 1),
+    numpy.dtype("float16"): (<uint8_t>kDLFloat, 16, 1),
+    numpy.dtype("float32"): (<uint8_t>kDLFloat, 32, 1),
+    numpy.dtype("float64"): (<uint8_t>kDLFloat, 64, 1),
+    numpy.dtype("complex64"): (<uint8_t>kDLComplex, 64, 1),
+    numpy.dtype("complex128"): (<uint8_t>kDLComplex, 128, 1),
+    numpy.dtype("bool"): (<uint8_t>kDLBool, 8, 1),
+}
+_typestr2dtype = {dtype.str: dtype for dtype in _numpy2dlpack_dtype.keys()}
+_typestr2itemsize = {dtype.str: dtype.itemsize for dtype in _numpy2dlpack_dtype.keys()}
 
 
 cdef object dtype_dlpack_to_numpy(DLDataType* dtype):
@@ -375,13 +579,13 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
             driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
             buf.ptr))
 
-    cdef intptr_t producer_s, consumer_s
+    cdef uintptr_t producer_s, consumer_s
     stream_ptr = int(stream_ptr)
     if stream_ptr != -1:
         stream = cai_data.get("stream")
         if stream is not None:
-            producer_s = <intptr_t>(stream)
-            consumer_s = <intptr_t>(stream_ptr)
+            producer_s = <uintptr_t>(stream)
+            consumer_s = <uintptr_t>(stream_ptr)
             assert producer_s > 0
             # establish stream order
             if producer_s != consumer_s:
@@ -433,3 +637,76 @@ def args_viewable_as_strided_memory(tuple arg_indices):
             return func(*args, **kwargs)
         return wrapped_func
     return wrapped_func_with_indices
+
+
+cdef inline StridedLayout layout_from_dlpack(DLTensor* dl_tensor):
+    cdef StridedLayout layout = StridedLayout.__new__(StridedLayout)
+    cdef int nbits = dl_tensor.dtype.bits
+    cdef int itemsize = nbits >> 3
+    if (itemsize << 3) != nbits:
+        raise ValueError("dl_tensor.dtype.bits must be a multiple of 8")
+    layout.init_from_ptr(dl_tensor.ndim, dl_tensor.shape, dl_tensor.strides, itemsize)
+    return layout
+
+
+cdef StridedLayout layout_from_cai(object metadata):
+    cdef StridedLayout layout = StridedLayout.__new__(StridedLayout)
+    cdef object shape = metadata["shape"]
+    cdef object strides = metadata.get("strides")
+    cdef int itemsize = _typestr2itemsize[metadata["typestr"]]
+    layout.init_from_tuple(shape, strides, itemsize, True)
+    return layout
+
+
+cdef inline uintptr_t _get_data_ptr(object buffer, StridedLayout layout) except? 0:
+    cdef bint is_allocated = buffer.owner is None
+    if is_allocated:
+        if buffer.memory_resource is None:
+            raise ValueError(
+                "Ambiguous buffer instance. The buffer must either hold an allocation "
+                "(coming from MemoryResource, e.g. Device().memory_resource.allocate()) "
+                "or wrap external data and specify the owner "
+                "(`Buffer.from_handle(ptr, size, owner=...)`)."
+            )
+    # For external buffers, we may not know the size. Even if we did, the size
+    # alone is not enough if the layout can map to negative offsets, i.e.:
+    # the valid range is not the [ptr, ptr + size - 1], but
+    # [ptr - offset, ptr + size - offset - 1]. The offset is not reported
+    # by the packages.
+    if is_allocated and buffer.size < layout.get_required_size_in_bytes():
+        raise ValueError(
+            f"Buffer size is too small for the layout. "
+            f"Expected at least {layout.get_required_size_in_bytes()} bytes, "
+            f"got {buffer.size} bytes."
+        )
+    return <uintptr_t>(buffer.handle) + layout.get_slice_offset_in_bytes()
+
+
+cdef inline int view_buffer_strided(
+    StridedMemoryView view,
+    object buffer,
+    StridedLayout layout,
+    object dtype,
+    bint is_readonly,
+) except -1:
+    if dtype is not None:
+        dtype = numpy.dtype(dtype)
+        if dtype.itemsize != layout.itemsize:
+            raise ValueError(
+                f"The dtype's itemsize ({dtype.itemsize}) does not match the layout's "
+                f"itemsize ({layout.itemsize}). Please use :meth:`StridedLayout.repacked` "
+                f"to transform the layout to the desired itemsize."
+            )
+    # set the public attributes
+    view.ptr = _get_data_ptr(buffer, layout)
+    view.device_id = buffer.device_id
+    view.is_device_accessible = buffer.is_device_accessible
+    view.readonly = is_readonly
+    view.exporting_obj = view._buffer = buffer
+    # no dlpack/cai metadata
+    view.dl_tensor = NULL
+    view.metadata = None
+    # we get the layout from the caller
+    view._layout = layout
+    view._dtype = dtype
+    return 0
