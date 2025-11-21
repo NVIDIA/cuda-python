@@ -25,6 +25,35 @@ cdef extern from "wddm_driver_model_is_in_use.h":
 cpdef int wddm_driver_model_is_in_use():
     return _wddm_driver_model_is_in_use_impl()
 
+
+def ensure_hags_is_enabled_if_wddm_driver_model_is_in_use() -> None:
+    """On Windows with WDDM driver model, require HAGS to be fully enabled.
+
+    If WDDM is not in use, or the platform is non-Windows, this is a no-op.
+    """
+    import sys
+
+    if sys.platform != "win32":
+        return
+
+    wddm_state = wddm_driver_model_is_in_use()
+    if wddm_state != 1:
+        # Either not WDDM or NVML was not able to determine the driver model.
+        return
+
+    hags_state = hags_status()
+    if hags_state == 2:
+        # HAGS fully enabled.
+        return
+
+    raise RuntimeError(
+        "Hardware Accelerated GPU Scheduling (HAGS) must be fully enabled when the "
+        "Windows WDDM driver model is in use in order to obtain reliable CUDA event "
+        "timing. Please enable HAGS in the Windows graphics settings or switch to a "
+        "non-WDDM driver model."
+    )
+
+
 import cython
 from dataclasses import dataclass
 import multiprocessing
@@ -148,6 +177,8 @@ cdef class Event:
 
     def __sub__(self, other: Event):
         # return self - other (in milliseconds)
+        if not self.is_timing_disabled and not other.is_timing_disabled:
+            ensure_hags_is_enabled_if_wddm_driver_model_is_in_use()
         cdef float timing
         with nogil:
             err = cydriver.cuEventElapsedTime(&timing, other._handle, self._handle)
