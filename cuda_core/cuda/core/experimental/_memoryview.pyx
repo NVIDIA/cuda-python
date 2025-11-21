@@ -5,6 +5,7 @@
 from ._dlpack cimport *
 from libc.stdint cimport uintptr_t
 from cuda.core.experimental._layout cimport StridedLayout
+from cuda.core.experimental._stream import Stream
 
 import functools
 from typing import Optional
@@ -195,6 +196,60 @@ cdef class StridedMemoryView:
             dtype = self.get_dtype()
         view_buffer_strided(view, self.get_buffer(), layout, dtype, self.readonly)
         return view
+
+    def copy_from(
+        self, other : StridedMemoryView, stream : Stream,
+        allocator : MemoryResource | None = None,
+        blocking : bool | None = None,
+    ):
+        """
+        Copies the data from the other view into this view.
+
+        The copy can be performed between following memory spaces:
+        host-to-device, device-to-host, device-to-device (on the same device).
+
+        The following conditions must be met:
+            * Both views must have compatible shapes, i.e. the shapes must be equal
+              or the source view's shape must be broadcastable to the target view's shape
+              (see :meth:`StridedLayout.broadcast_to`).
+            * Both views must have the same :attr:`dtype` (or :attr:`StridedLayout.itemsize`
+              if :attr:`dtype` is not specified).
+            * The destination's layout must be unique (see :meth:`StridedLayout.is_unique`).
+
+        Parameters
+        ----------
+        other : StridedMemoryView
+            The view to copy data from.
+        stream : Stream | None, optional
+            The stream to schedule the copy on.
+        allocator : MemoryResource | None, optional
+            If temporary buffers are needed, the specifed memory resources
+            will be used to allocate the memory. If not specified, default
+            resources will be used.
+        blocking : bool | None, optional
+            Whether the call should block until the copy is complete.
+                * ``True``: the ``stream`` is synchronized with the host at the end of the call,
+                  blocking until the copy is complete.
+                * ``False``: if possible, the call returns immediately once the copy is scheduled.
+                  However, in some cases of host-to-device or device-to-host copies, the call may
+                  still synchronize with the host if necessary.
+                * ``None`` (default):
+                    * for device-to-device, it defaults to ``False`` (non-blocking),
+                    * for host-to-device or device-to-host, it defaults to ``True`` (blocking).
+        """
+        raise NotImplementedError("Sorry, not supported: copy_from")
+
+    def copy_to(
+        self, other : StridedMemoryView, stream : Stream | None = None,
+        allocator : MemoryResource | None = None,
+        blocking : bool | None = None,
+    ):
+        """
+        Copies the data from this view into the other view.
+
+        For details, see :meth:`copy_from`.
+        """
+        raise NotImplementedError("Sorry, not supported: copy_to")
 
     @property
     def layout(self) -> StridedLayout:
