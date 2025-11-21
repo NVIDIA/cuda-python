@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import re
 import time
 
 import cuda.core.experimental
@@ -16,12 +17,26 @@ from helpers.latch import LatchKernel
 
 from cuda_python_test_helpers import IS_WSL
 
+_HAGS_ERROR_SUBSTRING = "Hardware Accelerated GPU Scheduling (HAGS) must be fully enabled"
+
 
 def inspect_hags_status():
     hags = hags_status()
     print(f"\nLOOOK {hags=!r}", flush=True)
     wddm = wddm_driver_model_is_in_use()
     print(f"\nLOOOK {wddm=!r}", flush=True)
+
+
+def _xfail_if_hags_runtime_error(exc: BaseException, expected_regex: str | None = None) -> None:
+    message = str(exc)
+    if _HAGS_ERROR_SUBSTRING in message:
+        pytest.xfail(
+            "HAGS is not fully enabled while the Windows WDDM driver model is in use; "
+            "event timing tests are expected to fail in this configuration."
+        )
+
+    if expected_regex is not None:
+        assert re.match(expected_regex, message), f"Expected regex: {expected_regex!r}\nActual message: {message!r}"
 
 
 def test_event_init_disabled():
@@ -38,7 +53,11 @@ def test_timing_success(init_cuda):
     time.sleep(delay_seconds)
     e2 = stream.record(options=options)
     e2.sync()
-    elapsed_time_ms = e2 - e1
+    try:
+        elapsed_time_ms = e2 - e1
+    except RuntimeError as exc:
+        _xfail_if_hags_runtime_error(exc)
+        raise
     assert isinstance(elapsed_time_ms, float)
     # Using a generous tolerance, to avoid flaky tests:
     # We only want to exercise the __sub__ method, this test is not meant
@@ -115,12 +134,17 @@ def test_error_timing_recorded():
     event3 = device.create_event(options=enabled)
 
     stream.sync()
-    with pytest.raises(RuntimeError, match="^Both Events must be recorded"):
+    with pytest.raises(RuntimeError) as excinfo:
         event2 - event1
-    with pytest.raises(RuntimeError, match="^Both Events must be recorded"):
+    _xfail_if_hags_runtime_error(excinfo.value, r"^Both Events must be recorded")
+
+    with pytest.raises(RuntimeError) as excinfo:
         event1 - event2
-    with pytest.raises(RuntimeError, match="^Both Events must be recorded"):
+    _xfail_if_hags_runtime_error(excinfo.value, r"^Both Events must be recorded")
+
+    with pytest.raises(RuntimeError) as excinfo:
         event3 - event2
+    _xfail_if_hags_runtime_error(excinfo.value, r"^Both Events must be recorded")
 
 
 def test_error_timing_incomplete():
@@ -135,8 +159,9 @@ def test_error_timing_incomplete():
     event3 = stream.record(options=enabled)
 
     # event3 will never complete because the latch has not been released
-    with pytest.raises(RuntimeError, match="^One or both events have not completed."):
+    with pytest.raises(RuntimeError) as excinfo:
         event3 - event1
+    _xfail_if_hags_runtime_error(excinfo.value, r"^One or both events have not completed.")
 
     latch.release()
     event3.sync()
