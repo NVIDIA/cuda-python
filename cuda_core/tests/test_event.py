@@ -11,15 +11,17 @@ from cuda.core.experimental import (
     Event,
     EventOptions,
 )
-from cuda.core.experimental._event import hags_status
+from cuda.core.experimental._event import hags_status, wddm_driver_model_is_in_use
 from helpers.latch import LatchKernel
 
 from cuda_python_test_helpers import IS_WSL
 
 
 def inspect_hags_status():
-    stat = hags_status()
-    print(f"\nLOOOK {stat=!r}", flush=True)
+    hags = hags_status()
+    print(f"\nLOOOK {hags=!r}", flush=True)
+    wddm = wddm_driver_model_is_in_use()
+    print(f"\nLOOOK {wddm=!r}", flush=True)
 
 
 def test_event_init_disabled():
