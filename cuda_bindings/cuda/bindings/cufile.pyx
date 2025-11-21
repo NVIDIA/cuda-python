@@ -16,7 +16,7 @@ import cython
 from cuda.bindings.driver import CUresult as pyCUresult
 
 from libc.stdlib cimport calloc, free, malloc
-cimport cpython
+from cython cimport view
 cimport cpython.buffer
 cimport cpython.memoryview
 from libc.string cimport memcmp, memcpy
@@ -2185,24 +2185,32 @@ cdef class StatsLevel2:
     @property
     def read_size_kb_hist(self):
         """~_numpy.uint64: (array of length 32)."""
-        return self._ptr[0].read_size_kb_hist
+        cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].read_size_kb_hist))
+        return arr
 
     @read_size_kb_hist.setter
     def read_size_kb_hist(self, val):
         if self._readonly:
             raise ValueError("This StatsLevel2 instance is read-only")
-        self._ptr[0].read_size_kb_hist = val
+        cdef view.array arr = view.array(shape=(len(val),), itemsize=sizeof(uint64_t), format="Q", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint64)
+        memcpy(<void *>(&(self._ptr[0].read_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
 
     @property
     def write_size_kb_hist(self):
         """~_numpy.uint64: (array of length 32)."""
-        return self._ptr[0].write_size_kb_hist
+        cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].write_size_kb_hist))
+        return arr
 
     @write_size_kb_hist.setter
     def write_size_kb_hist(self, val):
         if self._readonly:
             raise ValueError("This StatsLevel2 instance is read-only")
-        self._ptr[0].write_size_kb_hist = val
+        cdef view.array arr = view.array(shape=(len(val),), itemsize=sizeof(uint64_t), format="Q", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint64)
+        memcpy(<void *>(&(self._ptr[0].write_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
 
     @staticmethod
     def from_data(data):
