@@ -102,8 +102,15 @@ def _build_cuda_core():
 
     def get_libraries(mod):
         if os.name == "nt" and mod == "_event":
-            return ["user32", "gdi32"]  # for hags_status.c
+            # user32 / gdi32 for hags_status.c, nvml for wddm_driver_model_is_in_use.c
+            return ["user32", "gdi32", "nvml"]
         return None
+
+    def get_library_dirs():
+        if os.name != "nt":
+            return None
+        # wddm_driver_model_is_in_use.c needs nvml.lib
+        return [os.path.join(root, "lib", "x64") for root in get_cuda_paths()]
 
     ext_modules = tuple(
         Extension(
@@ -112,6 +119,7 @@ def _build_cuda_core():
             include_dirs=common_include_dirs,
             language="c++",
             libraries=get_libraries(mod),
+            library_dirs=get_library_dirs(),
         )
         for mod in module_names
     )
