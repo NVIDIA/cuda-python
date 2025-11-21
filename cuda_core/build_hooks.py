@@ -85,17 +85,19 @@ def _build_cuda_core():
         return CUDA_PATH
 
     common_include_dirs = [
-        # CUDA include paths (for driver/runtime headers)
         *(os.path.join(root, "include") for root in get_cuda_paths()),
-        # Local experimental utils headers (for hags_status.h, etc.)
         os.path.join("cuda", "core", "experimental", "_utils"),
     ]
 
     def get_sources(mod):
         sources = [f"cuda/core/experimental/{mod}.pyx"]
-        # Add hags_status.c for _event module
         if mod == "_event":
-            sources.append("cuda/core/experimental/_utils/hags_status.c")
+            sources.extend(
+                [
+                    "cuda/core/experimental/_utils/hags_status.c",
+                    "cuda/core/experimental/_utils/wddm_driver_model_is_in_use.c",
+                ]
+            )
         return sources
 
     def get_libraries(mod):
