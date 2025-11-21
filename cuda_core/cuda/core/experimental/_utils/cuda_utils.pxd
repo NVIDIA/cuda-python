@@ -13,6 +13,11 @@ ctypedef fused supported_error_type:
     cydriver.CUresult
 
 
+ctypedef fused integer_t:
+    int64_t
+    int
+
+
 # mimic CU_DEVICE_INVALID
 cdef const cydriver.CUcontext CU_CONTEXT_INVALID = <cydriver.CUcontext>(-2)
 
@@ -41,7 +46,7 @@ cdef extern from "Python.h":
     void _PyTuple_SET_ITEM "PyTuple_SET_ITEM" (object p, Py_ssize_t pos, PyObject *o)
 
 
-cdef inline tuple carray_int64_t_to_tuple(int64_t *ptr, int length):
+cdef inline tuple carray_integer_t_to_tuple(integer_t *ptr, int length):
     # Construct shape and strides tuples using the Python/C API for speed
     cdef tuple result = cpython.PyTuple_New(length)
     for i in range(length):

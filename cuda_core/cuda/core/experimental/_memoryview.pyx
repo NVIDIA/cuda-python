@@ -4,14 +4,15 @@
 
 from ._dlpack cimport *
 
+cimport cython
 import functools
 from typing import Optional
 
 import numpy
 
 from cuda.core.experimental._utils.cuda_utils import handle_return, driver
-from cuda.core.experimental._utils cimport cuda_utils
 
+from cuda.core.experimental._layout cimport StridedLayout
 
 # TODO(leofang): support NumPy structured dtypes
 
@@ -88,9 +89,7 @@ cdef class StridedMemoryView:
     cdef DLTensor *dl_tensor
 
     # Memoized properties
-    cdef tuple _shape
-    cdef tuple _strides
-    cdef bint _strides_init  # Has the strides tuple been init'ed?
+    cdef StridedLayout _layout
     cdef object _dtype
 
     def __init__(self, obj=None, stream_ptr=None):
@@ -121,40 +120,16 @@ cdef class StridedMemoryView:
             dlm_tensor.deleter(dlm_tensor)
 
     @property
+    def layout(self) -> StridedLayout:
+        return self.get_layout()
+
+    @property
     def shape(self) -> tuple[int]:
-        if self._shape is None:
-            if self.exporting_obj is not None:
-                if self.dl_tensor != NULL:
-                    self._shape = cuda_utils.carray_int64_t_to_tuple(
-                        self.dl_tensor.shape,
-                        self.dl_tensor.ndim
-                    )
-                else:
-                    self._shape = self.metadata["shape"]
-            else:
-                self._shape = ()
-        return self._shape
+        return self.get_layout().get_shape_tuple()
 
     @property
     def strides(self) -> Optional[tuple[int]]:
-        cdef int itemsize
-        if self._strides_init is False:
-            if self.exporting_obj is not None:
-                if self.dl_tensor != NULL:
-                    if self.dl_tensor.strides:
-                        self._strides = cuda_utils.carray_int64_t_to_tuple(
-                            self.dl_tensor.strides,
-                            self.dl_tensor.ndim
-                        )
-                else:
-                    # This is a Python interface anyway, so not much point
-                    # to using the optimization in cuda_utils.carray_int64_t_to_tuple
-                    strides = self.metadata.get("strides")
-                    if strides is not None:
-                        itemsize = self.dtype.itemsize
-                        self._strides = tuple(x // itemsize for x in strides)
-            self._strides_init = True
-        return self._strides
+        return self.get_layout().get_strides_tuple()
 
     @property
     def dtype(self) -> Optional[numpy.dtype]:
@@ -164,7 +139,7 @@ cdef class StridedMemoryView:
                     self._dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
                 else:
                     # TODO: this only works for built-in numeric types
-                    self._dtype = numpy.dtype(self.metadata["typestr"])
+                    self._dtype = typestr2dtype(self.metadata["typestr"])
         return self._dtype
 
     def __repr__(self):
@@ -176,6 +151,16 @@ cdef class StridedMemoryView:
               + f"                  is_device_accessible={self.is_device_accessible},\n"
               + f"                  readonly={self.readonly},\n"
               + f"                  exporting_obj={get_simple_repr(self.exporting_obj)})")
+
+    cdef inline StridedLayout get_layout(self):
+        if self._layout is None:
+            if self.dl_tensor:
+                self._layout = layout_from_dlpack(self.dl_tensor)
+            elif self.metadata is not None:
+                self._layout = layout_from_cai(self.metadata)
+            else:
+                self._layout = StridedLayout.__new__(StridedLayout)
+        return self._layout
 
 
 cdef str get_simple_repr(obj):
@@ -433,3 +418,43 @@ def args_viewable_as_strided_memory(tuple arg_indices):
             return func(*args, **kwargs)
         return wrapped_func
     return wrapped_func_with_indices
+
+
+cdef inline StridedLayout layout_from_dlpack(DLTensor* dl_tensor):
+    cdef StridedLayout layout = StridedLayout.__new__(StridedLayout)
+    cdef int nbits = dl_tensor.dtype.bits
+    cdef int itemsize = nbits >> 3
+    if (itemsize << 3) != nbits:
+        raise ValueError("dl_tensor.dtype.bits must be a multiple of 8")
+    layout.init_from_ptr(dl_tensor.ndim, dl_tensor.shape, dl_tensor.strides, itemsize)
+    return layout
+
+
+cdef StridedLayout layout_from_cai(object metadata):
+    cdef StridedLayout layout = StridedLayout.__new__(StridedLayout)
+    cdef object shape = metadata["shape"]
+    cdef object strides = metadata.get("strides")
+    cdef int itemsize = typestr2itemsize(metadata["typestr"])
+    layout.init_from_tuple(shape, strides, itemsize, strides is not None)
+    return layout
+
+
+_typestr2dtype_cache = {}
+_typestr2itemsize_cache = {}
+
+cdef object typestr2dtype(str typestr):
+    global _typestr2dtype_cache
+    cdef object dtype = _typestr2dtype_cache.get(typestr)
+    if dtype is None:
+        dtype = numpy.dtype(typestr)
+        _typestr2dtype_cache[typestr] = dtype
+    return dtype
+
+
+cdef inline int typestr2itemsize(str typestr):
+    global _typestr2itemsize_cache
+    cdef object itemsize = _typestr2itemsize_cache.get(typestr)
+    if itemsize is None:
+        itemsize = typestr2dtype(typestr).itemsize
+        _typestr2itemsize_cache[typestr] = itemsize
+    return itemsize
