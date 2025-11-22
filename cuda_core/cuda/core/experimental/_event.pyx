@@ -14,16 +14,10 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 )
 
 cdef extern from "hags_status.h":
-    int _hags_status_impl "hags_status"()
-
-cpdef int hags_status():
-    return _hags_status_impl()
+    int hags_status()
 
 cdef extern from "wddm_driver_model_is_in_use.h":
-    int _wddm_driver_model_is_in_use_impl "wddm_driver_model_is_in_use"()
-
-cpdef int wddm_driver_model_is_in_use():
-    return _wddm_driver_model_is_in_use_impl()
+    int wddm_driver_model_is_in_use()
 
 
 def ensure_wddm_with_hags() -> None:
