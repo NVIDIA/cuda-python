@@ -15,14 +15,11 @@ from helpers.latch import LatchKernel
 
 from cuda_python_test_helpers import IS_WSL
 
-_HAGS_ERROR_SUBSTRING = "Hardware Accelerated GPU Scheduling (HAGS) must be fully enabled"
 
+def _get_wddm_hags_error() -> str:
+    """Probe Event.__sub__ to obtain WDDM/HAGS RuntimeError.
 
-def _is_hags_timing_usable() -> bool:
-    """Probe Event.__sub__ to detect HAGS/WDDM timing issues.
-
-    Returns True if timing appears usable, False if we see the known
-    HAGS/WDDM RuntimeError. Any other RuntimeError is propagated.
+    Any other RuntimeError is propagated.
     """
     device = Device()
     device.set_current()
@@ -36,14 +33,15 @@ def _is_hags_timing_usable() -> bool:
     try:
         _ = event2 - event1
     except RuntimeError as exc:
-        message = str(exc)
-        if _HAGS_ERROR_SUBSTRING in message:
-            return False
+        msg = str(exc)
+        if "Hardware Accelerated GPU Scheduling (HAGS) must be fully enabled" in msg:
+            return msg
         raise
-    return True
+    return None
 
 
-_HAGS_TIMING_USABLE = _is_hags_timing_usable()
+_WDDM_HAGS_ERROR = _get_wddm_hags_error()
+_WDDM_HAGS_PRECONDITION_MSG = "WDDM/HAGS precondition not met"
 
 
 def test_event_init_disabled():
@@ -52,20 +50,11 @@ def test_event_init_disabled():
 
 
 def test_ensure_hags_is_enabled_if_wddm_driver_model_is_in_use():
-    if not _HAGS_TIMING_USABLE:
-        pytest.xfail(
-            "HAGS is not fully enabled while the Windows WDDM driver model is in use; "
-            "event timing tests are expected to fail in this configuration."
-        )
+    if _WDDM_HAGS_ERROR:
+        pytest.xfail(_WDDM_HAGS_ERROR)
 
 
-@pytest.mark.skipif(
-    not _HAGS_TIMING_USABLE,
-    reason=(
-        "HAGS is not fully enabled while the Windows WDDM driver model is in use; "
-        "event timing tests are expected to fail in this configuration."
-    ),
-)
+@pytest.mark.skipif(_WDDM_HAGS_ERROR is not None, reason=_WDDM_HAGS_PRECONDITION_MSG)
 def test_timing_success(init_cuda):
     options = EventOptions(enable_timing=True)
     stream = Device().create_stream()
@@ -140,13 +129,7 @@ def test_error_timing_disabled():
         event2 - event1
 
 
-@pytest.mark.skipif(
-    not _HAGS_TIMING_USABLE,
-    reason=(
-        "HAGS is not fully enabled while the Windows WDDM driver model is in use; "
-        "event timing tests are expected to fail in this configuration."
-    ),
-)
+@pytest.mark.skipif(_WDDM_HAGS_ERROR is not None, reason=_WDDM_HAGS_PRECONDITION_MSG)
 def test_error_timing_recorded():
     device = Device()
     device.set_current()
@@ -166,13 +149,7 @@ def test_error_timing_recorded():
         event3 - event2
 
 
-@pytest.mark.skipif(
-    not _HAGS_TIMING_USABLE,
-    reason=(
-        "HAGS is not fully enabled while the Windows WDDM driver model is in use; "
-        "event timing tests are expected to fail in this configuration."
-    ),
-)
+@pytest.mark.skipif(_WDDM_HAGS_ERROR is not None, reason=_WDDM_HAGS_PRECONDITION_MSG)
 def test_error_timing_incomplete():
     device = Device()
     device.set_current()
