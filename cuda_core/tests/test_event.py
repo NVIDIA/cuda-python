@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import re
 import time
 
 import cuda.core.experimental
@@ -12,7 +11,6 @@ from cuda.core.experimental import (
     Event,
     EventOptions,
 )
-from cuda.core.experimental._event import hags_status, wddm_driver_model_is_in_use
 from helpers.latch import LatchKernel
 
 from cuda_python_test_helpers import IS_WSL
@@ -20,23 +18,32 @@ from cuda_python_test_helpers import IS_WSL
 _HAGS_ERROR_SUBSTRING = "Hardware Accelerated GPU Scheduling (HAGS) must be fully enabled"
 
 
-def inspect_hags_status():
-    hags = hags_status()
-    print(f"\nLOOOK {hags=!r}", flush=True)
-    wddm = wddm_driver_model_is_in_use()
-    print(f"\nLOOOK {wddm=!r}", flush=True)
+def _is_hags_timing_usable() -> bool:
+    """Probe Event.__sub__ to detect HAGS/WDDM timing issues.
+
+    Returns True if timing appears usable, False if we see the known
+    HAGS/WDDM RuntimeError. Any other RuntimeError is propagated.
+    """
+    device = Device()
+    device.set_current()
+    options = EventOptions(enable_timing=True)
+    stream = device.create_stream()
+
+    event1 = stream.record(options=options)
+    event2 = stream.record(options=options)
+    event2.sync()
+
+    try:
+        _ = event2 - event1
+    except RuntimeError as exc:
+        message = str(exc)
+        if _HAGS_ERROR_SUBSTRING in message:
+            return False
+        raise
+    return True
 
 
-def _xfail_if_hags_runtime_error(exc: BaseException, expected_regex: str | None = None) -> None:
-    message = str(exc)
-    if _HAGS_ERROR_SUBSTRING in message:
-        pytest.xfail(
-            "HAGS is not fully enabled while the Windows WDDM driver model is in use; "
-            "event timing tests are expected to fail in this configuration."
-        )
-
-    if expected_regex is not None:
-        assert re.match(expected_regex, message), f"Expected regex: {expected_regex!r}\nActual message: {message!r}"
+_HAGS_TIMING_USABLE = _is_hags_timing_usable()
 
 
 def test_event_init_disabled():
@@ -44,8 +51,22 @@ def test_event_init_disabled():
         cuda.core.experimental._event.Event()  # Ensure back door is locked.
 
 
+def test_ensure_hags_is_enabled_if_wddm_driver_model_is_in_use():
+    if not _HAGS_TIMING_USABLE:
+        pytest.xfail(
+            "HAGS is not fully enabled while the Windows WDDM driver model is in use; "
+            "event timing tests are expected to fail in this configuration."
+        )
+
+
+@pytest.mark.skipif(
+    not _HAGS_TIMING_USABLE,
+    reason=(
+        "HAGS is not fully enabled while the Windows WDDM driver model is in use; "
+        "event timing tests are expected to fail in this configuration."
+    ),
+)
 def test_timing_success(init_cuda):
-    inspect_hags_status()
     options = EventOptions(enable_timing=True)
     stream = Device().create_stream()
     delay_seconds = 0.5
@@ -53,11 +74,7 @@ def test_timing_success(init_cuda):
     time.sleep(delay_seconds)
     e2 = stream.record(options=options)
     e2.sync()
-    try:
-        elapsed_time_ms = e2 - e1
-    except RuntimeError as exc:
-        _xfail_if_hags_runtime_error(exc)
-        raise
+    elapsed_time_ms = e2 - e1
     assert isinstance(elapsed_time_ms, float)
     # Using a generous tolerance, to avoid flaky tests:
     # We only want to exercise the __sub__ method, this test is not meant
@@ -123,6 +140,13 @@ def test_error_timing_disabled():
         event2 - event1
 
 
+@pytest.mark.skipif(
+    not _HAGS_TIMING_USABLE,
+    reason=(
+        "HAGS is not fully enabled while the Windows WDDM driver model is in use; "
+        "event timing tests are expected to fail in this configuration."
+    ),
+)
 def test_error_timing_recorded():
     device = Device()
     device.set_current()
@@ -134,19 +158,21 @@ def test_error_timing_recorded():
     event3 = device.create_event(options=enabled)
 
     stream.sync()
-    with pytest.raises(RuntimeError) as excinfo:
+    with pytest.raises(RuntimeError, match="^Both Events must be recorded"):
         event2 - event1
-    _xfail_if_hags_runtime_error(excinfo.value, r"^Both Events must be recorded")
-
-    with pytest.raises(RuntimeError) as excinfo:
+    with pytest.raises(RuntimeError, match="^Both Events must be recorded"):
         event1 - event2
-    _xfail_if_hags_runtime_error(excinfo.value, r"^Both Events must be recorded")
-
-    with pytest.raises(RuntimeError) as excinfo:
+    with pytest.raises(RuntimeError, match="^Both Events must be recorded"):
         event3 - event2
-    _xfail_if_hags_runtime_error(excinfo.value, r"^Both Events must be recorded")
 
 
+@pytest.mark.skipif(
+    not _HAGS_TIMING_USABLE,
+    reason=(
+        "HAGS is not fully enabled while the Windows WDDM driver model is in use; "
+        "event timing tests are expected to fail in this configuration."
+    ),
+)
 def test_error_timing_incomplete():
     device = Device()
     device.set_current()
@@ -159,9 +185,8 @@ def test_error_timing_incomplete():
     event3 = stream.record(options=enabled)
 
     # event3 will never complete because the latch has not been released
-    with pytest.raises(RuntimeError) as excinfo:
+    with pytest.raises(RuntimeError, match="^One or both events have not completed."):
         event3 - event1
-    _xfail_if_hags_runtime_error(excinfo.value, r"^One or both events have not completed.")
 
     latch.release()
     event3.sync()
