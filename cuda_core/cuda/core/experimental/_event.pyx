@@ -13,6 +13,8 @@ from cuda.core.experimental._utils.cuda_utils cimport (
     HANDLE_RETURN
 )
 
+import sys
+
 cdef extern from "hags_status.h":
     int hags_status()
 
@@ -20,32 +22,51 @@ cdef extern from "wddm_driver_model_is_in_use.h":
     int wddm_driver_model_is_in_use()
 
 
+cdef int _ensure_wddm_with_hags_state = 0
+# 0 = unknown / not checked
+# 1 = OK (no restriction or HAGS fully enabled)
+# 2 = misconfigured (should raise)
+
+_WDDM_HAGS_ERROR = (
+    "Hardware Accelerated GPU Scheduling (HAGS) must be fully enabled when the "
+    "Windows WDDM driver model is in use in order to obtain reliable CUDA event "
+    "timing. Please enable HAGS in the Windows graphics settings or switch to a "
+    "non-WDDM driver model."
+)
+
+
 def ensure_wddm_with_hags() -> None:
     """On Windows with WDDM driver model, require HAGS to be fully enabled.
 
     If WDDM is not in use, or the platform is non-Windows, this is a no-op.
+    The result of the driver/HAGS probe is cached per process.
     """
-    import sys
+    global _ensure_wddm_with_hags_state
+
+    cdef int state = _ensure_wddm_with_hags_state
+    if state == 1:
+        return
+    if state == 2:
+        raise RuntimeError(_WDDM_HAGS_ERROR)
 
     if sys.platform != "win32":
+        _ensure_wddm_with_hags_state = 1
         return
 
-    wddm_state = wddm_driver_model_is_in_use()
+    cdef int wddm_state = wddm_driver_model_is_in_use()
     if wddm_state != 1:
         # Either not WDDM or NVML was not able to determine the driver model.
+        _ensure_wddm_with_hags_state = 1
         return
 
-    hags_state = hags_status()
+    cdef int hags_state = hags_status()
     if hags_state == 2:
         # HAGS fully enabled.
+        _ensure_wddm_with_hags_state = 1
         return
 
-    raise RuntimeError(
-        "Hardware Accelerated GPU Scheduling (HAGS) must be fully enabled when the "
-        "Windows WDDM driver model is in use in order to obtain reliable CUDA event "
-        "timing. Please enable HAGS in the Windows graphics settings or switch to a "
-        "non-WDDM driver model."
-    )
+    _ensure_wddm_with_hags_state = 2
+    raise RuntimeError(_WDDM_HAGS_ERROR)
 
 
 import cython
