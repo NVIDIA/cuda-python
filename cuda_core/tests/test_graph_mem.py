@@ -89,10 +89,15 @@ def test_graph_alloc(mempool_device, mode):
     set_zero = mod.get_kernel("set_zero")
     add_one = mod.get_kernel("add_one")
 
+    # Initialize out to zero.
+    config = LaunchConfig(grid=1, block=1)
+    launch(stream, config, set_zero, out, NBYTES)
+
+    # Increments out by 3
     def apply_kernels(mr, stream, out):
         buffer = mr.allocate(NBYTES, stream=stream)
-        config = LaunchConfig(grid=1, block=1)
-        for kernel in [set_zero, add_one, add_one]:
+        buffer.copy_from(out, stream=stream)
+        for kernel in [add_one, add_one, add_one]:
             launch(stream, config, kernel, buffer, NBYTES)
         out.copy_from(buffer, stream=stream)
         buffer.close()
@@ -101,18 +106,25 @@ def test_graph_alloc(mempool_device, mode):
     if mode == "no_graph":
         # Do work without graph capture.
         apply_kernels(mr=dmr, stream=stream, out=out)
+        stream.sync()
+        assert compare_buffer_to_constant(out, 3)
     else:
         # Capture work, then upload and launch.
         gb = device.create_graph_builder().begin_building(mode)
         apply_kernels(mr=gmr, stream=gb, out=out)
         graph = gb.end_building().complete()
+
+        # First launch.
         graph.upload(stream)
         graph.launch(stream)
+        stream.sync()
+        assert compare_buffer_to_constant(out, 3)
 
-    stream.sync()
-
-    # Check the result on the host.
-    assert compare_buffer_to_constant(out, 2)
+        # Second launch.
+        graph.upload(stream)
+        graph.launch(stream)
+        stream.sync()
+        assert compare_buffer_to_constant(out, 6)
 
 
 @pytest.mark.skipif(IS_WINDOWS or IS_WSL, reason="auto_free_on_launch not supported on Windows")
