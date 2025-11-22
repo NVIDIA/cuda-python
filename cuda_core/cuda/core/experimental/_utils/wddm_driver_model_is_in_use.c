@@ -1,14 +1,18 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
-
+//
 // Query NVML for the Windows WDDM driver model, looping over all GPUs.
 //
-// Example compilation command:
-//     cl /nologo /c wddm_driver_model_is_in_use.c /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.0\include"
+// On non-Windows platforms this always returns -1 and performs no NVML calls.
+//
+// Example compilation command (Windows/MSVC):
+//     cl /nologo /c wddm_driver_model_is_in_use.c /I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v13.0\\include"
 // Needed for linking:
-//     /link /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.0\lib\x64" nvml.lib
-
+//     /link /LIBPATH:"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v13.0\\lib\\x64" nvml.lib
+//
 #include "wddm_driver_model_is_in_use.h"
+
+#ifdef _MSC_VER
 
 #include "nvml.h"  // from NVIDIA GPU Computing Toolkit
 
@@ -46,3 +50,14 @@ int wddm_driver_model_is_in_use(void)
     nvmlShutdown();
     return return_code;
 }
+
+#else  // !_MSC_VER
+
+int wddm_driver_model_is_in_use(void)
+{
+    // WDDM is a Windows-only concept; on non-Windows platforms we report -1
+    // to indicate that the driver model could not be determined.
+    return -1;
+}
+
+#endif  // _MSC_VER
