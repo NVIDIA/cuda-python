@@ -26,7 +26,7 @@ cpdef int wddm_driver_model_is_in_use():
     return _wddm_driver_model_is_in_use_impl()
 
 
-def ensure_hags_is_enabled_if_wddm_driver_model_is_in_use() -> None:
+def ensure_wddm_with_hags() -> None:
     """On Windows with WDDM driver model, require HAGS to be fully enabled.
 
     If WDDM is not in use, or the platform is non-Windows, this is a no-op.
@@ -178,7 +178,7 @@ cdef class Event:
     def __sub__(self, other: Event):
         # return self - other (in milliseconds)
         if not self.is_timing_disabled and not other.is_timing_disabled:
-            ensure_hags_is_enabled_if_wddm_driver_model_is_in_use()
+            ensure_wddm_with_hags()
         cdef float timing
         with nogil:
             err = cydriver.cuEventElapsedTime(&timing, other._handle, self._handle)

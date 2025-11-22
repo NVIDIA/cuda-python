@@ -49,7 +49,7 @@ def test_event_init_disabled():
         cuda.core.experimental._event.Event()  # Ensure back door is locked.
 
 
-def test_ensure_hags_is_enabled_if_wddm_driver_model_is_in_use():
+def test_ensure_wddm_with_hags():
     if _WDDM_HAGS_ERROR:
         pytest.xfail(_WDDM_HAGS_ERROR)
 
