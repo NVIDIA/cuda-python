@@ -2,12 +2,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Iterable, Literal, Union
+from typing import TYPE_CHECKING, Iterable, Literal, Union
 
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._memory._buffer import Buffer, MemoryResource
-from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.cuda_utils import (
     Transaction,
     check_or_create_options,
@@ -17,6 +18,9 @@ from cuda.core.experimental._utils.cuda_utils import (
 from cuda.core.experimental._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
 )
+
+if TYPE_CHECKING:
+    from cuda.core.experimental._stream import Stream
 
 __all__ = ["VirtualMemoryResourceOptions", "VirtualMemoryResource"]
 
@@ -460,7 +464,7 @@ class VirtualMemoryResource(MemoryResource):
 
         return descs
 
-    def allocate(self, size: int, stream: Stream = None) -> Buffer:
+    def allocate(self, size: int, stream: Stream | None = None) -> Buffer:
         """
         Allocate a buffer of the given size using CUDA virtual memory.
 
@@ -544,7 +548,7 @@ class VirtualMemoryResource(MemoryResource):
         buf = Buffer.from_handle(ptr=ptr, size=aligned_size, mr=self)
         return buf
 
-    def deallocate(self, ptr: int, size: int, stream: Stream = None) -> None:
+    def deallocate(self, ptr: int, size: int, stream: Stream | None = None) -> None:
         """
         Deallocate memory on the device using CUDA VMM APIs.
         """

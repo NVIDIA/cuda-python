@@ -62,36 +62,6 @@ class IsStreamT(Protocol):
         ...
 
 
-cdef cydriver.CUstream _try_to_get_stream_ptr(obj: IsStreamT) except*:
-    try:
-        cuda_stream_attr = obj.__cuda_stream__
-    except AttributeError:
-        raise TypeError(f"{type(obj)} object does not have a '__cuda_stream__' attribute") from None
-
-    if callable(cuda_stream_attr):
-        info = cuda_stream_attr()
-    else:
-        info = cuda_stream_attr
-        warnings.simplefilter("once", DeprecationWarning)
-        warnings.warn(
-            "Implementing __cuda_stream__ as an attribute is deprecated; it must be implemented as a method",
-            stacklevel=3,
-            category=DeprecationWarning,
-        )
-
-    try:
-        len_info = len(info)
-    except TypeError as e:
-        raise RuntimeError(f"obj.__cuda_stream__ must return a sequence with 2 elements, got {type(info)}") from e
-    if len_info != 2:
-        raise RuntimeError(f"obj.__cuda_stream__ must return a sequence with 2 elements, got {len_info} elements")
-    if info[0] != 0:
-        raise RuntimeError(
-            f"The first element of the sequence returned by obj.__cuda_stream__ must be 0, got {repr(info[0])}"
-        )
-    return <cydriver.CUstream><uintptr_t>(info[1])
-
-
 cdef class Stream:
     """Represent a queue of GPU operations that are executed in a specific order.
 
@@ -138,13 +108,13 @@ cdef class Stream:
         return self
 
     @classmethod
-    def _init(cls, obj: Optional[IsStreamT] = None, options=None, device_id: int = None):
+    def _init(cls, obj: IsStreamT | None = None, options=None, device_id: int = None):
         cdef Stream self = Stream.__new__(cls)
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
         if obj is not None:
-            self._handle = _try_to_get_stream_ptr(obj)
+            self._handle = _handle_from_stream_protocol(obj)
             # TODO: check if obj is created under the current context/device
             self._owner = obj
             return self
@@ -445,3 +415,59 @@ cpdef Stream default_stream():
         return C_PER_THREAD_DEFAULT_STREAM
     else:
         return C_LEGACY_DEFAULT_STREAM
+
+
+cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:
+    if isinstance(obj, Stream):
+        return <cydriver.CUstream><uintptr_t>(obj.handle)
+
+    try:
+        cuda_stream_attr = obj.__cuda_stream__
+    except AttributeError:
+        raise TypeError(f"{type(obj)} object does not have a '__cuda_stream__' attribute") from None
+
+    if callable(cuda_stream_attr):
+        info = cuda_stream_attr()
+    else:
+        info = cuda_stream_attr
+        warnings.simplefilter("once", DeprecationWarning)
+        warnings.warn(
+            "Implementing __cuda_stream__ as an attribute is deprecated; it must be implemented as a method",
+            stacklevel=3,
+            category=DeprecationWarning,
+        )
+
+    try:
+        len_info = len(info)
+    except TypeError as e:
+        raise RuntimeError(f"obj.__cuda_stream__ must return a sequence with 2 elements, got {type(info)}") from e
+    if len_info != 2:
+        raise RuntimeError(f"obj.__cuda_stream__ must return a sequence with 2 elements, got {len_info} elements")
+    if info[0] != 0:
+        raise RuntimeError(
+            f"The first element of the sequence returned by obj.__cuda_stream__ must be 0, got {repr(info[0])}"
+        )
+    return <cydriver.CUstream><uintptr_t>(info[1])
+
+# Helper for API functions that accept either Stream or GraphBuilder. Performs
+# needed checks and returns the relevant stream.
+cdef Stream Stream_accept(arg, bint allow_stream_protocol=False):
+    if isinstance(arg, Stream):
+        return <Stream>(arg)
+    elif isinstance(arg, GraphBuilder):
+        return <Stream>(arg.stream)
+    elif allow_stream_protocol:
+        try:
+            stream = Stream._init(arg)
+        except:
+            pass
+        else:
+            warnings.warn(
+                "Passing foreign stream objects to this function via the "
+                "stream protocol is deprecated. Convert the object explicitly "
+                "using Stream(obj) instead.",
+                stacklevel=2,
+                category=DeprecationWarning,
+            )
+            return <Stream>(stream)
+    raise TypeError(f"Stream or GraphBuilder expected, got {type(arg).__name__}")
