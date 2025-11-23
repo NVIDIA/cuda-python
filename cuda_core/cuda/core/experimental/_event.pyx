@@ -30,7 +30,7 @@ cdef int _ensure_wddm_with_hags_state = 0
 _WDDM_HAGS_ERROR = (
     "Hardware Accelerated GPU Scheduling (HAGS) must be fully enabled when the "
     "Windows WDDM driver model is in use in order to obtain reliable CUDA event "
-    "timing. Please enable HAGS in the Windows graphics settings or switch to a "
+    "timings. Please enable HAGS in the Windows graphics settings or switch to a "
     "non-WDDM driver model."
 )
 
