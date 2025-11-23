@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
+import sys
 import time
 
 import cuda.core.experimental
@@ -16,11 +16,45 @@ from helpers.latch import LatchKernel
 from cuda_python_test_helpers import IS_WSL
 
 
+def _get_wddm_hags_error() -> str:
+    """Probe Event.__sub__ to obtain WDDM/HAGS RuntimeError.
+
+    Any other RuntimeError is propagated.
+    """
+    device = Device()
+    device.set_current()
+    options = EventOptions(enable_timing=True)
+    stream = device.create_stream()
+
+    event1 = stream.record(options=options)
+    event2 = stream.record(options=options)
+    event2.sync()
+
+    try:
+        _ = event2 - event1
+    except RuntimeError as exc:
+        msg = str(exc)
+        if "Hardware Accelerated GPU Scheduling (HAGS) must be fully enabled" in msg:
+            return msg
+        raise
+    return None
+
+
+_WDDM_HAGS_ERROR = _get_wddm_hags_error()
+_WDDM_HAGS_PRECONDITION_MSG = "WDDM/HAGS precondition not met"
+
+
 def test_event_init_disabled():
     with pytest.raises(RuntimeError, match=r"^Event objects cannot be instantiated directly\."):
         cuda.core.experimental._event.Event()  # Ensure back door is locked.
 
 
+def test_ensure_wddm_with_hags():
+    if _WDDM_HAGS_ERROR:
+        pytest.xfail(_WDDM_HAGS_ERROR)
+
+
+@pytest.mark.skipif(_WDDM_HAGS_ERROR is not None, reason=_WDDM_HAGS_PRECONDITION_MSG)
 def test_timing_success(init_cuda):
     options = EventOptions(enable_timing=True)
     stream = Device().create_stream()
@@ -35,7 +69,7 @@ def test_timing_success(init_cuda):
     # We only want to exercise the __sub__ method, this test is not meant
     # to stress-test the CUDA driver or time.sleep().
     delay_ms = delay_seconds * 1000
-    if os.name == "nt" or IS_WSL:  # noqa: SIM108
+    if sys.platform == "win32" or IS_WSL:  # noqa: SIM108
         # For Python <=3.10, the Windows timer resolution is typically limited to 15.6 ms by default.
         generous_tolerance = 100
     else:
@@ -95,6 +129,7 @@ def test_error_timing_disabled():
         event2 - event1
 
 
+@pytest.mark.skipif(_WDDM_HAGS_ERROR is not None, reason=_WDDM_HAGS_PRECONDITION_MSG)
 def test_error_timing_recorded():
     device = Device()
     device.set_current()
@@ -114,6 +149,7 @@ def test_error_timing_recorded():
         event3 - event2
 
 
+@pytest.mark.skipif(_WDDM_HAGS_ERROR is not None, reason=_WDDM_HAGS_PRECONDITION_MSG)
 def test_error_timing_incomplete():
     device = Device()
     device.set_current()

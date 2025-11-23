@@ -12,6 +12,7 @@ import glob
 import os
 import re
 import subprocess
+import sys
 
 from Cython.Build import cythonize
 from setuptools import Extension
@@ -84,12 +85,42 @@ def _build_cuda_core():
         print("CUDA paths:", CUDA_PATH)
         return CUDA_PATH
 
+    common_include_dirs = [
+        *(os.path.join(root, "include") for root in get_cuda_paths()),
+        os.path.join("cuda", "core", "experimental", "_utils"),
+    ]
+
+    def get_sources(mod):
+        sources = [f"cuda/core/experimental/{mod}.pyx"]
+        if mod == "_event":
+            sources.extend(
+                [
+                    "cuda/core/experimental/_utils/hags_status.c",
+                    "cuda/core/experimental/_utils/wddm_driver_model_is_in_use.c",
+                ]
+            )
+        return sources
+
+    def get_libraries(mod):
+        if sys.platform == "win32" and mod == "_event":
+            # user32 / gdi32 for hags_status.c, nvml for wddm_driver_model_is_in_use.c
+            return ["user32", "gdi32", "nvml"]
+        return None
+
+    def get_library_dirs():
+        if sys.platform != "win32":
+            return None
+        # wddm_driver_model_is_in_use.c needs nvml.lib
+        return [os.path.join(root, "lib", "x64") for root in get_cuda_paths()]
+
     ext_modules = tuple(
         Extension(
             f"cuda.core.experimental.{mod.replace(os.path.sep, '.')}",
-            sources=[f"cuda/core/experimental/{mod}.pyx"],
-            include_dirs=list(os.path.join(root, "include") for root in get_cuda_paths()),
+            sources=get_sources(mod),
+            include_dirs=common_include_dirs,
             language="c++",
+            libraries=get_libraries(mod),
+            library_dirs=get_library_dirs(),
         )
         for mod in module_names
     )
