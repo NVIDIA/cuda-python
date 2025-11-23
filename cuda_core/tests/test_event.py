@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
+import sys
 import time
 
 import cuda.core.experimental
@@ -69,7 +69,7 @@ def test_timing_success(init_cuda):
     # We only want to exercise the __sub__ method, this test is not meant
     # to stress-test the CUDA driver or time.sleep().
     delay_ms = delay_seconds * 1000
-    if os.name == "nt" or IS_WSL:  # noqa: SIM108
+    if sys.platform == "win32" or IS_WSL:  # noqa: SIM108
         # For Python <=3.10, the Windows timer resolution is typically limited to 15.6 ms by default.
         generous_tolerance = 100
     else:

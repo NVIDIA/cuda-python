@@ -12,6 +12,7 @@ import glob
 import os
 import re
 import subprocess
+import sys
 
 from Cython.Build import cythonize
 from setuptools import Extension
@@ -101,13 +102,13 @@ def _build_cuda_core():
         return sources
 
     def get_libraries(mod):
-        if os.name == "nt" and mod == "_event":
+        if sys.platform == "win32" and mod == "_event":
             # user32 / gdi32 for hags_status.c, nvml for wddm_driver_model_is_in_use.c
             return ["user32", "gdi32", "nvml"]
         return None
 
     def get_library_dirs():
-        if os.name != "nt":
+        if sys.platform != "win32":
             return None
         # wddm_driver_model_is_in_use.c needs nvml.lib
         return [os.path.join(root, "lib", "x64") for root in get_cuda_paths()]
