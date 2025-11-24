@@ -6,6 +6,7 @@ from cuda.core.experimental import Device, Stream, StreamOptions
 from cuda.core.experimental._event import Event
 from cuda.core.experimental._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
 from cuda.core.experimental._utils.cuda_utils import driver
+from helpers.misc import StreamWrapper
 
 
 def test_stream_init_disabled():
@@ -79,7 +80,7 @@ def test_stream_context(init_cuda):
 def test_stream_from_foreign_stream(init_cuda):
     device = Device()
     other_stream = device.create_stream(options=StreamOptions())
-    stream = device.create_stream(obj=other_stream)
+    stream = device.create_stream(obj=StreamWrapper(other_stream))
     # Now that __eq__ is implemented (issue #664), we can compare directly
     assert other_stream == stream
     assert hash(other_stream) == hash(stream)

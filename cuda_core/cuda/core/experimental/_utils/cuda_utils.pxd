@@ -14,7 +14,7 @@ ctypedef fused supported_error_type:
 
 
 # mimic CU_DEVICE_INVALID
-cdef cydriver.CUcontext CU_CONTEXT_INVALID = <cydriver.CUcontext>(-2)
+cdef const cydriver.CUcontext CU_CONTEXT_INVALID = <cydriver.CUcontext>(-2)
 
 
 cdef cydriver.CUdevice get_device_from_ctx(

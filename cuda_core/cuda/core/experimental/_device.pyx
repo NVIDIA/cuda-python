@@ -9,7 +9,7 @@ from cuda.bindings cimport cydriver
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 import threading
-from typing import Union, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Union
 
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
@@ -1306,7 +1306,7 @@ class Device:
         ctx = self._get_current_context()
         return Event._init(self._id, ctx, options, True)
 
-    def allocate(self, size, stream: Stream | None = None) -> Buffer:
+    def allocate(self, size, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """Allocate device memory from a specified stream.
 
         Allocates device memory of `size` bytes on the specified `stream`
@@ -1333,8 +1333,6 @@ class Device:
 
         """
         self._check_context_initialized()
-        if stream is None:
-            stream = default_stream()
         return self.memory_resource.allocate(size, stream)
 
     def sync(self):
