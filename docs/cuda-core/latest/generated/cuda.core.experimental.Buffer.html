@@ -582,13 +582,13 @@ allocations.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.Buffer.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Buffer.close" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Buffer.close" title="Link to this definition">#</a></dt>
 <dd><p>Deallocate this buffer asynchronously on the given stream.</p>
 <p>This buffer is released back to their memory resource
 asynchronously on the given stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – The stream object to use for asynchronous deallocation. If None,
+<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – The stream object to use for asynchronous deallocation. If None,
 the behavior depends on the underlying memory resource.</p>
 </dd>
 </dl>
@@ -596,13 +596,22 @@ the behavior depends on the underlying memory resource.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.Buffer.copy_from">
-<span class="sig-name descname"><span class="pre">copy_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Buffer</span> <span class="pre">src:</span> <span class="pre">Buffer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Buffer.copy_from" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">copy_from</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">Buffer</span> <span class="pre">src:</span> <span class="pre">Buffer</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Buffer.copy_from" title="Link to this definition">#</a></dt>
 <dd><p>Copy from the src buffer to this buffer asynchronously on the given stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>src</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code>) – Source buffer to copy data from</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><em>Stream</em></a>) – Keyword argument specifying the stream for the
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the
 asynchronous copy</p></li>
 </ul>
 </dd>
@@ -617,7 +626,7 @@ asynchronous copy</p></li>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">Buffer</span> <span class="pre">dst:</span> <span class="pre">Buffer</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Buffer.copy_to" title="Link to this definition">#</a></dt>
@@ -629,7 +638,7 @@ allocated using the associated memory resource before the copy.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dst</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code>) – Source buffer to copy data from</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><em>Stream</em></a>) – Keyword argument specifying the stream for the
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the
 asynchronous copy</p></li>
 </ul>
 </dd>
