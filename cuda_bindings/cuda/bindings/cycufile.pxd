@@ -179,8 +179,12 @@ cdef extern from '<cufile.h>':
         CUFILE_PARAM_POSIX_POOL_SLAB_COUNT
 
     # types
-ctypedef void* CUfileHandle_t 'CUfileHandle_t'
-ctypedef void* CUfileBatchHandle_t 'CUfileBatchHandle_t'
+cdef extern from '<cufile.h>':
+    ctypedef void* CUfileHandle_t 'CUfileHandle_t'
+
+cdef extern from '<cufile.h>':
+    ctypedef void* CUfileBatchHandle_t 'CUfileBatchHandle_t'
+
 cdef extern from '<cufile.h>':
     ctypedef struct CUfileError_t 'CUfileError_t':
         CUfileOpError err
