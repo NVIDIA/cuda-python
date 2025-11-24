@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import platform
 from collections import namedtuple
 
 import pytest
@@ -19,42 +18,10 @@ class NVMLInitializer:
         nvml.shutdown()
 
 
-# TODO: Unify these with the rest of the cuda_bindings suite
-
-
-current_os = platform.system()
-if current_os == "VMkernel":
-    current_os = "Linux"  # Treat VMkernel as Linux
-
-
-def is_windows(os=current_os):
-    return os == "Windows"
-
-
-def is_linux(os=current_os):
-    return os == "Linux"
-
-
-def is_vgpu(device):
-    """
-    Returns True if device in vGPU virtualization mode
-    """
-    return nvml.device_get_virtualization_mode(device) == nvml.GpuVirtualizationMode.GPU_VIRTUALIZATION_MODE_VGPU
-
-
-def dev_supports_ecc(device):
-    try:
-        (cur_ecc, pend_ecc) = nvml.device_get_ecc_mode(device)
-        return cur_ecc != nvml.Feature.FEATURE_DISABLED
-    except nvml.NotSupportedError as e:
-        return False
-
-
-def get_brand_name(device: int) -> str:
-    brand_code = nvml.device_get_brand(device)
-    brand_name = nvml.BrandType.to_string(brand_code)
-    brand_name = brand_name.replace("BRAND_", "").replace("_", " ")
-    return brand_name
+@pytest.fixture
+def nvml_init():
+    with NVMLInitializer():
+        yield
 
 
 @pytest.fixture(scope="session", autouse=True)

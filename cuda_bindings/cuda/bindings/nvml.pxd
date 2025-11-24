@@ -125,6 +125,10 @@ ctypedef nvmlPowerProfileType_t _PowerProfileType
 ctypedef nvmlDeviceAddressingModeType_t _DeviceAddressingModeType
 
 
+
+
+
+
 ###############################################################################
 # Functions
 ###############################################################################
@@ -155,7 +159,7 @@ cpdef intptr_t device_get_handle_by_uuidv(intptr_t uuid) except? 0
 cpdef intptr_t device_get_handle_by_pci_bus_id_v2(pci_bus_id) except? 0
 cpdef str device_get_name(intptr_t device)
 cpdef int device_get_brand(intptr_t device) except? -1
-cpdef unsigned int device_get_ind_ex(intptr_t device) except? 0
+cpdef unsigned int device_get_index(intptr_t device) except? 0
 cpdef str device_get_serial(intptr_t device)
 cpdef unsigned int device_get_module_id(intptr_t device) except? 0
 cpdef object device_get_c2c_mode_info_v(intptr_t device)

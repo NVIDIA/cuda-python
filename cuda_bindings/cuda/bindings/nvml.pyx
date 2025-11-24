@@ -752,6 +752,378 @@ class DeviceAddressingModeType(_IntEnum):
     DEVICE_ADDRESSING_MODE_HMM = NVML_DEVICE_ADDRESSING_MODE_HMM
     DEVICE_ADDRESSING_MODE_ATS = NVML_DEVICE_ADDRESSING_MODE_ATS
 
+
+class FI(_IntEnum):
+    DEV_ECC_CURRENT =          1   # Current ECC mode. 1=Active. 0=Inactive
+    DEV_ECC_PENDING =          2   # Pending ECC mode. 1=Active. 0=Inactive
+    # ECC Count Totals
+    DEV_ECC_SBE_VOL_TOTAL =    3   # Total single bit volatile ECC errors
+    DEV_ECC_DBE_VOL_TOTAL =    4   # Total double bit volatile ECC errors
+    DEV_ECC_SBE_AGG_TOTAL =    5   # Total single bit aggregate (persistent) ECC errors
+    DEV_ECC_DBE_AGG_TOTAL =    6   # Total double bit aggregate (persistent) ECC errors
+    # Individual ECC locations
+    DEV_ECC_SBE_VOL_L1 =       7   # L1 cache single bit volatile ECC errors
+    DEV_ECC_DBE_VOL_L1 =       8   # L1 cache double bit volatile ECC errors
+    DEV_ECC_SBE_VOL_L2 =       9   # L2 cache single bit volatile ECC errors
+    DEV_ECC_DBE_VOL_L2 =       10  # L2 cache double bit volatile ECC errors
+    DEV_ECC_SBE_VOL_DEV =      11  # Device memory single bit volatile ECC errors
+    DEV_ECC_DBE_VOL_DEV =      12  # Device memory double bit volatile ECC errors
+    DEV_ECC_SBE_VOL_REG =      13  # Register file single bit volatile ECC errors
+    DEV_ECC_DBE_VOL_REG =      14  # Register file double bit volatile ECC errors
+    DEV_ECC_SBE_VOL_TEX =      15  # Texture memory single bit volatile ECC errors
+    DEV_ECC_DBE_VOL_TEX =      16  # Texture memory double bit volatile ECC errors
+    DEV_ECC_DBE_VOL_CBU =      17  # CBU double bit volatile ECC errors
+    DEV_ECC_SBE_AGG_L1 =       18  # L1 cache single bit aggregate (persistent) ECC errors
+    DEV_ECC_DBE_AGG_L1 =       19  # L1 cache double bit aggregate (persistent) ECC errors
+    DEV_ECC_SBE_AGG_L2 =       20  # L2 cache single bit aggregate (persistent) ECC errors
+    DEV_ECC_DBE_AGG_L2 =       21  # L2 cache double bit aggregate (persistent) ECC errors
+    DEV_ECC_SBE_AGG_DEV =      22  # Device memory single bit aggregate (persistent) ECC errors
+    DEV_ECC_DBE_AGG_DEV =      23  # Device memory double bit aggregate (persistent) ECC errors
+    DEV_ECC_SBE_AGG_REG =      24  # Register File single bit aggregate (persistent) ECC errors
+    DEV_ECC_DBE_AGG_REG =      25  # Register File double bit aggregate (persistent) ECC errors
+    DEV_ECC_SBE_AGG_TEX =      26  # Texture memory single bit aggregate (persistent) ECC errors
+    DEV_ECC_DBE_AGG_TEX =      27  # Texture memory double bit aggregate (persistent) ECC errors
+    DEV_ECC_DBE_AGG_CBU =      28  # CBU double bit aggregate ECC errors
+
+    # Page Retirement
+    DEV_RETIRED_SBE =          29  # Number of retired pages because of single bit errors
+    DEV_RETIRED_DBE =          30  # Number of retired pages because of double bit errors
+    DEV_RETIRED_PENDING =      31  # If any pages are pending retirement. 1=yes. 0=no.
+
+
+    # NVLink Flit Error Counters
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L0 =   32 # NVLink flow control CRC  Error Counter for Lane 0
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L1 =   33 # NVLink flow control CRC  Error Counter for Lane 1
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L2 =   34 # NVLink flow control CRC  Error Counter for Lane 2
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L3 =   35 # NVLink flow control CRC  Error Counter for Lane 3
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L4 =   36 # NVLink flow control CRC  Error Counter for Lane 4
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L5 =   37 # NVLink flow control CRC  Error Counter for Lane 5
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_TOTAL =38 # NVLink flow control CRC  Error Counter total for all Lanes
+
+    # NVLink CRC Data Error Counters
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L0 =   39 # NVLink data CRC Error Counter for Lane 0
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L1 =   40 # NVLink data CRC Error Counter for Lane 1
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L2 =   41 # NVLink data CRC Error Counter for Lane 2
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L3 =   42 # NVLink data CRC Error Counter for Lane 3
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L4 =   43 # NVLink data CRC Error Counter for Lane 4
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L5 =   44 # NVLink data CRC Error Counter for Lane 5
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_TOTAL =45 # NvLink data CRC Error Counter total for all Lanes
+
+
+    # NVLink Replay Error Counters
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L0 =     46 # NVLink Replay Error Counter for Lane 0
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L1 =     47 # NVLink Replay Error Counter for Lane 1
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L2 =     48 # NVLink Replay Error Counter for Lane 2
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L3 =     49 # NVLink Replay Error Counter for Lane 3
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L4 =     50 # NVLink Replay Error Counter for Lane 4
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L5 =     51 # NVLink Replay Error Counter for Lane 5
+    DEV_NVLINK_REPLAY_ERROR_COUNT_TOTAL =  52 # NVLink Replay Error Counter total for all Lanes
+
+    # NVLink Recovery Error Counters
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L0 =   53 # NVLink Recovery Error Counter for Lane 0
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L1 =   54 # NVLink Recovery Error Counter for Lane 1
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L2 =   55 # NVLink Recovery Error Counter for Lane 2
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L3 =   56 # NVLink Recovery Error Counter for Lane 3
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L4 =   57 # NVLink Recovery Error Counter for Lane 4
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L5 =   58 # NVLink Recovery Error Counter for Lane 5
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_TOTAL =59 # NVLink Recovery Error Counter total for all Lanes
+
+    # NvLink Bandwidth Counters
+    DEV_NVLINK_BANDWIDTH_C0_L0 =    60 # NVLink Bandwidth Counter for Counter Set 0, Lane 0
+    DEV_NVLINK_BANDWIDTH_C0_L1 =    61 # NVLink Bandwidth Counter for Counter Set 0, Lane 1
+    DEV_NVLINK_BANDWIDTH_C0_L2 =    62 # NVLink Bandwidth Counter for Counter Set 0, Lane 2
+    DEV_NVLINK_BANDWIDTH_C0_L3 =    63 # NVLink Bandwidth Counter for Counter Set 0, Lane 3
+    DEV_NVLINK_BANDWIDTH_C0_L4 =    64 # NVLink Bandwidth Counter for Counter Set 0, Lane 4
+    DEV_NVLINK_BANDWIDTH_C0_L5 =    65 # NVLink Bandwidth Counter for Counter Set 0, Lane 5
+    DEV_NVLINK_BANDWIDTH_C0_TOTAL = 66 # NVLink Bandwidth Counter Total for Counter Set 0, All Lanes
+
+    # NvLink Bandwidth Counters
+    DEV_NVLINK_BANDWIDTH_C1_L0 =    67 # NVLink Bandwidth Counter for Counter Set 1, Lane 0
+    DEV_NVLINK_BANDWIDTH_C1_L1 =    68 # NVLink Bandwidth Counter for Counter Set 1, Lane 1
+    DEV_NVLINK_BANDWIDTH_C1_L2 =    69 # NVLink Bandwidth Counter for Counter Set 1, Lane 2
+    DEV_NVLINK_BANDWIDTH_C1_L3 =    70 # NVLink Bandwidth Counter for Counter Set 1, Lane 3
+    DEV_NVLINK_BANDWIDTH_C1_L4 =    71 # NVLink Bandwidth Counter for Counter Set 1, Lane 4
+    DEV_NVLINK_BANDWIDTH_C1_L5 =    72 # NVLink Bandwidth Counter for Counter Set 1, Lane 5
+    DEV_NVLINK_BANDWIDTH_C1_TOTAL = 73 # NVLink Bandwidth Counter Total for Counter Set 1, All Lanes
+
+    # NVML Perf Policy Counters
+    DEV_PERF_POLICY_POWER =             74   # Perf Policy Counter for Power Policy
+    DEV_PERF_POLICY_THERMAL =           75   # Perf Policy Counter for Thermal Policy
+    DEV_PERF_POLICY_SYNC_BOOST =        76   # Perf Policy Counter for Sync boost Policy
+    DEV_PERF_POLICY_BOARD_LIMIT =       77   # Perf Policy Counter for Board Limit
+    DEV_PERF_POLICY_LOW_UTILIZATION =   78   # Perf Policy Counter for Low GPU Utilization Policy
+    DEV_PERF_POLICY_RELIABILITY =       79   # Perf Policy Counter for Reliability Policy
+    DEV_PERF_POLICY_TOTAL_APP_CLOCKS =  80   # Perf Policy Counter for Total App Clock Policy
+    DEV_PERF_POLICY_TOTAL_BASE_CLOCKS = 81   # Perf Policy Counter for Total Base Clocks Policy
+
+    # Memory temperatures
+    DEV_MEMORY_TEMP = 82 # Memory temperature for the device
+
+    # Energy Counter
+    DEV_TOTAL_ENERGY_CONSUMPTION =83 # Total energy consumption for the GPU in mJ since the driver was last reloaded
+
+    # NVLink Speed
+    DEV_NVLINK_SPEED_MBPS_L0 =    84  # NVLink Speed in MBps for Link 0
+    DEV_NVLINK_SPEED_MBPS_L1 =    85  # NVLink Speed in MBps for Link 1
+    DEV_NVLINK_SPEED_MBPS_L2 =    86  # NVLink Speed in MBps for Link 2
+    DEV_NVLINK_SPEED_MBPS_L3 =    87  # NVLink Speed in MBps for Link 3
+    DEV_NVLINK_SPEED_MBPS_L4 =    88  # NVLink Speed in MBps for Link 4
+    DEV_NVLINK_SPEED_MBPS_L5 =    89  # NVLink Speed in MBps for Link 5
+    DEV_NVLINK_SPEED_MBPS_COMMON =90  # Common NVLink Speed in MBps for active links
+
+    DEV_NVLINK_LINK_COUNT =       91  # Number of NVLinks present on the device
+
+    DEV_RETIRED_PENDING_SBE =     92  # If any pages are pending retirement due to SBE. 1=yes. 0=no.
+    DEV_RETIRED_PENDING_DBE =     93  # If any pages are pending retirement due to DBE. 1=yes. 0=no.
+
+    DEV_PCIE_REPLAY_COUNTER =            94  # PCIe replay counter
+    DEV_PCIE_REPLAY_ROLLOVER_COUNTER =   95  # PCIe replay rollover counter
+
+    # NVLink Flit Error Counters
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L6 =    96 # NVLink flow control CRC  Error Counter for Lane 6
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L7 =    97 # NVLink flow control CRC  Error Counter for Lane 7
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L8 =    98 # NVLink flow control CRC  Error Counter for Lane 8
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L9 =    99 # NVLink flow control CRC  Error Counter for Lane 9
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L10 =  100 # NVLink flow control CRC  Error Counter for Lane 10
+    DEV_NVLINK_CRC_FLIT_ERROR_COUNT_L11 =  101 # NVLink flow control CRC  Error Counter for Lane 11
+
+    # NVLink CRC Data Error Counters
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L6 =   102 # NVLink data CRC Error Counter for Lane 6
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L7 =   103 # NVLink data CRC Error Counter for Lane 7
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L8 =   104 # NVLink data CRC Error Counter for Lane 8
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L9 =   105 # NVLink data CRC Error Counter for Lane 9
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L10 =  106 # NVLink data CRC Error Counter for Lane 10
+    DEV_NVLINK_CRC_DATA_ERROR_COUNT_L11 =  107 # NVLink data CRC Error Counter for Lane 11
+
+    # NVLink Replay Error Counters
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L6 =     108 # NVLink Replay Error Counter for Lane 6
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L7 =     109 # NVLink Replay Error Counter for Lane 7
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L8 =     110 # NVLink Replay Error Counter for Lane 8
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L9 =     111 # NVLink Replay Error Counter for Lane 9
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L10 =    112 # NVLink Replay Error Counter for Lane 10
+    DEV_NVLINK_REPLAY_ERROR_COUNT_L11 =    113 # NVLink Replay Error Counter for Lane 11
+
+    # NVLink Recovery Error Counters
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L6 =   114 # NVLink Recovery Error Counter for Lane 6
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L7 =   115 # NVLink Recovery Error Counter for Lane 7
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L8 =   116 # NVLink Recovery Error Counter for Lane 8
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L9 =   117 # NVLink Recovery Error Counter for Lane 9
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L10 =  118 # NVLink Recovery Error Counter for Lane 10
+    DEV_NVLINK_RECOVERY_ERROR_COUNT_L11 =  119 # NVLink Recovery Error Counter for Lane 11
+
+    # NvLink Bandwidth Counters */
+    DEV_NVLINK_BANDWIDTH_C0_L6 =    120 # NVLink Bandwidth Counter for Counter Set 0, Lane 6
+    DEV_NVLINK_BANDWIDTH_C0_L7 =    121 # NVLink Bandwidth Counter for Counter Set 0, Lane 7
+    DEV_NVLINK_BANDWIDTH_C0_L8 =    122 # NVLink Bandwidth Counter for Counter Set 0, Lane 8
+    DEV_NVLINK_BANDWIDTH_C0_L9 =    123 # NVLink Bandwidth Counter for Counter Set 0, Lane 9
+    DEV_NVLINK_BANDWIDTH_C0_L10 =   124 # NVLink Bandwidth Counter for Counter Set 0, Lane 10
+    DEV_NVLINK_BANDWIDTH_C0_L11 =   125 # NVLink Bandwidth Counter for Counter Set 0, Lane 11
+
+    # NvLink Bandwidth Counters
+    DEV_NVLINK_BANDWIDTH_C1_L6 =    126 # NVLink Bandwidth Counter for Counter Set 1, Lane 6
+    DEV_NVLINK_BANDWIDTH_C1_L7 =    127 # NVLink Bandwidth Counter for Counter Set 1, Lane 7
+    DEV_NVLINK_BANDWIDTH_C1_L8 =    128 # NVLink Bandwidth Counter for Counter Set 1, Lane 8
+    DEV_NVLINK_BANDWIDTH_C1_L9 =    129 # NVLink Bandwidth Counter for Counter Set 1, Lane 9
+    DEV_NVLINK_BANDWIDTH_C1_L10 =   130 # NVLink Bandwidth Counter for Counter Set 1, Lane 10
+    DEV_NVLINK_BANDWIDTH_C1_L11 =   131 # NVLink Bandwidth Counter for Counter Set 1, Lane 11
+
+    # NVLink Speed
+    DEV_NVLINK_SPEED_MBPS_L6 =    132  # NVLink Speed in MBps for Link 6
+    DEV_NVLINK_SPEED_MBPS_L7 =    133  # NVLink Speed in MBps for Link 7
+    DEV_NVLINK_SPEED_MBPS_L8 =    134  # NVLink Speed in MBps for Link 8
+    DEV_NVLINK_SPEED_MBPS_L9 =    135  # NVLink Speed in MBps for Link 9
+    DEV_NVLINK_SPEED_MBPS_L10 =   136  # NVLink Speed in MBps for Link 10
+    DEV_NVLINK_SPEED_MBPS_L11 =   137  # NVLink Speed in MBps for Link 11
+
+    # NVLink throughput counters field values
+    DEV_NVLINK_THROUGHPUT_DATA_TX =     138 # NVLink TX Data throughput in KiB
+    DEV_NVLINK_THROUGHPUT_DATA_RX =     139 # NVLink RX Data throughput in KiB
+    DEV_NVLINK_THROUGHPUT_RAW_TX =      140 # NVLink TX Data + protocol overhead in KiB
+    DEV_NVLINK_THROUGHPUT_RAW_RX =      141 # NVLink RX Data + protocol overhead in KiB
+
+    # Row Remapper
+    DEV_REMAPPED_COR =       142 # Number of remapped rows due to correctable errors
+    DEV_REMAPPED_UNC =       143 # Number of remapped rows due to uncorrectable errors
+    DEV_REMAPPED_PENDING =   144 # If any rows are pending remapping. 1=yes 0=no
+    DEV_REMAPPED_FAILURE =   145 # If any rows failed to be remapped 1=yes 0=no
+
+    # Remote device NVLink ID
+    DEV_NVLINK_REMOTE_NVLINK_ID =    146 # Remote device NVLink ID
+
+    # NVSwitch: connected NVLink count
+    DEV_NVSWITCH_CONNECTED_LINK_COUNT =  147  # Number of NVLinks connected to NVSwitch
+
+    # NvLink ECC Data Error Counters
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L0 =   148 # NVLink data ECC Error Counter for Link 0
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L1 =   149 # NVLink data ECC Error Counter for Link 1
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L2 =   150 # NVLink data ECC Error Counter for Link 2
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L3 =   151 # NVLink data ECC Error Counter for Link 3
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L4 =   152 # NVLink data ECC Error Counter for Link 4
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L5 =   153 # NVLink data ECC Error Counter for Link 5
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L6 =   154 # NVLink data ECC Error Counter for Link 6
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L7 =   155 # NVLink data ECC Error Counter for Link 7
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L8 =   156 # NVLink data ECC Error Counter for Link 8
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L9 =   157 # NVLink data ECC Error Counter for Link 9
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L10 =  158 # NVLink data ECC Error Counter for Link 10
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_L11 =  159 # NVLink data ECC Error Counter for Link 11
+    DEV_NVLINK_ECC_DATA_ERROR_COUNT_TOTAL =160 # NVLink data ECC Error Counter total for all Links
+
+    # NVLink Error Replay
+    DEV_NVLINK_ERROR_DL_REPLAY =           161 # NVLink Replay Error Counter
+
+    # NVLink Recovery Error Counter
+    DEV_NVLINK_ERROR_DL_RECOVERY =         162 # NVLink Recovery Error Counter
+
+    # NVLink Recovery Error CRC Counter
+    DEV_NVLINK_ERROR_DL_CRC =              163 # NVLink CRC Error Counter
+
+
+    # NVLink Speed, State and Version field id 164, 165, and 166
+    DEV_NVLINK_GET_SPEED =                 164 # NVLink Speed in MBps
+    DEV_NVLINK_GET_STATE =                 165 # NVLink State - Active,Inactive
+    DEV_NVLINK_GET_VERSION =               166 # NVLink Version
+
+    DEV_NVLINK_GET_POWER_STATE =           167 # NVLink Power state. 0=HIGH_SPEED 1=LOW_SPEED
+    DEV_NVLINK_GET_POWER_THRESHOLD =       168 # NVLink length of idle period (units can be found from
+                                                       # DEV_NVLINK_GET_POWER_THRESHOLD_UNITS) before
+                                                       # transitioning links to sleep state
+
+    DEV_PCIE_L0_TO_RECOVERY_COUNTER =      169 # Device PEX error recovery counter
+
+    DEV_C2C_LINK_COUNT =                   170 # Number of C2C Links present on the device
+    DEV_C2C_LINK_GET_STATUS =              171 # C2C Link Status 0=INACTIVE 1=ACTIVE
+    DEV_C2C_LINK_GET_MAX_BW =              172 # C2C Link Speed in MBps for active links
+
+    DEV_PCIE_COUNT_CORRECTABLE_ERRORS =    173 # PCIe Correctable Errors Counter
+    DEV_PCIE_COUNT_NAKS_RECEIVED =         174 # PCIe NAK Receive Counter
+    DEV_PCIE_COUNT_RECEIVER_ERROR =        175 # PCIe Receiver Error Counter
+    DEV_PCIE_COUNT_BAD_TLP =               176 # PCIe Bad TLP Counter
+    DEV_PCIE_COUNT_NAKS_SENT =             177 # PCIe NAK Send Counter
+    DEV_PCIE_COUNT_BAD_DLLP =              178 # PCIe Bad DLLP Counter
+    DEV_PCIE_COUNT_NON_FATAL_ERROR =       179 # PCIe Non Fatal Error Counter
+    DEV_PCIE_COUNT_FATAL_ERROR =           180 # PCIe Fatal Error Counter
+    DEV_PCIE_COUNT_UNSUPPORTED_REQ =       181 # PCIe Unsupported Request Counter
+    DEV_PCIE_COUNT_LCRC_ERROR =            182 # PCIe LCRC Error Counter
+    DEV_PCIE_COUNT_LANE_ERROR =            183 # PCIe Per Lane Error Counter.
+
+    DEV_IS_RESETLESS_MIG_SUPPORTED =       184 # Device's Restless MIG Capability
+
+    DEV_POWER_AVERAGE =                    185 # GPU power averaged over 1 sec interval, supported on Ampere (except GA100) or newer architectures.
+    DEV_POWER_INSTANT =                    186 # Current GPU power, supported on all architectures.
+    DEV_POWER_MIN_LIMIT =                  187 # Minimum power limit in milliwatts.
+    DEV_POWER_MAX_LIMIT =                  188 # Maximum power limit in milliwatts.
+    DEV_POWER_DEFAULT_LIMIT =              189 # Default power limit in milliwatts (limit which device boots with).
+    DEV_POWER_CURRENT_LIMIT =              190 # Limit currently enforced in milliwatts (This includes other limits set elsewhere. E.g. Out-of-band).
+    DEV_ENERGY =                           191 # Total energy consumption (in mJ) since the driver was last reloaded. Same as \ref DEV_TOTAL_ENERGY_CONSUMPTION for the GPU.
+    DEV_POWER_REQUESTED_LIMIT =            192 # Power limit requested by NVML or any other userspace client.
+
+    # GPU T.Limit temperature thresholds in degree Celsius
+    DEV_TEMPERATURE_SHUTDOWN_TLIMIT =      193 # T.Limit temperature after which GPU may shut down for HW protection
+    DEV_TEMPERATURE_SLOWDOWN_TLIMIT =      194 # T.Limit temperature after which GPU may begin HW slowdown
+    DEV_TEMPERATURE_MEM_MAX_TLIMIT =       195 # T.Limit temperature after which GPU may begin SW slowdown due to memory temperature
+    DEV_TEMPERATURE_GPU_MAX_TLIMIT =       196 # T.Limit temperature after which GPU may be throttled below base clock
+
+    DEV_PCIE_COUNT_TX_BYTES =              197 # PCIe transmit bytes. Value can be wrapped.
+    DEV_PCIE_COUNT_RX_BYTES =              198 # PCIe receive bytes. Value can be wrapped.
+
+    DEV_IS_MIG_MODE_INDEPENDENT_MIG_QUERY_CAPABLE =  199 # MIG mode independent, MIG query capable device. 1=yes. 0=no.
+
+    DEV_NVLINK_GET_POWER_THRESHOLD_MAX =             200 # Max Nvlink Power Threshold. See DEV_NVLINK_GET_POWER_THRESHOLD
+
+
+    # NVLink counter field id 201-225
+    DEV_NVLINK_COUNT_XMIT_PACKETS =                   201 # Total Tx packets on the link in NVLink5
+    DEV_NVLINK_COUNT_XMIT_BYTES =                     202 # Total Tx bytes on the link in NVLink5
+    DEV_NVLINK_COUNT_RCV_PACKETS =                    203 # Total Rx packets on the link in NVLink5
+    DEV_NVLINK_COUNT_RCV_BYTES =                      204 # Total Rx bytes on the link in NVLink5
+    DEV_NVLINK_COUNT_VL15_DROPPED =                   205 # Deprecated, do not use
+    DEV_NVLINK_COUNT_MALFORMED_PACKET_ERRORS =        206 # Number of packets Rx on a link where packets are malformed
+    DEV_NVLINK_COUNT_BUFFER_OVERRUN_ERRORS =          207 # Number of packets that were discarded on Rx due to buffer overrun
+    DEV_NVLINK_COUNT_RCV_ERRORS =                     208 # Total number of packets with errors Rx on a link
+    DEV_NVLINK_COUNT_RCV_REMOTE_ERRORS =              209 # Total number of packets Rx - stomp/EBP marker
+    DEV_NVLINK_COUNT_RCV_GENERAL_ERRORS =             210 # Total number of packets Rx with header mismatch
+    DEV_NVLINK_COUNT_LOCAL_LINK_INTEGRITY_ERRORS =    211 # Total number of times that the count of local errors exceeded a threshold
+    DEV_NVLINK_COUNT_XMIT_DISCARDS =                  212 # Total number of tx error packets that were discarded
+
+    DEV_NVLINK_COUNT_LINK_RECOVERY_SUCCESSFUL_EVENTS =213 # Number of times link went from Up to recovery, succeeded and link came back up
+    DEV_NVLINK_COUNT_LINK_RECOVERY_FAILED_EVENTS =    214 # Number of times link went from Up to recovery, failed and link was declared down
+    DEV_NVLINK_COUNT_LINK_RECOVERY_EVENTS =           215 # Number of times link went from Up to recovery, irrespective of the result
+
+    DEV_NVLINK_COUNT_RAW_BER_LANE0 =                  216 # Deprecated, do not use
+    DEV_NVLINK_COUNT_RAW_BER_LANE1 =                  217 # Deprecated, do not use
+    DEV_NVLINK_COUNT_RAW_BER =                        218 # Deprecated, do not use
+    DEV_NVLINK_COUNT_EFFECTIVE_ERRORS =               219 # Sum of the number of errors in each Nvlink packet
+
+    # NVLink Effective BER
+    DEV_NVLINK_COUNT_EFFECTIVE_BER =                  220 # Effective BER for effective errors
+    DEV_NVLINK_COUNT_SYMBOL_ERRORS =                  221 # Number of errors in rx symbols
+
+    # NVLink Symbol BER
+    DEV_NVLINK_COUNT_SYMBOL_BER =                     222 # BER for symbol errors
+
+    DEV_NVLINK_GET_POWER_THRESHOLD_MIN =              223 # Min Nvlink Power Threshold. See DEV_NVLINK_GET_POWER_THRESHOLD
+    DEV_NVLINK_GET_POWER_THRESHOLD_UNITS =            224 # Values are in the form NVML_NVLINK_LOW_POWER_THRESHOLD_UNIT_*
+    DEV_NVLINK_GET_POWER_THRESHOLD_SUPPORTED =        225 # Determine if Nvlink Power Threshold feature is supported
+
+    DEV_RESET_STATUS =                                226 # Depracated, do not use (use DEV_GET_GPU_RECOVERY_ACTION instead)
+    DEV_DRAIN_AND_RESET_STATUS =                      227 # Deprecated, do not use (use DEV_GET_GPU_RECOVERY_ACTION instead)
+    DEV_PCIE_OUTBOUND_ATOMICS_MASK =                  228
+    DEV_PCIE_INBOUND_ATOMICS_MASK =                   229
+    DEV_GET_GPU_RECOVERY_ACTION =                     230 # GPU Recovery action - None/Reset/Reboot/Drain P2P/Drain and Reset
+    DEV_C2C_LINK_ERROR_INTR =                         231 # C2C Link CRC Error Counter
+    DEV_C2C_LINK_ERROR_REPLAY =                       232 # C2C Link Replay Error Counter
+    DEV_C2C_LINK_ERROR_REPLAY_B2B =                   233 # C2C Link Back to Back Replay Error Counter
+    DEV_C2C_LINK_POWER_STATE =                        234 # C2C Link Power state. See NVML_C2C_POWER_STATE_*
+
+    # NVLink counter field id 235-250
+    DEV_NVLINK_COUNT_FEC_HISTORY_0 =                  235 # Count of symbol errors that are corrected - bin 0
+    DEV_NVLINK_COUNT_FEC_HISTORY_1 =                  236 # Count of symbol errors that are corrected - bin 1
+    DEV_NVLINK_COUNT_FEC_HISTORY_2 =                  237 # Count of symbol errors that are corrected - bin 2
+    DEV_NVLINK_COUNT_FEC_HISTORY_3 =                  238 # Count of symbol errors that are corrected - bin 3
+    DEV_NVLINK_COUNT_FEC_HISTORY_4 =                  239 # Count of symbol errors that are corrected - bin 4
+    DEV_NVLINK_COUNT_FEC_HISTORY_5 =                  240 # Count of symbol errors that are corrected - bin 5
+    DEV_NVLINK_COUNT_FEC_HISTORY_6 =                  241 # Count of symbol errors that are corrected - bin 6
+    DEV_NVLINK_COUNT_FEC_HISTORY_7 =                  242 # Count of symbol errors that are corrected - bin 7
+    DEV_NVLINK_COUNT_FEC_HISTORY_8 =                  243 # Count of symbol errors that are corrected - bin 8
+    DEV_NVLINK_COUNT_FEC_HISTORY_9 =                  244 # Count of symbol errors that are corrected - bin 9
+    DEV_NVLINK_COUNT_FEC_HISTORY_10 =                 245 # Count of symbol errors that are corrected - bin 10
+    DEV_NVLINK_COUNT_FEC_HISTORY_11 =                 246 # Count of symbol errors that are corrected - bin 11
+    DEV_NVLINK_COUNT_FEC_HISTORY_12 =                 247 # Count of symbol errors that are corrected - bin 12
+    DEV_NVLINK_COUNT_FEC_HISTORY_13 =                 248 # Count of symbol errors that are corrected - bin 13
+    DEV_NVLINK_COUNT_FEC_HISTORY_14 =                 249 # Count of symbol errors that are corrected - bin 14
+    DEV_NVLINK_COUNT_FEC_HISTORY_15 =                 250 # Count of symbol errors that are corrected - bin 15
+
+    # Power Smoothing
+    PWR_SMOOTHING_ENABLED =                                  251 # Enablement (0/DISABLED or 1/ENABLED)
+    PWR_SMOOTHING_PRIV_LVL =                                 252 # Current privilege level
+    PWR_SMOOTHING_IMM_RAMP_DOWN_ENABLED =                    253 # Immediate ramp down enablement (0/DISABLED or 1/ENABLED)
+    PWR_SMOOTHING_APPLIED_TMP_CEIL =                         254 # Applied TMP ceiling value in Watts
+    PWR_SMOOTHING_APPLIED_TMP_FLOOR =                        255 # Applied TMP floor value in Watts
+    PWR_SMOOTHING_MAX_PERCENT_TMP_FLOOR_SETTING =            256 # Max % TMP Floor value
+    PWR_SMOOTHING_MIN_PERCENT_TMP_FLOOR_SETTING =            257 # Min % TMP Floor value
+    PWR_SMOOTHING_HW_CIRCUITRY_PERCENT_LIFETIME_REMAINING =  258 # HW Circuitry % lifetime remaining
+    PWR_SMOOTHING_MAX_NUM_PRESET_PROFILES =                  259 # Max number of preset profiles
+    PWR_SMOOTHING_PROFILE_PERCENT_TMP_FLOOR =                260 # % TMP floor for a given profile
+    PWR_SMOOTHING_PROFILE_RAMP_UP_RATE =                     261 # Ramp up rate in mW/s for a given profile
+    PWR_SMOOTHING_PROFILE_RAMP_DOWN_RATE =                   262 # Ramp down rate in mW/s for a given profile
+    PWR_SMOOTHING_PROFILE_RAMP_DOWN_HYST_VAL =               263 # Ramp down hysteresis value in ms for a given profile
+    PWR_SMOOTHING_ACTIVE_PRESET_PROFILE =                    264 # Active preset profile number
+    PWR_SMOOTHING_ADMIN_OVERRIDE_PERCENT_TMP_FLOOR =         265 # % TMP floor for a given profile
+    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_UP_RATE =              266 # Ramp up rate in mW/s for a given profile
+    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_DOWN_RATE =            267 # Ramp down rate in mW/s for a given profile
+    PWR_SMOOTHING_ADMIN_OVERRIDE_RAMP_DOWN_HYST_VAL =        268 # Ramp down hysteresis value in ms for a given profile
+
+    # Field values for Clock Throttle Reason Counters
+    DEV_CLOCKS_EVENT_REASON_SW_POWER_CAP =            DEV_PERF_POLICY_POWER      # Throttling to not exceed currently set power limits in ns
+    DEV_CLOCKS_EVENT_REASON_SYNC_BOOST =              DEV_PERF_POLICY_SYNC_BOOST # Throttling to match minimum possible clock across Sync Boost Group in ns
+    DEV_CLOCKS_EVENT_REASON_SW_THERM_SLOWDOWN =       269 # Throttling to ensure ((GPU temp < GPU Max Operating Temp) && (Memory Temp < Memory Max Operating Temp)) in ns
+    DEV_CLOCKS_EVENT_REASON_HW_THERM_SLOWDOWN =       270 # Throttling due to temperature being too high (reducing core clocks by a factor of 2 or more) in ns
+    DEV_CLOCKS_EVENT_REASON_HW_POWER_BRAKE_SLOWDOWN = 271 # Throttling due to external power brake assertion trigger (reducing core clocks by a factor of 2 or more) in ns
+    DEV_POWER_SYNC_BALANCING_FREQ =                   272 # Accumulated frequency of the GPU to be used for averaging
+    DEV_POWER_SYNC_BALANCING_AF =                     273 # Accumulated activity factor of the GPU to be used for averaging
+    MAX =                                             274 # One greater than the largest field ID defined above
+
+
 ###############################################################################
 # Error handling
 ###############################################################################
@@ -18130,7 +18502,7 @@ cpdef int device_get_brand(intptr_t device) except? -1:
     return <int>type
 
 
-cpdef unsigned int device_get_ind_ex(intptr_t device) except? 0:
+cpdef unsigned int device_get_index(intptr_t device) except? 0:
     """Retrieves the NVML index of this device.
 
     Args:
@@ -23679,7 +24051,7 @@ cpdef str device_get_hostname_v1(intptr_t device):
     return cpython.PyUnicode_FromString(hostname.value)
 
 
-cpdef object device_get_field_values(intptr_t device, FieldValue values):
+cpdef object device_get_field_values(intptr_t device, values):
     """Request values for a list of fields for a device. This API allows multiple fields to be queried at once. If any of the underlying fieldIds are populated by the same driver call, the results for those field IDs will be populated from a single call rather than making a driver call for each fieldId.
 
     Args:

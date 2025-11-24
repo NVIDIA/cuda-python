@@ -51,18 +51,6 @@ def get_cuda_device_names(sort_by_bus_id=True):
 
 
 def test_cuda_device_order():
-    # TODO:
-
-    # if not utils.is_cuda_supported_system():
-    #     test_utils.skip_test("Cuda is not supported on this system")
-
-    # CUDA is enabled on 1:1 vGPUs of Maxwell and all Pascal vGPUs.
-    # Skip the test for not supported CUDA vGPU profiles
-    # for device in test_utils.get_devices():
-    #     if device.feature_dict.is_vgpu_device:
-    #         if not device.feature_dict.is_vgpu_cuda_supported:
-    #             test_utils.skip_test("CUDA not supported on this vGPU device")
-
     cuda_devices = get_cuda_device_names()
     nvml_devices = get_nvml_device_names()
 
