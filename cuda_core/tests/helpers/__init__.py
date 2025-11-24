@@ -5,7 +5,7 @@ import os
 import pathlib
 import sys
 
-CUDA_PATH = os.environ.get("CUDA_PATH")
+CUDA_PATH = os.environ.get("CUDA_HOME", os.environ.get("CUDA_PATH"))
 CUDA_INCLUDE_PATH = None
 CCCL_INCLUDE_PATHS = None
 if CUDA_PATH is not None:
