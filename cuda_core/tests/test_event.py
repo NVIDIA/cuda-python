@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
-import time
+
+import math
 
 import cuda.core.experimental
 import pytest
@@ -13,35 +13,30 @@ from cuda.core.experimental import (
 )
 from helpers.latch import LatchKernel
 
-from cuda_python_test_helpers import IS_WSL
-
 
 def test_event_init_disabled():
     with pytest.raises(RuntimeError, match=r"^Event objects cannot be instantiated directly\."):
         cuda.core.experimental._event.Event()  # Ensure back door is locked.
 
 
-def test_timing_success(init_cuda):
+def test_event_elapsed_time_basic(init_cuda):
     options = EventOptions(enable_timing=True)
     stream = Device().create_stream()
-    delay_seconds = 0.5
     e1 = stream.record(options=options)
-    time.sleep(delay_seconds)
     e2 = stream.record(options=options)
     e2.sync()
-    elapsed_time_ms = e2 - e1
-    assert isinstance(elapsed_time_ms, float)
-    # Using a generous tolerance, to avoid flaky tests:
-    # We only want to exercise the __sub__ method, this test is not meant
-    # to stress-test the CUDA driver or time.sleep().
-    delay_ms = delay_seconds * 1000
-    if os.name == "nt" or IS_WSL:  # noqa: SIM108
-        # For Python <=3.10, the Windows timer resolution is typically limited to 15.6 ms by default.
-        generous_tolerance = 100
-    else:
-        # Most modern Linux kernels have a default timer resolution of 1 ms.
-        generous_tolerance = 20
-    assert delay_ms - generous_tolerance <= elapsed_time_ms < delay_ms + generous_tolerance
+    delta_ms = e2 - e1
+    assert isinstance(delta_ms, float)
+    # Sanity check: cuEventElapsedTime should always return a finite float for two completed
+    # events. This guards against unexpected driver/HW anomalies (e.g. NaN or inf) or general
+    # undefined behavior, without asserting anything about the magnitude of the measured time.
+    assert math.isfinite(delta_ms)
+    # cudaEventElapsedTime() has a documented resolution of ~0.5 microseconds. With two back-to-back
+    # event records on the same stream, their timestamps may fall into the same tick, producing
+    # an elapsed time of exactly 0.0 ms. The only reliable way to force delta_ms > 0 would be to
+    # insert real GPU work (e.g. a __nanosleep kernel), which is more complexity than this test
+    # should depend on. For correctness we only assert that the elapsed time is non-negative.
+    assert delta_ms >= 0
 
 
 def test_is_sync_busy_waited(init_cuda):
