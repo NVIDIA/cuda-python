@@ -1258,7 +1258,7 @@ cdef class _py_anon_pod2:
         if self._readonly:
             raise ValueError("This _py_anon_pod2 instance is read-only")
         cdef _py_anon_pod3 val_ = val
-        memcpy(<void *>&(self._ptr[0].batch), <void *>(val_._ptr), sizeof(_anon_pod3))
+        memcpy(<void *>&(self._ptr[0].batch), <void *>(val_._get_ptr()), sizeof(_anon_pod3) * 1)
 
     @staticmethod
     def from_data(data):
@@ -1405,7 +1405,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].read_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].read_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def write_ops(self):
@@ -1417,7 +1417,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].write_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].write_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def hdl_register_ops(self):
@@ -1429,7 +1429,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].hdl_register_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].hdl_register_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def hdl_deregister_ops(self):
@@ -1441,7 +1441,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].hdl_deregister_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].hdl_deregister_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def buf_register_ops(self):
@@ -1453,7 +1453,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].buf_register_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].buf_register_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def buf_deregister_ops(self):
@@ -1465,7 +1465,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].buf_deregister_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].buf_deregister_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_submit_ops(self):
@@ -1477,7 +1477,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_submit_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_complete_ops(self):
@@ -1489,7 +1489,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_complete_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_complete_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_setup_ops(self):
@@ -1501,7 +1501,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_setup_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_setup_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_cancel_ops(self):
@@ -1513,7 +1513,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_cancel_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_cancel_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_destroy_ops(self):
@@ -1525,7 +1525,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_destroy_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_destroy_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_enqueued_ops(self):
@@ -1537,7 +1537,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_enqueued_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_enqueued_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_posix_enqueued_ops(self):
@@ -1549,7 +1549,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_posix_enqueued_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_posix_enqueued_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_processed_ops(self):
@@ -1561,7 +1561,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_processed_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_processed_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_posix_processed_ops(self):
@@ -1573,7 +1573,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_posix_processed_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_posix_processed_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_nvfs_submit_ops(self):
@@ -1585,7 +1585,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_nvfs_submit_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_nvfs_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_p2p_submit_ops(self):
@@ -1597,7 +1597,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_p2p_submit_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_p2p_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_aio_submit_ops(self):
@@ -1609,7 +1609,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_aio_submit_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_aio_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_iouring_submit_ops(self):
@@ -1621,7 +1621,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_iouring_submit_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_iouring_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_mixed_io_submit_ops(self):
@@ -1633,7 +1633,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_mixed_io_submit_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_mixed_io_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def batch_total_submit_ops(self):
@@ -1645,7 +1645,7 @@ cdef class StatsLevel1:
         if self._readonly:
             raise ValueError("This StatsLevel1 instance is read-only")
         cdef OpCounter val_ = val
-        memcpy(<void *>&(self._ptr[0].batch_total_submit_ops), <void *>(val_._ptr), sizeof(CUfileOpCounter_t))
+        memcpy(<void *>&(self._ptr[0].batch_total_submit_ops), <void *>(val_._get_ptr()), sizeof(CUfileOpCounter_t) * 1)
 
     @property
     def read_bytes(self):
@@ -2180,7 +2180,7 @@ cdef class StatsLevel2:
         if self._readonly:
             raise ValueError("This StatsLevel2 instance is read-only")
         cdef StatsLevel1 val_ = val
-        memcpy(<void *>&(self._ptr[0].basic), <void *>(val_._ptr), sizeof(CUfileStatsLevel1_t))
+        memcpy(<void *>&(self._ptr[0].basic), <void *>(val_._get_ptr()), sizeof(CUfileStatsLevel1_t) * 1)
 
     @property
     def read_size_kb_hist(self):
@@ -2193,7 +2193,7 @@ cdef class StatsLevel2:
     def read_size_kb_hist(self, val):
         if self._readonly:
             raise ValueError("This StatsLevel2 instance is read-only")
-        cdef view.array arr = view.array(shape=(len(val),), itemsize=sizeof(uint64_t), format="Q", mode="c")
+        cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint64)
         memcpy(<void *>(&(self._ptr[0].read_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
 
@@ -2208,7 +2208,7 @@ cdef class StatsLevel2:
     def write_size_kb_hist(self, val):
         if self._readonly:
             raise ValueError("This StatsLevel2 instance is read-only")
-        cdef view.array arr = view.array(shape=(len(val),), itemsize=sizeof(uint64_t), format="Q", mode="c")
+        cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c")
         arr[:] = _numpy.asarray(val, dtype=_numpy.uint64)
         memcpy(<void *>(&(self._ptr[0].write_size_kb_hist)), <void *>(arr.data), sizeof(uint64_t) * len(val))
 
@@ -2317,19 +2317,21 @@ cdef class StatsLevel3:
         if self._readonly:
             raise ValueError("This StatsLevel3 instance is read-only")
         cdef StatsLevel2 val_ = val
-        memcpy(<void *>&(self._ptr[0].detailed), <void *>(val_._ptr), sizeof(CUfileStatsLevel2_t))
+        memcpy(<void *>&(self._ptr[0].detailed), <void *>(val_._get_ptr()), sizeof(CUfileStatsLevel2_t) * 1)
 
     @property
     def per_gpu_stats(self):
         """PerGpuStats: """
-        return PerGpuStats.from_ptr(<intptr_t>&(self._ptr[0].per_gpu_stats), self._readonly, self)
+        return PerGpuStats.from_ptr(<intptr_t>&(self._ptr[0].per_gpu_stats), 16, self._readonly)
 
     @per_gpu_stats.setter
     def per_gpu_stats(self, val):
         if self._readonly:
             raise ValueError("This StatsLevel3 instance is read-only")
         cdef PerGpuStats val_ = val
-        memcpy(<void *>&(self._ptr[0].per_gpu_stats), <void *>(val_._ptr), sizeof(CUfilePerGpuStats_t))
+        if len(val) != 16:
+            raise ValueError(f"Expected length 16 for field per_gpu_stats, got {len(val)}")
+        memcpy(<void *>&(self._ptr[0].per_gpu_stats), <void *>(val_._get_ptr()), sizeof(CUfilePerGpuStats_t) * 16)
 
     @property
     def num_gpus(self):
