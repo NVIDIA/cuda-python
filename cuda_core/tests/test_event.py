@@ -30,8 +30,7 @@ def test_timing_success(init_cuda):
     nanosleep = NanosleepKernel(device, sleep_duration_ms=20)
 
     e1 = stream.record(options=options)
-    # Launch the nanosleep kernel to introduce a guaranteed delay
-    nanosleep.launch(stream)
+    nanosleep.launch(stream)  # Insert a guaranteed delay
     e2 = stream.record(options=options)
     e2.sync()
     delta_ms = e2 - e1
