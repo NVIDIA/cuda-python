@@ -20,7 +20,7 @@ def test_event_init_disabled():
         cuda.core.experimental._event.Event()  # Ensure back door is locked.
 
 
-def test_event_elapsed_time_basic(init_cuda):
+def test_timing_success(init_cuda):
     device = Device()
     options = EventOptions(enable_timing=True)
     stream = device.create_stream()
