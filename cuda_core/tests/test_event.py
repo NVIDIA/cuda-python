@@ -10,6 +10,10 @@ from cuda.core.experimental import (
     Device,
     Event,
     EventOptions,
+    LaunchConfig,
+    Program,
+    ProgramOptions,
+    launch,
 )
 from helpers.latch import LatchKernel
 
@@ -20,9 +24,28 @@ def test_event_init_disabled():
 
 
 def test_event_elapsed_time_basic(init_cuda):
+    device = Device()
     options = EventOptions(enable_timing=True)
-    stream = Device().create_stream()
+    stream = device.create_stream()
+
+    # Create a simple kernel that sleeps for 20 ms to ensure a measurable delay
+    # This guarantees delta_ms > 10 without depending on OS/driver timing characteristics
+    code = """
+    extern "C"
+    __global__ void nanosleep_kernel() {
+        __nanosleep(20000000); // 20 milliseconds
+    }
+    """
+    arch = "".join(f"{i}" for i in device.compute_capability)
+    program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
+    prog = Program(code, code_type="c++", options=program_options)
+    mod = prog.compile("cubin")
+    kernel = mod.get_kernel("nanosleep_kernel")
+
     e1 = stream.record(options=options)
+    # Launch the nanosleep kernel to introduce a guaranteed delay
+    config = LaunchConfig(grid=1, block=1)
+    launch(stream, config, kernel)
     e2 = stream.record(options=options)
     e2.sync()
     delta_ms = e2 - e1
@@ -31,12 +54,11 @@ def test_event_elapsed_time_basic(init_cuda):
     # events. This guards against unexpected driver/HW anomalies (e.g. NaN or inf) or general
     # undefined behavior, without asserting anything about the magnitude of the measured time.
     assert math.isfinite(delta_ms)
-    # cudaEventElapsedTime() has a documented resolution of ~0.5 microseconds. With two back-to-back
-    # event records on the same stream, their timestamps may fall into the same tick, producing
-    # an elapsed time of exactly 0.0 ms. The only reliable way to force delta_ms > 0 would be to
-    # insert real GPU work (e.g. a __nanosleep kernel), which is more complexity than this test
-    # should depend on. For correctness we only assert that the elapsed time is non-negative.
-    assert delta_ms >= 0
+    # With the nanosleep kernel between events, we can assert a positive elapsed time.
+    # The kernel sleeps for 20 ms, so delta_ms should be at least ~10 ms.
+    # Using a 10 ms threshold provides a very large safety margin above the ~0.5 microsecond
+    # resolution of cudaEventElapsedTime, making this test deterministic and non-flaky.
+    assert delta_ms > 10
 
 
 def test_is_sync_busy_waited(init_cuda):
