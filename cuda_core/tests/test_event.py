@@ -36,7 +36,7 @@ def test_event_elapsed_time_basic(init_cuda):
     code = f"""
     extern "C"
     __global__ void nanosleep_kernel() {{
-        unsigned long long start = clock64();
+        long long int start = clock64();
         while (clock64() - start < {sleep_cycles}) {{
             __nanosleep(1000000); // 1 ms yield to avoid 100% spin
         }}
