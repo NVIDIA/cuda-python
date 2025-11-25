@@ -10,12 +10,9 @@ from cuda.core.experimental import (
     Device,
     Event,
     EventOptions,
-    LaunchConfig,
-    Program,
-    ProgramOptions,
-    launch,
 )
 from helpers.latch import LatchKernel
+from helpers.nanosleep_kernel import NanosleepKernel
 
 
 def test_event_init_disabled():
@@ -28,29 +25,13 @@ def test_event_elapsed_time_basic(init_cuda):
     options = EventOptions(enable_timing=True)
     stream = device.create_stream()
 
-    # Create a simple kernel that sleeps for 20 ms to ensure a measurable delay
+    # Create a nanosleep kernel that sleeps for 20 ms to ensure a measurable delay
     # This guarantees delta_ms > 10 without depending on OS/driver timing characteristics
-    # Use clock64() in a loop to ensure we actually wait for the full duration
-    clock_rate_hz = device.properties.clock_rate * 1000
-    sleep_cycles = int(0.020 * clock_rate_hz)  # 20 ms in clock cycles
-    code = f"""
-    extern "C"
-    __global__ void nanosleep_kernel() {{
-        long long int start = clock64();
-        while (clock64() - start < {sleep_cycles}) {{
-            __nanosleep(1000000); // 1 ms yield to avoid 100% spin
-        }}
-    }}
-    """
-    program_options = ProgramOptions(std="c++17", arch=f"sm_{device.arch}")
-    prog = Program(code, code_type="c++", options=program_options)
-    mod = prog.compile("cubin")
-    kernel = mod.get_kernel("nanosleep_kernel")
+    nanosleep = NanosleepKernel(device, sleep_duration_seconds=0.020)
 
     e1 = stream.record(options=options)
     # Launch the nanosleep kernel to introduce a guaranteed delay
-    config = LaunchConfig(grid=1, block=1)
-    launch(stream, config, kernel)
+    nanosleep.launch(stream)
     e2 = stream.record(options=options)
     e2.sync()
     delta_ms = e2 - e1
