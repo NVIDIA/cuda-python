@@ -527,6 +527,51 @@ entry:
     assert ltoir_code.name == "nvvm_multi_helper_test"
     
     program.close()
+
+@nvvm_available
+def test_bitcode_format():
+    import os
+    from pathlib import Path
+    bitcode_path = os.environ.get("BITCODE_NVVM_PATH")
+    if not bitcode_path:
+        pytest.skip(f"BITCODE_NVVM_PATH environment variable is not set."
+                    "Disabling the test.")
+    bitcode_file = Path(bitcode_path)
+    if not bitcode_file.exists():
+        pytest.skip(f"Bitcode file not found: {bitcode_path}")
+    
+    if not bitcode_file.suffix == '.bc':
+        pytest.skip(f"Expected .bc file, got: {bitcode_file.suffix}")
+    
+    try:
+        with open(bitcode_file, 'rb') as f:
+            bitcode_data = f.read()
+        
+        if len(bitcode_data) < 4:
+            pytest.skip("Bitcode file appears to be empty or invalid")
+        
+        options = ProgramOptions(
+            name=f"existing_bitcode_{bitcode_file.stem}",
+            arch="sm_90"
+        )
+        program = Program(bitcode_data, "nvvm", options)
+        
+        assert program.backend == "NVVM"
+        ptx_result = program.compile("ptx")
+        assert isinstance(ptx_result, ObjectCode)
+        assert ptx_result.name.startswith("existing_bitcode_")
+        assert len(ptx_result.code) > 0
+        try:
+            ltoir_result = program.compile("ltoir")
+            assert isinstance(ltoir_result, ObjectCode)
+            assert len(ltoir_result.code) > 0
+            print(f"LTOIR size: {len(ltoir_result.code)} bytes")
+        except Exception as e:
+            print(f"LTOIR compilation failed : {e}")
+        program.close()
+    except Exception as e:
+        pytest.fail(f"Failed to compile existing bitcode file {bitcode_path}: {str(e)}")
+
        
 def test_cpp_program_with_extra_sources():
     #negative test with NVRTC with multiple sources
