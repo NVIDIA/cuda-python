@@ -30,11 +30,17 @@ def test_event_elapsed_time_basic(init_cuda):
 
     # Create a simple kernel that sleeps for 20 ms to ensure a measurable delay
     # This guarantees delta_ms > 10 without depending on OS/driver timing characteristics
-    code = """
+    # Use clock64() in a loop to ensure we actually wait for the full duration
+    clock_rate_hz = device.properties.clock_rate * 1000
+    sleep_cycles = int(0.020 * clock_rate_hz)  # 20 ms in clock cycles
+    code = f"""
     extern "C"
-    __global__ void nanosleep_kernel() {
-        __nanosleep(20000000); // 20 milliseconds
-    }
+    __global__ void nanosleep_kernel() {{
+        unsigned long long start = clock64();
+        while (clock64() - start < {sleep_cycles}) {{
+            __nanosleep(1000000); // 1 ms yield to avoid 100% spin
+        }}
+    }}
     """
     arch = "".join(f"{i}" for i in device.compute_capability)
     program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
@@ -55,9 +61,10 @@ def test_event_elapsed_time_basic(init_cuda):
     # undefined behavior, without asserting anything about the magnitude of the measured time.
     assert math.isfinite(delta_ms)
     # With the nanosleep kernel between events, we can assert a positive elapsed time.
-    # The kernel sleeps for 20 ms, so delta_ms should be at least ~10 ms.
-    # Using a 10 ms threshold provides a very large safety margin above the ~0.5 microsecond
-    # resolution of cudaEventElapsedTime, making this test deterministic and non-flaky.
+    # The kernel sleeps for 20 ms using clock64(), so delta_ms should be at least ~10 ms.
+    # Using a 10 ms threshold (half the sleep duration) provides a large safety margin above
+    # the ~0.5 microsecond resolution of cudaEventElapsedTime, making this test deterministic
+    # and non-flaky.
     assert delta_ms > 10
 
 
