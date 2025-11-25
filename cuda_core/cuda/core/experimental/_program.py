@@ -480,7 +480,7 @@ class Program:
             assert_type(code, str)
             # TODO: support pre-loaded headers & include names
             # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
-            
+
             if options.extra_sources is not None:
                 raise ValueError("extra_sources is not supported by the NVRTC backend (C++ code_type)")
 
@@ -493,7 +493,7 @@ class Program:
             assert_type(code, str)
             if options.extra_sources is not None:
                 raise ValueError("extra_sources is not supported by the PTX backend.")
-            
+
             self._linker = Linker(
                 ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
@@ -516,22 +516,22 @@ class Program:
                     extra_sources = options.extra_sources
                 else:
                     raise TypeError("extra_sources must be str, bytes, list, or tuple")
-                
+
                 if len(extra_sources) == 0:
                     raise ValueError("extra_sources cannot be empty if provided")
-                
+
                 for i, extra_source in enumerate(extra_sources):
                     if isinstance(extra_source, str):
                         extra_source = extra_source.encode("utf-8")
                     elif not isinstance(extra_source, (bytes, bytearray)):
                         raise TypeError(f"Extra source {i} must be provided as str, bytes, or bytearray")
-                    
+
                     if len(extra_source) == 0:
                         raise ValueError(f"Extra source {i} cannot be empty")
-                    
+
                     extra_name = f"{options.name}_extra_{i}"
                     nvvm.add_module_to_program(self._mnff.handle, extra_source, len(extra_source), extra_name)
-            
+
             self._backend = "NVVM"
             self._linker = None
 

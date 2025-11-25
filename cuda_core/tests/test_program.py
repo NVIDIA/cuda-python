@@ -388,13 +388,14 @@ def test_nvvm_program_options(init_cuda, nvvm_ir, options):
 
     program.close()
 
+
 @nvvm_available
 @pytest.mark.parametrize(
     "options",
     [
-       ProgramOptions(name="ltoir_test1", arch="sm_90", device_code_optimize=False),
-       ProgramOptions(name="ltoir_test2", arch="sm_100", link_time_optimization=True),
-       ProgramOptions(
+        ProgramOptions(name="ltoir_test1", arch="sm_90", device_code_optimize=False),
+        ProgramOptions(name="ltoir_test2", arch="sm_100", link_time_optimization=True),
+        ProgramOptions(
             name="ltoir_test3",
             arch="sm_90",
             ftz=True,
@@ -403,7 +404,7 @@ def test_nvvm_program_options(init_cuda, nvvm_ir, options):
             fma=True,
             device_code_optimize=True,
             link_time_optimization=True,
-       ),
+        ),
     ],
 )
 def test_nvvm_program_options_ltoir(init_cuda, nvvm_ir, options):
@@ -423,9 +424,10 @@ def test_nvvm_program_options_ltoir(init_cuda, nvvm_ir, options):
 def test_nvvm_program_with_single_extra_source(nvvm_ir):
     """Test NVVM program with a single extra source"""
     from cuda.core.experimental._program import _get_nvvm_module
+
     nvvm = _get_nvvm_module()
     major, minor, debug_major, debug_minor = nvvm.ir_version()
-    #helper nvvm ir for multiple module loading
+    # helper nvvm ir for multiple module loading
     helper_nvvm_ir = f"""target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
@@ -441,22 +443,24 @@ entry:
 
     options = ProgramOptions(name="multi_module_test", extra_sources=helper_nvvm_ir)
     program = Program(nvvm_ir, "nvvm", options)
-    
+
     assert program.backend == "NVVM"
-    
+
     ptx_code = program.compile("ptx")
     assert isinstance(ptx_code, ObjectCode)
     assert ptx_code.name == "multi_module_test"
-    
+
     program.close()
+
 
 @nvvm_available
 def test_nvvm_program_with_multiple_extra_sources():
     """Test NVVM program with multiple extra sources"""
     from cuda.core.experimental._program import _get_nvvm_module
+
     nvvm = _get_nvvm_module()
     major, minor, debug_major, debug_minor = nvvm.ir_version()
-    
+
     main_nvvm_ir = f"""target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
@@ -468,10 +472,10 @@ entry:
   %tid = call i32 @llvm.nvvm.read.ptx.sreg.tid.x()
   %ptr = getelementptr inbounds i32, i32* %data, i32 %tid
   %val = load i32, i32* %ptr, align 4
-  
+
   %val1 = call i32 @helper_add(i32 %val)
   %val2 = call i32 @helper_mul(i32 %val1)
-  
+
   store i32 %val2, i32* %ptr, align 4
   ret void
 }}
@@ -511,51 +515,46 @@ entry:
 !0 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
 """
 
-    options = ProgramOptions(
-        name="nvvm_multi_helper_test", 
-        extra_sources=[helper1_ir, helper2_ir]
-    )
+    options = ProgramOptions(name="nvvm_multi_helper_test", extra_sources=[helper1_ir, helper2_ir])
     program = Program(main_nvvm_ir, "nvvm", options)
-    
+
     assert program.backend == "NVVM"
     ptx_code = program.compile("ptx")
     assert isinstance(ptx_code, ObjectCode)
     assert ptx_code.name == "nvvm_multi_helper_test"
-    
+
     ltoir_code = program.compile("ltoir")
     assert isinstance(ltoir_code, ObjectCode)
     assert ltoir_code.name == "nvvm_multi_helper_test"
-    
+
     program.close()
+
 
 @nvvm_available
 def test_bitcode_format():
     import os
     from pathlib import Path
+
     bitcode_path = os.environ.get("BITCODE_NVVM_PATH")
     if not bitcode_path:
-        pytest.skip(f"BITCODE_NVVM_PATH environment variable is not set."
-                    "Disabling the test.")
+        pytest.skip("BITCODE_NVVM_PATH environment variable is not set.Disabling the test.")
     bitcode_file = Path(bitcode_path)
     if not bitcode_file.exists():
         pytest.skip(f"Bitcode file not found: {bitcode_path}")
-    
-    if not bitcode_file.suffix == '.bc':
+
+    if not bitcode_file.suffix == ".bc":
         pytest.skip(f"Expected .bc file, got: {bitcode_file.suffix}")
-    
+
     try:
-        with open(bitcode_file, 'rb') as f:
+        with open(bitcode_file, "rb") as f:
             bitcode_data = f.read()
-        
+
         if len(bitcode_data) < 4:
             pytest.skip("Bitcode file appears to be empty or invalid")
-        
-        options = ProgramOptions(
-            name=f"existing_bitcode_{bitcode_file.stem}",
-            arch="sm_90"
-        )
+
+        options = ProgramOptions(name=f"existing_bitcode_{bitcode_file.stem}", arch="sm_90")
         program = Program(bitcode_data, "nvvm", options)
-        
+
         assert program.backend == "NVVM"
         ptx_result = program.compile("ptx")
         assert isinstance(ptx_result, ObjectCode)
@@ -572,12 +571,11 @@ def test_bitcode_format():
     except Exception as e:
         pytest.fail(f"Failed to compile existing bitcode file {bitcode_path}: {str(e)}")
 
-       
+
 def test_cpp_program_with_extra_sources():
-    #negative test with NVRTC with multiple sources
+    # negative test with NVRTC with multiple sources
     code = 'extern "C" __global__ void my_kernel(){}'
     helper = 'extern "C" __global__ void helper(){}'
-    options = ProgramOptions(extra_sources = helper)
+    options = ProgramOptions(extra_sources=helper)
     with pytest.raises(ValueError, match="extra_sources is not supported by the NVRTC backend"):
         Program(code, "c++", options)
-    
