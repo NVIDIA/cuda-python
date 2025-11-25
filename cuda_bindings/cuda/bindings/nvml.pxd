@@ -125,10 +125,6 @@ ctypedef nvmlPowerProfileType_t _PowerProfileType
 ctypedef nvmlDeviceAddressingModeType_t _DeviceAddressingModeType
 
 
-
-
-
-
 ###############################################################################
 # Functions
 ###############################################################################
@@ -144,7 +140,7 @@ cpdef int system_get_cuda_driver_version_v2() except 0
 cpdef str system_get_process_name(unsigned int pid)
 cpdef object system_get_hic_version()
 cpdef unsigned int unit_get_count() except? 0
-cpdef intptr_t unit_get_handle_by_ind_ex(unsigned int ind_ex) except? 0
+cpdef intptr_t unit_get_handle_by_index(unsigned int ind_ex) except? 0
 cpdef object unit_get_unit_info(intptr_t unit)
 cpdef object unit_get_led_state(intptr_t unit)
 cpdef object unit_get_psu_info(intptr_t unit)
@@ -406,7 +402,7 @@ cpdef object vgpu_instance_get_accounting_stats(unsigned int vgpu_instance, unsi
 cpdef vgpu_instance_clear_accounting_pids(unsigned int vgpu_instance)
 cpdef object vgpu_instance_get_license_info_v2(unsigned int vgpu_instance)
 cpdef unsigned int get_excluded_device_count() except? 0
-cpdef object get_excluded_device_info_by_ind_ex(unsigned int ind_ex)
+cpdef object get_excluded_device_info_by_index(unsigned int ind_ex)
 cpdef int device_set_mig_mode(intptr_t device, unsigned int mode) except? -1
 cpdef tuple device_get_mig_mode(intptr_t device)
 cpdef object device_get_gpu_instance_profile_info_v(intptr_t device, unsigned int profile)
@@ -429,7 +425,7 @@ cpdef unsigned int device_is_mig_device_handle(intptr_t device) except? 0
 cpdef unsigned int device_get_gpu_instance_id(intptr_t device) except? 0
 cpdef unsigned int device_get_compute_instance_id(intptr_t device) except? 0
 cpdef unsigned int device_get_max_mig_device_count(intptr_t device) except? 0
-cpdef intptr_t device_get_mig_device_handle_by_ind_ex(intptr_t device, unsigned int ind_ex) except? 0
+cpdef intptr_t device_get_mig_device_handle_by_index(intptr_t device, unsigned int ind_ex) except? 0
 cpdef intptr_t device_get_device_handle_from_mig_device_handle(intptr_t mig_device) except? 0
 cpdef gpm_sample_get(intptr_t device, intptr_t gpm_sample)
 cpdef gpm_mig_sample_get(intptr_t device, unsigned int gpu_instance_id, intptr_t gpm_sample)

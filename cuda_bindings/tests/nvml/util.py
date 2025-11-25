@@ -29,7 +29,7 @@ def is_vgpu(device):
 def supports_ecc(device):
     try:
         (cur_ecc, pend_ecc) = nvml.device_get_ecc_mode(device)
-        return cur_ecc != nvml.Feature.FEATURE_DISABLED
+        return cur_ecc != nvml.EnableState.FEATURE_DISABLED
     except nvml.NotSupportedError as e:
         return False
 

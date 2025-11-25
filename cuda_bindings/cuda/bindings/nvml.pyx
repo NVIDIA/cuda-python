@@ -1124,6 +1124,9 @@ class FI(_IntEnum):
     MAX =                                             274 # One greater than the largest field ID defined above
 
 
+NVLINK_MAX_LINKS = 18
+
+
 ###############################################################################
 # Error handling
 ###############################################################################
@@ -18219,7 +18222,7 @@ cpdef unsigned int unit_get_count() except? 0:
     return unit_count
 
 
-cpdef intptr_t unit_get_handle_by_ind_ex(unsigned int ind_ex) except? 0:
+cpdef intptr_t unit_get_handle_by_index(unsigned int ind_ex) except? 0:
     """Acquire the handle for a particular unit, based on its ind_ex.
 
     Args:
@@ -22972,7 +22975,7 @@ cpdef unsigned int get_excluded_device_count() except? 0:
     return device_count
 
 
-cpdef object get_excluded_device_info_by_ind_ex(unsigned int ind_ex) :
+cpdef object get_excluded_device_info_by_index(unsigned int ind_ex) :
     """Acquire the device information for an excluded GPU device, based on its ind_ex.
 
     Args:
@@ -23411,7 +23414,7 @@ cpdef unsigned int device_get_max_mig_device_count(intptr_t device) except? 0:
     return count
 
 
-cpdef intptr_t device_get_mig_device_handle_by_ind_ex(intptr_t device, unsigned int ind_ex) except? 0:
+cpdef intptr_t device_get_mig_device_handle_by_index(intptr_t device, unsigned int ind_ex) except? 0:
     """Get MIG device handle for the given ind_ex under its parent NVML device.
 
     Args:
@@ -23901,7 +23904,7 @@ cpdef object device_get_running_process_detail_list(intptr_t device, unsigned in
     """
 
     cdef ProcessDetailList_v1 plist = ProcessDetailList_v1()
-    cdef nvmlProcessDetailList_v1_t *ptr = <nvmlProcessDetailList_v1_t *>plist.ptr
+    cdef nvmlProcessDetailList_v1_t *ptr = <nvmlProcessDetailList_v1_t *>plist._get_ptr()
 
     # Get size of array
     with nogil:
@@ -23939,7 +23942,7 @@ cpdef object device_get_samples(intptr_t device, int type, unsigned long long la
         __status__ = nvmlDeviceGetSamples(<Device>device, <_SamplingType>type, last_seen_time_stamp, <_ValueType*>sample_val_type, <unsigned int*>sample_count, NULL)
     check_status_size(__status__)
     cdef Sample samples = Sample(sample_count[0])
-    cdef nvmlSample_t *samples_ptr = <nvmlSample_t *>samples.ptr
+    cdef nvmlSample_t *samples_ptr = <nvmlSample_t *>samples._get_ptr()
     if sample_count[0] == 0:
         return samples
     with nogil:
@@ -23988,7 +23991,7 @@ cpdef object device_get_processes_utilization_info(intptr_t device, unsigned lon
         ProcessesUtilizationInfo_v1: The processes utilization information structure.
     """
     cdef ProcessesUtilizationInfo_v1 procesesUtilInfo = ProcessesUtilizationInfo_v1()
-    cdef nvmlProcessesUtilizationInfo_t *ptr = <nvmlProcessesUtilizationInfo_v1_t *>procesesUtilInfo.ptr
+    cdef nvmlProcessesUtilizationInfo_t *ptr = <nvmlProcessesUtilizationInfo_v1_t *>procesesUtilInfo._get_ptr()
 
     # Get size of array
     with nogil:
@@ -24051,6 +24054,22 @@ cpdef str device_get_hostname_v1(intptr_t device):
     return cpython.PyUnicode_FromString(hostname.value)
 
 
+cdef FieldValue _cast_field_values(values):
+    cdef FieldValue values_
+    cdef unsigned int valuesCount = len(values)
+    if isinstance(values, FieldValue):
+        values_ = values
+    else:
+        values_ = FieldValue(valuesCount)
+        for i, v in enumerate(values):
+            if isinstance(v, tuple):
+                values_[i].field_id = v[0]
+                values_[i].scope_id = v[1]
+            else:
+                values_[i].field_id = v
+    return values_
+
+
 cpdef object device_get_field_values(intptr_t device, values):
     """Request values for a list of fields for a device. This API allows multiple fields to be queried at once. If any of the underlying fieldIds are populated by the same driver call, the results for those field IDs will be populated from a single call rather than making a driver call for each fieldId.
 
@@ -24060,16 +24079,17 @@ cpdef object device_get_field_values(intptr_t device, values):
 
     .. seealso:: `nvmlDeviceGetFieldValues`
     """
-    cdef nvmlFieldValue_t *ptr = <nvmlFieldValue_t *>values.ptr
+    cdef FieldValue values_ = _cast_field_values(values)
+    cdef nvmlFieldValue_t *ptr = <nvmlFieldValue_t *>values_._get_ptr()
     cdef unsigned int valuesCount = len(values)
     with nogil:
         __status__ = nvmlDeviceGetFieldValues(<Device>device, valuesCount, ptr)
     check_status(__status__)
 
-    return values
+    return values_
 
 
-cpdef object device_clear_field_values(intptr_t device, FieldValue values):
+cpdef object device_clear_field_values(intptr_t device, values):
     """Clear values for a list of fields for a device. This API allows multiple fields to be cleared at once.
 
     Args:
@@ -24077,7 +24097,8 @@ cpdef object device_clear_field_values(intptr_t device, FieldValue values):
         values (FieldValue): FieldValue instance to hold field values. Each value's fieldId must be populated
             prior to this call
     """
-    cdef nvmlFieldValue_t *ptr = <nvmlFieldValue_t *>values.ptr
+    cdef FieldValue values_ = _cast_field_values(values)
+    cdef nvmlFieldValue_t *ptr = <nvmlFieldValue_t *>values_._get_ptr()
     cdef unsigned int valuesCount = len(values)
 
     with nogil:
@@ -24180,7 +24201,7 @@ cpdef object gpu_instance_get_creatable_vgpus(intptr_t gpu_instance):
     """
 
     cdef VgpuTypeIdInfo_v1 pVgpus = VgpuTypeIdInfo_v1()
-    cdef nvmlVgpuTypeIdInfo_v1_t *ptr = <nvmlVgpuTypeIdInfo_v1_t *>pVgpus.ptr
+    cdef nvmlVgpuTypeIdInfo_v1_t *ptr = <nvmlVgpuTypeIdInfo_v1_t *>pVgpus._get_ptr()
 
     # Get size of array
     with nogil:
@@ -24213,7 +24234,7 @@ cpdef object gpu_instance_get_active_vgpus(intptr_t gpu_instance):
         ActiveVgpuInstanceInfo: The vGPU instance ID information structure.
     """
     cdef ActiveVgpuInstanceInfo_v1 activeVgpuInfo = ActiveVgpuInstanceInfo_v1()
-    cdef nvmlActiveVgpuInstanceInfo_v1_t *ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>activeVgpuInfo.ptr
+    cdef nvmlActiveVgpuInstanceInfo_v1_t *ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>activeVgpuInfo._get_ptr()
 
     with nogil:
         ptr.version = sizeof(nvmlActiveVgpuInstanceInfo_v1_t) | (1 << 24)
@@ -24247,7 +24268,7 @@ cpdef object gpu_instance_get_vgpu_type_creatable_placements(intptr_t gpu_instan
     """
 
     cdef VgpuCreatablePlacementInfo_v1 pCreatablePlacementInfo = VgpuCreatablePlacementInfo_v1()
-    cdef nvmlVgpuCreatablePlacementInfo_v1_t *ptr = <nvmlVgpuCreatablePlacementInfo_v1_t *>pCreatablePlacementInfo.ptr
+    cdef nvmlVgpuCreatablePlacementInfo_v1_t *ptr = <nvmlVgpuCreatablePlacementInfo_v1_t *>pCreatablePlacementInfo._get_ptr()
 
     # Get size of array
     with nogil:
@@ -24283,7 +24304,7 @@ cpdef object device_get_vgpu_type_creatable_placements(intptr_t device, unsigned
     """
 
     cdef VgpuPlacementList_v2 pPlacementList = VgpuPlacementList_v2()
-    cdef nvmlVgpuPlacementList_v2_t *ptr = <nvmlVgpuPlacementList_v2_t *>pPlacementList.ptr
+    cdef nvmlVgpuPlacementList_v2_t *ptr = <nvmlVgpuPlacementList_v2_t *>pPlacementList._get_ptr()
 
     # Get size of array
     with nogil:
@@ -24320,7 +24341,7 @@ cpdef object vgpu_instance_get_metadata(unsigned int vgpu_instance):
     """
     cdef VgpuMetadata vgpuMetadata = VgpuMetadata()
     cdef unsigned int[1] bufferSize = [sizeof(nvmlVgpuMetadata_t)]
-    cdef nvmlVgpuMetadata_t *ptr = <nvmlVgpuMetadata_t *>vgpuMetadata.ptr
+    cdef nvmlVgpuMetadata_t *ptr = <nvmlVgpuMetadata_t *>vgpuMetadata._get_ptr()
 
     with nogil:
         __status__ = nvmlVgpuInstanceGetMetadata(<nvmlVgpuInstance_t>vgpu_instance, ptr, bufferSize)
@@ -24342,7 +24363,7 @@ cpdef object device_get_vgpu_metadata(intptr_t device):
     """
     cdef VgpuPgpuMetadata pgpuMetadata = VgpuPgpuMetadata()
     cdef unsigned int[1] bufferSize = [sizeof(nvmlVgpuPgpuMetadata_t)]
-    cdef nvmlVgpuPgpuMetadata_t *ptr = <nvmlVgpuPgpuMetadata_t *>pgpuMetadata.ptr
+    cdef nvmlVgpuPgpuMetadata_t *ptr = <nvmlVgpuPgpuMetadata_t *>pgpuMetadata._get_ptr()
 
     with nogil:
         __status__ = nvmlDeviceGetVgpuMetadata(<Device>device, ptr, bufferSize)
@@ -24364,9 +24385,9 @@ cpdef object get_vgpu_compatibility(VgpuMetadata vgpu_metadata, VgpuPgpuMetadata
         VgpuPgpuCompatibility: Compatibility information.
     """
     cdef VgpuPgpuCompatibility compatibilityInfo = VgpuPgpuCompatibility()
-    cdef nvmlVgpuPgpuCompatibility_t *ptr = <nvmlVgpuPgpuCompatibility_t *>compatibilityInfo.ptr
-    cdef nvmlVgpuMetadata_t *vgpu_metadata_ptr = <nvmlVgpuMetadata_t *>vgpu_metadata.ptr
-    cdef nvmlVgpuPgpuMetadata_t *pgpu_metadata_ptr = <nvmlVgpuPgpuMetadata_t *>pgpu_metadata.ptr
+    cdef nvmlVgpuPgpuCompatibility_t *ptr = <nvmlVgpuPgpuCompatibility_t *>compatibilityInfo._get_ptr()
+    cdef nvmlVgpuMetadata_t *vgpu_metadata_ptr = <nvmlVgpuMetadata_t *>vgpu_metadata._get_ptr()
+    cdef nvmlVgpuPgpuMetadata_t *pgpu_metadata_ptr = <nvmlVgpuPgpuMetadata_t *>pgpu_metadata._get_ptr()
 
     with nogil:
         __status__ = nvmlGetVgpuCompatibility(vgpu_metadata_ptr, pgpu_metadata_ptr, ptr)
@@ -24382,9 +24403,9 @@ cpdef tuple get_vgpu_version():
         tuple: A tuple of (VgpuVersion supported, VgpuVersion current).
     """
     cdef VgpuVersion supported = VgpuVersion()
-    cdef nvmlVgpuVersion_t *supported_ptr = <nvmlVgpuVersion_t *>supported.ptr
+    cdef nvmlVgpuVersion_t *supported_ptr = <nvmlVgpuVersion_t *>supported._get_ptr()
     cdef VgpuVersion current = VgpuVersion()
-    cdef nvmlVgpuVersion_t *current_ptr = <nvmlVgpuVersion_t *>current.ptr
+    cdef nvmlVgpuVersion_t *current_ptr = <nvmlVgpuVersion_t *>current._get_ptr()
 
     with nogil:
         __status__ = nvmlGetVgpuVersion(supported_ptr, current_ptr)
@@ -24404,7 +24425,7 @@ cpdef object device_get_vgpu_instances_utilization_info(intptr_t device):
         VgpuInstancesUtilizationInfo_v1: The vGPU instances utilization information structure.
     """
     cdef VgpuInstancesUtilizationInfo_v1 vgpuUtilInfo = VgpuInstancesUtilizationInfo_v1()
-    cdef nvmlVgpuInstancesUtilizationInfo_v1_t *ptr = <nvmlVgpuInstancesUtilizationInfo_t *>vgpuUtilInfo.ptr
+    cdef nvmlVgpuInstancesUtilizationInfo_v1_t *ptr = <nvmlVgpuInstancesUtilizationInfo_t *>vgpuUtilInfo._get_ptr()
 
     with nogil:
         ptr.version = sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t) | (1 << 24)
@@ -24437,7 +24458,7 @@ cpdef object device_get_vgpu_processes_utilization_info(intptr_t device, unsigne
         VgpuProcessesUtilizationInfo: The vGPU processes utilization information structure.
     """
     cdef VgpuProcessesUtilizationInfo_v1 vgpuProcUtilInfo = VgpuProcessesUtilizationInfo_v1()
-    cdef nvmlVgpuProcessesUtilizationInfo_v1_t *ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>vgpuProcUtilInfo.ptr
+    cdef nvmlVgpuProcessesUtilizationInfo_v1_t *ptr = <nvmlVgpuProcessesUtilizationInfo_v1_t *>vgpuProcUtilInfo._get_ptr()
 
     with nogil:
         ptr.version = sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t) | (1 << 24)
@@ -24523,7 +24544,7 @@ cpdef object device_get_sram_unique_uncorrected_ecc_error_counts(intptr_t device
     """
 
     cdef EccSramUniqueUncorrectedErrorCounts_v1 errorCounts = EccSramUniqueUncorrectedErrorCounts_v1()
-    cdef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>errorCounts.ptr
+    cdef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>errorCounts._get_ptr()
 
     with nogil:
         ptr.version = sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t) | (1 << 24)
