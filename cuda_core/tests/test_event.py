@@ -27,7 +27,7 @@ def test_event_elapsed_time_basic(init_cuda):
 
     # Create a nanosleep kernel that sleeps for 20 ms to ensure a measurable delay
     # This guarantees delta_ms > 10 without depending on OS/driver timing characteristics
-    nanosleep = NanosleepKernel(device, sleep_duration_seconds=0.020)
+    nanosleep = NanosleepKernel(device, sleep_duration_ms=20)
 
     e1 = stream.record(options=options)
     # Launch the nanosleep kernel to introduce a guaranteed delay
