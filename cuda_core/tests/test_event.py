@@ -42,8 +42,7 @@ def test_event_elapsed_time_basic(init_cuda):
         }}
     }}
     """
-    arch = "".join(f"{i}" for i in device.compute_capability)
-    program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
+    program_options = ProgramOptions(std="c++17", arch=f"sm_{device.arch}")
     prog = Program(code, code_type="c++", options=program_options)
     mod = prog.compile("cubin")
     kernel = mod.get_kernel("nanosleep_kernel")
