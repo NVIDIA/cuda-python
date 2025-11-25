@@ -21,30 +21,29 @@ def test_event_init_disabled():
 
 
 def test_timing_success(init_cuda):
-    device = Device()
     options = EventOptions(enable_timing=True)
+    device = Device()
     stream = device.create_stream()
 
-    # Create a nanosleep kernel that sleeps for 20 ms to ensure a measurable delay
-    # This guarantees delta_ms > 10 without depending on OS/driver timing characteristics
+    # Create a nanosleep kernel that sleeps for 20 ms to ensure a measurable delay.
+    # This guarantees elapsed_time_ms > 10 without depending on OS/driver timing characteristics.
     nanosleep = NanosleepKernel(device, sleep_duration_ms=20)
 
     e1 = stream.record(options=options)
     nanosleep.launch(stream)  # Insert a guaranteed delay
     e2 = stream.record(options=options)
     e2.sync()
-    delta_ms = e2 - e1
-    assert isinstance(delta_ms, float)
+    elapsed_time_ms = e2 - e1
+    assert isinstance(elapsed_time_ms, float)
     # Sanity check: cuEventElapsedTime should always return a finite float for two completed
     # events. This guards against unexpected driver/HW anomalies (e.g. NaN or inf) or general
     # undefined behavior, without asserting anything about the magnitude of the measured time.
-    assert math.isfinite(delta_ms)
-    # With the nanosleep kernel between events, we can assert a positive elapsed time.
-    # The kernel sleeps for 20 ms using clock64(), so delta_ms should be at least ~10 ms.
-    # Using a 10 ms threshold (half the sleep duration) provides a large safety margin above
-    # the ~0.5 microsecond resolution of cudaEventElapsedTime, making this test deterministic
-    # and non-flaky.
-    assert delta_ms > 10
+    assert math.isfinite(elapsed_time_ms)
+    # With the nanosleep kernel between events, the kernel sleeps for 20 ms using clock64(),
+    # so elapsed_time_ms should definitely be larger than 10 ms. This provides a large safety
+    # margin above the ~0.5 microsecond resolution of cudaEventElapsedTime(), which should
+    # make this test deterministic and non-flaky.
+    assert elapsed_time_ms > 10
 
 
 def test_is_sync_busy_waited(init_cuda):
