@@ -135,9 +135,10 @@ cdef class StridedLayout:
         """
         cdef OrderFlag order_flag
         cdef axis_vec_t stride_order_vec
+        cdef bint is_dense = other.get_is_dense()
 
         if stride_order == "K":
-            if other.get_is_dense():
+            if is_dense:
                 return other
             other.get_stride_order(stride_order_vec)
             order_flag = ORDER_PERM
@@ -149,10 +150,10 @@ cdef class StridedLayout:
                     f"or a permutation tuple. Got: {stride_order}"
                 )
             elif order_flag == ORDER_C:
-                if other.get_is_contiguous_c():
+                if is_dense and other.get_is_contiguous_c():
                     return other
             elif order_flag == ORDER_F:
-                if other.get_is_contiguous_f():
+                if is_dense and other.get_is_contiguous_f():
                     return other
 
         cdef StridedLayout new_layout = StridedLayout.__new__(cls)
@@ -928,11 +929,12 @@ cdef inline int validate_reshaped_shape(BaseLayout& new_shape, int64_t old_volum
             else:
                 raise ValueError("There can be at most one -1 extent in a shape")
     cdef int64_t new_volume = _c_abs(_volume(new_shape))
-    if new_volume == 0 and axis != -1:
-        raise ValueError("The -1 extent is ambiguous when the volume is 0")
-    if new_volume != old_volume:
-        if axis == -1:
+    if axis == -1:
+        if new_volume != old_volume:
             raise ValueError(f"The original volume {old_volume} and the new volume {new_volume} must be equal.")
+    else:
+        if new_volume == 0:
+            raise ValueError("The -1 extent is ambiguous when the specified sub-volume is 0")
         extent = old_volume // new_volume
         if extent * new_volume != old_volume:
             raise ValueError(f"The original volume {old_volume} must be divisible by the specified sub-volume {new_volume}.")
@@ -957,6 +959,11 @@ cdef inline axes_mask_t axis_mask_from_range(int ndim, int start_axis, int end_a
 
 cdef inline int flatten_strides_in_c_index_order(BaseLayout& out_layout, BaseLayout& in_layout, axes_mask_t axis_mask) except -1 nogil:
     cdef int ndim = in_layout.ndim
+    if ndim == 0:
+        init_base_layout(out_layout, 1)
+        out_layout.shape[0] = 1
+        out_layout.strides[0] = 1
+        return 1
     init_base_layout(out_layout, ndim)
     cdef int group_start = 0
     cdef int group_end = 0
@@ -1021,16 +1028,19 @@ cdef inline bint split_strides_in_c_index_order(BaseLayout& out_layout, BaseLayo
         _zero_strides(out_layout)
     while i >= 0:
         extent = in_shape[i]
-        group_vol = 1
         group_stride = in_strides[i]
-        while new_i >= 0 and group_vol < extent:
+        group_vol = 1
+        while new_i >= 0:
             new_extent = out_layout.shape[new_i]
             if new_extent == 0:
                 return False
-            group_vol = _overflow_checked_mul(group_vol, new_extent)
-            out_layout.strides[new_i] = group_stride
-            group_stride = _overflow_checked_mul(group_stride, new_extent)
-            new_i -= 1
+            if new_extent == 1 or group_vol < extent:
+                out_layout.strides[new_i] = group_stride
+                group_stride = _overflow_checked_mul(group_stride, new_extent)
+                group_vol = _overflow_checked_mul(group_vol, new_extent)
+                new_i -= 1
+            else:
+                break
         if group_vol != extent:
             return False
         i -= 1
