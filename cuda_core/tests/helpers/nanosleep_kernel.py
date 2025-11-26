@@ -14,7 +14,7 @@ class NanosleepKernel:
     Manages a kernel that sleeps for a specified duration using clock64().
     """
 
-    def __init__(self, device, sleep_duration_ms=20):
+    def __init__(self, device, sleep_duration_ms: int = 20):
         """
         Initialize the nanosleep kernel.
 
@@ -22,14 +22,13 @@ class NanosleepKernel:
             device: CUDA device to compile the kernel for
             sleep_duration_ms: Duration to sleep in milliseconds (default: 20)
         """
-        # clock_rate is in kHz
-        sleep_cycles = int(sleep_duration_ms * device.properties.clock_rate) + 1
         code = f"""
         extern "C"
         __global__ void nanosleep_kernel() {{
-            long long int start = clock64();
-            while (clock64() - start < {sleep_cycles}) {{
-                __nanosleep(1000000); // 1 ms yield to avoid 100% spin
+            // The maximum sleep duration is approximately 1 millisecond.
+            unsigned int one_ms = 1000000U;
+            for (unsigned int i = 0; i < {sleep_duration_ms}; ++i) {{
+                __nanosleep(one_ms);
             }}
         }}
         """
