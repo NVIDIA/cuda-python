@@ -4,7 +4,7 @@
 
 cimport cpython
 from cpython.object cimport PyObject
-from libc.stdint cimport int64_t
+from libc.stdint cimport int64_t, int32_t
 
 from cuda.bindings cimport cydriver
 
@@ -15,7 +15,7 @@ ctypedef fused supported_error_type:
 
 ctypedef fused integer_t:
     int64_t
-    int
+    int32_t
 
 
 # mimic CU_DEVICE_INVALID
