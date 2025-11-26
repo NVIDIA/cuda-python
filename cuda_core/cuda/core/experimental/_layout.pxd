@@ -5,12 +5,12 @@
 cimport cython
 from cython.operator cimport dereference as deref
 
-from libc.stdint cimport int64_t, uint32_t, uintptr_t
+from libc.stdint cimport int64_t, int32_t, uint32_t, uintptr_t
 from libcpp cimport vector
 
 ctypedef int64_t extent_t
 ctypedef int64_t stride_t
-ctypedef int axis_t
+ctypedef int32_t axis_t
 
 ctypedef uint32_t axes_mask_t  # MUST be exactly STRIDED_LAYOUT_MAX_NDIM bits wide
 ctypedef uint32_t property_mask_t
@@ -23,7 +23,7 @@ from cuda.core.experimental._utils cimport cuda_utils
 
 ctypedef fused integer_t:
     int64_t
-    int
+    int32_t
 
 
 cdef extern from "include/layout.hpp":
