@@ -15,7 +15,6 @@ import numpy
 from cuda.core.experimental._utils.cuda_utils import handle_return, driver
 
 
-from cuda.core.experimental._dlpack import make_py_capsule
 from cuda.core.experimental._memory import Buffer
 
 # TODO(leofang): support NumPy structured dtypes
@@ -291,44 +290,6 @@ cdef class StridedMemoryView:
               + f"                  readonly={self.readonly},\n"
               + f"                  exporting_obj={get_simple_repr(self.exporting_obj)})")
 
-    def __dlpack__(
-        self,
-        *,
-        stream: int | None = None,
-        max_version: tuple[int, int] | None = None,
-        dl_device: tuple[int, int] | None = None,
-        copy: bool | None = None,
-    ) -> PyCapsule:
-        # Note: we ignore the stream argument entirely (as if it is -1).
-        # It is the user's responsibility to maintain stream order.
-        if dl_device is not None:
-            raise BufferError("Sorry, not supported: dl_device other than None")
-        if copy is True:
-            raise BufferError("Sorry, not supported: copy=True")
-        if max_version is None:
-            versioned = False
-        else:
-            if not isinstance(max_version, tuple) or len(max_version) != 2:
-                raise BufferError(f"Expected max_version tuple[int, int], got {max_version}")
-            versioned = max_version >= (1, 0)
-        cdef object dtype = self.get_dtype()
-        if dtype is None:
-            raise ValueError(
-                "Cannot export the StridedMemoryView without a dtype. "
-                "You can create a dtyped view calling view(dtype=...) method."
-            )
-        capsule = make_py_capsule(
-            self.get_buffer(),
-            versioned,
-            self.ptr,
-            self.get_layout(),
-            _numpy2dlpack_dtype[dtype],
-        )
-        return capsule
-
-    def __dlpack_device__(self) -> tuple[int, int]:
-        return self.get_buffer().__dlpack_device__()
-
     cdef inline StridedLayout get_layout(self):
         if self._layout is None:
             if self.dl_tensor:
@@ -478,24 +439,25 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     return buf
 
 
-_numpy2dlpack_dtype = {
-    numpy.dtype("uint8"): (<uint8_t>kDLUInt, 8, 1),
-    numpy.dtype("uint16"): (<uint8_t>kDLUInt, 16, 1),
-    numpy.dtype("uint32"): (<uint8_t>kDLUInt, 32, 1),
-    numpy.dtype("uint64"): (<uint8_t>kDLUInt, 64, 1),
-    numpy.dtype("int8"): (<uint8_t>kDLInt, 8, 1),
-    numpy.dtype("int16"): (<uint8_t>kDLInt, 16, 1),
-    numpy.dtype("int32"): (<uint8_t>kDLInt, 32, 1),
-    numpy.dtype("int64"): (<uint8_t>kDLInt, 64, 1),
-    numpy.dtype("float16"): (<uint8_t>kDLFloat, 16, 1),
-    numpy.dtype("float32"): (<uint8_t>kDLFloat, 32, 1),
-    numpy.dtype("float64"): (<uint8_t>kDLFloat, 64, 1),
-    numpy.dtype("complex64"): (<uint8_t>kDLComplex, 64, 1),
-    numpy.dtype("complex128"): (<uint8_t>kDLComplex, 128, 1),
-    numpy.dtype("bool"): (<uint8_t>kDLBool, 8, 1),
-}
-_typestr2dtype = {dtype.str: dtype for dtype in _numpy2dlpack_dtype.keys()}
-_typestr2itemsize = {dtype.str: dtype.itemsize for dtype in _numpy2dlpack_dtype.keys()}
+_builtin_numeric_dtypes = [
+    numpy.dtype("uint8"),
+    numpy.dtype("uint16"),
+    numpy.dtype("uint32"),
+    numpy.dtype("uint64"),
+    numpy.dtype("int8"),
+    numpy.dtype("int16"),
+    numpy.dtype("int32"),
+    numpy.dtype("int64"),
+    numpy.dtype("float16"),
+    numpy.dtype("float32"),
+    numpy.dtype("float64"),
+    numpy.dtype("complex64"),
+    numpy.dtype("complex128"),
+    numpy.dtype("bool"),
+]
+# Doing it once to avoid repeated overhead
+_typestr2dtype = {dtype.str: dtype for dtype in _builtin_numeric_dtypes}
+_typestr2itemsize = {dtype.str: dtype.itemsize for dtype in _builtin_numeric_dtypes}
 
 
 cdef object dtype_dlpack_to_numpy(DLDataType* dtype):
