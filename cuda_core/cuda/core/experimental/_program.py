@@ -479,11 +479,11 @@ class Program:
         if code_type == "c++":
             assert_type(code, str)
             # TODO: support pre-loaded headers & include names
-            # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
-
+            
             if options.extra_sources is not None:
                 raise ValueError("extra_sources is not supported by the NVRTC backend (C++ code_type)")
 
+            # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), options._name, 0, [], []))
             self._mnff.backend = "NVRTC"
             self._backend = "NVRTC"
