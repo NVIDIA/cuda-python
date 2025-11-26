@@ -203,7 +203,7 @@ cdef class Buffer:
             if not isinstance(max_version, tuple) or len(max_version) != 2:
                 raise BufferError(f"Expected max_version tuple[int, int], got {max_version}")
             versioned = max_version >= (1, 0)
-        capsule = make_py_capsule(self, versioned, int(self.handle))
+        capsule = make_py_capsule(self, versioned)
         return capsule
 
     def __dlpack_device__(self) -> tuple[int, int]:
