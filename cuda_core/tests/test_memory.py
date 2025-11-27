@@ -278,6 +278,19 @@ def test_buffer_dunder_dlpack_device_failure():
         buffer.__dlpack_device__()
 
 
+def test_buffer_dlpack_failure_clean_up():
+    dummy_mr = NullMemoryResource()
+    buffer = dummy_mr.allocate(size=1024)
+    before = sys.getrefcount(buffer)
+    with pytest.raises(BufferError, match="invalid buffer"):
+        buffer.__dlpack__()
+    after = sys.getrefcount(buffer)
+    # we use the buffer refcount as sentinel for proper clean-up here,
+    # hoping that malloc and frees did the right thing
+    # as they are handled by the same deleter
+    assert after == before
+
+
 @pytest.mark.parametrize("use_device_object", [True, False])
 def test_device_memory_resource_initialization(use_device_object):
     """Test that DeviceMemoryResource can be initialized successfully.
