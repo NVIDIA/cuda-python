@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import math
+
 try:
     import cupy as cp
 except ImportError:
@@ -15,7 +17,7 @@ import numpy as np
 import pytest
 from cuda.core.experimental import Device
 from cuda.core.experimental._memoryview import view_as_cai
-from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
+from cuda.core.experimental.utils import StridedLayout, StridedMemoryView, args_viewable_as_strided_memory
 
 
 def test_cast_to_3_tuple_success():
@@ -195,3 +197,113 @@ class TestViewCudaArrayInterfaceGPU:
         assert view.device_id == dev.device_id
         assert view.is_device_accessible is True
         assert view.exporting_obj is in_arr
+
+
+def _dense_strides(shape, stride_order):
+    ndim = len(shape)
+    strides = [None] * ndim
+    if ndim > 0:
+        if stride_order == "C":
+            strides[-1] = 1
+            for i in range(ndim - 2, -1, -1):
+                strides[i] = strides[i + 1] * shape[i + 1]
+        else:
+            assert stride_order == "F"
+            strides[0] = 1
+            for i in range(1, ndim):
+                strides[i] = strides[i - 1] * shape[i - 1]
+    return tuple(strides)
+
+
+@pytest.mark.parametrize("shape", [tuple(), (2, 3), (10, 10), (10, 13, 11)])
+@pytest.mark.parametrize("itemsize", [1, 4])
+@pytest.mark.parametrize("stride_order", ["C", "F"])
+@pytest.mark.parametrize("readonly", [True, False])
+def test_from_buffer(shape, itemsize, stride_order, readonly):
+    dev = Device()
+    dev.set_current()
+    layout = StridedLayout.dense(shape=shape, itemsize=itemsize, stride_order=stride_order)
+    required_size = layout.required_size_in_bytes()
+    assert required_size == math.prod(shape) * itemsize
+    buffer = dev.memory_resource.allocate(required_size)
+    view = StridedMemoryView.from_buffer(buffer, layout, is_readonly=readonly)
+    assert view.exporting_obj is buffer
+    assert view.layout is layout
+    assert view.ptr == int(buffer.handle)
+    assert view.shape == shape
+    assert view.strides == _dense_strides(shape, stride_order)
+    assert view.dtype is None
+    assert view.device_id == dev.device_id
+    assert view.is_device_accessible
+    assert view.readonly == readonly
+
+
+@pytest.mark.parametrize("stride_order", ["C", "F"])
+def test_from_buffer_sliced(stride_order):
+    layout = StridedLayout.dense((5, 7), 2, stride_order=stride_order)
+    device = Device()
+    device.set_current()
+    buffer = device.memory_resource.allocate(layout.required_size_in_bytes())
+    view = StridedMemoryView.from_buffer(buffer, layout)
+    assert view.shape == (5, 7)
+
+    sliced_view = view.view(layout[:-2, 3:])
+    assert sliced_view.shape == (3, 4)
+    expected_offset = 3 if stride_order == "C" else 3 * 5
+    assert sliced_view.layout.slice_offset == expected_offset
+    assert sliced_view.layout.slice_offset_in_bytes == expected_offset * 2
+    assert sliced_view.ptr == view.ptr + expected_offset * 2
+
+
+def test_from_buffer_too_small():
+    layout = StridedLayout.dense((5, 4), 2)
+    d = Device()
+    d.set_current()
+    buffer = d.memory_resource.allocate(20)
+    with pytest.raises(ValueError, match="Expected at least 40 bytes, got 20 bytes."):
+        StridedMemoryView.from_buffer(buffer, layout)
+
+
+def test_from_buffer_disallowed_negative_offset():
+    layout = StridedLayout((5, 4), (-4, 1), 1)
+    d = Device()
+    d.set_current()
+    buffer = d.memory_resource.allocate(20)
+    with pytest.raises(ValueError, match="please use StridedLayout.to_dense()."):
+        StridedMemoryView.from_buffer(buffer, layout)
+
+
+@pytest.mark.parametrize(
+    ("shape", "slices", "stride_order"),
+    [
+        (shape, slices, stride_order)
+        for shape, slices in [
+            ((5, 6), (2, slice(1, -1))),
+            ((10, 13, 11), (slice(None, None, 2), slice(None, None, -1), slice(2, -3))),
+        ]
+        for stride_order in ["C", "F"]
+    ],
+)
+def test_from_buffer_sliced_external(shape, slices, stride_order):
+    if np is None:
+        pytest.skip("NumPy is not installed")
+    a = np.arange(math.prod(shape), dtype=np.int32).reshape(shape, order=stride_order)
+    view = StridedMemoryView(a, -1)
+    layout = view.layout
+    assert layout.is_dense
+    assert layout.required_size_in_bytes() == a.nbytes
+    assert view.ptr == a.ctypes.data
+
+    sliced_layout = layout[slices]
+    sliced_view = view.view(sliced_layout)
+    a_sliced = a[slices]
+    assert sliced_view.ptr == a_sliced.ctypes.data
+    assert sliced_view.ptr != view.ptr
+
+    assert 0 <= sliced_layout.required_size_in_bytes() <= a.nbytes
+    assert not sliced_layout.is_dense
+    assert sliced_view.layout is sliced_layout
+    assert view.dtype == sliced_view.dtype
+    assert sliced_view.layout.itemsize == a_sliced.itemsize == layout.itemsize
+    assert sliced_view.shape == a_sliced.shape
+    assert sliced_view.layout.strides_in_bytes == a_sliced.strides
