@@ -5,14 +5,14 @@
 cimport cython
 from cython.operator cimport dereference as deref
 
-from libc.stdint cimport int64_t, int32_t, uint32_t, uintptr_t
+from libc.stdint cimport int64_t, int32_t, uint32_t, uint64_t, uintptr_t
 from libcpp cimport vector
 
 ctypedef int64_t extent_t
 ctypedef int64_t stride_t
 ctypedef int32_t axis_t
 
-ctypedef uint32_t axes_mask_t  # MUST be exactly STRIDED_LAYOUT_MAX_NDIM bits wide
+ctypedef uint64_t axes_mask_t  # MUST be exactly STRIDED_LAYOUT_MAX_NDIM bits wide
 ctypedef uint32_t property_mask_t
 
 ctypedef vector.vector[stride_t] extents_strides_t
@@ -29,7 +29,7 @@ ctypedef fused integer_t:
 cdef extern from "include/layout.hpp":
 
     cdef int STRIDED_LAYOUT_MAX_NDIM
-    cdef int AXIS_MASK_ALL
+    cdef axes_mask_t AXIS_MASK_ALL
     int64_t _c_abs(int64_t x) nogil
     void _order_from_strides(axis_vec_t& indices, extent_t* extent_t, stride_t* stride_t, int ndim) except + nogil
     void _swap(extents_strides_t &a, extents_strides_t &b) noexcept nogil
@@ -466,7 +466,7 @@ cdef inline stride_t _dense_strides_in_order(BaseLayout& base, axis_vec_t& strid
         axis = stride_order[i]
         if not _normalize_axis(axis, ndim):
             raise ValueError(f"Invalid stride order: axis {axis} out of range for {ndim}D tensor")
-        axis_mask = 1 << axis
+        axis_mask = _axis2mask(axis)
         if axis_order_mask & axis_mask:
             raise ValueError(f"The stride order must be a permutation. Axis {axis} appears multiple times.")
         axis_order_mask |= axis_mask
@@ -604,6 +604,11 @@ cdef inline bint _set_boolean_property(StridedLayout self, Property prop, bint v
 # ==============================
 # Conversion, validation and normalization helpers
 # ==============================
+
+
+cdef inline axes_mask_t _axis2mask(axis_t axis) noexcept nogil:
+    return 1ULL << axis
+
 
 cdef inline OrderFlag _stride_order2vec(axis_vec_t& stride_order_vec, object stride_order) except? ORDER_NONE:
     if stride_order == 'C':
