@@ -951,7 +951,7 @@ cdef inline axes_mask_t axis_mask_from_range(int ndim, int start_axis, int end_a
     if not _normalize_axis(end_axis, ndim):
         raise ValueError(f"Invalid end axis: {end_axis} out of range for {ndim}D tensor")
     if start_axis > 0:
-        axis_mask &= (AXIS_MASK_ALL << start_axis + 1)
+        axis_mask &= (AXIS_MASK_ALL << (start_axis + 1))
     if end_axis < ndim:
         axis_mask &= (AXIS_MASK_ALL >> (STRIDED_LAYOUT_MAX_NDIM - end_axis - 1))
     return axis_mask
@@ -978,7 +978,7 @@ cdef inline int flatten_strides_in_c_index_order(BaseLayout& out_layout, BaseLay
         group_end = group_start + 1
         while (
             group_end < ndim
-            and (axis_mask & (1 << group_end))
+            and (axis_mask & _axis2mask(group_end))
             and group_stride == _overflow_checked_mul(in_strides[group_end], in_shape[group_end])
         ):
             group_vol = _overflow_checked_mul(group_vol, in_shape[group_end])
@@ -1009,7 +1009,7 @@ cdef inline axes_mask_t flattened_strides_in_c_index_order_mask(BaseLayout& layo
         while group_end < ndim and group_stride == layout.strides[group_end] * layout.shape[group_end]:
             group_vol = _overflow_checked_mul(group_vol, layout.shape[group_end])
             group_stride = layout.strides[group_end]
-            axis_mask |= (1 << group_end)
+            axis_mask |= _axis2mask(group_end)
             group_end += 1
         group_start = group_end
     return axis_mask
@@ -1060,7 +1060,7 @@ cdef inline int permute_extents(BaseLayout& out_layout, BaseLayout& in_layout, a
         axis = axis_order[i]
         if not _normalize_axis(axis, ndim):
             raise ValueError(f"Invalid permutation: axis {axis} out of range for {ndim}D tensor")
-        axis_mask = 1 << axis
+        axis_mask = _axis2mask(axis)
         if axis_order_mask & axis_mask:
             raise ValueError(f"Invalid permutation: axis {axis_order[i]} appears multiple times.")
         axis_order_mask |= axis_mask
@@ -1156,15 +1156,13 @@ cdef inline int unsqueeze_extents(BaseLayout& out_layout, BaseLayout& in_layout,
         axis = axis_vec[i]
         if not _normalize_axis(axis, out_ndim):
             raise ValueError(f"Invalid axis: {axis} out of range for {out_ndim}D tensor")
-        axis_mask = 1 << axis
+        axis_mask = _axis2mask(axis)
         if out_shape_mask & axis_mask:
             raise ValueError(f"Axis {axis} appears multiple times.")
         out_shape_mask |= axis_mask
     cdef int in_i = 0
     for i in range(out_ndim):
-        # without the cast, cython has issues with
-        # recognizing 1 << i does not require Python interaction
-        axis_mask = 1 << <int>i
+        axis_mask = _axis2mask(<axis_t>i)
         if out_shape_mask & axis_mask:
             out_layout.shape[i] = 1
             if in_i < ndim:

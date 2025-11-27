@@ -40,8 +40,12 @@ class _S:
     SliceSpec
     """
 
-    def __init__(self):
-        self.slices = []
+    def __init__(self, slices=None):
+        if slices is None:
+            slices = []
+        else:
+            assert isinstance(slices, list)
+        self.slices = slices
 
     def __getitem__(self, value):
         self.slices.append(value)
@@ -149,3 +153,10 @@ def inv_permutation(perm):
 
 def permuted(t, perm):
     return tuple(t[i] for i in perm)
+
+
+def long_shape(rng, ndim, num_non_unit_dims=5, max_dim_size=6):
+    dims = [min(i + 2, max_dim_size) for i in range(num_non_unit_dims)]
+    dims.extend(1 for i in range(ndim - num_non_unit_dims))
+    rng.shuffle(dims)
+    return tuple(dims)

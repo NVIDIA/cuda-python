@@ -18,6 +18,7 @@ from helpers.layout import (
     dtype_from_itemsize,
     flatten_mask2str,
     inv_permutation,
+    long_shape,
     permuted,
     pretty_name,
     random_permutations,
@@ -155,8 +156,16 @@ def test_dense_with_permutation_as_stride_order(layout_spec):
     "layout_spec",
     [
         LayoutSpec(shape, py_rng.choice(_ITEMSIZES), stride_order, perm=permutation)
-        for shape in [tuple(), (1,), (2, 3), (5, 6, 7), (5, 1, 7), (5, 2, 3, 4)]
-        for permutation in random_permutations(py_rng, len(shape))
+        for shape in [
+            tuple(),
+            (1,),
+            (2, 3),
+            (5, 6, 7),
+            (5, 1, 7),
+            (5, 2, 3, 4),
+            long_shape(py_rng, 64),
+        ]
+        for permutation in random_permutations(py_rng, len(shape), sample_size=3)
         for stride_order in list(DenseOrder)
     ],
     ids=pretty_name,
@@ -173,10 +182,44 @@ def test_permuted(layout_spec):
     layout, np_ref = _transform(layout, np_ref, layout_spec)
     _cmp_layout_and_array(layout, np_ref, layout_spec.has_no_strides_transformed())
     _cmp_layout_from_dense_vs_from_np(layout, np_ref, layout_spec.has_no_strides_transformed())
-    expected_order = inv_permutation(layout_spec.perm)
-    if layout_spec.np_order() == "F":
-        expected_order = tuple(reversed(expected_order))
-    assert layout.stride_order == expected_order
+    unit_dims_count = sum(dim == 1 for dim in np_ref.shape)
+    if unit_dims_count <= 1:
+        # stride order with multiple unit dimensions is not unique
+        # a simple equality check won't do
+        expected_order = inv_permutation(layout_spec.perm)
+        if layout_spec.np_order() == "F":
+            expected_order = tuple(reversed(expected_order))
+        assert layout.stride_order == expected_order
+
+
+class PermutedErr(Enum):
+    REPEATED_AXIS = "axis -?\\d+ appears multiple times"
+    OUT_OF_RANGE = "axis -?\\d+ out of range for"
+    WRONG_LEN = "the same length as the number of dimensions"
+
+
+@pytest.mark.parametrize(
+    ("layout_spec", "error_msg"),
+    [
+        (
+            LayoutSpec(shape, py_rng.choice(_ITEMSIZES), stride_order, perm=permutation),
+            error_msg,
+        )
+        for shape, permutation, error_msg in [
+            (tuple(), (5,), PermutedErr.WRONG_LEN),
+            ((1,), (0, 0), PermutedErr.WRONG_LEN),
+            ((2, 5, 3), (1, 0, 1), PermutedErr.REPEATED_AXIS),
+            ((5, 6, 7), (1, 3, 0), PermutedErr.OUT_OF_RANGE),
+            ((5, 6, 7), (1, -2000, 0), PermutedErr.OUT_OF_RANGE),
+        ]
+        for stride_order in list(DenseOrder)
+    ],
+    ids=pretty_name,
+)
+def test_permuted_validation(layout_spec, error_msg):
+    layout, _ = _setup_layout_and_np_ref(layout_spec)
+    with pytest.raises(ValueError, match=error_msg.value):
+        layout.permuted(layout_spec.perm)
 
 
 class SliceErr(Enum):
@@ -216,6 +259,7 @@ class SliceErr(Enum):
             ((11, 12, 3), _S()[-2], None),
             ((11, 12, 3), _S()[-42], SliceErr.OUT_OF_RANGE),
             ((11, 12, 3), _S()["abc"], SliceErr.TYPE_ERROR),
+            (long_shape(py_rng, 64), _S([slice(None, None, -1)] * 64), None),
         ]
         for stride_order in list(DenseOrder)
     ],
@@ -340,6 +384,8 @@ class ReshapeErr(Enum):
             ((7, 6, 5), None, None, (5, 0, -1), ReshapeErr.AMBIGUOUS_NEG_EXTENT),
             ((7, 0, 5), None, None, (5, 0, -1), ReshapeErr.AMBIGUOUS_NEG_EXTENT),
             ((7, 6, 5), None, None, map, ReshapeErr.TYPE_ERROR),
+            # random 64-dim shape with 5 non-unit extents 2, 3, 4, 5, 6
+            (long_shape(py_rng, 64, 5, 6), None, None, (60, 12), None),
         ]
         for stride_order in [DenseOrder.C, DenseOrder.IMPLICIT_C]
     ],
@@ -403,6 +449,8 @@ def test_reshape(layout_spec, new_shape, error_msg):
             ((5, 7, 4, 3), None, _S()[:, ::-1, ::-1], (5, 28, 3), (84, -3, 1), "0010"),
             ((5, 4, 3, 7), (2, 3, 0, 1), _S()[:], (21, 20), (1, 21), "0101"),
             ((5, 4, 3, 7), (3, 2, 0, 1), None, (7, 3, 20), (1, 7, 21), "0001"),
+            # random 64-dim shape with 4 non-unit extents 2, 3, 4, 5
+            (long_shape(py_rng, 64, 4, 5), None, None, (120,), (1,), "0" + "1" * 63),
         ]
         for stride_order in [DenseOrder.C, DenseOrder.IMPLICIT_C]
     ],
@@ -568,6 +616,8 @@ def test_flatten_together(
             ((1, 5, 4, 3), None, _S()[:, -1:, :1, 1:2]),
             ((7, 5, 3), (2, 0, 1), _S()[::-1, 3:2:-1, :]),
             ((7, 5, 3), (2, 0, 1), _S()[:, 3:2, :]),
+            (long_shape(py_rng, 64, 1), None, None),
+            (long_shape(py_rng, 33, 3), None, None),
         ]
         for stride_order in list(DenseOrder)
     ],
@@ -662,6 +712,9 @@ def test_unsqueezed_layout(layout_spec, axes):
             ((11, 5, 9), None, _S()[:, :, -1:], DenseOrder.F, 2, 0, 2, 2),
             ((12, 3, 24), (1, 2, 0), _S()[::-1, 20:, 1:], DenseOrder.C, 2, 1, 8, 8),
             ((12, 3, 24), (1, 2, 0), _S()[1:, ::-1, 10:], DenseOrder.F, 2, 2, 4, 4),
+            ((1, 3) + (1,) * 61 + (4,), None, None, DenseOrder.C, 2, -1, 8, 8),
+            ((1, 3) + (1,) * 61 + (4,), None, None, DenseOrder.IMPLICIT_C, 2, -1, 8, 4),
+            ((4, 3) + (1,) * 61 + (3,), None, None, DenseOrder.F, 2, 0, 8, 4),
         ]
     ],
     ids=pretty_name,
@@ -726,6 +779,7 @@ def test_packed_unpacked(
             ((5, 11), _S()[::-1, 3:4], (5, 30)),
             ((5, 11), _S()[::-1, 3:4], (4, 5, 12)),
             ((5, 11), _S()[-1:,], (4, 13, 11)),
+            ((2, 3, 3), _S()[:, 1:2], (401, 3) + (1,) * 59 + (2, 4, 3)),
         ]
         for stride_order in list(DenseOrder)
     ],

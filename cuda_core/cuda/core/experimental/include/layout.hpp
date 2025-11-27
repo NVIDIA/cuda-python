@@ -11,8 +11,8 @@
 #include <numeric>
 
 
-#define STRIDED_LAYOUT_MAX_NDIM 32
-#define AXIS_MASK_ALL 0xFFFFFFFE
+#define STRIDED_LAYOUT_MAX_NDIM 64
+#define AXIS_MASK_ALL 0xFFFFFFFFFFFFFFFEULL
 
 inline int64_t _c_abs(int64_t x)
 {
