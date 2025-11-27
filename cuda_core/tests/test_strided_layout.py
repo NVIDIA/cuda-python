@@ -120,6 +120,30 @@ def _cmp_layout_from_dense_vs_from_np(layout: StridedLayout, np_ref: np.ndarray,
             assert layout_from_np.strides_in_bytes == layout.strides_in_bytes
 
 
+def _check_envelope(layout: StridedLayout, layout_spec: LayoutSpec):
+    orignal_vol = math.prod(layout_spec.shape)
+    min_offset, max_offset = layout.offset_bounds
+    if layout.volume == 0:
+        assert min_offset == 0
+        assert max_offset == -1
+    else:
+        assert min_offset >= 0
+        assert min_offset <= max_offset
+        assert max_offset <= orignal_vol - 1
+        if layout.is_dense:
+            assert min_offset == 0
+            assert max_offset == math.prod(layout.shape) - 1
+        else:
+            shape, strides = layout.shape, layout.strides
+            ref_min_offset = ref_max_offset = layout.slice_offset
+            ref_min_offset += sum(strides[i] * (shape[i] - 1) for i in range(layout.ndim) if strides[i] < 0)
+            ref_max_offset += sum(strides[i] * (shape[i] - 1) for i in range(layout.ndim) if strides[i] > 0)
+            assert min_offset == ref_min_offset
+            assert max_offset == ref_max_offset
+    assert 0 <= layout.required_size_in_bytes() <= orignal_vol * layout_spec.itemsize
+    assert layout.required_size_in_bytes() == (max_offset + 1) * layout.itemsize
+
+
 def _cmp_slice_offset(
     layout_0: StridedLayout,
     layout_1: StridedLayout,
@@ -149,6 +173,7 @@ def test_dense_with_permutation_as_stride_order(layout_spec):
     layout, np_ref = _setup_layout_and_np_ref(layout_spec)
     _cmp_layout_and_array(layout, np_ref, False)
     _cmp_layout_from_dense_vs_from_np(layout, np_ref, False)
+    _check_envelope(layout, layout_spec)
     assert layout.stride_order == layout_spec.stride_order
 
 
@@ -182,6 +207,7 @@ def test_permuted(layout_spec):
     layout, np_ref = _transform(layout, np_ref, layout_spec)
     _cmp_layout_and_array(layout, np_ref, layout_spec.has_no_strides_transformed())
     _cmp_layout_from_dense_vs_from_np(layout, np_ref, layout_spec.has_no_strides_transformed())
+    _check_envelope(layout, layout_spec)
     unit_dims_count = sum(dim == 1 for dim in np_ref.shape)
     if unit_dims_count <= 1:
         # stride order with multiple unit dimensions is not unique
@@ -277,6 +303,7 @@ def test_slice(layout_spec, error_msg):
             _cmp_layout_and_array(sliced, sliced_ref, False)
             _cmp_layout_from_dense_vs_from_np(sliced, sliced_ref, False)
             _cmp_slice_offset(layout, sliced, np_ref, sliced_ref)
+            _check_envelope(sliced, layout_spec)
             layout = sliced
             np_ref = sliced_ref
     else:
@@ -406,6 +433,7 @@ def test_reshape(layout_spec, new_shape, error_msg):
         reshaped_ref = np_ref.reshape(new_shape, copy=False)
         _cmp_layout_and_array(reshaped, reshaped_ref, False)
         _cmp_layout_from_dense_vs_from_np(reshaped, reshaped_ref, False)
+        _check_envelope(reshaped, layout_spec)
     else:
         # sanity check that numpy is not able to reshape without
         # a copy as well
@@ -473,6 +501,7 @@ def test_flatten(
     layout, np_ref = _transform(layout, np_ref, layout_spec)
     _cmp_layout_and_array(layout, np_ref, layout_spec.has_no_strides_transformed())
     _cmp_layout_from_dense_vs_from_np(layout, np_ref, layout_spec.has_no_strides_transformed())
+    _check_envelope(layout, layout_spec)
 
     mask = flatten_mask2str(layout.flattened_axis_mask(), layout.ndim)
     assert mask == expected_axis_mask
@@ -583,6 +612,8 @@ def test_flatten_together(
 
     flattened_0 = layout_0.flattened(mask=mask)
     flattened_1 = layout_1.flattened(mask=mask)
+    _check_envelope(flattened_0, layout_spec_0)
+    _check_envelope(flattened_1, layout_spec_1)
 
     for flattened, expected_layout in zip([flattened_0, flattened_1], [expected_layout_0, expected_layout_1]):
         assert flattened == expected_layout
@@ -640,6 +671,7 @@ def test_squeezed(layout_spec):
         assert squeezed.shape == (0,)
         assert squeezed.strides == (0,)
     assert squeezed.slice_offset == layout.slice_offset
+    _check_envelope(squeezed, layout_spec)
 
 
 @pytest.mark.parametrize(
@@ -681,6 +713,7 @@ def test_unsqueezed_layout(layout_spec, axes):
     has_no_strides = layout_spec.has_no_strides_transformed() and len(axes) == 0
     _cmp_layout_and_array(unsqueezed, unsqueezed_ref, has_no_strides)
     _cmp_layout_from_dense_vs_from_np(unsqueezed, unsqueezed_ref, has_no_strides)
+    _check_envelope(unsqueezed, layout_spec)
 
 
 @pytest.mark.parametrize(
@@ -748,11 +781,13 @@ def test_packed_unpacked(
     has_no_strides = layout_spec.has_no_strides_transformed() and layout.itemsize == new_itemsize
     _cmp_layout_and_array(packed, packed_ref, has_no_strides)
     _cmp_layout_from_dense_vs_from_np(packed, packed_ref, has_no_strides)
+    _check_envelope(packed, layout_spec)
     vec_size = new_itemsize // layout.itemsize
     assert packed.slice_offset * vec_size == layout.slice_offset
     unpacked = packed.repacked(layout.itemsize, axis=axis)
     _cmp_layout_and_array(unpacked, np_ref, has_no_strides)
     _cmp_layout_from_dense_vs_from_np(unpacked, np_ref, has_no_strides)
+    _check_envelope(unpacked, layout_spec)
 
 
 @pytest.mark.parametrize(
@@ -801,6 +836,7 @@ def test_broadcast_layout(
     broadcasted_ref = np.broadcast_to(np_ref, new_shape)
     _cmp_layout_and_array(broadcasted, broadcasted_ref, False)
     _cmp_layout_from_dense_vs_from_np(broadcasted, broadcasted_ref, False)
+    _check_envelope(broadcasted, layout_spec)
     assert layout.is_unique
     ndim_diff = len(broadcasted_ref.shape) - len(np_ref.shape)
     expect_unique = all(broadcasted_ref.shape[i] == 1 for i in range(ndim_diff))
@@ -875,3 +911,7 @@ def test_to_dense(layout_spec, new_stride_order):
         dense_ref = np_ref.transpose(new_stride_order).copy(order="C").transpose(inv_permutation(new_stride_order))
         _cmp_layout_and_array(dense, dense_ref, False)
         _cmp_layout_from_dense_vs_from_np(dense, dense_ref, False)
+
+    assert dense.is_dense
+    assert dense.required_size_in_bytes() == np_ref.size * layout.itemsize
+    assert dense.offset_bounds == (0, np_ref.size - 1)
