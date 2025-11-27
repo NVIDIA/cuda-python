@@ -360,6 +360,17 @@ def test_memory_resource_and_owner_disallowed():
         Buffer.from_handle(ptr, 20, mr=DummyDeviceMemoryResource(Device()), owner=a)
 
 
+def test_owner_close():
+    a = (ctypes.c_byte * 20)()
+    ptr = ctypes.addressof(a)
+    before = sys.getrefcount(a)
+    buffer = Buffer.from_handle(ptr, 20, owner=a)
+    assert sys.getrefcount(a) != before
+    buffer.close()
+    after = sys.getrefcount(a)
+    assert after == before
+
+
 def test_buffer_dunder_dlpack():
     device = Device()
     device.set_current()
