@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+cimport cython
 from libc.stdint cimport uintptr_t
 
 from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
@@ -12,7 +13,9 @@ from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._stream cimport Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
+    HANDLE_RETURN,
 )
+from cuda.bindings cimport cydriver
 
 import abc
 from typing import TypeVar, Union
@@ -310,46 +313,64 @@ cdef Buffer_init_mem_attrs(Buffer self):
         self._mem_attrs_inited = True
 
 
-cdef int query_memory_attrs(_MemAttrs &out, uintptr_t ptr) except -1:
-    cdef int memory_type
-    ret, attrs = _query_memory_attrs(ptr)
-    if ret == driver.CUresult.CUDA_ERROR_NOT_INITIALIZED:
-        # Device class handles the cuInit call internally
-        from cuda.core.experimental import Device as _Device
-        _Device()
-    ret, attrs = _query_memory_attrs(ptr)
-    raise_if_driver_error(ret)
-    memory_type = attrs[0]
+cdef int query_memory_attrs(_MemAttrs &out, uintptr_t ptr) except -1 nogil:
+    cdef unsigned int memory_type = 0
+    cdef int is_managed = 0
+    cdef int device_id = 0
+    _query_memory_attrs(memory_type, is_managed, device_id, <cydriver.CUdeviceptr>ptr)
 
     if memory_type == 0:
         # unregistered host pointer
         out.is_host_accessible = True
         out.is_device_accessible = False
         out.device_id = -1
+    # for managed memory, the memory type can be CU_MEMORYTYPE_DEVICE,
+    # so we need to check it first not to falsely claim it is not
+    # host accessible.
     elif (
-        memory_type == driver.CUmemorytype.CU_MEMORYTYPE_HOST
-        or memory_type == driver.CUmemorytype.CU_MEMORYTYPE_UNIFIED
+        is_managed
+        or memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_HOST
     ):
-        # TODO(ktokarski): should we compare host/device ptrs using cuPointerGetAttribute
-        # for exceptional cases when the same data can end up with different ptrs
-        # for host and device?
+        # For pinned memory allocated with cudaMallocHost or paged-locked
+        # with cudaHostRegister, the memory_type is
+        # cydriver.CUmemorytype.CU_MEMORYTYPE_HOST.
+        # TODO(ktokarski): In some cases, the registered memory requires
+        # using different ptr for device and host, we could check
+        # cuMemHostGetDevicePointer and
+        # CU_DEVICE_ATTRIBUTE_CAN_USE_HOST_POINTER_FOR_REGISTERED_MEM
+        # to double check the device accessibility.
         out.is_host_accessible = True
         out.is_device_accessible = True
-        out.device_id = attrs[1]
-    else:
-        # device/texture
+        out.device_id = device_id
+    elif memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_DEVICE:
         out.is_host_accessible = False
         out.is_device_accessible = True
-        out.device_id = attrs[1]
+        out.device_id = device_id
+    else:
+        raise ValueError(f"Unsupported memory type: {memory_type}")
     return 0
 
 
-cdef inline _query_memory_attrs(uintptr_t ptr):
-    cdef tuple attrs = (
-        driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,
-        driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
-    )
-    return driver.cuPointerGetAttributes(len(attrs), attrs, ptr)
+cdef inline int _query_memory_attrs(unsigned int& memory_type, int & is_managed, int& device_id, cydriver.CUdeviceptr ptr) except -1 nogil:
+    cdef cydriver.CUpointer_attribute attrs[3]
+    cdef uintptr_t vals[3]
+    attrs[0] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_TYPE
+    attrs[1] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_MANAGED
+    attrs[2] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL
+    vals[0] = <uintptr_t><void*>&memory_type
+    vals[1] = <uintptr_t><void*>&is_managed
+    vals[2] = <uintptr_t><void*>&device_id
+
+    cdef cydriver.CUresult ret
+    ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
+    if ret == cydriver.CUresult.CUDA_ERROR_NOT_INITIALIZED:
+        with cython.gil:
+            # Device class handles the cuInit call internally
+            from cuda.core.experimental import Device
+            Device()
+        ret = cydriver.cuPointerGetAttributes(2, attrs, <void**>vals, ptr)
+    HANDLE_RETURN(ret)
+    return 0
 
 
 cdef class MemoryResource:
