@@ -353,6 +353,13 @@ def test_buffer_external_managed(change_device):
             handle_return(driver.cuMemFree(ptr))
 
 
+def test_memory_resource_and_owner_disallowed():
+    with pytest.raises(ValueError, match="cannot be both specified together"):
+        a = (ctypes.c_byte * 20)()
+        ptr = ctypes.addressof(a)
+        Buffer.from_handle(ptr, 20, mr=DummyDeviceMemoryResource(Device()), owner=a)
+
+
 def test_buffer_dunder_dlpack():
     device = Device()
     device.set_current()
