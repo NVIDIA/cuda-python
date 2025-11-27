@@ -58,12 +58,6 @@ cdef class StridedMemoryView:
         Stream ordering will be properly established unless ``-1`` is passed.
 
 
-    .. note::
-        The StridedMemoryView can be exported with DLPack, in which case
-        no synchronization is performed. It is the user's responsibility to ensure
-        the data in ``exporting_obj`` is properly synchronized when consuming the view.
-
-
     Attributes
     -----------
     ptr : int
@@ -168,12 +162,12 @@ cdef class StridedMemoryView:
             The layout describing the shape, strides and itemsize of the elements in
             the buffer.
         dtype : :obj:`numpy.dtype`, optional
-            Optional dtype. The dtype is required for exporting the view with DLPack.
+            Optional dtype.
             If specified, the dtype's itemsize must match the layout's itemsize.
             To view the buffer with a different itemsize, please use :meth:`StridedLayout.repacked`
             first to transform the layout to the desired itemsize.
         is_readonly : bool, optional
-            Whether the mark the view as readonly. The flag will be forwarded to the DLPack capsule.
+            Whether the mark the view as readonly.
         """
         cdef StridedMemoryView view = StridedMemoryView.__new__(cls)
         view_buffer_strided(view, buffer, layout, dtype, is_readonly)
@@ -184,7 +178,7 @@ cdef class StridedMemoryView:
     ) -> StridedMemoryView:
         """
         Creates a new view with adjusted layout and dtype.
-        Same as calling :meth:`from_buffer` with the current buffer, layout and dtype.
+        Same as calling :meth:`from_buffer` with the current buffer.
         """
         cdef StridedMemoryView view = StridedMemoryView.__new__(self.__class__)
         if layout is None and dtype is None:
@@ -198,7 +192,7 @@ cdef class StridedMemoryView:
 
     def copy_from(
         self, other : StridedMemoryView, stream : Stream,
-        allocator : MemoryResource | None = None,
+        allocator = None,
         blocking : bool | None = None,
     ):
         """
@@ -240,7 +234,7 @@ cdef class StridedMemoryView:
 
     def copy_to(
         self, other : StridedMemoryView, stream : Stream | None = None,
-        allocator : MemoryResource | None = None,
+        allocator = None,
         blocking : bool | None = None,
     ):
         """
