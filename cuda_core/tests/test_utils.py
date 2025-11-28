@@ -273,31 +273,52 @@ def test_from_buffer_disallowed_negative_offset():
         StridedMemoryView.from_buffer(buffer, layout)
 
 
+class _EnforceCAIView:
+    def __init__(self, array):
+        self.array = array
+        self.__cuda_array_interface__ = array.__cuda_array_interface__
+
+
+def _get_ptr(array):
+    if isinstance(array, np.ndarray):
+        return array.ctypes.data
+    else:
+        assert isinstance(array, cp.ndarray)
+        return array.data.ptr
+
+
 @pytest.mark.parametrize(
-    ("shape", "slices", "stride_order"),
+    ("shape", "slices", "stride_order", "view_as"),
     [
-        (shape, slices, stride_order)
+        (shape, slices, stride_order, view_as)
         for shape, slices in [
             ((5, 6), (2, slice(1, -1))),
             ((10, 13, 11), (slice(None, None, 2), slice(None, None, -1), slice(2, -3))),
         ]
         for stride_order in ["C", "F"]
+        for view_as in ["dlpack", "cai"]
     ],
 )
-def test_from_buffer_sliced_external(shape, slices, stride_order):
-    if np is None:
-        pytest.skip("NumPy is not installed")
-    a = np.arange(math.prod(shape), dtype=np.int32).reshape(shape, order=stride_order)
-    view = StridedMemoryView(a, -1)
+def test_from_buffer_sliced_external(shape, slices, stride_order, view_as):
+    if view_as == "dlpack":
+        if np is None:
+            pytest.skip("NumPy is not installed")
+        a = np.arange(math.prod(shape), dtype=np.int32).reshape(shape, order=stride_order)
+        view = StridedMemoryView(a, -1)
+    else:
+        if cp is None:
+            pytest.skip("CuPy is not installed")
+        a = cp.arange(math.prod(shape), dtype=cp.int32).reshape(shape, order=stride_order)
+        view = StridedMemoryView(_EnforceCAIView(a), -1)
     layout = view.layout
     assert layout.is_dense
     assert layout.required_size_in_bytes() == a.nbytes
-    assert view.ptr == a.ctypes.data
+    assert view.ptr == _get_ptr(a)
 
     sliced_layout = layout[slices]
     sliced_view = view.view(sliced_layout)
     a_sliced = a[slices]
-    assert sliced_view.ptr == a_sliced.ctypes.data
+    assert sliced_view.ptr == _get_ptr(a_sliced)
     assert sliced_view.ptr != view.ptr
 
     assert 0 <= sliced_layout.required_size_in_bytes() <= a.nbytes
