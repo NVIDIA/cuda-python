@@ -185,3 +185,6 @@ cython_debug/
 # pixi environments
 .pixi/*
 !.pixi/config.toml
+
+# Cursor
+.cursorrules

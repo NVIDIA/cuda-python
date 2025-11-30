@@ -1035,6 +1035,27 @@ class Device:
         bus_id = handle_return(runtime.cudaDeviceGetPCIBusId(13, self._id))
         return bus_id[:12].decode()
 
+    def can_access_peer(self, peer: Device | int) -> bool:
+        """Check if this device can access memory from the specified peer device.
+
+        Queries whether peer-to-peer memory access is supported between this
+        device and the specified peer device.
+
+        Parameters
+        ----------
+        peer : Device | int
+            The peer device to check accessibility to. Can be a Device object or device ID.
+        """
+        peer = Device(peer)
+        cdef int d1 = <int> self.device_id
+        cdef int d2 = <int> peer.device_id
+        if d1 == d2:
+            return True
+        cdef int value = 0
+        with nogil:
+            HANDLE_RETURN(cydriver.cuDeviceCanAccessPeer(&value, d1, d2))
+        return bool(value)
+
     @property
     def uuid(self) -> str:
         """Return a UUID for the device.

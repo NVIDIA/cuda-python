@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from libc.limits cimport ULLONG_MAX
 from libc.stdint cimport uintptr_t
+from libc.stdlib cimport malloc, free
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
@@ -222,6 +223,7 @@ cdef class DeviceMemoryResource(MemoryResource):
         self._mempool_owned = False
         self._ipc_data = None
         self._attributes = None
+        self._peer_accessible_by = ()
 
     def __init__(self, device_id: Device | int, options=None):
         from .._device import Device
@@ -408,6 +410,69 @@ cdef class DeviceMemoryResource(MemoryResource):
         """
         return getattr(self._ipc_data, 'uuid', None)
 
+    @property
+    def peer_accessible_by(self):
+        """
+        Get or set the devices that can access allocations from this memory
+        pool. Access can be modified at any time and affects all allocations
+        from this memory pool.
+
+        Returns a tuple of sorted device IDs that currently have peer access to
+        allocations from this memory pool.
+
+        When setting, accepts a sequence of Device objects or device IDs.
+        Setting to an empty sequence revokes all peer access.
+
+        Examples
+        --------
+        >>> dmr = DeviceMemoryResource(0)
+        >>> dmr.peer_accessible_by = [1]  # Grant access to device 1
+        >>> assert dmr.peer_accessible_by == (1,)
+        >>> dmr.peer_accessible_by = []  # Revoke access
+        """
+        return self._peer_accessible_by
+
+    @peer_accessible_by.setter
+    def peer_accessible_by(self, devices):
+        """Set which devices can access this memory pool."""
+        from .._device import Device
+
+        # Convert all devices to device IDs
+        cdef set target_ids = {Device(dev).device_id for dev in devices}
+        target_ids.discard(self._dev_id)  # exclude this device from peer access list
+        cdef set cur_ids = set(self._peer_accessible_by)
+        cdef set to_add = target_ids - cur_ids
+        cdef set to_rm = cur_ids - target_ids
+        cdef size_t count = len(to_add) + len(to_rm) # transaction size
+        cdef cydriver.CUmemAccessDesc* access_desc = NULL
+        cdef size_t i = 0
+
+        if count > 0:
+            access_desc = <cydriver.CUmemAccessDesc*>malloc(count * sizeof(cydriver.CUmemAccessDesc))
+            if access_desc == NULL:
+                raise MemoryError("Failed to allocate memory for access descriptors")
+
+            try:
+                for dev_id in to_add:
+                    access_desc[i].flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE
+                    access_desc[i].location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+                    access_desc[i].location.id = dev_id
+                    i += 1
+
+                for dev_id in to_rm:
+                    access_desc[i].flags = cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_NONE
+                    access_desc[i].location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+                    access_desc[i].location.id = dev_id
+                    i += 1
+
+                with nogil:
+                    HANDLE_RETURN(cydriver.cuMemPoolSetAccess(self._handle, access_desc, count))
+            finally:
+                if access_desc != NULL:
+                    free(access_desc)
+
+            self._peer_accessible_by = tuple(target_ids)
+
 
 # DeviceMemoryResource Implementation
 # -----------------------------------
@@ -515,6 +580,11 @@ cdef inline DMR_close(DeviceMemoryResource self):
     if self._handle == NULL:
         return
 
+    # This works around nvbug 5698116. When a memory pool handle is recycled
+    # the new handle inherits the peer access state of the previous handle.
+    if self._peer_accessible_by:
+        self.peer_accessible_by = []
+
     try:
         if self._mempool_owned:
             with nogil:
@@ -525,3 +595,39 @@ cdef inline DMR_close(DeviceMemoryResource self):
         self._attributes = None
         self._mempool_owned = False
         self._ipc_data = None
+        self._peer_accessible_by = ()
+
+
+# Note: this is referenced in instructions to debug nvbug 5698116.
+cpdef DMR_mempool_get_access(DeviceMemoryResource dmr, int device_id):
+    """
+    Probes peer access from the given device using cuMemPoolGetAccess.
+
+    Parameters
+    ----------
+    device_id : int or Device
+        The device to query access for.
+
+    Returns
+    -------
+    str
+        Access permissions: "rw" for read-write, "r" for read-only, "" for no access.
+    """
+    from .._device import Device
+
+    cdef int dev_id = Device(device_id).device_id
+    cdef cydriver.CUmemAccess_flags flags
+    cdef cydriver.CUmemLocation location
+
+    location.type = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+    location.id = dev_id
+
+    with nogil:
+        HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, dmr._handle, &location))
+
+    if flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE:
+        return "rw"
+    elif flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READ:
+        return "r"
+    else:
+        return ""
