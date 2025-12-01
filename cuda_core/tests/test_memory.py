@@ -242,7 +242,7 @@ def test_buffer_close():
 def test_buffer_external_host():
     a = (ctypes.c_byte * 20)()
     ptr = ctypes.addressof(a)
-    buffer = Buffer.from_handle(ptr, 20, owner=ptr)
+    buffer = Buffer.from_handle(ptr, 20, owner=a)
     assert not buffer.is_device_accessible
     assert buffer.is_host_accessible
     assert buffer.device_id == -1
@@ -315,17 +315,20 @@ def test_buffer_external_pinned_registered(change_device):
     assert buffer.device_id == -1
 
     handle_return(driver.cuMemHostRegister(ptr, 20, 0))
-    if change_device:
-        # let's switch to a different device if possibe
-        # to make sure we get the original device id
-        d = Device(0)
-        d.set_current()
+    try:
+        if change_device:
+            # let's switch to a different device if possibe
+            # to make sure we get the original device id
+            d = Device(0)
+            d.set_current()
 
-    buffer = Buffer.from_handle(ptr, 20, owner=ptr)
-    assert buffer.is_device_accessible
-    assert buffer.is_host_accessible
-    assert buffer.device_id == dev_id
-    buffer.close()
+        buffer = Buffer.from_handle(ptr, 20, owner=ptr)
+        assert buffer.is_device_accessible
+        assert buffer.is_host_accessible
+        assert buffer.device_id == dev_id
+        buffer.close()
+    finally:
+        handle_return(driver.cuMemHostUnregister(ptr))
 
 
 @pytest.mark.parametrize("change_device", [True, False])
