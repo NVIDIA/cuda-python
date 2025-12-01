@@ -635,7 +635,7 @@ cdef inline uintptr_t _get_data_ptr(object buffer, StridedLayout layout) except?
             f"Expected at least {layout.get_required_size_in_bytes()} bytes, "
             f"got {buffer.size} bytes."
         )
-    return <uintptr_t>(buffer.handle) + layout.get_slice_offset_in_bytes()
+    return <uintptr_t>(int(buffer.handle)) + layout.get_slice_offset_in_bytes()
 
 
 cdef inline int view_buffer_strided(
