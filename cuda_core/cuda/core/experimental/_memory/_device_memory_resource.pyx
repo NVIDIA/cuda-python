@@ -438,11 +438,15 @@ cdef class DeviceMemoryResource(MemoryResource):
         from .._device import Device
 
         # Convert all devices to device IDs
-        cdef set target_ids = {Device(dev).device_id for dev in devices}
+        cdef set[int] target_ids = {Device(dev).device_id for dev in devices}
         target_ids.discard(self._dev_id)  # exclude this device from peer access list
-        cdef set cur_ids = set(self._peer_accessible_by)
-        cdef set to_add = target_ids - cur_ids
-        cdef set to_rm = cur_ids - target_ids
+        this_dev = Device(self._dev_id)
+        cdef list bad = [dev for dev in target_ids if not this_dev.can_access_peer(dev)]
+        if bad:
+            raise ValueError(f"Device {self._dev_id} cannot access peer(s): {', '.join(map(str, bad))}")
+        cdef set[int] cur_ids = set(self._peer_accessible_by)
+        cdef set[int] to_add = target_ids - cur_ids
+        cdef set[int] to_rm = cur_ids - target_ids
         cdef size_t count = len(to_add) + len(to_rm) # transaction size
         cdef cydriver.CUmemAccessDesc* access_desc = NULL
         cdef size_t i = 0
