@@ -56,7 +56,6 @@ cdef class _py_anon_pod1:
         _anon_pod1 *_ptr
         object _owner
         bint _readonly
-        dict _refs
 
     def __init__(self):
         self._ptr = <_anon_pod1 *>calloc(1, sizeof((<CUfileDescr_t*>NULL).handle))
@@ -64,7 +63,6 @@ cdef class _py_anon_pod1:
             raise MemoryError("Error allocating _py_anon_pod1")
         self._owner = None
         self._readonly = False
-        self._refs = {}
 
     def __dealloc__(self):
         if self._owner is None:
@@ -155,17 +153,24 @@ cdef class _py_anon_pod1:
             obj._ptr = <_anon_pod1 *>ptr
             obj._owner = owner
         obj._readonly = readonly
-        obj._refs = {}
         return obj
 
 
-_py_anon_pod3_dtype = _numpy.dtype([
-    ("dev_ptr_base", _numpy.intp, ),
-    ("file_offset", _numpy.int64, ),
-    ("dev_ptr_offset", _numpy.int64, ),
-    ("size_", _numpy.uint64, ),
-    ], align=True)
+cdef _get__py_anon_pod3_dtype_offsets():
+    cdef _anon_pod3 pod = _anon_pod3()
+    return _numpy.dtype({
+        'names': ['dev_ptr_base', 'file_offset', 'dev_ptr_offset', 'size_'],
+        'formats': [_numpy.intp, _numpy.int64, _numpy.int64, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.devPtr_base)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.file_offset)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.devPtr_offset)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof((<CUfileIOParams_t*>NULL).u.batch),
+    })
 
+_py_anon_pod3_dtype = _get__py_anon_pod3_dtype_offsets()
 
 cdef class _py_anon_pod3:
     """Empty-initialize an instance of `_anon_pod3`.
@@ -177,7 +182,6 @@ cdef class _py_anon_pod3:
         _anon_pod3 *_ptr
         object _owner
         bint _readonly
-        dict _refs
 
     def __init__(self):
         self._ptr = <_anon_pod3 *>calloc(1, sizeof((<CUfileIOParams_t*>NULL).u.batch))
@@ -185,7 +189,6 @@ cdef class _py_anon_pod3:
             raise MemoryError("Error allocating _py_anon_pod3")
         self._owner = None
         self._readonly = False
-        self._refs = {}
 
     def __dealloc__(self):
         if self._owner is None:
@@ -298,16 +301,23 @@ cdef class _py_anon_pod3:
             obj._ptr = <_anon_pod3 *>ptr
             obj._owner = owner
         obj._readonly = readonly
-        obj._refs = {}
         return obj
 
 
-io_events_dtype = _numpy.dtype([
-    ("cookie", _numpy.intp, ),
-    ("status", _numpy.int32, ),
-    ("ret", _numpy.uint64, ),
-    ], align=True)
+cdef _get_io_events_dtype_offsets():
+    cdef CUfileIOEvents_t pod = CUfileIOEvents_t()
+    return _numpy.dtype({
+        'names': ['cookie', 'status', 'ret'],
+        'formats': [_numpy.intp, _numpy.int32, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.cookie)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ret)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileIOEvents_t),
+    })
 
+io_events_dtype = _get_io_events_dtype_offsets()
 
 cdef class IOEvents:
     """Empty-initialize an array of `CUfileIOEvents_t`.
@@ -452,11 +462,19 @@ cdef class IOEvents:
         return obj
 
 
-op_counter_dtype = _numpy.dtype([
-    ("ok", _numpy.uint64, ),
-    ("err", _numpy.uint64, ),
-    ], align=True)
+cdef _get_op_counter_dtype_offsets():
+    cdef CUfileOpCounter_t pod = CUfileOpCounter_t()
+    return _numpy.dtype({
+        'names': ['ok', 'err'],
+        'formats': [_numpy.uint64, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.ok)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.err)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileOpCounter_t),
+    })
 
+op_counter_dtype = _get_op_counter_dtype_offsets()
 
 cdef class OpCounter:
     """Empty-initialize an instance of `CUfileOpCounter_t`.
@@ -568,39 +586,47 @@ cdef class OpCounter:
         return obj
 
 
-per_gpu_stats_dtype = _numpy.dtype([
-    ("uuid", _numpy.int8, (16,)),
-    ("read_bytes", _numpy.uint64, ),
-    ("read_bw_bytes_per_sec", _numpy.uint64, ),
-    ("read_utilization", _numpy.uint64, ),
-    ("read_duration_us", _numpy.uint64, ),
-    ("n_total_reads", _numpy.uint64, ),
-    ("n_p2p_reads", _numpy.uint64, ),
-    ("n_nvfs_reads", _numpy.uint64, ),
-    ("n_posix_reads", _numpy.uint64, ),
-    ("n_unaligned_reads", _numpy.uint64, ),
-    ("n_dr_reads", _numpy.uint64, ),
-    ("n_sparse_regions", _numpy.uint64, ),
-    ("n_inline_regions", _numpy.uint64, ),
-    ("n_reads_err", _numpy.uint64, ),
-    ("writes_bytes", _numpy.uint64, ),
-    ("write_bw_bytes_per_sec", _numpy.uint64, ),
-    ("write_utilization", _numpy.uint64, ),
-    ("write_duration_us", _numpy.uint64, ),
-    ("n_total_writes", _numpy.uint64, ),
-    ("n_p2p_writes", _numpy.uint64, ),
-    ("n_nvfs_writes", _numpy.uint64, ),
-    ("n_posix_writes", _numpy.uint64, ),
-    ("n_unaligned_writes", _numpy.uint64, ),
-    ("n_dr_writes", _numpy.uint64, ),
-    ("n_writes_err", _numpy.uint64, ),
-    ("n_mmap", _numpy.uint64, ),
-    ("n_mmap_ok", _numpy.uint64, ),
-    ("n_mmap_err", _numpy.uint64, ),
-    ("n_mmap_free", _numpy.uint64, ),
-    ("reg_bytes", _numpy.uint64, ),
-    ], align=True)
+cdef _get_per_gpu_stats_dtype_offsets():
+    cdef CUfilePerGpuStats_t pod = CUfilePerGpuStats_t()
+    return _numpy.dtype({
+        'names': ['uuid', 'read_bytes', 'read_bw_bytes_per_sec', 'read_utilization', 'read_duration_us', 'n_total_reads', 'n_p2p_reads', 'n_nvfs_reads', 'n_posix_reads', 'n_unaligned_reads', 'n_dr_reads', 'n_sparse_regions', 'n_inline_regions', 'n_reads_err', 'writes_bytes', 'write_bw_bytes_per_sec', 'write_utilization', 'write_duration_us', 'n_total_writes', 'n_p2p_writes', 'n_nvfs_writes', 'n_posix_writes', 'n_unaligned_writes', 'n_dr_writes', 'n_writes_err', 'n_mmap', 'n_mmap_ok', 'n_mmap_err', 'n_mmap_free', 'reg_bytes'],
+        'formats': [_numpy.int8, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.uuid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.read_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.read_bw_bytes_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.read_utilization)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.read_duration_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_total_reads)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_p2p_reads)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_nvfs_reads)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_posix_reads)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_unaligned_reads)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_dr_reads)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_sparse_regions)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_inline_regions)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_reads_err)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.writes_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.write_bw_bytes_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.write_utilization)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.write_duration_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_total_writes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_p2p_writes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_nvfs_writes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_posix_writes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_unaligned_writes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_dr_writes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_writes_err)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_mmap)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_mmap_ok)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_mmap_err)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.n_mmap_free)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.reg_bytes)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfilePerGpuStats_t),
+    })
 
+per_gpu_stats_dtype = _get_per_gpu_stats_dtype_offsets()
 
 cdef class PerGpuStats:
     """Empty-initialize an instance of `CUfilePerGpuStats_t`.
@@ -1024,12 +1050,20 @@ cdef class PerGpuStats:
         return obj
 
 
-descr_dtype = _numpy.dtype([
-    ("type", _numpy.int32, ),
-    ("handle", _py_anon_pod1_dtype, ),
-    ("fs_ops", _numpy.intp, ),
-    ], align=True)
+cdef _get_descr_dtype_offsets():
+    cdef CUfileDescr_t pod = CUfileDescr_t()
+    return _numpy.dtype({
+        'names': ['type', 'handle', 'fs_ops'],
+        'formats': [_numpy.int32, _py_anon_pod1_dtype, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.fs_ops)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileDescr_t),
+    })
 
+descr_dtype = _get_descr_dtype_offsets()
 
 cdef class Descr:
     """Empty-initialize an array of `CUfileDescr_t`.
@@ -1294,52 +1328,60 @@ cdef class _py_anon_pod2:
         return obj
 
 
-stats_level1_dtype = _numpy.dtype([
-    ("read_ops", op_counter_dtype, ),
-    ("write_ops", op_counter_dtype, ),
-    ("hdl_register_ops", op_counter_dtype, ),
-    ("hdl_deregister_ops", op_counter_dtype, ),
-    ("buf_register_ops", op_counter_dtype, ),
-    ("buf_deregister_ops", op_counter_dtype, ),
-    ("read_bytes", _numpy.uint64, ),
-    ("write_bytes", _numpy.uint64, ),
-    ("read_bw_bytes_per_sec", _numpy.uint64, ),
-    ("write_bw_bytes_per_sec", _numpy.uint64, ),
-    ("read_lat_avg_us", _numpy.uint64, ),
-    ("write_lat_avg_us", _numpy.uint64, ),
-    ("read_ops_per_sec", _numpy.uint64, ),
-    ("write_ops_per_sec", _numpy.uint64, ),
-    ("read_lat_sum_us", _numpy.uint64, ),
-    ("write_lat_sum_us", _numpy.uint64, ),
-    ("batch_submit_ops", op_counter_dtype, ),
-    ("batch_complete_ops", op_counter_dtype, ),
-    ("batch_setup_ops", op_counter_dtype, ),
-    ("batch_cancel_ops", op_counter_dtype, ),
-    ("batch_destroy_ops", op_counter_dtype, ),
-    ("batch_enqueued_ops", op_counter_dtype, ),
-    ("batch_posix_enqueued_ops", op_counter_dtype, ),
-    ("batch_processed_ops", op_counter_dtype, ),
-    ("batch_posix_processed_ops", op_counter_dtype, ),
-    ("batch_nvfs_submit_ops", op_counter_dtype, ),
-    ("batch_p2p_submit_ops", op_counter_dtype, ),
-    ("batch_aio_submit_ops", op_counter_dtype, ),
-    ("batch_iouring_submit_ops", op_counter_dtype, ),
-    ("batch_mixed_io_submit_ops", op_counter_dtype, ),
-    ("batch_total_submit_ops", op_counter_dtype, ),
-    ("batch_read_bytes", _numpy.uint64, ),
-    ("batch_write_bytes", _numpy.uint64, ),
-    ("batch_read_bw_bytes", _numpy.uint64, ),
-    ("batch_write_bw_bytes", _numpy.uint64, ),
-    ("batch_submit_lat_avg_us", _numpy.uint64, ),
-    ("batch_completion_lat_avg_us", _numpy.uint64, ),
-    ("batch_submit_ops_per_sec", _numpy.uint64, ),
-    ("batch_complete_ops_per_sec", _numpy.uint64, ),
-    ("batch_submit_lat_sum_us", _numpy.uint64, ),
-    ("batch_completion_lat_sum_us", _numpy.uint64, ),
-    ("last_batch_read_bytes", _numpy.uint64, ),
-    ("last_batch_write_bytes", _numpy.uint64, ),
-    ], align=True)
+cdef _get_stats_level1_dtype_offsets():
+    cdef CUfileStatsLevel1_t pod = CUfileStatsLevel1_t()
+    return _numpy.dtype({
+        'names': ['read_ops', 'write_ops', 'hdl_register_ops', 'hdl_deregister_ops', 'buf_register_ops', 'buf_deregister_ops', 'read_bytes', 'write_bytes', 'read_bw_bytes_per_sec', 'write_bw_bytes_per_sec', 'read_lat_avg_us', 'write_lat_avg_us', 'read_ops_per_sec', 'write_ops_per_sec', 'read_lat_sum_us', 'write_lat_sum_us', 'batch_submit_ops', 'batch_complete_ops', 'batch_setup_ops', 'batch_cancel_ops', 'batch_destroy_ops', 'batch_enqueued_ops', 'batch_posix_enqueued_ops', 'batch_processed_ops', 'batch_posix_processed_ops', 'batch_nvfs_submit_ops', 'batch_p2p_submit_ops', 'batch_aio_submit_ops', 'batch_iouring_submit_ops', 'batch_mixed_io_submit_ops', 'batch_total_submit_ops', 'batch_read_bytes', 'batch_write_bytes', 'batch_read_bw_bytes', 'batch_write_bw_bytes', 'batch_submit_lat_avg_us', 'batch_completion_lat_avg_us', 'batch_submit_ops_per_sec', 'batch_complete_ops_per_sec', 'batch_submit_lat_sum_us', 'batch_completion_lat_sum_us', 'last_batch_read_bytes', 'last_batch_write_bytes'],
+        'formats': [op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, op_counter_dtype, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.read_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.write_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.hdl_register_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.hdl_deregister_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.buf_register_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.buf_deregister_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.read_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.write_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.read_bw_bytes_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.write_bw_bytes_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.read_lat_avg_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.write_lat_avg_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.read_ops_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.write_ops_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.read_lat_sum_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.write_lat_sum_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_submit_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_complete_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_setup_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_cancel_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_destroy_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_enqueued_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_posix_enqueued_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_processed_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_posix_processed_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_nvfs_submit_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_p2p_submit_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_aio_submit_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_iouring_submit_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_mixed_io_submit_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_total_submit_ops)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_read_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_write_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_read_bw_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_write_bw_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_submit_lat_avg_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_completion_lat_avg_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_submit_ops_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_complete_ops_per_sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_submit_lat_sum_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.batch_completion_lat_sum_us)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.last_batch_read_bytes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.last_batch_write_bytes)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileStatsLevel1_t),
+    })
 
+stats_level1_dtype = _get_stats_level1_dtype_offsets()
 
 cdef class StatsLevel1:
     """Empty-initialize an instance of `CUfileStatsLevel1_t`.
@@ -1923,14 +1965,22 @@ cdef class StatsLevel1:
         return obj
 
 
-io_params_dtype = _numpy.dtype([
-    ("mode", _numpy.int32, ),
-    ("u", _py_anon_pod2_dtype, ),
-    ("fh", _numpy.intp, ),
-    ("opcode", _numpy.int32, ),
-    ("cookie", _numpy.intp, ),
-    ], align=True)
+cdef _get_io_params_dtype_offsets():
+    cdef CUfileIOParams_t pod = CUfileIOParams_t()
+    return _numpy.dtype({
+        'names': ['mode', 'u', 'fh', 'opcode', 'cookie'],
+        'formats': [_numpy.int32, _py_anon_pod2_dtype, _numpy.intp, _numpy.int32, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.mode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.u)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.fh)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.opcode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.cookie)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileIOParams_t),
+    })
 
+io_params_dtype = _get_io_params_dtype_offsets()
 
 cdef class IOParams:
     """Empty-initialize an array of `CUfileIOParams_t`.
@@ -2109,12 +2159,20 @@ cdef class IOParams:
         return obj
 
 
-stats_level2_dtype = _numpy.dtype([
-    ("basic", stats_level1_dtype, ),
-    ("read_size_kb_hist", _numpy.uint64, (32,)),
-    ("write_size_kb_hist", _numpy.uint64, (32,)),
-    ], align=True)
+cdef _get_stats_level2_dtype_offsets():
+    cdef CUfileStatsLevel2_t pod = CUfileStatsLevel2_t()
+    return _numpy.dtype({
+        'names': ['basic', 'read_size_kb_hist', 'write_size_kb_hist'],
+        'formats': [stats_level1_dtype, _numpy.uint64, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.basic)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.read_size_kb_hist)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.write_size_kb_hist)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileStatsLevel2_t),
+    })
 
+stats_level2_dtype = _get_stats_level2_dtype_offsets()
 
 cdef class StatsLevel2:
     """Empty-initialize an instance of `CUfileStatsLevel2_t`.
@@ -2246,12 +2304,20 @@ cdef class StatsLevel2:
         return obj
 
 
-stats_level3_dtype = _numpy.dtype([
-    ("detailed", stats_level2_dtype, ),
-    ("num_gpus", _numpy.uint32, ),
-    ("per_gpu_stats", per_gpu_stats_dtype, (16,)),
-    ], align=True)
+cdef _get_stats_level3_dtype_offsets():
+    cdef CUfileStatsLevel3_t pod = CUfileStatsLevel3_t()
+    return _numpy.dtype({
+        'names': ['detailed', 'num_gpus', 'per_gpu_stats'],
+        'formats': [stats_level2_dtype, _numpy.uint32, per_gpu_stats_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.detailed)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.num_gpus)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.per_gpu_stats)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileStatsLevel3_t),
+    })
 
+stats_level3_dtype = _get_stats_level3_dtype_offsets()
 
 cdef class StatsLevel3:
     """Empty-initialize an instance of `CUfileStatsLevel3_t`.
@@ -2377,20 +2443,6 @@ cdef class StatsLevel3:
         obj._readonly = readonly
         return obj
 
-
-# Hack: Overwrite the generated descr_dtype, which NumPy deduced the offset wrong.
-descr_dtype = _numpy.dtype({
-    "names": ['type', 'handle', 'fs_ops'],
-    "formats": [_numpy.int32, _py_anon_pod1_dtype, _numpy.intp],
-    "offsets": [0, 8, 16],
-}, align=True)
-
-# Hack: Overwrite the generated io_params_dtype, which NumPy deduced the offset wrong.
-io_params_dtype = _numpy.dtype({
-    "names": ['mode', 'u', 'fh', 'opcode', 'cookie'],
-    "formats": [_numpy.int32, _py_anon_pod2_dtype, _numpy.intp, _numpy.int32, _numpy.intp],
-    "offsets": [0, 8, 40, 48, 56],
-}, align=True)
 
 
 ###############################################################################
@@ -2604,7 +2656,7 @@ cpdef intptr_t handle_register(intptr_t descr) except? 0:
     return <intptr_t>fh
 
 
-cpdef void handle_deregister(intptr_t fh) except*:
+cpdef void handle_deregister(intptr_t fh)except*:
     """releases a registered filehandle from cuFile.
 
     Args:
@@ -2755,7 +2807,7 @@ cpdef batch_io_cancel(intptr_t batch_idp):
     check_status(__status__)
 
 
-cpdef void batch_io_destroy(intptr_t batch_idp) except*:
+cpdef void batch_io_destroy(intptr_t batch_idp)except*:
     cuFileBatchIODestroy(<BatchHandle>batch_idp)
 
 

@@ -1323,18 +1323,26 @@ cpdef int check_status_size(int status) except 1 nogil:
 ###############################################################################
 
 
-pci_info_ext_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("domain", _numpy.uint32, ),
-    ("bus", _numpy.uint32, ),
-    ("device_", _numpy.uint32, ),
-    ("pci_device_id", _numpy.uint32, ),
-    ("pci_sub_system_id", _numpy.uint32, ),
-    ("base_class", _numpy.uint32, ),
-    ("sub_class", _numpy.uint32, ),
-    ("bus_id", _numpy.int8, (32,)),
-    ], align=True)
+cdef _get_pci_info_ext_v1_dtype_offsets():
+    cdef nvmlPciInfoExt_v1_t pod = nvmlPciInfoExt_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'domain', 'bus', 'device_', 'pci_device_id', 'pci_sub_system_id', 'base_class', 'sub_class', 'bus_id'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.domain)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bus)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.device)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pciDeviceId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pciSubSystemId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.baseClass)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.subClass)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.busId)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPciInfoExt_v1_t),
+    })
 
+pci_info_ext_v1_dtype = _get_pci_info_ext_v1_dtype_offsets()
 
 cdef class PciInfoExt_v1:
     """Empty-initialize an instance of `nvmlPciInfoExt_v1_t`.
@@ -1527,16 +1535,24 @@ cdef class PciInfoExt_v1:
         return obj
 
 
-pci_info_dtype = _numpy.dtype([
-    ("bus_id_legacy", _numpy.int8, (16,)),
-    ("domain", _numpy.uint32, ),
-    ("bus", _numpy.uint32, ),
-    ("device_", _numpy.uint32, ),
-    ("pci_device_id", _numpy.uint32, ),
-    ("pci_sub_system_id", _numpy.uint32, ),
-    ("bus_id", _numpy.int8, (32,)),
-    ], align=True)
+cdef _get_pci_info_dtype_offsets():
+    cdef nvmlPciInfo_t pod = nvmlPciInfo_t()
+    return _numpy.dtype({
+        'names': ['bus_id_legacy', 'domain', 'bus', 'device_', 'pci_device_id', 'pci_sub_system_id', 'bus_id'],
+        'formats': [_numpy.int8, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int8],
+        'offsets': [
+            (<intptr_t>&(pod.busIdLegacy)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.domain)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bus)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.device)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pciDeviceId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pciSubSystemId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.busId)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPciInfo_t),
+    })
 
+pci_info_dtype = _get_pci_info_dtype_offsets()
 
 cdef class PciInfo:
     """Empty-initialize an instance of `nvmlPciInfo_t`.
@@ -1711,11 +1727,19 @@ cdef class PciInfo:
         return obj
 
 
-utilization_dtype = _numpy.dtype([
-    ("gpu", _numpy.uint32, ),
-    ("memory", _numpy.uint32, ),
-    ], align=True)
+cdef _get_utilization_dtype_offsets():
+    cdef nvmlUtilization_t pod = nvmlUtilization_t()
+    return _numpy.dtype({
+        'names': ['gpu', 'memory'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.gpu)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memory)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlUtilization_t),
+    })
 
+utilization_dtype = _get_utilization_dtype_offsets()
 
 cdef class Utilization:
     """Empty-initialize an instance of `nvmlUtilization_t`.
@@ -1827,12 +1851,20 @@ cdef class Utilization:
         return obj
 
 
-memory_dtype = _numpy.dtype([
-    ("total", _numpy.uint64, ),
-    ("free", _numpy.uint64, ),
-    ("used", _numpy.uint64, ),
-    ], align=True)
+cdef _get_memory_dtype_offsets():
+    cdef nvmlMemory_t pod = nvmlMemory_t()
+    return _numpy.dtype({
+        'names': ['total', 'free', 'used'],
+        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.total)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.free)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.used)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlMemory_t),
+    })
 
+memory_dtype = _get_memory_dtype_offsets()
 
 cdef class Memory:
     """Empty-initialize an instance of `nvmlMemory_t`.
@@ -1955,14 +1987,22 @@ cdef class Memory:
         return obj
 
 
-memory_v2_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("total", _numpy.uint64, ),
-    ("reserved", _numpy.uint64, ),
-    ("free", _numpy.uint64, ),
-    ("used", _numpy.uint64, ),
-    ], align=True)
+cdef _get_memory_v2_dtype_offsets():
+    cdef nvmlMemory_v2_t pod = nvmlMemory_v2_t()
+    return _numpy.dtype({
+        'names': ['version', 'total', 'reserved', 'free', 'used'],
+        'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.total)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.free)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.used)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlMemory_v2_t),
+    })
 
+memory_v2_dtype = _get_memory_v2_dtype_offsets()
 
 cdef class Memory_v2:
     """Empty-initialize an instance of `nvmlMemory_v2_t`.
@@ -2096,12 +2136,20 @@ cdef class Memory_v2:
         return obj
 
 
-ba_r1memory_dtype = _numpy.dtype([
-    ("bar1total", _numpy.uint64, ),
-    ("bar1free", _numpy.uint64, ),
-    ("bar1_used", _numpy.uint64, ),
-    ], align=True)
+cdef _get_ba_r1memory_dtype_offsets():
+    cdef nvmlBAR1Memory_t pod = nvmlBAR1Memory_t()
+    return _numpy.dtype({
+        'names': ['bar1total', 'bar1free', 'bar1_used'],
+        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.bar1Total)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bar1Free)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bar1Used)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlBAR1Memory_t),
+    })
 
+ba_r1memory_dtype = _get_ba_r1memory_dtype_offsets()
 
 cdef class BAR1Memory:
     """Empty-initialize an instance of `nvmlBAR1Memory_t`.
@@ -2224,13 +2272,21 @@ cdef class BAR1Memory:
         return obj
 
 
-process_info_dtype = _numpy.dtype([
-    ("pid", _numpy.uint32, ),
-    ("used_gpu_memory", _numpy.uint64, ),
-    ("gpu_instance_id", _numpy.uint32, ),
-    ("compute_instance_id", _numpy.uint32, ),
-    ], align=True)
+cdef _get_process_info_dtype_offsets():
+    cdef nvmlProcessInfo_t pod = nvmlProcessInfo_t()
+    return _numpy.dtype({
+        'names': ['pid', 'used_gpu_memory', 'gpu_instance_id', 'compute_instance_id'],
+        'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.usedGpuMemory)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.gpuInstanceId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.computeInstanceId)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlProcessInfo_t),
+    })
 
+process_info_dtype = _get_process_info_dtype_offsets()
 
 cdef class ProcessInfo:
     """Empty-initialize an array of `nvmlProcessInfo_t`.
@@ -2386,14 +2442,22 @@ cdef class ProcessInfo:
         return obj
 
 
-process_detail_v1_dtype = _numpy.dtype([
-    ("pid", _numpy.uint32, ),
-    ("used_gpu_memory", _numpy.uint64, ),
-    ("gpu_instance_id", _numpy.uint32, ),
-    ("compute_instance_id", _numpy.uint32, ),
-    ("used_gpu_cc_protected_memory", _numpy.uint64, ),
-    ], align=True)
+cdef _get_process_detail_v1_dtype_offsets():
+    cdef nvmlProcessDetail_v1_t pod = nvmlProcessDetail_v1_t()
+    return _numpy.dtype({
+        'names': ['pid', 'used_gpu_memory', 'gpu_instance_id', 'compute_instance_id', 'used_gpu_cc_protected_memory'],
+        'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.usedGpuMemory)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.gpuInstanceId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.computeInstanceId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.usedGpuCcProtectedMemory)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlProcessDetail_v1_t),
+    })
 
+process_detail_v1_dtype = _get_process_detail_v1_dtype_offsets()
 
 cdef class ProcessDetail_v1:
     """Empty-initialize an array of `nvmlProcessDetail_v1_t`.
@@ -2560,18 +2624,26 @@ cdef class ProcessDetail_v1:
         return obj
 
 
-device_attributes_dtype = _numpy.dtype([
-    ("multiprocessor_count", _numpy.uint32, ),
-    ("shared_copy_engine_count", _numpy.uint32, ),
-    ("shared_decoder_count", _numpy.uint32, ),
-    ("shared_encoder_count", _numpy.uint32, ),
-    ("shared_jpeg_count", _numpy.uint32, ),
-    ("shared_ofa_count", _numpy.uint32, ),
-    ("gpu_instance_slice_count", _numpy.uint32, ),
-    ("compute_instance_slice_count", _numpy.uint32, ),
-    ("memory_size_mb", _numpy.uint64, ),
-    ], align=True)
+cdef _get_device_attributes_dtype_offsets():
+    cdef nvmlDeviceAttributes_t pod = nvmlDeviceAttributes_t()
+    return _numpy.dtype({
+        'names': ['multiprocessor_count', 'shared_copy_engine_count', 'shared_decoder_count', 'shared_encoder_count', 'shared_jpeg_count', 'shared_ofa_count', 'gpu_instance_slice_count', 'compute_instance_slice_count', 'memory_size_mb'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedCopyEngineCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedDecoderCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedEncoderCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedJpegCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedOfaCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.gpuInstanceSliceCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.computeInstanceSliceCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memorySizeMB)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlDeviceAttributes_t),
+    })
 
+device_attributes_dtype = _get_device_attributes_dtype_offsets()
 
 cdef class DeviceAttributes:
     """Empty-initialize an instance of `nvmlDeviceAttributes_t`.
@@ -2760,10 +2832,18 @@ cdef class DeviceAttributes:
         return obj
 
 
-c2c_mode_info_v1_dtype = _numpy.dtype([
-    ("is_c2c_enabled", _numpy.uint32, ),
-    ], align=True)
+cdef _get_c2c_mode_info_v1_dtype_offsets():
+    cdef nvmlC2cModeInfo_v1_t pod = nvmlC2cModeInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['is_c2c_enabled'],
+        'formats': [_numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.isC2cEnabled)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlC2cModeInfo_v1_t),
+    })
 
+c2c_mode_info_v1_dtype = _get_c2c_mode_info_v1_dtype_offsets()
 
 cdef class C2cModeInfo_v1:
     """Empty-initialize an instance of `nvmlC2cModeInfo_v1_t`.
@@ -2864,14 +2944,22 @@ cdef class C2cModeInfo_v1:
         return obj
 
 
-row_remapper_histogram_values_dtype = _numpy.dtype([
-    ("max_", _numpy.uint32, ),
-    ("high", _numpy.uint32, ),
-    ("partial", _numpy.uint32, ),
-    ("low", _numpy.uint32, ),
-    ("none", _numpy.uint32, ),
-    ], align=True)
+cdef _get_row_remapper_histogram_values_dtype_offsets():
+    cdef nvmlRowRemapperHistogramValues_t pod = nvmlRowRemapperHistogramValues_t()
+    return _numpy.dtype({
+        'names': ['max_', 'high', 'partial', 'low', 'none'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.max)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.high)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.partial)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.low)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.none)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlRowRemapperHistogramValues_t),
+    })
 
+row_remapper_histogram_values_dtype = _get_row_remapper_histogram_values_dtype_offsets()
 
 cdef class RowRemapperHistogramValues:
     """Empty-initialize an instance of `nvmlRowRemapperHistogramValues_t`.
@@ -3016,11 +3104,19 @@ cdef class RowRemapperHistogramValues:
         return obj
 
 
-bridge_chip_info_dtype = _numpy.dtype([
-    ("type", _numpy.int32, ),
-    ("fw_version", _numpy.uint32, ),
-    ], align=True)
+cdef _get_bridge_chip_info_dtype_offsets():
+    cdef nvmlBridgeChipInfo_t pod = nvmlBridgeChipInfo_t()
+    return _numpy.dtype({
+        'names': ['type', 'fw_version'],
+        'formats': [_numpy.int32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.fwVersion)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlBridgeChipInfo_t),
+    })
 
+bridge_chip_info_dtype = _get_bridge_chip_info_dtype_offsets()
 
 cdef class BridgeChipInfo:
     """Empty-initialize an array of `nvmlBridgeChipInfo_t`.
@@ -3333,14 +3429,22 @@ cdef class Value:
         return obj
 
 
-_py_anon_pod0_dtype = _numpy.dtype([
-    ("controller", _numpy.int32, ),
-    ("default_min_temp", _numpy.int32, ),
-    ("default_max_temp", _numpy.int32, ),
-    ("current_temp", _numpy.int32, ),
-    ("target", _numpy.int32, ),
-    ], align=True)
+cdef _get__py_anon_pod0_dtype_offsets():
+    cdef _anon_pod0 pod = _anon_pod0()
+    return _numpy.dtype({
+        'names': ['controller', 'default_min_temp', 'default_max_temp', 'current_temp', 'target'],
+        'formats': [_numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32],
+        'offsets': [
+            (<intptr_t>&(pod.controller)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.defaultMinTemp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.defaultMaxTemp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.currentTemp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.target)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(_anon_pod0),
+    })
 
+_py_anon_pod0_dtype = _get__py_anon_pod0_dtype_offsets()
 
 cdef class _py_anon_pod0:
     """Empty-initialize an instance of `_anon_pod0`.
@@ -3485,13 +3589,21 @@ cdef class _py_anon_pod0:
         return obj
 
 
-cooler_info_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("ind_ex", _numpy.uint32, ),
-    ("signal_type", _numpy.int32, ),
-    ("target", _numpy.int32, ),
-    ], align=True)
+cdef _get_cooler_info_v1_dtype_offsets():
+    cdef nvmlCoolerInfo_v1_t pod = nvmlCoolerInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'ind_ex', 'signal_type', 'target'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.int32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.index)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.signalType)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.target)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlCoolerInfo_v1_t),
+    })
 
+cooler_info_v1_dtype = _get_cooler_info_v1_dtype_offsets()
 
 cdef class CoolerInfo_v1:
     """Empty-initialize an instance of `nvmlCoolerInfo_v1_t`.
@@ -3625,11 +3737,19 @@ cdef class CoolerInfo_v1:
         return obj
 
 
-margin_temperature_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("margin_temperature", _numpy.int32, ),
-    ], align=True)
+cdef _get_margin_temperature_v1_dtype_offsets():
+    cdef nvmlMarginTemperature_v1_t pod = nvmlMarginTemperature_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'margin_temperature'],
+        'formats': [_numpy.uint32, _numpy.int32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.marginTemperature)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlMarginTemperature_v1_t),
+    })
 
+margin_temperature_v1_dtype = _get_margin_temperature_v1_dtype_offsets()
 
 cdef class MarginTemperature_v1:
     """Empty-initialize an instance of `nvmlMarginTemperature_v1_t`.
@@ -3741,11 +3861,19 @@ cdef class MarginTemperature_v1:
         return obj
 
 
-clk_mon_fault_info_dtype = _numpy.dtype([
-    ("clk_api_domain", _numpy.uint32, ),
-    ("clk_domain_fault_mask", _numpy.uint32, ),
-    ], align=True)
+cdef _get_clk_mon_fault_info_dtype_offsets():
+    cdef nvmlClkMonFaultInfo_t pod = nvmlClkMonFaultInfo_t()
+    return _numpy.dtype({
+        'names': ['clk_api_domain', 'clk_domain_fault_mask'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.clkApiDomain)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.clkDomainFaultMask)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlClkMonFaultInfo_t),
+    })
 
+clk_mon_fault_info_dtype = _get_clk_mon_fault_info_dtype_offsets()
 
 cdef class ClkMonFaultInfo:
     """Empty-initialize an array of `nvmlClkMonFaultInfo_t`.
@@ -3879,15 +4007,23 @@ cdef class ClkMonFaultInfo:
         return obj
 
 
-clock_offset_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("type", _numpy.int32, ),
-    ("pstate", _numpy.int32, ),
-    ("clock_offset_m_hz", _numpy.int32, ),
-    ("min_clock_offset_m_hz", _numpy.int32, ),
-    ("max_clock_offset_m_hz", _numpy.int32, ),
-    ], align=True)
+cdef _get_clock_offset_v1_dtype_offsets():
+    cdef nvmlClockOffset_v1_t pod = nvmlClockOffset_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'type', 'pstate', 'clock_offset_m_hz', 'min_clock_offset_m_hz', 'max_clock_offset_m_hz'],
+        'formats': [_numpy.uint32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32, _numpy.int32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pstate)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.clockOffsetMHz)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.minClockOffsetMHz)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.maxClockOffsetMHz)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlClockOffset_v1_t),
+    })
 
+clock_offset_v1_dtype = _get_clock_offset_v1_dtype_offsets()
 
 cdef class ClockOffset_v1:
     """Empty-initialize an instance of `nvmlClockOffset_v1_t`.
@@ -4043,12 +4179,20 @@ cdef class ClockOffset_v1:
         return obj
 
 
-fan_speed_info_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("fan", _numpy.uint32, ),
-    ("speed", _numpy.uint32, ),
-    ], align=True)
+cdef _get_fan_speed_info_v1_dtype_offsets():
+    cdef nvmlFanSpeedInfo_v1_t pod = nvmlFanSpeedInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'fan', 'speed'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.fan)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.speed)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlFanSpeedInfo_v1_t),
+    })
 
+fan_speed_info_v1_dtype = _get_fan_speed_info_v1_dtype_offsets()
 
 cdef class FanSpeedInfo_v1:
     """Empty-initialize an instance of `nvmlFanSpeedInfo_v1_t`.
@@ -4171,11 +4315,19 @@ cdef class FanSpeedInfo_v1:
         return obj
 
 
-device_perf_modes_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("str", _numpy.int8, (2048,)),
-    ], align=True)
+cdef _get_device_perf_modes_v1_dtype_offsets():
+    cdef nvmlDevicePerfModes_v1_t pod = nvmlDevicePerfModes_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'str'],
+        'formats': [_numpy.uint32, _numpy.int8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.str)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlDevicePerfModes_v1_t),
+    })
 
+device_perf_modes_v1_dtype = _get_device_perf_modes_v1_dtype_offsets()
 
 cdef class DevicePerfModes_v1:
     """Empty-initialize an instance of `nvmlDevicePerfModes_v1_t`.
@@ -4291,11 +4443,19 @@ cdef class DevicePerfModes_v1:
         return obj
 
 
-device_current_clock_freqs_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("str", _numpy.int8, (2048,)),
-    ], align=True)
+cdef _get_device_current_clock_freqs_v1_dtype_offsets():
+    cdef nvmlDeviceCurrentClockFreqs_v1_t pod = nvmlDeviceCurrentClockFreqs_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'str'],
+        'formats': [_numpy.uint32, _numpy.int8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.str)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlDeviceCurrentClockFreqs_v1_t),
+    })
 
+device_current_clock_freqs_v1_dtype = _get_device_current_clock_freqs_v1_dtype_offsets()
 
 cdef class DeviceCurrentClockFreqs_v1:
     """Empty-initialize an instance of `nvmlDeviceCurrentClockFreqs_v1_t`.
@@ -4411,15 +4571,23 @@ cdef class DeviceCurrentClockFreqs_v1:
         return obj
 
 
-process_utilization_sample_dtype = _numpy.dtype([
-    ("pid", _numpy.uint32, ),
-    ("time_stamp", _numpy.uint64, ),
-    ("sm_util", _numpy.uint32, ),
-    ("mem_util", _numpy.uint32, ),
-    ("enc_util", _numpy.uint32, ),
-    ("dec_util", _numpy.uint32, ),
-    ], align=True)
+cdef _get_process_utilization_sample_dtype_offsets():
+    cdef nvmlProcessUtilizationSample_t pod = nvmlProcessUtilizationSample_t()
+    return _numpy.dtype({
+        'names': ['pid', 'time_stamp', 'sm_util', 'mem_util', 'enc_util', 'dec_util'],
+        'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlProcessUtilizationSample_t),
+    })
 
+process_utilization_sample_dtype = _get_process_utilization_sample_dtype_offsets()
 
 cdef class ProcessUtilizationSample:
     """Empty-initialize an array of `nvmlProcessUtilizationSample_t`.
@@ -4597,17 +4765,25 @@ cdef class ProcessUtilizationSample:
         return obj
 
 
-process_utilization_info_v1_dtype = _numpy.dtype([
-    ("time_stamp", _numpy.uint64, ),
-    ("pid", _numpy.uint32, ),
-    ("sm_util", _numpy.uint32, ),
-    ("mem_util", _numpy.uint32, ),
-    ("enc_util", _numpy.uint32, ),
-    ("dec_util", _numpy.uint32, ),
-    ("jpg_util", _numpy.uint32, ),
-    ("ofa_util", _numpy.uint32, ),
-    ], align=True)
+cdef _get_process_utilization_info_v1_dtype_offsets():
+    cdef nvmlProcessUtilizationInfo_v1_t pod = nvmlProcessUtilizationInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['time_stamp', 'pid', 'sm_util', 'mem_util', 'enc_util', 'dec_util', 'jpg_util', 'ofa_util'],
+        'formats': [_numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.jpgUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ofaUtil)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlProcessUtilizationInfo_v1_t),
+    })
 
+process_utilization_info_v1_dtype = _get_process_utilization_info_v1_dtype_offsets()
 
 cdef class ProcessUtilizationInfo_v1:
     """Empty-initialize an array of `nvmlProcessUtilizationInfo_v1_t`.
@@ -4807,22 +4983,30 @@ cdef class ProcessUtilizationInfo_v1:
         return obj
 
 
-ecc_sram_error_status_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("aggregate_unc_parity", _numpy.uint64, ),
-    ("aggregate_unc_sec_ded", _numpy.uint64, ),
-    ("aggregate_cor", _numpy.uint64, ),
-    ("volatile_unc_parity", _numpy.uint64, ),
-    ("volatile_unc_sec_ded", _numpy.uint64, ),
-    ("volatile_cor", _numpy.uint64, ),
-    ("aggregate_unc_bucket_l2", _numpy.uint64, ),
-    ("aggregate_unc_bucket_sm", _numpy.uint64, ),
-    ("aggregate_unc_bucket_pcie", _numpy.uint64, ),
-    ("aggregate_unc_bucket_mcu", _numpy.uint64, ),
-    ("aggregate_unc_bucket_other", _numpy.uint64, ),
-    ("b_threshold_exceeded", _numpy.uint32, ),
-    ], align=True)
+cdef _get_ecc_sram_error_status_v1_dtype_offsets():
+    cdef nvmlEccSramErrorStatus_v1_t pod = nvmlEccSramErrorStatus_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'aggregate_unc_parity', 'aggregate_unc_sec_ded', 'aggregate_cor', 'volatile_unc_parity', 'volatile_unc_sec_ded', 'volatile_cor', 'aggregate_unc_bucket_l2', 'aggregate_unc_bucket_sm', 'aggregate_unc_bucket_pcie', 'aggregate_unc_bucket_mcu', 'aggregate_unc_bucket_other', 'b_threshold_exceeded'],
+        'formats': [_numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.aggregateUncParity)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.aggregateUncSecDed)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.aggregateCor)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.volatileUncParity)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.volatileUncSecDed)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.volatileCor)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.aggregateUncBucketL2)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.aggregateUncBucketSm)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.aggregateUncBucketPcie)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.aggregateUncBucketMcu)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.aggregateUncBucketOther)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bThresholdExceeded)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlEccSramErrorStatus_v1_t),
+    })
 
+ecc_sram_error_status_v1_dtype = _get_ecc_sram_error_status_v1_dtype_offsets()
 
 cdef class EccSramErrorStatus_v1:
     """Empty-initialize an instance of `nvmlEccSramErrorStatus_v1_t`.
@@ -5055,17 +5239,25 @@ cdef class EccSramErrorStatus_v1:
         return obj
 
 
-platform_info_v2_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("ib_guid", _numpy.uint8, (16,)),
-    ("chassis_serial_number", _numpy.uint8, (16,)),
-    ("slot_number", _numpy.uint8, ),
-    ("tray_ind_ex", _numpy.uint8, ),
-    ("host_id", _numpy.uint8, ),
-    ("peer_type", _numpy.uint8, ),
-    ("module_id", _numpy.uint8, ),
-    ], align=True)
+cdef _get_platform_info_v2_dtype_offsets():
+    cdef nvmlPlatformInfo_v2_t pod = nvmlPlatformInfo_v2_t()
+    return _numpy.dtype({
+        'names': ['version', 'ib_guid', 'chassis_serial_number', 'slot_number', 'tray_ind_ex', 'host_id', 'peer_type', 'module_id'],
+        'formats': [_numpy.uint32, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ibGuid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.chassisSerialNumber)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.slotNumber)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.trayIndex)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.hostId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.peerType)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.moduleId)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPlatformInfo_v2_t),
+    })
 
+platform_info_v2_dtype = _get_platform_info_v2_dtype_offsets()
 
 cdef class PlatformInfo_v2:
     """Empty-initialize an instance of `nvmlPlatformInfo_v2_t`.
@@ -5251,13 +5443,21 @@ cdef class PlatformInfo_v2:
         return obj
 
 
-_py_anon_pod1_dtype = _numpy.dtype([
-    ("b_is_present", _numpy.uint32, ),
-    ("percentage", _numpy.uint32, ),
-    ("inc_threshold", _numpy.uint32, ),
-    ("dec_threshold", _numpy.uint32, ),
-    ], align=True)
+cdef _get__py_anon_pod1_dtype_offsets():
+    cdef _anon_pod1 pod = _anon_pod1()
+    return _numpy.dtype({
+        'names': ['b_is_present', 'percentage', 'inc_threshold', 'dec_threshold'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.bIsPresent)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.percentage)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.incThreshold)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.decThreshold)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(_anon_pod1),
+    })
 
+_py_anon_pod1_dtype = _get__py_anon_pod1_dtype_offsets()
 
 cdef class _py_anon_pod1:
     """Empty-initialize an instance of `_anon_pod1`.
@@ -5391,11 +5591,19 @@ cdef class _py_anon_pod1:
         return obj
 
 
-vgpu_heterogeneous_mode_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("mode", _numpy.uint32, ),
-    ], align=True)
+cdef _get_vgpu_heterogeneous_mode_v1_dtype_offsets():
+    cdef nvmlVgpuHeterogeneousMode_v1_t pod = nvmlVgpuHeterogeneousMode_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'mode'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.mode)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuHeterogeneousMode_v1_t),
+    })
 
+vgpu_heterogeneous_mode_v1_dtype = _get_vgpu_heterogeneous_mode_v1_dtype_offsets()
 
 cdef class VgpuHeterogeneousMode_v1:
     """Empty-initialize an instance of `nvmlVgpuHeterogeneousMode_v1_t`.
@@ -5507,11 +5715,19 @@ cdef class VgpuHeterogeneousMode_v1:
         return obj
 
 
-vgpu_placement_id_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("placement_id", _numpy.uint32, ),
-    ], align=True)
+cdef _get_vgpu_placement_id_v1_dtype_offsets():
+    cdef nvmlVgpuPlacementId_v1_t pod = nvmlVgpuPlacementId_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'placement_id'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.placementId)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuPlacementId_v1_t),
+    })
 
+vgpu_placement_id_v1_dtype = _get_vgpu_placement_id_v1_dtype_offsets()
 
 cdef class VgpuPlacementId_v1:
     """Empty-initialize an instance of `nvmlVgpuPlacementId_v1_t`.
@@ -5623,14 +5839,22 @@ cdef class VgpuPlacementId_v1:
         return obj
 
 
-vgpu_placement_list_v2_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("placement_size", _numpy.uint32, ),
-    ("count", _numpy.uint32, ),
-    ("placement_ids", _numpy.intp, ),
-    ("mode", _numpy.uint32, ),
-    ], align=True)
+cdef _get_vgpu_placement_list_v2_dtype_offsets():
+    cdef nvmlVgpuPlacementList_v2_t pod = nvmlVgpuPlacementList_v2_t()
+    return _numpy.dtype({
+        'names': ['version', 'placement_size', 'count', 'placement_ids', 'mode'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.placementSize)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.placementIds)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.mode)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuPlacementList_v2_t),
+    })
 
+vgpu_placement_list_v2_dtype = _get_vgpu_placement_list_v2_dtype_offsets()
 
 cdef class VgpuPlacementList_v2:
     """Empty-initialize an instance of `nvmlVgpuPlacementList_v2_t`.
@@ -5775,11 +5999,19 @@ cdef class VgpuPlacementList_v2:
         return obj
 
 
-vgpu_type_bar1info_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("bar1size", _numpy.uint64, ),
-    ], align=True)
+cdef _get_vgpu_type_bar1info_v1_dtype_offsets():
+    cdef nvmlVgpuTypeBar1Info_v1_t pod = nvmlVgpuTypeBar1Info_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'bar1size'],
+        'formats': [_numpy.uint32, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bar1Size)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuTypeBar1Info_v1_t),
+    })
 
+vgpu_type_bar1info_v1_dtype = _get_vgpu_type_bar1info_v1_dtype_offsets()
 
 cdef class VgpuTypeBar1Info_v1:
     """Empty-initialize an instance of `nvmlVgpuTypeBar1Info_v1_t`.
@@ -5891,19 +6123,27 @@ cdef class VgpuTypeBar1Info_v1:
         return obj
 
 
-vgpu_process_utilization_info_v1_dtype = _numpy.dtype([
-    ("process_name", _numpy.int8, (64,)),
-    ("time_stamp", _numpy.uint64, ),
-    ("vgpu_instance", _numpy.uint32, ),
-    ("pid", _numpy.uint32, ),
-    ("sm_util", _numpy.uint32, ),
-    ("mem_util", _numpy.uint32, ),
-    ("enc_util", _numpy.uint32, ),
-    ("dec_util", _numpy.uint32, ),
-    ("jpg_util", _numpy.uint32, ),
-    ("ofa_util", _numpy.uint32, ),
-    ], align=True)
+cdef _get_vgpu_process_utilization_info_v1_dtype_offsets():
+    cdef nvmlVgpuProcessUtilizationInfo_v1_t pod = nvmlVgpuProcessUtilizationInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['process_name', 'time_stamp', 'vgpu_instance', 'pid', 'sm_util', 'mem_util', 'enc_util', 'dec_util', 'jpg_util', 'ofa_util'],
+        'formats': [_numpy.int8, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.processName)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.jpgUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ofaUtil)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuProcessUtilizationInfo_v1_t),
+    })
 
+vgpu_process_utilization_info_v1_dtype = _get_vgpu_process_utilization_info_v1_dtype_offsets()
 
 cdef class VgpuProcessUtilizationInfo_v1:
     """Empty-initialize an array of `nvmlVgpuProcessUtilizationInfo_v1_t`.
@@ -6123,11 +6363,19 @@ cdef class VgpuProcessUtilizationInfo_v1:
         return obj
 
 
-vgpu_runtime_state_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("size_", _numpy.uint64, ),
-    ], align=True)
+cdef _get_vgpu_runtime_state_v1_dtype_offsets():
+    cdef nvmlVgpuRuntimeState_v1_t pod = nvmlVgpuRuntimeState_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'size_'],
+        'formats': [_numpy.uint32, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuRuntimeState_v1_t),
+    })
 
+vgpu_runtime_state_v1_dtype = _get_vgpu_runtime_state_v1_dtype_offsets()
 
 cdef class VgpuRuntimeState_v1:
     """Empty-initialize an instance of `nvmlVgpuRuntimeState_v1_t`.
@@ -6239,11 +6487,19 @@ cdef class VgpuRuntimeState_v1:
         return obj
 
 
-_py_anon_pod2_dtype = _numpy.dtype([
-    ("avg_factor", _numpy.uint32, ),
-    ("timeslice", _numpy.uint32, ),
-    ], align=True)
+cdef _get__py_anon_pod2_dtype_offsets():
+    cdef _anon_pod2 pod = _anon_pod2()
+    return _numpy.dtype({
+        'names': ['avg_factor', 'timeslice'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(_anon_pod2),
+    })
 
+_py_anon_pod2_dtype = _get__py_anon_pod2_dtype_offsets()
 
 cdef class _py_anon_pod2:
     """Empty-initialize an instance of `_anon_pod2`.
@@ -6355,10 +6611,18 @@ cdef class _py_anon_pod2:
         return obj
 
 
-_py_anon_pod3_dtype = _numpy.dtype([
-    ("timeslice", _numpy.uint32, ),
-    ], align=True)
+cdef _get__py_anon_pod3_dtype_offsets():
+    cdef _anon_pod3 pod = _anon_pod3()
+    return _numpy.dtype({
+        'names': ['timeslice'],
+        'formats': [_numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(_anon_pod3),
+    })
 
+_py_anon_pod3_dtype = _get__py_anon_pod3_dtype_offsets()
 
 cdef class _py_anon_pod3:
     """Empty-initialize an instance of `_anon_pod3`.
@@ -6459,15 +6723,23 @@ cdef class _py_anon_pod3:
         return obj
 
 
-vgpu_scheduler_log_entry_dtype = _numpy.dtype([
-    ("timestamp", _numpy.uint64, ),
-    ("time_run_total", _numpy.uint64, ),
-    ("time_run", _numpy.uint64, ),
-    ("sw_runlist_id", _numpy.uint32, ),
-    ("target_time_slice", _numpy.uint64, ),
-    ("cumulative_preemption_time", _numpy.uint64, ),
-    ], align=True)
+cdef _get_vgpu_scheduler_log_entry_dtype_offsets():
+    cdef nvmlVgpuSchedulerLogEntry_t pod = nvmlVgpuSchedulerLogEntry_t()
+    return _numpy.dtype({
+        'names': ['timestamp', 'time_run_total', 'time_run', 'sw_runlist_id', 'target_time_slice', 'cumulative_preemption_time'],
+        'formats': [_numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint64, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.timestamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeRunTotal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timeRun)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.swRunlistId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.targetTimeSlice)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.cumulativePreemptionTime)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerLogEntry_t),
+    })
 
+vgpu_scheduler_log_entry_dtype = _get_vgpu_scheduler_log_entry_dtype_offsets()
 
 cdef class VgpuSchedulerLogEntry:
     """Empty-initialize an array of `nvmlVgpuSchedulerLogEntry_t`.
@@ -6645,11 +6917,19 @@ cdef class VgpuSchedulerLogEntry:
         return obj
 
 
-_py_anon_pod4_dtype = _numpy.dtype([
-    ("avg_factor", _numpy.uint32, ),
-    ("frequency", _numpy.uint32, ),
-    ], align=True)
+cdef _get__py_anon_pod4_dtype_offsets():
+    cdef _anon_pod4 pod = _anon_pod4()
+    return _numpy.dtype({
+        'names': ['avg_factor', 'frequency'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.avgFactor)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.frequency)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(_anon_pod4),
+    })
 
+_py_anon_pod4_dtype = _get__py_anon_pod4_dtype_offsets()
 
 cdef class _py_anon_pod4:
     """Empty-initialize an instance of `_anon_pod4`.
@@ -6761,10 +7041,18 @@ cdef class _py_anon_pod4:
         return obj
 
 
-_py_anon_pod5_dtype = _numpy.dtype([
-    ("timeslice", _numpy.uint32, ),
-    ], align=True)
+cdef _get__py_anon_pod5_dtype_offsets():
+    cdef _anon_pod5 pod = _anon_pod5()
+    return _numpy.dtype({
+        'names': ['timeslice'],
+        'formats': [_numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.timeslice)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(_anon_pod5),
+    })
 
+_py_anon_pod5_dtype = _get__py_anon_pod5_dtype_offsets()
 
 cdef class _py_anon_pod5:
     """Empty-initialize an instance of `_anon_pod5`.
@@ -6865,17 +7153,25 @@ cdef class _py_anon_pod5:
         return obj
 
 
-vgpu_scheduler_capabilities_dtype = _numpy.dtype([
-    ("supported_schedulers", _numpy.uint32, (3,)),
-    ("max_timeslice", _numpy.uint32, ),
-    ("min_timeslice", _numpy.uint32, ),
-    ("is_arr_mode_supported", _numpy.uint32, ),
-    ("max_frequency_for_arr", _numpy.uint32, ),
-    ("min_frequency_for_arr", _numpy.uint32, ),
-    ("max_avg_factor_for_arr", _numpy.uint32, ),
-    ("min_avg_factor_for_arr", _numpy.uint32, ),
-    ], align=True)
+cdef _get_vgpu_scheduler_capabilities_dtype_offsets():
+    cdef nvmlVgpuSchedulerCapabilities_t pod = nvmlVgpuSchedulerCapabilities_t()
+    return _numpy.dtype({
+        'names': ['supported_schedulers', 'max_timeslice', 'min_timeslice', 'is_arr_mode_supported', 'max_frequency_for_arr', 'min_frequency_for_arr', 'max_avg_factor_for_arr', 'min_avg_factor_for_arr'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.supportedSchedulers)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.maxTimeslice)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.minTimeslice)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.isArrModeSupported)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.maxFrequencyForARR)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.minFrequencyForARR)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.maxAvgFactorForARR)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.minAvgFactorForARR)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerCapabilities_t),
+    })
 
+vgpu_scheduler_capabilities_dtype = _get_vgpu_scheduler_capabilities_dtype_offsets()
 
 cdef class VgpuSchedulerCapabilities:
     """Empty-initialize an instance of `nvmlVgpuSchedulerCapabilities_t`.
@@ -7057,16 +7353,24 @@ cdef class VgpuSchedulerCapabilities:
         return obj
 
 
-vgpu_license_expiry_dtype = _numpy.dtype([
-    ("year", _numpy.uint32, ),
-    ("month", _numpy.uint16, ),
-    ("day", _numpy.uint16, ),
-    ("hour", _numpy.uint16, ),
-    ("min_", _numpy.uint16, ),
-    ("sec", _numpy.uint16, ),
-    ("status", _numpy.uint8, ),
-    ], align=True)
+cdef _get_vgpu_license_expiry_dtype_offsets():
+    cdef nvmlVgpuLicenseExpiry_t pod = nvmlVgpuLicenseExpiry_t()
+    return _numpy.dtype({
+        'names': ['year', 'month', 'day', 'hour', 'min_', 'sec', 'status'],
+        'formats': [_numpy.uint32, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.year)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.month)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.day)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.hour)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.min)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuLicenseExpiry_t),
+    })
 
+vgpu_license_expiry_dtype = _get_vgpu_license_expiry_dtype_offsets()
 
 cdef class VgpuLicenseExpiry:
     """Empty-initialize an instance of `nvmlVgpuLicenseExpiry_t`.
@@ -7233,16 +7537,24 @@ cdef class VgpuLicenseExpiry:
         return obj
 
 
-grid_license_expiry_dtype = _numpy.dtype([
-    ("year", _numpy.uint32, ),
-    ("month", _numpy.uint16, ),
-    ("day", _numpy.uint16, ),
-    ("hour", _numpy.uint16, ),
-    ("min_", _numpy.uint16, ),
-    ("sec", _numpy.uint16, ),
-    ("status", _numpy.uint8, ),
-    ], align=True)
+cdef _get_grid_license_expiry_dtype_offsets():
+    cdef nvmlGridLicenseExpiry_t pod = nvmlGridLicenseExpiry_t()
+    return _numpy.dtype({
+        'names': ['year', 'month', 'day', 'hour', 'min_', 'sec', 'status'],
+        'formats': [_numpy.uint32, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint16, _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.year)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.month)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.day)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.hour)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.min)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGridLicenseExpiry_t),
+    })
 
+grid_license_expiry_dtype = _get_grid_license_expiry_dtype_offsets()
 
 cdef class GridLicenseExpiry:
     """Empty-initialize an instance of `nvmlGridLicenseExpiry_t`.
@@ -7409,12 +7721,20 @@ cdef class GridLicenseExpiry:
         return obj
 
 
-vgpu_type_id_info_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("vgpu_count", _numpy.uint32, ),
-    ("vgpu_type_ids", _numpy.intp, ),
-    ], align=True)
+cdef _get_vgpu_type_id_info_v1_dtype_offsets():
+    cdef nvmlVgpuTypeIdInfo_v1_t pod = nvmlVgpuTypeIdInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'vgpu_count', 'vgpu_type_ids'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuTypeIds)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuTypeIdInfo_v1_t),
+    })
 
+vgpu_type_id_info_v1_dtype = _get_vgpu_type_id_info_v1_dtype_offsets()
 
 cdef class VgpuTypeIdInfo_v1:
     """Empty-initialize an instance of `nvmlVgpuTypeIdInfo_v1_t`.
@@ -7426,7 +7746,6 @@ cdef class VgpuTypeIdInfo_v1:
         nvmlVgpuTypeIdInfo_v1_t *_ptr
         object _owner
         bint _readonly
-        dict _refs
 
     def __init__(self):
         self._ptr = <nvmlVgpuTypeIdInfo_v1_t *>calloc(1, sizeof(nvmlVgpuTypeIdInfo_v1_t))
@@ -7434,7 +7753,6 @@ cdef class VgpuTypeIdInfo_v1:
             raise MemoryError("Error allocating VgpuTypeIdInfo_v1")
         self._owner = None
         self._readonly = False
-        self._refs = {}
 
     def __dealloc__(self):
         if self._owner is None:
@@ -7525,16 +7843,23 @@ cdef class VgpuTypeIdInfo_v1:
             obj._ptr = <nvmlVgpuTypeIdInfo_v1_t *>ptr
             obj._owner = owner
         obj._readonly = readonly
-        obj._refs = {}
         return obj
 
 
-vgpu_type_max_instance_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("vgpu_type_id", _numpy.uint32, ),
-    ("max_instance_per_gi", _numpy.uint32, ),
-    ], align=True)
+cdef _get_vgpu_type_max_instance_v1_dtype_offsets():
+    cdef nvmlVgpuTypeMaxInstance_v1_t pod = nvmlVgpuTypeMaxInstance_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'vgpu_type_id', 'max_instance_per_gi'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuTypeId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.maxInstancePerGI)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuTypeMaxInstance_v1_t),
+    })
 
+vgpu_type_max_instance_v1_dtype = _get_vgpu_type_max_instance_v1_dtype_offsets()
 
 cdef class VgpuTypeMaxInstance_v1:
     """Empty-initialize an instance of `nvmlVgpuTypeMaxInstance_v1_t`.
@@ -7657,12 +7982,20 @@ cdef class VgpuTypeMaxInstance_v1:
         return obj
 
 
-active_vgpu_instance_info_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("vgpu_count", _numpy.uint32, ),
-    ("vgpu_instances", _numpy.intp, ),
-    ], align=True)
+cdef _get_active_vgpu_instance_info_v1_dtype_offsets():
+    cdef nvmlActiveVgpuInstanceInfo_v1_t pod = nvmlActiveVgpuInstanceInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'vgpu_count', 'vgpu_instances'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuInstances)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlActiveVgpuInstanceInfo_v1_t),
+    })
 
+active_vgpu_instance_info_v1_dtype = _get_active_vgpu_instance_info_v1_dtype_offsets()
 
 cdef class ActiveVgpuInstanceInfo_v1:
     """Empty-initialize an instance of `nvmlActiveVgpuInstanceInfo_v1_t`.
@@ -7674,7 +8007,6 @@ cdef class ActiveVgpuInstanceInfo_v1:
         nvmlActiveVgpuInstanceInfo_v1_t *_ptr
         object _owner
         bint _readonly
-        dict _refs
 
     def __init__(self):
         self._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>calloc(1, sizeof(nvmlActiveVgpuInstanceInfo_v1_t))
@@ -7682,7 +8014,6 @@ cdef class ActiveVgpuInstanceInfo_v1:
             raise MemoryError("Error allocating ActiveVgpuInstanceInfo_v1")
         self._owner = None
         self._readonly = False
-        self._refs = {}
 
     def __dealloc__(self):
         if self._owner is None:
@@ -7773,18 +8104,25 @@ cdef class ActiveVgpuInstanceInfo_v1:
             obj._ptr = <nvmlActiveVgpuInstanceInfo_v1_t *>ptr
             obj._owner = owner
         obj._readonly = readonly
-        obj._refs = {}
         return obj
 
 
-vgpu_creatable_placement_info_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("vgpu_type_id", _numpy.uint32, ),
-    ("count", _numpy.uint32, ),
-    ("placement_ids", _numpy.intp, ),
-    ("placement_size", _numpy.uint32, ),
-    ], align=True)
+cdef _get_vgpu_creatable_placement_info_v1_dtype_offsets():
+    cdef nvmlVgpuCreatablePlacementInfo_v1_t pod = nvmlVgpuCreatablePlacementInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'vgpu_type_id', 'count', 'placement_ids', 'placement_size'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuTypeId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.placementIds)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.placementSize)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuCreatablePlacementInfo_v1_t),
+    })
 
+vgpu_creatable_placement_info_v1_dtype = _get_vgpu_creatable_placement_info_v1_dtype_offsets()
 
 cdef class VgpuCreatablePlacementInfo_v1:
     """Empty-initialize an instance of `nvmlVgpuCreatablePlacementInfo_v1_t`.
@@ -7929,11 +8267,19 @@ cdef class VgpuCreatablePlacementInfo_v1:
         return obj
 
 
-hwbc_entry_dtype = _numpy.dtype([
-    ("hwbc_id", _numpy.uint32, ),
-    ("firmware_version", _numpy.int8, (32,)),
-    ], align=True)
+cdef _get_hwbc_entry_dtype_offsets():
+    cdef nvmlHwbcEntry_t pod = nvmlHwbcEntry_t()
+    return _numpy.dtype({
+        'names': ['hwbc_id', 'firmware_version'],
+        'formats': [_numpy.uint32, _numpy.int8],
+        'offsets': [
+            (<intptr_t>&(pod.hwbcId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.firmwareVersion)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlHwbcEntry_t),
+    })
 
+hwbc_entry_dtype = _get_hwbc_entry_dtype_offsets()
 
 cdef class HwbcEntry:
     """Empty-initialize an array of `nvmlHwbcEntry_t`.
@@ -8065,11 +8411,19 @@ cdef class HwbcEntry:
         return obj
 
 
-led_state_dtype = _numpy.dtype([
-    ("cause", _numpy.int8, (256,)),
-    ("color", _numpy.int32, ),
-    ], align=True)
+cdef _get_led_state_dtype_offsets():
+    cdef nvmlLedState_t pod = nvmlLedState_t()
+    return _numpy.dtype({
+        'names': ['cause', 'color'],
+        'formats': [_numpy.int8, _numpy.int32],
+        'offsets': [
+            (<intptr_t>&(pod.cause)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.color)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlLedState_t),
+    })
 
+led_state_dtype = _get_led_state_dtype_offsets()
 
 cdef class LedState:
     """Empty-initialize an instance of `nvmlLedState_t`.
@@ -8185,13 +8539,21 @@ cdef class LedState:
         return obj
 
 
-unit_info_dtype = _numpy.dtype([
-    ("name", _numpy.int8, (96,)),
-    ("id", _numpy.int8, (96,)),
-    ("serial", _numpy.int8, (96,)),
-    ("firmware_version", _numpy.int8, (96,)),
-    ], align=True)
+cdef _get_unit_info_dtype_offsets():
+    cdef nvmlUnitInfo_t pod = nvmlUnitInfo_t()
+    return _numpy.dtype({
+        'names': ['name', 'id', 'serial', 'firmware_version'],
+        'formats': [_numpy.int8, _numpy.int8, _numpy.int8, _numpy.int8],
+        'offsets': [
+            (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.serial)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.firmwareVersion)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlUnitInfo_t),
+    })
 
+unit_info_dtype = _get_unit_info_dtype_offsets()
 
 cdef class UnitInfo:
     """Empty-initialize an instance of `nvmlUnitInfo_t`.
@@ -8341,13 +8703,21 @@ cdef class UnitInfo:
         return obj
 
 
-psu_info_dtype = _numpy.dtype([
-    ("state", _numpy.int8, (256,)),
-    ("current", _numpy.uint32, ),
-    ("voltage", _numpy.uint32, ),
-    ("power", _numpy.uint32, ),
-    ], align=True)
+cdef _get_psu_info_dtype_offsets():
+    cdef nvmlPSUInfo_t pod = nvmlPSUInfo_t()
+    return _numpy.dtype({
+        'names': ['state', 'current', 'voltage', 'power'],
+        'formats': [_numpy.int8, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.state)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.current)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.voltage)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.power)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPSUInfo_t),
+    })
 
+psu_info_dtype = _get_psu_info_dtype_offsets()
 
 cdef class PSUInfo:
     """Empty-initialize an instance of `nvmlPSUInfo_t`.
@@ -8485,11 +8855,19 @@ cdef class PSUInfo:
         return obj
 
 
-unit_fan_info_dtype = _numpy.dtype([
-    ("speed", _numpy.uint32, ),
-    ("state", _numpy.int32, ),
-    ], align=True)
+cdef _get_unit_fan_info_dtype_offsets():
+    cdef nvmlUnitFanInfo_t pod = nvmlUnitFanInfo_t()
+    return _numpy.dtype({
+        'names': ['speed', 'state'],
+        'formats': [_numpy.uint32, _numpy.int32],
+        'offsets': [
+            (<intptr_t>&(pod.speed)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.state)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlUnitFanInfo_t),
+    })
 
+unit_fan_info_dtype = _get_unit_fan_info_dtype_offsets()
 
 cdef class UnitFanInfo:
     """Empty-initialize an array of `nvmlUnitFanInfo_t`.
@@ -8623,14 +9001,22 @@ cdef class UnitFanInfo:
         return obj
 
 
-event_data_dtype = _numpy.dtype([
-    ("device_", _numpy.intp, ),
-    ("event_type", _numpy.uint64, ),
-    ("event_data", _numpy.uint64, ),
-    ("gpu_instance_id", _numpy.uint32, ),
-    ("compute_instance_id", _numpy.uint32, ),
-    ], align=True)
+cdef _get_event_data_dtype_offsets():
+    cdef nvmlEventData_t pod = nvmlEventData_t()
+    return _numpy.dtype({
+        'names': ['device_', 'event_type', 'event_data', 'gpu_instance_id', 'compute_instance_id'],
+        'formats': [_numpy.intp, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.device)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.eventType)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.eventData)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.gpuInstanceId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.computeInstanceId)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlEventData_t),
+    })
 
+event_data_dtype = _get_event_data_dtype_offsets()
 
 cdef class EventData:
     """Empty-initialize an instance of `nvmlEventData_t`.
@@ -8775,16 +9161,24 @@ cdef class EventData:
         return obj
 
 
-accounting_stats_dtype = _numpy.dtype([
-    ("gpu_utilization", _numpy.uint32, ),
-    ("memory_utilization", _numpy.uint32, ),
-    ("max_memory_usage", _numpy.uint64, ),
-    ("time", _numpy.uint64, ),
-    ("start_time", _numpy.uint64, ),
-    ("is_running", _numpy.uint32, ),
-    ("reserved", _numpy.uint32, (5,)),
-    ], align=True)
+cdef _get_accounting_stats_dtype_offsets():
+    cdef nvmlAccountingStats_t pod = nvmlAccountingStats_t()
+    return _numpy.dtype({
+        'names': ['gpu_utilization', 'memory_utilization', 'max_memory_usage', 'time', 'start_time', 'is_running', 'reserved'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.gpuUtilization)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memoryUtilization)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.maxMemoryUsage)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.time)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.startTime)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.isRunning)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlAccountingStats_t),
+    })
 
+accounting_stats_dtype = _get_accounting_stats_dtype_offsets()
 
 cdef class AccountingStats:
     """Empty-initialize an instance of `nvmlAccountingStats_t`.
@@ -8940,17 +9334,25 @@ cdef class AccountingStats:
         return obj
 
 
-encoder_session_info_dtype = _numpy.dtype([
-    ("session_id", _numpy.uint32, ),
-    ("pid", _numpy.uint32, ),
-    ("vgpu_instance", _numpy.uint32, ),
-    ("codec_type", _numpy.int32, ),
-    ("h_resolution", _numpy.uint32, ),
-    ("v_resolution", _numpy.uint32, ),
-    ("average_fps", _numpy.uint32, ),
-    ("average_latency", _numpy.uint32, ),
-    ], align=True)
+cdef _get_encoder_session_info_dtype_offsets():
+    cdef nvmlEncoderSessionInfo_t pod = nvmlEncoderSessionInfo_t()
+    return _numpy.dtype({
+        'names': ['session_id', 'pid', 'vgpu_instance', 'codec_type', 'h_resolution', 'v_resolution', 'average_fps', 'average_latency'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.sessionId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.codecType)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.hResolution)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vResolution)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.averageFps)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.averageLatency)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlEncoderSessionInfo_t),
+    })
 
+encoder_session_info_dtype = _get_encoder_session_info_dtype_offsets()
 
 cdef class EncoderSessionInfo:
     """Empty-initialize an array of `nvmlEncoderSessionInfo_t`.
@@ -9150,12 +9552,20 @@ cdef class EncoderSessionInfo:
         return obj
 
 
-fbc_stats_dtype = _numpy.dtype([
-    ("sessions_count", _numpy.uint32, ),
-    ("average_fps", _numpy.uint32, ),
-    ("average_latency", _numpy.uint32, ),
-    ], align=True)
+cdef _get_fbc_stats_dtype_offsets():
+    cdef nvmlFBCStats_t pod = nvmlFBCStats_t()
+    return _numpy.dtype({
+        'names': ['sessions_count', 'average_fps', 'average_latency'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.sessionsCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.averageFPS)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.averageLatency)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlFBCStats_t),
+    })
 
+fbc_stats_dtype = _get_fbc_stats_dtype_offsets()
 
 cdef class FBCStats:
     """Empty-initialize an instance of `nvmlFBCStats_t`.
@@ -9278,21 +9688,29 @@ cdef class FBCStats:
         return obj
 
 
-fbc_session_info_dtype = _numpy.dtype([
-    ("session_id", _numpy.uint32, ),
-    ("pid", _numpy.uint32, ),
-    ("vgpu_instance", _numpy.uint32, ),
-    ("display_ordinal", _numpy.uint32, ),
-    ("session_type", _numpy.int32, ),
-    ("session_flags", _numpy.uint32, ),
-    ("h_max_resolution", _numpy.uint32, ),
-    ("v_max_resolution", _numpy.uint32, ),
-    ("h_resolution", _numpy.uint32, ),
-    ("v_resolution", _numpy.uint32, ),
-    ("average_fps", _numpy.uint32, ),
-    ("average_latency", _numpy.uint32, ),
-    ], align=True)
+cdef _get_fbc_session_info_dtype_offsets():
+    cdef nvmlFBCSessionInfo_t pod = nvmlFBCSessionInfo_t()
+    return _numpy.dtype({
+        'names': ['session_id', 'pid', 'vgpu_instance', 'display_ordinal', 'session_type', 'session_flags', 'h_max_resolution', 'v_max_resolution', 'h_resolution', 'v_resolution', 'average_fps', 'average_latency'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.sessionId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.displayOrdinal)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sessionType)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sessionFlags)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.hMaxResolution)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vMaxResolution)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.hResolution)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vResolution)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.averageFPS)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.averageLatency)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlFBCSessionInfo_t),
+    })
 
+fbc_session_info_dtype = _get_fbc_session_info_dtype_offsets()
 
 cdef class FBCSessionInfo:
     """Empty-initialize an array of `nvmlFBCSessionInfo_t`.
@@ -9536,11 +9954,19 @@ cdef class FBCSessionInfo:
         return obj
 
 
-conf_compute_system_caps_dtype = _numpy.dtype([
-    ("cpu_caps", _numpy.uint32, ),
-    ("gpus_caps", _numpy.uint32, ),
-    ], align=True)
+cdef _get_conf_compute_system_caps_dtype_offsets():
+    cdef nvmlConfComputeSystemCaps_t pod = nvmlConfComputeSystemCaps_t()
+    return _numpy.dtype({
+        'names': ['cpu_caps', 'gpus_caps'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.cpuCaps)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.gpusCaps)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlConfComputeSystemCaps_t),
+    })
 
+conf_compute_system_caps_dtype = _get_conf_compute_system_caps_dtype_offsets()
 
 cdef class ConfComputeSystemCaps:
     """Empty-initialize an instance of `nvmlConfComputeSystemCaps_t`.
@@ -9652,12 +10078,20 @@ cdef class ConfComputeSystemCaps:
         return obj
 
 
-conf_compute_system_state_dtype = _numpy.dtype([
-    ("environment", _numpy.uint32, ),
-    ("cc_feature", _numpy.uint32, ),
-    ("dev_tools_mode", _numpy.uint32, ),
-    ], align=True)
+cdef _get_conf_compute_system_state_dtype_offsets():
+    cdef nvmlConfComputeSystemState_t pod = nvmlConfComputeSystemState_t()
+    return _numpy.dtype({
+        'names': ['environment', 'cc_feature', 'dev_tools_mode'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.environment)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ccFeature)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.devToolsMode)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlConfComputeSystemState_t),
+    })
 
+conf_compute_system_state_dtype = _get_conf_compute_system_state_dtype_offsets()
 
 cdef class ConfComputeSystemState:
     """Empty-initialize an instance of `nvmlConfComputeSystemState_t`.
@@ -9780,14 +10214,22 @@ cdef class ConfComputeSystemState:
         return obj
 
 
-system_conf_compute_settings_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("environment", _numpy.uint32, ),
-    ("cc_feature", _numpy.uint32, ),
-    ("dev_tools_mode", _numpy.uint32, ),
-    ("multi_gpu_mode", _numpy.uint32, ),
-    ], align=True)
+cdef _get_system_conf_compute_settings_v1_dtype_offsets():
+    cdef nvmlSystemConfComputeSettings_v1_t pod = nvmlSystemConfComputeSettings_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'environment', 'cc_feature', 'dev_tools_mode', 'multi_gpu_mode'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.environment)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ccFeature)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.devToolsMode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.multiGpuMode)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlSystemConfComputeSettings_v1_t),
+    })
 
+system_conf_compute_settings_v1_dtype = _get_system_conf_compute_settings_v1_dtype_offsets()
 
 cdef class SystemConfComputeSettings_v1:
     """Empty-initialize an instance of `nvmlSystemConfComputeSettings_v1_t`.
@@ -9932,11 +10374,19 @@ cdef class SystemConfComputeSettings_v1:
         return obj
 
 
-conf_compute_mem_size_info_dtype = _numpy.dtype([
-    ("protected_mem_size_kib", _numpy.uint64, ),
-    ("unprotected_mem_size_kib", _numpy.uint64, ),
-    ], align=True)
+cdef _get_conf_compute_mem_size_info_dtype_offsets():
+    cdef nvmlConfComputeMemSizeInfo_t pod = nvmlConfComputeMemSizeInfo_t()
+    return _numpy.dtype({
+        'names': ['protected_mem_size_kib', 'unprotected_mem_size_kib'],
+        'formats': [_numpy.uint64, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.protectedMemSizeKib)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.unprotectedMemSizeKib)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlConfComputeMemSizeInfo_t),
+    })
 
+conf_compute_mem_size_info_dtype = _get_conf_compute_mem_size_info_dtype_offsets()
 
 cdef class ConfComputeMemSizeInfo:
     """Empty-initialize an instance of `nvmlConfComputeMemSizeInfo_t`.
@@ -10048,13 +10498,21 @@ cdef class ConfComputeMemSizeInfo:
         return obj
 
 
-conf_compute_gpu_certificate_dtype = _numpy.dtype([
-    ("cert_chain_size", _numpy.uint32, ),
-    ("attestation_cert_chain_size", _numpy.uint32, ),
-    ("cert_chain", _numpy.uint8, (4096,)),
-    ("attestation_cert_chain", _numpy.uint8, (5120,)),
-    ], align=True)
+cdef _get_conf_compute_gpu_certificate_dtype_offsets():
+    cdef nvmlConfComputeGpuCertificate_t pod = nvmlConfComputeGpuCertificate_t()
+    return _numpy.dtype({
+        'names': ['cert_chain_size', 'attestation_cert_chain_size', 'cert_chain', 'attestation_cert_chain'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint8, _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.certChainSize)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.attestationCertChainSize)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.certChain)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.attestationCertChain)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlConfComputeGpuCertificate_t),
+    })
 
+conf_compute_gpu_certificate_dtype = _get_conf_compute_gpu_certificate_dtype_offsets()
 
 cdef class ConfComputeGpuCertificate:
     """Empty-initialize an instance of `nvmlConfComputeGpuCertificate_t`.
@@ -10196,15 +10654,23 @@ cdef class ConfComputeGpuCertificate:
         return obj
 
 
-conf_compute_gpu_attestation_report_dtype = _numpy.dtype([
-    ("is_cec_attestation_report_present", _numpy.uint32, ),
-    ("attestation_report_size", _numpy.uint32, ),
-    ("cec_attestation_report_size", _numpy.uint32, ),
-    ("nonce", _numpy.uint8, (32,)),
-    ("attestation_report", _numpy.uint8, (8192,)),
-    ("cec_attestation_report", _numpy.uint8, (4096,)),
-    ], align=True)
+cdef _get_conf_compute_gpu_attestation_report_dtype_offsets():
+    cdef nvmlConfComputeGpuAttestationReport_t pod = nvmlConfComputeGpuAttestationReport_t()
+    return _numpy.dtype({
+        'names': ['is_cec_attestation_report_present', 'attestation_report_size', 'cec_attestation_report_size', 'nonce', 'attestation_report', 'cec_attestation_report'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint8, _numpy.uint8, _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.isCecAttestationReportPresent)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.attestationReportSize)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.cecAttestationReportSize)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.nonce)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.attestationReport)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.cecAttestationReport)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlConfComputeGpuAttestationReport_t),
+    })
 
+conf_compute_gpu_attestation_report_dtype = _get_conf_compute_gpu_attestation_report_dtype_offsets()
 
 cdef class ConfComputeGpuAttestationReport:
     """Empty-initialize an instance of `nvmlConfComputeGpuAttestationReport_t`.
@@ -10372,11 +10838,19 @@ cdef class ConfComputeGpuAttestationReport:
         return obj
 
 
-conf_compute_get_key_rotation_threshold_info_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("attacker_advantage", _numpy.uint64, ),
-    ], align=True)
+cdef _get_conf_compute_get_key_rotation_threshold_info_v1_dtype_offsets():
+    cdef nvmlConfComputeGetKeyRotationThresholdInfo_v1_t pod = nvmlConfComputeGetKeyRotationThresholdInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'attacker_advantage'],
+        'formats': [_numpy.uint32, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.attackerAdvantage)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlConfComputeGetKeyRotationThresholdInfo_v1_t),
+    })
 
+conf_compute_get_key_rotation_threshold_info_v1_dtype = _get_conf_compute_get_key_rotation_threshold_info_v1_dtype_offsets()
 
 cdef class ConfComputeGetKeyRotationThresholdInfo_v1:
     """Empty-initialize an instance of `nvmlConfComputeGetKeyRotationThresholdInfo_v1_t`.
@@ -10488,12 +10962,20 @@ cdef class ConfComputeGetKeyRotationThresholdInfo_v1:
         return obj
 
 
-nvlink_supported_bw_modes_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("bw_modes", _numpy.uint8, (23,)),
-    ("total_bw_modes", _numpy.uint8, ),
-    ], align=True)
+cdef _get_nvlink_supported_bw_modes_v1_dtype_offsets():
+    cdef nvmlNvlinkSupportedBwModes_v1_t pod = nvmlNvlinkSupportedBwModes_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'bw_modes', 'total_bw_modes'],
+        'formats': [_numpy.uint32, _numpy.uint8, _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bwModes)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.totalBwModes)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkSupportedBwModes_v1_t),
+    })
 
+nvlink_supported_bw_modes_v1_dtype = _get_nvlink_supported_bw_modes_v1_dtype_offsets()
 
 cdef class NvlinkSupportedBwModes_v1:
     """Empty-initialize an instance of `nvmlNvlinkSupportedBwModes_v1_t`.
@@ -10620,12 +11102,20 @@ cdef class NvlinkSupportedBwModes_v1:
         return obj
 
 
-nvlink_get_bw_mode_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("b_is_best", _numpy.uint32, ),
-    ("bw_mode", _numpy.uint8, ),
-    ], align=True)
+cdef _get_nvlink_get_bw_mode_v1_dtype_offsets():
+    cdef nvmlNvlinkGetBwMode_v1_t pod = nvmlNvlinkGetBwMode_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'b_is_best', 'bw_mode'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bIsBest)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bwMode)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkGetBwMode_v1_t),
+    })
 
+nvlink_get_bw_mode_v1_dtype = _get_nvlink_get_bw_mode_v1_dtype_offsets()
 
 cdef class NvlinkGetBwMode_v1:
     """Empty-initialize an instance of `nvmlNvlinkGetBwMode_v1_t`.
@@ -10748,12 +11238,20 @@ cdef class NvlinkGetBwMode_v1:
         return obj
 
 
-nvlink_set_bw_mode_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("b_set_best", _numpy.uint32, ),
-    ("bw_mode", _numpy.uint8, ),
-    ], align=True)
+cdef _get_nvlink_set_bw_mode_v1_dtype_offsets():
+    cdef nvmlNvlinkSetBwMode_v1_t pod = nvmlNvlinkSetBwMode_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'b_set_best', 'bw_mode'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bSetBest)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bwMode)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkSetBwMode_v1_t),
+    })
 
+nvlink_set_bw_mode_v1_dtype = _get_nvlink_set_bw_mode_v1_dtype_offsets()
 
 cdef class NvlinkSetBwMode_v1:
     """Empty-initialize an instance of `nvmlNvlinkSetBwMode_v1_t`.
@@ -10876,11 +11374,19 @@ cdef class NvlinkSetBwMode_v1:
         return obj
 
 
-vgpu_version_dtype = _numpy.dtype([
-    ("min_version", _numpy.uint32, ),
-    ("max_version", _numpy.uint32, ),
-    ], align=True)
+cdef _get_vgpu_version_dtype_offsets():
+    cdef nvmlVgpuVersion_t pod = nvmlVgpuVersion_t()
+    return _numpy.dtype({
+        'names': ['min_version', 'max_version'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.minVersion)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.maxVersion)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuVersion_t),
+    })
 
+vgpu_version_dtype = _get_vgpu_version_dtype_offsets()
 
 cdef class VgpuVersion:
     """Empty-initialize an instance of `nvmlVgpuVersion_t`.
@@ -10992,19 +11498,27 @@ cdef class VgpuVersion:
         return obj
 
 
-vgpu_metadata_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("revision", _numpy.uint32, ),
-    ("guest_info_state", _numpy.int32, ),
-    ("guest_driver_version", _numpy.int8, (80,)),
-    ("host_driver_version", _numpy.int8, (80,)),
-    ("reserved", _numpy.uint32, (6,)),
-    ("vgpu_virtualization_caps", _numpy.uint32, ),
-    ("guest_vgpu_version", _numpy.uint32, ),
-    ("opaque_data_size", _numpy.uint32, ),
-    ("opaque_data", _numpy.int8, (4,)),
-    ], align=True)
+cdef _get_vgpu_metadata_dtype_offsets():
+    cdef nvmlVgpuMetadata_t pod = nvmlVgpuMetadata_t()
+    return _numpy.dtype({
+        'names': ['version', 'revision', 'guest_info_state', 'guest_driver_version', 'host_driver_version', 'reserved', 'vgpu_virtualization_caps', 'guest_vgpu_version', 'opaque_data_size', 'opaque_data'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.int8, _numpy.int8, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.revision)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.guestInfoState)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.guestDriverVersion)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.hostDriverVersion)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuVirtualizationCaps)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.guestVgpuVersion)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.opaqueDataSize)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.opaqueData)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuMetadata_t),
+    })
 
+vgpu_metadata_dtype = _get_vgpu_metadata_dtype_offsets()
 
 cdef class VgpuMetadata:
     """Empty-initialize an instance of `nvmlVgpuMetadata_t`.
@@ -11205,11 +11719,19 @@ cdef class VgpuMetadata:
         return obj
 
 
-vgpu_pgpu_compatibility_dtype = _numpy.dtype([
-    ("vgpu_vm_compatibility", _numpy.int32, ),
-    ("compatibility_limit_code", _numpy.int32, ),
-    ], align=True)
+cdef _get_vgpu_pgpu_compatibility_dtype_offsets():
+    cdef nvmlVgpuPgpuCompatibility_t pod = nvmlVgpuPgpuCompatibility_t()
+    return _numpy.dtype({
+        'names': ['vgpu_vm_compatibility', 'compatibility_limit_code'],
+        'formats': [_numpy.int32, _numpy.int32],
+        'offsets': [
+            (<intptr_t>&(pod.vgpuVmCompatibility)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.compatibilityLimitCode)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuPgpuCompatibility_t),
+    })
 
+vgpu_pgpu_compatibility_dtype = _get_vgpu_pgpu_compatibility_dtype_offsets()
 
 cdef class VgpuPgpuCompatibility:
     """Empty-initialize an instance of `nvmlVgpuPgpuCompatibility_t`.
@@ -11321,11 +11843,19 @@ cdef class VgpuPgpuCompatibility:
         return obj
 
 
-gpu_instance_placement_dtype = _numpy.dtype([
-    ("start", _numpy.uint32, ),
-    ("size_", _numpy.uint32, ),
-    ], align=True)
+cdef _get_gpu_instance_placement_dtype_offsets():
+    cdef nvmlGpuInstancePlacement_t pod = nvmlGpuInstancePlacement_t()
+    return _numpy.dtype({
+        'names': ['start', 'size_'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.start)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGpuInstancePlacement_t),
+    })
 
+gpu_instance_placement_dtype = _get_gpu_instance_placement_dtype_offsets()
 
 cdef class GpuInstancePlacement:
     """Empty-initialize an array of `nvmlGpuInstancePlacement_t`.
@@ -11459,22 +11989,30 @@ cdef class GpuInstancePlacement:
         return obj
 
 
-gpu_instance_profile_info_v2_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("id", _numpy.uint32, ),
-    ("is_p2p_supported", _numpy.uint32, ),
-    ("slice_count", _numpy.uint32, ),
-    ("instance_count", _numpy.uint32, ),
-    ("multiprocessor_count", _numpy.uint32, ),
-    ("copy_engine_count", _numpy.uint32, ),
-    ("decoder_count", _numpy.uint32, ),
-    ("encoder_count", _numpy.uint32, ),
-    ("jpeg_count", _numpy.uint32, ),
-    ("ofa_count", _numpy.uint32, ),
-    ("memory_size_mb", _numpy.uint64, ),
-    ("name", _numpy.int8, (96,)),
-    ], align=True)
+cdef _get_gpu_instance_profile_info_v2_dtype_offsets():
+    cdef nvmlGpuInstanceProfileInfo_v2_t pod = nvmlGpuInstanceProfileInfo_v2_t()
+    return _numpy.dtype({
+        'names': ['version', 'id', 'is_p2p_supported', 'slice_count', 'instance_count', 'multiprocessor_count', 'copy_engine_count', 'decoder_count', 'encoder_count', 'jpeg_count', 'ofa_count', 'memory_size_mb', 'name'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.int8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.isP2pSupported)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sliceCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.instanceCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.copyEngineCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.decoderCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.encoderCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.jpegCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ofaCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memorySizeMB)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGpuInstanceProfileInfo_v2_t),
+    })
 
+gpu_instance_profile_info_v2_dtype = _get_gpu_instance_profile_info_v2_dtype_offsets()
 
 cdef class GpuInstanceProfileInfo_v2:
     """Empty-initialize an instance of `nvmlGpuInstanceProfileInfo_v2_t`.
@@ -11711,22 +12249,30 @@ cdef class GpuInstanceProfileInfo_v2:
         return obj
 
 
-gpu_instance_profile_info_v3_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("id", _numpy.uint32, ),
-    ("slice_count", _numpy.uint32, ),
-    ("instance_count", _numpy.uint32, ),
-    ("multiprocessor_count", _numpy.uint32, ),
-    ("copy_engine_count", _numpy.uint32, ),
-    ("decoder_count", _numpy.uint32, ),
-    ("encoder_count", _numpy.uint32, ),
-    ("jpeg_count", _numpy.uint32, ),
-    ("ofa_count", _numpy.uint32, ),
-    ("memory_size_mb", _numpy.uint64, ),
-    ("name", _numpy.int8, (96,)),
-    ("capabilities", _numpy.uint32, ),
-    ], align=True)
+cdef _get_gpu_instance_profile_info_v3_dtype_offsets():
+    cdef nvmlGpuInstanceProfileInfo_v3_t pod = nvmlGpuInstanceProfileInfo_v3_t()
+    return _numpy.dtype({
+        'names': ['version', 'id', 'slice_count', 'instance_count', 'multiprocessor_count', 'copy_engine_count', 'decoder_count', 'encoder_count', 'jpeg_count', 'ofa_count', 'memory_size_mb', 'name', 'capabilities'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.int8, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sliceCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.instanceCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.copyEngineCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.decoderCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.encoderCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.jpegCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ofaCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memorySizeMB)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.capabilities)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGpuInstanceProfileInfo_v3_t),
+    })
 
+gpu_instance_profile_info_v3_dtype = _get_gpu_instance_profile_info_v3_dtype_offsets()
 
 cdef class GpuInstanceProfileInfo_v3:
     """Empty-initialize an instance of `nvmlGpuInstanceProfileInfo_v3_t`.
@@ -11963,11 +12509,19 @@ cdef class GpuInstanceProfileInfo_v3:
         return obj
 
 
-compute_instance_placement_dtype = _numpy.dtype([
-    ("start", _numpy.uint32, ),
-    ("size_", _numpy.uint32, ),
-    ], align=True)
+cdef _get_compute_instance_placement_dtype_offsets():
+    cdef nvmlComputeInstancePlacement_t pod = nvmlComputeInstancePlacement_t()
+    return _numpy.dtype({
+        'names': ['start', 'size_'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.start)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlComputeInstancePlacement_t),
+    })
 
+compute_instance_placement_dtype = _get_compute_instance_placement_dtype_offsets()
 
 cdef class ComputeInstancePlacement:
     """Empty-initialize an array of `nvmlComputeInstancePlacement_t`.
@@ -12101,20 +12655,28 @@ cdef class ComputeInstancePlacement:
         return obj
 
 
-compute_instance_profile_info_v2_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("id", _numpy.uint32, ),
-    ("slice_count", _numpy.uint32, ),
-    ("instance_count", _numpy.uint32, ),
-    ("multiprocessor_count", _numpy.uint32, ),
-    ("shared_copy_engine_count", _numpy.uint32, ),
-    ("shared_decoder_count", _numpy.uint32, ),
-    ("shared_encoder_count", _numpy.uint32, ),
-    ("shared_jpeg_count", _numpy.uint32, ),
-    ("shared_ofa_count", _numpy.uint32, ),
-    ("name", _numpy.int8, (96,)),
-    ], align=True)
+cdef _get_compute_instance_profile_info_v2_dtype_offsets():
+    cdef nvmlComputeInstanceProfileInfo_v2_t pod = nvmlComputeInstanceProfileInfo_v2_t()
+    return _numpy.dtype({
+        'names': ['version', 'id', 'slice_count', 'instance_count', 'multiprocessor_count', 'shared_copy_engine_count', 'shared_decoder_count', 'shared_encoder_count', 'shared_jpeg_count', 'shared_ofa_count', 'name'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sliceCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.instanceCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedCopyEngineCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedDecoderCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedEncoderCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedJpegCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedOfaCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlComputeInstanceProfileInfo_v2_t),
+    })
 
+compute_instance_profile_info_v2_dtype = _get_compute_instance_profile_info_v2_dtype_offsets()
 
 cdef class ComputeInstanceProfileInfo_v2:
     """Empty-initialize an instance of `nvmlComputeInstanceProfileInfo_v2_t`.
@@ -12329,21 +12891,29 @@ cdef class ComputeInstanceProfileInfo_v2:
         return obj
 
 
-compute_instance_profile_info_v3_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("id", _numpy.uint32, ),
-    ("slice_count", _numpy.uint32, ),
-    ("instance_count", _numpy.uint32, ),
-    ("multiprocessor_count", _numpy.uint32, ),
-    ("shared_copy_engine_count", _numpy.uint32, ),
-    ("shared_decoder_count", _numpy.uint32, ),
-    ("shared_encoder_count", _numpy.uint32, ),
-    ("shared_jpeg_count", _numpy.uint32, ),
-    ("shared_ofa_count", _numpy.uint32, ),
-    ("name", _numpy.int8, (96,)),
-    ("capabilities", _numpy.uint32, ),
-    ], align=True)
+cdef _get_compute_instance_profile_info_v3_dtype_offsets():
+    cdef nvmlComputeInstanceProfileInfo_v3_t pod = nvmlComputeInstanceProfileInfo_v3_t()
+    return _numpy.dtype({
+        'names': ['version', 'id', 'slice_count', 'instance_count', 'multiprocessor_count', 'shared_copy_engine_count', 'shared_decoder_count', 'shared_encoder_count', 'shared_jpeg_count', 'shared_ofa_count', 'name', 'capabilities'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int8, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sliceCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.instanceCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.multiprocessorCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedCopyEngineCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedDecoderCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedEncoderCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedJpegCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sharedOfaCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.capabilities)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlComputeInstanceProfileInfo_v3_t),
+    })
 
+compute_instance_profile_info_v3_dtype = _get_compute_instance_profile_info_v3_dtype_offsets()
 
 cdef class ComputeInstanceProfileInfo_v3:
     """Empty-initialize an instance of `nvmlComputeInstanceProfileInfo_v3_t`.
@@ -12569,11 +13139,19 @@ cdef class ComputeInstanceProfileInfo_v3:
         return obj
 
 
-gpm_support_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("is_supported_device", _numpy.uint32, ),
-    ], align=True)
+cdef _get_gpm_support_dtype_offsets():
+    cdef nvmlGpmSupport_t pod = nvmlGpmSupport_t()
+    return _numpy.dtype({
+        'names': ['version', 'is_supported_device'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.isSupportedDevice)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGpmSupport_t),
+    })
 
+gpm_support_dtype = _get_gpm_support_dtype_offsets()
 
 cdef class GpmSupport:
     """Empty-initialize an instance of `nvmlGpmSupport_t`.
@@ -12685,11 +13263,19 @@ cdef class GpmSupport:
         return obj
 
 
-device_capabilities_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("cap_mask", _numpy.uint32, ),
-    ], align=True)
+cdef _get_device_capabilities_v1_dtype_offsets():
+    cdef nvmlDeviceCapabilities_v1_t pod = nvmlDeviceCapabilities_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'cap_mask'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.capMask)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlDeviceCapabilities_v1_t),
+    })
 
+device_capabilities_v1_dtype = _get_device_capabilities_v1_dtype_offsets()
 
 cdef class DeviceCapabilities_v1:
     """Empty-initialize an instance of `nvmlDeviceCapabilities_v1_t`.
@@ -12801,11 +13387,19 @@ cdef class DeviceCapabilities_v1:
         return obj
 
 
-device_addressing_mode_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("value", _numpy.uint32, ),
-    ], align=True)
+cdef _get_device_addressing_mode_v1_dtype_offsets():
+    cdef nvmlDeviceAddressingMode_v1_t pod = nvmlDeviceAddressingMode_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'value'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlDeviceAddressingMode_v1_t),
+    })
 
+device_addressing_mode_v1_dtype = _get_device_addressing_mode_v1_dtype_offsets()
 
 cdef class DeviceAddressingMode_v1:
     """Empty-initialize an instance of `nvmlDeviceAddressingMode_v1_t`.
@@ -12917,12 +13511,20 @@ cdef class DeviceAddressingMode_v1:
         return obj
 
 
-repair_status_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("b_channel_repair_pending", _numpy.uint32, ),
-    ("b_tpc_repair_pending", _numpy.uint32, ),
-    ], align=True)
+cdef _get_repair_status_v1_dtype_offsets():
+    cdef nvmlRepairStatus_v1_t pod = nvmlRepairStatus_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'b_channel_repair_pending', 'b_tpc_repair_pending'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bChannelRepairPending)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bTpcRepairPending)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlRepairStatus_v1_t),
+    })
 
+repair_status_v1_dtype = _get_repair_status_v1_dtype_offsets()
 
 cdef class RepairStatus_v1:
     """Empty-initialize an instance of `nvmlRepairStatus_v1_t`.
@@ -13045,11 +13647,19 @@ cdef class RepairStatus_v1:
         return obj
 
 
-pdi_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("value", _numpy.uint64, ),
-    ], align=True)
+cdef _get_pdi_v1_dtype_offsets():
+    cdef nvmlPdi_v1_t pod = nvmlPdi_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'value'],
+        'formats': [_numpy.uint32, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPdi_v1_t),
+    })
 
+pdi_v1_dtype = _get_pdi_v1_dtype_offsets()
 
 cdef class Pdi_v1:
     """Empty-initialize an instance of `nvmlPdi_v1_t`.
@@ -13161,12 +13771,20 @@ cdef class Pdi_v1:
         return obj
 
 
-device_power_mizer_modes_v1_dtype = _numpy.dtype([
-    ("current_mode", _numpy.uint32, ),
-    ("mode", _numpy.uint32, ),
-    ("supported_power_mizer_modes", _numpy.uint32, ),
-    ], align=True)
+cdef _get_device_power_mizer_modes_v1_dtype_offsets():
+    cdef nvmlDevicePowerMizerModes_v1_t pod = nvmlDevicePowerMizerModes_v1_t()
+    return _numpy.dtype({
+        'names': ['current_mode', 'mode', 'supported_power_mizer_modes'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.currentMode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.mode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.supportedPowerMizerModes)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlDevicePowerMizerModes_v1_t),
+    })
 
+device_power_mizer_modes_v1_dtype = _get_device_power_mizer_modes_v1_dtype_offsets()
 
 cdef class DevicePowerMizerModes_v1:
     """Empty-initialize an instance of `nvmlDevicePowerMizerModes_v1_t`.
@@ -13289,16 +13907,24 @@ cdef class DevicePowerMizerModes_v1:
         return obj
 
 
-ecc_sram_unique_uncorrected_error_entry_v1_dtype = _numpy.dtype([
-    ("unit", _numpy.uint32, ),
-    ("location", _numpy.uint32, ),
-    ("sublocation", _numpy.uint32, ),
-    ("extlocation", _numpy.uint32, ),
-    ("address", _numpy.uint32, ),
-    ("is_parity", _numpy.uint32, ),
-    ("count", _numpy.uint32, ),
-    ], align=True)
+cdef _get_ecc_sram_unique_uncorrected_error_entry_v1_dtype_offsets():
+    cdef nvmlEccSramUniqueUncorrectedErrorEntry_v1_t pod = nvmlEccSramUniqueUncorrectedErrorEntry_v1_t()
+    return _numpy.dtype({
+        'names': ['unit', 'location', 'sublocation', 'extlocation', 'address', 'is_parity', 'count'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.unit)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.location)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sublocation)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.extlocation)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.address)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.isParity)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t),
+    })
 
+ecc_sram_unique_uncorrected_error_entry_v1_dtype = _get_ecc_sram_unique_uncorrected_error_entry_v1_dtype_offsets()
 
 cdef class EccSramUniqueUncorrectedErrorEntry_v1:
     """Empty-initialize an array of `nvmlEccSramUniqueUncorrectedErrorEntry_v1_t`.
@@ -13487,16 +14113,24 @@ cdef class EccSramUniqueUncorrectedErrorEntry_v1:
         return obj
 
 
-gpu_fabric_info_v3_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("cluster_uuid", _numpy.uint8, (16,)),
-    ("status", _numpy.int32, ),
-    ("clique_id", _numpy.uint32, ),
-    ("state", _numpy.uint8, ),
-    ("health_mask", _numpy.uint32, ),
-    ("health_summary", _numpy.uint8, ),
-    ], align=True)
+cdef _get_gpu_fabric_info_v3_dtype_offsets():
+    cdef nvmlGpuFabricInfo_v3_t pod = nvmlGpuFabricInfo_v3_t()
+    return _numpy.dtype({
+        'names': ['version', 'cluster_uuid', 'status', 'clique_id', 'state', 'health_mask', 'health_summary'],
+        'formats': [_numpy.uint32, _numpy.uint8, _numpy.int32, _numpy.uint32, _numpy.uint8, _numpy.uint32, _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.clusterUuid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.cliqueId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.state)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.healthMask)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.healthSummary)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGpuFabricInfo_v3_t),
+    })
 
+gpu_fabric_info_v3_dtype = _get_gpu_fabric_info_v3_dtype_offsets()
 
 cdef class GpuFabricInfo_v3:
     """Empty-initialize an instance of `nvmlGpuFabricInfo_v3_t`.
@@ -13667,13 +14301,21 @@ cdef class GpuFabricInfo_v3:
         return obj
 
 
-nvlink_firmware_version_dtype = _numpy.dtype([
-    ("ucode_type", _numpy.uint8, ),
-    ("major", _numpy.uint32, ),
-    ("minor", _numpy.uint32, ),
-    ("sub_minor", _numpy.uint32, ),
-    ], align=True)
+cdef _get_nvlink_firmware_version_dtype_offsets():
+    cdef nvmlNvlinkFirmwareVersion_t pod = nvmlNvlinkFirmwareVersion_t()
+    return _numpy.dtype({
+        'names': ['ucode_type', 'major', 'minor', 'sub_minor'],
+        'formats': [_numpy.uint8, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.ucodeType)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.major)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.minor)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.subMinor)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkFirmwareVersion_t),
+    })
 
+nvlink_firmware_version_dtype = _get_nvlink_firmware_version_dtype_offsets()
 
 cdef class NvlinkFirmwareVersion:
     """Empty-initialize an instance of `nvmlNvlinkFirmwareVersion_t`.
@@ -13807,11 +14449,19 @@ cdef class NvlinkFirmwareVersion:
         return obj
 
 
-excluded_device_info_dtype = _numpy.dtype([
-    ("pci_info", pci_info_dtype, ),
-    ("uuid", _numpy.int8, (80,)),
-    ], align=True)
+cdef _get_excluded_device_info_dtype_offsets():
+    cdef nvmlExcludedDeviceInfo_t pod = nvmlExcludedDeviceInfo_t()
+    return _numpy.dtype({
+        'names': ['pci_info', 'uuid'],
+        'formats': [pci_info_dtype, _numpy.int8],
+        'offsets': [
+            (<intptr_t>&(pod.pciInfo)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.uuid)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlExcludedDeviceInfo_t),
+    })
 
+excluded_device_info_dtype = _get_excluded_device_info_dtype_offsets()
 
 cdef class ExcludedDeviceInfo:
     """Empty-initialize an instance of `nvmlExcludedDeviceInfo_t`.
@@ -13928,13 +14578,21 @@ cdef class ExcludedDeviceInfo:
         return obj
 
 
-process_detail_list_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("mode", _numpy.uint32, ),
-    ("num_proc_array_entries", _numpy.uint32, ),
-    ("proc_array", _numpy.intp, ),
-    ], align=True)
+cdef _get_process_detail_list_v1_dtype_offsets():
+    cdef nvmlProcessDetailList_v1_t pod = nvmlProcessDetailList_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'mode', 'num_proc_array_entries', 'proc_array'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.mode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.numProcArrayEntries)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.procArray)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlProcessDetailList_v1_t),
+    })
 
+process_detail_list_v1_dtype = _get_process_detail_list_v1_dtype_offsets()
 
 cdef class ProcessDetailList_v1:
     """Empty-initialize an instance of `nvmlProcessDetailList_v1_t`.
@@ -14065,11 +14723,19 @@ cdef class ProcessDetailList_v1:
         return obj
 
 
-bridge_chip_hierarchy_dtype = _numpy.dtype([
-    ("bridge_count", _numpy.uint8, ),
-    ("bridge_chip_info", bridge_chip_info_dtype, (128,)),
-    ], align=True)
+cdef _get_bridge_chip_hierarchy_dtype_offsets():
+    cdef nvmlBridgeChipHierarchy_t pod = nvmlBridgeChipHierarchy_t()
+    return _numpy.dtype({
+        'names': ['bridge_count', 'bridge_chip_info'],
+        'formats': [_numpy.uint8, bridge_chip_info_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.bridgeCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bridgeChipInfo)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlBridgeChipHierarchy_t),
+    })
 
+bridge_chip_hierarchy_dtype = _get_bridge_chip_hierarchy_dtype_offsets()
 
 cdef class BridgeChipHierarchy:
     """Empty-initialize an instance of `nvmlBridgeChipHierarchy_t`.
@@ -14184,11 +14850,19 @@ cdef class BridgeChipHierarchy:
         return obj
 
 
-sample_dtype = _numpy.dtype([
-    ("time_stamp", _numpy.uint64, ),
-    ("sample_value", value_dtype, ),
-    ], align=True)
+cdef _get_sample_dtype_offsets():
+    cdef nvmlSample_t pod = nvmlSample_t()
+    return _numpy.dtype({
+        'names': ['time_stamp', 'sample_value'],
+        'formats': [_numpy.uint64, value_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sampleValue)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlSample_t),
+    })
 
+sample_dtype = _get_sample_dtype_offsets()
 
 cdef class Sample:
     """Empty-initialize an array of `nvmlSample_t`.
@@ -14334,17 +15008,25 @@ cdef class Sample:
         return obj
 
 
-vgpu_instance_utilization_info_v1_dtype = _numpy.dtype([
-    ("time_stamp", _numpy.uint64, ),
-    ("vgpu_instance", _numpy.uint32, ),
-    ("sm_util", value_dtype, ),
-    ("mem_util", value_dtype, ),
-    ("enc_util", value_dtype, ),
-    ("dec_util", value_dtype, ),
-    ("jpg_util", value_dtype, ),
-    ("ofa_util", value_dtype, ),
-    ], align=True)
+cdef _get_vgpu_instance_utilization_info_v1_dtype_offsets():
+    cdef nvmlVgpuInstanceUtilizationInfo_v1_t pod = nvmlVgpuInstanceUtilizationInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['time_stamp', 'vgpu_instance', 'sm_util', 'mem_util', 'enc_util', 'dec_util', 'jpg_util', 'ofa_util'],
+        'formats': [_numpy.uint64, _numpy.uint32, value_dtype, value_dtype, value_dtype, value_dtype, value_dtype, value_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuInstance)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.smUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.memUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.encUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.decUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.jpgUtil)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ofaUtil)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuInstanceUtilizationInfo_v1_t),
+    })
 
+vgpu_instance_utilization_info_v1_dtype = _get_vgpu_instance_utilization_info_v1_dtype_offsets()
 
 cdef class VgpuInstanceUtilizationInfo_v1:
     """Empty-initialize an array of `nvmlVgpuInstanceUtilizationInfo_v1_t`.
@@ -14616,16 +15298,24 @@ cdef class VgpuInstanceUtilizationInfo_v1:
         return obj
 
 
-field_value_dtype = _numpy.dtype([
-    ("field_id", _numpy.uint32, ),
-    ("scope_id", _numpy.uint32, ),
-    ("timestamp", _numpy.int64, ),
-    ("latency_usec", _numpy.int64, ),
-    ("value_type", _numpy.int32, ),
-    ("nvml_return", _numpy.int32, ),
-    ("value", value_dtype, ),
-    ], align=True)
+cdef _get_field_value_dtype_offsets():
+    cdef nvmlFieldValue_t pod = nvmlFieldValue_t()
+    return _numpy.dtype({
+        'names': ['field_id', 'scope_id', 'timestamp', 'latency_usec', 'value_type', 'nvml_return', 'value'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.int64, _numpy.int64, _numpy.int32, _numpy.int32, value_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.fieldId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.scopeId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.timestamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.latencyUsec)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.valueType)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.nvmlReturn)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlFieldValue_t),
+    })
 
+field_value_dtype = _get_field_value_dtype_offsets()
 
 cdef class FieldValue:
     """Empty-initialize an array of `nvmlFieldValue_t`.
@@ -14826,11 +15516,19 @@ cdef class FieldValue:
         return obj
 
 
-gpu_thermal_settings_dtype = _numpy.dtype([
-    ("count", _numpy.uint32, ),
-    ("sensor", _py_anon_pod0_dtype, (3,)),
-    ], align=True)
+cdef _get_gpu_thermal_settings_dtype_offsets():
+    cdef nvmlGpuThermalSettings_t pod = nvmlGpuThermalSettings_t()
+    return _numpy.dtype({
+        'names': ['count', 'sensor'],
+        'formats': [_numpy.uint32, _py_anon_pod0_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sensor)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGpuThermalSettings_t),
+    })
 
+gpu_thermal_settings_dtype = _get_gpu_thermal_settings_dtype_offsets()
 
 cdef class GpuThermalSettings:
     """Empty-initialize an instance of `nvmlGpuThermalSettings_t`.
@@ -14945,12 +15643,20 @@ cdef class GpuThermalSettings:
         return obj
 
 
-clk_mon_status_dtype = _numpy.dtype([
-    ("b_global_status", _numpy.uint32, ),
-    ("clk_mon_list_size", _numpy.uint32, ),
-    ("clk_mon_list", clk_mon_fault_info_dtype, (32,)),
-    ], align=True)
+cdef _get_clk_mon_status_dtype_offsets():
+    cdef nvmlClkMonStatus_t pod = nvmlClkMonStatus_t()
+    return _numpy.dtype({
+        'names': ['b_global_status', 'clk_mon_list_size', 'clk_mon_list'],
+        'formats': [_numpy.uint32, _numpy.uint32, clk_mon_fault_info_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.bGlobalStatus)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.clkMonListSize)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.clkMonList)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlClkMonStatus_t),
+    })
 
+clk_mon_status_dtype = _get_clk_mon_status_dtype_offsets()
 
 cdef class ClkMonStatus:
     """Empty-initialize an instance of `nvmlClkMonStatus_t`.
@@ -15076,13 +15782,21 @@ cdef class ClkMonStatus:
         return obj
 
 
-processes_utilization_info_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("process_samples_count", _numpy.uint32, ),
-    ("last_seen_time_stamp", _numpy.uint64, ),
-    ("proc_util_array", _numpy.intp, ),
-    ], align=True)
+cdef _get_processes_utilization_info_v1_dtype_offsets():
+    cdef nvmlProcessesUtilizationInfo_v1_t pod = nvmlProcessesUtilizationInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'process_samples_count', 'last_seen_time_stamp', 'proc_util_array'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.processSamplesCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.lastSeenTimeStamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.procUtilArray)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlProcessesUtilizationInfo_v1_t),
+    })
 
+processes_utilization_info_v1_dtype = _get_processes_utilization_info_v1_dtype_offsets()
 
 cdef class ProcessesUtilizationInfo_v1:
     """Empty-initialize an instance of `nvmlProcessesUtilizationInfo_v1_t`.
@@ -15213,11 +15927,19 @@ cdef class ProcessesUtilizationInfo_v1:
         return obj
 
 
-gpu_dynamic_pstates_info_dtype = _numpy.dtype([
-    ("flags_", _numpy.uint32, ),
-    ("utilization", _py_anon_pod1_dtype, (8,)),
-    ], align=True)
+cdef _get_gpu_dynamic_pstates_info_dtype_offsets():
+    cdef nvmlGpuDynamicPstatesInfo_t pod = nvmlGpuDynamicPstatesInfo_t()
+    return _numpy.dtype({
+        'names': ['flags_', 'utilization'],
+        'formats': [_numpy.uint32, _py_anon_pod1_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.utilization)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGpuDynamicPstatesInfo_t),
+    })
 
+gpu_dynamic_pstates_info_dtype = _get_gpu_dynamic_pstates_info_dtype_offsets()
 
 cdef class GpuDynamicPstatesInfo:
     """Empty-initialize an instance of `nvmlGpuDynamicPstatesInfo_t`.
@@ -15332,13 +16054,21 @@ cdef class GpuDynamicPstatesInfo:
         return obj
 
 
-vgpu_processes_utilization_info_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("vgpu_process_count", _numpy.uint32, ),
-    ("last_seen_time_stamp", _numpy.uint64, ),
-    ("vgpu_proc_util_array", _numpy.intp, ),
-    ], align=True)
+cdef _get_vgpu_processes_utilization_info_v1_dtype_offsets():
+    cdef nvmlVgpuProcessesUtilizationInfo_v1_t pod = nvmlVgpuProcessesUtilizationInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'vgpu_process_count', 'last_seen_time_stamp', 'vgpu_proc_util_array'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuProcessCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.lastSeenTimeStamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuProcUtilArray)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuProcessesUtilizationInfo_v1_t),
+    })
 
+vgpu_processes_utilization_info_v1_dtype = _get_vgpu_processes_utilization_info_v1_dtype_offsets()
 
 cdef class VgpuProcessesUtilizationInfo_v1:
     """Empty-initialize an instance of `nvmlVgpuProcessesUtilizationInfo_v1_t`.
@@ -15711,12 +16441,20 @@ cdef class VgpuSchedulerSetParams:
         return obj
 
 
-vgpu_license_info_dtype = _numpy.dtype([
-    ("is_licensed", _numpy.uint8, ),
-    ("license_expiry", vgpu_license_expiry_dtype, ),
-    ("current_state", _numpy.uint32, ),
-    ], align=True)
+cdef _get_vgpu_license_info_dtype_offsets():
+    cdef nvmlVgpuLicenseInfo_t pod = nvmlVgpuLicenseInfo_t()
+    return _numpy.dtype({
+        'names': ['is_licensed', 'license_expiry', 'current_state'],
+        'formats': [_numpy.uint8, vgpu_license_expiry_dtype, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.isLicensed)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.licenseExpiry)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.currentState)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuLicenseInfo_t),
+    })
 
+vgpu_license_info_dtype = _get_vgpu_license_info_dtype_offsets()
 
 cdef class VgpuLicenseInfo:
     """Empty-initialize an instance of `nvmlVgpuLicenseInfo_t`.
@@ -15840,15 +16578,23 @@ cdef class VgpuLicenseInfo:
         return obj
 
 
-grid_licensable_feature_dtype = _numpy.dtype([
-    ("feature_code", _numpy.int32, ),
-    ("feature_state", _numpy.uint32, ),
-    ("license_info", _numpy.int8, (128,)),
-    ("product_name", _numpy.int8, (128,)),
-    ("feature_enabled", _numpy.uint32, ),
-    ("license_expiry", grid_license_expiry_dtype, ),
-    ], align=True)
+cdef _get_grid_licensable_feature_dtype_offsets():
+    cdef nvmlGridLicensableFeature_t pod = nvmlGridLicensableFeature_t()
+    return _numpy.dtype({
+        'names': ['feature_code', 'feature_state', 'license_info', 'product_name', 'feature_enabled', 'license_expiry'],
+        'formats': [_numpy.int32, _numpy.uint32, _numpy.int8, _numpy.int8, _numpy.uint32, grid_license_expiry_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.featureCode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.featureState)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.licenseInfo)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.productName)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.featureEnabled)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.licenseExpiry)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGridLicensableFeature_t),
+    })
 
+grid_licensable_feature_dtype = _get_grid_licensable_feature_dtype_offsets()
 
 cdef class GridLicensableFeature:
     """Empty-initialize an array of `nvmlGridLicensableFeature_t`.
@@ -16034,11 +16780,19 @@ cdef class GridLicensableFeature:
         return obj
 
 
-unit_fan_speeds_dtype = _numpy.dtype([
-    ("fans", unit_fan_info_dtype, (24,)),
-    ("count", _numpy.uint32, ),
-    ], align=True)
+cdef _get_unit_fan_speeds_dtype_offsets():
+    cdef nvmlUnitFanSpeeds_t pod = nvmlUnitFanSpeeds_t()
+    return _numpy.dtype({
+        'names': ['fans', 'count'],
+        'formats': [unit_fan_info_dtype, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.fans)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlUnitFanSpeeds_t),
+    })
 
+unit_fan_speeds_dtype = _get_unit_fan_speeds_dtype_offsets()
 
 cdef class UnitFanSpeeds:
     """Empty-initialize an instance of `nvmlUnitFanSpeeds_t`.
@@ -16153,17 +16907,25 @@ cdef class UnitFanSpeeds:
         return obj
 
 
-vgpu_pgpu_metadata_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("revision", _numpy.uint32, ),
-    ("host_driver_version", _numpy.int8, (80,)),
-    ("pgpu_virtualization_caps", _numpy.uint32, ),
-    ("reserved", _numpy.uint32, (5,)),
-    ("host_supported_vgpu_range", vgpu_version_dtype, ),
-    ("opaque_data_size", _numpy.uint32, ),
-    ("opaque_data", _numpy.int8, (4,)),
-    ], align=True)
+cdef _get_vgpu_pgpu_metadata_dtype_offsets():
+    cdef nvmlVgpuPgpuMetadata_t pod = nvmlVgpuPgpuMetadata_t()
+    return _numpy.dtype({
+        'names': ['version', 'revision', 'host_driver_version', 'pgpu_virtualization_caps', 'reserved', 'host_supported_vgpu_range', 'opaque_data_size', 'opaque_data'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.int8, _numpy.uint32, _numpy.uint32, vgpu_version_dtype, _numpy.uint32, _numpy.int8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.revision)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.hostDriverVersion)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.pgpuVirtualizationCaps)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.reserved)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.hostSupportedVgpuRange)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.opaqueDataSize)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.opaqueData)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuPgpuMetadata_t),
+    })
 
+vgpu_pgpu_metadata_dtype = _get_vgpu_pgpu_metadata_dtype_offsets()
 
 cdef class VgpuPgpuMetadata:
     """Empty-initialize an instance of `nvmlVgpuPgpuMetadata_t`.
@@ -16339,13 +17101,21 @@ cdef class VgpuPgpuMetadata:
         return obj
 
 
-gpu_instance_info_dtype = _numpy.dtype([
-    ("device_", _numpy.intp, ),
-    ("id", _numpy.uint32, ),
-    ("profile_id", _numpy.uint32, ),
-    ("placement", gpu_instance_placement_dtype, ),
-    ], align=True)
+cdef _get_gpu_instance_info_dtype_offsets():
+    cdef nvmlGpuInstanceInfo_t pod = nvmlGpuInstanceInfo_t()
+    return _numpy.dtype({
+        'names': ['device_', 'id', 'profile_id', 'placement'],
+        'formats': [_numpy.intp, _numpy.uint32, _numpy.uint32, gpu_instance_placement_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.device)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.profileId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.placement)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGpuInstanceInfo_t),
+    })
 
+gpu_instance_info_dtype = _get_gpu_instance_info_dtype_offsets()
 
 cdef class GpuInstanceInfo:
     """Empty-initialize an instance of `nvmlGpuInstanceInfo_t`.
@@ -16480,14 +17250,22 @@ cdef class GpuInstanceInfo:
         return obj
 
 
-compute_instance_info_dtype = _numpy.dtype([
-    ("device_", _numpy.intp, ),
-    ("gpu_instance", _numpy.intp, ),
-    ("id", _numpy.uint32, ),
-    ("profile_id", _numpy.uint32, ),
-    ("placement", compute_instance_placement_dtype, ),
-    ], align=True)
+cdef _get_compute_instance_info_dtype_offsets():
+    cdef nvmlComputeInstanceInfo_t pod = nvmlComputeInstanceInfo_t()
+    return _numpy.dtype({
+        'names': ['device_', 'gpu_instance', 'id', 'profile_id', 'placement'],
+        'formats': [_numpy.intp, _numpy.intp, _numpy.uint32, _numpy.uint32, compute_instance_placement_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.device)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.gpuInstance)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.profileId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.placement)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlComputeInstanceInfo_t),
+    })
 
+compute_instance_info_dtype = _get_compute_instance_info_dtype_offsets()
 
 cdef class ComputeInstanceInfo:
     """Empty-initialize an instance of `nvmlComputeInstanceInfo_t`.
@@ -16633,12 +17411,20 @@ cdef class ComputeInstanceInfo:
         return obj
 
 
-ecc_sram_unique_uncorrected_error_counts_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("entry_count", _numpy.uint32, ),
-    ("entries", _numpy.intp, ),
-    ], align=True)
+cdef _get_ecc_sram_unique_uncorrected_error_counts_v1_dtype_offsets():
+    cdef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t pod = nvmlEccSramUniqueUncorrectedErrorCounts_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'entry_count', 'entries'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.entryCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.entries)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t),
+    })
 
+ecc_sram_unique_uncorrected_error_counts_v1_dtype = _get_ecc_sram_unique_uncorrected_error_counts_v1_dtype_offsets()
 
 cdef class EccSramUniqueUncorrectedErrorCounts_v1:
     """Empty-initialize an instance of `nvmlEccSramUniqueUncorrectedErrorCounts_v1_t`.
@@ -16758,11 +17544,19 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
         return obj
 
 
-nvlink_firmware_info_dtype = _numpy.dtype([
-    ("firmware_version", nvlink_firmware_version_dtype, (100,)),
-    ("num_valid_entries", _numpy.uint32, ),
-    ], align=True)
+cdef _get_nvlink_firmware_info_dtype_offsets():
+    cdef nvmlNvlinkFirmwareInfo_t pod = nvmlNvlinkFirmwareInfo_t()
+    return _numpy.dtype({
+        'names': ['firmware_version', 'num_valid_entries'],
+        'formats': [nvlink_firmware_version_dtype, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.firmwareVersion)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.numValidEntries)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkFirmwareInfo_t),
+    })
 
+nvlink_firmware_info_dtype = _get_nvlink_firmware_info_dtype_offsets()
 
 cdef class NvlinkFirmwareInfo:
     """Empty-initialize an instance of `nvmlNvlinkFirmwareInfo_t`.
@@ -16877,14 +17671,22 @@ cdef class NvlinkFirmwareInfo:
         return obj
 
 
-vgpu_instances_utilization_info_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("sample_val_type", _numpy.int32, ),
-    ("vgpu_instance_count", _numpy.uint32, ),
-    ("last_seen_time_stamp", _numpy.uint64, ),
-    ("vgpu_util_array", _numpy.intp, ),
-    ], align=True)
+cdef _get_vgpu_instances_utilization_info_v1_dtype_offsets():
+    cdef nvmlVgpuInstancesUtilizationInfo_v1_t pod = nvmlVgpuInstancesUtilizationInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'sample_val_type', 'vgpu_instance_count', 'last_seen_time_stamp', 'vgpu_util_array'],
+        'formats': [_numpy.uint32, _numpy.int32, _numpy.uint32, _numpy.uint64, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sampleValType)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuInstanceCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.lastSeenTimeStamp)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.vgpuUtilArray)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuInstancesUtilizationInfo_v1_t),
+    })
 
+vgpu_instances_utilization_info_v1_dtype = _get_vgpu_instances_utilization_info_v1_dtype_offsets()
 
 cdef class VgpuInstancesUtilizationInfo_v1:
     """Empty-initialize an instance of `nvmlVgpuInstancesUtilizationInfo_v1_t`.
@@ -17026,15 +17828,23 @@ cdef class VgpuInstancesUtilizationInfo_v1:
         return obj
 
 
-vgpu_scheduler_log_dtype = _numpy.dtype([
-    ("engine_id", _numpy.uint32, ),
-    ("scheduler_policy", _numpy.uint32, ),
-    ("arr_mode", _numpy.uint32, ),
-    ("scheduler_params", vgpu_scheduler_params_dtype, ),
-    ("entries_count", _numpy.uint32, ),
-    ("log_entries", vgpu_scheduler_log_entry_dtype, (200,)),
-    ], align=True)
+cdef _get_vgpu_scheduler_log_dtype_offsets():
+    cdef nvmlVgpuSchedulerLog_t pod = nvmlVgpuSchedulerLog_t()
+    return _numpy.dtype({
+        'names': ['engine_id', 'scheduler_policy', 'arr_mode', 'scheduler_params', 'entries_count', 'log_entries'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype, _numpy.uint32, vgpu_scheduler_log_entry_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.arrMode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.entriesCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.logEntries)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerLog_t),
+    })
 
+vgpu_scheduler_log_dtype = _get_vgpu_scheduler_log_dtype_offsets()
 
 cdef class VgpuSchedulerLog:
     """Empty-initialize an instance of `nvmlVgpuSchedulerLog_t`.
@@ -17194,12 +18004,20 @@ cdef class VgpuSchedulerLog:
         return obj
 
 
-vgpu_scheduler_get_state_dtype = _numpy.dtype([
-    ("scheduler_policy", _numpy.uint32, ),
-    ("arr_mode", _numpy.uint32, ),
-    ("scheduler_params", vgpu_scheduler_params_dtype, ),
-    ], align=True)
+cdef _get_vgpu_scheduler_get_state_dtype_offsets():
+    cdef nvmlVgpuSchedulerGetState_t pod = nvmlVgpuSchedulerGetState_t()
+    return _numpy.dtype({
+        'names': ['scheduler_policy', 'arr_mode', 'scheduler_params'],
+        'formats': [_numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.arrMode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerGetState_t),
+    })
 
+vgpu_scheduler_get_state_dtype = _get_vgpu_scheduler_get_state_dtype_offsets()
 
 cdef class VgpuSchedulerGetState:
     """Empty-initialize an instance of `nvmlVgpuSchedulerGetState_t`.
@@ -17323,14 +18141,22 @@ cdef class VgpuSchedulerGetState:
         return obj
 
 
-vgpu_scheduler_state_info_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("engine_id", _numpy.uint32, ),
-    ("scheduler_policy", _numpy.uint32, ),
-    ("arr_mode", _numpy.uint32, ),
-    ("scheduler_params", vgpu_scheduler_params_dtype, ),
-    ], align=True)
+cdef _get_vgpu_scheduler_state_info_v1_dtype_offsets():
+    cdef nvmlVgpuSchedulerStateInfo_v1_t pod = nvmlVgpuSchedulerStateInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'engine_id', 'scheduler_policy', 'arr_mode', 'scheduler_params'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.arrMode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerStateInfo_v1_t),
+    })
 
+vgpu_scheduler_state_info_v1_dtype = _get_vgpu_scheduler_state_info_v1_dtype_offsets()
 
 cdef class VgpuSchedulerStateInfo_v1:
     """Empty-initialize an instance of `nvmlVgpuSchedulerStateInfo_v1_t`.
@@ -17476,16 +18302,24 @@ cdef class VgpuSchedulerStateInfo_v1:
         return obj
 
 
-vgpu_scheduler_log_info_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("engine_id", _numpy.uint32, ),
-    ("scheduler_policy", _numpy.uint32, ),
-    ("arr_mode", _numpy.uint32, ),
-    ("scheduler_params", vgpu_scheduler_params_dtype, ),
-    ("entries_count", _numpy.uint32, ),
-    ("log_entries", vgpu_scheduler_log_entry_dtype, (200,)),
-    ], align=True)
+cdef _get_vgpu_scheduler_log_info_v1_dtype_offsets():
+    cdef nvmlVgpuSchedulerLogInfo_v1_t pod = nvmlVgpuSchedulerLogInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'engine_id', 'scheduler_policy', 'arr_mode', 'scheduler_params', 'entries_count', 'log_entries'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype, _numpy.uint32, vgpu_scheduler_log_entry_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.arrMode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.entriesCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.logEntries)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerLogInfo_v1_t),
+    })
 
+vgpu_scheduler_log_info_v1_dtype = _get_vgpu_scheduler_log_info_v1_dtype_offsets()
 
 cdef class VgpuSchedulerLogInfo_v1:
     """Empty-initialize an instance of `nvmlVgpuSchedulerLogInfo_v1_t`.
@@ -17656,14 +18490,22 @@ cdef class VgpuSchedulerLogInfo_v1:
         return obj
 
 
-vgpu_scheduler_state_v1_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("engine_id", _numpy.uint32, ),
-    ("scheduler_policy", _numpy.uint32, ),
-    ("enable_arr_mode", _numpy.uint32, ),
-    ("scheduler_params", vgpu_scheduler_set_params_dtype, ),
-    ], align=True)
+cdef _get_vgpu_scheduler_state_v1_dtype_offsets():
+    cdef nvmlVgpuSchedulerState_v1_t pod = nvmlVgpuSchedulerState_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'engine_id', 'scheduler_policy', 'enable_arr_mode', 'scheduler_params'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_set_params_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.enableARRMode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.schedulerParams)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlVgpuSchedulerState_v1_t),
+    })
 
+vgpu_scheduler_state_v1_dtype = _get_vgpu_scheduler_state_v1_dtype_offsets()
 
 cdef class VgpuSchedulerState_v1:
     """Empty-initialize an instance of `nvmlVgpuSchedulerState_v1_t`.
@@ -17809,12 +18651,20 @@ cdef class VgpuSchedulerState_v1:
         return obj
 
 
-grid_licensable_features_dtype = _numpy.dtype([
-    ("is_grid_license_supported", _numpy.int32, ),
-    ("licensable_features_count", _numpy.uint32, ),
-    ("grid_licensable_features", grid_licensable_feature_dtype, (3,)),
-    ], align=True)
+cdef _get_grid_licensable_features_dtype_offsets():
+    cdef nvmlGridLicensableFeatures_t pod = nvmlGridLicensableFeatures_t()
+    return _numpy.dtype({
+        'names': ['is_grid_license_supported', 'licensable_features_count', 'grid_licensable_features'],
+        'formats': [_numpy.int32, _numpy.uint32, grid_licensable_feature_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.isGridLicenseSupported)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.licensableFeaturesCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.gridLicensableFeatures)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGridLicensableFeatures_t),
+    })
 
+grid_licensable_features_dtype = _get_grid_licensable_features_dtype_offsets()
 
 cdef class GridLicensableFeatures:
     """Empty-initialize an instance of `nvmlGridLicensableFeatures_t`.
@@ -17940,12 +18790,20 @@ cdef class GridLicensableFeatures:
         return obj
 
 
-nv_link_info_v2_dtype = _numpy.dtype([
-    ("version", _numpy.uint32, ),
-    ("is_nvle_enabled", _numpy.uint32, ),
-    ("firmware_info", nvlink_firmware_info_dtype, ),
-    ], align=True)
+cdef _get_nv_link_info_v2_dtype_offsets():
+    cdef nvmlNvLinkInfo_v2_t pod = nvmlNvLinkInfo_v2_t()
+    return _numpy.dtype({
+        'names': ['version', 'is_nvle_enabled', 'firmware_info'],
+        'formats': [_numpy.uint32, _numpy.uint32, nvlink_firmware_info_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.isNvleEnabled)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.firmwareInfo)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvLinkInfo_v2_t),
+    })
 
+nv_link_info_v2_dtype = _get_nv_link_info_v2_dtype_offsets()
 
 cdef class NvLinkInfo_v2:
     """Empty-initialize an instance of `nvmlNvLinkInfo_v2_t`.
@@ -18240,7 +19098,7 @@ cpdef intptr_t unit_get_handle_by_index(unsigned int ind_ex) except? 0:
     return <intptr_t>unit
 
 
-cpdef object unit_get_unit_info(intptr_t unit) :
+cpdef object unit_get_unit_info(intptr_t unit):
     """Retrieves the static information associated with a unit.
 
     Args:
@@ -18259,7 +19117,7 @@ cpdef object unit_get_unit_info(intptr_t unit) :
     return info_py
 
 
-cpdef object unit_get_led_state(intptr_t unit) :
+cpdef object unit_get_led_state(intptr_t unit):
     """Retrieves the LED state associated with this unit.
 
     Args:
@@ -18278,7 +19136,7 @@ cpdef object unit_get_led_state(intptr_t unit) :
     return state_py
 
 
-cpdef object unit_get_psu_info(intptr_t unit) :
+cpdef object unit_get_psu_info(intptr_t unit):
     """Retrieves the PSU stats for the unit.
 
     Args:
@@ -18316,7 +19174,7 @@ cpdef unsigned int unit_get_temperature(intptr_t unit, unsigned int type) except
     return temp
 
 
-cpdef object unit_get_fan_speed_info(intptr_t unit) :
+cpdef object unit_get_fan_speed_info(intptr_t unit):
     """Retrieves the fan speed readings for the unit.
 
     Args:
@@ -18350,7 +19208,7 @@ cpdef unsigned int device_get_count_v2() except? 0:
     return device_count
 
 
-cpdef object device_get_attributes_v2(intptr_t device) :
+cpdef object device_get_attributes_v2(intptr_t device):
     """Get attributes (engine counts etc.) for the given NVML device handle.
 
     Args:
@@ -18557,7 +19415,7 @@ cpdef unsigned int device_get_module_id(intptr_t device) except? 0:
     return module_id
 
 
-cpdef object device_get_c2c_mode_info_v(intptr_t device) :
+cpdef object device_get_c2c_mode_info_v(intptr_t device):
     """Retrieves the Device's C2C Mode information.
 
     Args:
@@ -18905,7 +19763,7 @@ cpdef int device_get_persistence_mode(intptr_t device) except? -1:
     return <int>mode
 
 
-cpdef object device_get_pci_info_ext(intptr_t device) :
+cpdef object device_get_pci_info_ext(intptr_t device):
     """Retrieves PCI attributes of this device.
 
     Args:
@@ -18925,7 +19783,7 @@ cpdef object device_get_pci_info_ext(intptr_t device) :
     return pci_py
 
 
-cpdef object device_get_pci_info_v3(intptr_t device) :
+cpdef object device_get_pci_info_v3(intptr_t device):
     """Retrieves the PCI attributes of this device.
 
     Args:
@@ -19270,7 +20128,7 @@ cpdef unsigned int device_get_fan_speed_v2(intptr_t device, unsigned int fan) ex
     return speed
 
 
-cpdef object device_get_fan_speed_rpm(intptr_t device) :
+cpdef object device_get_fan_speed_rpm(intptr_t device):
     """Retrieves the intended operating speed in rotations per minute (RPM) of the device's specified fan.
 
     Args:
@@ -19368,7 +20226,7 @@ cpdef unsigned int device_get_num_fans(intptr_t device) except? 0:
     return num_fans
 
 
-cpdef object device_get_cooler_info(intptr_t device) :
+cpdef object device_get_cooler_info(intptr_t device):
     """Retrieves the cooler's information. Returns a cooler's control signal characteristics. The possible types are restricted, Variable and Toggle. See ``nvmlCoolerControl_t`` for details on available signal types. Returns objects that cooler cools. Targets may be GPU, Memory, Power Supply or All of these. See ``nvmlCoolerTarget_t`` for details on available targets.
 
     Args:
@@ -19407,7 +20265,7 @@ cpdef unsigned int device_get_temperature_threshold(intptr_t device, int thresho
     return temp
 
 
-cpdef object device_get_margin_temperature(intptr_t device) :
+cpdef object device_get_margin_temperature(intptr_t device):
     """Retrieves the thermal margin temperature (distance to nearest slowdown threshold).
 
     Args:
@@ -19427,7 +20285,7 @@ cpdef object device_get_margin_temperature(intptr_t device) :
     return margin_temp_info_py
 
 
-cpdef object device_get_thermal_settings(intptr_t device, unsigned int sensor_ind_ex) :
+cpdef object device_get_thermal_settings(intptr_t device, unsigned int sensor_ind_ex):
     """Used to execute a list of thermal system instructions.
 
     Args:
@@ -19519,7 +20377,7 @@ cpdef int device_get_power_state(intptr_t device) except? -1:
     return <int>p_state
 
 
-cpdef object device_get_dynamic_pstates_info(intptr_t device) :
+cpdef object device_get_dynamic_pstates_info(intptr_t device):
     """Retrieve performance monitor samples from the associated subdevice.
 
     Args:
@@ -19624,7 +20482,7 @@ cpdef tuple device_get_mem_clk_min_max_vf_offset(intptr_t device):
     return (min_offset, max_offset)
 
 
-cpdef object device_get_clock_offsets(intptr_t device) :
+cpdef object device_get_clock_offsets(intptr_t device):
     """Retrieve min, max and current clock offset of some clock domain for a given PState.
 
     Args:
@@ -19658,7 +20516,7 @@ cpdef device_set_clock_offsets(intptr_t device, intptr_t info):
     check_status(__status__)
 
 
-cpdef object device_get_performance_modes(intptr_t device) :
+cpdef object device_get_performance_modes(intptr_t device):
     """Retrieves a performance mode string with all the performance modes defined for this device along with their associated GPU Clock and Memory Clock values. Not all tokens will be reported on all GPUs, and additional tokens may be added in the future. For backwards compatibility we still provide nvclock and memclock; those are the same as nvclockmin and memclockmin.
 
     Args:
@@ -19678,7 +20536,7 @@ cpdef object device_get_performance_modes(intptr_t device) :
     return perf_modes_py
 
 
-cpdef object device_get_current_clock_freqs(intptr_t device) :
+cpdef object device_get_current_clock_freqs(intptr_t device):
     """Retrieves a string with the associated current GPU Clock and Memory Clock values.
 
     Args:
@@ -19832,7 +20690,7 @@ cpdef tuple device_get_gpu_operation_mode(intptr_t device):
     return (<int>current, <int>pending)
 
 
-cpdef object device_get_memory_info_v2(intptr_t device) :
+cpdef object device_get_memory_info_v2(intptr_t device):
     """Retrieves the amount of used, free, reserved and total memory available on the device, in bytes.
 
     Args:
@@ -20045,7 +20903,7 @@ cpdef unsigned long long device_get_memory_error_counter(intptr_t device, int er
     return count
 
 
-cpdef object device_get_utilization_rates(intptr_t device) :
+cpdef object device_get_utilization_rates(intptr_t device):
     """Retrieves the current utilization rates for the device's major subsystems.
 
     Args:
@@ -20217,7 +21075,7 @@ cpdef tuple device_get_ofa_utilization(intptr_t device):
     return (utilization, sampling_period_us)
 
 
-cpdef object device_get_fbc_stats(intptr_t device) :
+cpdef object device_get_fbc_stats(intptr_t device):
     """Retrieves the active frame buffer capture sessions statistics for a given device.
 
     Args:
@@ -20296,7 +21154,7 @@ cpdef str device_get_vbios_version(intptr_t device):
     return cpython.PyUnicode_FromString(version)
 
 
-cpdef object device_get_bridge_chip_info(intptr_t device) :
+cpdef object device_get_bridge_chip_info(intptr_t device):
     """Get Bridge Chip Information for all the bridge chips on the board.
 
     Args:
@@ -20397,7 +21255,7 @@ cpdef int device_get_api_restriction(intptr_t device, int api_type) except? -1:
     return <int>is_restricted
 
 
-cpdef object device_get_bar1_memory_info(intptr_t device) :
+cpdef object device_get_bar1_memory_info(intptr_t device):
     """Gets Total, Available and Used size of BAR1 memory.
 
     Args:
@@ -20560,7 +21418,7 @@ cpdef unsigned int device_get_bus_type(intptr_t device) except? 0:
     return <unsigned int>type
 
 
-cpdef object device_get_gpu_fabric_info_v(intptr_t device) :
+cpdef object device_get_gpu_fabric_info_v(intptr_t device):
     """Versioned wrapper around nvmlDeviceGetGpuFabricInfo that accepts a versioned ``nvmlGpuFabricInfo_v2_t`` or later output structure.
 
     Args:
@@ -20580,7 +21438,7 @@ cpdef object device_get_gpu_fabric_info_v(intptr_t device) :
     return gpu_fabric_info_py
 
 
-cpdef object system_get_conf_compute_capabilities() :
+cpdef object system_get_conf_compute_capabilities():
     """Get Conf Computing System capabilities.
 
     Returns:
@@ -20596,7 +21454,7 @@ cpdef object system_get_conf_compute_capabilities() :
     return capabilities_py
 
 
-cpdef object system_get_conf_compute_state() :
+cpdef object system_get_conf_compute_state():
     """Get Conf Computing System State.
 
     Returns:
@@ -20612,7 +21470,7 @@ cpdef object system_get_conf_compute_state() :
     return state_py
 
 
-cpdef object device_get_conf_compute_mem_size_info(intptr_t device) :
+cpdef object device_get_conf_compute_mem_size_info(intptr_t device):
     """Get Conf Computing Protected and Unprotected Memory Sizes.
 
     Args:
@@ -20646,7 +21504,7 @@ cpdef unsigned int system_get_conf_compute_gpus_ready_state() except? 0:
     return is_accepting_work
 
 
-cpdef object device_get_conf_compute_protected_memory_usage(intptr_t device) :
+cpdef object device_get_conf_compute_protected_memory_usage(intptr_t device):
     """Get Conf Computing protected memory usage.
 
     Args:
@@ -20665,7 +21523,7 @@ cpdef object device_get_conf_compute_protected_memory_usage(intptr_t device) :
     return memory_py
 
 
-cpdef object device_get_conf_compute_gpu_certificate(intptr_t device) :
+cpdef object device_get_conf_compute_gpu_certificate(intptr_t device):
     """Get Conf Computing GPU certificate details.
 
     Args:
@@ -20684,7 +21542,7 @@ cpdef object device_get_conf_compute_gpu_certificate(intptr_t device) :
     return gpu_cert_py
 
 
-cpdef object device_get_conf_compute_gpu_attestation_report(intptr_t device) :
+cpdef object device_get_conf_compute_gpu_attestation_report(intptr_t device):
     """Get Conf Computing GPU attestation report.
 
     Args:
@@ -20703,7 +21561,7 @@ cpdef object device_get_conf_compute_gpu_attestation_report(intptr_t device) :
     return gpu_atst_report_py
 
 
-cpdef object system_get_conf_compute_key_rotation_threshold_info() :
+cpdef object system_get_conf_compute_key_rotation_threshold_info():
     """Get Conf Computing key rotation threshold detail.
 
     Returns:
@@ -20760,7 +21618,7 @@ cpdef system_set_conf_compute_key_rotation_threshold_info(intptr_t p_key_rotatio
     check_status(__status__)
 
 
-cpdef object system_get_conf_compute_settings() :
+cpdef object system_get_conf_compute_settings():
     """Get Conf Computing System Settings.
 
     Returns:
@@ -20817,7 +21675,7 @@ cpdef tuple device_get_gsp_firmware_mode(intptr_t device):
     return (is_enabled, default_mode)
 
 
-cpdef object device_get_sram_ecc_error_status(intptr_t device) :
+cpdef object device_get_sram_ecc_error_status(intptr_t device):
     """Get SRAM ECC error status of this device.
 
     Args:
@@ -20855,7 +21713,7 @@ cpdef int device_get_accounting_mode(intptr_t device) except? -1:
     return <int>mode
 
 
-cpdef object device_get_accounting_stats(intptr_t device, unsigned int pid) :
+cpdef object device_get_accounting_stats(intptr_t device, unsigned int pid):
     """Queries process's accounting stats.
 
     Args:
@@ -20982,7 +21840,7 @@ cpdef tuple device_get_remapped_rows(intptr_t device):
     return (corr_rows, unc_rows, is_pending, failure_occurred)
 
 
-cpdef object device_get_row_remapper_histogram(intptr_t device) :
+cpdef object device_get_row_remapper_histogram(intptr_t device):
     """Get the row remapper histogram. Returns the remap availability for each bank on the GPU.
 
     Args:
@@ -21019,7 +21877,7 @@ cpdef unsigned int device_get_architecture(intptr_t device) except? 0:
     return <unsigned int>arch
 
 
-cpdef object device_get_clk_mon_status(intptr_t device) :
+cpdef object device_get_clk_mon_status(intptr_t device):
     """Retrieves the frequency monitor fault status for the device.
 
     Args:
@@ -21061,7 +21919,7 @@ cpdef object device_get_process_utilization(intptr_t device, unsigned long long 
     return utilization
 
 
-cpdef object device_get_platform_info(intptr_t device) :
+cpdef object device_get_platform_info(intptr_t device):
     """Get platform information of this device.
 
     Args:
@@ -21452,7 +22310,7 @@ cpdef unsigned int device_get_nv_link_capability(intptr_t device, unsigned int l
     return cap_result
 
 
-cpdef object device_get_nv_link_remote_pci_info_v2(intptr_t device, unsigned int link) :
+cpdef object device_get_nv_link_remote_pci_info_v2(intptr_t device, unsigned int link):
     """Retrieves the PCI information for the remote node on a NvLink link Note: pciSubSystemId is not filled in this function and is indeterminate.
 
     Args:
@@ -21567,7 +22425,7 @@ cpdef unsigned int system_get_nvlink_bw_mode() except? 0:
     return nvlink_bw_mode
 
 
-cpdef object device_get_nvlink_supported_bw_modes(intptr_t device) :
+cpdef object device_get_nvlink_supported_bw_modes(intptr_t device):
     """Get the supported NvLink Reduced Bandwidth Modes of the device.
 
     Args:
@@ -21587,7 +22445,7 @@ cpdef object device_get_nvlink_supported_bw_modes(intptr_t device) :
     return supported_bw_mode_py
 
 
-cpdef object device_get_nvlink_bw_mode(intptr_t device) :
+cpdef object device_get_nvlink_bw_mode(intptr_t device):
     """Get the NvLink Reduced Bandwidth Mode for the device.
 
     Args:
@@ -21670,7 +22528,7 @@ cpdef unsigned long long device_get_supported_event_types(intptr_t device) excep
     return event_types
 
 
-cpdef object event_set_wait_v2(intptr_t set, unsigned int timeoutms) :
+cpdef object event_set_wait_v2(intptr_t set, unsigned int timeoutms):
     """Waits on events and delivers events.
 
     Args:
@@ -21865,7 +22723,7 @@ cpdef device_set_virtualization_mode(intptr_t device, int virtual_mode):
     check_status(__status__)
 
 
-cpdef object device_get_vgpu_heterogeneous_mode(intptr_t device) :
+cpdef object device_get_vgpu_heterogeneous_mode(intptr_t device):
     """Get the vGPU heterogeneous mode for the device.
 
     Args:
@@ -21899,7 +22757,7 @@ cpdef device_set_vgpu_heterogeneous_mode(intptr_t device, intptr_t p_heterogeneo
     check_status(__status__)
 
 
-cpdef object vgpu_instance_get_placement_id(unsigned int vgpu_instance) :
+cpdef object vgpu_instance_get_placement_id(unsigned int vgpu_instance):
     """Query the placement ID of active vGPU instance.
 
     Args:
@@ -21919,7 +22777,7 @@ cpdef object vgpu_instance_get_placement_id(unsigned int vgpu_instance) :
     return p_placement_py
 
 
-cpdef object device_get_vgpu_type_supported_placements(intptr_t device, unsigned int vgpu_type_id) :
+cpdef object device_get_vgpu_type_supported_placements(intptr_t device, unsigned int vgpu_type_id):
     """Query the supported vGPU placement ID of the vGPU type.
 
     Args:
@@ -21975,7 +22833,7 @@ cpdef unsigned long long vgpu_type_get_fb_reservation(unsigned int vgpu_type_id)
     return fb_reservation
 
 
-cpdef object vgpu_instance_get_runtime_state_size(unsigned int vgpu_instance) :
+cpdef object vgpu_instance_get_runtime_state_size(unsigned int vgpu_instance):
     """Retrieve the currently used runtime state size of the vGPU instance.
 
     Args:
@@ -22010,7 +22868,7 @@ cpdef device_set_vgpu_capabilities(intptr_t device, int capability, int state):
     check_status(__status__)
 
 
-cpdef object device_get_grid_licensable_features_v4(intptr_t device) :
+cpdef object device_get_grid_licensable_features_v4(intptr_t device):
     """Retrieve the vGPU Software licensable features.
 
     Args:
@@ -22273,7 +23131,7 @@ cpdef unsigned int vgpu_type_get_max_instances_per_vm(unsigned int vgpu_type_id)
     return vgpu_instance_count_per_vm
 
 
-cpdef object vgpu_type_get_bar1_info(unsigned int vgpu_type_id) :
+cpdef object vgpu_type_get_bar1_info(unsigned int vgpu_type_id):
     """Retrieve the BAR1 info for given vGPU type.
 
     Args:
@@ -22493,7 +23351,7 @@ cpdef object vgpu_instance_get_encoder_sessions(unsigned int vgpu_instance):
     return session_info
 
 
-cpdef object vgpu_instance_get_fbc_stats(unsigned int vgpu_instance) :
+cpdef object vgpu_instance_get_fbc_stats(unsigned int vgpu_instance):
     """Retrieves the active frame buffer capture sessions statistics of a vGPU Instance.
 
     Args:
@@ -22609,7 +23467,7 @@ cpdef str vgpu_instance_get_mdev_uuid(unsigned int vgpu_instance):
     return cpython.PyUnicode_FromString(mdev_uuid)
 
 
-cpdef object vgpu_type_get_max_instances_per_gpu_instance() :
+cpdef object vgpu_type_get_max_instances_per_gpu_instance():
     """Retrieve the maximum number of vGPU instances per GPU instance for given vGPU type.
 
     Returns:
@@ -22640,7 +23498,7 @@ cpdef gpu_instance_set_vgpu_scheduler_state(intptr_t gpu_instance, intptr_t p_sc
     check_status(__status__)
 
 
-cpdef object gpu_instance_get_vgpu_scheduler_state(intptr_t gpu_instance) :
+cpdef object gpu_instance_get_vgpu_scheduler_state(intptr_t gpu_instance):
     """Returns the vGPU scheduler state for the given GPU instance. The information returned in ``nvmlVgpuSchedulerStateInfo_t`` is not relevant if the BEST EFFORT policy is set.
 
     Args:
@@ -22660,7 +23518,7 @@ cpdef object gpu_instance_get_vgpu_scheduler_state(intptr_t gpu_instance) :
     return p_scheduler_state_info_py
 
 
-cpdef object gpu_instance_get_vgpu_scheduler_log(intptr_t gpu_instance) :
+cpdef object gpu_instance_get_vgpu_scheduler_log(intptr_t gpu_instance):
     """Returns the vGPU scheduler logs for the given GPU instance. ``pSchedulerLogInfo`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
 
     Args:
@@ -22680,7 +23538,7 @@ cpdef object gpu_instance_get_vgpu_scheduler_log(intptr_t gpu_instance) :
     return p_scheduler_log_info_py
 
 
-cpdef object gpu_instance_get_vgpu_heterogeneous_mode(intptr_t gpu_instance) :
+cpdef object gpu_instance_get_vgpu_heterogeneous_mode(intptr_t gpu_instance):
     """Get the vGPU heterogeneous mode for the GPU instance.
 
     Args:
@@ -22736,7 +23594,7 @@ cpdef str device_get_pgpu_metadata_string(intptr_t device):
     return cpython.PyUnicode_FromString(pgpu_metadata)
 
 
-cpdef object device_get_vgpu_scheduler_log(intptr_t device) :
+cpdef object device_get_vgpu_scheduler_log(intptr_t device):
     """Returns the vGPU Software scheduler logs. ``pSchedulerLog`` points to a caller-allocated structure to contain the logs. The number of elements returned will never exceed ``NVML_SCHEDULER_SW_MAX_LOG_ENTRIES``.
 
     Args:
@@ -22755,7 +23613,7 @@ cpdef object device_get_vgpu_scheduler_log(intptr_t device) :
     return p_scheduler_log_py
 
 
-cpdef object device_get_vgpu_scheduler_state(intptr_t device) :
+cpdef object device_get_vgpu_scheduler_state(intptr_t device):
     """Returns the vGPU scheduler state. The information returned in ``nvmlVgpuSchedulerGetState_t`` is not relevant if the BEST EFFORT policy is set.
 
     Args:
@@ -22774,7 +23632,7 @@ cpdef object device_get_vgpu_scheduler_state(intptr_t device) :
     return p_scheduler_state_py
 
 
-cpdef object device_get_vgpu_scheduler_capabilities(intptr_t device) :
+cpdef object device_get_vgpu_scheduler_capabilities(intptr_t device):
     """Returns the vGPU scheduler capabilities. The list of supported vGPU schedulers returned in ``nvmlVgpuSchedulerCapabilities_t`` is from the NVML_VGPU_SCHEDULER_POLICY_*. This list enumerates the supported scheduler policies if the engine is Graphics type. The other values in ``nvmlVgpuSchedulerCapabilities_t`` are also applicable if the engine is Graphics type. For other engine types, it is BEST EFFORT policy. If ARR is supported and enabled, scheduling frequency and averaging factor are applicable else timeSlice is applicable.
 
     Args:
@@ -22908,7 +23766,7 @@ cpdef object vgpu_instance_get_accounting_pids(unsigned int vgpu_instance):
     return pids
 
 
-cpdef object vgpu_instance_get_accounting_stats(unsigned int vgpu_instance, unsigned int pid) :
+cpdef object vgpu_instance_get_accounting_stats(unsigned int vgpu_instance, unsigned int pid):
     """Queries process's accounting stats.
 
     Args:
@@ -22941,7 +23799,7 @@ cpdef vgpu_instance_clear_accounting_pids(unsigned int vgpu_instance):
     check_status(__status__)
 
 
-cpdef object vgpu_instance_get_license_info_v2(unsigned int vgpu_instance) :
+cpdef object vgpu_instance_get_license_info_v2(unsigned int vgpu_instance):
     """Query the license information of the vGPU instance.
 
     Args:
@@ -22975,7 +23833,7 @@ cpdef unsigned int get_excluded_device_count() except? 0:
     return device_count
 
 
-cpdef object get_excluded_device_info_by_index(unsigned int ind_ex) :
+cpdef object get_excluded_device_info_by_index(unsigned int ind_ex):
     """Acquire the device information for an excluded GPU device, based on its ind_ex.
 
     Args:
@@ -23035,7 +23893,7 @@ cpdef tuple device_get_mig_mode(intptr_t device):
     return (current_mode, pending_mode)
 
 
-cpdef object device_get_gpu_instance_profile_info_v(intptr_t device, unsigned int profile) :
+cpdef object device_get_gpu_instance_profile_info_v(intptr_t device, unsigned int profile):
     """Versioned wrapper around ``nvmlDeviceGetGpuInstanceProfileInfo`` that accepts a versioned ``nvmlGpuInstanceProfileInfo_v2_t`` or later output structure.
 
     Args:
@@ -23169,7 +24027,7 @@ cpdef intptr_t device_get_gpu_instance_by_id(intptr_t device, unsigned int id) e
     return <intptr_t>gpu_instance
 
 
-cpdef object gpu_instance_get_info(intptr_t gpu_instance) :
+cpdef object gpu_instance_get_info(intptr_t gpu_instance):
     """Get GPU instance information.
 
     Args:
@@ -23188,7 +24046,7 @@ cpdef object gpu_instance_get_info(intptr_t gpu_instance) :
     return info_py
 
 
-cpdef object gpu_instance_get_compute_instance_profile_info_v(intptr_t gpu_instance, unsigned int profile, unsigned int eng_profile) :
+cpdef object gpu_instance_get_compute_instance_profile_info_v(intptr_t gpu_instance, unsigned int profile, unsigned int eng_profile):
     """Versioned wrapper around ``nvmlGpuInstanceGetComputeInstanceProfileInfo`` that accepts a versioned ``nvmlComputeInstanceProfileInfo_v2_t`` or later output structure.
 
     Args:
@@ -23323,7 +24181,7 @@ cpdef intptr_t gpu_instance_get_compute_instance_by_id(intptr_t gpu_instance, un
     return <intptr_t>compute_instance
 
 
-cpdef object compute_instance_get_info_v2(intptr_t compute_instance) :
+cpdef object compute_instance_get_info_v2(intptr_t compute_instance):
     """Get compute instance information.
 
     Args:
@@ -23480,7 +24338,7 @@ cpdef gpm_mig_sample_get(intptr_t device, unsigned int gpu_instance_id, intptr_t
     check_status(__status__)
 
 
-cpdef object gpm_query_device_support(intptr_t device) :
+cpdef object gpm_query_device_support(intptr_t device):
     """Indicate whether the supplied device supports GPM.
 
     Args:
@@ -23532,7 +24390,7 @@ cpdef gpm_set_streaming_enabled(intptr_t device, unsigned int state):
     check_status(__status__)
 
 
-cpdef object device_get_capabilities(intptr_t device) :
+cpdef object device_get_capabilities(intptr_t device):
     """Get device capabilities.
 
     Args:
@@ -23608,7 +24466,7 @@ cpdef device_power_smoothing_set_state(intptr_t device, intptr_t state):
     check_status(__status__)
 
 
-cpdef object device_get_addressing_mode(intptr_t device) :
+cpdef object device_get_addressing_mode(intptr_t device):
     """Get the addressing mode for a given GPU. Addressing modes can be one of:.
 
     Args:
@@ -23628,7 +24486,7 @@ cpdef object device_get_addressing_mode(intptr_t device) :
     return mode_py
 
 
-cpdef object device_get_repair_status(intptr_t device) :
+cpdef object device_get_repair_status(intptr_t device):
     """Get the repair status for TPC/Channel repair.
 
     Args:
@@ -23648,7 +24506,7 @@ cpdef object device_get_repair_status(intptr_t device) :
     return repair_status_py
 
 
-cpdef object device_get_power_mizer_mode_v1(intptr_t device) :
+cpdef object device_get_power_mizer_mode_v1(intptr_t device):
     """Retrieves current power mizer mode on this device.
 
     Args:
@@ -23681,7 +24539,7 @@ cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
     check_status(__status__)
 
 
-cpdef object device_get_pdi(intptr_t device) :
+cpdef object device_get_pdi(intptr_t device):
     """Retrieves the Per Device Identifier (PDI) associated with this device.
 
     Args:
@@ -23701,7 +24559,7 @@ cpdef object device_get_pdi(intptr_t device) :
     return pdi_py
 
 
-cpdef object device_get_nv_link_info(intptr_t device) :
+cpdef object device_get_nv_link_info(intptr_t device):
     """Query NVLINK information associated with this device.
 
     Args:
@@ -23735,7 +24593,7 @@ cpdef device_read_write_prm_v1(intptr_t device, intptr_t buffer):
     check_status(__status__)
 
 
-cpdef object device_get_gpu_instance_profile_info_by_id_v(intptr_t device, unsigned int profile_id) :
+cpdef object device_get_gpu_instance_profile_info_by_id_v(intptr_t device, unsigned int profile_id):
     """GPU instance profile query function that accepts profile ID, instead of profile name. It accepts a versioned ``nvmlGpuInstanceProfileInfo_v2_t`` or later output structure.
 
     Args:
@@ -24055,18 +24913,17 @@ cpdef str device_get_hostname_v1(intptr_t device):
 
 
 cdef FieldValue _cast_field_values(values):
+    if isinstance(values, FieldValue):
+        return values
     cdef FieldValue values_
     cdef unsigned int valuesCount = len(values)
-    if isinstance(values, FieldValue):
-        values_ = values
-    else:
-        values_ = FieldValue(valuesCount)
-        for i, v in enumerate(values):
-            if isinstance(v, tuple):
-                values_[i].field_id = v[0]
-                values_[i].scope_id = v[1]
-            else:
-                values_[i].field_id = v
+    values_ = FieldValue(valuesCount)
+    for i, v in enumerate(values):
+        if isinstance(v, tuple):
+            values_[i].field_id = v[0]
+            values_[i].scope_id = v[1]
+        else:
+            values_[i].field_id = v
     return values_
 
 
