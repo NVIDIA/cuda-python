@@ -68,7 +68,7 @@ cdef class _py_anon_pod1:
 
     def __dealloc__(self):
         cdef _anon_pod1 *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -202,7 +202,7 @@ cdef class _py_anon_pod3:
 
     def __dealloc__(self):
         cdef _anon_pod3 *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -514,7 +514,7 @@ cdef class OpCounter:
 
     def __dealloc__(self):
         cdef CUfileOpCounter_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -674,7 +674,7 @@ cdef class PerGpuStats:
 
     def __dealloc__(self):
         cdef CUfilePerGpuStats_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -1282,7 +1282,7 @@ cdef class _py_anon_pod2:
 
     def __dealloc__(self):
         cdef _anon_pod2 *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -1445,7 +1445,7 @@ cdef class StatsLevel1:
 
     def __dealloc__(self):
         cdef CUfileStatsLevel1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -2244,7 +2244,7 @@ cdef class StatsLevel2:
 
     def __dealloc__(self):
         cdef CUfileStatsLevel2_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -2397,7 +2397,7 @@ cdef class StatsLevel3:
 
     def __dealloc__(self):
         cdef CUfileStatsLevel3_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
