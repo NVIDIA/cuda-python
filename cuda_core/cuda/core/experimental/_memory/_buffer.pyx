@@ -368,7 +368,7 @@ cdef inline int _query_memory_attrs(unsigned int& memory_type, int & is_managed,
             # Device class handles the cuInit call internally
             from cuda.core.experimental import Device
             Device()
-        ret = cydriver.cuPointerGetAttributes(2, attrs, <void**>vals, ptr)
+        ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
     HANDLE_RETURN(ret)
     return 0
 
