@@ -435,7 +435,7 @@ def test_nvvm_program_with_single_extra_source(nvvm_ir):
     nvvm = _get_nvvm_module()
     major, minor, debug_major, debug_minor = nvvm.ir_version()
     # helper nvvm ir for multiple module loading
-    helper_nvvm_ir = f"""target triple = "nvptx64-unknown-cuda"
+    helper_nvvmir = f"""target triple = "nvptx64-unknown-cuda"
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
 define i32 @helper_add(i32 %x) {{
@@ -448,7 +448,12 @@ entry:
 !0 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
 """  # noqa: E501
 
-    options = ProgramOptions(name="multi_module_test", extra_sources=helper_nvvm_ir)
+    options = ProgramOptions(
+            name="multi_module_test",
+            extra_sources=[
+                ("helper", helper_nvvmir),
+            ]
+        )   
     program = Program(nvvm_ir, "nvvm", options)
 
     assert program.backend == "NVVM"
@@ -522,7 +527,7 @@ entry:
 !0 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
 """  # noqa: E501
 
-    options = ProgramOptions(name="nvvm_multi_helper_test", extra_sources=[helper1_ir, helper2_ir])
+    options = ProgramOptions(name="nvvm_multi_helper_test", extra_sources=[("helper1", helper1_ir), ("helper2", helper2_ir),])
     program = Program(main_nvvm_ir, "nvvm", options)
 
     assert program.backend == "NVVM"
