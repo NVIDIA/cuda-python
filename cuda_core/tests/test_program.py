@@ -14,6 +14,13 @@ from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, handle_r
 cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
 
+try:
+    from cuda_python_test_helpers.nvvm_bitcode import (
+        minimal_nvvmir
+    )
+    _test_helpers_available = True
+except ImportError:
+    _test_helpers_available = False
 
 def _is_nvvm_available():
     """Check if NVVM is available."""
@@ -531,46 +538,32 @@ entry:
 
 
 @nvvm_available
-def test_bitcode_format():
+@pytest.mark.skipif(not _test_helpers_available, reason = "cuda_python_test_helpers not accessible")
+def test_bitcode_format(minimal_nvvmir):
     import os
     from pathlib import Path
+    
+    if len(minimal_nvvmir) < 4:
+        pytest.skip("Bitcode file is not valid or empty")
 
-    bitcode_path = os.environ.get("BITCODE_NVVM_PATH")
-    if not bitcode_path:
-        pytest.skip("BITCODE_NVVM_PATH environment variable is not set.Disabling the test.")
-    bitcode_file = Path(bitcode_path)
-    if not bitcode_file.exists():
-        pytest.skip(f"Bitcode file not found: {bitcode_path}")
+    options = ProgramOptions(name=f"minimal_nvvmir_bitcode_test", arch="sm_90")
+    program = Program(minimal_nvvmir, "nvvm", options)
 
-    if bitcode_file.suffix != ".bc":
-        pytest.skip(f"Expected .bc file, got: {bitcode_file.suffix}")
-
+    assert program.backend == "NVVM"
+    ptx_result = program.compile("ptx")
+    assert isinstance(ptx_result, ObjectCode)
+    assert ptx_result.name == "minimal_nvvmir_bitcode_test"
+    assert len(ptx_result.code) > 0
+    prgram_lto = Program(minimal_nvvmir, "nvvm", options)
     try:
-        with open(bitcode_file, "rb") as f:
-            bitcode_data = f.read()
-
-        if len(bitcode_data) < 4:
-            pytest.skip("Bitcode file appears to be empty or invalid")
-
-        options = ProgramOptions(name=f"existing_bitcode_{bitcode_file.stem}", arch="sm_90")
-        program = Program(bitcode_data, "nvvm", options)
-
-        assert program.backend == "NVVM"
-        ptx_result = program.compile("ptx")
-        assert isinstance(ptx_result, ObjectCode)
-        assert ptx_result.name.startswith("existing_bitcode_")
-        assert len(ptx_result.code) > 0
-        try:
-            ltoir_result = program.compile("ltoir")
-            assert isinstance(ltoir_result, ObjectCode)
-            assert len(ltoir_result.code) > 0
-            print(f"LTOIR size: {len(ltoir_result.code)} bytes")
-        except Exception as e:
-            print(f"LTOIR compilation failed : {e}")
-        program.close()
+        ltoir_result = program_lto.compile("ltoir")
+        assert isinstance(ltoir_result, ObjectCode)
+        assert len(ltoir_result.code) > 0
+        print(f"LTOIR size: {len(ltoir_result.code)} bytes")
     except Exception as e:
-        pytest.fail(f"Failed to compile existing bitcode file {bitcode_path}: {str(e)}")
-
+        print(f"LTOIR compilation failed : {e}")
+    finally:
+        program.close()
 
 def test_cpp_program_with_extra_sources():
     # negative test with NVRTC with multiple sources
