@@ -1,6 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+
+import sys
+
 import pytest
 from cuda.bindings import nvml
 
@@ -11,6 +14,7 @@ COMPUTE_MODES = [
 ]
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Test not supported on Windows")
 def test_compute_mode_supported_nonroot(for_all_devices):
     device = for_all_devices
 
