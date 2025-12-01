@@ -55,6 +55,7 @@ cdef class _py_anon_pod1:
     cdef:
         _anon_pod1 *_ptr
         object _owner
+        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -62,11 +63,15 @@ cdef class _py_anon_pod1:
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod1")
         self._owner = None
+        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
-        if self._owner is None:
-            free(self._ptr)
+        cdef _anon_pod1 *ptr
+        if self._owner is None and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod1 object at {hex(id(self))}>"
@@ -96,6 +101,7 @@ cdef class _py_anon_pod1:
                 raise MemoryError("Error allocating _py_anon_pod1")
             memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileDescr_t*>NULL).handle))
             self._owner = None
+            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -149,9 +155,11 @@ cdef class _py_anon_pod1:
                 raise MemoryError("Error allocating _py_anon_pod1")
             memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileDescr_t*>NULL).handle))
             obj._owner = None
+            obj._owned = True
         else:
             obj._ptr = <_anon_pod1 *>ptr
             obj._owner = owner
+            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -181,6 +189,7 @@ cdef class _py_anon_pod3:
     cdef:
         _anon_pod3 *_ptr
         object _owner
+        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -188,11 +197,15 @@ cdef class _py_anon_pod3:
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod3")
         self._owner = None
+        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
-        if self._owner is None:
-            free(self._ptr)
+        cdef _anon_pod3 *ptr
+        if self._owner is None and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod3 object at {hex(id(self))}>"
@@ -222,6 +235,7 @@ cdef class _py_anon_pod3:
                 raise MemoryError("Error allocating _py_anon_pod3")
             memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u.batch))
             self._owner = None
+            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -297,9 +311,11 @@ cdef class _py_anon_pod3:
                 raise MemoryError("Error allocating _py_anon_pod3")
             memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch))
             obj._owner = None
+            obj._owned = True
         else:
             obj._ptr = <_anon_pod3 *>ptr
             obj._owner = owner
+            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -485,6 +501,7 @@ cdef class OpCounter:
     cdef:
         CUfileOpCounter_t *_ptr
         object _owner
+        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -492,11 +509,15 @@ cdef class OpCounter:
         if self._ptr == NULL:
             raise MemoryError("Error allocating OpCounter")
         self._owner = None
+        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
-        if self._owner is None:
-            free(self._ptr)
+        cdef CUfileOpCounter_t *ptr
+        if self._owner is None and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.OpCounter object at {hex(id(self))}>"
@@ -526,6 +547,7 @@ cdef class OpCounter:
                 raise MemoryError("Error allocating OpCounter")
             memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileOpCounter_t))
             self._owner = None
+            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -579,9 +601,11 @@ cdef class OpCounter:
                 raise MemoryError("Error allocating OpCounter")
             memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileOpCounter_t))
             obj._owner = None
+            obj._owned = True
         else:
             obj._ptr = <CUfileOpCounter_t *>ptr
             obj._owner = owner
+            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -637,6 +661,7 @@ cdef class PerGpuStats:
     cdef:
         CUfilePerGpuStats_t *_ptr
         object _owner
+        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -644,11 +669,15 @@ cdef class PerGpuStats:
         if self._ptr == NULL:
             raise MemoryError("Error allocating PerGpuStats")
         self._owner = None
+        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
-        if self._owner is None:
-            free(self._ptr)
+        cdef CUfilePerGpuStats_t *ptr
+        if self._owner is None and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.PerGpuStats object at {hex(id(self))}>"
@@ -678,6 +707,7 @@ cdef class PerGpuStats:
                 raise MemoryError("Error allocating PerGpuStats")
             memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfilePerGpuStats_t))
             self._owner = None
+            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -1043,9 +1073,11 @@ cdef class PerGpuStats:
                 raise MemoryError("Error allocating PerGpuStats")
             memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfilePerGpuStats_t))
             obj._owner = None
+            obj._owned = True
         else:
             obj._ptr = <CUfilePerGpuStats_t *>ptr
             obj._owner = owner
+            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -1237,6 +1269,7 @@ cdef class _py_anon_pod2:
     cdef:
         _anon_pod2 *_ptr
         object _owner
+        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -1244,11 +1277,15 @@ cdef class _py_anon_pod2:
         if self._ptr == NULL:
             raise MemoryError("Error allocating _py_anon_pod2")
         self._owner = None
+        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
-        if self._owner is None:
-            free(self._ptr)
+        cdef _anon_pod2 *ptr
+        if self._owner is None and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod2 object at {hex(id(self))}>"
@@ -1278,6 +1315,7 @@ cdef class _py_anon_pod2:
                 raise MemoryError("Error allocating _py_anon_pod2")
             memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u))
             self._owner = None
+            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -1321,9 +1359,11 @@ cdef class _py_anon_pod2:
                 raise MemoryError("Error allocating _py_anon_pod2")
             memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u))
             obj._owner = None
+            obj._owned = True
         else:
             obj._ptr = <_anon_pod2 *>ptr
             obj._owner = owner
+            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -1392,6 +1432,7 @@ cdef class StatsLevel1:
     cdef:
         CUfileStatsLevel1_t *_ptr
         object _owner
+        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -1399,11 +1440,15 @@ cdef class StatsLevel1:
         if self._ptr == NULL:
             raise MemoryError("Error allocating StatsLevel1")
         self._owner = None
+        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
-        if self._owner is None:
-            free(self._ptr)
+        cdef CUfileStatsLevel1_t *ptr
+        if self._owner is None and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.StatsLevel1 object at {hex(id(self))}>"
@@ -1433,6 +1478,7 @@ cdef class StatsLevel1:
                 raise MemoryError("Error allocating StatsLevel1")
             memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileStatsLevel1_t))
             self._owner = None
+            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -1958,9 +2004,11 @@ cdef class StatsLevel1:
                 raise MemoryError("Error allocating StatsLevel1")
             memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileStatsLevel1_t))
             obj._owner = None
+            obj._owned = True
         else:
             obj._ptr = <CUfileStatsLevel1_t *>ptr
             obj._owner = owner
+            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -2183,6 +2231,7 @@ cdef class StatsLevel2:
     cdef:
         CUfileStatsLevel2_t *_ptr
         object _owner
+        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -2190,11 +2239,15 @@ cdef class StatsLevel2:
         if self._ptr == NULL:
             raise MemoryError("Error allocating StatsLevel2")
         self._owner = None
+        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
-        if self._owner is None:
-            free(self._ptr)
+        cdef CUfileStatsLevel2_t *ptr
+        if self._owner is None and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.StatsLevel2 object at {hex(id(self))}>"
@@ -2224,6 +2277,7 @@ cdef class StatsLevel2:
                 raise MemoryError("Error allocating StatsLevel2")
             memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileStatsLevel2_t))
             self._owner = None
+            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -2297,9 +2351,11 @@ cdef class StatsLevel2:
                 raise MemoryError("Error allocating StatsLevel2")
             memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileStatsLevel2_t))
             obj._owner = None
+            obj._owned = True
         else:
             obj._ptr = <CUfileStatsLevel2_t *>ptr
             obj._owner = owner
+            obj._owned = False
         obj._readonly = readonly
         return obj
 
@@ -2328,6 +2384,7 @@ cdef class StatsLevel3:
     cdef:
         CUfileStatsLevel3_t *_ptr
         object _owner
+        bint _owned
         bint _readonly
 
     def __init__(self):
@@ -2335,11 +2392,15 @@ cdef class StatsLevel3:
         if self._ptr == NULL:
             raise MemoryError("Error allocating StatsLevel3")
         self._owner = None
+        self._owned = True
         self._readonly = False
 
     def __dealloc__(self):
-        if self._owner is None:
-            free(self._ptr)
+        cdef CUfileStatsLevel3_t *ptr
+        if self._owner is None and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}.StatsLevel3 object at {hex(id(self))}>"
@@ -2369,6 +2430,7 @@ cdef class StatsLevel3:
                 raise MemoryError("Error allocating StatsLevel3")
             memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfileStatsLevel3_t))
             self._owner = None
+            self._owned = True
             self._readonly = not val.flags.writeable
         else:
             setattr(self, key, val)
@@ -2437,9 +2499,11 @@ cdef class StatsLevel3:
                 raise MemoryError("Error allocating StatsLevel3")
             memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfileStatsLevel3_t))
             obj._owner = None
+            obj._owned = True
         else:
             obj._ptr = <CUfileStatsLevel3_t *>ptr
             obj._owner = owner
+            obj._owned = False
         obj._readonly = readonly
         return obj
 
