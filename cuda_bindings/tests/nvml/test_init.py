@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import sys
+
 import pytest
 from cuda.bindings import nvml
 
@@ -14,6 +16,7 @@ def assert_nvml_is_uninitialized():
         nvml.device_get_count_v2()
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Test not supported on Windows")
 def test_init_ref_count():
     """
     Verifies that we can call NVML shutdown and init(2) multiple times, and that ref counting works

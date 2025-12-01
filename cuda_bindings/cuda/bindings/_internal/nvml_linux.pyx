@@ -411,8 +411,6 @@ cdef void* __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = NULL
 
 
 cdef void* load_library() except* with gil:
-    # TODO: libnvidia-ml.so.1 ships with the driver so is in a different
-    # location than where pathfinder looks for it
     return dlopen("libnvidia-ml.so.1", RTLD_NOW | RTLD_GLOBAL)
 
 

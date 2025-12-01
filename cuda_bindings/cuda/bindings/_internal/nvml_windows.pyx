@@ -6,25 +6,76 @@
 
 from libc.stdint cimport intptr_t
 
-from .utils cimport get_nvml_dso_version_suffix
-
 import os
-import site
 import threading
 
-import win32api
-
 from .utils import FunctionNotFoundError, NotSupportedError
+
+from libc.stddef cimport wchar_t
+from libc.stdint cimport uintptr_t
+from cpython cimport PyUnicode_AsWideCharString, PyMem_Free
+
+# You must 'from .utils import NotSupportedError' before using this template
+
+cdef extern from "windows.h" nogil:
+    ctypedef void* HMODULE
+    ctypedef void* HANDLE
+    ctypedef void* FARPROC
+    ctypedef unsigned long DWORD
+    ctypedef const wchar_t *LPCWSTR
+    ctypedef const char *LPCSTR
+
+    cdef DWORD LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
+    cdef DWORD LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000
+    cdef DWORD LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100
+
+    HMODULE _LoadLibraryExW "LoadLibraryExW"(
+        LPCWSTR lpLibFileName,
+        HANDLE hFile,
+        DWORD dwFlags
+    )
+
+    FARPROC _GetProcAddress "GetProcAddress"(HMODULE hModule, LPCSTR lpProcName)
+
+cdef inline uintptr_t LoadLibraryExW(str path, HANDLE hFile, DWORD dwFlags):
+    cdef uintptr_t result
+    cdef wchar_t* wpath = PyUnicode_AsWideCharString(path, NULL)
+    with nogil:
+        result = <uintptr_t>_LoadLibraryExW(
+            wpath,
+            hFile,
+            dwFlags
+        )
+    PyMem_Free(wpath)
+    return result
+
+cdef inline void *GetProcAddress(uintptr_t hModule, const char* lpProcName) nogil:
+    return _GetProcAddress(<HMODULE>hModule, lpProcName)
+
+cdef int get_cuda_version():
+    cdef int err, driver_ver = 0
+
+    # Load driver to check version
+    handle = LoadLibraryExW("nvcuda.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32)
+    if handle == 0:
+        raise NotSupportedError('CUDA driver is not found')
+    cuDriverGetVersion = GetProcAddress(handle, 'cuDriverGetVersion')
+    if cuDriverGetVersion == NULL:
+        raise RuntimeError('Did not find cuDriverGetVersion symbol in nvcuda.dll')
+    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
+    if err != 0:
+        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
+
+    return driver_ver
+
 
 
 ###############################################################################
 # Wrapper init
 ###############################################################################
 
-LOAD_LIBRARY_SEARCH_SYSTEM32     = 0x00000800
 cdef object __symbol_lock = threading.Lock()
 cdef bint __py_nvml_init = False
-cdef void* __cuDriverGetVersion = NULL
 
 cdef void* __nvmlInit_v2 = NULL
 cdef void* __nvmlInitWithFlags = NULL
@@ -376,30 +427,43 @@ cdef void* __nvmlDeviceGetGpuInstanceProfileInfoByIdV = NULL
 cdef void* __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = NULL
 
 
-cdef int _check_or_init_nvml() except -1 nogil:
+cdef uintptr_t load_library() except* with gil:
+    def do_load(path):
+        return LoadLibraryExW(
+            path,
+            <void *>0,
+            LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR
+        )
+
+    handle = do_load(
+        os.path.join(
+            os.getenv("WINDIR", "C:/Windows"),
+            "System32/nvml.dll"
+        )
+    )
+    if handle:
+        return handle
+
+    handle = do_load(
+        os.path.join(
+            os.getenv("ProgramFiles", "C:/Program Files"),
+            "NVIDIA Corporation/NVSMI/nvml.dll"
+        )
+    )
+    if handle:
+        return handle
+
+    return 0
+
+
+cdef int _init_nvml() except -1 nogil:
     global __py_nvml_init
-    if __py_nvml_init:
-        return 0
 
     cdef int err, driver_ver = 0
+    cdef uintptr_t handle
 
     with gil, __symbol_lock:
-        # Load driver to check version
-        try:
-            handle = win32api.LoadLibraryEx("nvcuda.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
-        except Exception as e:
-            raise NotSupportedError(f'CUDA driver is not found ({e})')
-        global __cuDriverGetVersion
-        if __cuDriverGetVersion == NULL:
-            __cuDriverGetVersion = <void*><intptr_t>win32api.GetProcAddress(handle, 'cuDriverGetVersion')
-            if __cuDriverGetVersion == NULL:
-                raise RuntimeError('something went wrong')
-        err = (<int (*)(int*) noexcept nogil>__cuDriverGetVersion)(&driver_ver)
-        if err != 0:
-            raise RuntimeError('something went wrong')
-
-        # Load library
-        handle = load_nvidia_dynamic_lib("nvml")._handle_uint
+        handle = load_library()
 
         # Load function
         global __nvmlInit_v2
@@ -1448,6 +1512,13 @@ cdef int _check_or_init_nvml() except -1 nogil:
 
         __py_nvml_init = True
         return 0
+
+
+cdef inline int _check_or_init_nvml() except -1 nogil:
+    if __py_nvml_init:
+        return 0
+
+    return _init_nvml()
 
 
 cdef dict func_ptrs = None
