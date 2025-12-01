@@ -170,6 +170,12 @@ cdef class StridedLayout:
         _init_base_layout_from_tuple(base, shape, None)
         return self._init_dense(base, itemsize, order_flag, &stride_order_vec)
 
+    cdef inline StridedLayout copy(StridedLayout self):
+        cdef StridedLayout new_layout = StridedLayout.__new__(StridedLayout)
+        new_layout.init_from_ptr(self.base.ndim, self.base.shape, self.base.strides, self.itemsize)
+        new_layout.slice_offset = self.slice_offset
+        return new_layout
+
     # ==============================
     # Properties
     # ==============================
@@ -318,6 +324,18 @@ cdef class StridedLayout:
     # Layout manipulation
     # ==============================
 
+    cdef inline int make_dense(StridedLayout self, OrderFlag order_flag, axis_vec_t *stride_order_vec) except -1 nogil:
+        if order_flag == ORDER_C:
+            _dense_strides_c(self.base)
+        elif order_flag == ORDER_F:
+            _dense_strides_f(self.base)
+        elif order_flag == ORDER_PERM:
+            _dense_strides_in_order(self.base, deref(stride_order_vec))
+        else:
+            raise ValueError("The stride_order must be 'C', 'F', or a permutation.")
+        self.slice_offset = 0
+        self._prop_mask = 0
+        return 0
 
     cdef int reshape_into(StridedLayout self, StridedLayout out_layout, BaseLayout& new_shape) except -1 nogil
     cdef int permute_into(StridedLayout self, StridedLayout out_layout, axis_vec_t& axis_order) except -1 nogil
@@ -375,19 +393,26 @@ cdef inline stride_t *get_strides_ptr(BaseLayout& base) except? NULL nogil:
     return tmp_strides
 
 
-cdef inline bint _base_layout_equal(BaseLayout& a, BaseLayout& b) noexcept nogil:
+cdef inline bint base_equal_shapes(BaseLayout& a, BaseLayout& b) noexcept nogil:
     if a.ndim != b.ndim:
         return False
     for i in range(a.ndim):
         if a.shape[i] != b.shape[i]:
             return False
-    if a.strides != NULL or b.strides != NULL:
-        if a.strides == NULL or b.strides == NULL:
-            return False
-        for i in range(a.ndim):
-            if a.strides[i] != b.strides[i]:
-                return False
     return True
+
+
+cdef inline bint _base_equal_strides(BaseLayout& a, BaseLayout& b) noexcept nogil:
+    if a.strides == NULL or b.strides == NULL:
+        return a.strides == b.strides
+    for i in range(a.ndim):
+        if a.strides[i] != b.strides[i]:
+            return False
+    return True
+
+
+cdef inline bint _base_layout_equal(BaseLayout& a, BaseLayout& b) noexcept nogil:
+    return base_equal_shapes(a, b) and _base_equal_strides(a, b)
 
 
 @cython.overflowcheck(True)

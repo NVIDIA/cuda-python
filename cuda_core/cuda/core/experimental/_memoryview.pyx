@@ -5,7 +5,11 @@
 from ._dlpack cimport *
 from libc.stdint cimport intptr_t
 from cuda.core.experimental._layout cimport StridedLayout
-from cuda.core.experimental._stream import Stream
+from cuda.core.experimental._memory._buffer cimport Buffer
+from cuda.core.experimental._strided_copy._copy cimport copy_into_d2d, copy_into_d2h, copy_into_h2d
+from cuda.core.experimental._strided_copy._copy_utils cimport get_data_ptr
+from cuda.core.experimental._stream cimport Stream
+from cuda.core.experimental._strided_copy._copy import CopyAllocatorOptions
 
 import functools
 import warnings
@@ -14,9 +18,6 @@ from typing import Optional
 import numpy
 
 from cuda.core.experimental._utils.cuda_utils import handle_return, driver
-
-
-from cuda.core.experimental._memory import Buffer
 
 # TODO(leofang): support NumPy structured dtypes
 
@@ -160,7 +161,7 @@ cdef class StridedMemoryView:
 
     @classmethod
     def from_buffer(
-        cls, buffer : Buffer, layout : StridedLayout,
+        cls, Buffer buffer, StridedLayout layout,
         dtype : numpy.dtype | None = None,
         is_readonly : bool = False
     ) -> StridedMemoryView:
@@ -218,7 +219,7 @@ cdef class StridedMemoryView:
             dlm_tensor.deleter(dlm_tensor)
 
     def view(
-        self, layout : StridedLayout | None = None, dtype : numpy.dtype | None = None
+        self, StridedLayout layout = None, object dtype = None
     ) -> StridedMemoryView:
         """
         Creates a new view with adjusted layout and dtype.
@@ -235,8 +236,8 @@ cdef class StridedMemoryView:
         return view
 
     def copy_from(
-        self, other : StridedMemoryView, stream : Stream,
-        allocator = None,
+        self, other : StridedMemoryView, Stream stream,
+        allocator : CopyAllocatorOptions | dict[str, MemoryResource] | None = None,
         blocking : bool | None = None,
     ):
         """
@@ -253,16 +254,19 @@ cdef class StridedMemoryView:
               if :attr:`dtype` is not specified).
             * The destination's layout must be unique (see :meth:`StridedLayout.is_unique`).
 
+        It is the user's responsibility to ensure proper current device is set
+        when calling this method.
+
         Parameters
         ----------
         other : StridedMemoryView
             The view to copy data from.
         stream : Stream | None, optional
             The stream to schedule the copy on.
-        allocator : MemoryResource | None, optional
-            If temporary buffers are needed, the specifed memory resources
-            will be used to allocate the memory. If not specified, default
-            resources will be used.
+        allocator : :obj:`~utils.CopyAllocatorOptions` | dict[str, :obj:`~_memory.MemoryResource`] | None, optional
+            If temporary buffers are needed, the specifed ``allocator.host`` and
+            ``allocator.device`` memory resources will be used to allocate the memory
+            on the host and device respectively.
         blocking : bool | None, optional
             Whether the call should block until the copy is complete.
                 * ``True``: the ``stream`` is synchronized with the host at the end of the call,
@@ -274,11 +278,11 @@ cdef class StridedMemoryView:
                     * for device-to-device, it defaults to ``False`` (non-blocking),
                     * for host-to-device or device-to-host, it defaults to ``True`` (blocking).
         """
-        raise NotImplementedError("Sorry, not supported: copy_from")
+        copy_into(self, other, stream, allocator, blocking)
 
     def copy_to(
-        self, other : StridedMemoryView, stream : Stream | None = None,
-        allocator = None,
+        self, other : StridedMemoryView, Stream stream,
+        allocator : CopyAllocatorOptions | dict[str, MemoryResource] | None = None,
         blocking : bool | None = None,
     ):
         """
@@ -286,7 +290,7 @@ cdef class StridedMemoryView:
 
         For details, see :meth:`copy_from`.
         """
-        raise NotImplementedError("Sorry, not supported: copy_to")
+        copy_into(other, self, stream, allocator, blocking)
 
     @property
     def layout(self) -> StridedLayout:
@@ -338,7 +342,7 @@ cdef class StridedMemoryView:
                 raise ValueError("Cannot infer layout from the exporting object")
         return self._layout
 
-    cdef inline object get_buffer(self):
+    cdef inline Buffer get_buffer(self):
         """
         Returns Buffer instance with the underlying data.
         If the SMV was created from a Buffer, it will return the same Buffer instance.
@@ -657,13 +661,9 @@ cdef StridedLayout layout_from_cai(object metadata):
     return layout
 
 
-cdef inline intptr_t get_data_ptr(object buffer, StridedLayout layout) except? 0:
-    return <intptr_t>(int(buffer.handle)) + layout.get_slice_offset_in_bytes()
-
-
 cdef inline int view_buffer_strided(
     StridedMemoryView view,
-    object buffer,
+    Buffer buffer,
     StridedLayout layout,
     object dtype,
     bint is_readonly,
@@ -702,3 +702,51 @@ cdef inline int view_buffer_strided(
     view._layout = layout
     view._dtype = dtype
     return 0
+
+
+cdef inline copy_into(
+    StridedMemoryView dst,
+    StridedMemoryView src,
+    Stream stream,
+    allocator : CopyAllocatorOptions | dict[str, MemoryResource] | None = None,
+    blocking : bool | None = None,
+):
+    cdef object dst_dtype = dst.get_dtype()
+    cdef object src_dtype = src.get_dtype()
+    if dst_dtype is not None and src_dtype is not None and dst_dtype != src_dtype:
+        raise ValueError(
+            f"The destination and source dtypes must be the same, "
+            f"got {dst_dtype} and {src_dtype}."
+        )
+    if dst.readonly:
+        raise ValueError("The destination view is readonly.")
+    cdef bint is_src_device_accessible = src.is_device_accessible
+    cdef bint is_dst_device_accessible = dst.is_device_accessible
+    cdef bint is_blocking
+    cdef int device_id
+    cdef Buffer dst_buffer = dst.get_buffer()
+    cdef Buffer src_buffer = src.get_buffer()
+    cdef StridedLayout dst_layout = dst.get_layout()
+    cdef StridedLayout src_layout = src.get_layout()
+    if is_src_device_accessible and is_dst_device_accessible:
+        device_id = dst.device_id
+        if src.device_id != device_id:
+            raise ValueError(
+                f"The destination and source views must be on the "
+                f"same device, got {device_id} and {src.device_id}."
+            )
+        is_blocking = blocking if blocking is not None else False
+        copy_into_d2d(dst_buffer, dst_layout, src_buffer, src_layout, device_id, stream, is_blocking)
+    elif is_src_device_accessible:
+        device_id = src.device_id
+        is_blocking = blocking if blocking is not None else True
+        copy_into_d2h(dst_buffer, dst_layout, src_buffer, src_layout, device_id, stream, allocator, is_blocking)
+    elif is_dst_device_accessible:
+        device_id = dst.device_id
+        is_blocking = blocking if blocking is not None else True
+        copy_into_h2d(dst_buffer, dst_layout, src_buffer, src_layout, device_id, stream, allocator, is_blocking)
+    else:
+        raise ValueError(
+            "The host-to-host copy is not supported, "
+            "at least one of the views must device-accessible."
+        )
