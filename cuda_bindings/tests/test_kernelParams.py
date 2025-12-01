@@ -7,6 +7,7 @@ import cuda.bindings.driver as cuda
 import cuda.bindings.nvrtc as nvrtc
 import cuda.bindings.runtime as cudart
 import numpy as np
+import pytest
 
 
 def ASSERT_DRV(err):
@@ -68,14 +69,8 @@ def common_nvrtc(allKernelStrings, dev):
     return module
 
 
-def test_kernelParams_empty():
-    (err,) = cuda.cuInit(0)
-    ASSERT_DRV(err)
-    err, cuDevice = cuda.cuDeviceGet(0)
-    ASSERT_DRV(err)
-    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
-    ASSERT_DRV(err)
-
+@pytest.mark.usefixtures("ctx")
+def test_kernelParams_empty(device):
     kernelString = """\
     static __device__ bool isDone;
     extern "C" __global__
@@ -86,7 +81,7 @@ def test_kernelParams_empty():
     }
     """
 
-    module = common_nvrtc(kernelString, cuDevice)
+    module = common_nvrtc(kernelString, device)
 
     # cudaStructs kernel
     err, kernel = cuda.cuModuleGetFunction(module, b"empty_kernel")
@@ -139,18 +134,11 @@ def test_kernelParams_empty():
     ASSERT_DRV(err)
     (err,) = cuda.cuModuleUnload(module)
     ASSERT_DRV(err)
-    (err,) = cuda.cuCtxDestroy(context)
-    ASSERT_DRV(err)
 
 
-def kernelParams_basic(use_ctypes_as_values):
-    (err,) = cuda.cuInit(0)
-    ASSERT_DRV(err)
-    err, cuDevice = cuda.cuDeviceGet(0)
-    ASSERT_DRV(err)
-    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
-    ASSERT_DRV(err)
-
+@pytest.mark.parametrize("use_ctypes_as_values", [False, True], ids=["no-ctypes", "ctypes"])
+@pytest.mark.usefixtures("ctx")
+def test_kernelParams(use_ctypes_as_values, device):
     if use_ctypes_as_values:
         assertValues_host = (
             ctypes.c_bool(True),
@@ -283,7 +271,7 @@ def kernelParams_basic(use_ctypes_as_values):
             basicKernelString = basicKernelString.replace("{}", str(int(val)), 1)
         idx += 1
 
-    module = common_nvrtc(basicKernelString, cuDevice)
+    module = common_nvrtc(basicKernelString, device)
 
     err, kernel = cuda.cuModuleGetFunction(module, b"basic")
     ASSERT_DRV(err)
@@ -419,29 +407,12 @@ def kernelParams_basic(use_ctypes_as_values):
     ASSERT_DRV(err)
     (err,) = cuda.cuModuleUnload(module)
     ASSERT_DRV(err)
-    (err,) = cuda.cuCtxDestroy(context)
-    ASSERT_DRV(err)
 
 
-def test_kernelParams_basic():
-    # Kernel is given basic Python primative values as value input
-    kernelParams_basic(use_ctypes_as_values=False)
-
-
-def test_kernelParams_basic_ctypes():
-    # Kernel is given basic c_type instances as primative value input
-    kernelParams_basic(use_ctypes_as_values=True)
-
-
-def test_kernelParams_types_cuda():
-    (err,) = cuda.cuInit(0)
-    ASSERT_DRV(err)
-    err, cuDevice = cuda.cuDeviceGet(0)
-    ASSERT_DRV(err)
-    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
-    ASSERT_DRV(err)
+@pytest.mark.usefixtures("ctx")
+def test_kernelParams_types_cuda(device):
     err, uvaSupported = cuda.cuDeviceGetAttribute(
-        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cuDevice
+        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, device
     )
     ASSERT_DRV(err)
 
@@ -494,7 +465,7 @@ def test_kernelParams_types_cuda():
     }
     """
 
-    module = common_nvrtc(kernelString, cuDevice)
+    module = common_nvrtc(kernelString, device)
 
     # cudaStructs kernel
     err, kernel = cuda.cuModuleGetFunction(module, b"structsCuda")
@@ -559,19 +530,12 @@ def test_kernelParams_types_cuda():
     ASSERT_DRV(err)
     (err,) = cuda.cuModuleUnload(module)
     ASSERT_DRV(err)
-    (err,) = cuda.cuCtxDestroy(context)
-    ASSERT_DRV(err)
 
 
-def test_kernelParams_struct_custom():
-    (err,) = cuda.cuInit(0)
-    ASSERT_DRV(err)
-    err, cuDevice = cuda.cuDeviceGet(0)
-    ASSERT_DRV(err)
-    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
-    ASSERT_DRV(err)
+@pytest.mark.usefixtures("ctx")
+def test_kernelParams_struct_custom(device):
     err, uvaSupported = cuda.cuDeviceGetAttribute(
-        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cuDevice
+        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, device
     )
     ASSERT_DRV(err)
 
@@ -587,7 +551,7 @@ def test_kernelParams_struct_custom():
     }
     """
 
-    module = common_nvrtc(kernelString, cuDevice)
+    module = common_nvrtc(kernelString, device)
 
     err, kernel = cuda.cuModuleGetFunction(module, b"structCustom")
     ASSERT_DRV(err)
@@ -638,19 +602,13 @@ def test_kernelParams_struct_custom():
     ASSERT_DRV(err)
     (err,) = cuda.cuModuleUnload(module)
     ASSERT_DRV(err)
-    (err,) = cuda.cuCtxDestroy(context)
-    ASSERT_DRV(err)
 
 
-def kernelParams_buffer_protocol_ctypes_common(pass_by_address):
-    (err,) = cuda.cuInit(0)
-    ASSERT_DRV(err)
-    err, cuDevice = cuda.cuDeviceGet(0)
-    ASSERT_DRV(err)
-    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
-    ASSERT_DRV(err)
+@pytest.mark.parametrize("pass_by_address", [False, True], ids=["by-address", "not-by-address"])
+@pytest.mark.usefixtures("ctx")
+def test_kernelParams_buffer_protocol(pass_by_address, device):
     err, uvaSupported = cuda.cuDeviceGetAttribute(
-        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cuDevice
+        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, device
     )
     ASSERT_DRV(err)
 
@@ -669,7 +627,7 @@ def kernelParams_buffer_protocol_ctypes_common(pass_by_address):
     }
     """
 
-    module = common_nvrtc(kernelString, cuDevice)
+    module = common_nvrtc(kernelString, device)
 
     err, kernel = cuda.cuModuleGetFunction(module, b"testkernel")
     ASSERT_DRV(err)
@@ -745,24 +703,12 @@ def kernelParams_buffer_protocol_ctypes_common(pass_by_address):
     ASSERT_DRV(err)
     (err,) = cuda.cuModuleUnload(module)
     ASSERT_DRV(err)
-    (err,) = cuda.cuCtxDestroy(context)
-    ASSERT_DRV(err)
 
 
-def test_kernelParams_buffer_protocol_ctypes():
-    kernelParams_buffer_protocol_ctypes_common(pass_by_address=True)
-    kernelParams_buffer_protocol_ctypes_common(pass_by_address=False)
-
-
-def test_kernelParams_buffer_protocol_numpy():
-    (err,) = cuda.cuInit(0)
-    ASSERT_DRV(err)
-    err, cuDevice = cuda.cuDeviceGet(0)
-    ASSERT_DRV(err)
-    err, context = cuda.cuCtxCreate(None, 0, cuDevice)
-    ASSERT_DRV(err)
+@pytest.mark.usefixtures("ctx")
+def test_kernelParams_buffer_protocol_numpy(device):
     err, uvaSupported = cuda.cuDeviceGetAttribute(
-        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, cuDevice
+        cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, device
     )
     ASSERT_DRV(err)
 
@@ -781,7 +727,7 @@ def test_kernelParams_buffer_protocol_numpy():
     }
     """
 
-    module = common_nvrtc(kernelString, cuDevice)
+    module = common_nvrtc(kernelString, device)
 
     err, kernel = cuda.cuModuleGetFunction(module, b"testkernel")
     ASSERT_DRV(err)
@@ -858,6 +804,4 @@ def test_kernelParams_buffer_protocol_numpy():
     (err,) = cuda.cuStreamDestroy(stream)
     ASSERT_DRV(err)
     (err,) = cuda.cuModuleUnload(module)
-    ASSERT_DRV(err)
-    (err,) = cuda.cuCtxDestroy(context)
     ASSERT_DRV(err)

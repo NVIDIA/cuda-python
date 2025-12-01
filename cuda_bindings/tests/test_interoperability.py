@@ -12,14 +12,8 @@ def supportsMemoryPool():
     return err == cudart.cudaError_t.cudaSuccess and isSupported
 
 
+@pytest.mark.usefixtures("ctx")
 def test_interop_stream():
-    (err_dr,) = cuda.cuInit(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, device = cuda.cuDeviceGet(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-
     # DRV to RT
     err_dr, stream = cuda.cuStreamCreate(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
@@ -32,18 +26,9 @@ def test_interop_stream():
     (err_dr,) = cuda.cuStreamDestroy(stream)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
-    (err_dr,) = cuda.cuCtxDestroy(ctx)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
-
+@pytest.mark.usefixtures("ctx")
 def test_interop_event():
-    (err_dr,) = cuda.cuInit(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, device = cuda.cuDeviceGet(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-
     # DRV to RT
     err_dr, event = cuda.cuEventCreate(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
@@ -56,18 +41,9 @@ def test_interop_event():
     (err_dr,) = cuda.cuEventDestroy(event)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
-    (err_dr,) = cuda.cuCtxDestroy(ctx)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
-
+@pytest.mark.usefixtures("ctx")
 def test_interop_graph():
-    (err_dr,) = cuda.cuInit(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, device = cuda.cuDeviceGet(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-
     # DRV to RT
     err_dr, graph = cuda.cuGraphCreate(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
@@ -80,18 +56,9 @@ def test_interop_graph():
     (err_dr,) = cuda.cuGraphDestroy(graph)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
-    (err_dr,) = cuda.cuCtxDestroy(ctx)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
-
+@pytest.mark.usefixtures("ctx")
 def test_interop_graphNode():
-    (err_dr,) = cuda.cuInit(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, device = cuda.cuDeviceGet(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-
     err_dr, graph = cuda.cuGraphCreate(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
@@ -109,49 +76,19 @@ def test_interop_graphNode():
 
     (err_rt,) = cudart.cudaGraphDestroy(graph)
     assert err_rt == cudart.cudaError_t.cudaSuccess
-    (err_dr,) = cuda.cuCtxDestroy(ctx)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
 
-def test_interop_userObject():
-    (err_dr,) = cuda.cuInit(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, device = cuda.cuDeviceGet(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-
-    # cudaUserObject_t
-    # TODO
-
-    (err_dr,) = cuda.cuCtxDestroy(ctx)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+# cudaUserObject_t
+# TODO
 
 
-def test_interop_function():
-    (err_dr,) = cuda.cuInit(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, device = cuda.cuDeviceGet(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-
-    # cudaFunction_t
-    # TODO
-
-    (err_dr,) = cuda.cuCtxDestroy(ctx)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
+# cudaFunction_t
+# TODO
 
 
 @pytest.mark.skipif(not supportsMemoryPool(), reason="Requires mempool operations")
+@pytest.mark.usefixtures("ctx")
 def test_interop_memPool():
-    (err_dr,) = cuda.cuInit(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, device = cuda.cuDeviceGet(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-
     # DRV to RT
     err_dr, pool = cuda.cuDeviceGetDefaultMemPool(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
@@ -164,17 +101,9 @@ def test_interop_memPool():
     (err_dr,) = cuda.cuDeviceSetMemPool(0, pool)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
-    (err_dr,) = cuda.cuCtxDestroy(ctx)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
-
+@pytest.mark.usefixtures("ctx")
 def test_interop_graphExec():
-    (err_dr,) = cuda.cuInit(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, device = cuda.cuDeviceGet(0)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    err_dr, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
     err_dr, graph = cuda.cuGraphCreate(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
     err_dr, node = cuda.cuGraphAddEmptyNode(graph, [], 0)
@@ -194,23 +123,10 @@ def test_interop_graphExec():
 
     (err_rt,) = cudart.cudaGraphDestroy(graph)
     assert err_rt == cudart.cudaError_t.cudaSuccess
-    (err_dr,) = cuda.cuCtxDestroy(ctx)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
 
+@pytest.mark.usefixtures("ctx")
 def test_interop_deviceptr():
-    # Init CUDA
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    # Get device
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    # Construct context
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
     # Allocate dev memory
     size = 1024 * np.uint8().itemsize
     err_dr, dptr = cuda.cuMemAlloc(size)
@@ -234,6 +150,4 @@ def test_interop_deviceptr():
 
     # Cleanup
     (err_dr,) = cuda.cuMemFree(dptr)
-    assert err_dr == cuda.CUresult.CUDA_SUCCESS
-    (err_dr,) = cuda.cuCtxDestroy(ctx)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
