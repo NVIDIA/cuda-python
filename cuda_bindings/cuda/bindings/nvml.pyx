@@ -1366,7 +1366,7 @@ cdef class PciInfoExt_v1:
 
     def __dealloc__(self):
         cdef nvmlPciInfoExt_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -1584,7 +1584,7 @@ cdef class PciInfo:
 
     def __dealloc__(self):
         cdef nvmlPciInfo_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -1779,7 +1779,7 @@ cdef class Utilization:
 
     def __dealloc__(self):
         cdef nvmlUtilization_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -1912,7 +1912,7 @@ cdef class Memory:
 
     def __dealloc__(self):
         cdef nvmlMemory_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -2058,7 +2058,7 @@ cdef class Memory_v2:
 
     def __dealloc__(self):
         cdef nvmlMemory_v2_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -2213,7 +2213,7 @@ cdef class BAR1Memory:
 
     def __dealloc__(self):
         cdef nvmlBAR1Memory_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -2715,7 +2715,7 @@ cdef class DeviceAttributes:
 
     def __dealloc__(self):
         cdef nvmlDeviceAttributes_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -2923,7 +2923,7 @@ cdef class C2cModeInfo_v1:
 
     def __dealloc__(self):
         cdef nvmlC2cModeInfo_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -3047,7 +3047,7 @@ cdef class RowRemapperHistogramValues:
 
     def __dealloc__(self):
         cdef nvmlRowRemapperHistogramValues_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -3358,7 +3358,7 @@ cdef class Value:
 
     def __dealloc__(self):
         cdef nvmlValue_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -3548,7 +3548,7 @@ cdef class _py_anon_pod0:
 
     def __dealloc__(self):
         cdef _anon_pod0 *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -3715,7 +3715,7 @@ cdef class CoolerInfo_v1:
 
     def __dealloc__(self):
         cdef nvmlCoolerInfo_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -3869,7 +3869,7 @@ cdef class MarginTemperature_v1:
 
     def __dealloc__(self):
         cdef nvmlMarginTemperature_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -4151,7 +4151,7 @@ cdef class ClockOffset_v1:
 
     def __dealloc__(self):
         cdef nvmlClockOffset_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -4328,7 +4328,7 @@ cdef class FanSpeedInfo_v1:
 
     def __dealloc__(self):
         cdef nvmlFanSpeedInfo_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -4471,7 +4471,7 @@ cdef class DevicePerfModes_v1:
 
     def __dealloc__(self):
         cdef nvmlDevicePerfModes_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -4607,7 +4607,7 @@ cdef class DeviceCurrentClockFreqs_v1:
 
     def __dealloc__(self):
         cdef nvmlDeviceCurrentClockFreqs_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -5166,7 +5166,7 @@ cdef class EccSramErrorStatus_v1:
 
     def __dealloc__(self):
         cdef nvmlEccSramErrorStatus_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -5425,7 +5425,7 @@ cdef class PlatformInfo_v2:
 
     def __dealloc__(self):
         cdef nvmlPlatformInfo_v2_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -5633,7 +5633,7 @@ cdef class _py_anon_pod1:
 
     def __dealloc__(self):
         cdef _anon_pod1 *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -5787,7 +5787,7 @@ cdef class VgpuHeterogeneousMode_v1:
 
     def __dealloc__(self):
         cdef nvmlVgpuHeterogeneousMode_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -5919,7 +5919,7 @@ cdef class VgpuPlacementId_v1:
 
     def __dealloc__(self):
         cdef nvmlVgpuPlacementId_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -6056,7 +6056,7 @@ cdef class VgpuPlacementList_v2:
 
     def __dealloc__(self):
         cdef nvmlVgpuPlacementList_v2_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -6219,7 +6219,7 @@ cdef class VgpuTypeBar1Info_v1:
 
     def __dealloc__(self):
         cdef nvmlVgpuTypeBar1Info_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -6591,7 +6591,7 @@ cdef class VgpuRuntimeState_v1:
 
     def __dealloc__(self):
         cdef nvmlVgpuRuntimeState_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -6723,7 +6723,7 @@ cdef class _py_anon_pod2:
 
     def __dealloc__(self):
         cdef _anon_pod2 *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -6854,7 +6854,7 @@ cdef class _py_anon_pod3:
 
     def __dealloc__(self):
         cdef _anon_pod3 *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -7169,7 +7169,7 @@ cdef class _py_anon_pod4:
 
     def __dealloc__(self):
         cdef _anon_pod4 *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -7300,7 +7300,7 @@ cdef class _py_anon_pod5:
 
     def __dealloc__(self):
         cdef _anon_pod5 *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -7427,7 +7427,7 @@ cdef class VgpuSchedulerCapabilities:
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerCapabilities_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -7634,7 +7634,7 @@ cdef class VgpuLicenseExpiry:
 
     def __dealloc__(self):
         cdef nvmlVgpuLicenseExpiry_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -7826,7 +7826,7 @@ cdef class GridLicenseExpiry:
 
     def __dealloc__(self):
         cdef nvmlGridLicenseExpiry_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -8014,7 +8014,7 @@ cdef class VgpuTypeIdInfo_v1:
 
     def __dealloc__(self):
         cdef nvmlVgpuTypeIdInfo_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -8147,7 +8147,7 @@ cdef class VgpuTypeMaxInstance_v1:
 
     def __dealloc__(self):
         cdef nvmlVgpuTypeMaxInstance_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -8291,7 +8291,7 @@ cdef class ActiveVgpuInstanceInfo_v1:
 
     def __dealloc__(self):
         cdef nvmlActiveVgpuInstanceInfo_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -8428,7 +8428,7 @@ cdef class VgpuCreatablePlacementInfo_v1:
 
     def __dealloc__(self):
         cdef nvmlVgpuCreatablePlacementInfo_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -8735,7 +8735,7 @@ cdef class LedState:
 
     def __dealloc__(self):
         cdef nvmlLedState_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -8873,7 +8873,7 @@ cdef class UnitInfo:
 
     def __dealloc__(self):
         cdef nvmlUnitInfo_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -9045,7 +9045,7 @@ cdef class PSUInfo:
 
     def __dealloc__(self):
         cdef nvmlPSUInfo_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -9352,7 +9352,7 @@ cdef class EventData:
 
     def __dealloc__(self):
         cdef nvmlEventData_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -9522,7 +9522,7 @@ cdef class AccountingStats:
 
     def __dealloc__(self):
         cdef nvmlAccountingStats_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -9917,7 +9917,7 @@ cdef class FBCStats:
 
     def __dealloc__(self):
         cdef nvmlFBCStats_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -10326,7 +10326,7 @@ cdef class ConfComputeSystemCaps:
 
     def __dealloc__(self):
         cdef nvmlConfComputeSystemCaps_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -10459,7 +10459,7 @@ cdef class ConfComputeSystemState:
 
     def __dealloc__(self):
         cdef nvmlConfComputeSystemState_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -10605,7 +10605,7 @@ cdef class SystemConfComputeSettings_v1:
 
     def __dealloc__(self):
         cdef nvmlSystemConfComputeSettings_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -10770,7 +10770,7 @@ cdef class ConfComputeMemSizeInfo:
 
     def __dealloc__(self):
         cdef nvmlConfComputeMemSizeInfo_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -10904,7 +10904,7 @@ cdef class ConfComputeGpuCertificate:
 
     def __dealloc__(self):
         cdef nvmlConfComputeGpuCertificate_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -11070,7 +11070,7 @@ cdef class ConfComputeGpuAttestationReport:
 
     def __dealloc__(self):
         cdef nvmlConfComputeGpuAttestationReport_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -11258,7 +11258,7 @@ cdef class ConfComputeGetKeyRotationThresholdInfo_v1:
 
     def __dealloc__(self):
         cdef nvmlConfComputeGetKeyRotationThresholdInfo_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -11391,7 +11391,7 @@ cdef class NvlinkSupportedBwModes_v1:
 
     def __dealloc__(self):
         cdef nvmlNvlinkSupportedBwModes_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -11539,7 +11539,7 @@ cdef class NvlinkGetBwMode_v1:
 
     def __dealloc__(self):
         cdef nvmlNvlinkGetBwMode_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -11683,7 +11683,7 @@ cdef class NvlinkSetBwMode_v1:
 
     def __dealloc__(self):
         cdef nvmlNvlinkSetBwMode_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -11826,7 +11826,7 @@ cdef class VgpuVersion:
 
     def __dealloc__(self):
         cdef nvmlVgpuVersion_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -11966,7 +11966,7 @@ cdef class VgpuMetadata:
 
     def __dealloc__(self):
         cdef nvmlVgpuMetadata_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -12187,7 +12187,7 @@ cdef class VgpuPgpuCompatibility:
 
     def __dealloc__(self):
         cdef nvmlVgpuPgpuCompatibility_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -12476,7 +12476,7 @@ cdef class GpuInstanceProfileInfo_v2:
 
     def __dealloc__(self):
         cdef nvmlGpuInstanceProfileInfo_v2_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -12744,7 +12744,7 @@ cdef class GpuInstanceProfileInfo_v3:
 
     def __dealloc__(self):
         cdef nvmlGpuInstanceProfileInfo_v3_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -13156,7 +13156,7 @@ cdef class ComputeInstanceProfileInfo_v2:
 
     def __dealloc__(self):
         cdef nvmlComputeInstanceProfileInfo_v2_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -13401,7 +13401,7 @@ cdef class ComputeInstanceProfileInfo_v3:
 
     def __dealloc__(self):
         cdef nvmlComputeInstanceProfileInfo_v3_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -13647,7 +13647,7 @@ cdef class GpmSupport:
 
     def __dealloc__(self):
         cdef nvmlGpmSupport_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -13779,7 +13779,7 @@ cdef class DeviceCapabilities_v1:
 
     def __dealloc__(self):
         cdef nvmlDeviceCapabilities_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -13911,7 +13911,7 @@ cdef class DeviceAddressingMode_v1:
 
     def __dealloc__(self):
         cdef nvmlDeviceAddressingMode_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -14044,7 +14044,7 @@ cdef class RepairStatus_v1:
 
     def __dealloc__(self):
         cdef nvmlRepairStatus_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -14187,7 +14187,7 @@ cdef class Pdi_v1:
 
     def __dealloc__(self):
         cdef nvmlPdi_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -14320,7 +14320,7 @@ cdef class DevicePowerMizerModes_v1:
 
     def __dealloc__(self):
         cdef nvmlDevicePowerMizerModes_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -14674,7 +14674,7 @@ cdef class GpuFabricInfo_v3:
 
     def __dealloc__(self):
         cdef nvmlGpuFabricInfo_v3_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -14867,7 +14867,7 @@ cdef class NvlinkFirmwareVersion:
 
     def __dealloc__(self):
         cdef nvmlNvlinkFirmwareVersion_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -15021,7 +15021,7 @@ cdef class ExcludedDeviceInfo:
 
     def __dealloc__(self):
         cdef nvmlExcludedDeviceInfo_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -15162,7 +15162,7 @@ cdef class ProcessDetailList_v1:
 
     def __dealloc__(self):
         cdef nvmlProcessDetailList_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -15311,7 +15311,7 @@ cdef class BridgeChipHierarchy:
 
     def __dealloc__(self):
         cdef nvmlBridgeChipHierarchy_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -16112,7 +16112,7 @@ cdef class GpuThermalSettings:
 
     def __dealloc__(self):
         cdef nvmlGpuThermalSettings_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -16248,7 +16248,7 @@ cdef class ClkMonStatus:
 
     def __dealloc__(self):
         cdef nvmlClkMonStatus_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -16398,7 +16398,7 @@ cdef class ProcessesUtilizationInfo_v1:
 
     def __dealloc__(self):
         cdef nvmlProcessesUtilizationInfo_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -16547,7 +16547,7 @@ cdef class GpuDynamicPstatesInfo:
 
     def __dealloc__(self):
         cdef nvmlGpuDynamicPstatesInfo_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -16686,7 +16686,7 @@ cdef class VgpuProcessesUtilizationInfo_v1:
 
     def __dealloc__(self):
         cdef nvmlVgpuProcessesUtilizationInfo_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -16830,7 +16830,7 @@ cdef class VgpuSchedulerParams:
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerParams_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -16959,7 +16959,7 @@ cdef class VgpuSchedulerSetParams:
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerSetParams_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -17094,7 +17094,7 @@ cdef class VgpuLicenseInfo:
 
     def __dealloc__(self):
         cdef nvmlVgpuLicenseInfo_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -17440,7 +17440,7 @@ cdef class UnitFanSpeeds:
 
     def __dealloc__(self):
         cdef nvmlUnitFanSpeeds_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -17581,7 +17581,7 @@ cdef class VgpuPgpuMetadata:
 
     def __dealloc__(self):
         cdef nvmlVgpuPgpuMetadata_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -17779,7 +17779,7 @@ cdef class GpuInstanceInfo:
 
     def __dealloc__(self):
         cdef nvmlGpuInstanceInfo_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -17937,7 +17937,7 @@ cdef class ComputeInstanceInfo:
 
     def __dealloc__(self):
         cdef nvmlComputeInstanceInfo_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -18106,7 +18106,7 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
 
     def __dealloc__(self):
         cdef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -18244,7 +18244,7 @@ cdef class NvlinkFirmwareInfo:
 
     def __dealloc__(self):
         cdef nvmlNvlinkFirmwareInfo_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -18384,7 +18384,7 @@ cdef class VgpuInstancesUtilizationInfo_v1:
 
     def __dealloc__(self):
         cdef nvmlVgpuInstancesUtilizationInfo_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -18548,7 +18548,7 @@ cdef class VgpuSchedulerLog:
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerLog_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -18729,7 +18729,7 @@ cdef class VgpuSchedulerGetState:
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerGetState_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -18876,7 +18876,7 @@ cdef class VgpuSchedulerStateInfo_v1:
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerStateInfo_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -19047,7 +19047,7 @@ cdef class VgpuSchedulerLogInfo_v1:
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerLogInfo_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -19241,7 +19241,7 @@ cdef class VgpuSchedulerState_v1:
 
     def __dealloc__(self):
         cdef nvmlVgpuSchedulerState_v1_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -19408,7 +19408,7 @@ cdef class GridLicensableFeatures:
 
     def __dealloc__(self):
         cdef nvmlGridLicensableFeatures_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
@@ -19555,7 +19555,7 @@ cdef class NvLinkInfo_v2:
 
     def __dealloc__(self):
         cdef nvmlNvLinkInfo_v2_t *ptr
-        if self._owner is None and self._ptr != NULL:
+        if self._owned and self._ptr != NULL:
             ptr = self._ptr
             self._ptr = NULL
             free(ptr)
