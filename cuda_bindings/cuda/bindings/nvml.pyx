@@ -25679,7 +25679,7 @@ cpdef object device_get_field_values(intptr_t device, values):
         __status__ = nvmlDeviceGetFieldValues(<Device>device, valuesCount, ptr)
     check_status(__status__)
 
-    return FieldValue.from_ptr(ptr, valuesCount)
+    return FieldValue.from_ptr(<intptr_t>ptr, valuesCount)
 
 
 cpdef object device_clear_field_values(intptr_t device, values):
