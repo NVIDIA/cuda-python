@@ -13,9 +13,35 @@ except ImportError:
 import cuda.core.experimental
 import numpy as np
 import pytest
-from cuda.core.experimental import Device
+from cuda.bindings import driver
+from cuda.core.experimental import Buffer, Device, MemoryResource
 from cuda.core.experimental._memoryview import view_as_cai
+from cuda.core.experimental._utils.cuda_utils import handle_return
 from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
+
+
+class DummyDeviceMemoryResource(MemoryResource):
+    def __init__(self, device):
+        self.device = device
+
+    def allocate(self, size, stream=None) -> Buffer:
+        ptr = handle_return(driver.cuMemAlloc(size))
+        return Buffer.from_handle(ptr=ptr, size=size, mr=self)
+
+    def deallocate(self, ptr, size, stream=None):
+        handle_return(driver.cuMemFree(ptr))
+
+    @property
+    def is_device_accessible(self) -> bool:
+        return True
+
+    @property
+    def is_host_accessible(self) -> bool:
+        return False
+
+    @property
+    def device_id(self) -> int:
+        return 0
 
 
 def test_cast_to_3_tuple_success():
@@ -113,6 +139,12 @@ def gpu_array_samples():
             (numba_cuda.device_array((2,), dtype=np.int8), False),
             (numba_cuda.device_array((4, 2), dtype=np.float32), True),
         ]
+
+    device = Device()
+    device.set_current()
+    mr = DummyDeviceMemoryResource(device)
+    samples.append((mr.allocate(1024), False))
+    samples.append((mr.allocate(1024), True))
     return samples
 
 
@@ -121,6 +153,8 @@ def gpu_array_ptr(arr):
         return arr.data.ptr
     if numba_cuda is not None and isinstance(arr, numba_cuda.cudadrv.devicearray.DeviceNDArray):
         return arr.device_ctypes_pointer.value
+    if isinstance(arr, Buffer):
+        return int(arr.handle)
     raise NotImplementedError(f"{arr=}")
 
 

@@ -173,6 +173,41 @@ cdef class Buffer:
         err, = driver.cuMemcpyAsync(self._ptr, src._ptr, dst_size, stream.handle)
         raise_if_driver_error(err)
 
+    def __len__(self) -> int:
+        return self.size
+
+    @property
+    def shape(self) -> tuple[int]:
+        return (self.size,)
+
+    @property
+    def strides(self):
+        return (1,)
+
+    @property
+    def flags(self):
+        return {"C_CONTIGUOUS": True}
+
+    @property
+    def dtype(self):
+        import numpy as np
+
+        return np.dtype("<i1")
+
+    @property
+    def __cuda_array_interface__(self) -> dict:
+        return {
+            # data :: tuple[ptr: int, readonly: bool]
+            "data": (int(self.handle), False),
+            "shape": self.shape,
+            "strides": None,
+            # little-endian single-byte integers
+            "typestr": self.dtype.str,
+            "version": 3,
+            # TODO: is using the allocation stream correct here?
+            "stream": self._alloc_stream,
+        }
+
     def __dlpack__(
         self,
         *,
