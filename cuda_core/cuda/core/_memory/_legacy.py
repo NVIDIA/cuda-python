@@ -10,7 +10,7 @@ from cuda.core._memory._buffer import Buffer, MemoryResource
 from cuda.core._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
 )
-from cuda.core.experimental._utils.cuda_utils import (
+from cuda.core._utils.cuda_utils import (
     driver,
 )
 
