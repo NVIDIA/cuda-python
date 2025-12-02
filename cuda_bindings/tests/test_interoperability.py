@@ -12,7 +12,6 @@ def supportsMemoryPool():
     return err == cudart.cudaError_t.cudaSuccess and isSupported
 
 
-@pytest.mark.usefixtures("ctx")
 def test_interop_stream():
     # DRV to RT
     err_dr, stream = cuda.cuStreamCreate(0)
@@ -27,7 +26,6 @@ def test_interop_stream():
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.mark.usefixtures("ctx")
 def test_interop_event():
     # DRV to RT
     err_dr, event = cuda.cuEventCreate(0)
@@ -42,7 +40,6 @@ def test_interop_event():
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.mark.usefixtures("ctx")
 def test_interop_graph():
     # DRV to RT
     err_dr, graph = cuda.cuGraphCreate(0)
@@ -57,7 +54,6 @@ def test_interop_graph():
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.mark.usefixtures("ctx")
 def test_interop_graphNode():
     err_dr, graph = cuda.cuGraphCreate(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
@@ -87,7 +83,6 @@ def test_interop_graphNode():
 
 
 @pytest.mark.skipif(not supportsMemoryPool(), reason="Requires mempool operations")
-@pytest.mark.usefixtures("ctx")
 def test_interop_memPool():
     # DRV to RT
     err_dr, pool = cuda.cuDeviceGetDefaultMemPool(0)
@@ -102,7 +97,6 @@ def test_interop_memPool():
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.mark.usefixtures("ctx")
 def test_interop_graphExec():
     err_dr, graph = cuda.cuGraphCreate(0)
     assert err_dr == cuda.CUresult.CUDA_SUCCESS
@@ -125,7 +119,6 @@ def test_interop_graphExec():
     assert err_rt == cudart.cudaError_t.cudaSuccess
 
 
-@pytest.mark.usefixtures("ctx")
 def test_interop_deviceptr():
     # Allocate dev memory
     size = 1024 * np.uint8().itemsize

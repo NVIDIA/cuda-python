@@ -69,7 +69,6 @@ def common_nvrtc(allKernelStrings, dev):
     return module
 
 
-@pytest.mark.usefixtures("ctx")
 def test_kernelParams_empty(device):
     kernelString = """\
     static __device__ bool isDone;
@@ -137,7 +136,6 @@ def test_kernelParams_empty(device):
 
 
 @pytest.mark.parametrize("use_ctypes_as_values", [False, True], ids=["no-ctypes", "ctypes"])
-@pytest.mark.usefixtures("ctx")
 def test_kernelParams(use_ctypes_as_values, device):
     if use_ctypes_as_values:
         assertValues_host = (
@@ -409,7 +407,6 @@ def test_kernelParams(use_ctypes_as_values, device):
     ASSERT_DRV(err)
 
 
-@pytest.mark.usefixtures("ctx")
 def test_kernelParams_types_cuda(device):
     err, uvaSupported = cuda.cuDeviceGetAttribute(
         cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, device
@@ -532,7 +529,6 @@ def test_kernelParams_types_cuda(device):
     ASSERT_DRV(err)
 
 
-@pytest.mark.usefixtures("ctx")
 def test_kernelParams_struct_custom(device):
     err, uvaSupported = cuda.cuDeviceGetAttribute(
         cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, device
@@ -605,7 +601,6 @@ def test_kernelParams_struct_custom(device):
 
 
 @pytest.mark.parametrize("pass_by_address", [False, True], ids=["by-address", "not-by-address"])
-@pytest.mark.usefixtures("ctx")
 def test_kernelParams_buffer_protocol(pass_by_address, device):
     err, uvaSupported = cuda.cuDeviceGetAttribute(
         cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, device
@@ -705,7 +700,6 @@ def test_kernelParams_buffer_protocol(pass_by_address, device):
     ASSERT_DRV(err)
 
 
-@pytest.mark.usefixtures("ctx")
 def test_kernelParams_buffer_protocol_numpy(device):
     err, uvaSupported = cuda.cuDeviceGetAttribute(
         cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING, device

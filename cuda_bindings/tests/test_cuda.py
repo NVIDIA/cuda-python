@@ -38,7 +38,6 @@ def callableBinary(name):
     return shutil.which(name) is not None
 
 
-@pytest.mark.usefixtures("ctx")
 def test_cuda_memcpy():
     # Get device
 
@@ -68,7 +67,6 @@ def test_cuda_memcpy():
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.mark.usefixtures("ctx")
 def test_cuda_array():
     # No context created
     desc = cuda.CUDA_ARRAY_DESCRIPTOR()
@@ -167,7 +165,6 @@ def test_cuda_repr_pointer(ctx):
     assert hex(b2d_cb) == hex(func)
 
 
-@pytest.mark.usefixtures("ctx")
 def test_cuda_uuid_list_access(device):
     err, uuid = cuda.cuDeviceGetUuid(device)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -183,7 +180,6 @@ def test_cuda_uuid_list_access(device):
     }
 
 
-@pytest.mark.usefixtures("ctx")
 def test_cuda_cuModuleLoadDataEx():
     option_keys = [
         cuda.CUjit_option.CU_JIT_INFO_LOG_BUFFER,
@@ -264,7 +260,6 @@ def test_cuda_CUstreamBatchMemOpParams():
 @pytest.mark.skipif(
     driverVersionLessThan(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
 )
-@pytest.mark.usefixtures("ctx")
 def test_cuda_memPool_attr():
     poolProps = cuda.CUmemPoolProps()
     poolProps.allocType = cuda.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
@@ -327,7 +322,6 @@ def test_cuda_memPool_attr():
 @pytest.mark.skipif(
     driverVersionLessThan(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
 )
-@pytest.mark.usefixtures("ctx")
 def test_cuda_pointer_attr():
     err, ptr = cuda.cuMemAllocManaged(0x1000, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -377,7 +371,6 @@ def test_cuda_pointer_attr():
 
 
 @pytest.mark.skipif(not supportsManagedMemory(), reason="When new attributes were introduced")
-@pytest.mark.usefixtures("ctx")
 def test_cuda_mem_range_attr(device):
     size = 0x1000
     location_device = cuda.CUmemLocation()
@@ -441,7 +434,6 @@ def test_cuda_mem_range_attr(device):
 
 
 @pytest.mark.skipif(driverVersionLessThan(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported")
-@pytest.mark.usefixtures("ctx")
 def test_cuda_graphMem_attr(device):
     err, stream = cuda.cuStreamCreate(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -498,7 +490,6 @@ def test_cuda_graphMem_attr(device):
     or not supportsCudaAPI("cuCoredumpGetAttributeGlobal"),
     reason="Coredump API not present",
 )
-@pytest.mark.usefixtures("ctx")
 def test_cuda_coredump_attr():
     attr_list = [None] * 6
 
@@ -529,13 +520,7 @@ def test_cuda_coredump_attr():
     assert attr_list[3] is True
 
 
-@pytest.mark.usefixtures("cuda_driver")
 def test_get_error_name_and_string():
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
     err, device = cuda.cuDeviceGet(0)
     _, s = cuda.cuGetErrorString(err)
     assert s == b"no error"
@@ -550,7 +535,6 @@ def test_get_error_name_and_string():
 
 
 @pytest.mark.skipif(not callableBinary("nvidia-smi"), reason="Binary existence needed")
-@pytest.mark.usefixtures("ctx")
 def test_device_get_name(device):
     # TODO: Refactor this test once we have nvml bindings to avoid the use of subprocess
     import subprocess
@@ -579,7 +563,6 @@ def test_stream_capture():
     pass
 
 
-@pytest.mark.usefixtures("ctx")
 def test_profiler():
     (err,) = cuda.cuProfilerStart()
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -661,7 +644,6 @@ def test_invalid_repr_attribute():
     or not supportsCudaAPI("cuGraphExecNodeSetParams"),
     reason="Polymorphic graph APIs required",
 )
-@pytest.mark.usefixtures("ctx")
 def test_graph_poly():
     err, stream = cuda.cuStreamCreate(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -771,7 +753,6 @@ def test_graph_poly():
     driverVersionLessThan(12040) or not supportsCudaAPI("cuDeviceGetDevResource"),
     reason="Polymorphic graph APIs required",
 )
-@pytest.mark.usefixtures("ctx")
 def test_cuDeviceGetDevResource(device):
     err, resource_in = cuda.cuDeviceGetDevResource(device, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
 

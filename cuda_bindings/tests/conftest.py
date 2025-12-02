@@ -18,7 +18,7 @@ def device(cuda_driver):
     return device
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="module", autouse=True)
 def ctx(device):
     # Construct context
     err, ctx = cuda.cuCtxCreate(None, 0, device)
