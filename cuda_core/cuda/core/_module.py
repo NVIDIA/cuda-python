@@ -7,15 +7,15 @@ from collections import namedtuple
 from typing import Union
 from warnings import warn
 
-from cuda.core.experimental._device import Device
-from cuda.core.experimental._launch_config import LaunchConfig, _to_native_launch_config
-from cuda.core.experimental._stream import Stream
-from cuda.core.experimental._utils.clear_error_support import (
+from cuda.core._device import Device
+from cuda.core._launch_config import LaunchConfig, _to_native_launch_config
+from cuda.core._stream import Stream
+from cuda.core._utils.clear_error_support import (
     assert_type,
     assert_type_str_or_bytes_like,
     raise_code_path_meant_to_be_unreachable,
 )
-from cuda.core.experimental._utils.cuda_utils import driver, get_binding_version, handle_return, precondition
+from cuda.core._utils.cuda_utils import driver, get_binding_version, handle_return, precondition
 
 _backend = {
     "old": {

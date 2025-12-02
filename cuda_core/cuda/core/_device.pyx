@@ -6,27 +6,27 @@ cimport cpython
 from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import threading
 from typing import Optional, TYPE_CHECKING, Union
 
-from cuda.core.experimental._context import Context, ContextOptions
-from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._graph import GraphBuilder
-from cuda.core.experimental._stream import IsStreamT, Stream, StreamOptions
-from cuda.core.experimental._utils.clear_error_support import assert_type
-from cuda.core.experimental._utils.cuda_utils import (
+from cuda.core._context import Context, ContextOptions
+from cuda.core._event import Event, EventOptions
+from cuda.core._graph import GraphBuilder
+from cuda.core._stream import IsStreamT, Stream, StreamOptions
+from cuda.core._utils.clear_error_support import assert_type
+from cuda.core._utils.cuda_utils import (
     ComputeCapability,
     CUDAError,
     driver,
     handle_return,
     runtime,
 )
-from cuda.core.experimental._stream cimport default_stream
+from cuda.core._stream cimport default_stream
 
 if TYPE_CHECKING:
-    from cuda.core.experimental._memory import Buffer, MemoryResource
+    from cuda.core._memory import Buffer, MemoryResource
 
 # TODO: I prefer to type these as "cdef object" and avoid accessing them from within Python,
 # but it seems it is very convenient to expose them for testing purposes...
@@ -1133,17 +1133,17 @@ class Device:
                     )
                 )
             if attr == 1:
-                from cuda.core.experimental._memory import DeviceMemoryResource
+                from cuda.core._memory import DeviceMemoryResource
                 self._memory_resource = DeviceMemoryResource(self._id)
             else:
-                from cuda.core.experimental._memory import _SynchronousMemoryResource
+                from cuda.core._memory import _SynchronousMemoryResource
                 self._memory_resource = _SynchronousMemoryResource(self._id)
 
         return self._memory_resource
 
     @memory_resource.setter
     def memory_resource(self, mr):
-        from cuda.core.experimental._memory import MemoryResource
+        from cuda.core._memory import MemoryResource
         assert_type(mr, MemoryResource)
         self._memory_resource = mr
 
@@ -1202,7 +1202,7 @@ class Device:
         Acts as an entry point of this object. Users always start a code by
         calling this method, e.g.
 
-        >>> from cuda.core.experimental import Device
+        >>> from cuda.core import Device
         >>> dev0 = Device(0)
         >>> dev0.set_current()
         >>> # ... do work on device 0 ...

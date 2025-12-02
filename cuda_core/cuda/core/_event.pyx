@@ -8,7 +8,7 @@ cimport cpython
 from libc.stdint cimport uintptr_t
 from libc.string cimport memcpy
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._utils.cuda_utils cimport (
+from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN
 )
@@ -18,8 +18,8 @@ from dataclasses import dataclass
 import multiprocessing
 from typing import TYPE_CHECKING, Optional
 
-from cuda.core.experimental._context import Context
-from cuda.core.experimental._utils.cuda_utils import (
+from cuda.core._context import Context
+from cuda.core._utils.cuda_utils import (
     CUDAError,
     driver,
 )

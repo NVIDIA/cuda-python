@@ -6,19 +6,19 @@ from __future__ import annotations
 
 from libc.stdint cimport uintptr_t
 
-from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
-from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor
-from cuda.core.experimental._memory cimport _ipc
-from cuda.core.experimental._stream cimport Stream_accept, Stream
-from cuda.core.experimental._utils.cuda_utils cimport (
+from cuda.core._memory._device_memory_resource cimport DeviceMemoryResource
+from cuda.core._memory._ipc cimport IPCBufferDescriptor
+from cuda.core._memory cimport _ipc
+from cuda.core._stream cimport Stream_accept, Stream
+from cuda.core._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
 )
 
 import abc
 from typing import TypeVar, Union
 
-from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
-from cuda.core.experimental._utils.cuda_utils import driver
+from cuda.core._dlpack import DLDeviceType, make_py_capsule
+from cuda.core._utils.cuda_utils import driver
 
 __all__ = ['Buffer', 'MemoryResource']
 

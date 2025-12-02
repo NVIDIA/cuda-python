@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from cuda.core.experimental._memory._buffer import Buffer, MemoryResource
-from cuda.core.experimental._utils.cuda_utils import (
+from cuda.core._memory._buffer import Buffer, MemoryResource
+from cuda.core._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
 )
 from cuda.core.experimental._utils.cuda_utils import (
@@ -15,7 +15,7 @@ from cuda.core.experimental._utils.cuda_utils import (
 )
 
 if TYPE_CHECKING:
-    from cuda.core.experimental._memory.buffer import DevicePointerT
+    from cuda.core._memory.buffer import DevicePointerT
 
 __all__ = ["LegacyPinnedMemoryResource", "_SynchronousMemoryResource"]
 
@@ -43,7 +43,7 @@ class LegacyPinnedMemoryResource(MemoryResource):
             The allocated buffer object, which is accessible on both host and device.
         """
         if stream is None:
-            from cuda.core.experimental._stream import default_stream
+            from cuda.core._stream import default_stream
 
             stream = default_stream()
         err, ptr = driver.cuMemAllocHost(size)
@@ -93,7 +93,7 @@ class _SynchronousMemoryResource(MemoryResource):
 
     def allocate(self, size, stream=None) -> Buffer:
         if stream is None:
-            from cuda.core.experimental._stream import default_stream
+            from cuda.core._stream import default_stream
 
             stream = default_stream()
         err, ptr = driver.cuMemAlloc(size)
