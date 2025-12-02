@@ -152,7 +152,31 @@ cdef inline int prepare_ctypes_arg(
     elif arg_type is ctypes_double:
         return prepare_arg[double](data, data_addresses, arg.value, idx)
     else:
-        return 1
+        # If no exact types are found, fallback to slower `isinstance` check
+        if isinstance(arg, ctypes_bool):
+            return prepare_arg[cpp_bool](data, data_addresses, arg.value, idx)
+        elif isinstance(arg, ctypes_int8):
+            return prepare_arg[int8_t](data, data_addresses, arg.value, idx)
+        elif isinstance(arg, ctypes_int16):
+            return prepare_arg[int16_t](data, data_addresses, arg.value, idx)
+        elif isinstance(arg, ctypes_int32):
+            return prepare_arg[int32_t](data, data_addresses, arg.value, idx)
+        elif isinstance(arg, ctypes_int64):
+            return prepare_arg[int64_t](data, data_addresses, arg.value, idx)
+        elif isinstance(arg, ctypes_uint8):
+            return prepare_arg[uint8_t](data, data_addresses, arg.value, idx)
+        elif isinstance(arg, ctypes_uint16):
+            return prepare_arg[uint16_t](data, data_addresses, arg.value, idx)
+        elif isinstance(arg, ctypes_uint32):
+            return prepare_arg[uint32_t](data, data_addresses, arg.value, idx)
+        elif isinstance(arg, ctypes_uint64):
+            return prepare_arg[uint64_t](data, data_addresses, arg.value, idx)
+        elif isinstance(arg, ctypes_float):
+            return prepare_arg[float](data, data_addresses, arg.value, idx)
+        elif isinstance(arg, ctypes_double):
+            return prepare_arg[double](data, data_addresses, arg.value, idx)
+        else:
+            return 1
 
 
 cdef inline int prepare_numpy_arg(
@@ -190,7 +214,37 @@ cdef inline int prepare_numpy_arg(
     elif arg_type is numpy_complex128:
         return prepare_arg[cpp_double_complex](data, data_addresses, arg, idx)
     else:
-        return 1
+        # If no exact types are found, fallback to slower `isinstance` check
+        if isinstance(arg, numpy_bool):
+            return prepare_arg[cpp_bool](data, data_addresses, arg, idx)
+        elif isinstance(arg, numpy_int8):
+            return prepare_arg[int8_t](data, data_addresses, arg, idx)
+        elif isinstance(arg, numpy_int16):
+            return prepare_arg[int16_t](data, data_addresses, arg, idx)
+        elif isinstance(arg, numpy_int32):
+            return prepare_arg[int32_t](data, data_addresses, arg, idx)
+        elif isinstance(arg, numpy_int64):
+            return prepare_arg[int64_t](data, data_addresses, arg, idx)
+        elif isinstance(arg, numpy_uint8):
+            return prepare_arg[uint8_t](data, data_addresses, arg, idx)
+        elif isinstance(arg, numpy_uint16):
+            return prepare_arg[uint16_t](data, data_addresses, arg, idx)
+        elif isinstance(arg, numpy_uint32):
+            return prepare_arg[uint32_t](data, data_addresses, arg, idx)
+        elif isinstance(arg, numpy_uint64):
+            return prepare_arg[uint64_t](data, data_addresses, arg, idx)
+        elif isinstance(arg, numpy_float16):
+            return prepare_arg[__half_raw](data, data_addresses, arg, idx)
+        elif isinstance(arg, numpy_float32):
+            return prepare_arg[float](data, data_addresses, arg, idx)
+        elif isinstance(arg, numpy_float64):
+            return prepare_arg[double](data, data_addresses, arg, idx)
+        elif isinstance(arg, numpy_complex64):
+            return prepare_arg[cpp_single_complex](data, data_addresses, arg, idx)
+        elif isinstance(arg, numpy_complex128):
+            return prepare_arg[cpp_double_complex](data, data_addresses, arg, idx)
+        else:
+            return 1
 
 
 cdef class ParamHolder:
@@ -248,6 +302,29 @@ cdef class ParamHolder:
             if not_prepared:
                 # TODO: revisit this treatment if we decide to cythonize cuda.core
                 if arg_type is driver.CUgraphConditionalHandle:
+                    prepare_arg[intptr_t](self.data, self.data_addresses, <intptr_t>int(arg), i)
+                    continue
+                # If no exact types are found, fallback to slower `isinstance` check
+                elif isinstance(arg, Buffer):
+                    if isinstance(arg.handle, int):
+                        prepare_arg[intptr_t](self.data, self.data_addresses, arg.handle, i)
+                        continue
+                    else:
+                        self.data_addresses[i] = <void*><intptr_t>(arg.handle.getPtr())
+                        continue
+                elif isinstance(arg, int):
+                    prepare_arg[intptr_t](self.data, self.data_addresses, arg, i)
+                    continue
+                elif isinstance(arg, float):
+                    prepare_arg[double](self.data, self.data_addresses, arg, i)
+                    continue
+                elif isinstance(arg, complex):
+                    prepare_arg[cpp_double_complex](self.data, self.data_addresses, arg, i)
+                    continue
+                elif isinstance(arg, bool):
+                    prepare_arg[cpp_bool](self.data, self.data_addresses, arg, i)
+                    continue
+                elif isinstance(arg, driver.CUgraphConditionalHandle):
                     prepare_arg[intptr_t](self.data, self.data_addresses, <intptr_t>int(arg), i)
                     continue
                 # TODO: support ctypes/numpy struct
