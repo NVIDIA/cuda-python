@@ -3,7 +3,7 @@
 
 .. module:: cuda.bindings
 
-``cuda-bindings`` 13.X.Y Release notes
+````cuda-bindings```` 13.X.Y Release notes
 ======================================
 
 
@@ -15,10 +15,18 @@ Highlights
 Bug fixes
 ---------
 
+Backward incompatible changes
+-----------------------------
 
+In ``cuda.bindings.cufile``, the following class members are no longer Numpy arrays, but are Python ``memoryview`` objects.  To get Numpy array behavior, pass the result to ``numpy.asarray``:
+
+- ``StatsLevel2.read_size_kb_hist``
+- ``StatsLevel2.write_size_kb_hist``
+
+Additionally, ``cufile.StatsLevel3.per_gpu_stats`` no longer returns a raw array, instead it returns a ``cufile.PerGpuStats`` array.
 
 Known issues
 ------------
 
-* Updating from older versions (v12.6.2.post1 and below) via ``pip install -U cuda-python`` might not work. Please do a clean re-installation by uninstalling ``pip uninstall -y cuda-python`` followed by installing ``pip install cuda-python``.
-* The graphics APIs in ``cuda.bindings.runtime`` are inadvertently disabled in 13.0.2.  Users needing these APIs should update to 13.0.3.
+* Updating from older versions (v12.6.2.post1 and below) via ````pip install -U cuda-python```` might not work. Please do a clean re-installation by uninstalling ````pip uninstall -y cuda-python```` followed by installing ````pip install cuda-python````.
+* The graphics APIs in ````cuda.bindings.runtime```` are inadvertently disabled in 13.0.2.  Users needing these APIs should update to 13.0.3.
