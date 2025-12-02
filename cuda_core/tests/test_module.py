@@ -387,7 +387,7 @@ def test_occupancy_max_active_clusters(get_saxpy_kernel_cubin, cluster):
     dev = Device()
     if dev.compute_capability < (9, 0):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
-    launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64, cluster=cluster)
+    launch_config = cuda.core.LaunchConfig(grid=128, block=64, cluster=cluster)
     query_fn = kernel.occupancy.max_active_clusters
     max_active_clusters = query_fn(launch_config)
     assert isinstance(max_active_clusters, int)
@@ -402,7 +402,7 @@ def test_occupancy_max_potential_cluster_size(get_saxpy_kernel_cubin):
     dev = Device()
     if dev.compute_capability < (9, 0):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
-    launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64)
+    launch_config = cuda.core.LaunchConfig(grid=128, block=64)
     query_fn = kernel.occupancy.max_potential_cluster_size
     max_potential_cluster_size = query_fn(launch_config)
     assert isinstance(max_potential_cluster_size, int)
