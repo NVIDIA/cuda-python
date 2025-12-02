@@ -1112,8 +1112,6 @@ cdef class Descr:
     cdef:
         readonly object _data
 
-        readonly tuple _handle
-
 
 
     def __init__(self, size=1):
@@ -1152,13 +1150,6 @@ cdef class Descr:
         return bool((self_data == other._data).all())
 
     @property
-    def handle(self):
-        """_py_anon_pod1: """
-        if self._data.size == 1:
-            return self._handle[0]
-        return self._handle
-
-    @property
     def type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
@@ -1168,6 +1159,15 @@ cdef class Descr:
     @type.setter
     def type(self, val):
         self._data.type = val
+
+    @property
+    def handle(self):
+        """_py_anon_pod1_dtype: """
+        return self._data.handle
+
+    @handle.setter
+    def handle(self, val):
+        self._data.handle = val
 
     @property
     def fs_ops(self):
@@ -1215,13 +1215,6 @@ cdef class Descr:
             raise ValueError("data array must be of dtype descr_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        handle_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.handle[i].__array_interface__['data'][0]
-            _py_anon_pod1_obj = _py_anon_pod1.from_ptr(addr, owner=obj)
-            handle_list.append(_py_anon_pod1_obj)
-
-        obj._handle = tuple(handle_list)
         return obj
 
     @staticmethod
@@ -1242,13 +1235,6 @@ cdef class Descr:
         data = _numpy.ndarray(size, buffer=buf, dtype=descr_dtype)
         obj._data = data.view(_numpy.recarray)
 
-        handle_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.handle[i].__array_interface__['data'][0]
-            _py_anon_pod1_obj = _py_anon_pod1.from_ptr(addr, owner=obj)
-            handle_list.append(_py_anon_pod1_obj)
-
-        obj._handle = tuple(handle_list)
         return obj
 
 
@@ -2045,8 +2031,6 @@ cdef class IOParams:
     cdef:
         readonly object _data
 
-        readonly tuple _u
-
 
 
     def __init__(self, size=1):
@@ -2085,13 +2069,6 @@ cdef class IOParams:
         return bool((self_data == other._data).all())
 
     @property
-    def u(self):
-        """_py_anon_pod2: """
-        if self._data.size == 1:
-            return self._u[0]
-        return self._u
-
-    @property
     def mode(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
@@ -2101,6 +2078,15 @@ cdef class IOParams:
     @mode.setter
     def mode(self, val):
         self._data.mode = val
+
+    @property
+    def u(self):
+        """_py_anon_pod2_dtype: """
+        return self._data.u
+
+    @u.setter
+    def u(self, val):
+        self._data.u = val
 
     @property
     def fh(self):
@@ -2170,13 +2156,6 @@ cdef class IOParams:
             raise ValueError("data array must be of dtype io_params_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        u_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.u[i].__array_interface__['data'][0]
-            _py_anon_pod2_obj = _py_anon_pod2.from_ptr(addr, owner=obj)
-            u_list.append(_py_anon_pod2_obj)
-
-        obj._u = tuple(u_list)
         return obj
 
     @staticmethod
@@ -2197,13 +2176,6 @@ cdef class IOParams:
         data = _numpy.ndarray(size, buffer=buf, dtype=io_params_dtype)
         obj._data = data.view(_numpy.recarray)
 
-        u_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.u[i].__array_interface__['data'][0]
-            _py_anon_pod2_obj = _py_anon_pod2.from_ptr(addr, owner=obj)
-            u_list.append(_py_anon_pod2_obj)
-
-        obj._u = tuple(u_list)
         return obj
 
 
