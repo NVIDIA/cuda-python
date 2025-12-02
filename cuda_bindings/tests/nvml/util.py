@@ -4,7 +4,7 @@
 
 import platform
 
-from cuda.bindings import nvml
+from cuda.bindings import _nvml as nvml
 
 current_os = platform.system()
 if current_os == "VMkernel":

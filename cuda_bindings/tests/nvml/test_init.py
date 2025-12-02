@@ -4,7 +4,7 @@
 import sys
 
 import pytest
-from cuda.bindings import nvml
+from cuda.bindings import _nvml as nvml
 
 
 def assert_nvml_is_initialized():

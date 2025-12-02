@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
-from cuda.bindings import nvml
+from cuda.bindings import _nvml as nvml
 
 
 def test_nvlink_get_link_count(for_all_devices):

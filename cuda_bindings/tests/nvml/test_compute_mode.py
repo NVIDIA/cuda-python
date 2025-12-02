@@ -5,7 +5,7 @@
 import sys
 
 import pytest
-from cuda.bindings import nvml
+from cuda.bindings import _nvml as nvml
 
 COMPUTE_MODES = [
     nvml.ComputeMode.COMPUTEMODE_DEFAULT,

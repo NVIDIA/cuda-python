@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import pytest
-from cuda.bindings import nvml
+from cuda.bindings import _nvml as nvml
 
 from . import util
 

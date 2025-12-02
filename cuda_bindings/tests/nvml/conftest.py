@@ -4,7 +4,7 @@
 from collections import namedtuple
 
 import pytest
-from cuda.bindings import nvml
+from cuda.bindings import _nvml as nvml
 
 
 class NVMLInitializer:
