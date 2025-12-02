@@ -23,15 +23,17 @@ from libc.string cimport memcmp, memcpy
 import numpy as _numpy
 
 
-cdef __from_data(data, dtype_name, expected_dtype, lowpp_type_from_ptr):
+cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
     # _numpy.recarray is a subclass of _numpy.ndarray, so implicitly handled here.
+    if isinstance(data, lowpp_type):
+        return data
     if not isinstance(data, _numpy.ndarray):
         raise TypeError("data argument must be a NumPy ndarray")
     if data.size != 1:
         raise ValueError("data array must have a size of 1")
     if data.dtype != expected_dtype:
         raise ValueError(f"data array must be of dtype {dtype_name}")
-    return lowpp_type_from_ptr(data.ctypes.data, not data.flags.writeable, data)
+    return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
 
 ###############################################################################
 # POD
@@ -135,7 +137,7 @@ cdef class _py_anon_pod1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod1_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod1_dtype", _py_anon_pod1_dtype, _py_anon_pod1.from_ptr)
+        return __from_data(data, "_py_anon_pod1_dtype", _py_anon_pod1_dtype, _py_anon_pod1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -291,7 +293,7 @@ cdef class _py_anon_pod3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod3_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod3_dtype", _py_anon_pod3_dtype, _py_anon_pod3.from_ptr)
+        return __from_data(data, "_py_anon_pod3_dtype", _py_anon_pod3_dtype, _py_anon_pod3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -581,7 +583,7 @@ cdef class OpCounter:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `op_counter_dtype` holding the data.
         """
-        return __from_data(data, "op_counter_dtype", op_counter_dtype, OpCounter.from_ptr)
+        return __from_data(data, "op_counter_dtype", op_counter_dtype, OpCounter)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -1053,7 +1055,7 @@ cdef class PerGpuStats:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `per_gpu_stats_dtype` holding the data.
         """
-        return __from_data(data, "per_gpu_stats_dtype", per_gpu_stats_dtype, PerGpuStats.from_ptr)
+        return __from_data(data, "per_gpu_stats_dtype", per_gpu_stats_dtype, PerGpuStats)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -1325,7 +1327,7 @@ cdef class _py_anon_pod2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod2_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2.from_ptr)
+        return __from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -1970,7 +1972,7 @@ cdef class StatsLevel1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `stats_level1_dtype` holding the data.
         """
-        return __from_data(data, "stats_level1_dtype", stats_level1_dtype, StatsLevel1.from_ptr)
+        return __from_data(data, "stats_level1_dtype", stats_level1_dtype, StatsLevel1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2303,7 +2305,7 @@ cdef class StatsLevel2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `stats_level2_dtype` holding the data.
         """
-        return __from_data(data, "stats_level2_dtype", stats_level2_dtype, StatsLevel2.from_ptr)
+        return __from_data(data, "stats_level2_dtype", stats_level2_dtype, StatsLevel2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2451,7 +2453,7 @@ cdef class StatsLevel3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `stats_level3_dtype` holding the data.
         """
-        return __from_data(data, "stats_level3_dtype", stats_level3_dtype, StatsLevel3.from_ptr)
+        return __from_data(data, "stats_level3_dtype", stats_level3_dtype, StatsLevel3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
