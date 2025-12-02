@@ -27,7 +27,7 @@ import weakref
 from cuda.core._utils.cuda_utils import driver
 
 if TYPE_CHECKING:
-    from cuda.core.experimental._memory.buffer import DevicePointerT
+    from cuda.core._memory.buffer import DevicePointerT
     from .._device import Device
 
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
