@@ -26,8 +26,6 @@ else:
 def _load_lib_no_cache(libname: str) -> LoadedDL:
     finder = _FindNvidiaDynamicLib(libname)
     abs_path = finder.try_site_packages()
-
-    abs_path = finder.try_site_packages()
     if abs_path is not None:
         found_via = "site-packages"
     else:

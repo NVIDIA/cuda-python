@@ -390,7 +390,7 @@ class ParallelBuildExtensions(build_ext):
             self.parallel = nthreads
 
     def build_extension(self, ext):
-        if building_wheel and sys.platform == "linux":
+        if building_wheel and sys.platform == "linux" and "--debug" not in sys.argv:
             # Strip binaries to remove debug symbols
             ext.extra_link_args.append("-Wl,--strip-all")
         super().build_extension(ext)

@@ -6,16 +6,14 @@ cimport cpython
 from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
-
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 import threading
-from typing import Union
+from typing import Optional, TYPE_CHECKING, Union
 
 from cuda.core.experimental._context import Context, ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._graph import GraphBuilder
-from cuda.core.experimental._memory import Buffer, DeviceMemoryResource, MemoryResource, _SynchronousMemoryResource
 from cuda.core.experimental._stream import IsStreamT, Stream, StreamOptions
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
@@ -27,7 +25,8 @@ from cuda.core.experimental._utils.cuda_utils import (
 )
 from cuda.core.experimental._stream cimport default_stream
 
-
+if TYPE_CHECKING:
+    from cuda.core.experimental._memory import Buffer, MemoryResource
 
 # TODO: I prefer to type these as "cdef object" and avoid accessing them from within Python,
 # but it seems it is very convenient to expose them for testing purposes...
@@ -949,9 +948,16 @@ class Device:
         Default value of `None` return the currently used device.
 
     """
-    __slots__ = ("_id", "_mr", "_has_inited", "_properties")
+    __slots__ = ("_id", "_memory_resource", "_has_inited", "_properties", "_uuid")
 
-    def __new__(cls, device_id: int | None = None):
+    def __new__(cls, device_id: Device | int | None = None):
+        # Handle device_id argument.
+        if isinstance(device_id, Device):
+            return device_id
+        else:
+            device_id = getattr(device_id, 'device_id', device_id)
+
+        # Initialize CUDA.
         global _is_cuInit
         if _is_cuInit is False:
             with _lock, nogil:
@@ -977,7 +983,7 @@ class Device:
             raise ValueError(f"device_id must be >= 0, got {device_id}")
 
         # ensure Device is singleton
-        cdef int total, attr
+        cdef int total
         try:
             devices = _tls.devices
         except AttributeError:
@@ -987,21 +993,10 @@ class Device:
             for dev_id in range(total):
                 device = super().__new__(cls)
                 device._id = dev_id
-                # If the device is in TCC mode, or does not support memory pools for some other reason,
-                # use the SynchronousMemoryResource which does not use memory pools.
-                with nogil:
-                    HANDLE_RETURN(
-                        cydriver.cuDeviceGetAttribute(
-                            &attr, cydriver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, dev_id
-                        )
-                    )
-                if attr == 1:
-                    device._mr = DeviceMemoryResource(dev_id)
-                else:
-                    device._mr = _SynchronousMemoryResource(dev_id)
-
+                device._memory_resource = None
                 device._has_inited = False
                 device._properties = None
+                device._uuid = None
                 devices.append(device)
 
         try:
@@ -1040,6 +1035,27 @@ class Device:
         bus_id = handle_return(runtime.cudaDeviceGetPCIBusId(13, self._id))
         return bus_id[:12].decode()
 
+    def can_access_peer(self, peer: Device | int) -> bool:
+        """Check if this device can access memory from the specified peer device.
+
+        Queries whether peer-to-peer memory access is supported between this
+        device and the specified peer device.
+
+        Parameters
+        ----------
+        peer : Device | int
+            The peer device to check accessibility to. Can be a Device object or device ID.
+        """
+        peer = Device(peer)
+        cdef int d1 = <int> self.device_id
+        cdef int d2 = <int> peer.device_id
+        if d1 == d2:
+            return True
+        cdef int value = 0
+        with nogil:
+            HANDLE_RETURN(cydriver.cuDeviceCanAccessPeer(&value, d1, d2))
+        return bool(value)
+
     @property
     def uuid(self) -> str:
         """Return a UUID for the device.
@@ -1053,18 +1069,26 @@ class Device:
         MIG UUID is only returned when device is in MIG mode and the
         driver is older than CUDA 11.4.
 
+        The UUID is cached after first access to avoid repeated CUDA API calls.
+
         """
         cdef cydriver.CUuuid uuid
-        cdef cydriver.CUdevice this_dev = self._id
-        with nogil:
-            IF CUDA_CORE_BUILD_MAJOR == "12":
-                HANDLE_RETURN(cydriver.cuDeviceGetUuid_v2(&uuid, this_dev))
-            ELSE:  # 13.0+
-                HANDLE_RETURN(cydriver.cuDeviceGetUuid(&uuid, this_dev))
-        cdef bytes uuid_b = cpython.PyBytes_FromStringAndSize(uuid.bytes, sizeof(uuid.bytes))
-        cdef str uuid_hex = uuid_b.hex()
-        # 8-4-4-4-12
-        return f"{uuid_hex[:8]}-{uuid_hex[8:12]}-{uuid_hex[12:16]}-{uuid_hex[16:20]}-{uuid_hex[20:]}"
+        cdef cydriver.CUdevice dev
+        cdef bytes uuid_b
+        cdef str uuid_hex
+
+        if self._uuid is None:
+            dev = self._id
+            with nogil:
+                IF CUDA_CORE_BUILD_MAJOR == "12":
+                    HANDLE_RETURN(cydriver.cuDeviceGetUuid_v2(&uuid, dev))
+                ELSE:  # 13.0+
+                    HANDLE_RETURN(cydriver.cuDeviceGetUuid(&uuid, dev))
+            uuid_b = cpython.PyBytes_FromStringAndSize(uuid.bytes, sizeof(uuid.bytes))
+            uuid_hex = uuid_b.hex()
+            # 8-4-4-4-12
+            self._uuid = f"{uuid_hex[:8]}-{uuid_hex[8:12]}-{uuid_hex[12:16]}-{uuid_hex[16:20]}-{uuid_hex[20:]}"
+        return self._uuid
 
     @property
     def name(self) -> str:
@@ -1118,12 +1142,31 @@ class Device:
     @property
     def memory_resource(self) -> MemoryResource:
         """Return :obj:`~_memory.MemoryResource` associated with this device."""
-        return self._mr
+        cdef int attr, device_id
+        if self._memory_resource is None:
+            # If the device is in TCC mode, or does not support memory pools for some other reason,
+            # use the SynchronousMemoryResource which does not use memory pools.
+            device_id = self._id
+            with nogil:
+                HANDLE_RETURN(
+                    cydriver.cuDeviceGetAttribute(
+                        &attr, cydriver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEMORY_POOLS_SUPPORTED, device_id
+                    )
+                )
+            if attr == 1:
+                from cuda.core.experimental._memory import DeviceMemoryResource
+                self._memory_resource = DeviceMemoryResource(self._id)
+            else:
+                from cuda.core.experimental._memory import _SynchronousMemoryResource
+                self._memory_resource = _SynchronousMemoryResource(self._id)
+
+        return self._memory_resource
 
     @memory_resource.setter
     def memory_resource(self, mr):
+        from cuda.core.experimental._memory import MemoryResource
         assert_type(mr, MemoryResource)
-        self._mr = mr
+        self._memory_resource = mr
 
     @property
     def default_stream(self) -> Stream:
@@ -1144,6 +1187,14 @@ class Device:
 
     def __repr__(self):
         return f"<Device {self._id} ({self.name})>"
+
+    def __hash__(self) -> int:
+        return hash(self.uuid)
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Device):
+            return NotImplemented
+        return self._id == other._id
 
     def __reduce__(self):
         return Device, (self.device_id,)
@@ -1276,7 +1327,7 @@ class Device:
         ctx = self._get_current_context()
         return Event._init(self._id, ctx, options, True)
 
-    def allocate(self, size, stream: Stream | None = None) -> Buffer:
+    def allocate(self, size, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """Allocate device memory from a specified stream.
 
         Allocates device memory of `size` bytes on the specified `stream`
@@ -1303,9 +1354,7 @@ class Device:
 
         """
         self._check_context_initialized()
-        if stream is None:
-            stream = default_stream()
-        return self._mr.allocate(size, stream)
+        return self.memory_resource.allocate(size, stream)
 
     def sync(self):
         """Synchronize the device.

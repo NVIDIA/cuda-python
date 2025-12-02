@@ -5,9 +5,6 @@
 from cuda.bindings cimport cydriver
 
 
-cdef cydriver.CUstream _try_to_get_stream_ptr(obj: IsStreamT) except*
-
-
 cdef class Stream:
 
     cdef:
@@ -24,4 +21,5 @@ cdef class Stream:
     cdef int _get_device_and_context(self) except?-1
 
 
-cdef Stream default_stream()
+cpdef Stream default_stream()
+cdef Stream Stream_accept(arg, bint allow_stream_protocol=*)

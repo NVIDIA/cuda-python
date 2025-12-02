@@ -7,14 +7,13 @@ from __future__ import annotations
 cimport cpython
 from libc.stdint cimport uintptr_t
 from libc.string cimport memcpy
-
 from cuda.bindings cimport cydriver
-
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN
 )
 
+import cython
 from dataclasses import dataclass
 import multiprocessing
 from typing import TYPE_CHECKING, Optional
@@ -26,7 +25,6 @@ from cuda.core.experimental._utils.cuda_utils import (
 )
 if TYPE_CHECKING:
     import cuda.bindings
-    from cuda.core.experimental._device import Device
 
 
 @dataclass
@@ -165,6 +163,16 @@ cdef class Event:
                 raise CUDAError(err)
             raise RuntimeError(explanation)
 
+    def __hash__(self) -> int:
+        return hash((self._ctx_handle, <uintptr_t>(self._handle)))
+
+    def __eq__(self, other) -> bool:
+        # Note: using isinstance because `Event` can be subclassed.
+        if not isinstance(other, Event):
+            return NotImplemented
+        cdef Event _other = <Event>other
+        return <uintptr_t>(self._handle) == <uintptr_t>(_other._handle)
+
     def get_ipc_descriptor(self) -> IPCEventDescriptor:
         """Export an event allocated for sharing between processes."""
         if self._ipc_descriptor is not None:
@@ -277,7 +285,7 @@ cdef class IPCEventDescriptor:
         raise RuntimeError("IPCEventDescriptor objects cannot be instantiated directly. Please use Event APIs.")
 
     @classmethod
-    def _init(cls, reserved: bytes, busy_waited: bint):
+    def _init(cls, reserved: bytes, busy_waited: cython.bint):
         cdef IPCEventDescriptor self = IPCEventDescriptor.__new__(cls)
         self._reserved = reserved
         self._busy_waited = busy_waited

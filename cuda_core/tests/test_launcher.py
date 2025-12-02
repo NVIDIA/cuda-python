@@ -4,6 +4,7 @@
 import ctypes
 
 import helpers
+from helpers.misc import StreamWrapper
 
 try:
     import cupy as cp
@@ -131,7 +132,7 @@ def test_launch_invalid_values(init_cuda):
     ker = mod.get_kernel("my_kernel")
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), shmem_size=0)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         launch(None, ker, config)
 
     with pytest.raises(TypeError):
@@ -139,6 +140,14 @@ def test_launch_invalid_values(init_cuda):
 
     with pytest.raises(TypeError):
         launch(stream, ker, None)
+
+    msg = (
+        r"Passing foreign stream objects to this function via the stream "
+        r"protocol is deprecated\. Convert the object explicitly using "
+        r"Stream\(obj\) instead\."
+    )
+    with pytest.warns(DeprecationWarning, match=msg):
+        launch(StreamWrapper(stream), config, ker)
 
     launch(stream, config, ker)
 
@@ -219,9 +228,10 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
     ker = mod.get_kernel(ker_name)
 
     # Launch with 1 thread
+    stream = dev.default_stream
     config = LaunchConfig(grid=1, block=1)
-    launch(dev.default_stream, config, ker, arr.ctypes.data, scalar)
-    dev.default_stream.sync()
+    launch(stream, config, ker, arr.ctypes.data, scalar)
+    stream.sync()
 
     # Check result
     assert arr[0] == init_value, f"Expected {init_value}, got {arr[0]}"

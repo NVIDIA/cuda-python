@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import multiprocessing
+import os
 
 import helpers
 import pytest
@@ -29,6 +30,13 @@ def init_cuda():
     # TODO: rename this to e.g. init_context
     device = Device()
     device.set_current()
+
+    # Set option to avoid spin-waiting on synchronization.
+    if int(os.environ.get("CUDA_CORE_TEST_BLOCKING_SYNC", 0)) != 0:
+        handle_return(
+            driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
+        )
+
     yield
     _ = _device_unset_current()
 
@@ -100,6 +108,18 @@ def ipc_memory_resource(ipc_device):
     mr = DeviceMemoryResource(ipc_device, options=options)
     assert mr.is_ipc_enabled
     return mr
+
+
+@pytest.fixture
+def mempool_device():
+    """Obtains a device suitable for mempool tests, or skips."""
+    device = Device()
+    device.set_current()
+
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
+    return device
 
 
 skipif_need_cuda_headers = pytest.mark.skipif(helpers.CUDA_INCLUDE_PATH is None, reason="need CUDA header")

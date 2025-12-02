@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 try:
-    import cuda.bindings
+    from cuda import bindings
 except ImportError:
     raise ImportError("cuda.bindings 12.x or 13.x must be installed") from None
 else:
-    cuda_major, cuda_minor = cuda.bindings.__version__.split(".")[:2]
+    cuda_major, cuda_minor = bindings.__version__.split(".")[:2]
     if cuda_major not in ("12", "13"):
         raise ImportError("cuda.bindings 12.x or 13.x must be installed")
 
@@ -24,7 +24,7 @@ except ImportError:
 else:
     del versioned_mod
 finally:
-    del cuda.bindings, importlib, subdir, cuda_major, cuda_minor
+    del bindings, importlib, subdir, cuda_major, cuda_minor
 
 from cuda.core.experimental import utils  # noqa: E402
 from cuda.core.experimental._device import Device  # noqa: E402
@@ -42,6 +42,7 @@ from cuda.core.experimental._memory import (  # noqa: E402
     Buffer,
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
+    GraphMemoryResource,
     LegacyPinnedMemoryResource,
     MemoryResource,
     VirtualMemoryResource,
