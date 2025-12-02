@@ -2219,7 +2219,7 @@ def test_get_stats_l3():
 
         # L3 also contains L2 detailed stats (which includes L1 basic stats)
         detailed_stats = cufile.StatsLevel2.from_data(stats.detailed)
-        read_hist_total = int(detailed_stats.read_size_kb_hist.sum())
+        read_hist_total = int(np.asarray(detailed_stats.read_size_kb_hist).sum())
 
         logging.info(
             f"L3 Stats: num_gpus={num_gpus}, gpu_with_data={gpu_with_data}, detailed_read_hist={read_hist_total}"
