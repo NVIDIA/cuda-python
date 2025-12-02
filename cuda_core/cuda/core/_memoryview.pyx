@@ -9,8 +9,8 @@ from typing import Optional
 
 import numpy
 
-from cuda.core.experimental._utils.cuda_utils import handle_return, driver
-from cuda.core.experimental._utils cimport cuda_utils
+from cuda.core._utils.cuda_utils import handle_return, driver
+from cuda.core._utils cimport cuda_utils
 
 
 # TODO(leofang): support NumPy structured dtypes

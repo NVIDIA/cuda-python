@@ -7,20 +7,20 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Iterable, Literal, Union
 
-from cuda.core.experimental._device import Device
-from cuda.core.experimental._memory._buffer import Buffer, MemoryResource
-from cuda.core.experimental._utils.cuda_utils import (
+from cuda.core._device import Device
+from cuda.core._memory._buffer import Buffer, MemoryResource
+from cuda.core._utils.cuda_utils import (
     Transaction,
     check_or_create_options,
     driver,
     get_binding_version,
 )
-from cuda.core.experimental._utils.cuda_utils import (
+from cuda.core._utils.cuda_utils import (
     _check_driver_error as raise_if_driver_error,
 )
 
 if TYPE_CHECKING:
-    from cuda.core.experimental._stream import Stream
+    from cuda.core._stream import Stream
 
 __all__ = ["VirtualMemoryResourceOptions", "VirtualMemoryResource"]
 

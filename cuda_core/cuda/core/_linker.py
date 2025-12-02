@@ -15,10 +15,10 @@ from warnings import warn
 if TYPE_CHECKING:
     import cuda.bindings
 
-from cuda.core.experimental._device import Device
-from cuda.core.experimental._module import ObjectCode
-from cuda.core.experimental._utils.clear_error_support import assert_type
-from cuda.core.experimental._utils.cuda_utils import check_or_create_options, driver, handle_return, is_sequence
+from cuda.core._device import Device
+from cuda.core._module import ObjectCode
+from cuda.core._utils.clear_error_support import assert_type
+from cuda.core._utils.cuda_utils import check_or_create_options, driver, handle_return, is_sequence
 
 # TODO: revisit this treatment for py313t builds
 _driver = None  # populated if nvJitLink cannot be used

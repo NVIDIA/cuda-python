@@ -10,11 +10,11 @@ from libc.stdlib cimport malloc, free
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
-from cuda.core.experimental._memory cimport _ipc
-from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle, IPCData
-from cuda.core.experimental._stream cimport default_stream, Stream_accept, Stream
-from cuda.core.experimental._utils.cuda_utils cimport (
+from cuda.core._memory._buffer cimport Buffer, MemoryResource
+from cuda.core._memory cimport _ipc
+from cuda.core._memory._ipc cimport IPCAllocationHandle, IPCData
+from cuda.core._stream cimport default_stream, Stream_accept, Stream
+from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN,
 )
@@ -25,10 +25,10 @@ import platform  # no-cython-lint
 import uuid
 import weakref
 
-from cuda.core.experimental._utils.cuda_utils import driver
+from cuda.core._utils.cuda_utils import driver
 
 if TYPE_CHECKING:
-    from cuda.core.experimental._memory.buffer import DevicePointerT
+    from cuda.core._memory.buffer import DevicePointerT
     from .._device import Device
 
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']

@@ -2,7 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.core.experimental._memoryview import (
-    StridedMemoryView,  # noqa: F401
-    args_viewable_as_strided_memory,  # noqa: F401
-)
+from cuda.core._memory._buffer cimport MemoryResource
+
+
+cdef class cyGraphMemoryResource(MemoryResource):
+    cdef:
+        int _dev_id

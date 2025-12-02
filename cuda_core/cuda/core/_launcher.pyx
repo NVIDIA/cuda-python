@@ -1,15 +1,15 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-from cuda.core.experimental._launch_config cimport LaunchConfig, _to_native_launch_config
-from cuda.core.experimental._stream cimport Stream_accept
+from cuda.core._launch_config cimport LaunchConfig, _to_native_launch_config
+from cuda.core._stream cimport Stream_accept
 
 
-from cuda.core.experimental._kernel_arg_handler import ParamHolder
-from cuda.core.experimental._module import Kernel
-from cuda.core.experimental._stream import Stream
-from cuda.core.experimental._utils.clear_error_support import assert_type
-from cuda.core.experimental._utils.cuda_utils import (
+from cuda.core._kernel_arg_handler import ParamHolder
+from cuda.core._module import Kernel
+from cuda.core._stream import Stream
+from cuda.core._utils.clear_error_support import assert_type
+from cuda.core._utils.cuda_utils import (
     _reduce_3_tuple,
     check_or_create_options,
     driver,

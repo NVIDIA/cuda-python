@@ -4,7 +4,7 @@
 
 from libc.stdint cimport uintptr_t
 
-from cuda.core.experimental._stream cimport Stream
+from cuda.core._stream cimport Stream
 
 
 cdef class Buffer:

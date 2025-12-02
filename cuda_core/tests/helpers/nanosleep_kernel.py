@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.core.experimental import (
+from cuda.core import (
     LaunchConfig,
     Program,
     ProgramOptions,

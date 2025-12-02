@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.core.experimental._device import Device
-from cuda.core.experimental._utils.cuda_utils import (
+from cuda.core._device import Device
+from cuda.core._utils.cuda_utils import (
     CUDAError,
     cast_to_3_tuple,
     driver,

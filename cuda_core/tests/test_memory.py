@@ -17,7 +17,7 @@ import platform
 import re
 
 import pytest
-from cuda.core.experimental import (
+from cuda.core import (
     Buffer,
     Device,
     DeviceMemoryResource,
@@ -27,10 +27,10 @@ from cuda.core.experimental import (
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
-from cuda.core.experimental._dlpack import DLDeviceType
-from cuda.core.experimental._memory import IPCBufferDescriptor
-from cuda.core.experimental._utils.cuda_utils import handle_return
-from cuda.core.experimental.utils import StridedMemoryView
+from cuda.core._dlpack import DLDeviceType
+from cuda.core._memory import IPCBufferDescriptor
+from cuda.core._utils.cuda_utils import handle_return
+from cuda.core.utils import StridedMemoryView
 from helpers import IS_WINDOWS
 from helpers.buffers import DummyUnifiedMemoryResource
 
@@ -133,7 +133,7 @@ def test_package_contents():
         "VirtualMemoryResource",
     ]
     d = {}
-    exec("from cuda.core.experimental._memory import *", d)  # noqa: S102
+    exec("from cuda.core._memory import *", d)  # noqa: S102
     d = {k: v for k, v in d.items() if not k.startswith("__")}
     assert sorted(expected) == sorted(d.keys())
 

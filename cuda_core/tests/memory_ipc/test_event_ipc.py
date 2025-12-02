@@ -4,7 +4,7 @@
 import multiprocessing as mp
 
 import pytest
-from cuda.core.experimental import Device, EventOptions
+from cuda.core import Device, EventOptions
 from helpers.buffers import compare_equal_buffers, make_scratch_buffer
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
