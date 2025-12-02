@@ -58,6 +58,11 @@ def test_experimental_symbols_are_same_objects():
 
 def test_experimental_direct_imports():
     """Test that direct imports from experimental submodules work."""
+    # Clear any cached imports to ensure warnings are emitted
+    import sys
+    if 'cuda.core.experimental' in sys.modules:
+        del sys.modules['cuda.core.experimental']
+    
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         
@@ -68,8 +73,8 @@ def test_experimental_direct_imports():
         from cuda.core.experimental import Linker, launch
         from cuda.core.experimental import system
         
-        # Should have warnings
-        assert len(w) >= 1
+        # Should have warnings (at least one from the initial import)
+        assert len(w) >= 1, f"Expected at least 1 deprecation warning, got {len(w)}"
         
         # Verify objects are usable
         assert Device is not None
