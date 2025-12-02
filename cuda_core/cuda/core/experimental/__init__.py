@@ -48,7 +48,14 @@ if TYPE_CHECKING:
 
 
 def _warn_deprecated():
-    """Emit a deprecation warning for using the experimental namespace."""
+    """Emit a deprecation warning for using the experimental namespace.
+    
+    Note: This warning is only when the experimental module is first imported.
+    Subsequent accesses to attributes (like utils, Device, etc.) do not trigger
+    additional warnings since they are already set in the module namespace.
+    Only accessing submodules via __getattr__ (e.g., _device, _utils) will trigger
+    additional warnings.
+    """
     warnings.warn(
         "The cuda.core.experimental namespace is deprecated. "
         "Please import directly from cuda.core instead. "

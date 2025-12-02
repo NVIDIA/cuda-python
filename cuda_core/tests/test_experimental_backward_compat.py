@@ -16,22 +16,20 @@ import pytest
 # Test that experimental imports still work
 def test_experimental_imports_work():
     """Test that imports from experimental namespace still work."""
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        
-        # Test main module import
+    # Clear cached module to ensure warning is emitted
+    import sys
+    if 'cuda.core.experimental' in sys.modules:
+        del sys.modules['cuda.core.experimental']
+    
+    # Test main module import - should emit deprecation warning
+    with pytest.deprecated_call():
         import cuda.core.experimental
-        
-        # Should emit deprecation warning
-        assert len(w) >= 1
-        assert issubclass(w[0].category, DeprecationWarning)
-        assert "deprecated" in str(w[0].message).lower()
-        
-        # Test that symbols are accessible
-        assert hasattr(cuda.core.experimental, "Device")
-        assert hasattr(cuda.core.experimental, "Stream")
-        assert hasattr(cuda.core.experimental, "Buffer")
-        assert hasattr(cuda.core.experimental, "system")
+    
+    # Test that symbols are accessible
+    assert hasattr(cuda.core.experimental, "Device")
+    assert hasattr(cuda.core.experimental, "Stream")
+    assert hasattr(cuda.core.experimental, "Buffer")
+    assert hasattr(cuda.core.experimental, "system")
 
 
 def test_experimental_symbols_are_same_objects():
@@ -63,23 +61,18 @@ def test_experimental_direct_imports():
     if 'cuda.core.experimental' in sys.modules:
         del sys.modules['cuda.core.experimental']
     
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        
-        # Test various import patterns
+    # Test various import patterns - warning is emitted once at module import time
+    with pytest.deprecated_call():
         from cuda.core.experimental import Device, Stream, Buffer
         from cuda.core.experimental import Program, Kernel, ObjectCode
         from cuda.core.experimental import Graph, GraphBuilder, Event
         from cuda.core.experimental import Linker, launch
         from cuda.core.experimental import system
-        
-        # Should have warnings (at least one from the initial import)
-        assert len(w) >= 1, f"Expected at least 1 deprecation warning, got {len(w)}"
-        
-        # Verify objects are usable
-        assert Device is not None
-        assert Stream is not None
-        assert Buffer is not None
+    
+    # Verify objects are usable
+    assert Device is not None
+    assert Stream is not None
+    assert Buffer is not None
 
 
 def test_experimental_submodule_access():
@@ -100,14 +93,20 @@ def test_experimental_submodule_access():
 
 
 def test_experimental_utils_module():
-    """Test that experimental.utils module works."""
+    """Test that experimental.utils module works.
+    
+    Note: The deprecation warning is only emitted once at import time when
+    cuda.core.experimental is first imported. Accessing utils or importing
+    from utils does not trigger additional warnings since utils is already
+    set as an attribute in the module namespace.
+    """
     import cuda.core.experimental
     
-    # Should be able to access utils
+    # Should be able to access utils (no warning on access, only on initial import)
     assert hasattr(cuda.core.experimental, "utils")
     assert cuda.core.experimental.utils is not None
     
-    # Should have expected utilities
+    # Should have expected utilities (no warning on import from utils submodule)
     from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
     assert StridedMemoryView is not None
     assert args_viewable_as_strided_memory is not None
