@@ -66,7 +66,7 @@ def _build_cuda_core():
 
     # It seems setuptools' wildcard support has problems for namespace packages,
     # so we explicitly spell out all Extension instances.
-    root_module = "cuda.core.experimental"
+    root_module = "cuda.core"
     root_path = f"{os.path.sep}".join(root_module.split(".")) + os.path.sep
     ext_files = glob.glob(f"{root_path}/**/*.pyx", recursive=True)
 
@@ -86,8 +86,8 @@ def _build_cuda_core():
 
     ext_modules = tuple(
         Extension(
-            f"cuda.core.experimental.{mod.replace(os.path.sep, '.')}",
-            sources=[f"cuda/core/experimental/{mod}.pyx"],
+            f"cuda.core.{mod.replace(os.path.sep, '.')}",
+            sources=[f"cuda/core/{mod}.pyx"],
             include_dirs=list(os.path.join(root, "include") for root in get_cuda_paths()),
             language="c++",
         )
