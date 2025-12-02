@@ -313,14 +313,14 @@ cpdef device_set_fan_speed_v2(intptr_t device, unsigned int fan, unsigned int sp
 cpdef device_set_accounting_mode(intptr_t device, int mode)
 cpdef device_clear_accounting_pids(intptr_t device)
 cpdef device_set_power_management_limit_v2(intptr_t device, intptr_t power_value)
-cpdef int device_get_nv_link_state(intptr_t device, unsigned int link) except? -1
-cpdef unsigned int device_get_nv_link_version(intptr_t device, unsigned int link) except? 0
-cpdef unsigned int device_get_nv_link_capability(intptr_t device, unsigned int link, int capability) except? 0
-cpdef object device_get_nv_link_remote_pci_info_v2(intptr_t device, unsigned int link)
-cpdef unsigned long long device_get_nv_link_error_counter(intptr_t device, unsigned int link, int counter) except? 0
-cpdef device_reset_nv_link_error_counters(intptr_t device, unsigned int link)
-cpdef int device_get_nv_link_remote_device_type(intptr_t device, unsigned int link) except? -1
-cpdef device_set_nv_link_device_low_power_threshold(intptr_t device, intptr_t info)
+cpdef int device_get_nvlink_state(intptr_t device, unsigned int link) except? -1
+cpdef unsigned int device_get_nvlink_version(intptr_t device, unsigned int link) except? 0
+cpdef unsigned int device_get_nvlink_capability(intptr_t device, unsigned int link, int capability) except? 0
+cpdef object device_get_nvlink_remote_pci_info_v2(intptr_t device, unsigned int link)
+cpdef unsigned long long device_get_nvlink_error_counter(intptr_t device, unsigned int link, int counter) except? 0
+cpdef device_reset_nvlink_error_counters(intptr_t device, unsigned int link)
+cpdef int device_get_nvlink_remote_device_type(intptr_t device, unsigned int link) except? -1
+cpdef device_set_nvlink_device_low_power_threshold(intptr_t device, intptr_t info)
 cpdef system_set_nvlink_bw_mode(unsigned int nvlink_bw_mode)
 cpdef unsigned int system_get_nvlink_bw_mode() except? 0
 cpdef object device_get_nvlink_supported_bw_modes(intptr_t device)
@@ -442,6 +442,6 @@ cpdef object device_get_repair_status(intptr_t device)
 cpdef object device_get_power_mizer_mode_v1(intptr_t device)
 cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
 cpdef object device_get_pdi(intptr_t device)
-cpdef object device_get_nv_link_info(intptr_t device)
+cpdef object device_get_nvlink_info(intptr_t device)
 cpdef device_read_write_prm_v1(intptr_t device, intptr_t buffer)
 cpdef object device_get_gpu_instance_profile_info_by_id_v(intptr_t device, unsigned int profile_id)

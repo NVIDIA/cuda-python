@@ -753,6 +753,11 @@ class DeviceAddressingModeType(_IntEnum):
     DEVICE_ADDRESSING_MODE_ATS = NVML_DEVICE_ADDRESSING_MODE_ATS
 
 
+class AffinityScope(_IntEnum):
+    NODE = 0     # Scope of NUMA node for affinity queries
+    SOCKET = 1   # Scope of processor socket for affinity queries
+
+
 class FI(_IntEnum):
     DEV_ECC_CURRENT =          1   # Current ECC mode. 1=Active. 0=Inactive
     DEV_ECC_PENDING =          2   # Pending ECC mode. 1=Active. 0=Inactive
@@ -22988,7 +22993,7 @@ cpdef device_set_power_management_limit_v2(intptr_t device, intptr_t power_value
     check_status(__status__)
 
 
-cpdef int device_get_nv_link_state(intptr_t device, unsigned int link) except? -1:
+cpdef int device_get_nvlink_state(intptr_t device, unsigned int link) except? -1:
     """Retrieves the state of the device's NvLink for the link specified.
 
     Args:
@@ -23007,7 +23012,7 @@ cpdef int device_get_nv_link_state(intptr_t device, unsigned int link) except? -
     return <int>is_active
 
 
-cpdef unsigned int device_get_nv_link_version(intptr_t device, unsigned int link) except? 0:
+cpdef unsigned int device_get_nvlink_version(intptr_t device, unsigned int link) except? 0:
     """Retrieves the version of the device's NvLink for the link specified.
 
     Args:
@@ -23026,7 +23031,7 @@ cpdef unsigned int device_get_nv_link_version(intptr_t device, unsigned int link
     return version
 
 
-cpdef unsigned int device_get_nv_link_capability(intptr_t device, unsigned int link, int capability) except? 0:
+cpdef unsigned int device_get_nvlink_capability(intptr_t device, unsigned int link, int capability) except? 0:
     """Retrieves the requested capability from the device's NvLink for the link specified Please refer to the ``nvmlNvLinkCapability_t`` structure for the specific caps that can be queried The return value should be treated as a boolean.
 
     Args:
@@ -23046,7 +23051,7 @@ cpdef unsigned int device_get_nv_link_capability(intptr_t device, unsigned int l
     return cap_result
 
 
-cpdef object device_get_nv_link_remote_pci_info_v2(intptr_t device, unsigned int link):
+cpdef object device_get_nvlink_remote_pci_info_v2(intptr_t device, unsigned int link):
     """Retrieves the PCI information for the remote node on a NvLink link Note: pciSubSystemId is not filled in this function and is indeterminate.
 
     Args:
@@ -23066,7 +23071,7 @@ cpdef object device_get_nv_link_remote_pci_info_v2(intptr_t device, unsigned int
     return pci_py
 
 
-cpdef unsigned long long device_get_nv_link_error_counter(intptr_t device, unsigned int link, int counter) except? 0:
+cpdef unsigned long long device_get_nvlink_error_counter(intptr_t device, unsigned int link, int counter) except? 0:
     """Retrieves the specified error counter value Please refer to ``nvmlNvLinkErrorCounter_t`` for error counters that are available.
 
     Args:
@@ -23086,7 +23091,7 @@ cpdef unsigned long long device_get_nv_link_error_counter(intptr_t device, unsig
     return counter_value
 
 
-cpdef device_reset_nv_link_error_counters(intptr_t device, unsigned int link):
+cpdef device_reset_nvlink_error_counters(intptr_t device, unsigned int link):
     """Resets all error counters to zero Please refer to ``nvmlNvLinkErrorCounter_t`` for the list of error counters that are reset.
 
     Args:
@@ -23100,7 +23105,7 @@ cpdef device_reset_nv_link_error_counters(intptr_t device, unsigned int link):
     check_status(__status__)
 
 
-cpdef int device_get_nv_link_remote_device_type(intptr_t device, unsigned int link) except? -1:
+cpdef int device_get_nvlink_remote_device_type(intptr_t device, unsigned int link) except? -1:
     """Get the NVLink device type of the remote device connected over the given link.
 
     Args:
@@ -23119,7 +23124,7 @@ cpdef int device_get_nv_link_remote_device_type(intptr_t device, unsigned int li
     return <int>p_nv_link_device_type
 
 
-cpdef device_set_nv_link_device_low_power_threshold(intptr_t device, intptr_t info):
+cpdef device_set_nvlink_device_low_power_threshold(intptr_t device, intptr_t info):
     """Set NvLink Low Power Threshold for device.
 
     Args:
@@ -25295,7 +25300,7 @@ cpdef object device_get_pdi(intptr_t device):
     return pdi_py
 
 
-cpdef object device_get_nv_link_info(intptr_t device):
+cpdef object device_get_nvlink_info(intptr_t device):
     """Query NVLINK information associated with this device.
 
     Args:

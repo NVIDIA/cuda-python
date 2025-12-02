@@ -83,3 +83,57 @@ def for_all_devices(device_info):
                 unique_devices.add(device_id)
                 yield device_id
                 # RestoreDefaultEnvironment.restore()
+
+
+@pytest.fixture
+def driver(nvml_init, request):
+    driver_vsn = nvml.system_get_driver_version()
+    # Return "major" version only
+    return int(driver_vsn.split(".")[0])
+
+
+@pytest.fixture
+def ngpus(nvml_init):
+    result = nvml.device_get_count_v2()
+    assert result > 0
+    return result
+
+
+@pytest.fixture
+def handles(ngpus):
+    handles = [nvml.device_get_handle_by_index_v2(i) for i in range(ngpus)]
+    assert len(handles) == ngpus
+    return handles
+
+
+@pytest.fixture
+def nmigs(handles):
+    return nvml.device_get_max_mig_device_count(handles[0])
+
+
+@pytest.fixture
+def mig_handles(nmigs):
+    handles = [nvml.device_get_mig_device_handle_by_index(i) for i in range(nmigs)]
+    assert len(handles) == nmigs
+    return handles
+
+
+@pytest.fixture
+def serials(ngpus, handles):
+    serials = [nvml.device_get_serial(handles[i]) for i in range(ngpus)]
+    assert len(serials) == ngpus
+    return serials
+
+
+@pytest.fixture
+def uuids(ngpus, handles):
+    uuids = [nvml.device_get_uuid(handles[i]) for i in range(ngpus)]
+    assert len(uuids) == ngpus
+    return uuids
+
+
+@pytest.fixture
+def pci_info(ngpus, handles):
+    pci_info = [nvml.device_get_pci_info_v3(handles[i]) for i in range(ngpus)]
+    assert len(pci_info) == ngpus
+    return pci_info

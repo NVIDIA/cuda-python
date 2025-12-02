@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
+import functools
 import platform
+from pathlib import Path
 
 from cuda.bindings import _nvml as nvml
 
@@ -17,6 +19,11 @@ def is_windows(os=current_os):
 
 def is_linux(os=current_os):
     return os == "Linux"
+
+
+@functools.cache
+def is_wsl(os=current_os):
+    return os == "Linux" and "microsoft" in Path("/proc/version").read_text().lower()
 
 
 def is_vgpu(device):
