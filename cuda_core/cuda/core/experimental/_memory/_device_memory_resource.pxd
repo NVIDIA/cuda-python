@@ -14,4 +14,8 @@ cdef class DeviceMemoryResource(MemoryResource):
         bint                  _mempool_owned
         IPCData               _ipc_data
         object                _attributes
+        object                _peer_accessible_by
         object                __weakref__
+
+
+cpdef DMR_mempool_get_access(DeviceMemoryResource, int)
