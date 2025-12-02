@@ -145,6 +145,7 @@ def buffer_initialization(dummy_mr: MemoryResource):
     assert buffer.memory_resource == dummy_mr
     assert buffer.is_device_accessible == dummy_mr.is_device_accessible
     assert buffer.is_host_accessible == dummy_mr.is_host_accessible
+    assert not buffer.is_mapped
     buffer.close()
 
 
