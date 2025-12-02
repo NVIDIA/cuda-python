@@ -63,7 +63,7 @@ cdef class Buffer:
         self._ptr_obj = ptr
         self._size = size
         self._memory_resource = mr
-        self._ipc_data = IPCDataForBuffer(ipc_descriptor, mapped=True) if ipc_descriptor is not None else None
+        self._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
         self._alloc_stream = <Stream>(stream) if stream is not None else None
         return self
 
@@ -103,7 +103,7 @@ cdef class Buffer:
     def get_ipc_descriptor(self) -> IPCBufferDescriptor:
         """Export a buffer allocated for sharing between processes."""
         if self._ipc_data is None:
-            self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), mapped=False)
+            self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
         return self._ipc_data.ipc_descriptor
 
     def close(self, stream: Stream | GraphBuilder | None = None):

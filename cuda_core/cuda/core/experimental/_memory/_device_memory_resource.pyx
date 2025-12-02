@@ -538,7 +538,7 @@ cdef void DMR_init_create(
 
     if opts.ipc_enabled:
         alloc_handle = _ipc.DMR_export_mempool(self)
-        self._ipc_data = IPCDataForMR(alloc_handle, mapped=False)
+        self._ipc_data = IPCDataForMR(alloc_handle, False)
 
 
 # Raise an exception if the given stream is capturing.

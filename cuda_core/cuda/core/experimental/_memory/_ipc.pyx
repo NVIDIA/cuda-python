@@ -34,13 +34,9 @@ cdef is_supported():
 
 cdef class IPCDataForBuffer:
     """Data members related to sharing memory buffers via IPC."""
-    def __cinit__(self):
-        self._ipc_descriptor = None
-        self._is_mapped = False
-
-    def __init__(self, IPCBufferDescriptor ipc_descriptor, bint mapped):
+    def __cinit__(self, IPCBufferDescriptor ipc_descriptor, bint is_mapped):
         self._ipc_descriptor = ipc_descriptor
-        self._is_mapped = mapped
+        self._is_mapped = is_mapped
 
     @property
     def ipc_descriptor(self):
@@ -53,13 +49,9 @@ cdef class IPCDataForBuffer:
 
 cdef class IPCDataForMR:
     """Data members related to sharing memory resources via IPC."""
-    def __cinit__(self):
-        self._alloc_handle = None
-        self._is_mapped = False
-
-    def __init__(self, IPCAllocationHandle alloc_handle, bint mapped):
+    def __cinit__(self, IPCAllocationHandle alloc_handle, bint is_mapped):
         self._alloc_handle = alloc_handle
-        self._is_mapped = mapped
+        self._is_mapped = is_mapped
 
     @property
     def alloc_handle(self):
@@ -219,7 +211,7 @@ cdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handl
     from .._device import Device
     self._dev_id = Device(device_id).device_id
     self._mempool_owned = True
-    self._ipc_data = IPCDataForMR(alloc_handle, mapped=True)
+    self._ipc_data = IPCDataForMR(alloc_handle, True)
 
     # Map the mempool into this process.
     cdef int handle = int(alloc_handle)
