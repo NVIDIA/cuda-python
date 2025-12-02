@@ -8,7 +8,7 @@ from cuda.core import Device
 
 def test_context_init_disabled():
     with pytest.raises(RuntimeError, match=r"^Context objects cannot be instantiated directly\."):
-        cuda.core.experimental._context.Context()  # Ensure back door is locked.
+        cuda.core._context.Context()  # Ensure back door is locked.
 
 
 # ============================================================================

@@ -14,7 +14,7 @@ from cuda.core._utils.cuda_utils import ComputeCapability, get_binding_version, 
 
 def test_device_init_disabled():
     with pytest.raises(RuntimeError, match=r"^DeviceProperties cannot be instantiated directly\."):
-        cuda.core.experimental._device.DeviceProperties()  # Ensure back door is locked.
+        cuda.core._device.DeviceProperties()  # Ensure back door is locked.
 
 
 @pytest.fixture(scope="module")

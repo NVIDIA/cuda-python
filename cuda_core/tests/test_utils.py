@@ -19,7 +19,7 @@ from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory
 
 
 def test_cast_to_3_tuple_success():
-    c3t = cuda.core.experimental._utils.cuda_utils.cast_to_3_tuple
+    c3t = cuda.core._utils.cuda_utils.cast_to_3_tuple
     assert c3t("", ()) == (1, 1, 1)
     assert c3t("", 2) == (2, 1, 1)
     assert c3t("", (2,)) == (2, 1, 1)
@@ -43,7 +43,7 @@ _cast_to_3_tuple_value_error_test_cases = {
 )
 def test_cast_to_3_tuple_value_error(cfg, expected):
     with pytest.raises(ValueError, match=expected):
-        cuda.core.experimental._utils.cuda_utils.cast_to_3_tuple("Lbl", cfg)
+        cuda.core._utils.cuda_utils.cast_to_3_tuple("Lbl", cfg)
 
 
 def convert_strides_to_counts(strides, itemsize):
