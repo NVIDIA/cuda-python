@@ -1,0 +1,6 @@
+﻿cuda.core.experimental.\_stream.IsStreamT
+=========================================
+
+.. currentmodule:: cuda.core.experimental
+
+.. autoprotocol:: _stream.IsStreamT
