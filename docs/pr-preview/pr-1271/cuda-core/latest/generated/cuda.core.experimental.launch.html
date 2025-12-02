@@ -568,13 +568,22 @@
 <h1>cuda.core.experimental.launch<a class="headerlink" href="#cuda-core-experimental-launch" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.core.experimental.launch">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">launch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">stream:</span> <span class="pre">Union[Stream,</span> <span class="pre">IsStreamT],</span> <span class="pre">LaunchConfig</span> <span class="pre">config:</span> <span class="pre">LaunchConfig,</span> <span class="pre">kernel:</span> <span class="pre">Kernel,</span> <span class="pre">*kernel_args</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.launch" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">launch</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span> <span class="pre">|</span> <span class="pre">IsStreamT</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">LaunchConfig</span> <span class="pre">config:</span> <span class="pre">LaunchConfig</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">kernel:</span> <span class="pre">Kernel</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*kernel_args</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.launch" title="Link to this definition">#</a></dt>
 <dd><p>Launches a <a class="reference internal" href="cuda.core.experimental.Kernel.html#cuda.core.experimental.Kernel" title="cuda.core.experimental._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a>
 object with launch-time configuration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>) – The stream establishing the stream ordering semantic of a
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – The stream establishing the stream ordering semantic of a
 launch.</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig" title="cuda.core.experimental.LaunchConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>) – Launch configurations inline with options provided by
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">LaunchConfig</span></code> dataclass.</p></li>

@@ -15,6 +15,7 @@ cuda.core.experimental.Device
    
    .. automethod:: __init__
    .. automethod:: allocate
+   .. automethod:: can_access_peer
    .. automethod:: create_context
    .. automethod:: create_event
    .. automethod:: create_graph_builder
