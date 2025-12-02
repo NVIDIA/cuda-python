@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
-import time
+
+import math
 
 import cuda.core.experimental
 import pytest
@@ -12,8 +12,7 @@ from cuda.core.experimental import (
     EventOptions,
 )
 from helpers.latch import LatchKernel
-
-from cuda_python_test_helpers import IS_WSL
+from helpers.nanosleep_kernel import NanosleepKernel
 
 
 def test_event_init_disabled():
@@ -23,25 +22,28 @@ def test_event_init_disabled():
 
 def test_timing_success(init_cuda):
     options = EventOptions(enable_timing=True)
-    stream = Device().create_stream()
-    delay_seconds = 0.5
+    device = Device()
+    stream = device.create_stream()
+
+    # Create a nanosleep kernel that sleeps for 20 ms to ensure a measurable delay.
+    # This guarantees elapsed_time_ms > 10 without depending on OS/driver timing characteristics.
+    nanosleep = NanosleepKernel(device, sleep_duration_ms=20)
+
     e1 = stream.record(options=options)
-    time.sleep(delay_seconds)
+    nanosleep.launch(stream)  # Insert a guaranteed delay
     e2 = stream.record(options=options)
     e2.sync()
     elapsed_time_ms = e2 - e1
     assert isinstance(elapsed_time_ms, float)
-    # Using a generous tolerance, to avoid flaky tests:
-    # We only want to exercise the __sub__ method, this test is not meant
-    # to stress-test the CUDA driver or time.sleep().
-    delay_ms = delay_seconds * 1000
-    if os.name == "nt" or IS_WSL:  # noqa: SIM108
-        # For Python <=3.10, the Windows timer resolution is typically limited to 15.6 ms by default.
-        generous_tolerance = 100
-    else:
-        # Most modern Linux kernels have a default timer resolution of 1 ms.
-        generous_tolerance = 20
-    assert delay_ms - generous_tolerance <= elapsed_time_ms < delay_ms + generous_tolerance
+    # Sanity check: cuEventElapsedTime should always return a finite float for two completed
+    # events. This guards against unexpected driver/HW anomalies (e.g. NaN or inf) or general
+    # undefined behavior, without asserting anything about the magnitude of the measured time.
+    assert math.isfinite(elapsed_time_ms)
+    # With the nanosleep kernel between events, the kernel sleeps for 20 ms using clock64(),
+    # so elapsed_time_ms should definitely be larger than 10 ms. This provides a large safety
+    # margin above the ~0.5 microsecond resolution of cudaEventElapsedTime(), which should
+    # make this test deterministic and non-flaky.
+    assert elapsed_time_ms > 10
 
 
 def test_is_sync_busy_waited(init_cuda):

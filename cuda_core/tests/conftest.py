@@ -110,4 +110,16 @@ def ipc_memory_resource(ipc_device):
     return mr
 
 
+@pytest.fixture
+def mempool_device():
+    """Obtains a device suitable for mempool tests, or skips."""
+    device = Device()
+    device.set_current()
+
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
+    return device
+
+
 skipif_need_cuda_headers = pytest.mark.skipif(helpers.CUDA_INCLUDE_PATH is None, reason="need CUDA header")

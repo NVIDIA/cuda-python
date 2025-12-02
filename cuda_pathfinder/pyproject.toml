@@ -68,6 +68,9 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.pytest.ini_options]
+addopts = "--showlocals"
+
 [tool.ruff]
 line-length = 120
 preview = true
