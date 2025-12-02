@@ -49,7 +49,7 @@ if TYPE_CHECKING:
 
 def _warn_deprecated():
     """Emit a deprecation warning for using the experimental namespace.
-    
+
     Note: This warning is only when the experimental module is first imported.
     Subsequent accesses to attributes (like utils, Device, etc.) do not trigger
     additional warnings since they are already set in the module namespace.
@@ -71,6 +71,7 @@ def _warn_deprecated():
 _warn_deprecated()
 
 from cuda.core import utils  # noqa: E402
+
 # Make utils accessible as a submodule for backward compatibility
 __import__("sys").modules[__spec__.name + ".utils"] = utils
 from cuda.core._device import Device  # noqa: E402
@@ -103,17 +104,34 @@ system = System()
 __import__("sys").modules[__spec__.name + ".system"] = system
 del System
 
+
 # Also create forwarding stubs for submodules
 # These will be imported lazily when accessed
 def __getattr__(name):
     """Forward attribute access to the new location with deprecation warning."""
-    if name in ("_device", "_event", "_graph", "_launch_config", "_launcher", 
-                "_linker", "_memory", "_module", "_program", "_stream", "_system", 
-                "_utils", "_context", "_dlpack", "_kernel_arg_handler", 
-                "_launch_config", "_memoryview"):
+    if name in (
+        "_device",
+        "_event",
+        "_graph",
+        "_launch_config",
+        "_launcher",
+        "_linker",
+        "_memory",
+        "_module",
+        "_program",
+        "_stream",
+        "_system",
+        "_utils",
+        "_context",
+        "_dlpack",
+        "_kernel_arg_handler",
+        "_launch_config",
+        "_memoryview",
+    ):
         _warn_deprecated()
         # Import the submodule from the new location
         import importlib
+
         new_name = name.lstrip("_")
         try:
             return importlib.import_module(f"cuda.core.{new_name}")
