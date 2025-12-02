@@ -2212,8 +2212,7 @@ def test_get_stats_l3():
             # Access per-GPU stats using PerGpuStats class
             # stats.per_gpu_stats has shape (1, 16), we need to get [0] first to get the (16,) array
             # then slice [i:i+1] to get a 1-d array view (required by from_data)
-            per_gpu_array = stats.per_gpu_stats[0]  # Get the (16,) array
-            gpu_stats = cufile.PerGpuStats.from_data(per_gpu_array[i : i + 1])
+            gpu_stats = stats.per_gpu_stats[i]  # Get the (16,) array
             if gpu_stats.n_total_reads > 0 or gpu_stats.read_bytes > 0:
                 gpu_with_data = True
                 break
