@@ -5,10 +5,10 @@ import ctypes
 import pickle
 import warnings
 
-import cuda.core.experimental
+import cuda.core
 import pytest
-from cuda.core.experimental import Device, ObjectCode, Program, ProgramOptions, system
-from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
+from cuda.core import Device, ObjectCode, Program, ProgramOptions, system
+from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 
 try:
     import numba

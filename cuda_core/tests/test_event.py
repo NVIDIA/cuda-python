@@ -4,9 +4,9 @@
 
 import math
 
-import cuda.core.experimental
+import cuda.core
 import pytest
-from cuda.core.experimental import (
+from cuda.core import (
     Device,
     Event,
     EventOptions,

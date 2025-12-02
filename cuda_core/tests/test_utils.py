@@ -10,12 +10,12 @@ try:
     from numba import cuda as numba_cuda
 except ImportError:
     numba_cuda = None
-import cuda.core.experimental
+import cuda.core
 import numpy as np
 import pytest
-from cuda.core.experimental import Device
-from cuda.core.experimental._memoryview import view_as_cai
-from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
+from cuda.core import Device
+from cuda.core._memoryview import view_as_cai
+from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory
 
 
 def test_cast_to_3_tuple_success():

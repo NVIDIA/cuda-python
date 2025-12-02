@@ -3,7 +3,7 @@
 
 import multiprocessing as mp
 
-from cuda.core.experimental import Buffer, DeviceMemoryResource
+from cuda.core import Buffer, DeviceMemoryResource
 from helpers.buffers import PatternGen
 
 CHILD_TIMEOUT_SEC = 20

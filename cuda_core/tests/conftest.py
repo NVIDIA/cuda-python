@@ -12,8 +12,8 @@ try:
 except ImportError:
     from cuda import cuda as driver
 
-from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, _device
-from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, _device
+from cuda.core._utils.cuda_utils import handle_return
 
 
 @pytest.fixture(scope="session", autouse=True)
