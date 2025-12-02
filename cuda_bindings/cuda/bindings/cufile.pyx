@@ -2720,7 +2720,7 @@ cpdef intptr_t handle_register(intptr_t descr) except? 0:
     return <intptr_t>fh
 
 
-cpdef void handle_deregister(intptr_t fh)except*:
+cpdef void handle_deregister(intptr_t fh) except*:
     """releases a registered filehandle from cuFile.
 
     Args:
@@ -2871,7 +2871,7 @@ cpdef batch_io_cancel(intptr_t batch_idp):
     check_status(__status__)
 
 
-cpdef void batch_io_destroy(intptr_t batch_idp)except*:
+cpdef void batch_io_destroy(intptr_t batch_idp) except*:
     cuFileBatchIODestroy(<BatchHandle>batch_idp)
 
 

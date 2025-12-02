@@ -44,7 +44,7 @@ ctypedef CUFileArrayConfigParameter_t _ArrayConfigParameter
 ###############################################################################
 
 cpdef intptr_t handle_register(intptr_t descr) except? 0
-cpdef void handle_deregister(intptr_t fh)except*
+cpdef void handle_deregister(intptr_t fh) except*
 cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags)
 cpdef buf_deregister(intptr_t buf_ptr_base)
 cpdef driver_open()
@@ -58,7 +58,7 @@ cpdef intptr_t batch_io_set_up(unsigned nr) except? 0
 cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, intptr_t iocbp, unsigned int flags)
 cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, intptr_t iocbp, intptr_t timeout)
 cpdef batch_io_cancel(intptr_t batch_idp)
-cpdef void batch_io_destroy(intptr_t batch_idp)except*
+cpdef void batch_io_destroy(intptr_t batch_idp) except*
 cpdef read_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_read_p, intptr_t stream)
 cpdef write_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_written_p, intptr_t stream)
 cpdef stream_register(intptr_t stream, unsigned flags)
