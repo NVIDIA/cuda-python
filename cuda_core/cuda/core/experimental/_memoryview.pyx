@@ -615,20 +615,13 @@ cdef StridedLayout layout_from_cai(object metadata):
 
 
 cdef inline uintptr_t _get_data_ptr(object buffer, StridedLayout layout) except? 0:
-    cdef bint is_allocated = buffer.owner is None
-    if is_allocated:
-        if buffer.memory_resource is None:
-            raise ValueError(
-                "Ambiguous buffer instance. The buffer must either hold an allocation "
-                "(coming from MemoryResource, e.g. Device().memory_resource.allocate()) "
-                "or wrap external data and specify the owner "
-                "(`Buffer.from_handle(ptr, size, owner=...)`)."
-            )
-    # For external buffers, we may not know the size. Even if we did, the size
-    # alone is not enough if the layout can map to negative offsets, i.e.:
-    # the valid range is not the [ptr, ptr + size - 1], but
-    # [ptr - offset, ptr + size - offset - 1]. The offset is not reported
-    # by the packages.
+    cdef bint is_allocated = buffer.memory_resource is not None
+    # Check the layout's offset range [min_offset, max_offset] fits
+    # within the [0, buffer.size - 1] range.
+    # The required_size_in_bytes fails if min_offset < 0.
+    # NB. For external memory, both positive and negative offsets can be valid,
+    # but for a proper check we'd need to know both size and data offset,
+    # while neither is reported by the packages.
     if is_allocated and buffer.size < layout.get_required_size_in_bytes():
         raise ValueError(
             f"Buffer size is too small for the layout. "
