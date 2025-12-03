@@ -15,12 +15,12 @@ cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
 
 try:
-    from cuda_python_test_helpers.nvvm_bitcode import (
-        minimal_nvvmir
-    )
+    from cuda_python_test_helpers.nvvm_bitcode import minimal_nvvmir
+
     _test_helpers_available = True
 except ImportError:
     _test_helpers_available = False
+
 
 def _is_nvvm_available():
     """Check if NVVM is available."""
@@ -38,28 +38,11 @@ nvvm_available = pytest.mark.skipif(
 )
 
 try:
-    from cuda.core.experimental._utils.cuda_utils import driver, handle_return, nvrtc
+    from cuda.core.experimental._utils.cuda_utils import driver, handle_return
 
     _cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 except Exception:
     _cuda_driver_version = 0
-
-
-def _get_nvrtc_version_for_tests():
-    """
-    Get NVRTC version.
-
-    Returns:
-        int: Version in format major * 1000 + minor * 100 (e.g., 13200 for CUDA 13.2)
-        None: If NVRTC is not available
-    """
-    try:
-        nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
-        version = nvrtc_major * 1000 + nvrtc_minor * 100
-        return version
-    except Exception:
-        return None
-
 
 _libnvvm_version = None
 _libnvvm_version_attempted = False
@@ -200,13 +183,6 @@ def ptx_code_object():
     [
         ProgramOptions(name="abc"),
         ProgramOptions(device_code_optimize=True, debug=True),
-        pytest.param(
-            ProgramOptions(debug=True, numba_debug=True),
-            marks=pytest.mark.skipif(
-                (_get_nvrtc_version_for_tests() or 0) < 13200,
-                reason="numba_debug requires NVRTC >= 13.2",
-            ),
-        ),
         ProgramOptions(relocatable_device_code=True, max_register_count=32),
         ProgramOptions(ftz=True, prec_sqrt=False, prec_div=False),
         ProgramOptions(fma=False, use_fast_math=True),
@@ -473,11 +449,11 @@ entry:
 """  # noqa: E501
 
     options = ProgramOptions(
-            name="multi_module_test",
-            extra_sources=[
-                ("helper", helper_nvvmir),
-            ]
-        )   
+        name="multi_module_test",
+        extra_sources=[
+            ("helper", helper_nvvmir),
+        ],
+    )
     program = Program(nvvm_ir, "nvvm", options)
 
     assert program.backend == "NVVM"
@@ -551,7 +527,13 @@ entry:
 !0 = !{{i32 {major}, i32 {minor}, i32 {debug_major}, i32 {debug_minor}}}
 """  # noqa: E501
 
-    options = ProgramOptions(name="nvvm_multi_helper_test", extra_sources=[("helper1", helper1_ir), ("helper2", helper2_ir),])
+    options = ProgramOptions(
+        name="nvvm_multi_helper_test",
+        extra_sources=[
+            ("helper1", helper1_ir),
+            ("helper2", helper2_ir),
+        ],
+    )
     program = Program(main_nvvm_ir, "nvvm", options)
 
     assert program.backend == "NVVM"
@@ -567,11 +549,11 @@ entry:
 
 
 @nvvm_available
-@pytest.mark.skipif(not _test_helpers_available, reason = "cuda_python_test_helpers not accessible")
+@pytest.mark.skipif(not _test_helpers_available, reason="cuda_python_test_helpers not accessible")
 def test_bitcode_format(minimal_nvvmir):
     import os
     from pathlib import Path
-    
+
     if len(minimal_nvvmir) < 4:
         pytest.skip("Bitcode file is not valid or empty")
 
@@ -583,7 +565,7 @@ def test_bitcode_format(minimal_nvvmir):
     assert isinstance(ptx_result, ObjectCode)
     assert ptx_result.name == "minimal_nvvmir_bitcode_test"
     assert len(ptx_result.code) > 0
-    prgram_lto = Program(minimal_nvvmir, "nvvm", options)
+    program_lto = Program(minimal_nvvmir, "nvvm", options)
     try:
         ltoir_result = program_lto.compile("ltoir")
         assert isinstance(ltoir_result, ObjectCode)
@@ -593,6 +575,7 @@ def test_bitcode_format(minimal_nvvmir):
         print(f"LTOIR compilation failed : {e}")
     finally:
         program.close()
+
 
 def test_cpp_program_with_extra_sources():
     # negative test with NVRTC with multiple sources

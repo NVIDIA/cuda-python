@@ -7,7 +7,7 @@ from __future__ import annotations
 import weakref
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, List, Tuple, Union
 from warnings import warn
 
 if TYPE_CHECKING:
@@ -303,7 +303,7 @@ class ProgramOptions:
         Union[List[Tuple[str, Union[str, bytes, bytearray]]], Tuple[Tuple[str, Union[str, bytes, bytearray]]]] | None
     ) = None
     numba_debug: bool | None = None  # Custom option for Numba debugging
-    
+
     def __post_init__(self):
         self._name = self.name.encode()
 
@@ -484,7 +484,7 @@ class Program:
         if code_type == "c++":
             assert_type(code, str)
             # TODO: support pre-loaded headers & include names
-            
+
             if options.extra_sources is not None:
                 raise ValueError("extra_sources is not supported by the NVRTC backend (C++ code_type)")
 
@@ -515,21 +515,24 @@ class Program:
             self._mnff.backend = "NVVM"
             nvvm.add_module_to_program(self._mnff.handle, code, len(code), options._name.decode())
             self._module_count = 1
-             # Add extra modules if provided
+            # Add extra modules if provided
             if options.extra_sources is not None:
                 if not is_sequence(options.extra_sources):
-                    raise TypeError("extra_modules must be a sequence of 2-tuples: ((name1, source1), (name2, source2), ...)")
+                    raise TypeError(
+                        "extra_modules must be a sequence of 2-tuples:((name1, source1), (name2, source2), ...)"
+                    )
                 for i, module in enumerate(options.extra_sources):
                     if not isinstance(module, tuple) or len(module) != 2:
                         raise TypeError(
-                            f"Each extra module must be a 2-tuple (name, source), got {type(module).__name__} at index {i}"
+                            f"Each extra module must be a 2-tuple (name, source)"
+                            f", got {type(module).__name__} at index {i}"
                         )
-                    
+
                     module_name, module_source = module
-                    
+
                     if not isinstance(module_name, str):
-                        raise TypeError(f"Module name at index {i} must be a string, got {type(module_name).__name__}")
-                    
+                        raise TypeError(f"Module name at index {i} must be a string,got {type(module_name).__name__}")
+
                     if isinstance(module_source, str):
                         # Textual LLVM IR - encode to UTF-8 bytes
                         module_source = module_source.encode("utf-8")
@@ -538,10 +541,10 @@ class Program:
                             f"Module source at index {i} must be str (textual LLVM IR), bytes (textual LLVM IR or bitcode), "
                             f"or bytearray, got {type(module_source).__name__}"
                         )
-                    
+
                     if len(module_source) == 0:
                         raise ValueError(f"Module source for '{module_name}' (index {i}) cannot be empty")
-                    
+
                     nvvm.add_module_to_program(self._mnff.handle, module_source, len(module_source), module_name)
                     self._module_count += 1
 
