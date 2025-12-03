@@ -124,7 +124,7 @@ runs:
             populate_cuda_path "$item"
         done
         # TODO: check Windows
-        if [[ "${{ inputs.host-platform }}" == linux* ]]; then
+        if [[ "${{ inputs.host-platform }}" == linux* && -d "${CACHE_TMP_DIR}/lib" ]]; then
           mv $CACHE_TMP_DIR/lib $CACHE_TMP_DIR/lib64
         fi
         ls -l $CACHE_TMP_DIR
