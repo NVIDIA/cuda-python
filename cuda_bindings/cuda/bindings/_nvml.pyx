@@ -26038,30 +26038,3 @@ cpdef object device_get_sram_unique_uncorrected_ecc_error_counts(intptr_t device
     check_status(__status__)
 
     return errorCounts
-
-
-cpdef object device_get_graphics_running_processes_v3(intptr_t device):
-    """Get information about processes with a graphics context on a device.
-
-    Args:
-        device (intptr_t): The device handle or MIG device handle.
-
-    .. seealso:: `nvmlDeviceGetGraphicsRunningProcesses_v3`
-    """
-    cdef unsigned int[1] info_count = [0]
-    with nogil:
-        __status__ = nvmlDeviceGetGraphicsRunningProcesses_v3(<Device>device, <unsigned int*>info_count, NULL)
-    check_status_size(__status__)
-    cdef ProcessInfo infos = ProcessInfo(info_count[0])
-    cdef nvmlProcessInfo_t *infos_ptr = <nvmlProcessInfo_t *>infos.ptr
-    if info_count[0] == 0:
-        return infos
-
-    # TODO: This isn't well behaved and seems to corrupt memory
-
-    with nogil:
-
-        # __status__ = nvmlDeviceGetGraphicsRunningProcesses_v3(<Device>device, <unsigned int*>info_count, infos_ptr)
-        pass
-    # check_status(__status__)
-    return infos

@@ -523,10 +523,6 @@ cdef nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v3(nvmlDevice_t device, u
     return _nvml._nvmlDeviceGetComputeRunningProcesses_v3(device, infoCount, infos)
 
 
-cdef nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    return _nvml._nvmlDeviceGetGraphicsRunningProcesses_v3(device, infoCount, infos)
-
-
 cdef nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     return _nvml._nvmlDeviceGetMPSComputeRunningProcesses_v3(device, infoCount, infos)
 

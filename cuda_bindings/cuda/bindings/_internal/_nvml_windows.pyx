@@ -205,7 +205,6 @@ cdef void* __nvmlDeviceGetDriverModel_v2 = NULL
 cdef void* __nvmlDeviceGetVbiosVersion = NULL
 cdef void* __nvmlDeviceGetBridgeChipInfo = NULL
 cdef void* __nvmlDeviceGetComputeRunningProcesses_v3 = NULL
-cdef void* __nvmlDeviceGetGraphicsRunningProcesses_v3 = NULL
 cdef void* __nvmlDeviceGetMPSComputeRunningProcesses_v3 = NULL
 cdef void* __nvmlDeviceGetRunningProcessDetailList = NULL
 cdef void* __nvmlDeviceOnSameBoard = NULL
@@ -849,9 +848,6 @@ cdef int _init_nvml() except -1 nogil:
 
         global __nvmlDeviceGetComputeRunningProcesses_v3
         __nvmlDeviceGetComputeRunningProcesses_v3 = GetProcAddress(handle, 'nvmlDeviceGetComputeRunningProcesses_v3')
-
-        global __nvmlDeviceGetGraphicsRunningProcesses_v3
-        __nvmlDeviceGetGraphicsRunningProcesses_v3 = GetProcAddress(handle, 'nvmlDeviceGetGraphicsRunningProcesses_v3')
 
         global __nvmlDeviceGetMPSComputeRunningProcesses_v3
         __nvmlDeviceGetMPSComputeRunningProcesses_v3 = GetProcAddress(handle, 'nvmlDeviceGetMPSComputeRunningProcesses_v3')
@@ -1915,9 +1911,6 @@ cpdef dict _inspect_function_pointers():
 
     global __nvmlDeviceGetComputeRunningProcesses_v3
     data["__nvmlDeviceGetComputeRunningProcesses_v3"] = <intptr_t>__nvmlDeviceGetComputeRunningProcesses_v3
-
-    global __nvmlDeviceGetGraphicsRunningProcesses_v3
-    data["__nvmlDeviceGetGraphicsRunningProcesses_v3"] = <intptr_t>__nvmlDeviceGetGraphicsRunningProcesses_v3
 
     global __nvmlDeviceGetMPSComputeRunningProcesses_v3
     data["__nvmlDeviceGetMPSComputeRunningProcesses_v3"] = <intptr_t>__nvmlDeviceGetMPSComputeRunningProcesses_v3
@@ -3868,16 +3861,6 @@ cdef nvmlReturn_t _nvmlDeviceGetComputeRunningProcesses_v3(nvmlDevice_t device, 
         with gil:
             raise FunctionNotFoundError("function nvmlDeviceGetComputeRunningProcesses_v3 is not found")
     return (<nvmlReturn_t (*)(nvmlDevice_t, unsigned int*, nvmlProcessInfo_t*) noexcept nogil>__nvmlDeviceGetComputeRunningProcesses_v3)(
-        device, infoCount, infos)
-
-
-cdef nvmlReturn_t _nvmlDeviceGetGraphicsRunningProcesses_v3(nvmlDevice_t device, unsigned int* infoCount, nvmlProcessInfo_t* infos) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    global __nvmlDeviceGetGraphicsRunningProcesses_v3
-    _check_or_init_nvml()
-    if __nvmlDeviceGetGraphicsRunningProcesses_v3 == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvmlDeviceGetGraphicsRunningProcesses_v3 is not found")
-    return (<nvmlReturn_t (*)(nvmlDevice_t, unsigned int*, nvmlProcessInfo_t*) noexcept nogil>__nvmlDeviceGetGraphicsRunningProcesses_v3)(
         device, infoCount, infos)
 
 
