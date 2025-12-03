@@ -35,23 +35,6 @@ class DenseOrder(Enum):
     F = "F"
 
 
-class _S:
-    """
-    SliceSpec
-    """
-
-    def __init__(self, slices=None):
-        if slices is None:
-            slices = []
-        else:
-            assert isinstance(slices, list)
-        self.slices = slices
-
-    def __getitem__(self, value):
-        self.slices.append(value)
-        return self
-
-
 class LayoutSpec:
     """
     Pretty printable specification of a layout in a test case.
@@ -70,9 +53,8 @@ class LayoutSpec:
         self.itemsize = itemsize
         self.stride_order = stride_order
         self.perm = perm
-        if slices is not None:
-            assert isinstance(slices, _S)
-            slices = slices.slices
+        if slices is not None and not isinstance(slices, list):
+            slices = [slices]
         self.slices = slices
         self.np_ref = np_ref
 
