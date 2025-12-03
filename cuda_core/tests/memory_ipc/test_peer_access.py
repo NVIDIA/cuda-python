@@ -46,6 +46,7 @@ class TestPeerAccessNotPreservedOnImport:
         assert mr.peer_accessible_by == ()
         mr.peer_accessible_by = [0]
         assert mr.peer_accessible_by == (0,)
+        mr.close()
 
 
 class TestBufferPeerAccessAfterImport:
@@ -113,3 +114,6 @@ class TestBufferPeerAccessAfterImport:
         dev0.set_current()
         with pytest.raises(CUDAError, match="CUDA_ERROR_INVALID_VALUE"):
             PatternGen(dev0, NBYTES).verify_buffer(buffer, seed=False)
+
+        buffer.close()
+        mr.close()
