@@ -18,6 +18,7 @@ cdef class Buffer:
         uintptr_t      _ptr
         size_t         _size
         MemoryResource _memory_resource
+        object         _ipc_data
         object         _owner
         object         _ptr_obj
         Stream         _alloc_stream

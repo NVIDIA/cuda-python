@@ -8,7 +8,7 @@ cimport cython
 from libc.stdint cimport uintptr_t
 
 from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
-from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor
+from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor, IPCDataForBuffer
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._stream cimport Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport (
@@ -48,6 +48,7 @@ cdef class Buffer:
         self._ptr = 0
         self._size = 0
         self._memory_resource = None
+        self._ipc_data = None
         self._ptr_obj = None
         self._alloc_stream = None
         self._owner = None
@@ -60,7 +61,8 @@ cdef class Buffer:
     @classmethod
     def _init(
         cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
-        stream: Stream | None = None, owner : object | None = None,
+        stream: Stream | None = None, ipc_descriptor: IPCBufferDescriptor | None = None,
+        owner : object | None = None
     ):
         cdef Buffer self = Buffer.__new__(cls)
         self._ptr = <uintptr_t>(int(ptr))
@@ -69,6 +71,7 @@ cdef class Buffer:
         if mr is not None and owner is not None:
             raise ValueError("owner and memory resource cannot be both specified together")
         self._memory_resource = mr
+        self._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
         self._alloc_stream = <Stream>(stream) if stream is not None else None
         self._owner = owner
         return self
@@ -105,15 +108,17 @@ cdef class Buffer:
 
     @classmethod
     def from_ipc_descriptor(
-        cls, mr: DeviceMemoryResource, ipc_buffer: IPCBufferDescriptor,
+        cls, mr: DeviceMemoryResource, ipc_descriptor: IPCBufferDescriptor,
         stream: Stream = None
     ) -> Buffer:
         """Import a buffer that was exported from another process."""
-        return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_buffer, stream)
+        return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
     def get_ipc_descriptor(self) -> IPCBufferDescriptor:
         """Export a buffer allocated for sharing between processes."""
-        return _ipc.Buffer_get_ipc_descriptor(self)
+        if self._ipc_data is None:
+            self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
+        return self._ipc_data.ipc_descriptor
 
     def close(self, stream: Stream | GraphBuilder | None = None):
         """Deallocate this buffer asynchronously on the given stream.
@@ -275,6 +280,12 @@ cdef class Buffer:
         else:
             Buffer_init_mem_attrs(self)
             return self._mem_attrs.is_host_accessible
+
+    @property
+    def is_mapped(self) -> bool:
+        """Return True if this buffer is mapped into the process via IPC."""
+        return getattr(self._ipc_data, "is_mapped", False)
+
 
     @property
     def memory_resource(self) -> MemoryResource:
