@@ -23,15 +23,17 @@ from libc.string cimport memcmp, memcpy
 import numpy as _numpy
 
 
-cdef __from_data(data, dtype_name, expected_dtype, lowpp_type_from_ptr):
+cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
     # _numpy.recarray is a subclass of _numpy.ndarray, so implicitly handled here.
+    if isinstance(data, lowpp_type):
+        return data
     if not isinstance(data, _numpy.ndarray):
         raise TypeError("data argument must be a NumPy ndarray")
     if data.size != 1:
         raise ValueError("data array must have a size of 1")
     if data.dtype != expected_dtype:
         raise ValueError(f"data array must be of dtype {dtype_name}")
-    return lowpp_type_from_ptr(data.ctypes.data, not data.flags.writeable, data)
+    return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
 
 ###############################################################################
 # POD
@@ -135,7 +137,7 @@ cdef class _py_anon_pod1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod1_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod1_dtype", _py_anon_pod1_dtype, _py_anon_pod1.from_ptr)
+        return __from_data(data, "_py_anon_pod1_dtype", _py_anon_pod1_dtype, _py_anon_pod1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -291,7 +293,7 @@ cdef class _py_anon_pod3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod3_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod3_dtype", _py_anon_pod3_dtype, _py_anon_pod3.from_ptr)
+        return __from_data(data, "_py_anon_pod3_dtype", _py_anon_pod3_dtype, _py_anon_pod3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -581,7 +583,7 @@ cdef class OpCounter:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `op_counter_dtype` holding the data.
         """
-        return __from_data(data, "op_counter_dtype", op_counter_dtype, OpCounter.from_ptr)
+        return __from_data(data, "op_counter_dtype", op_counter_dtype, OpCounter)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -653,432 +655,440 @@ cdef _get_per_gpu_stats_dtype_offsets():
 per_gpu_stats_dtype = _get_per_gpu_stats_dtype_offsets()
 
 cdef class PerGpuStats:
-    """Empty-initialize an instance of `CUfilePerGpuStats_t`.
+    """Empty-initialize an array of `CUfilePerGpuStats_t`.
+
+    The resulting object is of length `size` and of dtype `per_gpu_stats_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
 
 
     .. seealso:: `CUfilePerGpuStats_t`
     """
     cdef:
-        CUfilePerGpuStats_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
+        readonly object _data
 
-    def __init__(self):
-        self._ptr = <CUfilePerGpuStats_t *>calloc(1, sizeof(CUfilePerGpuStats_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating PerGpuStats")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
 
-    def __dealloc__(self):
-        cdef CUfilePerGpuStats_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=per_gpu_stats_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(CUfilePerGpuStats_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfilePerGpuStats_t) }"
 
     def __repr__(self):
-        return f"<{__name__}.PerGpuStats object at {hex(id(self))}>"
+        if self._data.size > 1:
+            return f"<{__name__}.PerGpuStats_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.PerGpuStats object at {hex(id(self))}>"
 
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
+        return self._data.ctypes.data
 
     cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
+        return self._data.ctypes.data
 
     def __int__(self):
-        return <intptr_t>(self._ptr)
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
 
     def __eq__(self, other):
-        cdef PerGpuStats other_
-        if not isinstance(other, PerGpuStats):
+        cdef object self_data = self._data
+        if (not isinstance(other, PerGpuStats)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(CUfilePerGpuStats_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <CUfilePerGpuStats_t *>malloc(sizeof(CUfilePerGpuStats_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating PerGpuStats")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(CUfilePerGpuStats_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
+        return bool((self_data == other._data).all())
 
     @property
     def uuid(self):
         """~_numpy.int8: (array of length 16)."""
-        return cpython.PyUnicode_FromString(self._ptr[0].uuid)
+        return self._data.uuid
 
     @uuid.setter
     def uuid(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        cdef bytes buf = val.encode()
-        if len(buf) >= 16:
-            raise ValueError("String too long for field uuid, max length is 15")
-        cdef char *ptr = buf
-        memcpy(<void *>(self._ptr[0].uuid), <void *>ptr, 16)
+        self._data.uuid = val
 
     @property
     def read_bytes(self):
-        """int: """
-        return self._ptr[0].read_bytes
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.read_bytes[0])
+        return self._data.read_bytes
 
     @read_bytes.setter
     def read_bytes(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].read_bytes = val
+        self._data.read_bytes = val
 
     @property
     def read_bw_bytes_per_sec(self):
-        """int: """
-        return self._ptr[0].read_bw_bytes_per_sec
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.read_bw_bytes_per_sec[0])
+        return self._data.read_bw_bytes_per_sec
 
     @read_bw_bytes_per_sec.setter
     def read_bw_bytes_per_sec(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].read_bw_bytes_per_sec = val
+        self._data.read_bw_bytes_per_sec = val
 
     @property
     def read_utilization(self):
-        """int: """
-        return self._ptr[0].read_utilization
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.read_utilization[0])
+        return self._data.read_utilization
 
     @read_utilization.setter
     def read_utilization(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].read_utilization = val
+        self._data.read_utilization = val
 
     @property
     def read_duration_us(self):
-        """int: """
-        return self._ptr[0].read_duration_us
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.read_duration_us[0])
+        return self._data.read_duration_us
 
     @read_duration_us.setter
     def read_duration_us(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].read_duration_us = val
+        self._data.read_duration_us = val
 
     @property
     def n_total_reads(self):
-        """int: """
-        return self._ptr[0].n_total_reads
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_total_reads[0])
+        return self._data.n_total_reads
 
     @n_total_reads.setter
     def n_total_reads(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_total_reads = val
+        self._data.n_total_reads = val
 
     @property
     def n_p2p_reads(self):
-        """int: """
-        return self._ptr[0].n_p2p_reads
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_p2p_reads[0])
+        return self._data.n_p2p_reads
 
     @n_p2p_reads.setter
     def n_p2p_reads(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_p2p_reads = val
+        self._data.n_p2p_reads = val
 
     @property
     def n_nvfs_reads(self):
-        """int: """
-        return self._ptr[0].n_nvfs_reads
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_nvfs_reads[0])
+        return self._data.n_nvfs_reads
 
     @n_nvfs_reads.setter
     def n_nvfs_reads(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_nvfs_reads = val
+        self._data.n_nvfs_reads = val
 
     @property
     def n_posix_reads(self):
-        """int: """
-        return self._ptr[0].n_posix_reads
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_posix_reads[0])
+        return self._data.n_posix_reads
 
     @n_posix_reads.setter
     def n_posix_reads(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_posix_reads = val
+        self._data.n_posix_reads = val
 
     @property
     def n_unaligned_reads(self):
-        """int: """
-        return self._ptr[0].n_unaligned_reads
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_unaligned_reads[0])
+        return self._data.n_unaligned_reads
 
     @n_unaligned_reads.setter
     def n_unaligned_reads(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_unaligned_reads = val
+        self._data.n_unaligned_reads = val
 
     @property
     def n_dr_reads(self):
-        """int: """
-        return self._ptr[0].n_dr_reads
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_dr_reads[0])
+        return self._data.n_dr_reads
 
     @n_dr_reads.setter
     def n_dr_reads(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_dr_reads = val
+        self._data.n_dr_reads = val
 
     @property
     def n_sparse_regions(self):
-        """int: """
-        return self._ptr[0].n_sparse_regions
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_sparse_regions[0])
+        return self._data.n_sparse_regions
 
     @n_sparse_regions.setter
     def n_sparse_regions(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_sparse_regions = val
+        self._data.n_sparse_regions = val
 
     @property
     def n_inline_regions(self):
-        """int: """
-        return self._ptr[0].n_inline_regions
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_inline_regions[0])
+        return self._data.n_inline_regions
 
     @n_inline_regions.setter
     def n_inline_regions(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_inline_regions = val
+        self._data.n_inline_regions = val
 
     @property
     def n_reads_err(self):
-        """int: """
-        return self._ptr[0].n_reads_err
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_reads_err[0])
+        return self._data.n_reads_err
 
     @n_reads_err.setter
     def n_reads_err(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_reads_err = val
+        self._data.n_reads_err = val
 
     @property
     def writes_bytes(self):
-        """int: """
-        return self._ptr[0].writes_bytes
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.writes_bytes[0])
+        return self._data.writes_bytes
 
     @writes_bytes.setter
     def writes_bytes(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].writes_bytes = val
+        self._data.writes_bytes = val
 
     @property
     def write_bw_bytes_per_sec(self):
-        """int: """
-        return self._ptr[0].write_bw_bytes_per_sec
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.write_bw_bytes_per_sec[0])
+        return self._data.write_bw_bytes_per_sec
 
     @write_bw_bytes_per_sec.setter
     def write_bw_bytes_per_sec(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].write_bw_bytes_per_sec = val
+        self._data.write_bw_bytes_per_sec = val
 
     @property
     def write_utilization(self):
-        """int: """
-        return self._ptr[0].write_utilization
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.write_utilization[0])
+        return self._data.write_utilization
 
     @write_utilization.setter
     def write_utilization(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].write_utilization = val
+        self._data.write_utilization = val
 
     @property
     def write_duration_us(self):
-        """int: """
-        return self._ptr[0].write_duration_us
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.write_duration_us[0])
+        return self._data.write_duration_us
 
     @write_duration_us.setter
     def write_duration_us(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].write_duration_us = val
+        self._data.write_duration_us = val
 
     @property
     def n_total_writes(self):
-        """int: """
-        return self._ptr[0].n_total_writes
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_total_writes[0])
+        return self._data.n_total_writes
 
     @n_total_writes.setter
     def n_total_writes(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_total_writes = val
+        self._data.n_total_writes = val
 
     @property
     def n_p2p_writes(self):
-        """int: """
-        return self._ptr[0].n_p2p_writes
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_p2p_writes[0])
+        return self._data.n_p2p_writes
 
     @n_p2p_writes.setter
     def n_p2p_writes(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_p2p_writes = val
+        self._data.n_p2p_writes = val
 
     @property
     def n_nvfs_writes(self):
-        """int: """
-        return self._ptr[0].n_nvfs_writes
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_nvfs_writes[0])
+        return self._data.n_nvfs_writes
 
     @n_nvfs_writes.setter
     def n_nvfs_writes(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_nvfs_writes = val
+        self._data.n_nvfs_writes = val
 
     @property
     def n_posix_writes(self):
-        """int: """
-        return self._ptr[0].n_posix_writes
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_posix_writes[0])
+        return self._data.n_posix_writes
 
     @n_posix_writes.setter
     def n_posix_writes(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_posix_writes = val
+        self._data.n_posix_writes = val
 
     @property
     def n_unaligned_writes(self):
-        """int: """
-        return self._ptr[0].n_unaligned_writes
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_unaligned_writes[0])
+        return self._data.n_unaligned_writes
 
     @n_unaligned_writes.setter
     def n_unaligned_writes(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_unaligned_writes = val
+        self._data.n_unaligned_writes = val
 
     @property
     def n_dr_writes(self):
-        """int: """
-        return self._ptr[0].n_dr_writes
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_dr_writes[0])
+        return self._data.n_dr_writes
 
     @n_dr_writes.setter
     def n_dr_writes(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_dr_writes = val
+        self._data.n_dr_writes = val
 
     @property
     def n_writes_err(self):
-        """int: """
-        return self._ptr[0].n_writes_err
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_writes_err[0])
+        return self._data.n_writes_err
 
     @n_writes_err.setter
     def n_writes_err(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_writes_err = val
+        self._data.n_writes_err = val
 
     @property
     def n_mmap(self):
-        """int: """
-        return self._ptr[0].n_mmap
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_mmap[0])
+        return self._data.n_mmap
 
     @n_mmap.setter
     def n_mmap(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_mmap = val
+        self._data.n_mmap = val
 
     @property
     def n_mmap_ok(self):
-        """int: """
-        return self._ptr[0].n_mmap_ok
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_mmap_ok[0])
+        return self._data.n_mmap_ok
 
     @n_mmap_ok.setter
     def n_mmap_ok(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_mmap_ok = val
+        self._data.n_mmap_ok = val
 
     @property
     def n_mmap_err(self):
-        """int: """
-        return self._ptr[0].n_mmap_err
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_mmap_err[0])
+        return self._data.n_mmap_err
 
     @n_mmap_err.setter
     def n_mmap_err(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_mmap_err = val
+        self._data.n_mmap_err = val
 
     @property
     def n_mmap_free(self):
-        """int: """
-        return self._ptr[0].n_mmap_free
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.n_mmap_free[0])
+        return self._data.n_mmap_free
 
     @n_mmap_free.setter
     def n_mmap_free(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].n_mmap_free = val
+        self._data.n_mmap_free = val
 
     @property
     def reg_bytes(self):
-        """int: """
-        return self._ptr[0].reg_bytes
+        """Union[~_numpy.uint64, int]: """
+        if self._data.size == 1:
+            return int(self._data.reg_bytes[0])
+        return self._data.reg_bytes
 
     @reg_bytes.setter
     def reg_bytes(self, val):
-        if self._readonly:
-            raise ValueError("This PerGpuStats instance is read-only")
-        self._ptr[0].reg_bytes = val
+        self._data.reg_bytes = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return PerGpuStats.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == per_gpu_stats_dtype:
+            return PerGpuStats.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
 
     @staticmethod
     def from_data(data):
         """Create an PerGpuStats instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a single-element array of dtype `per_gpu_stats_dtype` holding the data.
+            data (_numpy.ndarray): a 1D array of dtype `per_gpu_stats_dtype` holding the data.
         """
-        return __from_data(data, "per_gpu_stats_dtype", per_gpu_stats_dtype, PerGpuStats.from_ptr)
+        cdef PerGpuStats obj = PerGpuStats.__new__(PerGpuStats)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != per_gpu_stats_dtype:
+            raise ValueError("data array must be of dtype per_gpu_stats_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
         """Create an PerGpuStats instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            size (int): number of structs, default=1.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef PerGpuStats obj = PerGpuStats.__new__(PerGpuStats)
-        if owner is None:
-            obj._ptr = <CUfilePerGpuStats_t *>malloc(sizeof(CUfilePerGpuStats_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating PerGpuStats")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(CUfilePerGpuStats_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <CUfilePerGpuStats_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(CUfilePerGpuStats_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=per_gpu_stats_dtype)
+        obj._data = data.view(_numpy.recarray)
+
         return obj
 
 
@@ -1111,8 +1121,6 @@ cdef class Descr:
     """
     cdef:
         readonly object _data
-
-        readonly tuple _handle
 
 
 
@@ -1152,13 +1160,6 @@ cdef class Descr:
         return bool((self_data == other._data).all())
 
     @property
-    def handle(self):
-        """_py_anon_pod1: """
-        if self._data.size == 1:
-            return self._handle[0]
-        return self._handle
-
-    @property
     def type(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
@@ -1168,6 +1169,15 @@ cdef class Descr:
     @type.setter
     def type(self, val):
         self._data.type = val
+
+    @property
+    def handle(self):
+        """_py_anon_pod1_dtype: """
+        return self._data.handle
+
+    @handle.setter
+    def handle(self, val):
+        self._data.handle = val
 
     @property
     def fs_ops(self):
@@ -1215,13 +1225,6 @@ cdef class Descr:
             raise ValueError("data array must be of dtype descr_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        handle_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.handle[i].__array_interface__['data'][0]
-            _py_anon_pod1_obj = _py_anon_pod1.from_ptr(addr, owner=obj)
-            handle_list.append(_py_anon_pod1_obj)
-
-        obj._handle = tuple(handle_list)
         return obj
 
     @staticmethod
@@ -1242,13 +1245,6 @@ cdef class Descr:
         data = _numpy.ndarray(size, buffer=buf, dtype=descr_dtype)
         obj._data = data.view(_numpy.recarray)
 
-        handle_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.handle[i].__array_interface__['data'][0]
-            _py_anon_pod1_obj = _py_anon_pod1.from_ptr(addr, owner=obj)
-            handle_list.append(_py_anon_pod1_obj)
-
-        obj._handle = tuple(handle_list)
         return obj
 
 
@@ -1339,7 +1335,7 @@ cdef class _py_anon_pod2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod2_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2.from_ptr)
+        return __from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -1984,7 +1980,7 @@ cdef class StatsLevel1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `stats_level1_dtype` holding the data.
         """
-        return __from_data(data, "stats_level1_dtype", stats_level1_dtype, StatsLevel1.from_ptr)
+        return __from_data(data, "stats_level1_dtype", stats_level1_dtype, StatsLevel1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2045,8 +2041,6 @@ cdef class IOParams:
     cdef:
         readonly object _data
 
-        readonly tuple _u
-
 
 
     def __init__(self, size=1):
@@ -2085,13 +2079,6 @@ cdef class IOParams:
         return bool((self_data == other._data).all())
 
     @property
-    def u(self):
-        """_py_anon_pod2: """
-        if self._data.size == 1:
-            return self._u[0]
-        return self._u
-
-    @property
     def mode(self):
         """Union[~_numpy.int32, int]: """
         if self._data.size == 1:
@@ -2101,6 +2088,15 @@ cdef class IOParams:
     @mode.setter
     def mode(self, val):
         self._data.mode = val
+
+    @property
+    def u(self):
+        """_py_anon_pod2_dtype: """
+        return self._data.u
+
+    @u.setter
+    def u(self, val):
+        self._data.u = val
 
     @property
     def fh(self):
@@ -2170,13 +2166,6 @@ cdef class IOParams:
             raise ValueError("data array must be of dtype io_params_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        u_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.u[i].__array_interface__['data'][0]
-            _py_anon_pod2_obj = _py_anon_pod2.from_ptr(addr, owner=obj)
-            u_list.append(_py_anon_pod2_obj)
-
-        obj._u = tuple(u_list)
         return obj
 
     @staticmethod
@@ -2197,13 +2186,6 @@ cdef class IOParams:
         data = _numpy.ndarray(size, buffer=buf, dtype=io_params_dtype)
         obj._data = data.view(_numpy.recarray)
 
-        u_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.u[i].__array_interface__['data'][0]
-            _py_anon_pod2_obj = _py_anon_pod2.from_ptr(addr, owner=obj)
-            u_list.append(_py_anon_pod2_obj)
-
-        obj._u = tuple(u_list)
         return obj
 
 
@@ -2299,7 +2281,7 @@ cdef class StatsLevel2:
         """~_numpy.uint64: (array of length 32)."""
         cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].read_size_kb_hist))
-        return arr
+        return _numpy.asarray(arr)
 
     @read_size_kb_hist.setter
     def read_size_kb_hist(self, val):
@@ -2314,7 +2296,7 @@ cdef class StatsLevel2:
         """~_numpy.uint64: (array of length 32)."""
         cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].write_size_kb_hist))
-        return arr
+        return _numpy.asarray(arr)
 
     @write_size_kb_hist.setter
     def write_size_kb_hist(self, val):
@@ -2331,7 +2313,7 @@ cdef class StatsLevel2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `stats_level2_dtype` holding the data.
         """
-        return __from_data(data, "stats_level2_dtype", stats_level2_dtype, StatsLevel2.from_ptr)
+        return __from_data(data, "stats_level2_dtype", stats_level2_dtype, StatsLevel2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2479,7 +2461,7 @@ cdef class StatsLevel3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `stats_level3_dtype` holding the data.
         """
-        return __from_data(data, "stats_level3_dtype", stats_level3_dtype, StatsLevel3.from_ptr)
+        return __from_data(data, "stats_level3_dtype", stats_level3_dtype, StatsLevel3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):

@@ -22,15 +22,17 @@ from libc.string cimport memcmp, memcpy
 import numpy as _numpy
 
 
-cdef __from_data(data, dtype_name, expected_dtype, lowpp_type_from_ptr):
+cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
     # _numpy.recarray is a subclass of _numpy.ndarray, so implicitly handled here.
+    if isinstance(data, lowpp_type):
+        return data
     if not isinstance(data, _numpy.ndarray):
         raise TypeError("data argument must be a NumPy ndarray")
     if data.size != 1:
         raise ValueError("data array must have a size of 1")
     if data.dtype != expected_dtype:
         raise ValueError(f"data array must be of dtype {dtype_name}")
-    return lowpp_type_from_ptr(data.ctypes.data, not data.flags.writeable, data)
+    return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
 
 
 ###############################################################################
@@ -1519,7 +1521,7 @@ cdef class PciInfoExt_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `pci_info_ext_v1_dtype` holding the data.
         """
-        return __from_data(data, "pci_info_ext_v1_dtype", pci_info_ext_v1_dtype, PciInfoExt_v1.from_ptr)
+        return __from_data(data, "pci_info_ext_v1_dtype", pci_info_ext_v1_dtype, PciInfoExt_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -1719,7 +1721,7 @@ cdef class PciInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `pci_info_dtype` holding the data.
         """
-        return __from_data(data, "pci_info_dtype", pci_info_dtype, PciInfo.from_ptr)
+        return __from_data(data, "pci_info_dtype", pci_info_dtype, PciInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -1851,7 +1853,7 @@ cdef class Utilization:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `utilization_dtype` holding the data.
         """
-        return __from_data(data, "utilization_dtype", utilization_dtype, Utilization.from_ptr)
+        return __from_data(data, "utilization_dtype", utilization_dtype, Utilization)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -1995,7 +1997,7 @@ cdef class Memory:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `memory_dtype` holding the data.
         """
-        return __from_data(data, "memory_dtype", memory_dtype, Memory.from_ptr)
+        return __from_data(data, "memory_dtype", memory_dtype, Memory)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2152,7 +2154,7 @@ cdef class Memory_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `memory_v2_dtype` holding the data.
         """
-        return __from_data(data, "memory_v2_dtype", memory_v2_dtype, Memory_v2.from_ptr)
+        return __from_data(data, "memory_v2_dtype", memory_v2_dtype, Memory_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2296,7 +2298,7 @@ cdef class BAR1Memory:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `ba_r1memory_dtype` holding the data.
         """
-        return __from_data(data, "ba_r1memory_dtype", ba_r1memory_dtype, BAR1Memory.from_ptr)
+        return __from_data(data, "ba_r1memory_dtype", ba_r1memory_dtype, BAR1Memory)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2864,7 +2866,7 @@ cdef class DeviceAttributes:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `device_attributes_dtype` holding the data.
         """
-        return __from_data(data, "device_attributes_dtype", device_attributes_dtype, DeviceAttributes.from_ptr)
+        return __from_data(data, "device_attributes_dtype", device_attributes_dtype, DeviceAttributes)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -2984,7 +2986,7 @@ cdef class C2cModeInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `c2c_mode_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "c2c_mode_info_v1_dtype", c2c_mode_info_v1_dtype, C2cModeInfo_v1.from_ptr)
+        return __from_data(data, "c2c_mode_info_v1_dtype", c2c_mode_info_v1_dtype, C2cModeInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -3152,7 +3154,7 @@ cdef class RowRemapperHistogramValues:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `row_remapper_histogram_values_dtype` holding the data.
         """
-        return __from_data(data, "row_remapper_histogram_values_dtype", row_remapper_histogram_values_dtype, RowRemapperHistogramValues.from_ptr)
+        return __from_data(data, "row_remapper_histogram_values_dtype", row_remapper_histogram_values_dtype, RowRemapperHistogramValues)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -3485,7 +3487,7 @@ cdef class Value:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `value_dtype` holding the data.
         """
-        return __from_data(data, "value_dtype", value_dtype, Value.from_ptr)
+        return __from_data(data, "value_dtype", value_dtype, Value)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -3653,7 +3655,7 @@ cdef class _py_anon_pod0:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod0_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod0_dtype", _py_anon_pod0_dtype, _py_anon_pod0.from_ptr)
+        return __from_data(data, "_py_anon_pod0_dtype", _py_anon_pod0_dtype, _py_anon_pod0)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -3809,7 +3811,7 @@ cdef class CoolerInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `cooler_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "cooler_info_v1_dtype", cooler_info_v1_dtype, CoolerInfo_v1.from_ptr)
+        return __from_data(data, "cooler_info_v1_dtype", cooler_info_v1_dtype, CoolerInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -3941,7 +3943,7 @@ cdef class MarginTemperature_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `margin_temperature_v1_dtype` holding the data.
         """
-        return __from_data(data, "margin_temperature_v1_dtype", margin_temperature_v1_dtype, MarginTemperature_v1.from_ptr)
+        return __from_data(data, "margin_temperature_v1_dtype", margin_temperature_v1_dtype, MarginTemperature_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -4267,7 +4269,7 @@ cdef class ClockOffset_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `clock_offset_v1_dtype` holding the data.
         """
-        return __from_data(data, "clock_offset_v1_dtype", clock_offset_v1_dtype, ClockOffset_v1.from_ptr)
+        return __from_data(data, "clock_offset_v1_dtype", clock_offset_v1_dtype, ClockOffset_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -4411,7 +4413,7 @@ cdef class FanSpeedInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `fan_speed_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "fan_speed_info_v1_dtype", fan_speed_info_v1_dtype, FanSpeedInfo_v1.from_ptr)
+        return __from_data(data, "fan_speed_info_v1_dtype", fan_speed_info_v1_dtype, FanSpeedInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -4547,7 +4549,7 @@ cdef class DevicePerfModes_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `device_perf_modes_v1_dtype` holding the data.
         """
-        return __from_data(data, "device_perf_modes_v1_dtype", device_perf_modes_v1_dtype, DevicePerfModes_v1.from_ptr)
+        return __from_data(data, "device_perf_modes_v1_dtype", device_perf_modes_v1_dtype, DevicePerfModes_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -4683,7 +4685,7 @@ cdef class DeviceCurrentClockFreqs_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `device_current_clock_freqs_v1_dtype` holding the data.
         """
-        return __from_data(data, "device_current_clock_freqs_v1_dtype", device_current_clock_freqs_v1_dtype, DeviceCurrentClockFreqs_v1.from_ptr)
+        return __from_data(data, "device_current_clock_freqs_v1_dtype", device_current_clock_freqs_v1_dtype, DeviceCurrentClockFreqs_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -5359,7 +5361,7 @@ cdef class EccSramErrorStatus_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `ecc_sram_error_status_v1_dtype` holding the data.
         """
-        return __from_data(data, "ecc_sram_error_status_v1_dtype", ecc_sram_error_status_v1_dtype, EccSramErrorStatus_v1.from_ptr)
+        return __from_data(data, "ecc_sram_error_status_v1_dtype", ecc_sram_error_status_v1_dtype, EccSramErrorStatus_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -5484,7 +5486,7 @@ cdef class PlatformInfo_v2:
         """~_numpy.uint8: (array of length 16).Infiniband GUID reported by platform (for Blackwell, ibGuid is 8 bytes so indices 8-15 are zero)"""
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].ibGuid))
-        return arr
+        return _numpy.asarray(arr)
 
     @ib_guid.setter
     def ib_guid(self, val):
@@ -5499,7 +5501,7 @@ cdef class PlatformInfo_v2:
         """~_numpy.uint8: (array of length 16).Serial number of the chassis containing this GPU (for Blackwell it is 13 bytes so indices 13-15 are zero)"""
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].chassisSerialNumber))
-        return arr
+        return _numpy.asarray(arr)
 
     @chassis_serial_number.setter
     def chassis_serial_number(self, val):
@@ -5571,7 +5573,7 @@ cdef class PlatformInfo_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `platform_info_v2_dtype` holding the data.
         """
-        return __from_data(data, "platform_info_v2_dtype", platform_info_v2_dtype, PlatformInfo_v2.from_ptr)
+        return __from_data(data, "platform_info_v2_dtype", platform_info_v2_dtype, PlatformInfo_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -5727,7 +5729,7 @@ cdef class _py_anon_pod1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod1_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod1_dtype", _py_anon_pod1_dtype, _py_anon_pod1.from_ptr)
+        return __from_data(data, "_py_anon_pod1_dtype", _py_anon_pod1_dtype, _py_anon_pod1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -5859,7 +5861,7 @@ cdef class VgpuHeterogeneousMode_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_heterogeneous_mode_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_heterogeneous_mode_v1_dtype", vgpu_heterogeneous_mode_v1_dtype, VgpuHeterogeneousMode_v1.from_ptr)
+        return __from_data(data, "vgpu_heterogeneous_mode_v1_dtype", vgpu_heterogeneous_mode_v1_dtype, VgpuHeterogeneousMode_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -5991,7 +5993,7 @@ cdef class VgpuPlacementId_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_placement_id_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_placement_id_v1_dtype", vgpu_placement_id_v1_dtype, VgpuPlacementId_v1.from_ptr)
+        return __from_data(data, "vgpu_placement_id_v1_dtype", vgpu_placement_id_v1_dtype, VgpuPlacementId_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -6128,7 +6130,7 @@ cdef class VgpuPlacementList_v2:
             return []
         cdef view.array arr = view.array(shape=(self._ptr[0].count,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
         arr.data = <char *>(self._ptr[0].placementIds)
-        return arr
+        return _numpy.asarray(arr)
 
     @placement_ids.setter
     def placement_ids(self, val):
@@ -6158,7 +6160,7 @@ cdef class VgpuPlacementList_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_placement_list_v2_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_placement_list_v2_dtype", vgpu_placement_list_v2_dtype, VgpuPlacementList_v2.from_ptr)
+        return __from_data(data, "vgpu_placement_list_v2_dtype", vgpu_placement_list_v2_dtype, VgpuPlacementList_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -6291,7 +6293,7 @@ cdef class VgpuTypeBar1Info_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_type_bar1info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_type_bar1info_v1_dtype", vgpu_type_bar1info_v1_dtype, VgpuTypeBar1Info_v1.from_ptr)
+        return __from_data(data, "vgpu_type_bar1info_v1_dtype", vgpu_type_bar1info_v1_dtype, VgpuTypeBar1Info_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -6663,7 +6665,7 @@ cdef class VgpuRuntimeState_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_runtime_state_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_runtime_state_v1_dtype", vgpu_runtime_state_v1_dtype, VgpuRuntimeState_v1.from_ptr)
+        return __from_data(data, "vgpu_runtime_state_v1_dtype", vgpu_runtime_state_v1_dtype, VgpuRuntimeState_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -6795,7 +6797,7 @@ cdef class _py_anon_pod2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod2_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2.from_ptr)
+        return __from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -6915,7 +6917,7 @@ cdef class _py_anon_pod3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod3_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod3_dtype", _py_anon_pod3_dtype, _py_anon_pod3.from_ptr)
+        return __from_data(data, "_py_anon_pod3_dtype", _py_anon_pod3_dtype, _py_anon_pod3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -7241,7 +7243,7 @@ cdef class _py_anon_pod4:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod4_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod4_dtype", _py_anon_pod4_dtype, _py_anon_pod4.from_ptr)
+        return __from_data(data, "_py_anon_pod4_dtype", _py_anon_pod4_dtype, _py_anon_pod4)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -7361,7 +7363,7 @@ cdef class _py_anon_pod5:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod5_dtype` holding the data.
         """
-        return __from_data(data, "_py_anon_pod5_dtype", _py_anon_pod5_dtype, _py_anon_pod5.from_ptr)
+        return __from_data(data, "_py_anon_pod5_dtype", _py_anon_pod5_dtype, _py_anon_pod5)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -7475,7 +7477,7 @@ cdef class VgpuSchedulerCapabilities:
         """~_numpy.uint32: (array of length 3)."""
         cdef view.array arr = view.array(shape=(3,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].supportedSchedulers))
-        return arr
+        return _numpy.asarray(arr)
 
     @supported_schedulers.setter
     def supported_schedulers(self, val):
@@ -7569,7 +7571,7 @@ cdef class VgpuSchedulerCapabilities:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_capabilities_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_capabilities_dtype", vgpu_scheduler_capabilities_dtype, VgpuSchedulerCapabilities.from_ptr)
+        return __from_data(data, "vgpu_scheduler_capabilities_dtype", vgpu_scheduler_capabilities_dtype, VgpuSchedulerCapabilities)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -7761,7 +7763,7 @@ cdef class VgpuLicenseExpiry:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_license_expiry_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_license_expiry_dtype", vgpu_license_expiry_dtype, VgpuLicenseExpiry.from_ptr)
+        return __from_data(data, "vgpu_license_expiry_dtype", vgpu_license_expiry_dtype, VgpuLicenseExpiry)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -7953,7 +7955,7 @@ cdef class GridLicenseExpiry:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `grid_license_expiry_dtype` holding the data.
         """
-        return __from_data(data, "grid_license_expiry_dtype", grid_license_expiry_dtype, GridLicenseExpiry.from_ptr)
+        return __from_data(data, "grid_license_expiry_dtype", grid_license_expiry_dtype, GridLicenseExpiry)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -8086,7 +8088,7 @@ cdef class VgpuTypeIdInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_type_id_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_type_id_info_v1_dtype", vgpu_type_id_info_v1_dtype, VgpuTypeIdInfo_v1.from_ptr)
+        return __from_data(data, "vgpu_type_id_info_v1_dtype", vgpu_type_id_info_v1_dtype, VgpuTypeIdInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -8230,7 +8232,7 @@ cdef class VgpuTypeMaxInstance_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_type_max_instance_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_type_max_instance_v1_dtype", vgpu_type_max_instance_v1_dtype, VgpuTypeMaxInstance_v1.from_ptr)
+        return __from_data(data, "vgpu_type_max_instance_v1_dtype", vgpu_type_max_instance_v1_dtype, VgpuTypeMaxInstance_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -8363,7 +8365,7 @@ cdef class ActiveVgpuInstanceInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `active_vgpu_instance_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "active_vgpu_instance_info_v1_dtype", active_vgpu_instance_info_v1_dtype, ActiveVgpuInstanceInfo_v1.from_ptr)
+        return __from_data(data, "active_vgpu_instance_info_v1_dtype", active_vgpu_instance_info_v1_dtype, ActiveVgpuInstanceInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -8511,7 +8513,7 @@ cdef class VgpuCreatablePlacementInfo_v1:
             return []
         cdef view.array arr = view.array(shape=(self._ptr[0].placementSize,), itemsize=sizeof(unsigned int), format="I", mode="c", allocate_buffer=False)
         arr.data = <char *>(self._ptr[0].placementIds)
-        return arr
+        return _numpy.asarray(arr)
 
     @placement_ids.setter
     def placement_ids(self, val):
@@ -8530,7 +8532,7 @@ cdef class VgpuCreatablePlacementInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_creatable_placement_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_creatable_placement_info_v1_dtype", vgpu_creatable_placement_info_v1_dtype, VgpuCreatablePlacementInfo_v1.from_ptr)
+        return __from_data(data, "vgpu_creatable_placement_info_v1_dtype", vgpu_creatable_placement_info_v1_dtype, VgpuCreatablePlacementInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -8811,7 +8813,7 @@ cdef class LedState:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `led_state_dtype` holding the data.
         """
-        return __from_data(data, "led_state_dtype", led_state_dtype, LedState.from_ptr)
+        return __from_data(data, "led_state_dtype", led_state_dtype, LedState)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -8983,7 +8985,7 @@ cdef class UnitInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `unit_info_dtype` holding the data.
         """
-        return __from_data(data, "unit_info_dtype", unit_info_dtype, UnitInfo.from_ptr)
+        return __from_data(data, "unit_info_dtype", unit_info_dtype, UnitInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -9143,7 +9145,7 @@ cdef class PSUInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `psu_info_dtype` holding the data.
         """
-        return __from_data(data, "psu_info_dtype", psu_info_dtype, PSUInfo.from_ptr)
+        return __from_data(data, "psu_info_dtype", psu_info_dtype, PSUInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -9457,7 +9459,7 @@ cdef class EventData:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `event_data_dtype` holding the data.
         """
-        return __from_data(data, "event_data_dtype", event_data_dtype, EventData.from_ptr)
+        return __from_data(data, "event_data_dtype", event_data_dtype, EventData)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -9638,7 +9640,7 @@ cdef class AccountingStats:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `accounting_stats_dtype` holding the data.
         """
-        return __from_data(data, "accounting_stats_dtype", accounting_stats_dtype, AccountingStats.from_ptr)
+        return __from_data(data, "accounting_stats_dtype", accounting_stats_dtype, AccountingStats)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -10000,7 +10002,7 @@ cdef class FBCStats:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `fbc_stats_dtype` holding the data.
         """
-        return __from_data(data, "fbc_stats_dtype", fbc_stats_dtype, FBCStats.from_ptr)
+        return __from_data(data, "fbc_stats_dtype", fbc_stats_dtype, FBCStats)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -10398,7 +10400,7 @@ cdef class ConfComputeSystemCaps:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `conf_compute_system_caps_dtype` holding the data.
         """
-        return __from_data(data, "conf_compute_system_caps_dtype", conf_compute_system_caps_dtype, ConfComputeSystemCaps.from_ptr)
+        return __from_data(data, "conf_compute_system_caps_dtype", conf_compute_system_caps_dtype, ConfComputeSystemCaps)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -10542,7 +10544,7 @@ cdef class ConfComputeSystemState:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `conf_compute_system_state_dtype` holding the data.
         """
-        return __from_data(data, "conf_compute_system_state_dtype", conf_compute_system_state_dtype, ConfComputeSystemState.from_ptr)
+        return __from_data(data, "conf_compute_system_state_dtype", conf_compute_system_state_dtype, ConfComputeSystemState)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -10710,7 +10712,7 @@ cdef class SystemConfComputeSettings_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `system_conf_compute_settings_v1_dtype` holding the data.
         """
-        return __from_data(data, "system_conf_compute_settings_v1_dtype", system_conf_compute_settings_v1_dtype, SystemConfComputeSettings_v1.from_ptr)
+        return __from_data(data, "system_conf_compute_settings_v1_dtype", system_conf_compute_settings_v1_dtype, SystemConfComputeSettings_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -10842,7 +10844,7 @@ cdef class ConfComputeMemSizeInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `conf_compute_mem_size_info_dtype` holding the data.
         """
-        return __from_data(data, "conf_compute_mem_size_info_dtype", conf_compute_mem_size_info_dtype, ConfComputeMemSizeInfo.from_ptr)
+        return __from_data(data, "conf_compute_mem_size_info_dtype", conf_compute_mem_size_info_dtype, ConfComputeMemSizeInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -10974,7 +10976,7 @@ cdef class ConfComputeGpuCertificate:
         """~_numpy.uint8: (array of length 4096)."""
         cdef view.array arr = view.array(shape=(4096,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].certChain))
-        return arr
+        return _numpy.asarray(arr)
 
     @cert_chain.setter
     def cert_chain(self, val):
@@ -10989,7 +10991,7 @@ cdef class ConfComputeGpuCertificate:
         """~_numpy.uint8: (array of length 5120)."""
         cdef view.array arr = view.array(shape=(5120,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].attestationCertChain))
-        return arr
+        return _numpy.asarray(arr)
 
     @attestation_cert_chain.setter
     def attestation_cert_chain(self, val):
@@ -11006,7 +11008,7 @@ cdef class ConfComputeGpuCertificate:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `conf_compute_gpu_certificate_dtype` holding the data.
         """
-        return __from_data(data, "conf_compute_gpu_certificate_dtype", conf_compute_gpu_certificate_dtype, ConfComputeGpuCertificate.from_ptr)
+        return __from_data(data, "conf_compute_gpu_certificate_dtype", conf_compute_gpu_certificate_dtype, ConfComputeGpuCertificate)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -11151,7 +11153,7 @@ cdef class ConfComputeGpuAttestationReport:
         """~_numpy.uint8: (array of length 32)."""
         cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].nonce))
-        return arr
+        return _numpy.asarray(arr)
 
     @nonce.setter
     def nonce(self, val):
@@ -11166,7 +11168,7 @@ cdef class ConfComputeGpuAttestationReport:
         """~_numpy.uint8: (array of length 8192)."""
         cdef view.array arr = view.array(shape=(8192,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].attestationReport))
-        return arr
+        return _numpy.asarray(arr)
 
     @attestation_report.setter
     def attestation_report(self, val):
@@ -11181,7 +11183,7 @@ cdef class ConfComputeGpuAttestationReport:
         """~_numpy.uint8: (array of length 4096)."""
         cdef view.array arr = view.array(shape=(4096,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].cecAttestationReport))
-        return arr
+        return _numpy.asarray(arr)
 
     @cec_attestation_report.setter
     def cec_attestation_report(self, val):
@@ -11198,7 +11200,7 @@ cdef class ConfComputeGpuAttestationReport:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `conf_compute_gpu_attestation_report_dtype` holding the data.
         """
-        return __from_data(data, "conf_compute_gpu_attestation_report_dtype", conf_compute_gpu_attestation_report_dtype, ConfComputeGpuAttestationReport.from_ptr)
+        return __from_data(data, "conf_compute_gpu_attestation_report_dtype", conf_compute_gpu_attestation_report_dtype, ConfComputeGpuAttestationReport)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -11330,7 +11332,7 @@ cdef class ConfComputeGetKeyRotationThresholdInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `conf_compute_get_key_rotation_threshold_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "conf_compute_get_key_rotation_threshold_info_v1_dtype", conf_compute_get_key_rotation_threshold_info_v1_dtype, ConfComputeGetKeyRotationThresholdInfo_v1.from_ptr)
+        return __from_data(data, "conf_compute_get_key_rotation_threshold_info_v1_dtype", conf_compute_get_key_rotation_threshold_info_v1_dtype, ConfComputeGetKeyRotationThresholdInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -11450,7 +11452,7 @@ cdef class NvlinkSupportedBwModes_v1:
         """~_numpy.uint8: (array of length 23)."""
         cdef view.array arr = view.array(shape=(23,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].bwModes))
-        return arr
+        return _numpy.asarray(arr)
 
     @bw_modes.setter
     def bw_modes(self, val):
@@ -11478,7 +11480,7 @@ cdef class NvlinkSupportedBwModes_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `nvlink_supported_bw_modes_v1_dtype` holding the data.
         """
-        return __from_data(data, "nvlink_supported_bw_modes_v1_dtype", nvlink_supported_bw_modes_v1_dtype, NvlinkSupportedBwModes_v1.from_ptr)
+        return __from_data(data, "nvlink_supported_bw_modes_v1_dtype", nvlink_supported_bw_modes_v1_dtype, NvlinkSupportedBwModes_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -11622,7 +11624,7 @@ cdef class NvlinkGetBwMode_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `nvlink_get_bw_mode_v1_dtype` holding the data.
         """
-        return __from_data(data, "nvlink_get_bw_mode_v1_dtype", nvlink_get_bw_mode_v1_dtype, NvlinkGetBwMode_v1.from_ptr)
+        return __from_data(data, "nvlink_get_bw_mode_v1_dtype", nvlink_get_bw_mode_v1_dtype, NvlinkGetBwMode_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -11766,7 +11768,7 @@ cdef class NvlinkSetBwMode_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `nvlink_set_bw_mode_v1_dtype` holding the data.
         """
-        return __from_data(data, "nvlink_set_bw_mode_v1_dtype", nvlink_set_bw_mode_v1_dtype, NvlinkSetBwMode_v1.from_ptr)
+        return __from_data(data, "nvlink_set_bw_mode_v1_dtype", nvlink_set_bw_mode_v1_dtype, NvlinkSetBwMode_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -11898,7 +11900,7 @@ cdef class VgpuVersion:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_version_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_version_dtype", vgpu_version_dtype, VgpuVersion.from_ptr)
+        return __from_data(data, "vgpu_version_dtype", vgpu_version_dtype, VgpuVersion)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -12127,7 +12129,7 @@ cdef class VgpuMetadata:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_metadata_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_metadata_dtype", vgpu_metadata_dtype, VgpuMetadata.from_ptr)
+        return __from_data(data, "vgpu_metadata_dtype", vgpu_metadata_dtype, VgpuMetadata)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -12259,7 +12261,7 @@ cdef class VgpuPgpuCompatibility:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_pgpu_compatibility_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_pgpu_compatibility_dtype", vgpu_pgpu_compatibility_dtype, VgpuPgpuCompatibility.from_ptr)
+        return __from_data(data, "vgpu_pgpu_compatibility_dtype", vgpu_pgpu_compatibility_dtype, VgpuPgpuCompatibility)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -12673,7 +12675,7 @@ cdef class GpuInstanceProfileInfo_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `gpu_instance_profile_info_v2_dtype` holding the data.
         """
-        return __from_data(data, "gpu_instance_profile_info_v2_dtype", gpu_instance_profile_info_v2_dtype, GpuInstanceProfileInfo_v2.from_ptr)
+        return __from_data(data, "gpu_instance_profile_info_v2_dtype", gpu_instance_profile_info_v2_dtype, GpuInstanceProfileInfo_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -12941,7 +12943,7 @@ cdef class GpuInstanceProfileInfo_v3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `gpu_instance_profile_info_v3_dtype` holding the data.
         """
-        return __from_data(data, "gpu_instance_profile_info_v3_dtype", gpu_instance_profile_info_v3_dtype, GpuInstanceProfileInfo_v3.from_ptr)
+        return __from_data(data, "gpu_instance_profile_info_v3_dtype", gpu_instance_profile_info_v3_dtype, GpuInstanceProfileInfo_v3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -13331,7 +13333,7 @@ cdef class ComputeInstanceProfileInfo_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `compute_instance_profile_info_v2_dtype` holding the data.
         """
-        return __from_data(data, "compute_instance_profile_info_v2_dtype", compute_instance_profile_info_v2_dtype, ComputeInstanceProfileInfo_v2.from_ptr)
+        return __from_data(data, "compute_instance_profile_info_v2_dtype", compute_instance_profile_info_v2_dtype, ComputeInstanceProfileInfo_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -13587,7 +13589,7 @@ cdef class ComputeInstanceProfileInfo_v3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `compute_instance_profile_info_v3_dtype` holding the data.
         """
-        return __from_data(data, "compute_instance_profile_info_v3_dtype", compute_instance_profile_info_v3_dtype, ComputeInstanceProfileInfo_v3.from_ptr)
+        return __from_data(data, "compute_instance_profile_info_v3_dtype", compute_instance_profile_info_v3_dtype, ComputeInstanceProfileInfo_v3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -13719,7 +13721,7 @@ cdef class GpmSupport:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `gpm_support_dtype` holding the data.
         """
-        return __from_data(data, "gpm_support_dtype", gpm_support_dtype, GpmSupport.from_ptr)
+        return __from_data(data, "gpm_support_dtype", gpm_support_dtype, GpmSupport)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -13851,7 +13853,7 @@ cdef class DeviceCapabilities_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `device_capabilities_v1_dtype` holding the data.
         """
-        return __from_data(data, "device_capabilities_v1_dtype", device_capabilities_v1_dtype, DeviceCapabilities_v1.from_ptr)
+        return __from_data(data, "device_capabilities_v1_dtype", device_capabilities_v1_dtype, DeviceCapabilities_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -13983,7 +13985,7 @@ cdef class DeviceAddressingMode_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `device_addressing_mode_v1_dtype` holding the data.
         """
-        return __from_data(data, "device_addressing_mode_v1_dtype", device_addressing_mode_v1_dtype, DeviceAddressingMode_v1.from_ptr)
+        return __from_data(data, "device_addressing_mode_v1_dtype", device_addressing_mode_v1_dtype, DeviceAddressingMode_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -14127,7 +14129,7 @@ cdef class RepairStatus_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `repair_status_v1_dtype` holding the data.
         """
-        return __from_data(data, "repair_status_v1_dtype", repair_status_v1_dtype, RepairStatus_v1.from_ptr)
+        return __from_data(data, "repair_status_v1_dtype", repair_status_v1_dtype, RepairStatus_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -14259,7 +14261,7 @@ cdef class Pdi_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `pdi_v1_dtype` holding the data.
         """
-        return __from_data(data, "pdi_v1_dtype", pdi_v1_dtype, Pdi_v1.from_ptr)
+        return __from_data(data, "pdi_v1_dtype", pdi_v1_dtype, Pdi_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -14403,7 +14405,7 @@ cdef class DevicePowerMizerModes_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `device_power_mizer_modes_v1_dtype` holding the data.
         """
-        return __from_data(data, "device_power_mizer_modes_v1_dtype", device_power_mizer_modes_v1_dtype, DevicePowerMizerModes_v1.from_ptr)
+        return __from_data(data, "device_power_mizer_modes_v1_dtype", device_power_mizer_modes_v1_dtype, DevicePowerMizerModes_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -14733,7 +14735,7 @@ cdef class GpuFabricInfo_v3:
         """~_numpy.uint8: (array of length 16).Uuid of the cluster to which this GPU belongs."""
         cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].clusterUuid))
-        return arr
+        return _numpy.asarray(arr)
 
     @cluster_uuid.setter
     def cluster_uuid(self, val):
@@ -14805,7 +14807,7 @@ cdef class GpuFabricInfo_v3:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `gpu_fabric_info_v3_dtype` holding the data.
         """
-        return __from_data(data, "gpu_fabric_info_v3_dtype", gpu_fabric_info_v3_dtype, GpuFabricInfo_v3.from_ptr)
+        return __from_data(data, "gpu_fabric_info_v3_dtype", gpu_fabric_info_v3_dtype, GpuFabricInfo_v3)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -14961,7 +14963,7 @@ cdef class NvlinkFirmwareVersion:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `nvlink_firmware_version_dtype` holding the data.
         """
-        return __from_data(data, "nvlink_firmware_version_dtype", nvlink_firmware_version_dtype, NvlinkFirmwareVersion.from_ptr)
+        return __from_data(data, "nvlink_firmware_version_dtype", nvlink_firmware_version_dtype, NvlinkFirmwareVersion)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -15098,7 +15100,7 @@ cdef class ExcludedDeviceInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `excluded_device_info_dtype` holding the data.
         """
-        return __from_data(data, "excluded_device_info_dtype", excluded_device_info_dtype, ExcludedDeviceInfo.from_ptr)
+        return __from_data(data, "excluded_device_info_dtype", excluded_device_info_dtype, ExcludedDeviceInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -15250,7 +15252,7 @@ cdef class ProcessDetailList_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `process_detail_list_v1_dtype` holding the data.
         """
-        return __from_data(data, "process_detail_list_v1_dtype", process_detail_list_v1_dtype, ProcessDetailList_v1.from_ptr)
+        return __from_data(data, "process_detail_list_v1_dtype", process_detail_list_v1_dtype, ProcessDetailList_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -15386,7 +15388,7 @@ cdef class BridgeChipHierarchy:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `bridge_chip_hierarchy_dtype` holding the data.
         """
-        return __from_data(data, "bridge_chip_hierarchy_dtype", bridge_chip_hierarchy_dtype, BridgeChipHierarchy.from_ptr)
+        return __from_data(data, "bridge_chip_hierarchy_dtype", bridge_chip_hierarchy_dtype, BridgeChipHierarchy)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -15444,8 +15446,6 @@ cdef class Sample:
     cdef:
         readonly object _data
 
-        readonly tuple _sample_value
-
 
 
     def __init__(self, size=1):
@@ -15484,13 +15484,6 @@ cdef class Sample:
         return bool((self_data == other._data).all())
 
     @property
-    def sample_value(self):
-        """Value: """
-        if self._data.size == 1:
-            return self._sample_value[0]
-        return self._sample_value
-
-    @property
     def time_stamp(self):
         """Union[~_numpy.uint64, int]: """
         if self._data.size == 1:
@@ -15500,6 +15493,15 @@ cdef class Sample:
     @time_stamp.setter
     def time_stamp(self, val):
         self._data.time_stamp = val
+
+    @property
+    def sample_value(self):
+        """value_dtype: """
+        return self._data.sample_value
+
+    @sample_value.setter
+    def sample_value(self, val):
+        self._data.sample_value = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
@@ -15536,13 +15538,6 @@ cdef class Sample:
             raise ValueError("data array must be of dtype sample_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        sample_value_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.sample_value[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            sample_value_list.append(Value_obj)
-
-        obj._sample_value = tuple(sample_value_list)
         return obj
 
     @staticmethod
@@ -15563,13 +15558,6 @@ cdef class Sample:
         data = _numpy.ndarray(size, buffer=buf, dtype=sample_dtype)
         obj._data = data.view(_numpy.recarray)
 
-        sample_value_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.sample_value[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            sample_value_list.append(Value_obj)
-
-        obj._sample_value = tuple(sample_value_list)
         return obj
 
 
@@ -15607,18 +15595,6 @@ cdef class VgpuInstanceUtilizationInfo_v1:
     """
     cdef:
         readonly object _data
-
-        readonly tuple _sm_util
-
-        readonly tuple _mem_util
-
-        readonly tuple _enc_util
-
-        readonly tuple _dec_util
-
-        readonly tuple _jpg_util
-
-        readonly tuple _ofa_util
 
 
 
@@ -15658,48 +15634,6 @@ cdef class VgpuInstanceUtilizationInfo_v1:
         return bool((self_data == other._data).all())
 
     @property
-    def sm_util(self):
-        """Value: SM (3D/Compute) Util Value."""
-        if self._data.size == 1:
-            return self._sm_util[0]
-        return self._sm_util
-
-    @property
-    def mem_util(self):
-        """Value: Frame Buffer Memory Util Value."""
-        if self._data.size == 1:
-            return self._mem_util[0]
-        return self._mem_util
-
-    @property
-    def enc_util(self):
-        """Value: Encoder Util Value."""
-        if self._data.size == 1:
-            return self._enc_util[0]
-        return self._enc_util
-
-    @property
-    def dec_util(self):
-        """Value: Decoder Util Value."""
-        if self._data.size == 1:
-            return self._dec_util[0]
-        return self._dec_util
-
-    @property
-    def jpg_util(self):
-        """Value: Jpeg Util Value."""
-        if self._data.size == 1:
-            return self._jpg_util[0]
-        return self._jpg_util
-
-    @property
-    def ofa_util(self):
-        """Value: Ofa Util Value."""
-        if self._data.size == 1:
-            return self._ofa_util[0]
-        return self._ofa_util
-
-    @property
     def time_stamp(self):
         """Union[~_numpy.uint64, int]: CPU Timestamp in microseconds."""
         if self._data.size == 1:
@@ -15720,6 +15654,60 @@ cdef class VgpuInstanceUtilizationInfo_v1:
     @vgpu_instance.setter
     def vgpu_instance(self, val):
         self._data.vgpu_instance = val
+
+    @property
+    def sm_util(self):
+        """value_dtype: SM (3D/Compute) Util Value."""
+        return self._data.sm_util
+
+    @sm_util.setter
+    def sm_util(self, val):
+        self._data.sm_util = val
+
+    @property
+    def mem_util(self):
+        """value_dtype: Frame Buffer Memory Util Value."""
+        return self._data.mem_util
+
+    @mem_util.setter
+    def mem_util(self, val):
+        self._data.mem_util = val
+
+    @property
+    def enc_util(self):
+        """value_dtype: Encoder Util Value."""
+        return self._data.enc_util
+
+    @enc_util.setter
+    def enc_util(self, val):
+        self._data.enc_util = val
+
+    @property
+    def dec_util(self):
+        """value_dtype: Decoder Util Value."""
+        return self._data.dec_util
+
+    @dec_util.setter
+    def dec_util(self, val):
+        self._data.dec_util = val
+
+    @property
+    def jpg_util(self):
+        """value_dtype: Jpeg Util Value."""
+        return self._data.jpg_util
+
+    @jpg_util.setter
+    def jpg_util(self, val):
+        self._data.jpg_util = val
+
+    @property
+    def ofa_util(self):
+        """value_dtype: Ofa Util Value."""
+        return self._data.ofa_util
+
+    @ofa_util.setter
+    def ofa_util(self, val):
+        self._data.ofa_util = val
 
     def __getitem__(self, key):
         cdef ssize_t key_
@@ -15756,48 +15744,6 @@ cdef class VgpuInstanceUtilizationInfo_v1:
             raise ValueError("data array must be of dtype vgpu_instance_utilization_info_v1_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        sm_util_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.sm_util[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            sm_util_list.append(Value_obj)
-
-        obj._sm_util = tuple(sm_util_list)
-        mem_util_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.mem_util[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            mem_util_list.append(Value_obj)
-
-        obj._mem_util = tuple(mem_util_list)
-        enc_util_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.enc_util[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            enc_util_list.append(Value_obj)
-
-        obj._enc_util = tuple(enc_util_list)
-        dec_util_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.dec_util[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            dec_util_list.append(Value_obj)
-
-        obj._dec_util = tuple(dec_util_list)
-        jpg_util_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.jpg_util[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            jpg_util_list.append(Value_obj)
-
-        obj._jpg_util = tuple(jpg_util_list)
-        ofa_util_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.ofa_util[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            ofa_util_list.append(Value_obj)
-
-        obj._ofa_util = tuple(ofa_util_list)
         return obj
 
     @staticmethod
@@ -15818,48 +15764,6 @@ cdef class VgpuInstanceUtilizationInfo_v1:
         data = _numpy.ndarray(size, buffer=buf, dtype=vgpu_instance_utilization_info_v1_dtype)
         obj._data = data.view(_numpy.recarray)
 
-        sm_util_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.sm_util[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            sm_util_list.append(Value_obj)
-
-        obj._sm_util = tuple(sm_util_list)
-        mem_util_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.mem_util[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            mem_util_list.append(Value_obj)
-
-        obj._mem_util = tuple(mem_util_list)
-        enc_util_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.enc_util[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            enc_util_list.append(Value_obj)
-
-        obj._enc_util = tuple(enc_util_list)
-        dec_util_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.dec_util[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            dec_util_list.append(Value_obj)
-
-        obj._dec_util = tuple(dec_util_list)
-        jpg_util_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.jpg_util[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            jpg_util_list.append(Value_obj)
-
-        obj._jpg_util = tuple(jpg_util_list)
-        ofa_util_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.ofa_util[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            ofa_util_list.append(Value_obj)
-
-        obj._ofa_util = tuple(ofa_util_list)
         return obj
 
 
@@ -15897,8 +15801,6 @@ cdef class FieldValue:
     cdef:
         readonly object _data
 
-        readonly tuple _value
-
 
 
     def __init__(self, size=1):
@@ -15935,13 +15837,6 @@ cdef class FieldValue:
         if (not isinstance(other, FieldValue)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
         return bool((self_data == other._data).all())
-
-    @property
-    def value(self):
-        """Value: """
-        if self._data.size == 1:
-            return self._value[0]
-        return self._value
 
     @property
     def field_id(self):
@@ -16009,6 +15904,15 @@ cdef class FieldValue:
     def nvml_return(self, val):
         self._data.nvml_return = val
 
+    @property
+    def value(self):
+        """value_dtype: """
+        return self._data.value
+
+    @value.setter
+    def value(self, val):
+        self._data.value = val
+
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
@@ -16044,13 +15948,6 @@ cdef class FieldValue:
             raise ValueError("data array must be of dtype field_value_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        value_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.value[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            value_list.append(Value_obj)
-
-        obj._value = tuple(value_list)
         return obj
 
     @staticmethod
@@ -16071,13 +15968,6 @@ cdef class FieldValue:
         data = _numpy.ndarray(size, buffer=buf, dtype=field_value_dtype)
         obj._data = data.view(_numpy.recarray)
 
-        value_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.value[i].__array_interface__['data'][0]
-            Value_obj = Value.from_ptr(addr, owner=obj)
-            value_list.append(Value_obj)
-
-        obj._value = tuple(value_list)
         return obj
 
 
@@ -16187,7 +16077,7 @@ cdef class GpuThermalSettings:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `gpu_thermal_settings_dtype` holding the data.
         """
-        return __from_data(data, "gpu_thermal_settings_dtype", gpu_thermal_settings_dtype, GpuThermalSettings.from_ptr)
+        return __from_data(data, "gpu_thermal_settings_dtype", gpu_thermal_settings_dtype, GpuThermalSettings)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -16334,7 +16224,7 @@ cdef class ClkMonStatus:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `clk_mon_status_dtype` holding the data.
         """
-        return __from_data(data, "clk_mon_status_dtype", clk_mon_status_dtype, ClkMonStatus.from_ptr)
+        return __from_data(data, "clk_mon_status_dtype", clk_mon_status_dtype, ClkMonStatus)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -16486,7 +16376,7 @@ cdef class ProcessesUtilizationInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `processes_utilization_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "processes_utilization_info_v1_dtype", processes_utilization_info_v1_dtype, ProcessesUtilizationInfo_v1.from_ptr)
+        return __from_data(data, "processes_utilization_info_v1_dtype", processes_utilization_info_v1_dtype, ProcessesUtilizationInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -16622,7 +16512,7 @@ cdef class GpuDynamicPstatesInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `gpu_dynamic_pstates_info_dtype` holding the data.
         """
-        return __from_data(data, "gpu_dynamic_pstates_info_dtype", gpu_dynamic_pstates_info_dtype, GpuDynamicPstatesInfo.from_ptr)
+        return __from_data(data, "gpu_dynamic_pstates_info_dtype", gpu_dynamic_pstates_info_dtype, GpuDynamicPstatesInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -16774,7 +16664,7 @@ cdef class VgpuProcessesUtilizationInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_processes_utilization_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_processes_utilization_info_v1_dtype", vgpu_processes_utilization_info_v1_dtype, VgpuProcessesUtilizationInfo_v1.from_ptr)
+        return __from_data(data, "vgpu_processes_utilization_info_v1_dtype", vgpu_processes_utilization_info_v1_dtype, VgpuProcessesUtilizationInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -16904,7 +16794,7 @@ cdef class VgpuSchedulerParams:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_params_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_params_dtype", vgpu_scheduler_params_dtype, VgpuSchedulerParams.from_ptr)
+        return __from_data(data, "vgpu_scheduler_params_dtype", vgpu_scheduler_params_dtype, VgpuSchedulerParams)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -17033,7 +16923,7 @@ cdef class VgpuSchedulerSetParams:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_set_params_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_set_params_dtype", vgpu_scheduler_set_params_dtype, VgpuSchedulerSetParams.from_ptr)
+        return __from_data(data, "vgpu_scheduler_set_params_dtype", vgpu_scheduler_set_params_dtype, VgpuSchedulerSetParams)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -17178,7 +17068,7 @@ cdef class VgpuLicenseInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_license_info_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_license_info_dtype", vgpu_license_info_dtype, VgpuLicenseInfo.from_ptr)
+        return __from_data(data, "vgpu_license_info_dtype", vgpu_license_info_dtype, VgpuLicenseInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -17240,8 +17130,6 @@ cdef class GridLicensableFeature:
     cdef:
         readonly object _data
 
-        readonly tuple _license_expiry
-
 
 
     def __init__(self, size=1):
@@ -17278,13 +17166,6 @@ cdef class GridLicensableFeature:
         if (not isinstance(other, GridLicensableFeature)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
         return bool((self_data == other._data).all())
-
-    @property
-    def license_expiry(self):
-        """GridLicenseExpiry: """
-        if self._data.size == 1:
-            return self._license_expiry[0]
-        return self._license_expiry
 
     @property
     def feature_code(self):
@@ -17337,6 +17218,15 @@ cdef class GridLicensableFeature:
     def feature_enabled(self, val):
         self._data.feature_enabled = val
 
+    @property
+    def license_expiry(self):
+        """grid_license_expiry_dtype: """
+        return self._data.license_expiry
+
+    @license_expiry.setter
+    def license_expiry(self, val):
+        self._data.license_expiry = val
+
     def __getitem__(self, key):
         cdef ssize_t key_
         cdef ssize_t size
@@ -17372,13 +17262,6 @@ cdef class GridLicensableFeature:
             raise ValueError("data array must be of dtype grid_licensable_feature_dtype")
         obj._data = data.view(_numpy.recarray)
 
-        license_expiry_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.license_expiry[i].__array_interface__['data'][0]
-            GridLicenseExpiry_obj = GridLicenseExpiry.from_ptr(addr, owner=obj)
-            license_expiry_list.append(GridLicenseExpiry_obj)
-
-        obj._license_expiry = tuple(license_expiry_list)
         return obj
 
     @staticmethod
@@ -17399,13 +17282,6 @@ cdef class GridLicensableFeature:
         data = _numpy.ndarray(size, buffer=buf, dtype=grid_licensable_feature_dtype)
         obj._data = data.view(_numpy.recarray)
 
-        license_expiry_list = list()
-        for i in range(obj._data.size):
-            addr = obj._data.license_expiry[i].__array_interface__['data'][0]
-            GridLicenseExpiry_obj = GridLicenseExpiry.from_ptr(addr, owner=obj)
-            license_expiry_list.append(GridLicenseExpiry_obj)
-
-        obj._license_expiry = tuple(license_expiry_list)
         return obj
 
 
@@ -17515,7 +17391,7 @@ cdef class UnitFanSpeeds:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `unit_fan_speeds_dtype` holding the data.
         """
-        return __from_data(data, "unit_fan_speeds_dtype", unit_fan_speeds_dtype, UnitFanSpeeds.from_ptr)
+        return __from_data(data, "unit_fan_speeds_dtype", unit_fan_speeds_dtype, UnitFanSpeeds)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -17717,7 +17593,7 @@ cdef class VgpuPgpuMetadata:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_pgpu_metadata_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_pgpu_metadata_dtype", vgpu_pgpu_metadata_dtype, VgpuPgpuMetadata.from_ptr)
+        return __from_data(data, "vgpu_pgpu_metadata_dtype", vgpu_pgpu_metadata_dtype, VgpuPgpuMetadata)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -17874,7 +17750,7 @@ cdef class GpuInstanceInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `gpu_instance_info_dtype` holding the data.
         """
-        return __from_data(data, "gpu_instance_info_dtype", gpu_instance_info_dtype, GpuInstanceInfo.from_ptr)
+        return __from_data(data, "gpu_instance_info_dtype", gpu_instance_info_dtype, GpuInstanceInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -18043,7 +17919,7 @@ cdef class ComputeInstanceInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `compute_instance_info_dtype` holding the data.
         """
-        return __from_data(data, "compute_instance_info_dtype", compute_instance_info_dtype, ComputeInstanceInfo.from_ptr)
+        return __from_data(data, "compute_instance_info_dtype", compute_instance_info_dtype, ComputeInstanceInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -18183,7 +18059,7 @@ cdef class EccSramUniqueUncorrectedErrorCounts_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `ecc_sram_unique_uncorrected_error_counts_v1_dtype` holding the data.
         """
-        return __from_data(data, "ecc_sram_unique_uncorrected_error_counts_v1_dtype", ecc_sram_unique_uncorrected_error_counts_v1_dtype, EccSramUniqueUncorrectedErrorCounts_v1.from_ptr)
+        return __from_data(data, "ecc_sram_unique_uncorrected_error_counts_v1_dtype", ecc_sram_unique_uncorrected_error_counts_v1_dtype, EccSramUniqueUncorrectedErrorCounts_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -18319,7 +18195,7 @@ cdef class NvlinkFirmwareInfo:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `nvlink_firmware_info_dtype` holding the data.
         """
-        return __from_data(data, "nvlink_firmware_info_dtype", nvlink_firmware_info_dtype, NvlinkFirmwareInfo.from_ptr)
+        return __from_data(data, "nvlink_firmware_info_dtype", nvlink_firmware_info_dtype, NvlinkFirmwareInfo)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -18483,7 +18359,7 @@ cdef class VgpuInstancesUtilizationInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_instances_utilization_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_instances_utilization_info_v1_dtype", vgpu_instances_utilization_info_v1_dtype, VgpuInstancesUtilizationInfo_v1.from_ptr)
+        return __from_data(data, "vgpu_instances_utilization_info_v1_dtype", vgpu_instances_utilization_info_v1_dtype, VgpuInstancesUtilizationInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -18668,7 +18544,7 @@ cdef class VgpuSchedulerLog:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_log_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_log_dtype", vgpu_scheduler_log_dtype, VgpuSchedulerLog.from_ptr)
+        return __from_data(data, "vgpu_scheduler_log_dtype", vgpu_scheduler_log_dtype, VgpuSchedulerLog)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -18813,7 +18689,7 @@ cdef class VgpuSchedulerGetState:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_get_state_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_get_state_dtype", vgpu_scheduler_get_state_dtype, VgpuSchedulerGetState.from_ptr)
+        return __from_data(data, "vgpu_scheduler_get_state_dtype", vgpu_scheduler_get_state_dtype, VgpuSchedulerGetState)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -18982,7 +18858,7 @@ cdef class VgpuSchedulerStateInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_state_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_state_info_v1_dtype", vgpu_scheduler_state_info_v1_dtype, VgpuSchedulerStateInfo_v1.from_ptr)
+        return __from_data(data, "vgpu_scheduler_state_info_v1_dtype", vgpu_scheduler_state_info_v1_dtype, VgpuSchedulerStateInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -19178,7 +19054,7 @@ cdef class VgpuSchedulerLogInfo_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_log_info_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_log_info_v1_dtype", vgpu_scheduler_log_info_v1_dtype, VgpuSchedulerLogInfo_v1.from_ptr)
+        return __from_data(data, "vgpu_scheduler_log_info_v1_dtype", vgpu_scheduler_log_info_v1_dtype, VgpuSchedulerLogInfo_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -19347,7 +19223,7 @@ cdef class VgpuSchedulerState_v1:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `vgpu_scheduler_state_v1_dtype` holding the data.
         """
-        return __from_data(data, "vgpu_scheduler_state_v1_dtype", vgpu_scheduler_state_v1_dtype, VgpuSchedulerState_v1.from_ptr)
+        return __from_data(data, "vgpu_scheduler_state_v1_dtype", vgpu_scheduler_state_v1_dtype, VgpuSchedulerState_v1)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -19494,7 +19370,7 @@ cdef class GridLicensableFeatures:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `grid_licensable_features_dtype` holding the data.
         """
-        return __from_data(data, "grid_licensable_features_dtype", grid_licensable_features_dtype, GridLicensableFeatures.from_ptr)
+        return __from_data(data, "grid_licensable_features_dtype", grid_licensable_features_dtype, GridLicensableFeatures)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
@@ -19639,7 +19515,7 @@ cdef class NvLinkInfo_v2:
         Args:
             data (_numpy.ndarray): a single-element array of dtype `nv_link_info_v2_dtype` holding the data.
         """
-        return __from_data(data, "nv_link_info_v2_dtype", nv_link_info_v2_dtype, NvLinkInfo_v2.from_ptr)
+        return __from_data(data, "nv_link_info_v2_dtype", nv_link_info_v2_dtype, NvLinkInfo_v2)
 
     @staticmethod
     def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):

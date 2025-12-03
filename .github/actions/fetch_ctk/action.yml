@@ -123,6 +123,10 @@ runs:
         for item in $(echo $CTK_CACHE_COMPONENTS | tr ',' ' '); do
             populate_cuda_path "$item"
         done
+        # TODO: check Windows
+        if [[ "${{ inputs.host-platform }}" == linux* && -d "${CACHE_TMP_DIR}/lib" ]]; then
+          mv $CACHE_TMP_DIR/lib $CACHE_TMP_DIR/lib64
+        fi
         ls -l $CACHE_TMP_DIR
 
         # Prepare the cache
@@ -176,7 +180,8 @@ runs:
         # mimics actual CTK installation
         if [[ "${{ inputs.host-platform }}" == linux* ]]; then
           CUDA_PATH=$(realpath "${{ inputs.cuda-path }}")
-          echo "LD_LIBRARY_PATH=${CUDA_PATH}/lib:${LD_LIBRARY_PATH:-}" >> $GITHUB_ENV
+          echo "${CUDA_PATH}/bin" >> $GITHUB_PATH
+          echo "LD_LIBRARY_PATH=${CUDA_PATH}/lib64:${LD_LIBRARY_PATH:-}" >> $GITHUB_ENV
         elif [[ "${{ inputs.host-platform }}" == win* ]]; then
           function normpath() {
             echo "$(echo $(cygpath -w $1) | sed 's/\\/\\\\/g')"
