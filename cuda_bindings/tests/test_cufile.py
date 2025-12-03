@@ -12,7 +12,6 @@ from contextlib import suppress
 from functools import cache
 
 import cuda.bindings.driver as cuda
-import numpy as np
 import pytest
 
 # Configure logging to show INFO level and above
@@ -2098,8 +2097,8 @@ def test_get_stats_l2():
         cufile.get_stats_l2(stats.ptr)
 
         # Verify L2 histogram fields contain data
-        read_hist_total = int(np.asarray(stats.read_size_kb_hist).sum())
-        write_hist_total = int(np.asarray(stats.write_size_kb_hist).sum())
+        read_hist_total = int(stats.read_size_kb_hist.sum())
+        write_hist_total = int(stats.write_size_kb_hist.sum())
         assert read_hist_total > 0 or write_hist_total > 0, "Expected L2 histogram data"
 
         # L2 also contains L1 basic stats - verify using OpCounter class
@@ -2219,7 +2218,7 @@ def test_get_stats_l3():
 
         # L3 also contains L2 detailed stats (which includes L1 basic stats)
         detailed_stats = cufile.StatsLevel2.from_data(stats.detailed)
-        read_hist_total = int(np.asarray(detailed_stats.read_size_kb_hist).sum())
+        read_hist_total = int(detailed_stats.read_size_kb_hist.sum())
 
         logging.info(
             f"L3 Stats: num_gpus={num_gpus}, gpu_with_data={gpu_with_data}, detailed_read_hist={read_hist_total}"

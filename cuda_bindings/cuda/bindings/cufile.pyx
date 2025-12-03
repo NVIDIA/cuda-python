@@ -2281,7 +2281,7 @@ cdef class StatsLevel2:
         """~_numpy.uint64: (array of length 32)."""
         cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].read_size_kb_hist))
-        return arr
+        return _numpy.asarray(arr)
 
     @read_size_kb_hist.setter
     def read_size_kb_hist(self, val):
@@ -2296,7 +2296,7 @@ cdef class StatsLevel2:
         """~_numpy.uint64: (array of length 32)."""
         cdef view.array arr = view.array(shape=(32,), itemsize=sizeof(uint64_t), format="Q", mode="c", allocate_buffer=False)
         arr.data = <char *>(&(self._ptr[0].write_size_kb_hist))
-        return arr
+        return _numpy.asarray(arr)
 
     @write_size_kb_hist.setter
     def write_size_kb_hist(self, val):
