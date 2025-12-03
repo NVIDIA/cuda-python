@@ -1,6 +1,4 @@
 import binascii
-import re
-from contextlib import contextmanager
 
 import pytest
 from cuda.bindings import nvvm
@@ -116,6 +114,7 @@ MINIMAL_NVVMIR_BITCODE_STATIC = {
     "000000006b65726e656c31352e302e376e7670747836342d6e76696469612d637564613c73747269"
     "6e673e0000000000",
 }
+
 
 @pytest.fixture(params=("txt", "bitcode_static"))
 def minimal_nvvmir(request):

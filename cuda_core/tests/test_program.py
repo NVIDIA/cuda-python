@@ -551,13 +551,10 @@ entry:
 @nvvm_available
 @pytest.mark.skipif(not _test_helpers_available, reason="cuda_python_test_helpers not accessible")
 def test_bitcode_format(minimal_nvvmir):
-    import os
-    from pathlib import Path
-
     if len(minimal_nvvmir) < 4:
         pytest.skip("Bitcode file is not valid or empty")
 
-    options = ProgramOptions(name=f"minimal_nvvmir_bitcode_test", arch="sm_90")
+    options = ProgramOptions(name="minimal_nvvmir_bitcode_test", arch="sm_90")
     program = Program(minimal_nvvmir, "nvvm", options)
 
     assert program.backend == "NVVM"
