@@ -278,6 +278,9 @@ cdef class ParamHolder:
                     # it's a CUdeviceptr:
                     self.data_addresses[i] = <void*><intptr_t>(arg.handle.getPtr())
                 continue
+            elif arg_type is bool:
+                prepare_arg[cpp_bool](self.data, self.data_addresses, arg, i)
+                continue
             elif arg_type is int:
                 # Here's the dilemma: We want to have a fast path to pass in Python
                 # integers as pointer addresses, but one could also (mistakenly) pass
@@ -291,9 +294,6 @@ cdef class ParamHolder:
                 continue
             elif arg_type is complex:
                 prepare_arg[cpp_double_complex](self.data, self.data_addresses, arg, i)
-                continue
-            elif arg_type is bool:
-                prepare_arg[cpp_bool](self.data, self.data_addresses, arg, i)
                 continue
 
             not_prepared = prepare_numpy_arg(self.data, self.data_addresses, arg, i)
@@ -312,6 +312,9 @@ cdef class ParamHolder:
                     else:
                         self.data_addresses[i] = <void*><intptr_t>(arg.handle.getPtr())
                         continue
+                elif isinstance(arg, bool):
+                    prepare_arg[cpp_bool](self.data, self.data_addresses, arg, i)
+                    continue
                 elif isinstance(arg, int):
                     prepare_arg[intptr_t](self.data, self.data_addresses, arg, i)
                     continue
@@ -320,9 +323,6 @@ cdef class ParamHolder:
                     continue
                 elif isinstance(arg, complex):
                     prepare_arg[cpp_double_complex](self.data, self.data_addresses, arg, i)
-                    continue
-                elif isinstance(arg, bool):
-                    prepare_arg[cpp_bool](self.data, self.data_addresses, arg, i)
                     continue
                 elif isinstance(arg, driver.CUgraphConditionalHandle):
                     prepare_arg[intptr_t](self.data, self.data_addresses, <intptr_t>int(arg), i)
