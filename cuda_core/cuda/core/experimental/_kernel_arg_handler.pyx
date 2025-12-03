@@ -279,7 +279,7 @@ cdef class ParamHolder:
                     self.data_addresses[i] = <void*><intptr_t>(arg.handle.getPtr())
                 continue
             elif arg_type is bool:
-                prepare_arg[cpp_bool](self.data, self.data_addresses, arg, i)
+                prepare_arg[int32_t](self.data, self.data_addresses, int(arg), i)
                 continue
             elif arg_type is int:
                 # Here's the dilemma: We want to have a fast path to pass in Python
@@ -313,7 +313,7 @@ cdef class ParamHolder:
                         self.data_addresses[i] = <void*><intptr_t>(arg.handle.getPtr())
                         continue
                 elif isinstance(arg, bool):
-                    prepare_arg[cpp_bool](self.data, self.data_addresses, arg, i)
+                    prepare_arg[int32_t](self.data, self.data_addresses, int(arg), i)
                     continue
                 elif isinstance(arg, int):
                     prepare_arg[intptr_t](self.data, self.data_addresses, arg, i)
