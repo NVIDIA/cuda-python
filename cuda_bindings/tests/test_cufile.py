@@ -2097,6 +2097,7 @@ def test_get_stats_l2():
         cufile.get_stats_l2(stats.ptr)
 
         # Verify L2 histogram fields contain data
+        # Access numpy array fields: histograms are numpy arrays
         read_hist_total = int(stats.read_size_kb_hist.sum())
         write_hist_total = int(stats.write_size_kb_hist.sum())
         assert read_hist_total > 0 or write_hist_total > 0, "Expected L2 histogram data"
