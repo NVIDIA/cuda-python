@@ -53,23 +53,17 @@ jobs:
             MATRIX_TYPE="nightly"
           fi
 
-          # Read base matrix from JSON file for the specific architecture
-          TEST_MATRIX=$(jq --arg arch "$ARCH" --arg matrix_type "$MATRIX_TYPE" '
-            .linux[$matrix_type] |
-            map(select(.ARCH == $arch))
-          ' ci/test-matrix.json)
+          # Read base matrix from YAML file for the specific architecture
+          TEST_MATRIX=$(yq -o json ".linux[\"${MATRIX_TYPE}\"] | map(select(.ARCH == \"${ARCH}\"))" ci/test-matrix.yml)
 
           # Add special runner for amd64 if applicable
           if [[ "${ARCH}" == "amd64" ]]; then
-            SPECIAL_RUNNERS=$(jq '
-              .linux.special_runners.amd64
-            ' ci/test-matrix.json)
-            TEST_MATRIX=$(jq --argjson special "$SPECIAL_RUNNERS" '. + $special' <<< "$TEST_MATRIX")
+            SPECIAL_RUNNERS=$(yq -o json '.linux.special_runners.amd64' ci/test-matrix.yml)
+            TEST_MATRIX=$(echo "$TEST_MATRIX" | yq -o json ". + $SPECIAL_RUNNERS")
           fi
 
-          MATRIX="$(
-            jq -c '${{ inputs.matrix_filter }} | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end' <<< "$TEST_MATRIX"
-          )"
+          # Apply matrix filter and wrap in include structure
+          MATRIX=$(echo "$TEST_MATRIX" | jq -c '${{ inputs.matrix_filter }} | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end')
 
           echo "MATRIX=${MATRIX}" | tee --append "${GITHUB_OUTPUT}"
 
