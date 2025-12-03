@@ -29,7 +29,7 @@ from cuda.core.experimental import (
 )
 from cuda.core.experimental._dlpack import DLDeviceType
 from cuda.core.experimental._memory import IPCBufferDescriptor
-from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core.experimental._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.experimental.utils import StridedMemoryView
 from helpers import IS_WINDOWS
 from helpers.buffers import DummyUnifiedMemoryResource
@@ -430,7 +430,13 @@ def test_vmm_allocator_policy_configuration():
     assert vmm_mr.config.granularity == "minimum"
 
     # Test allocation with custom config
-    buffer = vmm_mr.allocate(8192)
+    try:
+        buffer = vmm_mr.allocate(8192)
+    except CUDAError as exc:
+        msg = str(exc)
+        if "CUDA_ERROR_INVALID_DEVICE" in msg:
+            pytest.xfail("TODO(#1300): Failing on Jetson AGX Orin P3730")
+        raise
     assert buffer.size >= 8192
     assert buffer.device_id == device.device_id
 
@@ -447,7 +453,13 @@ def test_vmm_allocator_policy_configuration():
     )
 
     # Modify allocation policy
-    modified_buffer = vmm_mr.modify_allocation(buffer, 16384, config=new_config)
+    try:
+        modified_buffer = vmm_mr.modify_allocation(buffer, 16384, config=new_config)
+    except CUDAError as exc:
+        msg = str(exc)
+        if "CUDA_ERROR_UNKNOWN" in msg:
+            pytest.xfail("TODO(#1300): Known to fail already with CTK 13.0 (Windows)")
+        raise
     assert modified_buffer.size >= 16384
     assert vmm_mr.config == new_config
     assert vmm_mr.config.self_access == "r"
