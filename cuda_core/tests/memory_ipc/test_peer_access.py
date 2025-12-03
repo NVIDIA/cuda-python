@@ -46,6 +46,8 @@ class TestPeerAccessNotPreservedOnImport:
         assert mr.peer_accessible_by == ()
         mr.peer_accessible_by = [0]
         assert mr.peer_accessible_by == (0,)
+        mr.peer_accessible_by = []
+        assert mr.peer_accessible_by == ()
         mr.close()
 
 

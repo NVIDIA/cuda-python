@@ -71,3 +71,4 @@ repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wh
 required_plugins = "pytest-benchmark"
 addopts = "--benchmark-disable --showlocals"
 norecursedirs = ["tests/cython", "examples"]
+xfail_strict = true
