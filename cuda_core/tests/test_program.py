@@ -31,11 +31,28 @@ nvvm_available = pytest.mark.skipif(
 )
 
 try:
-    from cuda.core.experimental._utils.cuda_utils import driver, handle_return
+    from cuda.core.experimental._utils.cuda_utils import driver, handle_return, nvrtc
 
     _cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 except Exception:
     _cuda_driver_version = 0
+
+
+def _get_nvrtc_version_for_tests():
+    """
+    Get NVRTC version.
+
+    Returns:
+        int: Version in format major * 1000 + minor * 100 (e.g., 13200 for CUDA 13.2)
+        None: If NVRTC is not available
+    """
+    try:
+        nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
+        version = nvrtc_major * 1000 + nvrtc_minor * 100
+        return version
+    except Exception:
+        return None
+
 
 _libnvvm_version = None
 _libnvvm_version_attempted = False
@@ -176,6 +193,13 @@ def ptx_code_object():
     [
         ProgramOptions(name="abc"),
         ProgramOptions(device_code_optimize=True, debug=True),
+        pytest.param(
+            ProgramOptions(debug=True, numba_debug=True),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 13200,
+                reason="numba_debug requires NVRTC >= 13.2",
+            ),
+        ),
         ProgramOptions(relocatable_device_code=True, max_register_count=32),
         ProgramOptions(ftz=True, prec_sqrt=False, prec_div=False),
         ProgramOptions(fma=False, use_fast_math=True),
@@ -321,7 +345,7 @@ def test_nvvm_program_creation_compilation(nvvm_ir):
     try:
         ker = obj.get_kernel("simple")  # noqa: F841
     except CUDAError as e:
-        if re.search(r"CUDA_UNSUPPORTED_PTX_VERSION", str(e)):
+        if re.search(r"CUDA_ERROR_UNSUPPORTED_PTX_VERSION", str(e)):
             pytest.xfail("PTX version not supported by current CUDA Driver")
         raise
     program.close()

@@ -7,9 +7,9 @@ from __future__ import annotations
 from libc.stdint cimport uintptr_t
 
 from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
-from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor
+from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor, IPCDataForBuffer
 from cuda.core.experimental._memory cimport _ipc
-from cuda.core.experimental._stream cimport default_stream, Stream
+from cuda.core.experimental._stream cimport Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
 )
@@ -45,6 +45,7 @@ cdef class Buffer:
         self._ptr = 0
         self._size = 0
         self._memory_resource = None
+        self._ipc_data = None
         self._ptr_obj = None
         self._alloc_stream = None
 
@@ -55,13 +56,14 @@ cdef class Buffer:
     @classmethod
     def _init(
         cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
-        stream: Stream | None = None
+        stream: Stream | None = None, ipc_descriptor: IPCBufferDescriptor | None = None
     ):
         cdef Buffer self = Buffer.__new__(cls)
         self._ptr = <uintptr_t>(int(ptr))
         self._ptr_obj = ptr
         self._size = size
         self._memory_resource = mr
+        self._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
         self._alloc_stream = <Stream>(stream) if stream is not None else None
         return self
 
@@ -92,17 +94,19 @@ cdef class Buffer:
 
     @classmethod
     def from_ipc_descriptor(
-        cls, mr: DeviceMemoryResource, ipc_buffer: IPCBufferDescriptor,
+        cls, mr: DeviceMemoryResource, ipc_descriptor: IPCBufferDescriptor,
         stream: Stream = None
     ) -> Buffer:
         """Import a buffer that was exported from another process."""
-        return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_buffer, stream)
+        return _ipc.Buffer_from_ipc_descriptor(cls, mr, ipc_descriptor, stream)
 
     def get_ipc_descriptor(self) -> IPCBufferDescriptor:
         """Export a buffer allocated for sharing between processes."""
-        return _ipc.Buffer_get_ipc_descriptor(self)
+        if self._ipc_data is None:
+            self._ipc_data = IPCDataForBuffer(_ipc.Buffer_get_ipc_descriptor(self), False)
+        return self._ipc_data.ipc_descriptor
 
-    def close(self, stream: Stream = None):
+    def close(self, stream: Stream | GraphBuilder | None = None):
         """Deallocate this buffer asynchronously on the given stream.
 
         This buffer is released back to their memory resource
@@ -110,13 +114,13 @@ cdef class Buffer:
 
         Parameters
         ----------
-        stream : Stream, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
             The stream object to use for asynchronous deallocation. If None,
             the behavior depends on the underlying memory resource.
         """
         Buffer_close(self, stream)
 
-    def copy_to(self, dst: Buffer = None, *, stream: Stream) -> Buffer:
+    def copy_to(self, dst: Buffer = None, *, stream: Stream | GraphBuilder) -> Buffer:
         """Copy from this buffer to the dst buffer asynchronously on the given stream.
 
         Copies the data from this buffer to the provided dst buffer.
@@ -127,14 +131,12 @@ cdef class Buffer:
         ----------
         dst : :obj:`~_memory.Buffer`
             Source buffer to copy data from
-        stream : Stream
+        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
 
         """
-        if stream is None:
-            raise ValueError("stream must be provided")
-
+        stream = Stream_accept(stream)
         cdef size_t src_size = self._size
 
         if dst is None:
@@ -152,21 +154,19 @@ cdef class Buffer:
         raise_if_driver_error(err)
         return dst
 
-    def copy_from(self, src: Buffer, *, stream: Stream):
+    def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder):
         """Copy from the src buffer to this buffer asynchronously on the given stream.
 
         Parameters
         ----------
         src : :obj:`~_memory.Buffer`
             Source buffer to copy data from
-        stream : Stream
+        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
             Keyword argument specifying the stream for the
             asynchronous copy
 
         """
-        if stream is None:
-            raise ValueError("stream must be provided")
-
+        stream = Stream_accept(stream)
         cdef size_t dst_size = self._size
         cdef size_t src_size = src._size
 
@@ -262,6 +262,12 @@ cdef class Buffer:
         raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     @property
+    def is_mapped(self) -> bool:
+        """Return True if this buffer is mapped into the process via IPC."""
+        return getattr(self._ipc_data, "is_mapped", False)
+
+
+    @property
     def memory_resource(self) -> MemoryResource:
         """Return the memory resource associated with this buffer."""
         return self._memory_resource
@@ -274,17 +280,10 @@ cdef class Buffer:
 
 # Buffer Implementation
 # ---------------------
-cdef Buffer_close(Buffer self, stream):
+cdef inline void Buffer_close(Buffer self, stream):
     cdef Stream s
     if self._ptr and self._memory_resource is not None:
-        if stream is None:
-            if self._alloc_stream is not None:
-                s = self._alloc_stream
-            else:
-                # TODO: remove this branch when from_handle takes a stream
-                s = <Stream>(default_stream())
-        else:
-            s = <Stream>stream
+        s = Stream_accept(stream) if stream is not None else self._alloc_stream
         self._memory_resource.deallocate(self._ptr, self._size, s)
         self._ptr = 0
         self._memory_resource = None
@@ -305,14 +304,14 @@ cdef class MemoryResource:
     """
 
     @abc.abstractmethod
-    def allocate(self, size_t size, stream: Stream = None) -> Buffer:
+    def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """Allocate a buffer of the requested size.
 
         Parameters
         ----------
         size : int
             The size of the buffer to allocate, in bytes.
-        stream : Stream, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
             The stream on which to perform the allocation asynchronously.
             If None, it is up to each memory resource implementation to decide
             and document the behavior.
@@ -326,7 +325,7 @@ cdef class MemoryResource:
         ...
 
     @abc.abstractmethod
-    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream = None):
+    def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream | GraphBuilder | None = None):
         """Deallocate a buffer previously allocated by this resource.
 
         Parameters
@@ -335,7 +334,7 @@ cdef class MemoryResource:
             The pointer or handle to the buffer to deallocate.
         size : int
             The size of the buffer to deallocate, in bytes.
-        stream : Stream, optional
+        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
             The stream on which to perform the deallocation asynchronously.
             If None, it is up to each memory resource implementation to decide
             and document the behavior.

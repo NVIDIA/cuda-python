@@ -20,7 +20,7 @@ pyglet = ">=2.1.9"
 numpy = "*"
 
 [feature.cython-tests.dependencies]
-cython = "*"     # for tests that exercise APIs from cython
+cython = ">=3.2,<3.3"     # for tests that exercise APIs from cython
 setuptools = "*" # for distutils
 gxx = "*"        # to compile the generated code
 # These are necessary because running the Cython tests requires compiling
@@ -90,7 +90,7 @@ CUDA_HOME = '%PREFIX%\Library'
 [package.host-dependencies]
 python = "*"
 setuptools = ">=77"
-cython = ">=3.2.1"
+cython = ">=3.2,<3.3"
 pyclibrary = ">=0.1.7"
 cuda-cudart-static = "*"
 cuda-nvrtc-dev = "*"

@@ -24,7 +24,13 @@ cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE
 cdef is_supported()
 
 
-cdef class IPCData:
+cdef class IPCDataForBuffer:
+    cdef:
+        IPCBufferDescriptor _ipc_descriptor
+        bint                _is_mapped
+
+
+cdef class IPCDataForMR:
     cdef:
         IPCAllocationHandle _alloc_handle
         bint                _is_mapped

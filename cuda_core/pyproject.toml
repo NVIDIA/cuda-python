@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
-requires = ["setuptools>=77.0.0", "Cython>=3.1"]
+requires = ["setuptools>=77.0.0", "Cython>=3.2,<3.3"]
 build-backend = "build_hooks"
 backend-path = ["."]
 
@@ -51,11 +51,12 @@ cu12 = ["cuda-bindings[all]==12.*"]
 cu13 = ["cuda-bindings[all]==13.*"]
 
 [dependency-groups]
-test = ["cython>=3.1", "setuptools", "pytest>=6.2.4"]
+test = ["cython>=3.2,<3.3", "setuptools", "pytest>=6.2.4"]
 test-cu12 = ["cuda-core[test]", "cupy-cuda12x; python_version < '3.14'", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
 test-cu13 = ["cuda-core[test]", "cupy-cuda13x; python_version < '3.14'", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
 # free threaded build, cupy doesn't support free-threaded builds yet, so avoid installing it for now
 # TODO: cupy should support free threaded builds
+test-cu12-ft = ["cuda-core[test]", "cuda-toolkit[cudart]==12.*"]
 test-cu13-ft = ["cuda-core[test]", "cuda-toolkit[cudart]==13.*"]
 
 [project.urls]

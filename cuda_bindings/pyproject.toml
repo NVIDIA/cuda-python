@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 [build-system]
-requires = ["setuptools>=77.0.0", "cython>=3.1,<3.2", "pyclibrary>=0.1.7"]
+requires = ["setuptools>=77.0.0", "cython>=3.2,<3.3", "pyclibrary>=0.1.7"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -35,7 +35,7 @@ all = [
 
 [dependency-groups]
 test = [
-    "cython>=3.1,<3.2",
+    "cython>=3.2,<3.3",
     "setuptools>=77.0.0",
     "numpy>=1.21.1",
     "pytest>=6.2.4",
@@ -69,5 +69,5 @@ repair-wheel-command = "delvewheel repair --namespace-pkg cuda -w {dest_dir} {wh
 
 [tool.pytest.ini_options]
 required_plugins = "pytest-benchmark"
-addopts = "--benchmark-disable"
+addopts = "--benchmark-disable --showlocals"
 norecursedirs = ["tests/cython", "examples"]

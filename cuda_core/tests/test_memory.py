@@ -1,7 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import ctypes
 import sys
+from ctypes import wintypes
 
 try:
     from cuda.bindings import driver
@@ -11,8 +13,8 @@ try:
     import numpy as np
 except ImportError:
     np = None
-import ctypes
 import platform
+import re
 
 import pytest
 from cuda.core.experimental import (
@@ -20,31 +22,21 @@ from cuda.core.experimental import (
     Device,
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
+    GraphMemoryResource,
     MemoryResource,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
 from cuda.core.experimental._dlpack import DLDeviceType
 from cuda.core.experimental._memory import IPCBufferDescriptor
-from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core.experimental._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.experimental.utils import StridedMemoryView
+from helpers import IS_WINDOWS
 from helpers.buffers import DummyUnifiedMemoryResource
 
 from cuda_python_test_helpers import supports_ipc_mempool
 
 POOL_SIZE = 2097152  # 2MB size
-
-
-@pytest.fixture(scope="function")
-def mempool_device():
-    """Obtains a device suitable for mempool tests, or skips."""
-    device = Device()
-    device.set_current()
-
-    if not device.properties.memory_pools_supported:
-        pytest.skip("Device does not support mempool operations")
-
-    return device
 
 
 class DummyDeviceMemoryResource(MemoryResource):
@@ -133,6 +125,7 @@ def test_package_contents():
         "MemoryResource",
         "DeviceMemoryResource",
         "DeviceMemoryResourceOptions",
+        "GraphMemoryResource",
         "IPCBufferDescriptor",
         "IPCAllocationHandle",
         "LegacyPinnedMemoryResource",
@@ -152,6 +145,7 @@ def buffer_initialization(dummy_mr: MemoryResource):
     assert buffer.memory_resource == dummy_mr
     assert buffer.is_device_accessible == dummy_mr.is_device_accessible
     assert buffer.is_host_accessible == dummy_mr.is_host_accessible
+    assert not buffer.is_mapped
     buffer.close()
 
 
@@ -285,14 +279,32 @@ def test_buffer_dunder_dlpack_device_failure():
         buffer.__dlpack_device__()
 
 
+def test_buffer_dlpack_failure_clean_up():
+    dummy_mr = NullMemoryResource()
+    buffer = dummy_mr.allocate(size=1024)
+    before = sys.getrefcount(buffer)
+    with pytest.raises(BufferError, match="invalid buffer"):
+        buffer.__dlpack__()
+    after = sys.getrefcount(buffer)
+    # we use the buffer refcount as sentinel for proper clean-up here,
+    # hoping that malloc and frees did the right thing
+    # as they are handled by the same deleter
+    assert after == before
+
+
 @pytest.mark.parametrize("use_device_object", [True, False])
-def test_device_memory_resource_initialization(mempool_device, use_device_object):
+def test_device_memory_resource_initialization(use_device_object):
     """Test that DeviceMemoryResource can be initialized successfully.
 
     This test verifies that the DeviceMemoryResource initializes properly,
     including the release threshold configuration for performance optimization.
     """
-    device = mempool_device
+    device = Device()
+
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
+    device.set_current()
 
     # This should succeed and configure the memory pool release threshold.
     # The resource can be constructed from either a device or device ordinal.
@@ -312,7 +324,31 @@ def test_device_memory_resource_initialization(mempool_device, use_device_object
     buffer.close()
 
 
-def test_vmm_allocator_basic_allocation():
+def get_handle_type():
+    def get_sa():
+        class SECURITY_ATTRIBUTES(ctypes.Structure):
+            _fields_ = [
+                ("nLength", wintypes.DWORD),
+                ("lpSecurityDescriptor", wintypes.LPVOID),
+                ("bInheritHandle", wintypes.BOOL),
+            ]
+
+        sa = SECURITY_ATTRIBUTES()
+        sa.nLength = ctypes.sizeof(sa)
+        sa.lpSecurityDescriptor = None
+        sa.bInheritHandle = False  # TODO: why?
+
+        return sa
+
+    if IS_WINDOWS:
+        return (("win32", get_sa()), ("win32_kmt", None))
+    else:
+        return (("posix_fd", None),)
+
+
+@pytest.mark.parametrize("use_device_object", [True, False])
+@pytest.mark.parametrize("handle_type", get_handle_type())
+def test_vmm_allocator_basic_allocation(use_device_object, handle_type):
     """Test basic VMM allocation functionality.
 
     This test verifies that VirtualMemoryResource can allocate memory
@@ -325,9 +361,15 @@ def test_vmm_allocator_basic_allocation():
     if not device.properties.virtual_memory_management_supported:
         pytest.skip("Virtual memory management is not supported on this device")
 
-    options = VirtualMemoryResourceOptions()
+    handle_type, security_attribute = handle_type  # unpack
+    win32_handle_metadata = ctypes.addressof(security_attribute) if security_attribute else 0
+    options = VirtualMemoryResourceOptions(
+        handle_type=handle_type,
+        win32_handle_metadata=win32_handle_metadata,
+    )
     # Create VMM allocator with default config
-    vmm_mr = VirtualMemoryResource(device, config=options)
+    device_arg = device if use_device_object else device.device_id
+    vmm_mr = VirtualMemoryResource(device_arg, config=options)
 
     # Test basic allocation
     buffer = vmm_mr.allocate(4096)
@@ -364,9 +406,9 @@ def test_vmm_allocator_policy_configuration():
     if not device.properties.virtual_memory_management_supported:
         pytest.skip("Virtual memory management is not supported on this device")
 
-    # Skip if GPU Direct RDMA is supported (we want to test the unsupported case)
+    # Skip if GPU Direct RDMA is not supported
     if not device.properties.gpu_direct_rdma_supported:
-        pytest.skip("This test requires a device that doesn't support GPU Direct RDMA")
+        pytest.skip("This test requires a device that supports GPU Direct RDMA")
 
     # Test with custom VMM config
     custom_config = VirtualMemoryResourceOptions(
@@ -374,7 +416,7 @@ def test_vmm_allocator_policy_configuration():
         location_type="device",
         granularity="minimum",
         gpu_direct_rdma=True,
-        handle_type="posix_fd" if platform.system() != "Windows" else "win32",
+        handle_type="posix_fd" if not IS_WINDOWS else "win32_kmt",
         peers=(),
         self_access="rw",
         peer_access="rw",
@@ -388,7 +430,13 @@ def test_vmm_allocator_policy_configuration():
     assert vmm_mr.config.granularity == "minimum"
 
     # Test allocation with custom config
-    buffer = vmm_mr.allocate(8192)
+    try:
+        buffer = vmm_mr.allocate(8192)
+    except CUDAError as exc:
+        msg = str(exc)
+        if "CUDA_ERROR_INVALID_DEVICE" in msg:
+            pytest.xfail("TODO(#1300): Failing on Jetson AGX Orin P3730")
+        raise
     assert buffer.size >= 8192
     assert buffer.device_id == device.device_id
 
@@ -398,14 +446,20 @@ def test_vmm_allocator_policy_configuration():
         location_type="device",
         granularity="recommended",
         gpu_direct_rdma=False,
-        handle_type="posix_fd",
+        handle_type="posix_fd" if not IS_WINDOWS else "win32_kmt",
         peers=(),
         self_access="r",  # Read-only access
         peer_access="r",
     )
 
     # Modify allocation policy
-    modified_buffer = vmm_mr.modify_allocation(buffer, 16384, config=new_config)
+    try:
+        modified_buffer = vmm_mr.modify_allocation(buffer, 16384, config=new_config)
+    except CUDAError as exc:
+        msg = str(exc)
+        if "CUDA_ERROR_UNKNOWN" in msg:
+            pytest.xfail("TODO(#1300): Known to fail already with CTK 13.0 (Windows)")
+        raise
     assert modified_buffer.size >= 16384
     assert vmm_mr.config == new_config
     assert vmm_mr.config.self_access == "r"
@@ -414,7 +468,8 @@ def test_vmm_allocator_policy_configuration():
     modified_buffer.close()
 
 
-def test_vmm_allocator_grow_allocation():
+@pytest.mark.parametrize("handle_type", get_handle_type())
+def test_vmm_allocator_grow_allocation(handle_type):
     """Test VMM allocator's ability to grow existing allocations.
 
     This test verifies that VirtualMemoryResource can grow existing
@@ -427,7 +482,12 @@ def test_vmm_allocator_grow_allocation():
     if not device.properties.virtual_memory_management_supported:
         pytest.skip("Virtual memory management is not supported on this device")
 
-    options = VirtualMemoryResourceOptions()
+    handle_type, security_attribute = handle_type  # unpack
+    win32_handle_metadata = ctypes.addressof(security_attribute) if security_attribute else 0
+    options = VirtualMemoryResourceOptions(
+        handle_type=handle_type,
+        win32_handle_metadata=win32_handle_metadata,
+    )
 
     vmm_mr = VirtualMemoryResource(device, config=options)
 
@@ -481,11 +541,16 @@ def test_vmm_allocator_rdma_unsupported_exception():
         VirtualMemoryResource(device, config=options)
 
 
-def test_mempool(mempool_device):
-    device = mempool_device
+def test_device_memory_resource():
+    device = Device()
+
+    if not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+
+    device.set_current()
 
     # Test basic pool creation
-    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE)
     mr = DeviceMemoryResource(device, options=options)
     assert mr.device_id == device.device_id
     assert mr.is_device_accessible
@@ -523,8 +588,12 @@ def test_mempool(mempool_device):
     dst_buffer.close()
     src_buffer.close()
 
-    # Test error cases
-    # Test IPC operations are disabled
+
+def test_mempool_ipc_errors(mempool_device):
+    """Test error cases when IPC operations are disabled."""
+    device = mempool_device
+    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
+    mr = DeviceMemoryResource(device, options=options)
     buffer = mr.allocate(64)
     ipc_error_msg = "Memory resource is not IPC-enabled"
 
@@ -599,6 +668,22 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
         assert value >= current_value, f"{property_name} should be >= {current_prop}"
 
 
+def test_mempool_attributes_repr(mempool_device):
+    device = Device()
+    device.set_current()
+    mr = DeviceMemoryResource(device, options={"max_size": 2048})
+    buffer1 = mr.allocate(64)
+    buffer2 = mr.allocate(64)
+    buffer1.close()
+    assert re.match(
+        r"DeviceMemoryResourceAttributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
+        r"reuse_allow_internal_dependencies=(True|False), reuse_allow_opportunistic=(True|False), "
+        r"reuse_follow_event_dependencies=(True|False), used_mem_current=\d+, used_mem_high=\d+\)",
+        str(mr.attributes),
+    )
+    buffer2.close()
+
+
 def test_mempool_attributes_ownership(mempool_device):
     """Ensure the attributes bundle handles references correctly."""
     device = mempool_device
@@ -644,3 +729,14 @@ def test_strided_memory_view_refcnt():
     assert av.strides[0] == 1
     assert av.strides[1] == 64
     assert sys.getrefcount(av.strides) >= 2
+
+
+def test_graph_memory_resource_object(init_cuda):
+    device = Device()
+    gmr1 = GraphMemoryResource(device)
+    gmr2 = GraphMemoryResource(device)
+    gmr3 = GraphMemoryResource(device.device_id)
+
+    # These objects are interned.
+    assert gmr1 is gmr2 is gmr3
+    assert gmr1 == gmr2 == gmr3
