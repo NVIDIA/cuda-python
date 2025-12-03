@@ -99,7 +99,7 @@ def isSupportedFilesystem():
 
     This uses `findmnt` so the kernel's mount table logic owns the decoding of the filesystem type.
     """
-    fs_type = subprocess.check_output(["findmnt", "-no", "FSTYPE", "-T", "."], text=True).strip()  # noqa: S607
+    fs_type = subprocess.check_output(["findmnt", "-no", "FSTYPE", "-T", os.getcwd()], text=True).strip()  # noqa: S603, S607
     logging.info(f"Current filesystem type (findmnt): {fs_type}")
     return fs_type in ("ext4", "xfs")
 
