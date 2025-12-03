@@ -128,8 +128,7 @@ class VirtualMemoryResourceOptions:
     @staticmethod
     def _handle_type_to_driver(spec: str):
         if spec == "win32":
-            raise NotImplementedError(
-                "win32 is currently not supported, please reach out to the CUDA Python team")
+            raise NotImplementedError("win32 is currently not supported, please reach out to the CUDA Python team")
         handle_type = VirtualMemoryResourceOptions._handle_types.get(spec)
         if handle_type is None:
             raise ValueError(f"Unsupported handle_type: {spec!r}")

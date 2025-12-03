@@ -3,7 +3,6 @@
 
 import ctypes
 import sys
-from ctypes import wintypes
 
 try:
     from cuda.bindings import driver
