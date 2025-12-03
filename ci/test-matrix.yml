@@ -14,7 +14,6 @@
 #
 # Notes:
 # - DRIVER: 'earliest' does not work with CUDA 12.9.1
-# - LOCAL_CTK: 0 does not work with CUDA 12.0.1
 
 linux:
   pull-request:
