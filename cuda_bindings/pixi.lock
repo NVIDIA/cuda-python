@@ -3,6 +3,8 @@ environments:
   cu13:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
+    options:
+      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -521,6 +523,8 @@ environments:
   default:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
+    options:
+      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -947,6 +951,8 @@ packages:
   version: 13.0.3
   build: py314hf14b7c0_0
   subdir: linux-64
+  variants:
+    python: 3.14.*
   depends:
   - python
   - cuda-pathfinder >=1.1,<2
@@ -962,7 +968,7 @@ packages:
   - python_abi 3.14.* *_cp314
   license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
   input:
-    hash: 5b9ca621be4a7a80d774ea4b72d3a88bcfbf672781f7d43b46293b41121afc66
+    hash: 82cc3b40bfe11e69e9d2054bc6f71d78370192927f2541b1921842b25bc59594
     globs:
     - pyproject.toml
 - conda: .
@@ -970,6 +976,8 @@ packages:
   version: 13.0.3
   build: py314hf14b7c0_0
   subdir: linux-aarch64
+  variants:
+    python: 3.14.*
   depends:
   - python
   - cuda-pathfinder >=1.1,<2
@@ -985,7 +993,7 @@ packages:
   - python_abi 3.14.* *_cp314
   license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
   input:
-    hash: 5b9ca621be4a7a80d774ea4b72d3a88bcfbf672781f7d43b46293b41121afc66
+    hash: 82cc3b40bfe11e69e9d2054bc6f71d78370192927f2541b1921842b25bc59594
     globs:
     - pyproject.toml
 - conda: .
@@ -993,6 +1001,8 @@ packages:
   version: 13.0.3
   build: py314hf14b7c0_0
   subdir: win-64
+  variants:
+    python: 3.14.*
   depends:
   - python
   - cuda-pathfinder >=1.1,<2
@@ -1005,7 +1015,7 @@ packages:
   - python_abi 3.14.* *_cp314
   license: LicenseRef-NVIDIA-SOFTWARE-LICENSE
   input:
-    hash: 5b9ca621be4a7a80d774ea4b72d3a88bcfbf672781f7d43b46293b41121afc66
+    hash: 82cc3b40bfe11e69e9d2054bc6f71d78370192927f2541b1921842b25bc59594
     globs:
     - pyproject.toml
 - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-cccl_linux-64-13.0.85-ha770c72_0.conda
