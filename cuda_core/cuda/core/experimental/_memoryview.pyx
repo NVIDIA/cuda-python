@@ -597,7 +597,7 @@ def args_viewable_as_strided_memory(tuple arg_indices):
 
 cdef inline StridedLayout layout_from_dlpack(DLTensor* dl_tensor):
     cdef StridedLayout layout = StridedLayout.__new__(StridedLayout)
-    cdef int nbits = dl_tensor.dtype.bits
+    cdef int nbits = dl_tensor.dtype.bits * dl_tensor.dtype.lanes
     cdef int itemsize = nbits >> 3
     if (itemsize << 3) != nbits:
         raise ValueError("dl_tensor.dtype.bits must be a multiple of 8")
