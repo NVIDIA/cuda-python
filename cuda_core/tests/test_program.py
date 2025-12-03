@@ -345,7 +345,7 @@ def test_nvvm_program_creation_compilation(nvvm_ir):
     try:
         ker = obj.get_kernel("simple")  # noqa: F841
     except CUDAError as e:
-        if re.search(r"CUDA_UNSUPPORTED_PTX_VERSION", str(e)):
+        if re.search(r"CUDA_ERROR_UNSUPPORTED_PTX_VERSION", str(e)):
             pytest.xfail("PTX version not supported by current CUDA Driver")
         raise
     program.close()
