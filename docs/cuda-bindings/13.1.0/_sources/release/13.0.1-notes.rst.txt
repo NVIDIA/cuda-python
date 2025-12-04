@@ -1,0 +1,21 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 13.0.1 Release notes
+======================================
+
+Released on Aug 18, 2025
+
+
+Highlights
+----------
+
+* Make populating the internal symbol table thread-safe.
+
+
+Known issues
+------------
+
+* Updating from older versions (v12.6.2.post1 and below) via ``pip install -U cuda-python`` might not work. Please do a clean re-installation by uninstalling ``pip uninstall -y cuda-python`` followed by installing ``pip install cuda-python``.
