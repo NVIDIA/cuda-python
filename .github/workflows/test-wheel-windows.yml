@@ -125,21 +125,6 @@ jobs:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
-      - name: Install zstd
-        # the GPU runner image does not have zstd pre-installed... and it's needed by actions/cache
-        if: ${{ matrix.LOCAL_CTK == '1' }}
-        env:
-          # doesn't seem there's an easy way to avoid hard-coding it?
-          ZSTD_URL: https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-v1.5.7-win64.zip
-          ZSTD_DIR: zstd-v1.5.7-win64
-        run: |
-          Invoke-WebRequest -Uri "$env:ZSTD_URL" -OutFile "zstd-win64.zip"
-          Expand-Archive -Path "zstd-win64.zip" -DestinationPath .
-          ls -l $env:ZSTD_DIR
-          echo "$((Get-Location).Path)\\$env:ZSTD_DIR" >> $env:GITHUB_PATH
-          $env:Path += ";$((Get-Location).Path)\\$env:ZSTD_DIR"
-          zstd --version
-
       - name: Download cuda-python & cuda.bindings build artifacts from the prior branch
         if: ${{ env.SKIP_CUDA_BINDINGS_TEST == '1'}}
         env:
