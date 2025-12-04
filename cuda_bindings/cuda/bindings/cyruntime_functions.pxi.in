@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 cdef extern from "cuda_runtime_api.h":
 
     {{if 'cudaDeviceReset' in found_functions}}
@@ -1437,6 +1437,26 @@ cdef extern from "cuda_runtime_api.h":
     {{if 'cudaKernelSetAttributeForDevice' in found_functions}}
 
     cudaError_t cudaKernelSetAttributeForDevice(cudaKernel_t kernel, cudaFuncAttribute attr, int value, int device) nogil
+
+    {{endif}}
+    {{if 'cudaExecutionCtxDestroy' in found_functions}}
+
+    cudaError_t cudaExecutionCtxDestroy(cudaExecutionContext_t ctx) nogil
+
+    {{endif}}
+    {{if 'cudaExecutionCtxSynchronize' in found_functions}}
+
+    cudaError_t cudaExecutionCtxSynchronize(cudaExecutionContext_t ctx) nogil
+
+    {{endif}}
+    {{if 'cudaExecutionCtxRecordEvent' in found_functions}}
+
+    cudaError_t cudaExecutionCtxRecordEvent(cudaExecutionContext_t ctx, cudaEvent_t event) nogil
+
+    {{endif}}
+    {{if 'cudaExecutionCtxWaitEvent' in found_functions}}
+
+    cudaError_t cudaExecutionCtxWaitEvent(cudaExecutionContext_t ctx, cudaEvent_t event) nogil
 
     {{endif}}
     {{if 'cudaGetExportTable' in found_functions}}

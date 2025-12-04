@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 cimport cuda.bindings._bindings.cydriver as cydriver
 
 {{if 'cuGetErrorString' in found_functions}}
@@ -1180,10 +1180,22 @@ cdef CUresult cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle, size_t m
     return cydriver._cuMulticastBindMem(mcHandle, mcOffset, memHandle, memOffset, size, flags)
 {{endif}}
 
+{{if 'cuMulticastBindMem_v2' in found_functions}}
+
+cdef CUresult cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMulticastBindMem_v2(mcHandle, dev, mcOffset, memHandle, memOffset, size, flags)
+{{endif}}
+
 {{if 'cuMulticastBindAddr' in found_functions}}
 
 cdef CUresult cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuMulticastBindAddr(mcHandle, mcOffset, memptr, size, flags)
+{{endif}}
+
+{{if 'cuMulticastBindAddr_v2' in found_functions}}
+
+cdef CUresult cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMulticastBindAddr_v2(mcHandle, dev, mcOffset, memptr, size, flags)
 {{endif}}
 
 {{if 'cuMulticastUnbind' in found_functions}}
@@ -2592,8 +2604,8 @@ cdef CUresult cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource* resource,
 
 {{if 'cuDevSmResourceSplitByCount' in found_functions}}
 
-cdef CUresult cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remaining, unsigned int useFlags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuDevSmResourceSplitByCount(result, nbGroups, input, remaining, useFlags, minCount)
+cdef CUresult cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuDevSmResourceSplitByCount(result, nbGroups, input, remainder, flags, minCount)
 {{endif}}
 
 {{if 'cuDevResourceGenerateDesc' in found_functions}}
