@@ -334,7 +334,6 @@ jobs:
           cuda-path: "./cuda_toolkit_prev"
 
       - name: Download cuda.bindings build artifacts from the prior branch
-        if: startsWith(matrix.python-version, '3.14')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
