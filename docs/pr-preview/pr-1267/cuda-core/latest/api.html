@@ -579,7 +579,7 @@ moved out of the <code class="docutils literal notranslate"><span class="pre">ex
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>()</p></td>
 <td><p>Represents a graph under construction.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.launch.html#cuda.core.experimental.launch" title="cuda.core.experimental.launch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch</span></code></a>(stream, IsStreamT], ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.launch.html#cuda.core.experimental.launch" title="cuda.core.experimental.launch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">launch</span></code></a>(stream, LaunchConfig config, kernel, ...)</p></td>
 <td><p>Launches a <a class="reference internal" href="generated/cuda.core.experimental.Kernel.html#cuda.core.experimental.Kernel" title="cuda.core.experimental._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> object with launch-time configuration.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code></a>(*args, **kwargs)</p></td>
@@ -595,7 +595,7 @@ moved out of the <code class="docutils literal notranslate"><span class="pre">ex
 <td><p>Abstract base class for memory resources that manage allocation and deallocation of buffers.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource" title="cuda.core.experimental.DeviceMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>(device_id[, options])</p></td>
-<td><p>Create a device memory resource managing a stream-ordered memory pool.</p></td>
+<td><p>A device memory resource managing a stream-ordered memory pool.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html#cuda.core.experimental.LegacyPinnedMemoryResource" title="cuda.core.experimental.LegacyPinnedMemoryResource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource</span></code></a></p></td>
 <td><p>Create a pinned memory resource that uses legacy cuMemAllocHost/cudaMallocHost APIs.</p></td>

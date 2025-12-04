@@ -15,7 +15,10 @@ Highlights
 Bug fixes
 ---------
 
+Backward incompatible changes
+-----------------------------
 
+Additionally, ``cufile.StatsLevel3.per_gpu_stats`` no longer returns a singleton that must be manually converted to a Numpy array, instead it returns a ``cufile.PerGpuStats`` array which is directly addressable.
 
 Known issues
 ------------

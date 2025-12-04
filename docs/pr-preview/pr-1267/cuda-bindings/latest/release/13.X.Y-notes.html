@@ -667,6 +667,10 @@
 <section id="bug-fixes">
 <h2>Bug fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h2>
 </section>
+<section id="backward-incompatible-changes">
+<h2>Backward incompatible changes<a class="headerlink" href="#backward-incompatible-changes" title="Link to this heading">#</a></h2>
+<p>Additionally, <code class="docutils literal notranslate"><span class="pre">cufile.StatsLevel3.per_gpu_stats</span></code> no longer returns a singleton that must be manually converted to a Numpy array, instead it returns a <code class="docutils literal notranslate"><span class="pre">cufile.PerGpuStats</span></code> array which is directly addressable.</p>
+</section>
 <section id="known-issues">
 <h2>Known issues<a class="headerlink" href="#known-issues" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -709,6 +713,7 @@
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes">Bug fixes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#backward-incompatible-changes">Backward incompatible changes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#known-issues">Known issues</a></li>
 </ul>
   </nav></div>
