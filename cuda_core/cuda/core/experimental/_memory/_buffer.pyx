@@ -177,6 +177,65 @@ cdef class Buffer:
         err, = driver.cuMemcpyAsync(self._ptr, src._ptr, dst_size, stream.handle)
         raise_if_driver_error(err)
 
+    def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
+        """Fill this buffer with a value pattern asynchronously on the given stream.
+
+        Parameters
+        ----------
+        value : int
+            Integer value to fill the buffer with
+        width : int
+            Width in bytes for each element (must be 1, 2, or 4)
+        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+            Keyword argument specifying the stream for the asynchronous fill
+
+        Raises
+        ------
+        ValueError
+            If width is not 1, 2, or 4, if value is out of range for the width,
+            or if buffer size is not divisible by width
+
+        """
+        stream = Stream_accept(stream)
+        cdef size_t buffer_size = self._size
+        cdef unsigned char c_value8
+        cdef unsigned short c_value16
+        cdef unsigned int c_value32
+        cdef size_t N
+        cdef object err
+
+        # Validate width
+        if width not in (1, 2, 4):
+            raise ValueError(f"width must be 1, 2, or 4, got {width}")
+
+        # Validate value fits in width
+        if width == 1:
+            if value < 0 or value > 255:
+                raise ValueError(f"value must be in range [0, 255] for width=1, got {value}")
+            if buffer_size % width != 0:
+                raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
+            c_value8 = <unsigned char>value
+            N = buffer_size
+            err, = driver.cuMemsetD8Async(self._ptr, c_value8, N, stream.handle)
+        elif width == 2:
+            if value < 0 or value > 65535:
+                raise ValueError(f"value must be in range [0, 65535] for width=2, got {value}")
+            if buffer_size % width != 0:
+                raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
+            c_value16 = <unsigned short>value
+            N = buffer_size // 2
+            err, = driver.cuMemsetD16Async(self._ptr, c_value16, N, stream.handle)
+        else:  # width == 4
+            if value < 0 or value > 4294967295:
+                raise ValueError(f"value must be in range [0, 4294967295] for width=4, got {value}")
+            if buffer_size % width != 0:
+                raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
+            c_value32 = <unsigned int>value
+            N = buffer_size // 4
+            err, = driver.cuMemsetD32Async(self._ptr, c_value32, N, stream.handle)
+
+        raise_if_driver_error(err)
+
     def __dlpack__(
         self,
         *,
