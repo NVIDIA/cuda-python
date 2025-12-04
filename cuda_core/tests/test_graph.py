@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import ctypes
+
 import numpy as np
 import pytest
 
@@ -41,7 +43,9 @@ def _common_kernels_conditional():
                                                                                     unsigned int value);
     __global__ void empty_kernel() {}
     __global__ void add_one(int *a) { *a += 1; }
-    __global__ void set_handle(cudaGraphConditionalHandle handle, int value) { cudaGraphSetConditional(handle, value); }
+    __global__ void set_handle(cudaGraphConditionalHandle handle, bool value) {
+        cudaGraphSetConditional(handle, value);
+    }
     __global__ void loop_kernel(cudaGraphConditionalHandle handle)
     {
         static int count = 10;
@@ -216,7 +220,9 @@ def test_graph_capture_errors(init_cuda):
     gb.end_building().complete()
 
 
-@pytest.mark.parametrize("condition_value", [True, False])
+@pytest.mark.parametrize(
+    "condition_value", [True, False, ctypes.c_bool(True), ctypes.c_bool(False), np.bool_(True), np.bool_(False)]
+)
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_if(init_cuda, condition_value):
     mod = _common_kernels_conditional()
@@ -278,7 +284,9 @@ def test_graph_conditional_if(init_cuda, condition_value):
     b.close()
 
 
-@pytest.mark.parametrize("condition_value", [True, False])
+@pytest.mark.parametrize(
+    "condition_value", [True, False, ctypes.c_bool(True), ctypes.c_bool(False), np.bool_(True), np.bool_(False)]
+)
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_if_else(init_cuda, condition_value):
     mod = _common_kernels_conditional()
