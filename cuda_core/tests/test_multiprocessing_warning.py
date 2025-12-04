@@ -20,9 +20,9 @@ from cuda.core.experimental._memory._ipc import (
 )
 
 
-def test_warn_on_fork_method_device_memory_resource(mempool_device):
+def test_warn_on_fork_method_device_memory_resource(ipc_device):
     """Test that warning is emitted when DeviceMemoryResource is pickled with fork method."""
-    device = mempool_device
+    device = ipc_device
     device.set_current()
     options = DeviceMemoryResourceOptions(max_size=2097152, ipc_enabled=True)
     mr = DeviceMemoryResource(device, options=options)
@@ -49,9 +49,9 @@ def test_warn_on_fork_method_device_memory_resource(mempool_device):
     mr.close()
 
 
-def test_warn_on_fork_method_allocation_handle(mempool_device):
+def test_warn_on_fork_method_allocation_handle(ipc_device):
     """Test that warning is emitted when IPCAllocationHandle is pickled with fork method."""
-    device = mempool_device
+    device = ipc_device
     device.set_current()
     options = DeviceMemoryResourceOptions(max_size=2097152, ipc_enabled=True)
     mr = DeviceMemoryResource(device, options=options)
@@ -105,9 +105,9 @@ def test_warn_on_fork_method_event(mempool_device):
     event.close()
 
 
-def test_no_warning_with_spawn_method(mempool_device):
+def test_no_warning_with_spawn_method(ipc_device):
     """Test that no warning is emitted when start method is 'spawn'."""
-    device = mempool_device
+    device = ipc_device
     device.set_current()
     options = DeviceMemoryResourceOptions(max_size=2097152, ipc_enabled=True)
     mr = DeviceMemoryResource(device, options=options)
@@ -130,9 +130,9 @@ def test_no_warning_with_spawn_method(mempool_device):
     mr.close()
 
 
-def test_warning_emitted_only_once(mempool_device):
+def test_warning_emitted_only_once(ipc_device):
     """Test that warning is only emitted once even when multiple objects are pickled."""
-    device = mempool_device
+    device = ipc_device
     device.set_current()
     options = DeviceMemoryResourceOptions(max_size=2097152, ipc_enabled=True)
     mr1 = DeviceMemoryResource(device, options=options)
