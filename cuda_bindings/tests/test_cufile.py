@@ -15,6 +15,8 @@ from functools import cache
 import cuda.bindings.driver as cuda
 import pytest
 
+cufile = pytest.importorskip("cuda.bindings.cufile")
+
 # Configure logging to show INFO level and above
 logging.basicConfig(
     level=logging.INFO,
@@ -22,12 +24,13 @@ logging.basicConfig(
     force=True,  # Override any existing logging configuration
 )
 
-try:
-    from cuda.bindings import cufile
-except ImportError:
-    cufile = cuFileError = None
-else:
-    from cuda.bindings.cufile import cuFileError
+
+def platform_is_tegra_linux():
+    return pathlib.Path("/etc/nv_tegra_release").exists()
+
+
+if platform_is_tegra_linux():
+    pytest.skip("skipping cuFile tests on Tegra Linux", allow_module_level=True)
 
 
 def platform_is_wsl():
@@ -35,11 +38,11 @@ def platform_is_wsl():
     return platform.system() == "Linux" and "microsoft" in pathlib.Path("/proc/version").read_text().lower()
 
 
-if cufile is None:
-    pytest.skip("skipping tests on Windows", allow_module_level=True)
-
 if platform_is_wsl():
     pytest.skip("skipping cuFile tests on WSL", allow_module_level=True)
+
+
+from cuda.bindings.cufile import cuFileError
 
 
 @pytest.fixture
@@ -1445,9 +1448,14 @@ def test_set_get_parameter_bool():
         assert retrieved_val is val
         cufile.set_parameter_bool(param, orig_val)
 
-    # Test setting and getting various boolean parameters
-    for param, val in param_val_pairs:
-        test_param(param, val)
+    try:
+        # Test setting and getting various boolean parameters
+        for param, val in param_val_pairs:
+            test_param(param, val)
+    except cufile.cuFileError:
+        if cufile.get_version() < 1160:
+            raise
+        assert param is cufile.BoolConfigParameter.PROFILE_NVTX  # Deprecated in CTK 13.1.0
 
 
 @pytest.mark.skipif(

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import platform
+import importlib
 import random
 import subprocess
 import sys
@@ -10,6 +10,8 @@ from pathlib import Path
 import pytest
 from cuda.bindings import driver, runtime
 from cuda.bindings.utils import get_cuda_native_handle, get_minimal_required_cuda_ver_from_ptx_ver, get_ptx_ver
+
+have_cufile = importlib.util.find_spec("cuda.bindings.cufile") is not None
 
 ptx_88_kernel = r"""
 .version 8.8
@@ -101,7 +103,7 @@ def test_get_handle_error(target):
         "nvrtc",
         "nvvm",
         "runtime",
-        *(["cufile"] if platform.system() != "Windows" else []),
+        *(["cufile"] if have_cufile else []),
     ],
 )
 def test_cyclical_imports(module):
