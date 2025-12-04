@@ -145,7 +145,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $OLD_BRANCH = Get-Content .github/BACKPORT_BRANCH
+          $OLD_BRANCH = yq '.backport_branch' ci/versions.yml
           $OLD_BASENAME = "cuda-bindings-python${env:PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
           $runData = gh run list -b $OLD_BRANCH -L 1 -w "ci.yml" -s completed -R NVIDIA/cuda-python --json databaseId | ConvertFrom-Json
           if (-not $runData -or $runData.Length -eq 0 -or -not $runData[0].databaseId -or [string]::IsNullOrEmpty($runData[0].databaseId)) {

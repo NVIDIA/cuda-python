@@ -350,7 +350,7 @@ jobs:
             && apt install gh -y
           fi
 
-          OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
+          OLD_BRANCH=$(yq '.backport_branch' ci/versions.yml)
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
           LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "ci.yml" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
           if [[ "$LATEST_PRIOR_RUN_ID" == "" ]]; then
