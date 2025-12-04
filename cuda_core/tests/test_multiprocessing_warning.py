@@ -18,6 +18,7 @@ from cuda.core.experimental._memory._ipc import (
     _deep_reduce_device_memory_resource,
     _reduce_allocation_handle,
 )
+from cuda.core.experimental._utils.cuda_utils import reset_fork_warning
 
 
 def test_warn_on_fork_method_device_memory_resource(ipc_device):
@@ -31,9 +32,7 @@ def test_warn_on_fork_method_device_memory_resource(ipc_device):
         warnings.simplefilter("always")
 
         # Reset the warning flag to allow testing
-        from cuda.core.experimental._utils import cuda_utils
-
-        cuda_utils._fork_warning_emitted = False
+        reset_fork_warning()
 
         # Trigger the reduction function directly
         _deep_reduce_device_memory_resource(mr)
@@ -61,9 +60,7 @@ def test_warn_on_fork_method_allocation_handle(ipc_device):
         warnings.simplefilter("always")
 
         # Reset the warning flag to allow testing
-        from cuda.core.experimental._utils import cuda_utils
-
-        cuda_utils._fork_warning_emitted = False
+        reset_fork_warning()
 
         # Trigger the reduction function directly
         _reduce_allocation_handle(alloc_handle)
@@ -89,9 +86,7 @@ def test_warn_on_fork_method_event(mempool_device):
         warnings.simplefilter("always")
 
         # Reset the warning flag to allow testing
-        from cuda.core.experimental._utils import cuda_utils
-
-        cuda_utils._fork_warning_emitted = False
+        reset_fork_warning()
 
         # Trigger the reduction function directly
         _reduce_event(event)
@@ -116,9 +111,7 @@ def test_no_warning_with_spawn_method(ipc_device):
         warnings.simplefilter("always")
 
         # Reset the warning flag to allow testing
-        from cuda.core.experimental._utils import cuda_utils
-
-        cuda_utils._fork_warning_emitted = False
+        reset_fork_warning()
 
         # Trigger the reduction function directly
         _deep_reduce_device_memory_resource(mr)
@@ -142,9 +135,7 @@ def test_warning_emitted_only_once(ipc_device):
         warnings.simplefilter("always")
 
         # Reset the warning flag to allow testing
-        from cuda.core.experimental._utils import cuda_utils
-
-        cuda_utils._fork_warning_emitted = False
+        reset_fork_warning()
 
         # Trigger reduction multiple times
         _deep_reduce_device_memory_resource(mr1)

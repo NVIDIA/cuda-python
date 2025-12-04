@@ -289,14 +289,25 @@ class Transaction:
 
 
 # Track whether we've already warned about fork method
-_fork_warning_emitted = False
+_fork_warning_checked = False
 
 
-def _check_multiprocessing_start_method():
+def reset_fork_warning():
+    """Reset the fork warning check flag for testing purposes.
+
+    This function is intended for use in tests to allow multiple test runs
+    to check the warning behavior.
+    """
+    global _fork_warning_checked
+    _fork_warning_checked = False
+
+
+def check_multiprocessing_start_method():
     """Check if multiprocessing start method is 'fork' and warn if so."""
-    global _fork_warning_emitted
-    if _fork_warning_emitted:
+    global _fork_warning_checked
+    if _fork_warning_checked:
         return
+    _fork_warning_checked = True
 
     # Common warning message parts
     common_message = (
@@ -311,7 +322,6 @@ def _check_multiprocessing_start_method():
         if start_method == "fork":
             message = f"multiprocessing start method is 'fork', which {common_message}"
             warnings.warn(message, UserWarning, stacklevel=3)
-            _fork_warning_emitted = True
     except RuntimeError:
         # get_start_method() can raise RuntimeError if start method hasn't been set
         # In this case, default is 'fork' on Linux, so we should warn
@@ -321,4 +331,3 @@ def _check_multiprocessing_start_method():
                 f"which {common_message}"
             )
             warnings.warn(message, UserWarning, stacklevel=3)
-            _fork_warning_emitted = True

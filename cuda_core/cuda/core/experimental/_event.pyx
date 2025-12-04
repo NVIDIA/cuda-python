@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Optional
 from cuda.core.experimental._context import Context
 from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
-    _check_multiprocessing_start_method,
+    check_multiprocessing_start_method,
     driver,
 )
 if TYPE_CHECKING:
@@ -301,7 +301,7 @@ cdef class IPCEventDescriptor:
 
 
 def _reduce_event(event):
-    _check_multiprocessing_start_method()
+    check_multiprocessing_start_method()
     return event.from_ipc_descriptor, (event.get_ipc_descriptor(),)
 
 multiprocessing.reduction.register(Event, _reduce_event)
