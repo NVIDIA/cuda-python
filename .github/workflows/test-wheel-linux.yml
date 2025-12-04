@@ -99,8 +99,8 @@ jobs:
         continue-on-error: false
         with:
           # for artifact fetching, graphics libs
-          dependencies: "jq wget libgl1 libegl1"
-          dependent_exes: "jq wget"
+          dependencies: "jq yq wget libgl1 libegl1"
+          dependent_exes: "jq yq wget"
 
       - name: Set environment variables
         env:
