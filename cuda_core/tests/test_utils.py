@@ -246,6 +246,7 @@ def test_from_buffer_sliced(stride_order):
     buffer = device.memory_resource.allocate(layout.required_size_in_bytes())
     view = StridedMemoryView.from_buffer(buffer, layout)
     assert view.shape == (5, 7)
+    assert int(buffer.handle) == view.ptr
 
     sliced_view = view.view(layout[:-2, 3:])
     assert sliced_view.shape == (3, 4)
@@ -253,6 +254,7 @@ def test_from_buffer_sliced(stride_order):
     assert sliced_view.layout.slice_offset == expected_offset
     assert sliced_view.layout.slice_offset_in_bytes == expected_offset * 2
     assert sliced_view.ptr == view.ptr + expected_offset * 2
+    assert int(buffer.handle) + expected_offset * 2 == sliced_view.ptr
 
 
 def test_from_buffer_too_small():

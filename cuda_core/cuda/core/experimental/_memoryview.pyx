@@ -238,7 +238,7 @@ cdef class StridedMemoryView:
         blocking : bool | None = None,
     ):
         """
-        Copies the data from this view into the other view.
+        Copies the data from this view into the ``other`` view.
 
         For details, see :meth:`copy_from`.
         """
@@ -614,20 +614,7 @@ cdef StridedLayout layout_from_cai(object metadata):
     return layout
 
 
-cdef inline uintptr_t _get_data_ptr(object buffer, StridedLayout layout) except? 0:
-    cdef bint is_allocated = buffer.memory_resource is not None
-    # Check the layout's offset range [min_offset, max_offset] fits
-    # within the [0, buffer.size - 1] range.
-    # The required_size_in_bytes fails if min_offset < 0.
-    # NB. For external memory, both positive and negative offsets can be valid,
-    # but for a proper check we'd need to know both size and data offset,
-    # while neither is reported by the packages.
-    if is_allocated and buffer.size < layout.get_required_size_in_bytes():
-        raise ValueError(
-            f"Buffer size is too small for the layout. "
-            f"Expected at least {layout.get_required_size_in_bytes()} bytes, "
-            f"got {buffer.size} bytes."
-        )
+cdef inline uintptr_t get_data_ptr(object buffer, StridedLayout layout) except? 0:
     return <uintptr_t>(int(buffer.handle)) + layout.get_slice_offset_in_bytes()
 
 
@@ -646,8 +633,21 @@ cdef inline int view_buffer_strided(
                 f"itemsize ({layout.itemsize}). Please use :meth:`StridedLayout.repacked` "
                 f"to transform the layout to the desired itemsize."
             )
+    # Check the layout's offset range [min_offset, max_offset] fits
+    # within the [0, buffer.size - 1] range.
+    # The required_size_in_bytes fails if min_offset < 0.
+    # NB. For external memory, both positive and negative offsets can be valid,
+    # but for a proper check we'd need to know both size and data offset,
+    # while neither is reported by the packages.
+    cdef bint is_allocated = buffer.memory_resource is not None
+    if is_allocated and buffer.size < layout.get_required_size_in_bytes():
+        raise ValueError(
+            f"Buffer size is too small for the layout. "
+            f"Expected at least {layout.get_required_size_in_bytes()} bytes, "
+            f"got {buffer.size} bytes."
+        )
     # set the public attributes
-    view.ptr = _get_data_ptr(buffer, layout)
+    view.ptr = get_data_ptr(buffer, layout)
     view.device_id = buffer.device_id
     view.is_device_accessible = buffer.is_device_accessible
     view.readonly = is_readonly
