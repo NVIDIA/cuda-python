@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+cuda:
+  build:
+    version: "13.0.2"
+  prev_build:
+    version: "12.9.1"
