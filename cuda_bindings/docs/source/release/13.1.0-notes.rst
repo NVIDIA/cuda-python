@@ -3,17 +3,26 @@
 
 .. module:: cuda.bindings
 
-``cuda-bindings`` 13.X.Y Release notes
+``cuda-bindings`` 13.1.0 Release notes
 ======================================
 
+Released on Dec 4, 2025
 
 
 Highlights
 ----------
 
+* Add support for new APIs introduced in CUDA 13.1.
+* The ``cufile.read`` and ``cufile.write`` functions now return the number of bytes read or written (``ssize_t``) instead of returning ``None``, providing better feedback on I/O operations.
+* Improved performance of cuFile bindings with approximately 60x faster construction and member access for generated low-level classes.
+* Added ``__cuda_stream__`` protocol support to ``driver.CUStream`` class, enabling better interoperability with libraries that expect this protocol.
+* Upgraded Cython dependency to version 3.2.
+* Python 3.9 support was dropped (end of life).
 
 Bug fixes
 ---------
+
+* Fixed ``cuStreamBeginCaptureToGraph`` to allow the ``dependencyData`` argument to be optional, matching the underlying CUDA API behavior.
 
 Backward incompatible changes
 -----------------------------
