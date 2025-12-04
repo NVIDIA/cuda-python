@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 cimport cuda.bindings._bindings.cyruntime as cyruntime
 cimport cython
 
@@ -1725,6 +1725,30 @@ cdef cudaError_t cudaLibraryEnumerateKernels(cudaKernel_t* kernels, unsigned int
 
 cdef cudaError_t cudaKernelSetAttributeForDevice(cudaKernel_t kernel, cudaFuncAttribute attr, int value, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
     return cyruntime._cudaKernelSetAttributeForDevice(kernel, attr, value, device)
+{{endif}}
+
+{{if 'cudaExecutionCtxDestroy' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxDestroy(cudaExecutionContext_t ctx) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaExecutionCtxDestroy(ctx)
+{{endif}}
+
+{{if 'cudaExecutionCtxSynchronize' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxSynchronize(cudaExecutionContext_t ctx) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaExecutionCtxSynchronize(ctx)
+{{endif}}
+
+{{if 'cudaExecutionCtxRecordEvent' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxRecordEvent(cudaExecutionContext_t ctx, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaExecutionCtxRecordEvent(ctx, event)
+{{endif}}
+
+{{if 'cudaExecutionCtxWaitEvent' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxWaitEvent(cudaExecutionContext_t ctx, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaExecutionCtxWaitEvent(ctx, event)
 {{endif}}
 
 {{if 'cudaGetExportTable' in found_functions}}
