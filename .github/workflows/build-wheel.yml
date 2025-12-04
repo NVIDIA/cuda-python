@@ -75,6 +75,23 @@ jobs:
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         uses: ilammy/msvc-dev-cmd@v1  # TODO: ask admin to allow pinning commits
 
+      - name: Set up yq
+        # GitHub made an unprofessional decision to not provide it in their Windows VMs,
+        # see https://github.com/actions/runner-images/issues/7443.
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        env:
+          # doesn't seem there's an easy way to avoid hard-coding it?
+          YQ_URL: https://github.com/mikefarah/yq/releases/latest/download/yq_windows_amd64.exe
+          YQ_DIR: yq_latest
+        shell: pwsh -command ". '{0}'"
+        run: |
+          mkdir -Force -ErrorAction SilentlyContinue "${env:YQ_DIR}" | Out-Null
+          Invoke-WebRequest -UseBasicParsing -OutFile "${env:YQ_DIR}/yq.exe" -Uri "$env:YQ_URL"
+          ls -l $env:YQ_DIR
+          echo "$((Get-Location).Path)\\$env:YQ_DIR" >> $env:GITHUB_PATH
+          $env:Path += ";$((Get-Location).Path)\\$env:YQ_DIR"
+          yq --version
+
       - name: Set environment variables
         env:
           CUDA_VER: ${{ inputs.cuda-version }}
