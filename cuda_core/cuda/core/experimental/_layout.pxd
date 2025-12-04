@@ -29,7 +29,7 @@ ctypedef fused integer_t:
 cdef extern from "include/layout.hpp":
 
     cdef int STRIDED_LAYOUT_MAX_NDIM
-    cdef axes_mask_t AXIS_MASK_ALL
+    cdef axes_mask_t AXES_MASK_ALL
     int64_t _c_abs(int64_t x) nogil
     void _order_from_strides(axis_vec_t& indices, extent_t* extent_t, stride_t* stride_t, int ndim) except + nogil
     void _swap(extents_strides_t &a, extents_strides_t &b) noexcept nogil
@@ -322,7 +322,7 @@ cdef class StridedLayout:
     cdef int reshape_into(StridedLayout self, StridedLayout out_layout, BaseLayout& new_shape) except -1 nogil
     cdef int permute_into(StridedLayout self, StridedLayout out_layout, axis_vec_t& axis_order) except -1 nogil
 
-    cdef int flatten_into(StridedLayout self, StridedLayout out_layout, axes_mask_t axis_mask=*) except -1 nogil
+    cdef int flatten_into(StridedLayout self, StridedLayout out_layout, axes_mask_t axis_mask) except -1 nogil
     cdef int squeeze_into(StridedLayout self, StridedLayout out_layout) except -1 nogil
     cdef int unsqueeze_into(StridedLayout self, StridedLayout out_layout, axis_vec_t& axis_vec) except -1 nogil
     cdef int broadcast_into(StridedLayout self, StridedLayout out_layout, BaseLayout& broadcast) except -1 nogil
@@ -608,6 +608,14 @@ cdef inline bint _set_boolean_property(StridedLayout self, Property prop, bint v
 
 cdef inline axes_mask_t _axis2mask(axis_t axis) noexcept nogil:
     return 1ULL << axis
+
+
+cdef inline axes_mask_t flatten_all_axes_mask(int ndim) noexcept nogil:
+    if ndim == 0:
+        return 0
+    elif ndim == STRIDED_LAYOUT_MAX_NDIM:
+        return AXES_MASK_ALL
+    return (1ULL << ndim) - 2
 
 
 cdef inline OrderFlag _stride_order2vec(axis_vec_t& stride_order_vec, object stride_order) except? ORDER_NONE:

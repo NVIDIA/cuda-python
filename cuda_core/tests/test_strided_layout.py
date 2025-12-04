@@ -453,6 +453,7 @@ def test_reshape(layout_spec, new_shape, error_msg):
         "expected_shape",
         "expected_strides",
         "expected_axis_mask",
+        "axes_range",
     ),
     [
         (
@@ -466,19 +467,24 @@ def test_reshape(layout_spec, new_shape, error_msg):
             NamedParam("expected_shape", expected_shape),
             NamedParam("expected_strides", expected_strides),
             NamedParam("expected_axis_mask", expected_axis_mask),
+            NamedParam("axes_range", axes_range),
         )
-        for shape, permutation, slices, expected_shape, expected_strides, expected_axis_mask in [
-            (tuple(), None, None, (1,), (1,), ""),
-            ((12,), None, _S[:], (12,), (1,), "0"),
-            ((1, 2, 3, 4, 5), None, None, (120,), (1,), "01111"),
-            ((1, 2, 3, 0, 5), None, None, (0,), (0,), "01111"),
-            ((5, 1, 2, 4, 3), None, _S[:, :, :, :, ::-2], (40, 2), (3, -2), "01110"),
-            ((5, 2, 4, 3), None, _S[:, ::-1, :, :], (5, 2, 12), (24, -12, 1), "0001"),
-            ((5, 7, 4, 3), None, _S[:, ::-1, ::-1], (5, 28, 3), (84, -3, 1), "0010"),
-            ((5, 4, 3, 7), (2, 3, 0, 1), _S[:], (21, 20), (1, 21), "0101"),
-            ((5, 4, 3, 7), (3, 2, 0, 1), None, (7, 3, 20), (1, 7, 21), "0001"),
+        for shape, permutation, slices, expected_shape, expected_strides, expected_axis_mask, axes_range in [
+            (tuple(), None, None, (1,), (1,), "", None),
+            ((12,), None, _S[:], (12,), (1,), "0", None),
+            ((1, 2, 3, 4, 5), None, None, (120,), (1,), "01111", None),
+            ((1, 2, 3, 0, 5), None, None, (0,), (0,), "01111", None),
+            ((5, 1, 2, 4, 3), None, _S[:, :, :, :, ::-2], (40, 2), (3, -2), "01110", None),
+            ((5, 1, 2, 4, 3), None, _S[:, :, :, :, ::-2], (10, 4, 2), (12, 3, -2), "01110", (0, 2)),
+            ((5, 1, 2, 4, 3), None, _S[:, :, :, :, ::-2], (5, 2, 4, 2), (24, 12, 3, -2), "01110", (1, 2)),
+            ((5, 1, 2, 4, 3), None, _S[:, :, :, :, ::-2], (5, 8, 2), (24, 3, -2), "01110", (1, 3)),
+            ((5, 1, 2, 4, 3), None, _S[:, :, :, :, ::-2], (5, 8, 2), (24, 3, -2), "01110", (1, 4)),
+            ((5, 2, 4, 3), None, _S[:, ::-1, :, :], (5, 2, 12), (24, -12, 1), "0001", None),
+            ((5, 7, 4, 3), None, _S[:, ::-1, ::-1], (5, 28, 3), (84, -3, 1), "0010", None),
+            ((5, 4, 3, 7), (2, 3, 0, 1), _S[:], (21, 20), (1, 21), "0101", None),
+            ((5, 4, 3, 7), (3, 2, 0, 1), None, (7, 3, 20), (1, 7, 21), "0001", None),
             # random 64-dim shape with 4 non-unit extents 2, 3, 4, 5
-            (long_shape(py_rng, 64, 4, 5), None, None, (120,), (1,), "0" + "1" * 63),
+            (long_shape(py_rng, 64, 4, 5), None, None, (120,), (1,), "0" + "1" * 63, None),
         ]
         for stride_order in [DenseOrder.C, DenseOrder.IMPLICIT_C]
     ],
@@ -489,10 +495,12 @@ def test_flatten(
     expected_shape,
     expected_strides,
     expected_axis_mask,
+    axes_range,
 ):
     expected_shape = expected_shape.value
     expected_strides = expected_strides.value
     expected_axis_mask = expected_axis_mask.value
+    axes_range = axes_range.value
 
     layout, np_ref = _setup_layout_and_np_ref(layout_spec)
     _cmp_layout_and_array(layout, np_ref, layout_spec.has_no_strides())
@@ -503,17 +511,20 @@ def test_flatten(
     _cmp_layout_from_dense_vs_from_np(layout, np_ref, layout_spec.has_no_strides_transformed())
     _check_envelope(layout, layout_spec)
 
-    mask = flatten_mask2str(layout.flattened_axis_mask(), layout.ndim)
-    assert mask == expected_axis_mask
+    mask = layout.flattened_axis_mask()
+    assert flatten_mask2str(mask, layout.ndim) == expected_axis_mask
 
-    flattened = layout.flattened()
+    if axes_range is None:
+        flattened = layout.flattened()
+        assert layout.flattened(mask=mask) == flattened
+        # cannot be flattened any further
+        assert flattened.flattened_axis_mask() == 0
+    else:
+        flattened = layout.flattened(start_axis=axes_range[0], end_axis=axes_range[1])
     assert flattened.shape == expected_shape
     assert flattened.strides == expected_strides
     assert flattened.itemsize == layout_spec.itemsize
     assert flattened.slice_offset == layout.slice_offset
-
-    # cannot be flattened any further
-    assert flattened.flattened_axis_mask() == 0
 
 
 @pytest.mark.parametrize(

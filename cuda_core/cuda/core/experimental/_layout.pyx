@@ -734,7 +734,7 @@ cdef class StridedLayout:
 
         cdef BaseLayout flattened
         if old_volume != 0:
-            flatten_strides_in_c_index_order(flattened, self.base, AXIS_MASK_ALL)
+            flatten_strides_in_c_index_order(flattened, self.base, axis_mask_from_range(self.base.ndim, 0, -1))
             if not split_strides_in_c_index_order(new_shape, flattened):
                 raise ValueError("Layout strides are incompatible with the new shape")
 
@@ -769,7 +769,7 @@ cdef class StridedLayout:
         _swap_layout(out_layout.base, permuted)
         return 0
 
-    cdef int flatten_into(StridedLayout self, StridedLayout out_layout, axes_mask_t axis_mask=AXIS_MASK_ALL) except -1 nogil:
+    cdef int flatten_into(StridedLayout self, StridedLayout out_layout, axes_mask_t axis_mask) except -1 nogil:
         cdef BaseLayout flattened
         cdef int ndim = flatten_strides_in_c_index_order(flattened, self.base, axis_mask)
 
@@ -943,18 +943,18 @@ cdef inline int validate_reshaped_shape(BaseLayout& new_shape, int64_t old_volum
 
 
 cdef inline axes_mask_t axis_mask_from_range(int ndim, int start_axis, int end_axis) except? -1 nogil:
-    if ndim == 0 and start_axis == 0 and end_axis == -1:
-        return AXIS_MASK_ALL
-    cdef axes_mask_t axis_mask = AXIS_MASK_ALL
+    cdef axes_mask_t axes_mask = flatten_all_axes_mask(ndim)
+    if start_axis == 0 and end_axis == -1:
+        return axes_mask
     if not _normalize_axis(start_axis, ndim):
         raise ValueError(f"Invalid start axis: {start_axis} out of range for {ndim}D tensor")
     if not _normalize_axis(end_axis, ndim):
         raise ValueError(f"Invalid end axis: {end_axis} out of range for {ndim}D tensor")
     if start_axis > 0:
-        axis_mask &= (AXIS_MASK_ALL << (start_axis + 1))
+        axes_mask &= (AXES_MASK_ALL << start_axis)
     if end_axis < ndim:
-        axis_mask &= (AXIS_MASK_ALL >> (STRIDED_LAYOUT_MAX_NDIM - end_axis - 1))
-    return axis_mask
+        axes_mask &= (AXES_MASK_ALL >> (STRIDED_LAYOUT_MAX_NDIM - end_axis - 1))
+    return axes_mask
 
 
 cdef inline int flatten_strides_in_c_index_order(BaseLayout& out_layout, BaseLayout& in_layout, axes_mask_t axis_mask) except -1 nogil:
@@ -995,7 +995,7 @@ cdef inline int flatten_strides_in_c_index_order(BaseLayout& out_layout, BaseLay
 
 cdef inline axes_mask_t flattened_strides_in_c_index_order_mask(BaseLayout& layout) except? -1 nogil:
     if layout.strides == NULL:
-        return AXIS_MASK_ALL
+        return flatten_all_axes_mask(layout.ndim)
     cdef axes_mask_t axis_mask = 0
     cdef int ndim = layout.ndim
     cdef int group_start = 0
