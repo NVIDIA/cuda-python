@@ -292,8 +292,7 @@ jobs:
         id: setup-python2
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
         with:
-          # workaround for actions/runner-images#12377 (the cached 3.13.4 is buggy on Windows)
-          python-version: ${{ matrix.python-version == '3.13' && '3.13.5' || matrix.python-version }}
+          python-version: ${{ matrix.python-version }}
 
       - name: verify free-threaded build
         if: endsWith(matrix.python-version, 't')
