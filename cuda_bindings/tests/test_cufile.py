@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import contextlib
 import ctypes
 import errno
 import logging
@@ -122,19 +121,11 @@ def ctx():
     cuda.cuDevicePrimaryCtxRelease(device)
 
 
-@contextlib.contextmanager
-def raw_driver():
-    cufile.driver_open()
-    try:
-        yield
-    finally:
-        cufile.driver_close()
-
-
 @pytest.fixture
 def driver(ctx):
-    with raw_driver():
-        yield
+    cufile.driver_open()
+    yield
+    cufile.driver_close()
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
@@ -1891,8 +1882,11 @@ def test_set_parameter_posix_pool_slab_array(slab_sizes, slab_counts, driver_con
     retrieved_counts_addr = ctypes.addressof(retrieved_counts)
 
     # Open cuFile driver AFTER setting parameters
-    with raw_driver():
+    cufile.driver_open()
+    try:
         cufile.get_parameter_posix_pool_slab_array(retrieved_sizes_addr, retrieved_counts_addr, n_slab_sizes)
+    finally:
+        cufile.driver_close()
 
     # Verify they match what we set
     assert list(retrieved_sizes) == slab_sizes
