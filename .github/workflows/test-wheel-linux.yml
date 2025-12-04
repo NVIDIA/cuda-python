@@ -212,13 +212,15 @@ jobs:
           pwd
           ls -lahR $CUDA_CORE_CYTHON_TESTS_DIR
 
+          mkdir -p ${HOME}/setup_python
+
       - name: Set up Python ${{ matrix.PY_VER }}
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
         with:
           python-version: ${{ matrix.PY_VER }}
         env:
-          # we use self-hosted runners on which setup-python behaves weirdly...
-          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
+          # we use self-hosted runners on which setup-python behaves weirdly (Python include can't be found)...
+          AGENT_TOOLSDIRECTORY: "${HOME}/setup_python"
 
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}
