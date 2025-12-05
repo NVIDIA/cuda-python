@@ -218,7 +218,7 @@ jobs:
           python-version: ${{ matrix.PY_VER }}
         env:
           # we use self-hosted runners on which setup-python behaves weirdly (Python include can't be found)...
-          AGENT_TOOLSDIRECTORY: "./setup_python"
+          AGENT_TOOLSDIRECTORY: ${{ runner.temp }}/setup_python
 
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}
