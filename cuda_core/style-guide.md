@@ -23,7 +23,8 @@ This style guide defines conventions for Python and Cython code in `cuda/core/ex
 15. [Performance Considerations](#performance-considerations)
 16. [API Design Principles](#api-design-principles)
 17. [CUDA-Specific Patterns](#cuda-specific-patterns)
-18. [Copyright and Licensing](#copyright-and-licensing)
+18. [Development Lifecycle](#development-lifecycle)
+19. [Copyright and Licensing](#copyright-and-licensing)
 
 ---
 
@@ -1776,6 +1777,167 @@ cdef inline void DMR_close(DeviceMemoryResource self):
         self._handle = NULL
         # ... cleanup ...
 ```
+
+## Development Lifecycle
+
+### Two-Phase Development Approach
+
+When implementing new CUDA functionality, follow a two-phase development approach:
+
+1. **Phase 1: Python Implementation with Tests**
+   - Start with a pure Python implementation using the CUDA driver module
+   - Write comprehensive tests to verify correctness
+   - Ensure all tests pass before proceeding to Phase 2
+
+2. **Phase 2: Cythonization for Performance**
+   - After tests are passing, optimize by switching to `cydriver`
+   - Add `with nogil:` blocks around CUDA driver API calls
+   - Use `HANDLE_RETURN` macro for error handling
+   - Verify tests still pass after optimization
+
+### Phase 1: Initial Python Implementation
+
+Begin with a straightforward Python implementation using the `driver` module from `cuda.core.experimental._utils.cuda_utils`:
+
+```python
+from cuda.core.experimental._utils.cuda_utils import driver
+from cuda.core.experimental._utils.cuda_utils cimport (
+    _check_driver_error as raise_if_driver_error,
+)
+
+def copy_to(self, dst: Buffer = None, *, stream: Stream | GraphBuilder) -> Buffer:
+    stream = Stream_accept(stream)
+    cdef size_t src_size = self._size
+    
+    # ... validation logic ...
+    
+    err, = driver.cuMemcpyAsync(dst._ptr, self._ptr, src_size, stream.handle)
+    raise_if_driver_error(err)
+    return dst
+```
+
+**Benefits of starting with Python:**
+- Faster iteration during development
+- Easier debugging with Python stack traces
+- Simpler error handling
+- Focus on correctness before optimization
+
+### Phase 2: Cythonization Process
+
+Once tests are passing, optimize the implementation by:
+
+1. **Switching to `cydriver`**: Replace `driver` module calls with direct `cydriver` calls
+2. **Adding `with nogil:` blocks**: Wrap CUDA driver API calls to release the GIL
+3. **Using `HANDLE_RETURN`**: Replace `raise_if_driver_error()` with the `HANDLE_RETURN` macro
+4. **Casting stream handles**: Access the C-level stream handle for `cydriver` calls
+
+#### Step-by-Step Conversion
+
+**Step 1: Update imports**
+
+```python
+# Remove Python driver import
+# from cuda.core.experimental._utils.cuda_utils import driver
+
+# Add cydriver cimport
+from cuda.bindings cimport cydriver
+
+# Add HANDLE_RETURN
+from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
+```
+
+**Step 2: Cast stream and extract C-level handle**
+
+```python
+stream = Stream_accept(stream)
+cdef Stream s_stream = <Stream>stream
+cdef cydriver.CUstream s = s_stream._handle
+```
+
+**Step 3: Wrap driver calls in `with nogil:` and use `HANDLE_RETURN`**
+
+```python
+# Before (Python driver):
+err, = driver.cuMemcpyAsync(dst._ptr, self._ptr, src_size, stream.handle)
+raise_if_driver_error(err)
+
+# After (cydriver):
+with nogil:
+    HANDLE_RETURN(cydriver.cuMemcpyAsync(
+        <cydriver.CUdeviceptr>dst._ptr,
+        <cydriver.CUdeviceptr>self._ptr,
+        src_size,
+        s
+    ))
+```
+
+**Step 4: Cast pointers to `cydriver.CUdeviceptr`**
+
+All device pointers passed to `cydriver` functions must be cast to `cydriver.CUdeviceptr`:
+
+```python
+<cydriver.CUdeviceptr>self._ptr
+```
+
+### Complete Example: Before and After
+
+**Before (Python driver implementation):**
+
+```python
+from cuda.core.experimental._utils.cuda_utils import driver
+from cuda.core.experimental._utils.cuda_utils cimport (
+    _check_driver_error as raise_if_driver_error,
+)
+
+def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
+    stream = Stream_accept(stream)
+    cdef size_t buffer_size = self._size
+    cdef unsigned char c_value8
+    
+    # Validation...
+    if width == 1:
+        c_value8 = <unsigned char>value
+        N = buffer_size
+        err, = driver.cuMemsetD8Async(self._ptr, c_value8, N, stream.handle)
+        raise_if_driver_error(err)
+```
+
+**After (Cythonized with cydriver):**
+
+```python
+from cuda.bindings cimport cydriver
+from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
+
+def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
+    stream = Stream_accept(stream)
+    cdef Stream s_stream = <Stream>stream
+    cdef cydriver.CUstream s = s_stream._handle
+    cdef size_t buffer_size = self._size
+    cdef unsigned char c_value8
+    
+    # Validation...
+    if width == 1:
+        c_value8 = <unsigned char>value
+        N = buffer_size
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemsetD8Async(
+                <cydriver.CUdeviceptr>self._ptr, c_value8, N, s
+            ))
+```
+
+### Guidelines
+
+1. **Always write tests first**: Implement comprehensive tests before optimizing. This ensures correctness is established before performance improvements.
+
+2. **Verify tests after optimization**: After converting to `cydriver`, run all tests to ensure behavior is unchanged.
+
+3. **Don't skip Phase 1**: Even if you're confident about the implementation, starting with Python helps catch logic errors early.
+
+4. **Performance benefits**: The Cythonized version eliminates Python overhead and releases the GIL, providing significant performance improvements for CUDA operations.
+
+5. **Consistent pattern**: Follow this pattern for all new CUDA driver API wrappers to maintain consistency across the codebase.
+
+6. **Error handling**: The `HANDLE_RETURN` macro is designed to work in `nogil` contexts and will automatically raise appropriate exceptions when needed.
 
 ## Copyright and Licensing
 
