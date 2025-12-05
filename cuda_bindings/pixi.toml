@@ -53,7 +53,7 @@ cuda = "13"
 
 [feature.cu13.dependencies]
 # TODO: make cuda-version a build-variant
-cuda-version = "13.*"
+cuda-version = "13.1.*"
 
 [environments]
 cu13 = { features = ["cu13", "test", "cython-tests"], solve-group = "cu13" }
@@ -61,7 +61,7 @@ cu13 = { features = ["cu13", "test", "cython-tests"], solve-group = "cu13" }
 # TODO: check if these can be extracted from pyproject.toml
 [package]
 name = "cuda-bindings"
-version = "13.0.3"
+version = "13.1.0"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }
