@@ -106,20 +106,26 @@ cdef class StridedMemoryView:
             if check_has_dlpack(obj):
                 warnings.warn(
                     f"Constructing a {clsname} directly from a DLPack-supporting object is deprecated; "
-                    "Use `StridedMemoryView.from_dlpack` or `StridedMemoryView.from_any_interface` instead."
+                    "Use `StridedMemoryView.from_dlpack` or `StridedMemoryView.from_any_interface` instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
                 )
                 view_as_dlpack(obj, stream_ptr, self)
             else:
                 warnings.warn(
                     f"Constructing a {clsname} directly from a CUDA-array-interface-supporting object is deprecated; "
-                    "Use `StridedMemoryView.from_cuda_array_interface` or `StridedMemoryView.from_any_interface` instead."
+                    "Use `StridedMemoryView.from_cuda_array_interface` or `StridedMemoryView.from_any_interface` instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
                 )
                 view_as_cai(obj, stream_ptr, self)
         else:
             warnings.warn(
                 f"Constructing an empty {clsname} is deprecated; "
                 "use one of the classmethods `from_dlpack`, `from_cuda_array_interface` or `from_any_interface` "
-                "to construct a StridedMemoryView from an object"
+                "to construct a StridedMemoryView from an object",
+                DeprecationWarning,
+                stacklevel=2,
             )
 
     @classmethod
