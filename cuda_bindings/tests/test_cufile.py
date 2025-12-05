@@ -24,46 +24,18 @@ logging.basicConfig(
     force=True,  # Override any existing logging configuration
 )
 
-
-def platform_is_tegra_linux():
-    return pathlib.Path("/etc/nv_tegra_release").exists()
-
-
-if platform_is_tegra_linux():
-    pytest.skip("skipping cuFile tests on Tegra Linux", allow_module_level=True)
-
-
-def platform_is_wsl():
-    """Check if running on Windows Subsystem for Linux (WSL)."""
-    return platform.system() == "Linux" and "microsoft" in pathlib.Path("/proc/version").read_text().lower()
-
-
-if platform_is_wsl():
-    pytest.skip("skipping cuFile tests on WSL", allow_module_level=True)
-
-
-from cuda.bindings.cufile import cuFileError
+cufile = pytest.importorskip("cuda.bindings.cufile", reason="skipping tests on Windows")
 
 
 @pytest.fixture
-def cufile_env_json():
+def cufile_env_json(monkeypatch):
     """Set CUFILE_ENV_PATH_JSON environment variable for async tests."""
-    original_value = os.environ.get("CUFILE_ENV_PATH_JSON")
-
     # Get absolute path to cufile.json in the same directory as this test file
     test_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(test_dir, "cufile.json")
-    logging.info(f"Using cuFile config: {config_path}")
     assert os.path.isfile(config_path)
-    os.environ["CUFILE_ENV_PATH_JSON"] = config_path
-
-    yield
-
-    # Restore original value or remove if it wasn't set
-    if original_value is not None:
-        os.environ["CUFILE_ENV_PATH_JSON"] = original_value
-    else:
-        del os.environ["CUFILE_ENV_PATH_JSON"]
+    monkeypatch.setenv("CUFILE_ENV_PATH_JSON", config_path)
+    logging.info(f"Using cuFile config: {config_path}")
 
 
 @cache
@@ -108,11 +80,18 @@ def isSupportedFilesystem():
 
 
 # Global skip condition for all tests if cuFile library is not available
-pytestmark = pytest.mark.skipif(not cufileLibraryAvailable(), reason="cuFile library not available on this system")
+pytestmark = [
+    pytest.mark.skipif(not cufileLibraryAvailable(), reason="cuFile library not available on this system"),
+    pytest.mark.skipif(
+        platform.system() == "Linux" and "microsoft" in pathlib.Path("/proc/version").read_text().lower(),
+        reason="skipping cuFile tests on WSL",
+    ),
+    pytest.mark.skipif(pathlib.Path("/etc/nv_tegra_release").exists(), reason="skipping cuFile tests on Tegra Linux"),
+]
 
 xfail_handle_register = pytest.mark.xfail(
     condition=isSupportedFilesystem() and os.environ.get("CI") is not None,
-    raises=cuFileError,
+    raises=cufile.cuFileError,
     reason="handle_register call fails in CI for unknown reasons",
 )
 
@@ -615,13 +594,10 @@ def test_cufile_read_write_large():
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("ctx")
+@pytest.mark.usefixtures("ctx", "cufile_env_json", "driver")
 @xfail_handle_register
-def test_cufile_write_async(cufile_env_json):
+def test_cufile_write_async():
     """Test cuFile asynchronous write operations."""
-    # Open cuFile driver
-    cufile.driver_open()
-
     # Create test file
     file_path = "test_cufile_write_async.bin"
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
@@ -693,17 +669,13 @@ def test_cufile_write_async(cufile_env_json):
         os.close(fd)
         with suppress(OSError):
             os.unlink(file_path)
-        cufile.driver_close()
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("ctx")
+@pytest.mark.usefixtures("ctx", "cufile_env_json", "driver")
 @xfail_handle_register
-def test_cufile_read_async(cufile_env_json):
+def test_cufile_read_async():
     """Test cuFile asynchronous read operations."""
-    # Open cuFile driver
-    cufile.driver_open()
-
     # Create test file
     file_path = "test_cufile_read_async.bin"
 
@@ -788,17 +760,13 @@ def test_cufile_read_async(cufile_env_json):
         os.close(fd)
         with suppress(OSError):
             os.unlink(file_path)
-        cufile.driver_close()
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
-@pytest.mark.usefixtures("ctx")
 @xfail_handle_register
-def test_cufile_async_read_write(cufile_env_json):
+@pytest.mark.usefixtures("ctx", "cufile_env_json", "driver")
+def test_cufile_async_read_write():
     """Test cuFile asynchronous read and write operations in sequence."""
-    # Open cuFile driver
-    cufile.driver_open()
-
     # Create test file
     file_path = "test_cufile_async_rw.bin"
     fd = os.open(file_path, os.O_CREAT | os.O_RDWR | os.O_DIRECT, 0o600)
@@ -906,7 +874,6 @@ def test_cufile_async_read_write(cufile_env_json):
         os.close(fd)
         with suppress(OSError):
             os.unlink(file_path)
-        cufile.driver_close()
 
 
 @pytest.mark.skipif(not isSupportedFilesystem(), reason="cuFile handle_register requires ext4 or xfs filesystem")
@@ -1864,30 +1831,30 @@ def test_get_bar_size_in_kb():
     logging.info(f"GPU BAR size: {bar_size_kb} KB ({bar_size_kb / 1024 / 1024:.2f} GB)")
 
 
-@pytest.mark.skipif(
-    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
-)
-@pytest.mark.usefixtures("ctx")
-def test_set_parameter_posix_pool_slab_array():
-    """Test cuFile POSIX pool slab array configuration."""
-    # Define slab sizes for POSIX I/O pool (common I/O buffer sizes) - BEFORE driver open
-    import ctypes
-
-    slab_sizes = [
+@pytest.fixture(scope="module")
+def slab_sizes():
+    """Define slab sizes for POSIX I/O pool (common I/O buffer sizes) - BEFORE driver open"""
+    return [
         4096,  # 4KB - small files
         65536,  # 64KB - medium files
         1048576,  # 1MB - large files
         16777216,  # 16MB - very large files
     ]
 
-    # Define counts for each slab size (number of buffers)
-    slab_counts = [
+
+@pytest.fixture(scope="module")
+def slab_counts():
+    """Define counts for each slab size (number of buffers)"""
+    return [
         10,  # 10 buffers of 4KB
         5,  # 5 buffers of 64KB
         3,  # 3 buffers of 1MB
         2,  # 2 buffers of 16MB
     ]
 
+
+@pytest.fixture
+def driver_config(slab_sizes, slab_counts):
     # Convert to ctypes arrays
     size_array_type = ctypes.c_size_t * len(slab_sizes)
     count_array_type = ctypes.c_size_t * len(slab_counts)
@@ -1899,32 +1866,28 @@ def test_set_parameter_posix_pool_slab_array():
         ctypes.addressof(size_array), ctypes.addressof(count_array), len(slab_sizes)
     )
 
+
+@pytest.mark.skipif(
+    cufileVersionLessThan(1150), reason="cuFile parameter APIs require cuFile library version 13.0 or later"
+)
+@pytest.mark.usefixtures("ctx")
+def test_set_parameter_posix_pool_slab_array(slab_sizes, slab_counts, driver_config):
+    """Test cuFile POSIX pool slab array configuration."""
+    # After setting parameters, retrieve them back to verify
+    n_slab_sizes = len(slab_sizes)
+    retrieved_sizes = (ctypes.c_size_t * n_slab_sizes)()
+    retrieved_counts = (ctypes.c_size_t * len(slab_counts))()
+
+    retrieved_sizes_addr = ctypes.addressof(retrieved_sizes)
+    retrieved_counts_addr = ctypes.addressof(retrieved_counts)
+
     # Open cuFile driver AFTER setting parameters
     cufile.driver_open()
-
     try:
-        # After setting parameters, retrieve them back to verify
-        retrieved_sizes = (ctypes.c_size_t * len(slab_sizes))()
-        retrieved_counts = (ctypes.c_size_t * len(slab_counts))()
-
-        cufile.get_parameter_posix_pool_slab_array(
-            ctypes.addressof(retrieved_sizes), ctypes.addressof(retrieved_counts), len(slab_sizes)
-        )
-
-        # Verify they match what we set
-        for i in range(len(slab_sizes)):
-            assert retrieved_sizes[i] == slab_sizes[i], (
-                f"Size mismatch at index {i}: expected {slab_sizes[i]}, got {retrieved_sizes[i]}"
-            )
-            assert retrieved_counts[i] == slab_counts[i], (
-                f"Count mismatch at index {i}: expected {slab_counts[i]}, got {retrieved_counts[i]}"
-            )
-
-        # Verify configuration was accepted successfully
-        logging.info(f"POSIX pool slab array configured with {len(slab_sizes)} slab sizes")
-        logging.info(f"Slab sizes: {[f'{size // 1024}KB' for size in slab_sizes]}")
-        logging.info("Round-trip verification successful: set and retrieved values match")
-
+        cufile.get_parameter_posix_pool_slab_array(retrieved_sizes_addr, retrieved_counts_addr, n_slab_sizes)
     finally:
-        # Close cuFile driver
         cufile.driver_close()
+
+    # Verify they match what we set
+    assert list(retrieved_sizes) == slab_sizes
+    assert list(retrieved_counts) == slab_counts
