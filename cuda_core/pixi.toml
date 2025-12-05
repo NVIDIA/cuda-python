@@ -16,6 +16,7 @@ cuda-core = { path = "." }
 [feature.test.dependencies]
 pytest = "*"
 pytest-benchmark = "*"
+pytest-randomly = "*"
 
 [feature.cython-tests.dependencies]
 cython = ">=3.2,<3.3"     # for tests that exercise APIs from cython
