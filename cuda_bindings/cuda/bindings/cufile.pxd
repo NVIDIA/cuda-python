@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 12.9.1. Do not modify it directly.
+# This code was automatically generated with version 12.9.1. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -46,8 +46,6 @@ cpdef intptr_t handle_register(intptr_t descr) except? 0
 cpdef void handle_deregister(intptr_t fh) except*
 cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags)
 cpdef buf_deregister(intptr_t buf_ptr_base)
-cpdef read(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset)
-cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset)
 cpdef driver_open()
 cpdef use_count()
 cpdef driver_get_properties(intptr_t props)

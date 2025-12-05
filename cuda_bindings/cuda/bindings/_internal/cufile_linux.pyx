@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 12.9.1. Do not modify it directly.
+# This code was automatically generated with version 12.9.1. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 import threading
@@ -18,6 +18,8 @@ import cython
 # Extern
 ###############################################################################
 
+# You must 'from .utils import NotSupportedError' before using this template
+
 cdef extern from "<dlfcn.h>" nogil:
     void* dlopen(const char*, int)
     char* dlerror()
@@ -32,6 +34,25 @@ cdef extern from "<dlfcn.h>" nogil:
 
     const void* RTLD_DEFAULT 'RTLD_DEFAULT'
 
+cdef int get_cuda_version():
+    cdef void* handle = NULL
+    cdef int err, driver_ver = 0
+
+    # Load driver to check version
+    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
+    if handle == NULL:
+        err_msg = dlerror()
+        raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
+    cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
+    if cuDriverGetVersion == NULL:
+        raise RuntimeError('Did not find cuDriverGetVersion symbol in libcuda.so.1')
+    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
+    if err != 0:
+        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
+
+    return driver_ver
+
+
 
 ###############################################################################
 # Wrapper init
@@ -39,7 +60,6 @@ cdef extern from "<dlfcn.h>" nogil:
 
 cdef object __symbol_lock = threading.Lock()
 cdef bint __py_cufile_init = False
-cdef void* __cuDriverGetVersion = NULL
 
 cdef void* __cuFileHandleRegister = NULL
 cdef void* __cuFileHandleDeregister = NULL
@@ -48,6 +68,7 @@ cdef void* __cuFileBufDeregister = NULL
 cdef void* __cuFileRead = NULL
 cdef void* __cuFileWrite = NULL
 cdef void* __cuFileDriverOpen = NULL
+cdef void* __cuFileDriverClose = NULL
 cdef void* __cuFileDriverClose_v2 = NULL
 cdef void* __cuFileUseCount = NULL
 cdef void* __cuFileDriverGetProperties = NULL
@@ -71,7 +92,6 @@ cdef void* __cuFileGetParameterString = NULL
 cdef void* __cuFileSetParameterSizeT = NULL
 cdef void* __cuFileSetParameterBool = NULL
 cdef void* __cuFileSetParameterString = NULL
-cdef void* __cuFileDriverClose = NULL
 
 
 cdef void* load_library() except* with gil:
@@ -79,12 +99,15 @@ cdef void* load_library() except* with gil:
     return <void*>handle
 
 
-cdef int __check_or_init_cufile() except -1 nogil:
+cdef int _init_cufile() except -1 nogil:
     global __py_cufile_init
 
     cdef void* handle = NULL
 
     with gil, __symbol_lock:
+        # Recheck the flag after obtaining the locks
+        if __py_cufile_init:
+            return 0
         # Load function
         global __cuFileHandleRegister
         __cuFileHandleRegister = dlsym(RTLD_DEFAULT, 'cuFileHandleRegister')
@@ -134,6 +157,13 @@ cdef int __check_or_init_cufile() except -1 nogil:
             if handle == NULL:
                 handle = load_library()
             __cuFileDriverOpen = dlsym(handle, 'cuFileDriverOpen')
+
+        global __cuFileDriverClose
+        __cuFileDriverClose = dlsym(RTLD_DEFAULT, 'cuFileDriverClose')
+        if __cuFileDriverClose == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileDriverClose = dlsym(handle, 'cuFileDriverClose')
 
         global __cuFileDriverClose_v2
         __cuFileDriverClose_v2 = dlsym(RTLD_DEFAULT, 'cuFileDriverClose_v2')
@@ -296,13 +326,6 @@ cdef int __check_or_init_cufile() except -1 nogil:
                 handle = load_library()
             __cuFileSetParameterString = dlsym(handle, 'cuFileSetParameterString')
 
-        global __cuFileDriverClose
-        __cuFileDriverClose = dlsym(RTLD_DEFAULT, 'cuFileDriverClose')
-        if __cuFileDriverClose == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __cuFileDriverClose = dlsym(handle, 'cuFileDriverClose')
-
         __py_cufile_init = True
         return 0
 
@@ -311,7 +334,7 @@ cdef inline int _check_or_init_cufile() except -1 nogil:
     if __py_cufile_init:
         return 0
 
-    return __check_or_init_cufile()
+    return _init_cufile()
 
 
 cdef dict func_ptrs = None
@@ -345,6 +368,9 @@ cpdef dict _inspect_function_pointers():
 
     global __cuFileDriverOpen
     data["__cuFileDriverOpen"] = <intptr_t>__cuFileDriverOpen
+
+    global __cuFileDriverClose
+    data["__cuFileDriverClose"] = <intptr_t>__cuFileDriverClose
 
     global __cuFileDriverClose_v2
     data["__cuFileDriverClose_v2"] = <intptr_t>__cuFileDriverClose_v2
@@ -414,9 +440,6 @@ cpdef dict _inspect_function_pointers():
 
     global __cuFileSetParameterString
     data["__cuFileSetParameterString"] = <intptr_t>__cuFileSetParameterString
-
-    global __cuFileDriverClose
-    data["__cuFileDriverClose"] = <intptr_t>__cuFileDriverClose
 
     func_ptrs = data
     return data
@@ -501,6 +524,16 @@ cdef CUfileError_t _cuFileDriverOpen() except?<CUfileError_t>CUFILE_LOADING_ERRO
         with gil:
             raise FunctionNotFoundError("function cuFileDriverOpen is not found")
     return (<CUfileError_t (*)() noexcept nogil>__cuFileDriverOpen)(
+        )
+
+
+cdef CUfileError_t _cuFileDriverClose() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileDriverClose
+    _check_or_init_cufile()
+    if __cuFileDriverClose == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileDriverClose is not found")
+    return (<CUfileError_t (*)() noexcept nogil>__cuFileDriverClose)(
         )
 
 
@@ -733,13 +766,3 @@ cdef CUfileError_t _cuFileSetParameterString(CUFileStringConfigParameter_t param
             raise FunctionNotFoundError("function cuFileSetParameterString is not found")
     return (<CUfileError_t (*)(CUFileStringConfigParameter_t, const char*) noexcept nogil>__cuFileSetParameterString)(
         param, desc_str)
-
-
-cdef CUfileError_t _cuFileDriverClose() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
-    global __cuFileDriverClose
-    _check_or_init_cufile()
-    if __cuFileDriverClose == NULL:
-        with gil:
-            raise FunctionNotFoundError("function cuFileDriverClose is not found")
-    return (<CUfileError_t (*)() noexcept nogil>__cuFileDriverClose)(
-        )

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 12.9.1. Do not modify it directly.
+# This code was automatically generated with version 12.9.1. Do not modify it directly.
 
 from ._internal cimport cufile as _cufile
 
@@ -39,6 +39,10 @@ cdef ssize_t cuFileWrite(CUfileHandle_t fh, const void* bufPtr_base, size_t size
 
 cdef CUfileError_t cuFileDriverOpen() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     return _cufile._cuFileDriverOpen()
+
+
+cdef CUfileError_t cuFileDriverClose() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileDriverClose()
 
 
 cdef CUfileError_t cuFileDriverClose_v2() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
@@ -132,7 +136,3 @@ cdef CUfileError_t cuFileSetParameterBool(CUFileBoolConfigParameter_t param, cpp
 
 cdef CUfileError_t cuFileSetParameterString(CUFileStringConfigParameter_t param, const char* desc_str) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     return _cufile._cuFileSetParameterString(param, desc_str)
-
-
-cdef CUfileError_t cuFileDriverClose() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
-    return _cufile._cuFileDriverClose()

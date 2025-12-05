@@ -2,15 +2,12 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 12.9.1. Do not modify it directly.
+# This code was automatically generated with version 12.9.1. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
 from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
-import numpy as _numpy
-from cpython cimport buffer as _buffer
-from cpython.memoryview cimport PyMemoryView_FromMemory
 from enum import IntEnum as _IntEnum
 cimport cpython
 
@@ -18,6 +15,25 @@ import cython
 
 from cuda.bindings.driver import CUresult as pyCUresult
 
+from libc.stdlib cimport calloc, free, malloc
+from cython cimport view
+cimport cpython.buffer
+cimport cpython.memoryview
+from libc.string cimport memcmp, memcpy
+import numpy as _numpy
+
+
+cdef __from_data(data, dtype_name, expected_dtype, lowpp_type):
+    # _numpy.recarray is a subclass of _numpy.ndarray, so implicitly handled here.
+    if isinstance(data, lowpp_type):
+        return data
+    if not isinstance(data, _numpy.ndarray):
+        raise TypeError("data argument must be a NumPy ndarray")
+    if data.size != 1:
+        raise ValueError("data array must have a size of 1")
+    if data.dtype != expected_dtype:
+        raise ValueError(f"data array must be of dtype {dtype_name}")
+    return lowpp_type.from_ptr(data.ctypes.data, not data.flags.writeable, data)
 
 ###############################################################################
 # POD
@@ -39,13 +55,25 @@ cdef class _py_anon_pod1:
     .. seealso:: `_anon_pod1`
     """
     cdef:
-        readonly object _data
+        _anon_pod1 *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
 
     def __init__(self):
-        arr = _numpy.empty(1, dtype=_py_anon_pod1_dtype)
-        self._data = arr.view(_numpy.recarray)
-        assert self._data.itemsize == sizeof((<CUfileDescr_t*>NULL).handle), \
-            f"itemsize {self._data.itemsize} mismatches union size {sizeof((<CUfileDescr_t*>NULL).handle)}"
+        self._ptr = <_anon_pod1 *>calloc(1, sizeof((<CUfileDescr_t*>NULL).handle))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating _py_anon_pod1")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef _anon_pod1 *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod1 object at {hex(id(self))}>"
@@ -53,87 +81,106 @@ cdef class _py_anon_pod1:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
 
     def __int__(self):
-        return self._data.ctypes.data
+        return <intptr_t>(self._ptr)
 
     def __eq__(self, other):
+        cdef _py_anon_pod1 other_
         if not isinstance(other, _py_anon_pod1):
             return False
-        if self._data.size != other._data.size:
-            return False
-        if self._data.dtype != other._data.dtype:
-            return False
-        return bool((self._data == other._data).all())
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileDescr_t*>NULL).handle)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <_anon_pod1 *>malloc(sizeof((<CUfileDescr_t*>NULL).handle))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating _py_anon_pod1")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileDescr_t*>NULL).handle))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
 
     @property
     def fd(self):
         """int: """
-        return int(self._data.fd[0])
+        return self._ptr[0].fd
 
     @fd.setter
     def fd(self, val):
-        self._data.fd = val
+        if self._readonly:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
+        self._ptr[0].fd = val
 
     @property
     def handle(self):
         """int: """
-        return int(self._data.handle[0])
+        return <intptr_t>(self._ptr[0].handle)
 
     @handle.setter
     def handle(self, val):
-        self._data.handle = val
-
-    def __setitem__(self, key, val):
-        self._data[key] = val
+        if self._readonly:
+            raise ValueError("This _py_anon_pod1 instance is read-only")
+        self._ptr[0].handle = <void *><intptr_t>val
 
     @staticmethod
     def from_data(data):
         """Create an _py_anon_pod1 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a 1D array of dtype `_py_anon_pod1_dtype` holding the data.
+            data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod1_dtype` holding the data.
         """
-        cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
-        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
-            raise TypeError("data argument must be a NumPy ndarray")
-        if data.ndim != 1:
-            raise ValueError("data array must be 1D")
-        if data.dtype != _py_anon_pod1_dtype:
-            raise ValueError("data array must be of dtype _py_anon_pod1_dtype")
-        obj._data = data.view(_numpy.recarray)
-
-        return obj
+        return __from_data(data, "_py_anon_pod1_dtype", _py_anon_pod1_dtype, _py_anon_pod1)
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False):
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
         """Create an _py_anon_pod1 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod1 obj = _py_anon_pod1.__new__(_py_anon_pod1)
-        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
-        cdef object buf = PyMemoryView_FromMemory(
-            <char*>ptr, sizeof((<CUfileDescr_t*>NULL).handle), flag)
-        data = _numpy.ndarray((1,), buffer=buf,
-                              dtype=_py_anon_pod1_dtype)
-        obj._data = data.view(_numpy.recarray)
-
+        if owner is None:
+            obj._ptr = <_anon_pod1 *>malloc(sizeof((<CUfileDescr_t*>NULL).handle))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating _py_anon_pod1")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileDescr_t*>NULL).handle))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <_anon_pod1 *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
         return obj
 
 
-_py_anon_pod3_dtype = _numpy.dtype([
-    ("dev_ptr_base", _numpy.intp, ),
-    ("file_offset", _numpy.int64, ),
-    ("dev_ptr_offset", _numpy.int64, ),
-    ("size_", _numpy.uint64, ),
-    ], align=True)
+cdef _get__py_anon_pod3_dtype_offsets():
+    cdef _anon_pod3 pod = _anon_pod3()
+    return _numpy.dtype({
+        'names': ['dev_ptr_base', 'file_offset', 'dev_ptr_offset', 'size_'],
+        'formats': [_numpy.intp, _numpy.int64, _numpy.int64, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.devPtr_base)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.file_offset)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.devPtr_offset)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.size)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof((<CUfileIOParams_t*>NULL).u.batch),
+    })
 
+_py_anon_pod3_dtype = _get__py_anon_pod3_dtype_offsets()
 
 cdef class _py_anon_pod3:
     """Empty-initialize an instance of `_anon_pod3`.
@@ -142,13 +189,25 @@ cdef class _py_anon_pod3:
     .. seealso:: `_anon_pod3`
     """
     cdef:
-        readonly object _data
+        _anon_pod3 *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
 
     def __init__(self):
-        arr = _numpy.empty(1, dtype=_py_anon_pod3_dtype)
-        self._data = arr.view(_numpy.recarray)
-        assert self._data.itemsize == sizeof((<CUfileIOParams_t*>NULL).u.batch), \
-            f"itemsize {self._data.itemsize} mismatches struct size {sizeof((<CUfileIOParams_t*>NULL).u.batch)}"
+        self._ptr = <_anon_pod3 *>calloc(1, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating _py_anon_pod3")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef _anon_pod3 *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod3 object at {hex(id(self))}>"
@@ -156,104 +215,127 @@ cdef class _py_anon_pod3:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
 
     def __int__(self):
-        return self._data.ctypes.data
+        return <intptr_t>(self._ptr)
 
     def __eq__(self, other):
+        cdef _py_anon_pod3 other_
         if not isinstance(other, _py_anon_pod3):
             return False
-        if self._data.size != other._data.size:
-            return False
-        if self._data.dtype != other._data.dtype:
-            return False
-        return bool((self._data == other._data).all())
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u.batch)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <_anon_pod3 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating _py_anon_pod3")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
 
     @property
     def dev_ptr_base(self):
         """int: """
-        return int(self._data.dev_ptr_base[0])
+        return <intptr_t>(self._ptr[0].devPtr_base)
 
     @dev_ptr_base.setter
     def dev_ptr_base(self, val):
-        self._data.dev_ptr_base = val
+        if self._readonly:
+            raise ValueError("This _py_anon_pod3 instance is read-only")
+        self._ptr[0].devPtr_base = <void *><intptr_t>val
 
     @property
     def file_offset(self):
         """int: """
-        return int(self._data.file_offset[0])
+        return self._ptr[0].file_offset
 
     @file_offset.setter
     def file_offset(self, val):
-        self._data.file_offset = val
+        if self._readonly:
+            raise ValueError("This _py_anon_pod3 instance is read-only")
+        self._ptr[0].file_offset = val
 
     @property
     def dev_ptr_offset(self):
         """int: """
-        return int(self._data.dev_ptr_offset[0])
+        return self._ptr[0].devPtr_offset
 
     @dev_ptr_offset.setter
     def dev_ptr_offset(self, val):
-        self._data.dev_ptr_offset = val
+        if self._readonly:
+            raise ValueError("This _py_anon_pod3 instance is read-only")
+        self._ptr[0].devPtr_offset = val
 
     @property
     def size_(self):
         """int: """
-        return int(self._data.size_[0])
+        return self._ptr[0].size
 
     @size_.setter
     def size_(self, val):
-        self._data.size_ = val
-
-    def __setitem__(self, key, val):
-        self._data[key] = val
+        if self._readonly:
+            raise ValueError("This _py_anon_pod3 instance is read-only")
+        self._ptr[0].size = val
 
     @staticmethod
     def from_data(data):
         """Create an _py_anon_pod3 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a 1D array of dtype `_py_anon_pod3_dtype` holding the data.
+            data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod3_dtype` holding the data.
         """
-        cdef _py_anon_pod3 obj = _py_anon_pod3.__new__(_py_anon_pod3)
-        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
-            raise TypeError("data argument must be a NumPy ndarray")
-        if data.ndim != 1:
-            raise ValueError("data array must be 1D")
-        if data.dtype != _py_anon_pod3_dtype:
-            raise ValueError("data array must be of dtype _py_anon_pod3_dtype")
-        obj._data = data.view(_numpy.recarray)
-
-        return obj
+        return __from_data(data, "_py_anon_pod3_dtype", _py_anon_pod3_dtype, _py_anon_pod3)
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False):
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
         """Create an _py_anon_pod3 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod3 obj = _py_anon_pod3.__new__(_py_anon_pod3)
-        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
-        cdef object buf = PyMemoryView_FromMemory(
-            <char*>ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch), flag)
-        data = _numpy.ndarray((1,), buffer=buf,
-                              dtype=_py_anon_pod3_dtype)
-        obj._data = data.view(_numpy.recarray)
-
+        if owner is None:
+            obj._ptr = <_anon_pod3 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating _py_anon_pod3")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u.batch))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <_anon_pod3 *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
         return obj
 
 
-io_events_dtype = _numpy.dtype([
-    ("cookie", _numpy.intp, ),
-    ("status", _numpy.int32, ),
-    ("ret", _numpy.uint64, ),
-    ], align=True)
+cdef _get_io_events_dtype_offsets():
+    cdef CUfileIOEvents_t pod = CUfileIOEvents_t()
+    return _numpy.dtype({
+        'names': ['cookie', 'status', 'ret'],
+        'formats': [_numpy.intp, _numpy.int32, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.cookie)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ret)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileIOEvents_t),
+    })
 
+io_events_dtype = _get_io_events_dtype_offsets()
 
 cdef class IOEvents:
     """Empty-initialize an array of `CUfileIOEvents_t`.
@@ -270,11 +352,13 @@ cdef class IOEvents:
     cdef:
         readonly object _data
 
+
+
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=io_events_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(CUfileIOEvents_t), \
-            f"itemsize {self._data.itemsize} mismatches struct size {sizeof(CUfileIOEvents_t)}"
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileIOEvents_t) }"
 
     def __repr__(self):
         if self._data.size > 1:
@@ -287,6 +371,9 @@ cdef class IOEvents:
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
     def __int__(self):
         if self._data.size > 1:
             raise TypeError("int() argument must be a bytes-like object of size 1. "
@@ -297,13 +384,10 @@ cdef class IOEvents:
         return self._data.size
 
     def __eq__(self, other):
-        if not isinstance(other, IOEvents):
+        cdef object self_data = self._data
+        if (not isinstance(other, IOEvents)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        if self._data.size != other._data.size:
-            return False
-        if self._data.dtype != other._data.dtype:
-            return False
-        return bool((self._data == other._data).all())
+        return bool((self_data == other._data).all())
 
     @property
     def cookie(self):
@@ -339,13 +423,16 @@ cdef class IOEvents:
         self._data.ret = val
 
     def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
         if isinstance(key, int):
+            key_ = key
             size = self._data.size
-            if key >= size or key <= -(size+1):
+            if key_ >= size or key_ <= -(size+1):
                 raise IndexError("index is out of bounds")
-            if key < 0:
-                key += size
-            return IOEvents.from_data(self._data[key:key+1])
+            if key_ < 0:
+                key_ += size
+            return IOEvents.from_data(self._data[key_:key_+1])
         out = self._data[key]
         if isinstance(out, _numpy.recarray) and out.dtype == io_events_dtype:
             return IOEvents.from_data(out)
@@ -362,7 +449,7 @@ cdef class IOEvents:
             data (_numpy.ndarray): a 1D array of dtype `io_events_dtype` holding the data.
         """
         cdef IOEvents obj = IOEvents.__new__(IOEvents)
-        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+        if not isinstance(data, _numpy.ndarray):
             raise TypeError("data argument must be a NumPy ndarray")
         if data.ndim != 1:
             raise ValueError("data array must be 1D")
@@ -384,22 +471,29 @@ cdef class IOEvents:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef IOEvents obj = IOEvents.__new__(IOEvents)
-        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
-        cdef object buf = PyMemoryView_FromMemory(
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUfileIOEvents_t) * size, flag)
-        data = _numpy.ndarray((size,), buffer=buf,
-                              dtype=io_events_dtype)
+        data = _numpy.ndarray(size, buffer=buf, dtype=io_events_dtype)
         obj._data = data.view(_numpy.recarray)
 
         return obj
 
 
-descr_dtype = _numpy.dtype([
-    ("type", _numpy.int32, ),
-    ("handle", _py_anon_pod1_dtype, ),
-    ("fs_ops", _numpy.intp, ),
-    ], align=True)
+cdef _get_descr_dtype_offsets():
+    cdef CUfileDescr_t pod = CUfileDescr_t()
+    return _numpy.dtype({
+        'names': ['type', 'handle', 'fs_ops'],
+        'formats': [_numpy.int32, _py_anon_pod1_dtype, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.type)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.handle)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.fs_ops)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileDescr_t),
+    })
 
+descr_dtype = _get_descr_dtype_offsets()
 
 cdef class Descr:
     """Empty-initialize an array of `CUfileDescr_t`.
@@ -416,11 +510,13 @@ cdef class Descr:
     cdef:
         readonly object _data
 
+
+
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=descr_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(CUfileDescr_t), \
-            f"itemsize {self._data.itemsize} mismatches struct size {sizeof(CUfileDescr_t)}"
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileDescr_t) }"
 
     def __repr__(self):
         if self._data.size > 1:
@@ -433,6 +529,9 @@ cdef class Descr:
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
     def __int__(self):
         if self._data.size > 1:
             raise TypeError("int() argument must be a bytes-like object of size 1. "
@@ -443,13 +542,10 @@ cdef class Descr:
         return self._data.size
 
     def __eq__(self, other):
-        if not isinstance(other, Descr):
+        cdef object self_data = self._data
+        if (not isinstance(other, Descr)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        if self._data.size != other._data.size:
-            return False
-        if self._data.dtype != other._data.dtype:
-            return False
-        return bool((self._data == other._data).all())
+        return bool((self_data == other._data).all())
 
     @property
     def type(self):
@@ -483,13 +579,16 @@ cdef class Descr:
         self._data.fs_ops = val
 
     def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
         if isinstance(key, int):
+            key_ = key
             size = self._data.size
-            if key >= size or key <= -(size+1):
+            if key_ >= size or key_ <= -(size+1):
                 raise IndexError("index is out of bounds")
-            if key < 0:
-                key += size
-            return Descr.from_data(self._data[key:key+1])
+            if key_ < 0:
+                key_ += size
+            return Descr.from_data(self._data[key_:key_+1])
         out = self._data[key]
         if isinstance(out, _numpy.recarray) and out.dtype == descr_dtype:
             return Descr.from_data(out)
@@ -506,7 +605,7 @@ cdef class Descr:
             data (_numpy.ndarray): a 1D array of dtype `descr_dtype` holding the data.
         """
         cdef Descr obj = Descr.__new__(Descr)
-        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+        if not isinstance(data, _numpy.ndarray):
             raise TypeError("data argument must be a NumPy ndarray")
         if data.ndim != 1:
             raise ValueError("data array must be 1D")
@@ -528,11 +627,10 @@ cdef class Descr:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef Descr obj = Descr.__new__(Descr)
-        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
-        cdef object buf = PyMemoryView_FromMemory(
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUfileDescr_t) * size, flag)
-        data = _numpy.ndarray((size,), buffer=buf,
-                              dtype=descr_dtype)
+        data = _numpy.ndarray(size, buffer=buf, dtype=descr_dtype)
         obj._data = data.view(_numpy.recarray)
 
         return obj
@@ -553,15 +651,25 @@ cdef class _py_anon_pod2:
     .. seealso:: `_anon_pod2`
     """
     cdef:
-        readonly object _data
-
-        readonly object _batch
+        _anon_pod2 *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
 
     def __init__(self):
-        arr = _numpy.empty(1, dtype=_py_anon_pod2_dtype)
-        self._data = arr.view(_numpy.recarray)
-        assert self._data.itemsize == sizeof((<CUfileIOParams_t*>NULL).u), \
-            f"itemsize {self._data.itemsize} mismatches union size {sizeof((<CUfileIOParams_t*>NULL).u)}"
+        self._ptr = <_anon_pod2 *>calloc(1, sizeof((<CUfileIOParams_t*>NULL).u))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating _py_anon_pod2")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef _anon_pod2 *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
 
     def __repr__(self):
         return f"<{__name__}._py_anon_pod2 object at {hex(id(self))}>"
@@ -569,79 +677,97 @@ cdef class _py_anon_pod2:
     @property
     def ptr(self):
         """Get the pointer address to the data as Python :class:`int`."""
-        return self._data.ctypes.data
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
 
     def __int__(self):
-        return self._data.ctypes.data
+        return <intptr_t>(self._ptr)
 
     def __eq__(self, other):
+        cdef _py_anon_pod2 other_
         if not isinstance(other, _py_anon_pod2):
             return False
-        if self._data.size != other._data.size:
-            return False
-        if self._data.dtype != other._data.dtype:
-            return False
-        return bool((self._data == other._data).all())
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof((<CUfileIOParams_t*>NULL).u)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <_anon_pod2 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating _py_anon_pod2")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof((<CUfileIOParams_t*>NULL).u))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
 
     @property
     def batch(self):
         """_py_anon_pod3: """
-        return self._batch
+        return _py_anon_pod3.from_ptr(<intptr_t>&(self._ptr[0].batch), self._readonly, self)
 
-    def __setitem__(self, key, val):
-        self._data[key] = val
+    @batch.setter
+    def batch(self, val):
+        if self._readonly:
+            raise ValueError("This _py_anon_pod2 instance is read-only")
+        cdef _py_anon_pod3 val_ = val
+        memcpy(<void *>&(self._ptr[0].batch), <void *>(val_._get_ptr()), sizeof(_anon_pod3) * 1)
 
     @staticmethod
     def from_data(data):
         """Create an _py_anon_pod2 instance wrapping the given NumPy array.
 
         Args:
-            data (_numpy.ndarray): a 1D array of dtype `_py_anon_pod2_dtype` holding the data.
+            data (_numpy.ndarray): a single-element array of dtype `_py_anon_pod2_dtype` holding the data.
         """
-        cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
-        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
-            raise TypeError("data argument must be a NumPy ndarray")
-        if data.ndim != 1:
-            raise ValueError("data array must be 1D")
-        if data.dtype != _py_anon_pod2_dtype:
-            raise ValueError("data array must be of dtype _py_anon_pod2_dtype")
-        obj._data = data.view(_numpy.recarray)
-
-        batch_addr = obj._data.batch[0].__array_interface__['data'][0]
-        obj._batch = _py_anon_pod3.from_ptr(batch_addr)
-        return obj
+        return __from_data(data, "_py_anon_pod2_dtype", _py_anon_pod2_dtype, _py_anon_pod2)
 
     @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False):
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
         """Create an _py_anon_pod2 instance wrapping the given pointer.
 
         Args:
             ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
             readonly (bool): whether the data is read-only (to the user). default is `False`.
         """
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef _py_anon_pod2 obj = _py_anon_pod2.__new__(_py_anon_pod2)
-        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
-        cdef object buf = PyMemoryView_FromMemory(
-            <char*>ptr, sizeof((<CUfileIOParams_t*>NULL).u), flag)
-        data = _numpy.ndarray((1,), buffer=buf,
-                              dtype=_py_anon_pod2_dtype)
-        obj._data = data.view(_numpy.recarray)
-
-        batch_addr = obj._data.batch[0].__array_interface__['data'][0]
-        obj._batch = _py_anon_pod3.from_ptr(batch_addr)
+        if owner is None:
+            obj._ptr = <_anon_pod2 *>malloc(sizeof((<CUfileIOParams_t*>NULL).u))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating _py_anon_pod2")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof((<CUfileIOParams_t*>NULL).u))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <_anon_pod2 *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
         return obj
 
 
-io_params_dtype = _numpy.dtype([
-    ("mode", _numpy.int32, ),
-    ("u", _py_anon_pod2_dtype, ),
-    ("fh", _numpy.intp, ),
-    ("opcode", _numpy.int32, ),
-    ("cookie", _numpy.intp, ),
-    ], align=True)
+cdef _get_io_params_dtype_offsets():
+    cdef CUfileIOParams_t pod = CUfileIOParams_t()
+    return _numpy.dtype({
+        'names': ['mode', 'u', 'fh', 'opcode', 'cookie'],
+        'formats': [_numpy.int32, _py_anon_pod2_dtype, _numpy.intp, _numpy.int32, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.mode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.u)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.fh)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.opcode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.cookie)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(CUfileIOParams_t),
+    })
 
+io_params_dtype = _get_io_params_dtype_offsets()
 
 cdef class IOParams:
     """Empty-initialize an array of `CUfileIOParams_t`.
@@ -658,11 +784,13 @@ cdef class IOParams:
     cdef:
         readonly object _data
 
+
+
     def __init__(self, size=1):
         arr = _numpy.empty(size, dtype=io_params_dtype)
         self._data = arr.view(_numpy.recarray)
         assert self._data.itemsize == sizeof(CUfileIOParams_t), \
-            f"itemsize {self._data.itemsize} mismatches struct size {sizeof(CUfileIOParams_t)}"
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(CUfileIOParams_t) }"
 
     def __repr__(self):
         if self._data.size > 1:
@@ -675,6 +803,9 @@ cdef class IOParams:
         """Get the pointer address to the data as Python :class:`int`."""
         return self._data.ctypes.data
 
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
     def __int__(self):
         if self._data.size > 1:
             raise TypeError("int() argument must be a bytes-like object of size 1. "
@@ -685,13 +816,10 @@ cdef class IOParams:
         return self._data.size
 
     def __eq__(self, other):
-        if not isinstance(other, IOParams):
+        cdef object self_data = self._data
+        if (not isinstance(other, IOParams)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
             return False
-        if self._data.size != other._data.size:
-            return False
-        if self._data.dtype != other._data.dtype:
-            return False
-        return bool((self._data == other._data).all())
+        return bool((self_data == other._data).all())
 
     @property
     def mode(self):
@@ -747,13 +875,16 @@ cdef class IOParams:
         self._data.cookie = val
 
     def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
         if isinstance(key, int):
+            key_ = key
             size = self._data.size
-            if key >= size or key <= -(size+1):
+            if key_ >= size or key_ <= -(size+1):
                 raise IndexError("index is out of bounds")
-            if key < 0:
-                key += size
-            return IOParams.from_data(self._data[key:key+1])
+            if key_ < 0:
+                key_ += size
+            return IOParams.from_data(self._data[key_:key_+1])
         out = self._data[key]
         if isinstance(out, _numpy.recarray) and out.dtype == io_params_dtype:
             return IOParams.from_data(out)
@@ -770,7 +901,7 @@ cdef class IOParams:
             data (_numpy.ndarray): a 1D array of dtype `io_params_dtype` holding the data.
         """
         cdef IOParams obj = IOParams.__new__(IOParams)
-        if not isinstance(data, (_numpy.ndarray, _numpy.recarray)):
+        if not isinstance(data, _numpy.ndarray):
             raise TypeError("data argument must be a NumPy ndarray")
         if data.ndim != 1:
             raise ValueError("data array must be 1D")
@@ -792,29 +923,14 @@ cdef class IOParams:
         if ptr == 0:
             raise ValueError("ptr must not be null (0)")
         cdef IOParams obj = IOParams.__new__(IOParams)
-        cdef flag = _buffer.PyBUF_READ if readonly else _buffer.PyBUF_WRITE
-        cdef object buf = PyMemoryView_FromMemory(
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
             <char*>ptr, sizeof(CUfileIOParams_t) * size, flag)
-        data = _numpy.ndarray((size,), buffer=buf,
-                              dtype=io_params_dtype)
+        data = _numpy.ndarray(size, buffer=buf, dtype=io_params_dtype)
         obj._data = data.view(_numpy.recarray)
 
         return obj
 
-
-# Hack: Overwrite the generated descr_dtype, which NumPy deduced the offset wrong.
-descr_dtype = _numpy.dtype({
-    "names": ['type', 'handle', 'fs_ops'],
-    "formats": [_numpy.int32, _py_anon_pod1_dtype, _numpy.intp],
-    "offsets": [0, 8, 16],
-}, align=True)
-
-# Hack: Overwrite the generated io_params_dtype, which NumPy deduced the offset wrong.
-io_params_dtype = _numpy.dtype({
-    "names": ['mode', 'u', 'fh', 'opcode', 'cookie'],
-    "formats": [_numpy.int32, _py_anon_pod2_dtype, _numpy.intp, _numpy.int32, _numpy.intp],
-    "offsets": [0, 8, 40, 48, 56],
-}, align=True)
 
 
 ###############################################################################
@@ -1007,8 +1123,8 @@ cpdef intptr_t handle_register(intptr_t descr) except? 0:
     """
     cdef Handle fh
     with nogil:
-        status = cuFileHandleRegister(&fh, <CUfileDescr_t*>descr)
-    check_status(status)
+        __status__ = cuFileHandleRegister(&fh, <CUfileDescr_t*>descr)
+    check_status(__status__)
     return <intptr_t>fh
 
 
@@ -1034,8 +1150,8 @@ cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags):
     .. seealso:: `cuFileBufRegister`
     """
     with nogil:
-        status = cuFileBufRegister(<const void*>buf_ptr_base, length, flags)
-    check_status(status)
+        __status__ = cuFileBufRegister(<const void*>buf_ptr_base, length, flags)
+    check_status(__status__)
 
 
 cpdef buf_deregister(intptr_t buf_ptr_base):
@@ -1047,42 +1163,8 @@ cpdef buf_deregister(intptr_t buf_ptr_base):
     .. seealso:: `cuFileBufDeregister`
     """
     with nogil:
-        status = cuFileBufDeregister(<const void*>buf_ptr_base)
-    check_status(status)
-
-
-cpdef read(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):
-    """read data from a registered file handle to a specified device or host memory.
-
-    Args:
-        fh (intptr_t): ``CUfileHandle_t`` opaque file handle.
-        buf_ptr_base (intptr_t): base address of buffer in device or host memory.
-        size (size_t): size bytes to read.
-        file_offset (off_t): file-offset from begining of the file.
-        buf_ptr_offset (off_t): offset relative to the buf_ptr_base pointer to read into.
-
-    .. seealso:: `cuFileRead`
-    """
-    with nogil:
-        status = cuFileRead(<Handle>fh, <void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
-    check_status(status)
-
-
-cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):
-    """write data from a specified device or host memory to a registered file handle.
-
-    Args:
-        fh (intptr_t): ``CUfileHandle_t`` opaque file handle.
-        buf_ptr_base (intptr_t): base address of buffer in device or host memory.
-        size (size_t): size bytes to write.
-        file_offset (off_t): file-offset from begining of the file.
-        buf_ptr_offset (off_t): offset relative to the buf_ptr_base pointer to write from.
-
-    .. seealso:: `cuFileWrite`
-    """
-    with nogil:
-        status = cuFileWrite(<Handle>fh, <const void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
-    check_status(status)
+        __status__ = cuFileBufDeregister(<const void*>buf_ptr_base)
+    check_status(__status__)
 
 
 cpdef driver_open():
@@ -1091,8 +1173,8 @@ cpdef driver_open():
     .. seealso:: `cuFileDriverOpen`
     """
     with nogil:
-        status = cuFileDriverOpen()
-    check_status(status)
+        __status__ = cuFileDriverOpen()
+    check_status(__status__)
 
 
 cpdef use_count():
@@ -1101,8 +1183,8 @@ cpdef use_count():
     .. seealso:: `cuFileUseCount`
     """
     with nogil:
-        status = cuFileUseCount()
-    check_status(status)
+        __status__ = cuFileUseCount()
+    check_status(__status__)
 
 
 cpdef driver_get_properties(intptr_t props):
@@ -1114,8 +1196,8 @@ cpdef driver_get_properties(intptr_t props):
     .. seealso:: `cuFileDriverGetProperties`
     """
     with nogil:
-        status = cuFileDriverGetProperties(<CUfileDrvProps_t*>props)
-    check_status(status)
+        __status__ = cuFileDriverGetProperties(<CUfileDrvProps_t*>props)
+    check_status(__status__)
 
 
 cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
@@ -1128,8 +1210,8 @@ cpdef driver_set_poll_mode(bint poll, size_t poll_threshold_size):
     .. seealso:: `cuFileDriverSetPollMode`
     """
     with nogil:
-        status = cuFileDriverSetPollMode(<cpp_bool>poll, poll_threshold_size)
-    check_status(status)
+        __status__ = cuFileDriverSetPollMode(<cpp_bool>poll, poll_threshold_size)
+    check_status(__status__)
 
 
 cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
@@ -1141,8 +1223,8 @@ cpdef driver_set_max_direct_io_size(size_t max_direct_io_size):
     .. seealso:: `cuFileDriverSetMaxDirectIOSize`
     """
     with nogil:
-        status = cuFileDriverSetMaxDirectIOSize(max_direct_io_size)
-    check_status(status)
+        __status__ = cuFileDriverSetMaxDirectIOSize(max_direct_io_size)
+    check_status(__status__)
 
 
 cpdef driver_set_max_cache_size(size_t max_cache_size):
@@ -1154,8 +1236,8 @@ cpdef driver_set_max_cache_size(size_t max_cache_size):
     .. seealso:: `cuFileDriverSetMaxCacheSize`
     """
     with nogil:
-        status = cuFileDriverSetMaxCacheSize(max_cache_size)
-    check_status(status)
+        __status__ = cuFileDriverSetMaxCacheSize(max_cache_size)
+    check_status(__status__)
 
 
 cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size):
@@ -1167,34 +1249,34 @@ cpdef driver_set_max_pinned_mem_size(size_t max_pinned_size):
     .. seealso:: `cuFileDriverSetMaxPinnedMemSize`
     """
     with nogil:
-        status = cuFileDriverSetMaxPinnedMemSize(max_pinned_size)
-    check_status(status)
+        __status__ = cuFileDriverSetMaxPinnedMemSize(max_pinned_size)
+    check_status(__status__)
 
 
 cpdef intptr_t batch_io_set_up(unsigned nr) except? 0:
     cdef BatchHandle batch_idp
     with nogil:
-        status = cuFileBatchIOSetUp(&batch_idp, nr)
-    check_status(status)
+        __status__ = cuFileBatchIOSetUp(&batch_idp, nr)
+    check_status(__status__)
     return <intptr_t>batch_idp
 
 
 cpdef batch_io_submit(intptr_t batch_idp, unsigned nr, intptr_t iocbp, unsigned int flags):
     with nogil:
-        status = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>iocbp, flags)
-    check_status(status)
+        __status__ = cuFileBatchIOSubmit(<BatchHandle>batch_idp, nr, <CUfileIOParams_t*>iocbp, flags)
+    check_status(__status__)
 
 
 cpdef batch_io_get_status(intptr_t batch_idp, unsigned min_nr, intptr_t nr, intptr_t iocbp, intptr_t timeout):
     with nogil:
-        status = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>iocbp, <timespec*>timeout)
-    check_status(status)
+        __status__ = cuFileBatchIOGetStatus(<BatchHandle>batch_idp, min_nr, <unsigned*>nr, <CUfileIOEvents_t*>iocbp, <timespec*>timeout)
+    check_status(__status__)
 
 
 cpdef batch_io_cancel(intptr_t batch_idp):
     with nogil:
-        status = cuFileBatchIOCancel(<BatchHandle>batch_idp)
-    check_status(status)
+        __status__ = cuFileBatchIOCancel(<BatchHandle>batch_idp)
+    check_status(__status__)
 
 
 cpdef void batch_io_destroy(intptr_t batch_idp) except*:
@@ -1203,49 +1285,49 @@ cpdef void batch_io_destroy(intptr_t batch_idp) except*:
 
 cpdef read_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_read_p, intptr_t stream):
     with nogil:
-        status = cuFileReadAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_read_p, <void*>stream)
-    check_status(status)
+        __status__ = cuFileReadAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_read_p, <void*>stream)
+    check_status(__status__)
 
 
 cpdef write_async(intptr_t fh, intptr_t buf_ptr_base, intptr_t size_p, intptr_t file_offset_p, intptr_t buf_ptr_offset_p, intptr_t bytes_written_p, intptr_t stream):
     with nogil:
-        status = cuFileWriteAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_written_p, <void*>stream)
-    check_status(status)
+        __status__ = cuFileWriteAsync(<Handle>fh, <void*>buf_ptr_base, <size_t*>size_p, <off_t*>file_offset_p, <off_t*>buf_ptr_offset_p, <ssize_t*>bytes_written_p, <void*>stream)
+    check_status(__status__)
 
 
 cpdef stream_register(intptr_t stream, unsigned flags):
     with nogil:
-        status = cuFileStreamRegister(<void*>stream, flags)
-    check_status(status)
+        __status__ = cuFileStreamRegister(<void*>stream, flags)
+    check_status(__status__)
 
 
 cpdef stream_deregister(intptr_t stream):
     with nogil:
-        status = cuFileStreamDeregister(<void*>stream)
-    check_status(status)
+        __status__ = cuFileStreamDeregister(<void*>stream)
+    check_status(__status__)
 
 
 cpdef int get_version() except? 0:
     cdef int version
     with nogil:
-        status = cuFileGetVersion(&version)
-    check_status(status)
+        __status__ = cuFileGetVersion(&version)
+    check_status(__status__)
     return version
 
 
 cpdef size_t get_parameter_size_t(int param) except? 0:
     cdef size_t value
     with nogil:
-        status = cuFileGetParameterSizeT(<_SizeTConfigParameter>param, &value)
-    check_status(status)
+        __status__ = cuFileGetParameterSizeT(<_SizeTConfigParameter>param, &value)
+    check_status(__status__)
     return value
 
 
 cpdef bint get_parameter_bool(int param) except? 0:
     cdef cpp_bool value
     with nogil:
-        status = cuFileGetParameterBool(<_BoolConfigParameter>param, &value)
-    check_status(status)
+        __status__ = cuFileGetParameterBool(<_BoolConfigParameter>param, &value)
+    check_status(__status__)
     return <bint>value
 
 
@@ -1253,27 +1335,27 @@ cpdef str get_parameter_string(int param, int len):
     cdef bytes _desc_str_ = bytes(len)
     cdef char* desc_str = _desc_str_
     with nogil:
-        status = cuFileGetParameterString(<_StringConfigParameter>param, desc_str, len)
-    check_status(status)
+        __status__ = cuFileGetParameterString(<_StringConfigParameter>param, desc_str, len)
+    check_status(__status__)
     return cpython.PyUnicode_FromString(desc_str)
 
 
 cpdef set_parameter_size_t(int param, size_t value):
     with nogil:
-        status = cuFileSetParameterSizeT(<_SizeTConfigParameter>param, value)
-    check_status(status)
+        __status__ = cuFileSetParameterSizeT(<_SizeTConfigParameter>param, value)
+    check_status(__status__)
 
 
 cpdef set_parameter_bool(int param, bint value):
     with nogil:
-        status = cuFileSetParameterBool(<_BoolConfigParameter>param, <cpp_bool>value)
-    check_status(status)
+        __status__ = cuFileSetParameterBool(<_BoolConfigParameter>param, <cpp_bool>value)
+    check_status(__status__)
 
 
 cpdef set_parameter_string(int param, intptr_t desc_str):
     with nogil:
-        status = cuFileSetParameterString(<_StringConfigParameter>param, <const char*>desc_str)
-    check_status(status)
+        __status__ = cuFileSetParameterString(<_StringConfigParameter>param, <const char*>desc_str)
+    check_status(__status__)
 
 
 cpdef str op_status_error(int status):
@@ -1295,3 +1377,44 @@ cpdef driver_close():
     with nogil:
         status = cuFileDriverClose_v2()
     check_status(status)
+
+cpdef read(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):
+    """read data from a registered file handle to a specified device or host memory.
+
+    Args:
+        fh (intptr_t): ``CUfileHandle_t`` opaque file handle.
+        buf_ptr_base (intptr_t): base address of buffer in device or host memory.
+        size (size_t): size bytes to read.
+        file_offset (off_t): file-offset from begining of the file.
+        buf_ptr_offset (off_t): offset relative to the buf_ptr_base pointer to read into.
+
+    Returns:
+        ssize_t: number of bytes read on success.
+
+    .. seealso:: `cuFileRead`
+    """
+    with nogil:
+        status = cuFileRead(<Handle>fh, <void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
+    check_status(status)
+    return status
+
+
+cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset):
+    """write data from a specified device or host memory to a registered file handle.
+
+    Args:
+        fh (intptr_t): ``CUfileHandle_t`` opaque file handle.
+        buf_ptr_base (intptr_t): base address of buffer in device or host memory.
+        size (size_t): size bytes to write.
+        file_offset (off_t): file-offset from begining of the file.
+        buf_ptr_offset (off_t): offset relative to the buf_ptr_base pointer to write from.
+
+    Returns:
+        ssize_t: number of bytes written on success.
+
+    .. seealso:: `cuFileWrite`
+    """
+    with nogil:
+        status = cuFileWrite(<Handle>fh, <const void*>buf_ptr_base, size, file_offset, buf_ptr_offset)
+    check_status(status)
+    return status
