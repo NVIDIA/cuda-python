@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 12.9.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
 
 from ._internal cimport cufile as _cufile
 
@@ -39,6 +39,10 @@ cdef ssize_t cuFileWrite(CUfileHandle_t fh, const void* bufPtr_base, size_t size
 
 cdef CUfileError_t cuFileDriverOpen() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
     return _cufile._cuFileDriverOpen()
+
+
+cdef CUfileError_t cuFileDriverClose() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileDriverClose()
 
 
 cdef CUfileError_t cuFileDriverClose_v2() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
@@ -134,5 +138,49 @@ cdef CUfileError_t cuFileSetParameterString(CUFileStringConfigParameter_t param,
     return _cufile._cuFileSetParameterString(param, desc_str)
 
 
-cdef CUfileError_t cuFileDriverClose() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
-    return _cufile._cuFileDriverClose()
+cdef CUfileError_t cuFileGetParameterMinMaxValue(CUFileSizeTConfigParameter_t param, size_t* min_value, size_t* max_value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileGetParameterMinMaxValue(param, min_value, max_value)
+
+
+cdef CUfileError_t cuFileSetStatsLevel(int level) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileSetStatsLevel(level)
+
+
+cdef CUfileError_t cuFileGetStatsLevel(int* level) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileGetStatsLevel(level)
+
+
+cdef CUfileError_t cuFileStatsStart() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileStatsStart()
+
+
+cdef CUfileError_t cuFileStatsStop() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileStatsStop()
+
+
+cdef CUfileError_t cuFileStatsReset() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileStatsReset()
+
+
+cdef CUfileError_t cuFileGetStatsL1(CUfileStatsLevel1_t* stats) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileGetStatsL1(stats)
+
+
+cdef CUfileError_t cuFileGetStatsL2(CUfileStatsLevel2_t* stats) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileGetStatsL2(stats)
+
+
+cdef CUfileError_t cuFileGetStatsL3(CUfileStatsLevel3_t* stats) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileGetStatsL3(stats)
+
+
+cdef CUfileError_t cuFileGetBARSizeInKB(int gpuIndex, size_t* barSize) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileGetBARSizeInKB(gpuIndex, barSize)
+
+
+cdef CUfileError_t cuFileSetParameterPosixPoolSlabArray(const size_t* size_values, const size_t* count_values, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileSetParameterPosixPoolSlabArray(size_values, count_values, len)
+
+
+cdef CUfileError_t cuFileGetParameterPosixPoolSlabArray(size_t* size_values, size_t* count_values, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    return _cufile._cuFileGetParameterPosixPoolSlabArray(size_values, count_values, len)

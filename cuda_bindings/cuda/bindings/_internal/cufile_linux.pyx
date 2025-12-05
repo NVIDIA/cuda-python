@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 12.9.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 import threading
@@ -18,6 +18,8 @@ import cython
 # Extern
 ###############################################################################
 
+# You must 'from .utils import NotSupportedError' before using this template
+
 cdef extern from "<dlfcn.h>" nogil:
     void* dlopen(const char*, int)
     char* dlerror()
@@ -32,6 +34,25 @@ cdef extern from "<dlfcn.h>" nogil:
 
     const void* RTLD_DEFAULT 'RTLD_DEFAULT'
 
+cdef int get_cuda_version():
+    cdef void* handle = NULL
+    cdef int err, driver_ver = 0
+
+    # Load driver to check version
+    handle = dlopen('libcuda.so.1', RTLD_NOW | RTLD_GLOBAL)
+    if handle == NULL:
+        err_msg = dlerror()
+        raise NotSupportedError(f'CUDA driver is not found ({err_msg.decode()})')
+    cuDriverGetVersion = dlsym(handle, "cuDriverGetVersion")
+    if cuDriverGetVersion == NULL:
+        raise RuntimeError('Did not find cuDriverGetVersion symbol in libcuda.so.1')
+    err = (<int (*)(int*) noexcept nogil>cuDriverGetVersion)(&driver_ver)
+    if err != 0:
+        raise RuntimeError(f'cuDriverGetVersion returned error code {err}')
+
+    return driver_ver
+
+
 
 ###############################################################################
 # Wrapper init
@@ -39,7 +60,6 @@ cdef extern from "<dlfcn.h>" nogil:
 
 cdef object __symbol_lock = threading.Lock()
 cdef bint __py_cufile_init = False
-cdef void* __cuDriverGetVersion = NULL
 
 cdef void* __cuFileHandleRegister = NULL
 cdef void* __cuFileHandleDeregister = NULL
@@ -48,6 +68,7 @@ cdef void* __cuFileBufDeregister = NULL
 cdef void* __cuFileRead = NULL
 cdef void* __cuFileWrite = NULL
 cdef void* __cuFileDriverOpen = NULL
+cdef void* __cuFileDriverClose = NULL
 cdef void* __cuFileDriverClose_v2 = NULL
 cdef void* __cuFileUseCount = NULL
 cdef void* __cuFileDriverGetProperties = NULL
@@ -71,7 +92,18 @@ cdef void* __cuFileGetParameterString = NULL
 cdef void* __cuFileSetParameterSizeT = NULL
 cdef void* __cuFileSetParameterBool = NULL
 cdef void* __cuFileSetParameterString = NULL
-cdef void* __cuFileDriverClose = NULL
+cdef void* __cuFileGetParameterMinMaxValue = NULL
+cdef void* __cuFileSetStatsLevel = NULL
+cdef void* __cuFileGetStatsLevel = NULL
+cdef void* __cuFileStatsStart = NULL
+cdef void* __cuFileStatsStop = NULL
+cdef void* __cuFileStatsReset = NULL
+cdef void* __cuFileGetStatsL1 = NULL
+cdef void* __cuFileGetStatsL2 = NULL
+cdef void* __cuFileGetStatsL3 = NULL
+cdef void* __cuFileGetBARSizeInKB = NULL
+cdef void* __cuFileSetParameterPosixPoolSlabArray = NULL
+cdef void* __cuFileGetParameterPosixPoolSlabArray = NULL
 
 
 cdef void* load_library() except* with gil:
@@ -79,12 +111,15 @@ cdef void* load_library() except* with gil:
     return <void*>handle
 
 
-cdef int __check_or_init_cufile() except -1 nogil:
+cdef int _init_cufile() except -1 nogil:
     global __py_cufile_init
 
     cdef void* handle = NULL
 
     with gil, __symbol_lock:
+        # Recheck the flag after obtaining the locks
+        if __py_cufile_init:
+            return 0
         # Load function
         global __cuFileHandleRegister
         __cuFileHandleRegister = dlsym(RTLD_DEFAULT, 'cuFileHandleRegister')
@@ -134,6 +169,13 @@ cdef int __check_or_init_cufile() except -1 nogil:
             if handle == NULL:
                 handle = load_library()
             __cuFileDriverOpen = dlsym(handle, 'cuFileDriverOpen')
+
+        global __cuFileDriverClose
+        __cuFileDriverClose = dlsym(RTLD_DEFAULT, 'cuFileDriverClose')
+        if __cuFileDriverClose == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileDriverClose = dlsym(handle, 'cuFileDriverClose')
 
         global __cuFileDriverClose_v2
         __cuFileDriverClose_v2 = dlsym(RTLD_DEFAULT, 'cuFileDriverClose_v2')
@@ -296,12 +338,89 @@ cdef int __check_or_init_cufile() except -1 nogil:
                 handle = load_library()
             __cuFileSetParameterString = dlsym(handle, 'cuFileSetParameterString')
 
-        global __cuFileDriverClose
-        __cuFileDriverClose = dlsym(RTLD_DEFAULT, 'cuFileDriverClose')
-        if __cuFileDriverClose == NULL:
+        global __cuFileGetParameterMinMaxValue
+        __cuFileGetParameterMinMaxValue = dlsym(RTLD_DEFAULT, 'cuFileGetParameterMinMaxValue')
+        if __cuFileGetParameterMinMaxValue == NULL:
             if handle == NULL:
                 handle = load_library()
-            __cuFileDriverClose = dlsym(handle, 'cuFileDriverClose')
+            __cuFileGetParameterMinMaxValue = dlsym(handle, 'cuFileGetParameterMinMaxValue')
+
+        global __cuFileSetStatsLevel
+        __cuFileSetStatsLevel = dlsym(RTLD_DEFAULT, 'cuFileSetStatsLevel')
+        if __cuFileSetStatsLevel == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileSetStatsLevel = dlsym(handle, 'cuFileSetStatsLevel')
+
+        global __cuFileGetStatsLevel
+        __cuFileGetStatsLevel = dlsym(RTLD_DEFAULT, 'cuFileGetStatsLevel')
+        if __cuFileGetStatsLevel == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileGetStatsLevel = dlsym(handle, 'cuFileGetStatsLevel')
+
+        global __cuFileStatsStart
+        __cuFileStatsStart = dlsym(RTLD_DEFAULT, 'cuFileStatsStart')
+        if __cuFileStatsStart == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileStatsStart = dlsym(handle, 'cuFileStatsStart')
+
+        global __cuFileStatsStop
+        __cuFileStatsStop = dlsym(RTLD_DEFAULT, 'cuFileStatsStop')
+        if __cuFileStatsStop == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileStatsStop = dlsym(handle, 'cuFileStatsStop')
+
+        global __cuFileStatsReset
+        __cuFileStatsReset = dlsym(RTLD_DEFAULT, 'cuFileStatsReset')
+        if __cuFileStatsReset == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileStatsReset = dlsym(handle, 'cuFileStatsReset')
+
+        global __cuFileGetStatsL1
+        __cuFileGetStatsL1 = dlsym(RTLD_DEFAULT, 'cuFileGetStatsL1')
+        if __cuFileGetStatsL1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileGetStatsL1 = dlsym(handle, 'cuFileGetStatsL1')
+
+        global __cuFileGetStatsL2
+        __cuFileGetStatsL2 = dlsym(RTLD_DEFAULT, 'cuFileGetStatsL2')
+        if __cuFileGetStatsL2 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileGetStatsL2 = dlsym(handle, 'cuFileGetStatsL2')
+
+        global __cuFileGetStatsL3
+        __cuFileGetStatsL3 = dlsym(RTLD_DEFAULT, 'cuFileGetStatsL3')
+        if __cuFileGetStatsL3 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileGetStatsL3 = dlsym(handle, 'cuFileGetStatsL3')
+
+        global __cuFileGetBARSizeInKB
+        __cuFileGetBARSizeInKB = dlsym(RTLD_DEFAULT, 'cuFileGetBARSizeInKB')
+        if __cuFileGetBARSizeInKB == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileGetBARSizeInKB = dlsym(handle, 'cuFileGetBARSizeInKB')
+
+        global __cuFileSetParameterPosixPoolSlabArray
+        __cuFileSetParameterPosixPoolSlabArray = dlsym(RTLD_DEFAULT, 'cuFileSetParameterPosixPoolSlabArray')
+        if __cuFileSetParameterPosixPoolSlabArray == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileSetParameterPosixPoolSlabArray = dlsym(handle, 'cuFileSetParameterPosixPoolSlabArray')
+
+        global __cuFileGetParameterPosixPoolSlabArray
+        __cuFileGetParameterPosixPoolSlabArray = dlsym(RTLD_DEFAULT, 'cuFileGetParameterPosixPoolSlabArray')
+        if __cuFileGetParameterPosixPoolSlabArray == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __cuFileGetParameterPosixPoolSlabArray = dlsym(handle, 'cuFileGetParameterPosixPoolSlabArray')
 
         __py_cufile_init = True
         return 0
@@ -311,7 +430,7 @@ cdef inline int _check_or_init_cufile() except -1 nogil:
     if __py_cufile_init:
         return 0
 
-    return __check_or_init_cufile()
+    return _init_cufile()
 
 
 cdef dict func_ptrs = None
@@ -345,6 +464,9 @@ cpdef dict _inspect_function_pointers():
 
     global __cuFileDriverOpen
     data["__cuFileDriverOpen"] = <intptr_t>__cuFileDriverOpen
+
+    global __cuFileDriverClose
+    data["__cuFileDriverClose"] = <intptr_t>__cuFileDriverClose
 
     global __cuFileDriverClose_v2
     data["__cuFileDriverClose_v2"] = <intptr_t>__cuFileDriverClose_v2
@@ -415,8 +537,41 @@ cpdef dict _inspect_function_pointers():
     global __cuFileSetParameterString
     data["__cuFileSetParameterString"] = <intptr_t>__cuFileSetParameterString
 
-    global __cuFileDriverClose
-    data["__cuFileDriverClose"] = <intptr_t>__cuFileDriverClose
+    global __cuFileGetParameterMinMaxValue
+    data["__cuFileGetParameterMinMaxValue"] = <intptr_t>__cuFileGetParameterMinMaxValue
+
+    global __cuFileSetStatsLevel
+    data["__cuFileSetStatsLevel"] = <intptr_t>__cuFileSetStatsLevel
+
+    global __cuFileGetStatsLevel
+    data["__cuFileGetStatsLevel"] = <intptr_t>__cuFileGetStatsLevel
+
+    global __cuFileStatsStart
+    data["__cuFileStatsStart"] = <intptr_t>__cuFileStatsStart
+
+    global __cuFileStatsStop
+    data["__cuFileStatsStop"] = <intptr_t>__cuFileStatsStop
+
+    global __cuFileStatsReset
+    data["__cuFileStatsReset"] = <intptr_t>__cuFileStatsReset
+
+    global __cuFileGetStatsL1
+    data["__cuFileGetStatsL1"] = <intptr_t>__cuFileGetStatsL1
+
+    global __cuFileGetStatsL2
+    data["__cuFileGetStatsL2"] = <intptr_t>__cuFileGetStatsL2
+
+    global __cuFileGetStatsL3
+    data["__cuFileGetStatsL3"] = <intptr_t>__cuFileGetStatsL3
+
+    global __cuFileGetBARSizeInKB
+    data["__cuFileGetBARSizeInKB"] = <intptr_t>__cuFileGetBARSizeInKB
+
+    global __cuFileSetParameterPosixPoolSlabArray
+    data["__cuFileSetParameterPosixPoolSlabArray"] = <intptr_t>__cuFileSetParameterPosixPoolSlabArray
+
+    global __cuFileGetParameterPosixPoolSlabArray
+    data["__cuFileGetParameterPosixPoolSlabArray"] = <intptr_t>__cuFileGetParameterPosixPoolSlabArray
 
     func_ptrs = data
     return data
@@ -501,6 +656,16 @@ cdef CUfileError_t _cuFileDriverOpen() except?<CUfileError_t>CUFILE_LOADING_ERRO
         with gil:
             raise FunctionNotFoundError("function cuFileDriverOpen is not found")
     return (<CUfileError_t (*)() noexcept nogil>__cuFileDriverOpen)(
+        )
+
+
+cdef CUfileError_t _cuFileDriverClose() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileDriverClose
+    _check_or_init_cufile()
+    if __cuFileDriverClose == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileDriverClose is not found")
+    return (<CUfileError_t (*)() noexcept nogil>__cuFileDriverClose)(
         )
 
 
@@ -735,11 +900,121 @@ cdef CUfileError_t _cuFileSetParameterString(CUFileStringConfigParameter_t param
         param, desc_str)
 
 
-cdef CUfileError_t _cuFileDriverClose() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
-    global __cuFileDriverClose
+cdef CUfileError_t _cuFileGetParameterMinMaxValue(CUFileSizeTConfigParameter_t param, size_t* min_value, size_t* max_value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileGetParameterMinMaxValue
     _check_or_init_cufile()
-    if __cuFileDriverClose == NULL:
+    if __cuFileGetParameterMinMaxValue == NULL:
         with gil:
-            raise FunctionNotFoundError("function cuFileDriverClose is not found")
-    return (<CUfileError_t (*)() noexcept nogil>__cuFileDriverClose)(
+            raise FunctionNotFoundError("function cuFileGetParameterMinMaxValue is not found")
+    return (<CUfileError_t (*)(CUFileSizeTConfigParameter_t, size_t*, size_t*) noexcept nogil>__cuFileGetParameterMinMaxValue)(
+        param, min_value, max_value)
+
+
+cdef CUfileError_t _cuFileSetStatsLevel(int level) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileSetStatsLevel
+    _check_or_init_cufile()
+    if __cuFileSetStatsLevel == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileSetStatsLevel is not found")
+    return (<CUfileError_t (*)(int) noexcept nogil>__cuFileSetStatsLevel)(
+        level)
+
+
+cdef CUfileError_t _cuFileGetStatsLevel(int* level) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileGetStatsLevel
+    _check_or_init_cufile()
+    if __cuFileGetStatsLevel == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileGetStatsLevel is not found")
+    return (<CUfileError_t (*)(int*) noexcept nogil>__cuFileGetStatsLevel)(
+        level)
+
+
+cdef CUfileError_t _cuFileStatsStart() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileStatsStart
+    _check_or_init_cufile()
+    if __cuFileStatsStart == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileStatsStart is not found")
+    return (<CUfileError_t (*)() noexcept nogil>__cuFileStatsStart)(
         )
+
+
+cdef CUfileError_t _cuFileStatsStop() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileStatsStop
+    _check_or_init_cufile()
+    if __cuFileStatsStop == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileStatsStop is not found")
+    return (<CUfileError_t (*)() noexcept nogil>__cuFileStatsStop)(
+        )
+
+
+cdef CUfileError_t _cuFileStatsReset() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileStatsReset
+    _check_or_init_cufile()
+    if __cuFileStatsReset == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileStatsReset is not found")
+    return (<CUfileError_t (*)() noexcept nogil>__cuFileStatsReset)(
+        )
+
+
+cdef CUfileError_t _cuFileGetStatsL1(CUfileStatsLevel1_t* stats) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileGetStatsL1
+    _check_or_init_cufile()
+    if __cuFileGetStatsL1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileGetStatsL1 is not found")
+    return (<CUfileError_t (*)(CUfileStatsLevel1_t*) noexcept nogil>__cuFileGetStatsL1)(
+        stats)
+
+
+cdef CUfileError_t _cuFileGetStatsL2(CUfileStatsLevel2_t* stats) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileGetStatsL2
+    _check_or_init_cufile()
+    if __cuFileGetStatsL2 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileGetStatsL2 is not found")
+    return (<CUfileError_t (*)(CUfileStatsLevel2_t*) noexcept nogil>__cuFileGetStatsL2)(
+        stats)
+
+
+cdef CUfileError_t _cuFileGetStatsL3(CUfileStatsLevel3_t* stats) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileGetStatsL3
+    _check_or_init_cufile()
+    if __cuFileGetStatsL3 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileGetStatsL3 is not found")
+    return (<CUfileError_t (*)(CUfileStatsLevel3_t*) noexcept nogil>__cuFileGetStatsL3)(
+        stats)
+
+
+cdef CUfileError_t _cuFileGetBARSizeInKB(int gpuIndex, size_t* barSize) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileGetBARSizeInKB
+    _check_or_init_cufile()
+    if __cuFileGetBARSizeInKB == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileGetBARSizeInKB is not found")
+    return (<CUfileError_t (*)(int, size_t*) noexcept nogil>__cuFileGetBARSizeInKB)(
+        gpuIndex, barSize)
+
+
+cdef CUfileError_t _cuFileSetParameterPosixPoolSlabArray(const size_t* size_values, const size_t* count_values, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileSetParameterPosixPoolSlabArray
+    _check_or_init_cufile()
+    if __cuFileSetParameterPosixPoolSlabArray == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileSetParameterPosixPoolSlabArray is not found")
+    return (<CUfileError_t (*)(const size_t*, const size_t*, int) noexcept nogil>__cuFileSetParameterPosixPoolSlabArray)(
+        size_values, count_values, len)
+
+
+cdef CUfileError_t _cuFileGetParameterPosixPoolSlabArray(size_t* size_values, size_t* count_values, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil:
+    global __cuFileGetParameterPosixPoolSlabArray
+    _check_or_init_cufile()
+    if __cuFileGetParameterPosixPoolSlabArray == NULL:
+        with gil:
+            raise FunctionNotFoundError("function cuFileGetParameterPosixPoolSlabArray is not found")
+    return (<CUfileError_t (*)(size_t*, size_t*, int) noexcept nogil>__cuFileGetParameterPosixPoolSlabArray)(
+        size_values, count_values, len)

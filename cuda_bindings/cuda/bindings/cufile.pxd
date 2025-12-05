@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.0 to 12.9.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -36,6 +36,8 @@ ctypedef CUfileBatchMode_t _BatchMode
 ctypedef CUFileSizeTConfigParameter_t _SizeTConfigParameter
 ctypedef CUFileBoolConfigParameter_t _BoolConfigParameter
 ctypedef CUFileStringConfigParameter_t _StringConfigParameter
+ctypedef CUFileArrayConfigParameter_t _ArrayConfigParameter
+ctypedef CUfileP2PFlags_t _P2PFlags
 
 
 ###############################################################################
@@ -46,8 +48,6 @@ cpdef intptr_t handle_register(intptr_t descr) except? 0
 cpdef void handle_deregister(intptr_t fh) except*
 cpdef buf_register(intptr_t buf_ptr_base, size_t length, int flags)
 cpdef buf_deregister(intptr_t buf_ptr_base)
-cpdef read(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset)
-cpdef write(intptr_t fh, intptr_t buf_ptr_base, size_t size, off_t file_offset, off_t buf_ptr_offset)
 cpdef driver_open()
 cpdef use_count()
 cpdef driver_get_properties(intptr_t props)
@@ -71,3 +71,15 @@ cpdef str get_parameter_string(int param, int len)
 cpdef set_parameter_size_t(int param, size_t value)
 cpdef set_parameter_bool(int param, bint value)
 cpdef set_parameter_string(int param, intptr_t desc_str)
+cpdef tuple get_parameter_min_max_value(int param)
+cpdef set_stats_level(int level)
+cpdef int get_stats_level() except? 0
+cpdef stats_start()
+cpdef stats_stop()
+cpdef stats_reset()
+cpdef get_stats_l1(intptr_t stats)
+cpdef get_stats_l2(intptr_t stats)
+cpdef get_stats_l3(intptr_t stats)
+cpdef size_t get_bar_size_in_kb(int gpu_ind_ex) except? 0
+cpdef set_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len)
+cpdef get_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len)
