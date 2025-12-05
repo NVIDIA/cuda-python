@@ -209,25 +209,26 @@ cdef class Buffer:
             or if buffer size is not divisible by width
 
         """
-        stream = Stream_accept(stream)
-        cdef Stream s_stream = <Stream>stream
-        cdef size_t buffer_size = self._size
+        cdef Stream s_stream = Stream_accept(stream)
         cdef unsigned char c_value8
         cdef unsigned short c_value16
         cdef unsigned int c_value32
         cdef size_t N
-        cdef cydriver.CUstream s = s_stream._handle
 
         # Validate width
         if width not in (1, 2, 4):
             raise ValueError(f"width must be 1, 2, or 4, got {width}")
 
+        # Validate buffer size modulus.
+        cdef size_t buffer_size = self._size
+        if buffer_size % width != 0:
+            raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
+
         # Validate value fits in width
+        cdef cydriver.CUstream s = s_stream._handle
         if width == 1:
             if value < 0 or value > 255:
                 raise ValueError(f"value must be in range [0, 255] for width=1, got {value}")
-            if buffer_size % width != 0:
-                raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
             c_value8 = <unsigned char>value
             N = buffer_size
             with nogil:
@@ -235,8 +236,6 @@ cdef class Buffer:
         elif width == 2:
             if value < 0 or value > 65535:
                 raise ValueError(f"value must be in range [0, 65535] for width=2, got {value}")
-            if buffer_size % width != 0:
-                raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
             c_value16 = <unsigned short>value
             N = buffer_size // 2
             with nogil:
@@ -244,8 +243,6 @@ cdef class Buffer:
         else:  # width == 4
             if value < 0 or value > 4294967295:
                 raise ValueError(f"value must be in range [0, 4294967295] for width=4, got {value}")
-            if buffer_size % width != 0:
-                raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
             c_value32 = <unsigned int>value
             N = buffer_size // 4
             with nogil:
