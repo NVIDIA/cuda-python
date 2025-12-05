@@ -25,7 +25,11 @@ from typing import TYPE_CHECKING, Optional, Protocol, Union
 if TYPE_CHECKING:
     import cuda.bindings
     from cuda.core.experimental._device import Device
-from cuda.core.experimental._context import Context
+from cuda.core.experimental._context cimport (
+    Context,
+    get_stream_context,
+    get_current_context,
+)
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._graph import GraphBuilder
 from cuda.core.experimental._utils.cuda_utils import (
@@ -317,19 +321,18 @@ cdef class Stream:
 
     cdef int _get_context(self) except?-1 nogil:
         if self._ctx_handle == CU_CONTEXT_INVALID:
-            HANDLE_RETURN(cydriver.cuStreamGetCtx(self._handle, &(self._ctx_handle)))
+            self._ctx_handle = get_stream_context(self._handle)
         return 0
 
     cdef int _get_device_and_context(self) except?-1:
         cdef cydriver.CUcontext curr_ctx
         if self._device_id == cydriver.CU_DEVICE_INVALID:
-            with nogil:
-                # Get the current context
-                HANDLE_RETURN(cydriver.cuCtxGetCurrent(&curr_ctx))
-                # Get the stream's context (self.ctx_handle is populated)
-                self._get_context()
-                # Get the stream's device (may require a context-switching dance)
-                self._device_id = get_device_from_ctx(self._ctx_handle, curr_ctx)
+            # Get the current context
+            curr_ctx = get_current_context()
+            # Get the stream's context (self.ctx_handle is populated)
+            self._get_context()
+            # Get the stream's device (may require a context-switching dance)
+            self._device_id = get_device_from_ctx(self._ctx_handle, curr_ctx)
         return 0
 
     @property
