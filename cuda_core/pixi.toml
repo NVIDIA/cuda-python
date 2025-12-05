@@ -52,7 +52,7 @@ CUDA_HOME = '%CONDA_PREFIX%\Library'
 cuda = "13"
 
 [feature.cu13.dependencies]
-cuda-version = "13.*"
+cuda-version = "13.1.*"
 
 [feature.cu12.system-requirements]
 cuda = "12"
@@ -68,7 +68,7 @@ cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
 # TODO: check if these can be extracted from pyproject.toml
 [package]
 name = "cuda-core"
-version = "0.4.1"
+version = "0.4.2"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }
