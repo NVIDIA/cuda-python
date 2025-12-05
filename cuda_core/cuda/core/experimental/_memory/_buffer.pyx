@@ -6,11 +6,13 @@ from __future__ import annotations
 
 from libc.stdint cimport uintptr_t
 
+from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
 from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor, IPCDataForBuffer
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._stream cimport Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport (
+    HANDLE_RETURN,
     _check_driver_error as raise_if_driver_error,
 )
 
@@ -197,12 +199,13 @@ cdef class Buffer:
 
         """
         stream = Stream_accept(stream)
+        cdef Stream s_stream = <Stream>stream
         cdef size_t buffer_size = self._size
         cdef unsigned char c_value8
         cdef unsigned short c_value16
         cdef unsigned int c_value32
         cdef size_t N
-        cdef object err
+        cdef cydriver.CUstream s = s_stream._handle
 
         # Validate width
         if width not in (1, 2, 4):
@@ -216,7 +219,8 @@ cdef class Buffer:
                 raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
             c_value8 = <unsigned char>value
             N = buffer_size
-            err, = driver.cuMemsetD8Async(self._ptr, c_value8, N, stream.handle)
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemsetD8Async(<cydriver.CUdeviceptr>self._ptr, c_value8, N, s))
         elif width == 2:
             if value < 0 or value > 65535:
                 raise ValueError(f"value must be in range [0, 65535] for width=2, got {value}")
@@ -224,7 +228,8 @@ cdef class Buffer:
                 raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
             c_value16 = <unsigned short>value
             N = buffer_size // 2
-            err, = driver.cuMemsetD16Async(self._ptr, c_value16, N, stream.handle)
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemsetD16Async(<cydriver.CUdeviceptr>self._ptr, c_value16, N, s))
         else:  # width == 4
             if value < 0 or value > 4294967295:
                 raise ValueError(f"value must be in range [0, 4294967295] for width=4, got {value}")
@@ -232,9 +237,8 @@ cdef class Buffer:
                 raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
             c_value32 = <unsigned int>value
             N = buffer_size // 4
-            err, = driver.cuMemsetD32Async(self._ptr, c_value32, N, stream.handle)
-
-        raise_if_driver_error(err)
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemsetD32Async(<cydriver.CUdeviceptr>self._ptr, c_value32, N, s))
 
     def __dlpack__(
         self,
