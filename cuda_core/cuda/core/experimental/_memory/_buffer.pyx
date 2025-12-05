@@ -11,10 +11,7 @@ from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemory
 from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor, IPCDataForBuffer
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._stream cimport Stream_accept, Stream
-from cuda.core.experimental._utils.cuda_utils cimport (
-    HANDLE_RETURN,
-    _check_driver_error as raise_if_driver_error,
-)
+from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 import abc
 from typing import TypeVar, Union
@@ -139,6 +136,7 @@ cdef class Buffer:
 
         """
         stream = Stream_accept(stream)
+        cdef Stream s_stream = <Stream>stream
         cdef size_t src_size = self._size
 
         if dst is None:
@@ -152,8 +150,14 @@ cdef class Buffer:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        err, = driver.cuMemcpyAsync(dst._ptr, self._ptr, src_size, stream.handle)
-        raise_if_driver_error(err)
+        cdef cydriver.CUstream s = s_stream._handle
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemcpyAsync(
+                <cydriver.CUdeviceptr>dst._ptr,
+                <cydriver.CUdeviceptr>self._ptr,
+                src_size,
+                s
+            ))
         return dst
 
     def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder):
@@ -169,6 +173,7 @@ cdef class Buffer:
 
         """
         stream = Stream_accept(stream)
+        cdef Stream s_stream = <Stream>stream
         cdef size_t dst_size = self._size
         cdef size_t src_size = src._size
 
@@ -176,8 +181,14 @@ cdef class Buffer:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        err, = driver.cuMemcpyAsync(self._ptr, src._ptr, dst_size, stream.handle)
-        raise_if_driver_error(err)
+        cdef cydriver.CUstream s = s_stream._handle
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemcpyAsync(
+                <cydriver.CUdeviceptr>self._ptr,
+                <cydriver.CUdeviceptr>src._ptr,
+                dst_size,
+                s
+            ))
 
     def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
         """Fill this buffer with a value pattern asynchronously on the given stream.
