@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated with version 12.9.1. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 from libc.time cimport time_t
@@ -72,17 +72,6 @@ cdef extern from '<cufile.h>':
         CU_FILE_GPU_MEMORY_PINNING_FAILED
         CU_FILE_BATCH_FULL
         CU_FILE_ASYNC_NOT_SUPPORTED
-        CU_FILE_INTERNAL_BATCH_SETUP_ERROR
-        CU_FILE_INTERNAL_BATCH_SUBMIT_ERROR
-        CU_FILE_INTERNAL_BATCH_GETSTATUS_ERROR
-        CU_FILE_INTERNAL_BATCH_CANCEL_ERROR
-        CU_FILE_NOMEM_ERROR
-        CU_FILE_IO_ERROR
-        CU_FILE_INTERNAL_BUF_REGISTER_ERROR
-        CU_FILE_HASH_OPR_ERROR
-        CU_FILE_INVALID_CONTEXT_ERROR
-        CU_FILE_NVFS_INTERNAL_DRIVER_ERROR
-        CU_FILE_BATCH_NOCOMPAT_ERROR
         CU_FILE_IO_MAX_ERROR
 
 cdef extern from '<cufile.h>':
@@ -99,8 +88,6 @@ cdef extern from '<cufile.h>':
         CU_FILE_BEEGFS_SUPPORTED
         CU_FILE_NVME_P2P_SUPPORTED
         CU_FILE_SCATEFS_SUPPORTED
-        CU_FILE_VIRTIOFS_SUPPORTED
-        CU_FILE_MAX_TARGET_TYPES
 
 cdef extern from '<cufile.h>':
     ctypedef enum CUfileDriverControlFlags_t:
@@ -113,7 +100,6 @@ cdef extern from '<cufile.h>':
         CU_FILE_BATCH_IO_SUPPORTED
         CU_FILE_STREAMS_SUPPORTED
         CU_FILE_PARALLEL_IO_SUPPORTED
-        CU_FILE_P2P_SUPPORTED
 
 cdef extern from '<cufile.h>':
     ctypedef enum CUfileFileHandleType:
@@ -176,19 +162,6 @@ cdef extern from '<cufile.h>':
         CUFILE_PARAM_ENV_LOGFILE_PATH
         CUFILE_PARAM_LOG_DIR
 
-cdef extern from '<cufile.h>':
-    ctypedef enum CUFileArrayConfigParameter_t:
-        CUFILE_PARAM_POSIX_POOL_SLAB_SIZE_KB
-        CUFILE_PARAM_POSIX_POOL_SLAB_COUNT
-
-cdef extern from '<cufile.h>':
-    ctypedef enum CUfileP2PFlags_t:
-        CUFILE_P2PDMA
-        CUFILE_NVFS
-        CUFILE_DMABUF
-        CUFILE_C2C
-        CUFILE_NVIDIA_PEERMEM
-
     # types
 cdef extern from '<cufile.h>':
     ctypedef void* CUfileHandle_t 'CUfileHandle_t'
@@ -217,11 +190,11 @@ cdef extern from '<cufile.h>':
 
 cdef extern from '<cufile.h>':
     ctypedef struct CUfileFSOps_t 'CUfileFSOps_t':
-        char* (*fs_type)(const void*)
-        int (*getRDMADeviceList)(const void*, sockaddr_t**)
-        int (*getRDMADevicePriority)(const void*, char*, size_t, loff_t, const sockaddr_t*)
-        ssize_t (*read)(const void*, char*, size_t, loff_t, const cufileRDMAInfo_t*)
-        ssize_t (*write)(const void*, const char*, size_t, loff_t, const cufileRDMAInfo_t*)
+        char* (*fs_type)(void*)
+        int (*getRDMADeviceList)(void*, sockaddr_t**)
+        int (*getRDMADevicePriority)(void*, char*, size_t, loff_t, sockaddr_t*)
+        ssize_t (*read)(void*, char*, size_t, loff_t, cufileRDMAInfo_t*)
+        ssize_t (*write)(void*, const char*, size_t, loff_t, cufileRDMAInfo_t*)
 
 cdef union _anon_pod1 '_anon_pod1':
     int fd
@@ -238,44 +211,6 @@ cdef extern from '<cufile.h>':
         void* cookie
         CUfileStatus_t status
         size_t ret
-
-cdef extern from '<cufile.h>':
-    ctypedef struct CUfileOpCounter_t 'CUfileOpCounter_t':
-        uint64_t ok
-        uint64_t err
-
-cdef extern from '<cufile.h>':
-    ctypedef struct CUfilePerGpuStats_t 'CUfilePerGpuStats_t':
-        char uuid[16]
-        uint64_t read_bytes
-        uint64_t read_bw_bytes_per_sec
-        uint64_t read_utilization
-        uint64_t read_duration_us
-        uint64_t n_total_reads
-        uint64_t n_p2p_reads
-        uint64_t n_nvfs_reads
-        uint64_t n_posix_reads
-        uint64_t n_unaligned_reads
-        uint64_t n_dr_reads
-        uint64_t n_sparse_regions
-        uint64_t n_inline_regions
-        uint64_t n_reads_err
-        uint64_t writes_bytes
-        uint64_t write_bw_bytes_per_sec
-        uint64_t write_utilization
-        uint64_t write_duration_us
-        uint64_t n_total_writes
-        uint64_t n_p2p_writes
-        uint64_t n_nvfs_writes
-        uint64_t n_posix_writes
-        uint64_t n_unaligned_writes
-        uint64_t n_dr_writes
-        uint64_t n_writes_err
-        uint64_t n_mmap
-        uint64_t n_mmap_ok
-        uint64_t n_mmap_err
-        uint64_t n_mmap_free
-        uint64_t reg_bytes
 
 cdef extern from '<cufile.h>':
     ctypedef struct CUfileDrvProps_t 'CUfileDrvProps_t':
@@ -297,70 +232,12 @@ cdef union _anon_pod2 '_anon_pod2':
     _anon_pod3 batch
 
 cdef extern from '<cufile.h>':
-    ctypedef struct CUfileStatsLevel1_t 'CUfileStatsLevel1_t':
-        CUfileOpCounter_t read_ops
-        CUfileOpCounter_t write_ops
-        CUfileOpCounter_t hdl_register_ops
-        CUfileOpCounter_t hdl_deregister_ops
-        CUfileOpCounter_t buf_register_ops
-        CUfileOpCounter_t buf_deregister_ops
-        uint64_t read_bytes
-        uint64_t write_bytes
-        uint64_t read_bw_bytes_per_sec
-        uint64_t write_bw_bytes_per_sec
-        uint64_t read_lat_avg_us
-        uint64_t write_lat_avg_us
-        uint64_t read_ops_per_sec
-        uint64_t write_ops_per_sec
-        uint64_t read_lat_sum_us
-        uint64_t write_lat_sum_us
-        CUfileOpCounter_t batch_submit_ops
-        CUfileOpCounter_t batch_complete_ops
-        CUfileOpCounter_t batch_setup_ops
-        CUfileOpCounter_t batch_cancel_ops
-        CUfileOpCounter_t batch_destroy_ops
-        CUfileOpCounter_t batch_enqueued_ops
-        CUfileOpCounter_t batch_posix_enqueued_ops
-        CUfileOpCounter_t batch_processed_ops
-        CUfileOpCounter_t batch_posix_processed_ops
-        CUfileOpCounter_t batch_nvfs_submit_ops
-        CUfileOpCounter_t batch_p2p_submit_ops
-        CUfileOpCounter_t batch_aio_submit_ops
-        CUfileOpCounter_t batch_iouring_submit_ops
-        CUfileOpCounter_t batch_mixed_io_submit_ops
-        CUfileOpCounter_t batch_total_submit_ops
-        uint64_t batch_read_bytes
-        uint64_t batch_write_bytes
-        uint64_t batch_read_bw_bytes
-        uint64_t batch_write_bw_bytes
-        uint64_t batch_submit_lat_avg_us
-        uint64_t batch_completion_lat_avg_us
-        uint64_t batch_submit_ops_per_sec
-        uint64_t batch_complete_ops_per_sec
-        uint64_t batch_submit_lat_sum_us
-        uint64_t batch_completion_lat_sum_us
-        uint64_t last_batch_read_bytes
-        uint64_t last_batch_write_bytes
-
-cdef extern from '<cufile.h>':
     ctypedef struct CUfileIOParams_t 'CUfileIOParams_t':
         CUfileBatchMode_t mode
         _anon_pod2 u
         CUfileHandle_t fh
         CUfileOpcode_t opcode
         void* cookie
-
-cdef extern from '<cufile.h>':
-    ctypedef struct CUfileStatsLevel2_t 'CUfileStatsLevel2_t':
-        CUfileStatsLevel1_t basic
-        uint64_t read_size_kb_hist[32]
-        uint64_t write_size_kb_hist[32]
-
-cdef extern from '<cufile.h>':
-    ctypedef struct CUfileStatsLevel3_t 'CUfileStatsLevel3_t':
-        CUfileStatsLevel2_t detailed
-        uint32_t num_gpus
-        CUfilePerGpuStats_t per_gpu_stats[16]
 
 
 
@@ -413,15 +290,3 @@ cdef CUfileError_t cuFileGetParameterString(CUFileStringConfigParameter_t param,
 cdef CUfileError_t cuFileSetParameterSizeT(CUFileSizeTConfigParameter_t param, size_t value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileSetParameterBool(CUFileBoolConfigParameter_t param, cpp_bool value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
 cdef CUfileError_t cuFileSetParameterString(CUFileStringConfigParameter_t param, const char* desc_str) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileGetParameterMinMaxValue(CUFileSizeTConfigParameter_t param, size_t* min_value, size_t* max_value) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileSetStatsLevel(int level) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileGetStatsLevel(int* level) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileStatsStart() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileStatsStop() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileStatsReset() except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileGetStatsL1(CUfileStatsLevel1_t* stats) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileGetStatsL2(CUfileStatsLevel2_t* stats) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileGetStatsL3(CUfileStatsLevel3_t* stats) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileGetBARSizeInKB(int gpuIndex, size_t* barSize) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileSetParameterPosixPoolSlabArray(const size_t* size_values, const size_t* count_values, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil
-cdef CUfileError_t cuFileGetParameterPosixPoolSlabArray(size_t* size_values, size_t* count_values, int len) except?<CUfileError_t>CUFILE_LOADING_ERROR nogil

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated with version 12.9.1. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -36,8 +36,6 @@ ctypedef CUfileBatchMode_t _BatchMode
 ctypedef CUFileSizeTConfigParameter_t _SizeTConfigParameter
 ctypedef CUFileBoolConfigParameter_t _BoolConfigParameter
 ctypedef CUFileStringConfigParameter_t _StringConfigParameter
-ctypedef CUFileArrayConfigParameter_t _ArrayConfigParameter
-ctypedef CUfileP2PFlags_t _P2PFlags
 
 
 ###############################################################################
@@ -71,15 +69,3 @@ cpdef str get_parameter_string(int param, int len)
 cpdef set_parameter_size_t(int param, size_t value)
 cpdef set_parameter_bool(int param, bint value)
 cpdef set_parameter_string(int param, intptr_t desc_str)
-cpdef tuple get_parameter_min_max_value(int param)
-cpdef set_stats_level(int level)
-cpdef int get_stats_level() except? 0
-cpdef stats_start()
-cpdef stats_stop()
-cpdef stats_reset()
-cpdef get_stats_l1(intptr_t stats)
-cpdef get_stats_l2(intptr_t stats)
-cpdef get_stats_l3(intptr_t stats)
-cpdef size_t get_bar_size_in_kb(int gpu_ind_ex) except? 0
-cpdef set_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len)
-cpdef get_parameter_posix_pool_slab_array(intptr_t size_values, intptr_t count_values, int len)
