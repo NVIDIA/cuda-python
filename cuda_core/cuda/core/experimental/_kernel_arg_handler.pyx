@@ -17,6 +17,7 @@ import numpy
 
 from cuda.core.experimental._memory import Buffer
 from cuda.core.experimental._utils.cuda_utils import driver
+from cuda.bindings cimport cydriver
 
 
 ctypedef cpp_complex.complex[float] cpp_single_complex
@@ -272,7 +273,7 @@ cdef class ParamHolder:
                 # we need the address of where the actual buffer address is stored
                 if type(arg.handle) is int:
                     # see note below on handling int arguments
-                    prepare_arg[intptr_t](self.data, self.data_addresses, arg.handle, i)
+                    prepare_arg[cydriver.CUgraphConditionalHandle](self.data, self.data_addresses, arg.handle, i)
                     continue
                 else:
                     # it's a CUdeviceptr:
@@ -302,7 +303,7 @@ cdef class ParamHolder:
             if not_prepared:
                 # TODO: revisit this treatment if we decide to cythonize cuda.core
                 if arg_type is driver.CUgraphConditionalHandle:
-                    prepare_arg[intptr_t](self.data, self.data_addresses, <intptr_t>int(arg), i)
+                    prepare_arg[cydriver.CUgraphConditionalHandle](self.data, self.data_addresses, <intptr_t>int(arg), i)
                     continue
                 # If no exact types are found, fallback to slower `isinstance` check
                 elif isinstance(arg, Buffer):
