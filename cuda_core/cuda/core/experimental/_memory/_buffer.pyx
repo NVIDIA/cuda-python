@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from libc.stdint cimport uintptr_t
+from libc.stdint cimport uintptr_t, int64_t, uint64_t
 
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
@@ -224,25 +224,23 @@ cdef class Buffer:
         if buffer_size % width != 0:
             raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
 
-        # Validate value fits in width
+        # Map width (bytes) to bitwidth and validate value
+        cdef int bitwidth = width * 8
+        _validate_value_against_bitwidth(bitwidth, value, is_signed=False)
+
+        # Validate value fits in width and perform fill
         cdef cydriver.CUstream s = s_stream._handle
         if width == 1:
-            if value < 0 or value > 255:
-                raise ValueError(f"value must be in range [0, 255] for width=1, got {value}")
             c_value8 = <unsigned char>value
             N = buffer_size
             with nogil:
                 HANDLE_RETURN(cydriver.cuMemsetD8Async(<cydriver.CUdeviceptr>self._ptr, c_value8, N, s))
         elif width == 2:
-            if value < 0 or value > 65535:
-                raise ValueError(f"value must be in range [0, 65535] for width=2, got {value}")
             c_value16 = <unsigned short>value
             N = buffer_size // 2
             with nogil:
                 HANDLE_RETURN(cydriver.cuMemsetD16Async(<cydriver.CUdeviceptr>self._ptr, c_value16, N, s))
         else:  # width == 4
-            if value < 0 or value > 4294967295:
-                raise ValueError(f"value must be in range [0, 4294967295] for width=4, got {value}")
             c_value32 = <unsigned int>value
             N = buffer_size // 4
             with nogil:
@@ -411,3 +409,43 @@ cdef class MemoryResource:
             and document the behavior.
         """
         ...
+
+
+# Helper Functions
+# ----------------
+cdef void _validate_value_against_bitwidth(int bitwidth, int64_t value, bint is_signed=False) except *:
+    """Validate that a value fits within the representable range for a given bitwidth.
+
+    Parameters
+    ----------
+    bitwidth : int
+        Number of bits (e.g., 8, 16, 32)
+    value : int64_t
+        Value to validate
+    is_signed : bool, optional
+        Whether the value is signed (default: False)
+
+    Raises
+    ------
+    ValueError
+        If value is outside the representable range for the bitwidth
+    """
+    cdef int max_bits = bitwidth
+    assert max_bits < 64, f"bitwidth ({max_bits}) must be less than 64"
+
+    cdef int64_t min_value
+    cdef uint64_t max_value_unsigned
+    cdef int64_t max_value
+
+    if is_signed:
+        min_value = -(<int64_t>1 << (max_bits - 1))
+        max_value = (<int64_t>1 << (max_bits - 1)) - 1
+    else:
+        min_value = 0
+        max_value_unsigned = (<uint64_t>1 << max_bits) - 1
+        max_value = <int64_t>max_value_unsigned
+
+    if not min_value <= value <= max_value:
+        raise ValueError(
+            f"value must be in range [{min_value}, {max_value}]"
+        )
