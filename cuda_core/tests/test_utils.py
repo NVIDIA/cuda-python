@@ -82,7 +82,7 @@ class TestViewCPU:
 
     def test_strided_memory_view_cpu_init(self, in_arr):
         # stream_ptr=-1 means "the consumer does not care"
-        with pytest.warns(UserWarning, match="deprecated"):
+        with pytest.deprecated_call(match="deprecated"):
             view = StridedMemoryView(in_arr, stream_ptr=-1)
         self._check_view(view, in_arr)
 
@@ -162,7 +162,7 @@ class TestViewGPU:
         # This is the consumer stream
         s = dev.create_stream() if use_stream else None
 
-        with pytest.warns(UserWarning, match="deprecated"):
+        with pytest.deprecated_call(match="deprecated"):
             view = StridedMemoryView(in_arr, stream_ptr=s.handle if s else -1)
         self._check_view(view, in_arr, dev)
 
