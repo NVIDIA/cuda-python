@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import ctypes
+
 import numpy as np
 import pytest
 
@@ -35,19 +37,28 @@ def _common_kernels():
     return mod
 
 
-def _common_kernels_conditional():
+def _common_kernels_conditional(cond_type):
+    if cond_type in (bool, np.bool_, ctypes.c_bool):
+        cond_type_str = "bool"
+    elif cond_type is int:
+        cond_type_str = "unsigned int"
+    else:
+        raise ValueError("Unsupported cond_type")
+
     code = """
     extern "C" __device__ __cudart_builtin__ void CUDARTAPI cudaGraphSetConditional(cudaGraphConditionalHandle handle,
                                                                                     unsigned int value);
     __global__ void empty_kernel() {}
     __global__ void add_one(int *a) { *a += 1; }
-    __global__ void set_handle(cudaGraphConditionalHandle handle, int value) { cudaGraphSetConditional(handle, value); }
+    __global__ void set_handle(cudaGraphConditionalHandle handle, $cond_type_str value) {
+        cudaGraphSetConditional(handle, value);
+    }
     __global__ void loop_kernel(cudaGraphConditionalHandle handle)
     {
         static int count = 10;
         cudaGraphSetConditional(handle, --count ? 1 : 0);
     }
-    """
+    """.replace("$cond_type_str", cond_type_str)
     arch = "".join(f"{i}" for i in Device().compute_capability)
     program_options = ProgramOptions(std="c++17", arch=f"sm_{arch}")
     prog = Program(code, code_type="c++", options=program_options)
@@ -216,10 +227,12 @@ def test_graph_capture_errors(init_cuda):
     gb.end_building().complete()
 
 
-@pytest.mark.parametrize("condition_value", [True, False])
+@pytest.mark.parametrize(
+    "condition_value", [True, False, ctypes.c_bool(True), ctypes.c_bool(False), np.bool_(True), np.bool_(False), 1, 0]
+)
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_if(init_cuda, condition_value):
-    mod = _common_kernels_conditional()
+    mod = _common_kernels_conditional(type(condition_value))
     add_one = mod.get_kernel("add_one")
     set_handle = mod.get_kernel("set_handle")
 
@@ -278,10 +291,12 @@ def test_graph_conditional_if(init_cuda, condition_value):
     b.close()
 
 
-@pytest.mark.parametrize("condition_value", [True, False])
+@pytest.mark.parametrize(
+    "condition_value", [True, False, ctypes.c_bool(True), ctypes.c_bool(False), np.bool_(True), np.bool_(False), 1, 0]
+)
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_if_else(init_cuda, condition_value):
-    mod = _common_kernels_conditional()
+    mod = _common_kernels_conditional(type(condition_value))
     add_one = mod.get_kernel("add_one")
     set_handle = mod.get_kernel("set_handle")
 
@@ -353,7 +368,7 @@ def test_graph_conditional_if_else(init_cuda, condition_value):
 @pytest.mark.parametrize("condition_value", [0, 1, 2, 3])
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_switch(init_cuda, condition_value):
-    mod = _common_kernels_conditional()
+    mod = _common_kernels_conditional(type(condition_value))
     add_one = mod.get_kernel("add_one")
     set_handle = mod.get_kernel("set_handle")
 
@@ -441,10 +456,10 @@ def test_graph_conditional_switch(init_cuda, condition_value):
     b.close()
 
 
-@pytest.mark.parametrize("condition_value", [True, False])
+@pytest.mark.parametrize("condition_value", [True, False, 1, 0])
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_conditional_while(init_cuda, condition_value):
-    mod = _common_kernels_conditional()
+    mod = _common_kernels_conditional(type(condition_value))
     add_one = mod.get_kernel("add_one")
     loop_kernel = mod.get_kernel("loop_kernel")
     empty_kernel = mod.get_kernel("empty_kernel")
@@ -545,7 +560,7 @@ def test_graph_child_graph(init_cuda):
 
 @pytest.mark.skipif(tuple(int(i) for i in np.__version__.split(".")[:2]) < (2, 1), reason="need numpy 2.1.0+")
 def test_graph_update(init_cuda):
-    mod = _common_kernels_conditional()
+    mod = _common_kernels_conditional(int)
     add_one = mod.get_kernel("add_one")
 
     # Allocate memory
@@ -668,7 +683,7 @@ def test_graph_stream_lifetime(init_cuda):
 
 
 def test_graph_dot_print_options(init_cuda, tmp_path):
-    mod = _common_kernels_conditional()
+    mod = _common_kernels_conditional(bool)
     set_handle = mod.get_kernel("set_handle")
     empty_kernel = mod.get_kernel("empty_kernel")
 
