@@ -1,0 +1,62 @@
+[
+    {
+        "version": "latest",
+        "url": "https://nvidia.github.io/cuda-python/latest/"
+    },
+    {
+        "version": "13.1.0",
+        "url": "https://nvidia.github.io/cuda-python/13.1.0/"
+    },
+    {
+        "version": "13.0.3",
+        "url": "https://nvidia.github.io/cuda-python/13.0.3/"
+    },
+    {
+        "version": "13.0.2",
+        "url": "https://nvidia.github.io/cuda-python/13.0.2/"
+    },
+    {
+        "version": "13.0.1",
+        "url": "https://nvidia.github.io/cuda-python/13.0.1/"
+    },
+    {
+        "version": "13.0.0",
+        "url": "https://nvidia.github.io/cuda-python/13.0.0/"
+    },
+    {
+        "version": "12.9.5",
+        "url": "https://nvidia.github.io/cuda-python/12.9.5/"
+    },
+    {
+        "version": "12.9.4",
+        "url": "https://nvidia.github.io/cuda-python/12.9.4/"
+    },
+    {
+        "version": "12.9.3",
+        "url": "https://nvidia.github.io/cuda-python/12.9.3/"
+    },
+    {
+        "version": "12.9.2",
+        "url": "https://nvidia.github.io/cuda-python/12.9.2/"
+    },
+    {
+        "version": "12.9.1",
+        "url": "https://nvidia.github.io/cuda-python/12.9.1/"
+    },
+    {
+        "version": "12.9.0",
+        "url": "https://nvidia.github.io/cuda-python/12.9.0/"
+    },
+    {
+        "version": "12.8.0",
+        "url": "https://nvidia.github.io/cuda-python/12.8.0/"
+    },
+    {
+        "version": "12.6.2",
+        "url": "https://nvidia.github.io/cuda-python/12.6.2/"
+    },
+    {
+        "version": "12.6.1",
+        "url": "https://nvidia.github.io/cuda-python/12.6.1/"
+    }
+]
