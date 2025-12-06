@@ -13,6 +13,7 @@ dependencies = []
 [dependency-groups]
 test = [
     "pytest>=6.2.4",
+    "pytest-randomly",
 ]
 # Internal organization of test dependencies.
 cu12 = [
