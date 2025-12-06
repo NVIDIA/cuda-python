@@ -28,7 +28,7 @@ jobs:
       - name: Load branch name
         id: get-branch
         run: |
-          OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
+          OLD_BRANCH=$(yq '.backport_branch' ci/versions.yml)
           echo "OLD_BRANCH=${OLD_BRANCH}" >> $GITHUB_ENV
 
       - name: Create backport pull requests
