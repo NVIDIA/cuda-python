@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.bindings cimport cydriver
+from cuda.core.experimental._resource_handles cimport ContextHandle
 
 cdef class Context:
     """Cython declaration for Context class.
@@ -12,7 +13,7 @@ cdef class Context:
     """
 
     cdef:
-        readonly object _handle
+        ContextHandle _resource_handle
         int _device_id
 
 # Cython-level context operations

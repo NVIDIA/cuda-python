@@ -8,7 +8,8 @@ import threading
 from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._utils.cuda_utils import driver, CUDAError
+from cuda.core.experimental._resource_handles cimport create_context_handle_ref
+from cuda.core.experimental._utils.cuda_utils import driver
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 
@@ -28,18 +29,37 @@ cdef class Context:
     @classmethod
     def _from_ctx(cls, handle: driver.CUcontext, int device_id):
         cdef Context ctx = Context.__new__(Context)
-        ctx._handle = handle
+        # Convert Python CUcontext to C-level CUcontext and create non-owning ContextHandle
+        cdef cydriver.CUcontext c_ctx = <cydriver.CUcontext><uintptr_t>int(handle)
+        ctx._resource_handle = create_context_handle_ref(c_ctx)
         ctx._device_id = device_id
         return ctx
+
+    @property
+    def handle(self):
+        """Return the underlying CUcontext handle."""
+        cdef const cydriver.CUcontext* ptr = self._resource_handle.get()
+        if ptr != NULL:
+            return driver.CUcontext(<uintptr_t>(ptr[0]))
+        return None
 
     def __eq__(self, other):
         if not isinstance(other, Context):
             return NotImplemented
         cdef Context _other = <Context>other
-        return int(self._handle) == int(_other._handle)
+        # Compare the actual CUcontext values, not the shared_ptr objects
+        # (aliasing constructor creates different addresses even for same CUcontext)
+        cdef const cydriver.CUcontext* ptr1 = self._resource_handle.get()
+        cdef const cydriver.CUcontext* ptr2 = _other._resource_handle.get()
+        if ptr1 == NULL or ptr2 == NULL:
+            return ptr1 == ptr2
+        return ptr1[0] == ptr2[0]
 
     def __hash__(self) -> int:
-        return hash(int(self._handle))
+        cdef const cydriver.CUcontext* ptr = self._resource_handle.get()
+        if ptr == NULL:
+            return hash((type(self), 0))
+        return hash((type(self), <uintptr_t>(ptr[0])))
 
 
 @dataclass

@@ -84,11 +84,34 @@ def _build_cuda_core():
         print("CUDA paths:", CUDA_PATH)
         return CUDA_PATH
 
+    def get_sources(mod_name):
+        """Get source files for a module, including any .cpp files."""
+        sources = [f"cuda/core/experimental/{mod_name}.pyx"]
+
+        # Add module-specific .cpp file from _cpp/ directory if it exists
+        cpp_file = f"cuda/core/experimental/_cpp/{mod_name.lstrip('_')}.cpp"
+        if os.path.exists(cpp_file):
+            sources.append(cpp_file)
+
+        # Modules that use resource handles need to link against _resource_handles_impl.cpp
+        # This includes _context, _stream, _event, etc. as they adopt handle-based management
+        resource_handle_users = {"_context", "_stream", "_event"}
+        if mod_name in resource_handle_users:
+            resource_handles_impl = "cuda/core/experimental/_resource_handles_impl.cpp"
+            if os.path.exists(resource_handles_impl):
+                sources.append(resource_handles_impl)
+
+        return sources
+
     ext_modules = tuple(
         Extension(
             f"cuda.core.experimental.{mod.replace(os.path.sep, '.')}",
-            sources=[f"cuda/core/experimental/{mod}.pyx"],
-            include_dirs=list(os.path.join(root, "include") for root in get_cuda_paths()),
+            sources=get_sources(mod),
+            include_dirs=[
+                "cuda/core/experimental/include",
+                "cuda/core/experimental/_cpp",
+            ]
+            + list(os.path.join(root, "include") for root in get_cuda_paths()),
             language="c++",
         )
         for mod in module_names

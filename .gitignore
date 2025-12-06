@@ -11,6 +11,7 @@ __pycache__/
 .pytest_cache/
 .benchmarks/
 *.cpp
+!*_impl.cpp
 !cuda_bindings/cuda/bindings/_lib/param_packer.cpp
 !cuda_bindings/cuda/bindings/_bindings/loader.cpp
 cache_driver

@@ -136,7 +136,7 @@ def test_context_subclass_equality(init_cuda):
     context = stream.context
 
     # MyContext._from_ctx() returns a Context instance, not MyContext
-    my_context = MyContext._from_ctx(context._handle, device.device_id)
+    my_context = MyContext._from_ctx(context.handle, device.device_id)
     assert type(my_context) is Context, "_from_ctx returns Context, not subclass"
     assert type(my_context) is not MyContext
 

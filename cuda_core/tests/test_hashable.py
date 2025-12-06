@@ -174,7 +174,7 @@ def test_context_subclass_hash(init_cuda):
     context = stream.context
 
     # MyContext._from_ctx() returns Context, not MyContext
-    my_context = MyContext._from_ctx(context._handle, device.device_id)
+    my_context = MyContext._from_ctx(context.handle, device.device_id)
     assert type(my_context) is Context, "_from_ctx returns Context type"
 
     # Same handle -> same hash
@@ -221,7 +221,7 @@ def test_hash_equality_contract_maintained(init_cuda):
 
     # Test Context: always returns base type from _from_ctx
     ctx = device.context
-    my_ctx = MyContext._from_ctx(ctx._handle, device.device_id)
+    my_ctx = MyContext._from_ctx(ctx.handle, device.device_id)
 
     assert ctx == my_ctx, "Equal contexts with same handle"
     assert hash(ctx) == hash(my_ctx), "Equal objects have equal hashes"

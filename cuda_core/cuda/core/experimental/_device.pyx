@@ -1226,7 +1226,7 @@ class Device:
                     f" id={ctx._id}, which is different from the target id={self._id}"
                 )
             # prev_ctx is the previous context
-            curr_ctx = <cydriver.CUcontext>(ctx._handle)
+            curr_ctx = ctx._resource_handle.get()[0]
             prev_ctx = NULL
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxPopCurrent(&prev_ctx))
