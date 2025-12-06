@@ -273,7 +273,7 @@ cdef class ParamHolder:
                 # we need the address of where the actual buffer address is stored
                 if type(arg.handle) is int:
                     # see note below on handling int arguments
-                    prepare_arg[cydriver.CUgraphConditionalHandle](self.data, self.data_addresses, arg.handle, i)
+                    prepare_arg[intptr_t](self.data, self.data_addresses, arg.handle, i)
                     continue
                 else:
                     # it's a CUdeviceptr:
@@ -326,7 +326,7 @@ cdef class ParamHolder:
                     prepare_arg[cpp_double_complex](self.data, self.data_addresses, arg, i)
                     continue
                 elif isinstance(arg, driver.CUgraphConditionalHandle):
-                    prepare_arg[intptr_t](self.data, self.data_addresses, <intptr_t>int(arg), i)
+                    prepare_arg[cydriver.CUgraphConditionalHandle](self.data, self.data_addresses, arg, i)
                     continue
                 # TODO: support ctypes/numpy struct
                 raise TypeError("the argument is of unsupported type: " + str(type(arg)))
