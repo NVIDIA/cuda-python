@@ -1384,6 +1384,31 @@ cdef cudaError_t cudaGraphNodeFindInClone(cudaGraphNode_t* pNode, cudaGraphNode_
 cdef cudaError_t cudaGraphNodeGetType(cudaGraphNode_t node, cudaGraphNodeType* pType) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if 'cudaGraphNodeGetContainingGraph' in found_functions}}
+
+cdef cudaError_t cudaGraphNodeGetContainingGraph(cudaGraphNode_t hNode, cudaGraph_t* phGraph) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaGraphNodeGetLocalId' in found_functions}}
+
+cdef cudaError_t cudaGraphNodeGetLocalId(cudaGraphNode_t hNode, unsigned int* nodeId) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaGraphNodeGetToolsId' in found_functions}}
+
+cdef cudaError_t cudaGraphNodeGetToolsId(cudaGraphNode_t hNode, unsigned long long* toolsNodeId) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaGraphGetId' in found_functions}}
+
+cdef cudaError_t cudaGraphGetId(cudaGraph_t hGraph, unsigned int* graphID) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaGraphExecGetId' in found_functions}}
+
+cdef cudaError_t cudaGraphExecGetId(cudaGraphExec_t hGraphExec, unsigned int* graphID) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 {{if 'cudaGraphGetNodes' in found_functions}}
 
 cdef cudaError_t cudaGraphGetNodes(cudaGraph_t graph, cudaGraphNode_t* nodes, size_t* numNodes) except ?cudaErrorCallRequiresNewerDriver nogil
@@ -1579,6 +1604,11 @@ cdef cudaError_t cudaGraphExecNodeSetParams(cudaGraphExec_t graphExec, cudaGraph
 cdef cudaError_t cudaGraphConditionalHandleCreate(cudaGraphConditionalHandle* pHandle_out, cudaGraph_t graph, unsigned int defaultLaunchValue, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if 'cudaGraphConditionalHandleCreate_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphConditionalHandleCreate_v2(cudaGraphConditionalHandle* pHandle_out, cudaGraph_t graph, cudaExecutionContext_t ctx, unsigned int defaultLaunchValue, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 {{if 'cudaGetDriverEntryPoint' in found_functions}}
 
 cdef cudaError_t cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) except ?cudaErrorCallRequiresNewerDriver nogil
@@ -1639,14 +1669,64 @@ cdef cudaError_t cudaLibraryEnumerateKernels(cudaKernel_t* kernels, unsigned int
 cdef cudaError_t cudaKernelSetAttributeForDevice(cudaKernel_t kernel, cudaFuncAttribute attr, int value, int device) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if 'cudaDeviceGetDevResource' in found_functions}}
+
+cdef cudaError_t cudaDeviceGetDevResource(int device, cudaDevResource* resource, cudaDevResourceType typename) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaDevSmResourceSplitByCount' in found_functions}}
+
+cdef cudaError_t cudaDevSmResourceSplitByCount(cudaDevResource* result, unsigned int* nbGroups, const cudaDevResource* input, cudaDevResource* remaining, unsigned int flags, unsigned int minCount) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaDevSmResourceSplit' in found_functions}}
+
+cdef cudaError_t cudaDevSmResourceSplit(cudaDevResource* result, unsigned int nbGroups, const cudaDevResource* input, cudaDevResource* remainder, unsigned int flags, cudaDevSmResourceGroupParams* groupParams) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaDevResourceGenerateDesc' in found_functions}}
+
+cdef cudaError_t cudaDevResourceGenerateDesc(cudaDevResourceDesc_t* phDesc, cudaDevResource* resources, unsigned int nbResources) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaGreenCtxCreate' in found_functions}}
+
+cdef cudaError_t cudaGreenCtxCreate(cudaExecutionContext_t* phCtx, cudaDevResourceDesc_t desc, int device, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 {{if 'cudaExecutionCtxDestroy' in found_functions}}
 
 cdef cudaError_t cudaExecutionCtxDestroy(cudaExecutionContext_t ctx) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if 'cudaExecutionCtxGetDevResource' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxGetDevResource(cudaExecutionContext_t ctx, cudaDevResource* resource, cudaDevResourceType typename) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaExecutionCtxGetDevice' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxGetDevice(int* device, cudaExecutionContext_t ctx) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaExecutionCtxGetId' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxGetId(cudaExecutionContext_t ctx, unsigned long long* ctxId) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaExecutionCtxStreamCreate' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxStreamCreate(cudaStream_t* phStream, cudaExecutionContext_t ctx, unsigned int flags, int priority) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 {{if 'cudaExecutionCtxSynchronize' in found_functions}}
 
 cdef cudaError_t cudaExecutionCtxSynchronize(cudaExecutionContext_t ctx) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaStreamGetDevResource' in found_functions}}
+
+cdef cudaError_t cudaStreamGetDevResource(cudaStream_t hStream, cudaDevResource* resource, cudaDevResourceType typename) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
 {{if 'cudaExecutionCtxRecordEvent' in found_functions}}
@@ -1657,6 +1737,11 @@ cdef cudaError_t cudaExecutionCtxRecordEvent(cudaExecutionContext_t ctx, cudaEve
 {{if 'cudaExecutionCtxWaitEvent' in found_functions}}
 
 cdef cudaError_t cudaExecutionCtxWaitEvent(cudaExecutionContext_t ctx, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaDeviceGetExecutionCtx' in found_functions}}
+
+cdef cudaError_t cudaDeviceGetExecutionCtx(cudaExecutionContext_t* ctx, int device) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
 {{if 'cudaGetExportTable' in found_functions}}

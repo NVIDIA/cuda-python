@@ -7112,6 +7112,11 @@ This section describes the graph management functions of the low-level CUDA driv
 .. autofunction:: cuda.bindings.driver.cuGraphClone
 .. autofunction:: cuda.bindings.driver.cuGraphNodeFindInClone
 .. autofunction:: cuda.bindings.driver.cuGraphNodeGetType
+.. autofunction:: cuda.bindings.driver.cuGraphNodeGetContainingGraph
+.. autofunction:: cuda.bindings.driver.cuGraphNodeGetLocalId
+.. autofunction:: cuda.bindings.driver.cuGraphNodeGetToolsId
+.. autofunction:: cuda.bindings.driver.cuGraphGetId
+.. autofunction:: cuda.bindings.driver.cuGraphExecGetId
 .. autofunction:: cuda.bindings.driver.cuGraphGetNodes
 .. autofunction:: cuda.bindings.driver.cuGraphGetRootNodes
 .. autofunction:: cuda.bindings.driver.cuGraphGetEdges
@@ -7546,12 +7551,14 @@ Additionally, there are two known scenarios, where its possible for the workload
 .. autofunction:: cuda.bindings.driver.cuCtxGetDevResource
 .. autofunction:: cuda.bindings.driver.cuGreenCtxGetDevResource
 .. autofunction:: cuda.bindings.driver.cuDevSmResourceSplitByCount
+.. autofunction:: cuda.bindings.driver.cuDevSmResourceSplit
 .. autofunction:: cuda.bindings.driver.cuDevResourceGenerateDesc
 .. autofunction:: cuda.bindings.driver.cuGreenCtxRecordEvent
 .. autofunction:: cuda.bindings.driver.cuGreenCtxWaitEvent
 .. autofunction:: cuda.bindings.driver.cuStreamGetGreenCtx
 .. autofunction:: cuda.bindings.driver.cuGreenCtxStreamCreate
 .. autofunction:: cuda.bindings.driver.cuGreenCtxGetId
+.. autofunction:: cuda.bindings.driver.cuStreamGetDevResource
 .. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_VERSION
 .. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_BYTES
 .. autoattribute:: cuda.bindings.driver._CONCAT_INNER
