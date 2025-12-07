@@ -1412,3 +1412,196 @@ def test_getLocalRuntimeVersion():
         else:
             assertSuccess(err)
             assert version >= 12000  # CUDA 12.0
+
+
+# Phase 1: Graph and Node ID Getter Functions (CUDA 13.1+)
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphGetId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaGraphGetId():
+    """Test cudaGraphGetId - get graph ID."""
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+
+    err, graph_id = cudart.cudaGraphGetId(graph)
+    assertSuccess(err)
+    assert isinstance(graph_id, int)
+    assert graph_id > 0
+
+    # Create another graph and verify it has a different ID
+    err, graph2 = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+    err, graph_id2 = cudart.cudaGraphGetId(graph2)
+    assertSuccess(err)
+    assert graph_id2 != graph_id
+
+    (err,) = cudart.cudaGraphDestroy(graph)
+    assertSuccess(err)
+    (err,) = cudart.cudaGraphDestroy(graph2)
+    assertSuccess(err)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphExecGetId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaGraphExecGetId():
+    """Test cudaGraphExecGetId - get graph exec ID."""
+    err, stream = cudart.cudaStreamCreate()
+    assertSuccess(err)
+
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+
+    # Add an empty node to make the graph valid
+    err, node = cudart.cudaGraphAddEmptyNode(graph, None, 0)
+    assertSuccess(err)
+
+    err, graphExec = cudart.cudaGraphInstantiate(graph, 0)
+    assertSuccess(err)
+
+    err, graph_exec_id = cudart.cudaGraphExecGetId(graphExec)
+    assertSuccess(err)
+    assert isinstance(graph_exec_id, int)
+    assert graph_exec_id > 0
+
+    # Create another graph exec and verify it has a different ID
+    err, graph2 = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+    err, node2 = cudart.cudaGraphAddEmptyNode(graph2, None, 0)
+    assertSuccess(err)
+    err, graphExec2 = cudart.cudaGraphInstantiate(graph2, 0)
+    assertSuccess(err)
+    err, graph_exec_id2 = cudart.cudaGraphExecGetId(graphExec2)
+    assertSuccess(err)
+    assert graph_exec_id2 != graph_exec_id
+
+    (err,) = cudart.cudaGraphExecDestroy(graphExec)
+    assertSuccess(err)
+    (err,) = cudart.cudaGraphExecDestroy(graphExec2)
+    assertSuccess(err)
+    (err,) = cudart.cudaGraphDestroy(graph)
+    assertSuccess(err)
+    (err,) = cudart.cudaGraphDestroy(graph2)
+    assertSuccess(err)
+    (err,) = cudart.cudaStreamDestroy(stream)
+    assertSuccess(err)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphNodeGetLocalId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaGraphNodeGetLocalId():
+    """Test cudaGraphNodeGetLocalId - get node local ID."""
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+
+    # Add multiple nodes
+    err, node1 = cudart.cudaGraphAddEmptyNode(graph, None, 0)
+    assertSuccess(err)
+
+    err, node2 = cudart.cudaGraphAddEmptyNode(graph, [node1], 1)
+    assertSuccess(err)
+
+    err, node3 = cudart.cudaGraphAddEmptyNode(graph, [node1, node2], 2)
+    assertSuccess(err)
+
+    # Get local IDs for each node
+    err, node_id1 = cudart.cudaGraphNodeGetLocalId(node1)
+    assertSuccess(err)
+    assert isinstance(node_id1, int)
+    assert node_id1 >= 0
+
+    err, node_id2 = cudart.cudaGraphNodeGetLocalId(node2)
+    assertSuccess(err)
+    assert isinstance(node_id2, int)
+    assert node_id2 >= 0
+    assert node_id2 != node_id1
+
+    err, node_id3 = cudart.cudaGraphNodeGetLocalId(node3)
+    assertSuccess(err)
+    assert isinstance(node_id3, int)
+    assert node_id3 >= 0
+    assert node_id3 != node_id1
+    assert node_id3 != node_id2
+
+    (err,) = cudart.cudaGraphDestroy(graph)
+    assertSuccess(err)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphNodeGetToolsId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaGraphNodeGetToolsId():
+    """Test cudaGraphNodeGetToolsId - get node tools ID."""
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+
+    err, node = cudart.cudaGraphAddEmptyNode(graph, None, 0)
+    assertSuccess(err)
+
+    err, tools_node_id = cudart.cudaGraphNodeGetToolsId(node)
+    assertSuccess(err)
+    assert isinstance(tools_node_id, int)
+    # toolsNodeId is unsigned long long, so it can be any non-negative value
+    assert tools_node_id >= 0
+
+    # Add another node and verify it has a different tools ID
+    err, node2 = cudart.cudaGraphAddEmptyNode(graph, [node], 1)
+    assertSuccess(err)
+    err, tools_node_id2 = cudart.cudaGraphNodeGetToolsId(node2)
+    assertSuccess(err)
+    assert tools_node_id2 != tools_node_id
+
+    (err,) = cudart.cudaGraphDestroy(graph)
+    assertSuccess(err)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphNodeGetContainingGraph"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaGraphNodeGetContainingGraph():
+    """Test cudaGraphNodeGetContainingGraph - get graph containing a node."""
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+
+    err, node = cudart.cudaGraphAddEmptyNode(graph, None, 0)
+    assertSuccess(err)
+
+    # Get the containing graph
+    err, containing_graph = cudart.cudaGraphNodeGetContainingGraph(node)
+    assertSuccess(err)
+    # Verify it's the same graph
+    assert int(containing_graph) == int(graph)
+
+    # Test with a child graph node (if supported)
+    # Create a child graph
+    err, child_graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+    err, child_node = cudart.cudaGraphAddEmptyNode(child_graph, None, 0)
+    assertSuccess(err)
+
+    # Add child graph node to parent graph
+    childGraphNodeParams = cudart.cudaGraphNodeParams()
+    childGraphNodeParams.type = cudart.cudaGraphNodeType.cudaGraphNodeTypeGraph
+    childGraphNodeParams.graph.graph = child_graph
+    err, child_graph_node = cudart.cudaGraphAddNode(graph, None, None, 0, childGraphNodeParams)
+    if isSuccess(err):
+        # Get containing graph for the child graph node
+        err, containing_graph_for_child = cudart.cudaGraphNodeGetContainingGraph(child_graph_node)
+        assertSuccess(err)
+        assert int(containing_graph_for_child) == int(graph)
+
+        # Get containing graph for node inside child graph
+        err, containing_graph_for_nested = cudart.cudaGraphNodeGetContainingGraph(child_node)
+        assertSuccess(err)
+        assert int(containing_graph_for_nested) == int(child_graph)
+
+    (err,) = cudart.cudaGraphDestroy(graph)
+    assertSuccess(err)
+    (err,) = cudart.cudaGraphDestroy(child_graph)
+    assertSuccess(err)
