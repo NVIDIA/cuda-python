@@ -888,7 +888,6 @@ def test_struct_pointer_comparison(target):
     assert hash(a) != hash(c)
 
 
-# Phase 1: Graph and Node ID Getter Functions (CUDA 13.1+)
 @pytest.mark.skipif(
     driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphGetId"),
     reason="Requires CUDA 13.1+",
@@ -1081,7 +1080,6 @@ def test_cuGraphNodeGetContainingGraph(device, ctx):
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-# Phase 2: Resource Management Functions (CUDA 13.1+)
 @pytest.mark.skipif(
     driverVersionLessThan(13010) or not supportsCudaAPI("cuStreamGetDevResource"),
     reason="Requires CUDA 13.1+",
@@ -1101,7 +1099,6 @@ def test_cuStreamGetDevResource(device, ctx):
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-# Phase 3: Complex Functions (CUDA 13.1+)
 @pytest.mark.skipif(
     driverVersionLessThan(13010) or not supportsCudaAPI("cuDevSmResourceSplit"),
     reason="Requires CUDA 13.1+",

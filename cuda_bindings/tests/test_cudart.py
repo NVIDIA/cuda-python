@@ -1414,7 +1414,6 @@ def test_getLocalRuntimeVersion():
             assert version >= 12000  # CUDA 12.0
 
 
-# Phase 1: Graph and Node ID Getter Functions (CUDA 13.1+)
 @pytest.mark.skipif(
     driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphGetId"),
     reason="Requires CUDA 13.1+",
@@ -1607,7 +1606,6 @@ def test_cudaGraphNodeGetContainingGraph():
     assertSuccess(err)
 
 
-# Phase 2: Resource Management Functions (CUDA 13.1+)
 @pytest.mark.skipif(
     driverVersionLessThan(13010) or not supportsCudaAPI("cudaStreamGetDevResource"),
     reason="Requires CUDA 13.1+",
@@ -1708,7 +1706,6 @@ def test_cudaExecutionCtxGetId():
     assert ctx_id2 == ctx_id
 
 
-# Phase 3: Complex Functions (CUDA 13.1+)
 @pytest.mark.skipif(
     driverVersionLessThan(13010) or not supportsCudaAPI("cudaDevSmResourceSplit"),
     reason="Requires CUDA 13.1+",
