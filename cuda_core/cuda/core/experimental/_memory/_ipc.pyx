@@ -7,10 +7,10 @@ from libc.stdint cimport uintptr_t
 from libc.string cimport memcpy
 
 from cuda.bindings cimport cydriver
+from cuda.core.experimental._memory._buffer cimport Buffer
 from cuda.core.experimental._stream cimport default_stream
-from cuda.core.experimental._utils.cuda_utils cimport (
-    HANDLE_RETURN,
-)
+from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core.experimental._utils.cuda_utils import check_multiprocessing_start_method
 
 import multiprocessing
 import os
@@ -32,15 +32,27 @@ cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE =                       
 cdef is_supported():
     return IPC_HANDLE_TYPE != cydriver.CUmemAllocationHandleType.CU_MEM_HANDLE_TYPE_NONE
 
-cdef class IPCData:
-    """Data members related to sharing memory pools via IPC."""
-    def __cinit__(self):
-        self._alloc_handle = None
-        self._is_mapped = False
 
-    def __init__(self, IPCAllocationHandle alloc_handle, bint mapped):
+cdef class IPCDataForBuffer:
+    """Data members related to sharing memory buffers via IPC."""
+    def __cinit__(self, IPCBufferDescriptor ipc_descriptor, bint is_mapped):
+        self._ipc_descriptor = ipc_descriptor
+        self._is_mapped = is_mapped
+
+    @property
+    def ipc_descriptor(self):
+        return self._ipc_descriptor
+
+    @property
+    def is_mapped(self):
+        return self._is_mapped
+
+
+cdef class IPCDataForMR:
+    """Data members related to sharing memory resources via IPC."""
+    def __cinit__(self, IPCAllocationHandle alloc_handle, bint is_mapped):
         self._alloc_handle = alloc_handle
-        self._is_mapped = mapped
+        self._is_mapped = is_mapped
 
     @property
     def alloc_handle(self):
@@ -118,6 +130,7 @@ cdef class IPCAllocationHandle:
 
 
 def _reduce_allocation_handle(alloc_handle):
+    check_multiprocessing_start_method()
     df = multiprocessing.reduction.DupFd(alloc_handle.handle)
     return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)
 
@@ -130,6 +143,7 @@ multiprocessing.reduction.register(IPCAllocationHandle, _reduce_allocation_handl
 
 
 def _deep_reduce_device_memory_resource(mr):
+    check_multiprocessing_start_method()
     from .._device import Device
     device = Device(mr.device_id)
     alloc_handle = mr.get_allocation_handle()
@@ -155,7 +169,7 @@ cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
     return IPCBufferDescriptor._init(data_b, self.size)
 
 cdef Buffer Buffer_from_ipc_descriptor(
-    cls, DeviceMemoryResource mr, IPCBufferDescriptor ipc_buffer, stream
+    cls, DeviceMemoryResource mr, IPCBufferDescriptor ipc_descriptor, stream
 ):
     """Import a buffer that was exported from another process."""
     if not mr.is_ipc_enabled:
@@ -166,13 +180,13 @@ cdef Buffer Buffer_from_ipc_descriptor(
     cdef cydriver.CUmemPoolPtrExportData data
     memcpy(
         data.reserved,
-        <const void*><const char*>(ipc_buffer._payload),
+        <const void*><const char*>(ipc_descriptor._payload),
         sizeof(data.reserved)
     )
     cdef cydriver.CUdeviceptr ptr
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._handle, &data))
-    return Buffer._init(<uintptr_t>ptr, ipc_buffer.size, mr, stream)
+    return Buffer._init(<uintptr_t>ptr, ipc_descriptor.size, mr, stream, ipc_descriptor)
 
 
 # DeviceMemoryResource IPC Implementation
@@ -200,7 +214,7 @@ cdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handl
     from .._device import Device
     self._dev_id = Device(device_id).device_id
     self._mempool_owned = True
-    self._ipc_data = IPCData(alloc_handle, mapped=True)
+    self._ipc_data = IPCDataForMR(alloc_handle, True)
 
     # Map the mempool into this process.
     cdef int handle = int(alloc_handle)
@@ -213,9 +227,6 @@ cdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handl
     if uuid is not None:
         registered = self.register(uuid)
         assert registered is self
-
-    # Always close the file handle.
-    alloc_handle.close()
 
     return self
 

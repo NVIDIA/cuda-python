@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.0.2. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 from libc.time cimport time_t
@@ -30,8 +30,10 @@ cdef extern from "<sys/socket.h>":
     ctypedef sockaddr sockaddr_t
 
 
-cdef extern from '<cufile.h>':
+
+
     # enums
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileOpError:
         CU_FILE_SUCCESS
         CU_FILE_DRIVER_NOT_INITIALIZED
@@ -83,6 +85,7 @@ cdef extern from '<cufile.h>':
         CU_FILE_BATCH_NOCOMPAT_ERROR
         CU_FILE_IO_MAX_ERROR
 
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileDriverStatusFlags_t:
         CU_FILE_LUSTRE_SUPPORTED
         CU_FILE_WEKAFS_SUPPORTED
@@ -96,26 +99,34 @@ cdef extern from '<cufile.h>':
         CU_FILE_BEEGFS_SUPPORTED
         CU_FILE_NVME_P2P_SUPPORTED
         CU_FILE_SCATEFS_SUPPORTED
+        CU_FILE_VIRTIOFS_SUPPORTED
+        CU_FILE_MAX_TARGET_TYPES
 
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileDriverControlFlags_t:
         CU_FILE_USE_POLL_MODE
         CU_FILE_ALLOW_COMPAT_MODE
 
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileFeatureFlags_t:
         CU_FILE_DYN_ROUTING_SUPPORTED
         CU_FILE_BATCH_IO_SUPPORTED
         CU_FILE_STREAMS_SUPPORTED
         CU_FILE_PARALLEL_IO_SUPPORTED
+        CU_FILE_P2P_SUPPORTED
 
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileFileHandleType:
         CU_FILE_HANDLE_TYPE_OPAQUE_FD
         CU_FILE_HANDLE_TYPE_OPAQUE_WIN32
         CU_FILE_HANDLE_TYPE_USERSPACE_FS
 
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileOpcode_t:
         CUFILE_READ
         CUFILE_WRITE
 
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileStatus_t:
         CUFILE_WAITING
         CUFILE_PENDING
@@ -125,9 +136,11 @@ cdef extern from '<cufile.h>':
         CUFILE_TIMEOUT
         CUFILE_FAILED
 
+cdef extern from '<cufile.h>':
     ctypedef enum CUfileBatchMode_t:
         CUFILE_BATCH
 
+cdef extern from '<cufile.h>':
     ctypedef enum CUFileSizeTConfigParameter_t:
         CUFILE_PARAM_PROFILE_STATS
         CUFILE_PARAM_EXECUTION_MAX_IO_QUEUE_DEPTH
@@ -142,6 +155,7 @@ cdef extern from '<cufile.h>':
         CUFILE_PARAM_POLLTHRESHOLD_SIZE_KB
         CUFILE_PARAM_PROPERTIES_BATCH_IO_TIMEOUT_MS
 
+cdef extern from '<cufile.h>':
     ctypedef enum CUFileBoolConfigParameter_t:
         CUFILE_PARAM_PROPERTIES_USE_POLL_MODE
         CUFILE_PARAM_PROPERTIES_ALLOW_COMPAT_MODE
@@ -156,53 +170,81 @@ cdef extern from '<cufile.h>':
         CUFILE_PARAM_SKIP_TOPOLOGY_DETECTION
         CUFILE_PARAM_STREAM_MEMOPS_BYPASS
 
+cdef extern from '<cufile.h>':
     ctypedef enum CUFileStringConfigParameter_t:
         CUFILE_PARAM_LOGGING_LEVEL
         CUFILE_PARAM_ENV_LOGFILE_PATH
         CUFILE_PARAM_LOG_DIR
 
+cdef extern from '<cufile.h>':
     ctypedef enum CUFileArrayConfigParameter_t:
         CUFILE_PARAM_POSIX_POOL_SLAB_SIZE_KB
         CUFILE_PARAM_POSIX_POOL_SLAB_COUNT
 
+cdef extern from '<cufile.h>':
+    ctypedef enum CUfileP2PFlags_t:
+        CUFILE_P2PDMA
+        CUFILE_NVFS
+        CUFILE_DMABUF
+        CUFILE_C2C
+        CUFILE_NVIDIA_PEERMEM
+
     # types
+cdef extern from '<cufile.h>':
     ctypedef void* CUfileHandle_t 'CUfileHandle_t'
+
+cdef extern from '<cufile.h>':
     ctypedef void* CUfileBatchHandle_t 'CUfileBatchHandle_t'
+
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileError_t 'CUfileError_t':
         CUfileOpError err
         CUresult cu_err
-    cdef struct _anon_pod0 '_anon_pod0':
-        unsigned int major_version
-        unsigned int minor_version
-        size_t poll_thresh_size
-        size_t max_direct_io_size
-        unsigned int dstatusflags
-        unsigned int dcontrolflags
+
+cdef struct _anon_pod0 '_anon_pod0':
+    unsigned int major_version
+    unsigned int minor_version
+    size_t poll_thresh_size
+    size_t max_direct_io_size
+    unsigned int dstatusflags
+    unsigned int dcontrolflags
+
+cdef extern from '<cufile.h>':
     ctypedef struct cufileRDMAInfo_t 'cufileRDMAInfo_t':
         int version
         int desc_len
         char* desc_str
+
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileFSOps_t 'CUfileFSOps_t':
-        char* (*fs_type)(void*)
-        int (*getRDMADeviceList)(void*, sockaddr_t**)
-        int (*getRDMADevicePriority)(void*, char*, size_t, loff_t, sockaddr_t*)
-        ssize_t (*read)(void*, char*, size_t, loff_t, cufileRDMAInfo_t*)
-        ssize_t (*write)(void*, const char*, size_t, loff_t, cufileRDMAInfo_t*)
-    cdef union _anon_pod1 '_anon_pod1':
-        int fd
-        void* handle
-    cdef struct _anon_pod3 '_anon_pod3':
-        void* devPtr_base
-        off_t file_offset
-        off_t devPtr_offset
-        size_t size
+        char* (*fs_type)(const void*)
+        int (*getRDMADeviceList)(const void*, sockaddr_t**)
+        int (*getRDMADevicePriority)(const void*, char*, size_t, loff_t, const sockaddr_t*)
+        ssize_t (*read)(const void*, char*, size_t, loff_t, const cufileRDMAInfo_t*)
+        ssize_t (*write)(const void*, const char*, size_t, loff_t, const cufileRDMAInfo_t*)
+
+cdef union _anon_pod1 '_anon_pod1':
+    int fd
+    void* handle
+
+cdef struct _anon_pod3 '_anon_pod3':
+    void* devPtr_base
+    off_t file_offset
+    off_t devPtr_offset
+    size_t size
+
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileIOEvents_t 'CUfileIOEvents_t':
         void* cookie
         CUfileStatus_t status
         size_t ret
+
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileOpCounter_t 'CUfileOpCounter_t':
         uint64_t ok
         uint64_t err
+
+cdef extern from '<cufile.h>':
     ctypedef struct CUfilePerGpuStats_t 'CUfilePerGpuStats_t':
         char uuid[16]
         uint64_t read_bytes
@@ -234,6 +276,8 @@ cdef extern from '<cufile.h>':
         uint64_t n_mmap_err
         uint64_t n_mmap_free
         uint64_t reg_bytes
+
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileDrvProps_t 'CUfileDrvProps_t':
         _anon_pod0 nvfs
         unsigned int fflags
@@ -242,12 +286,17 @@ cdef extern from '<cufile.h>':
         unsigned int max_device_pinned_mem_size
         unsigned int max_batch_io_size
         unsigned int max_batch_io_timeout_msecs
+
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileDescr_t 'CUfileDescr_t':
         CUfileFileHandleType type
         _anon_pod1 handle
         CUfileFSOps_t* fs_ops
-    cdef union _anon_pod2 '_anon_pod2':
-        _anon_pod3 batch
+
+cdef union _anon_pod2 '_anon_pod2':
+    _anon_pod3 batch
+
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileStatsLevel1_t 'CUfileStatsLevel1_t':
         CUfileOpCounter_t read_ops
         CUfileOpCounter_t write_ops
@@ -292,20 +341,27 @@ cdef extern from '<cufile.h>':
         uint64_t batch_completion_lat_sum_us
         uint64_t last_batch_read_bytes
         uint64_t last_batch_write_bytes
+
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileIOParams_t 'CUfileIOParams_t':
         CUfileBatchMode_t mode
         _anon_pod2 u
         CUfileHandle_t fh
         CUfileOpcode_t opcode
         void* cookie
+
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileStatsLevel2_t 'CUfileStatsLevel2_t':
         CUfileStatsLevel1_t basic
         uint64_t read_size_kb_hist[32]
         uint64_t write_size_kb_hist[32]
+
+cdef extern from '<cufile.h>':
     ctypedef struct CUfileStatsLevel3_t 'CUfileStatsLevel3_t':
         CUfileStatsLevel2_t detailed
         uint32_t num_gpus
         CUfilePerGpuStats_t per_gpu_stats[16]
+
 
 
 cdef extern from *:

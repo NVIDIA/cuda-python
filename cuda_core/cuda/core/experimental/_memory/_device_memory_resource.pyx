@@ -12,7 +12,7 @@ from libc.string cimport memset
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
 from cuda.core.experimental._memory cimport _ipc
-from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle, IPCData
+from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle, IPCDataForMR
 from cuda.core.experimental._stream cimport default_stream, Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
@@ -313,8 +313,6 @@ cdef class DeviceMemoryResource(MemoryResource):
         """
         if not self.is_ipc_enabled:
             raise RuntimeError("Memory resource is not IPC-enabled")
-        if self.is_mapped:
-            raise RuntimeError("Imported memory resource cannot be exported")
         return self._ipc_data._alloc_handle
 
     def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
@@ -540,7 +538,7 @@ cdef void DMR_init_create(
 
     if opts.ipc_enabled:
         alloc_handle = _ipc.DMR_export_mempool(self)
-        self._ipc_data = IPCData(alloc_handle, mapped=False)
+        self._ipc_data = IPCDataForMR(alloc_handle, False)
 
 
 # Raise an exception if the given stream is capturing.

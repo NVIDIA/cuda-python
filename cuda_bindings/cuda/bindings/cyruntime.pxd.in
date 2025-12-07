@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -176,12 +176,12 @@ cdef struct cudaEglPlaneDesc_st:
 
 ctypedef cudaEglPlaneDesc_st cudaEglPlaneDesc
 
-cdef union anon_union9:
+cdef union anon_union10:
     cudaArray_t pArray[3]
     cudaPitchedPtr pPitch[3]
 
 cdef struct cudaEglFrame_st:
-    anon_union9 frame
+    anon_union10 frame
     cudaEglPlaneDesc planeDesc[3]
     unsigned int planeCount
     cudaEglFrameType frameType
@@ -1639,6 +1639,26 @@ cdef cudaError_t cudaLibraryEnumerateKernels(cudaKernel_t* kernels, unsigned int
 cdef cudaError_t cudaKernelSetAttributeForDevice(cudaKernel_t kernel, cudaFuncAttribute attr, int value, int device) except ?cudaErrorCallRequiresNewerDriver nogil
 {{endif}}
 
+{{if 'cudaExecutionCtxDestroy' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxDestroy(cudaExecutionContext_t ctx) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaExecutionCtxSynchronize' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxSynchronize(cudaExecutionContext_t ctx) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaExecutionCtxRecordEvent' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxRecordEvent(cudaExecutionContext_t ctx, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
+{{if 'cudaExecutionCtxWaitEvent' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxWaitEvent(cudaExecutionContext_t ctx, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil
+{{endif}}
+
 {{if 'cudaGetExportTable' in found_functions}}
 
 cdef cudaError_t cudaGetExportTable(const void** ppExportTable, const cudaUUID_t* pExportTableId) except ?cudaErrorCallRequiresNewerDriver nogil
@@ -1952,8 +1972,8 @@ cdef enum: cudaTextureType2DLayered = 242
 
 cdef enum: cudaTextureTypeCubemapLayered = 252
 
-cdef enum: CUDART_VERSION = 13000
+cdef enum: CUDART_VERSION = 13010
 
-cdef enum: __CUDART_API_VERSION = 13000
+cdef enum: __CUDART_API_VERSION = 13010
 
 cdef enum: CUDA_EGL_MAX_PLANES = 3

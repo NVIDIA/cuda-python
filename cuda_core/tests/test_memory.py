@@ -3,7 +3,6 @@
 
 import ctypes
 import sys
-from ctypes import wintypes
 
 try:
     from cuda.bindings import driver
@@ -29,7 +28,7 @@ from cuda.core.experimental import (
 )
 from cuda.core.experimental._dlpack import DLDeviceType
 from cuda.core.experimental._memory import IPCBufferDescriptor
-from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core.experimental._utils.cuda_utils import CUDAError, handle_return
 from cuda.core.experimental.utils import StridedMemoryView
 from helpers import IS_WINDOWS
 from helpers.buffers import DummyUnifiedMemoryResource
@@ -145,6 +144,7 @@ def buffer_initialization(dummy_mr: MemoryResource):
     assert buffer.memory_resource == dummy_mr
     assert buffer.is_device_accessible == dummy_mr.is_device_accessible
     assert buffer.is_host_accessible == dummy_mr.is_host_accessible
+    assert not buffer.is_mapped
     buffer.close()
 
 
@@ -324,23 +324,8 @@ def test_device_memory_resource_initialization(use_device_object):
 
 
 def get_handle_type():
-    def get_sa():
-        class SECURITY_ATTRIBUTES(ctypes.Structure):
-            _fields_ = [
-                ("nLength", wintypes.DWORD),
-                ("lpSecurityDescriptor", wintypes.LPVOID),
-                ("bInheritHandle", wintypes.BOOL),
-            ]
-
-        sa = SECURITY_ATTRIBUTES()
-        sa.nLength = ctypes.sizeof(sa)
-        sa.lpSecurityDescriptor = None
-        sa.bInheritHandle = False  # TODO: why?
-
-        return sa
-
     if IS_WINDOWS:
-        return (("win32", get_sa()), ("win32_kmt", None))
+        return (("win32", None), ("win32_kmt", None))
     else:
         return (("posix_fd", None),)
 
@@ -361,17 +346,17 @@ def test_vmm_allocator_basic_allocation(use_device_object, handle_type):
         pytest.skip("Virtual memory management is not supported on this device")
 
     handle_type, security_attribute = handle_type  # unpack
-    win32_handle_metadata = ctypes.addressof(security_attribute) if security_attribute else 0
-    options = VirtualMemoryResourceOptions(
-        handle_type=handle_type,
-        win32_handle_metadata=win32_handle_metadata,
-    )
+    options = VirtualMemoryResourceOptions(handle_type=handle_type)
     # Create VMM allocator with default config
     device_arg = device if use_device_object else device.device_id
     vmm_mr = VirtualMemoryResource(device_arg, config=options)
 
     # Test basic allocation
-    buffer = vmm_mr.allocate(4096)
+    try:
+        buffer = vmm_mr.allocate(4096)
+    except NotImplementedError:
+        assert handle_type == "win32"
+        return
     assert buffer.size >= 4096  # May be aligned up
     assert buffer.device_id == device.device_id
     assert buffer.memory_resource == vmm_mr
@@ -429,7 +414,13 @@ def test_vmm_allocator_policy_configuration():
     assert vmm_mr.config.granularity == "minimum"
 
     # Test allocation with custom config
-    buffer = vmm_mr.allocate(8192)
+    try:
+        buffer = vmm_mr.allocate(8192)
+    except CUDAError as exc:
+        msg = str(exc)
+        if "CUDA_ERROR_INVALID_DEVICE" in msg:
+            pytest.xfail("TODO(#1300): Failing on Jetson AGX Orin P3730")
+        raise
     assert buffer.size >= 8192
     assert buffer.device_id == device.device_id
 
@@ -446,7 +437,13 @@ def test_vmm_allocator_policy_configuration():
     )
 
     # Modify allocation policy
-    modified_buffer = vmm_mr.modify_allocation(buffer, 16384, config=new_config)
+    try:
+        modified_buffer = vmm_mr.modify_allocation(buffer, 16384, config=new_config)
+    except CUDAError as exc:
+        msg = str(exc)
+        if "CUDA_ERROR_UNKNOWN" in msg:
+            pytest.xfail("TODO(#1300): Known to fail already with CTK 13.0 (Windows)")
+        raise
     assert modified_buffer.size >= 16384
     assert vmm_mr.config == new_config
     assert vmm_mr.config.self_access == "r"
@@ -470,16 +467,15 @@ def test_vmm_allocator_grow_allocation(handle_type):
         pytest.skip("Virtual memory management is not supported on this device")
 
     handle_type, security_attribute = handle_type  # unpack
-    win32_handle_metadata = ctypes.addressof(security_attribute) if security_attribute else 0
-    options = VirtualMemoryResourceOptions(
-        handle_type=handle_type,
-        win32_handle_metadata=win32_handle_metadata,
-    )
-
+    options = VirtualMemoryResourceOptions(handle_type=handle_type)
     vmm_mr = VirtualMemoryResource(device, config=options)
 
     # Create initial allocation
-    buffer = vmm_mr.allocate(2 * 1024 * 1024)
+    try:
+        buffer = vmm_mr.allocate(2 * 1024 * 1024)
+    except NotImplementedError:
+        assert handle_type == "win32"
+        return
     original_size = buffer.size
 
     # Grow the allocation
@@ -700,7 +696,7 @@ def test_strided_memory_view_leak():
     arr = np.zeros(1048576, dtype=np.uint8)
     before = sys.getrefcount(arr)
     for idx in range(10):
-        StridedMemoryView(arr, stream_ptr=-1)
+        StridedMemoryView.from_any_interface(arr, stream_ptr=-1)
     after = sys.getrefcount(arr)
     assert before == after
 
@@ -708,7 +704,7 @@ def test_strided_memory_view_leak():
 def test_strided_memory_view_refcnt():
     # Use Fortran ordering so strides is used
     a = np.zeros((64, 4), dtype=np.uint8, order="F")
-    av = StridedMemoryView(a, stream_ptr=-1)
+    av = StridedMemoryView.from_any_interface(a, stream_ptr=-1)
     # segfaults if refcnt is wrong
     assert av.shape[0] == 64
     assert sys.getrefcount(av.shape) >= 2

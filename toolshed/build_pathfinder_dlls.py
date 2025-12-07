@@ -49,6 +49,12 @@ def is_suppressed_dll(libname, dll):
     if libname == "cudart":
         if dll.startswith("cudart32_"):
             return True
+        if dll == "cudart64_65.dll":
+            # PhysX/files/Common/cudart64_65.dll from CTK 6.5, but shipped with CTK 12.0-12.9
+            return True
+        if dll == "cudart64_101.dll":
+            # GFExperience.NvStreamSrv/amd64/server/cudart64_101.dll from CTK 10.1, but shipped with CTK 12.0-12.6
+            return True
     elif libname == "nvrtc":
         if dll.endswith(".alt.dll"):
             return True

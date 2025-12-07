@@ -87,21 +87,6 @@ class TestImportWrongMR(ChildErrorHarness):
         assert "CUDA_ERROR_INVALID_VALUE" in exc_msg
 
 
-class TestExportImportedMR(ChildErrorHarness):
-    """Error when exporting a memory resource that was imported."""
-
-    def PARENT_ACTION(self, queue):
-        queue.put(self.mr)
-
-    def CHILD_ACTION(self, queue):
-        mr = queue.get(timeout=CHILD_TIMEOUT_SEC)
-        mr.get_allocation_handle()
-
-    def ASSERT(self, exc_type, exc_msg):
-        assert exc_type is RuntimeError
-        assert exc_msg == "Imported memory resource cannot be exported"
-
-
 class TestImportBuffer(ChildErrorHarness):
     """Error when using a buffer as a buffer descriptor."""
 
@@ -117,7 +102,7 @@ class TestImportBuffer(ChildErrorHarness):
 
     def ASSERT(self, exc_type, exc_msg):
         assert exc_type is TypeError
-        assert exc_msg.startswith("Argument 'ipc_buffer' has incorrect type")
+        assert exc_msg.startswith("Argument 'ipc_descriptor' has incorrect type")
 
 
 class TestDanglingBuffer(ChildErrorHarness):

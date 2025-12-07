@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 {{if 'Windows' == platform.system()}}
 import os
 cimport cuda.bindings._lib.windll as windll
@@ -212,7 +212,9 @@ cdef bint __cuPythonInit = False
 {{if 'cuMulticastCreate' in found_functions}}cdef void *__cuMulticastCreate = NULL{{endif}}
 {{if 'cuMulticastAddDevice' in found_functions}}cdef void *__cuMulticastAddDevice = NULL{{endif}}
 {{if 'cuMulticastBindMem' in found_functions}}cdef void *__cuMulticastBindMem = NULL{{endif}}
+{{if 'cuMulticastBindMem_v2' in found_functions}}cdef void *__cuMulticastBindMem_v2 = NULL{{endif}}
 {{if 'cuMulticastBindAddr' in found_functions}}cdef void *__cuMulticastBindAddr = NULL{{endif}}
+{{if 'cuMulticastBindAddr_v2' in found_functions}}cdef void *__cuMulticastBindAddr_v2 = NULL{{endif}}
 {{if 'cuMulticastUnbind' in found_functions}}cdef void *__cuMulticastUnbind = NULL{{endif}}
 {{if 'cuMulticastGetGranularity' in found_functions}}cdef void *__cuMulticastGetGranularity = NULL{{endif}}
 {{if 'cuPointerGetAttribute' in found_functions}}cdef void *__cuPointerGetAttribute = NULL{{endif}}
@@ -1832,9 +1834,17 @@ cdef int _cuPythonInit() except -1 nogil:
             global __cuMulticastBindMem
             _F_cuGetProcAddress_v2('cuMulticastBindMem', &__cuMulticastBindMem, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
+            {{if 'cuMulticastBindMem_v2' in found_functions}}
+            global __cuMulticastBindMem_v2
+            _F_cuGetProcAddress_v2('cuMulticastBindMem', &__cuMulticastBindMem_v2, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
             {{if 'cuMulticastBindAddr' in found_functions}}
             global __cuMulticastBindAddr
             _F_cuGetProcAddress_v2('cuMulticastBindAddr', &__cuMulticastBindAddr, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuMulticastBindAddr_v2' in found_functions}}
+            global __cuMulticastBindAddr_v2
+            _F_cuGetProcAddress_v2('cuMulticastBindAddr', &__cuMulticastBindAddr_v2, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
             {{if 'cuMulticastUnbind' in found_functions}}
             global __cuMulticastUnbind
@@ -4064,9 +4074,17 @@ cdef int _cuPythonInit() except -1 nogil:
         global __cuMulticastBindMem
         __cuMulticastBindMem = windll.GetProcAddress(handle, 'cuMulticastBindMem')
         {{endif}}
+        {{if 'cuMulticastBindMem_v2' in found_functions}}
+        global __cuMulticastBindMem_v2
+        __cuMulticastBindMem_v2 = windll.GetProcAddress(handle, 'cuMulticastBindMem_v2')
+        {{endif}}
         {{if 'cuMulticastBindAddr' in found_functions}}
         global __cuMulticastBindAddr
         __cuMulticastBindAddr = windll.GetProcAddress(handle, 'cuMulticastBindAddr')
+        {{endif}}
+        {{if 'cuMulticastBindAddr_v2' in found_functions}}
+        global __cuMulticastBindAddr_v2
+        __cuMulticastBindAddr_v2 = windll.GetProcAddress(handle, 'cuMulticastBindAddr_v2')
         {{endif}}
         {{if 'cuMulticastUnbind' in found_functions}}
         global __cuMulticastUnbind
@@ -6293,9 +6311,17 @@ cdef int _cuPythonInit() except -1 nogil:
         global __cuMulticastBindMem
         __cuMulticastBindMem = dlfcn.dlsym(handle, 'cuMulticastBindMem')
         {{endif}}
+        {{if 'cuMulticastBindMem_v2' in found_functions}}
+        global __cuMulticastBindMem_v2
+        __cuMulticastBindMem_v2 = dlfcn.dlsym(handle, 'cuMulticastBindMem_v2')
+        {{endif}}
         {{if 'cuMulticastBindAddr' in found_functions}}
         global __cuMulticastBindAddr
         __cuMulticastBindAddr = dlfcn.dlsym(handle, 'cuMulticastBindAddr')
+        {{endif}}
+        {{if 'cuMulticastBindAddr_v2' in found_functions}}
+        global __cuMulticastBindAddr_v2
+        __cuMulticastBindAddr_v2 = dlfcn.dlsym(handle, 'cuMulticastBindAddr_v2')
         {{endif}}
         {{if 'cuMulticastUnbind' in found_functions}}
         global __cuMulticastUnbind
@@ -9584,6 +9610,18 @@ cdef CUresult _cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle, size_t 
     return err
 {{endif}}
 
+{{if 'cuMulticastBindMem_v2' in found_functions}}
+
+cdef CUresult _cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuMulticastBindMem_v2
+    cuPythonInit()
+    if __cuMulticastBindMem_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMulticastBindMem_v2" not found')
+    err = (<CUresult (*)(CUmemGenericAllocationHandle, CUdevice, size_t, CUmemGenericAllocationHandle, size_t, size_t, unsigned long long) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMulticastBindMem_v2)(mcHandle, dev, mcOffset, memHandle, memOffset, size, flags)
+    return err
+{{endif}}
+
 {{if 'cuMulticastBindAddr' in found_functions}}
 
 cdef CUresult _cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -9593,6 +9631,18 @@ cdef CUresult _cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t
         with gil:
             raise RuntimeError('Function "cuMulticastBindAddr" not found')
     err = (<CUresult (*)(CUmemGenericAllocationHandle, size_t, CUdeviceptr, size_t, unsigned long long) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMulticastBindAddr)(mcHandle, mcOffset, memptr, size, flags)
+    return err
+{{endif}}
+
+{{if 'cuMulticastBindAddr_v2' in found_functions}}
+
+cdef CUresult _cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuMulticastBindAddr_v2
+    cuPythonInit()
+    if __cuMulticastBindAddr_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMulticastBindAddr_v2" not found')
+    err = (<CUresult (*)(CUmemGenericAllocationHandle, CUdevice, size_t, CUdeviceptr, size_t, unsigned long long) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMulticastBindAddr_v2)(mcHandle, dev, mcOffset, memptr, size, flags)
     return err
 {{endif}}
 
@@ -12406,13 +12456,13 @@ cdef CUresult _cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource* resource
 
 {{if 'cuDevSmResourceSplitByCount' in found_functions}}
 
-cdef CUresult _cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remaining, unsigned int useFlags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult _cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDevSmResourceSplitByCount
     cuPythonInit()
     if __cuDevSmResourceSplitByCount == NULL:
         with gil:
             raise RuntimeError('Function "cuDevSmResourceSplitByCount" not found')
-    err = (<CUresult (*)(CUdevResource*, unsigned int*, const CUdevResource*, CUdevResource*, unsigned int, unsigned int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuDevSmResourceSplitByCount)(result, nbGroups, input, remaining, useFlags, minCount)
+    err = (<CUresult (*)(CUdevResource*, unsigned int*, const CUdevResource*, CUdevResource*, unsigned int, unsigned int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuDevSmResourceSplitByCount)(result, nbGroups, input, remainder, flags, minCount)
     return err
 {{endif}}
 
@@ -14254,11 +14304,25 @@ cpdef dict _inspect_function_pointers():
     data["__cuMulticastBindMem"] = <intptr_t>0
     {{endif}}
 
+    {{if 'cuMulticastBindMem_v2' in found_functions}}
+    global __cuMulticastBindMem_v2
+    data["__cuMulticastBindMem_v2"] = <intptr_t>__cuMulticastBindMem_v2
+    {{else}}
+    data["__cuMulticastBindMem_v2"] = <intptr_t>0
+    {{endif}}
+
     {{if 'cuMulticastBindAddr' in found_functions}}
     global __cuMulticastBindAddr
     data["__cuMulticastBindAddr"] = <intptr_t>__cuMulticastBindAddr
     {{else}}
     data["__cuMulticastBindAddr"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMulticastBindAddr_v2' in found_functions}}
+    global __cuMulticastBindAddr_v2
+    data["__cuMulticastBindAddr_v2"] = <intptr_t>__cuMulticastBindAddr_v2
+    {{else}}
+    data["__cuMulticastBindAddr_v2"] = <intptr_t>0
     {{endif}}
 
     {{if 'cuMulticastUnbind' in found_functions}}

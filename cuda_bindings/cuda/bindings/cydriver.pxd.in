@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 
@@ -221,6 +221,35 @@ cdef extern from "cuda.h":
 
     ctypedef CUevent_wait_flags_enum CUevent_wait_flags
 
+    cdef enum CUatomicOperation_enum:
+        CU_ATOMIC_OPERATION_INTEGER_ADD = 0
+        CU_ATOMIC_OPERATION_INTEGER_MIN = 1
+        CU_ATOMIC_OPERATION_INTEGER_MAX = 2
+        CU_ATOMIC_OPERATION_INTEGER_INCREMENT = 3
+        CU_ATOMIC_OPERATION_INTEGER_DECREMENT = 4
+        CU_ATOMIC_OPERATION_AND = 5
+        CU_ATOMIC_OPERATION_OR = 6
+        CU_ATOMIC_OPERATION_XOR = 7
+        CU_ATOMIC_OPERATION_EXCHANGE = 8
+        CU_ATOMIC_OPERATION_CAS = 9
+        CU_ATOMIC_OPERATION_FLOAT_ADD = 10
+        CU_ATOMIC_OPERATION_FLOAT_MIN = 11
+        CU_ATOMIC_OPERATION_FLOAT_MAX = 12
+        CU_ATOMIC_OPERATION_MAX = 13
+
+    ctypedef CUatomicOperation_enum CUatomicOperation
+
+    cdef enum CUatomicOperationCapability_enum:
+        CU_ATOMIC_CAPABILITY_SIGNED = 1
+        CU_ATOMIC_CAPABILITY_UNSIGNED = 2
+        CU_ATOMIC_CAPABILITY_REDUCTION = 4
+        CU_ATOMIC_CAPABILITY_SCALAR_32 = 8
+        CU_ATOMIC_CAPABILITY_SCALAR_64 = 16
+        CU_ATOMIC_CAPABILITY_SCALAR_128 = 32
+        CU_ATOMIC_CAPABILITY_VECTOR_32x4 = 64
+
+    ctypedef CUatomicOperationCapability_enum CUatomicOperationCapability
+
     cdef enum CUstreamWaitValue_flags_enum:
         CU_STREAM_WAIT_VALUE_GEQ = 0
         CU_STREAM_WAIT_VALUE_EQ = 1
@@ -243,6 +272,7 @@ cdef extern from "cuda.h":
         CU_STREAM_MEM_OP_WAIT_VALUE_64 = 4
         CU_STREAM_MEM_OP_WRITE_VALUE_64 = 5
         CU_STREAM_MEM_OP_BARRIER = 6
+        CU_STREAM_MEM_OP_ATOMIC_REDUCTION = 8
 
     ctypedef CUstreamBatchMemOpType_enum CUstreamBatchMemOpType
 
@@ -251,6 +281,19 @@ cdef extern from "cuda.h":
         CU_STREAM_MEMORY_BARRIER_TYPE_GPU = 1
 
     ctypedef CUstreamMemoryBarrier_flags_enum CUstreamMemoryBarrier_flags
+
+    cdef enum CUstreamAtomicReductionOpType_enum:
+        CU_STREAM_ATOMIC_REDUCTION_OP_ADD = 0
+        CU_STREAM_ATOMIC_REDUCTION_OP_AND = 5
+        CU_STREAM_ATOMIC_REDUCTION_OP_OR = 6
+
+    ctypedef CUstreamAtomicReductionOpType_enum CUstreamAtomicReductionOpType
+
+    cdef enum CUstreamAtomicReductionDataType_enum:
+        CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_32 = 14
+        CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_64 = 22
+
+    ctypedef CUstreamAtomicReductionDataType_enum CUstreamAtomicReductionDataType
 
     cdef struct CUstreamMemOpWaitValueParams_st:
         CUstreamBatchMemOpType operation
@@ -276,12 +319,22 @@ cdef extern from "cuda.h":
         CUstreamBatchMemOpType operation
         unsigned int flags
 
+    cdef struct CUstreamMemOpAtomicReductionParams_st:
+        CUstreamBatchMemOpType operation
+        unsigned int flags
+        CUstreamAtomicReductionOpType reductionOp
+        CUstreamAtomicReductionDataType dataType
+        CUdeviceptr address
+        cuuint64_t value
+        CUdeviceptr alias
+
     cdef union CUstreamBatchMemOpParams_union:
         CUstreamBatchMemOpType operation
         CUstreamMemOpWaitValueParams_st waitValue
         CUstreamMemOpWriteValueParams_st writeValue
         CUstreamMemOpFlushRemoteWritesParams_st flushRemoteWrites
         CUstreamMemOpMemoryBarrierParams_st memoryBarrier
+        CUstreamMemOpAtomicReductionParams_st atomicReduction
         cuuint64_t pad[6]
 
     ctypedef CUstreamBatchMemOpParams_union CUstreamBatchMemOpParams_v1
@@ -347,6 +400,20 @@ cdef extern from "cuda.h":
         CU_AD_FORMAT_HALF = 16
         CU_AD_FORMAT_FLOAT = 32
         CU_AD_FORMAT_UNORM_INT_101010_2 = 80
+        CU_AD_FORMAT_UINT8_PACKED_422 = 81
+        CU_AD_FORMAT_UINT8_PACKED_444 = 82
+        CU_AD_FORMAT_UINT8_SEMIPLANAR_420 = 83
+        CU_AD_FORMAT_UINT16_SEMIPLANAR_420 = 84
+        CU_AD_FORMAT_UINT8_SEMIPLANAR_422 = 85
+        CU_AD_FORMAT_UINT16_SEMIPLANAR_422 = 86
+        CU_AD_FORMAT_UINT8_SEMIPLANAR_444 = 87
+        CU_AD_FORMAT_UINT16_SEMIPLANAR_444 = 88
+        CU_AD_FORMAT_UINT8_PLANAR_420 = 89
+        CU_AD_FORMAT_UINT16_PLANAR_420 = 90
+        CU_AD_FORMAT_UINT8_PLANAR_422 = 91
+        CU_AD_FORMAT_UINT16_PLANAR_422 = 92
+        CU_AD_FORMAT_UINT8_PLANAR_444 = 93
+        CU_AD_FORMAT_UINT16_PLANAR_444 = 94
         CU_AD_FORMAT_BC1_UNORM = 145
         CU_AD_FORMAT_BC1_UNORM_SRGB = 146
         CU_AD_FORMAT_BC2_UNORM = 147
@@ -561,7 +628,8 @@ cdef extern from "cuda.h":
         CU_DEVICE_ATTRIBUTE_HOST_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED = 145
         CU_DEVICE_ATTRIBUTE_HOST_ALLOC_DMA_BUF_SUPPORTED = 146
         CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED = 147
-        CU_DEVICE_ATTRIBUTE_MAX = 148
+        CU_DEVICE_ATTRIBUTE_ATOMIC_REDUCTION_SUPPORTED = 148
+        CU_DEVICE_ATTRIBUTE_MAX = 149
 
     ctypedef CUdevice_attribute_enum CUdevice_attribute
 
@@ -722,7 +790,8 @@ cdef extern from "cuda.h":
         CU_JIT_MAX_THREADS_PER_BLOCK = 32
         CU_JIT_OVERRIDE_DIRECTIVE_VALUES = 33
         CU_JIT_SPLIT_COMPILE = 34
-        CU_JIT_NUM_OPTIONS = 35
+        CU_JIT_BINARY_LOADER_THREAD_COUNT = 35
+        CU_JIT_NUM_OPTIONS = 36
 
     ctypedef CUjit_option_enum CUjit_option
 
@@ -1319,6 +1388,7 @@ cdef extern from "cuda.h":
         CUDA_ERROR_INVALID_RESOURCE_TYPE = 914
         CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION = 915
         CUDA_ERROR_KEY_ROTATION = 916
+        CUDA_ERROR_STREAM_DETACHED = 917
         CUDA_ERROR_UNKNOWN = 999
 
     ctypedef cudaError_enum CUresult
@@ -1332,35 +1402,6 @@ cdef extern from "cuda.h":
         CU_DEVICE_P2P_ATTRIBUTE_ONLY_PARTIAL_NATIVE_ATOMIC_SUPPORTED = 5
 
     ctypedef CUdevice_P2PAttribute_enum CUdevice_P2PAttribute
-
-    cdef enum CUatomicOperation_enum:
-        CU_ATOMIC_OPERATION_INTEGER_ADD = 0
-        CU_ATOMIC_OPERATION_INTEGER_MIN = 1
-        CU_ATOMIC_OPERATION_INTEGER_MAX = 2
-        CU_ATOMIC_OPERATION_INTEGER_INCREMENT = 3
-        CU_ATOMIC_OPERATION_INTEGER_DECREMENT = 4
-        CU_ATOMIC_OPERATION_AND = 5
-        CU_ATOMIC_OPERATION_OR = 6
-        CU_ATOMIC_OPERATION_XOR = 7
-        CU_ATOMIC_OPERATION_EXCHANGE = 8
-        CU_ATOMIC_OPERATION_CAS = 9
-        CU_ATOMIC_OPERATION_FLOAT_ADD = 10
-        CU_ATOMIC_OPERATION_FLOAT_MIN = 11
-        CU_ATOMIC_OPERATION_FLOAT_MAX = 12
-        CU_ATOMIC_OPERATION_MAX = 13
-
-    ctypedef CUatomicOperation_enum CUatomicOperation
-
-    cdef enum CUatomicOperationCapability_enum:
-        CU_ATOMIC_CAPABILITY_SIGNED = 1
-        CU_ATOMIC_CAPABILITY_UNSIGNED = 2
-        CU_ATOMIC_CAPABILITY_REDUCTION = 4
-        CU_ATOMIC_CAPABILITY_SCALAR_32 = 8
-        CU_ATOMIC_CAPABILITY_SCALAR_64 = 16
-        CU_ATOMIC_CAPABILITY_SCALAR_128 = 32
-        CU_ATOMIC_CAPABILITY_VECTOR_32x4 = 64
-
-    ctypedef CUatomicOperationCapability_enum CUatomicOperationCapability
 
     ctypedef void (*CUstreamCallback)(CUstream hStream, CUresult status, void* userData)
 
@@ -2423,6 +2464,7 @@ cdef extern from "cuda.h":
         CU_COREDUMP_SKIP_ABORT = 16
         CU_COREDUMP_SKIP_CONSTBANK_MEMORY = 32
         CU_COREDUMP_LIGHTWEIGHT_FLAGS = 47
+        CU_COREDUMP_GZIP_COMPRESS = 64
 
     cdef struct CUdevResourceDesc_st:
         pass
@@ -2431,26 +2473,61 @@ cdef extern from "cuda.h":
     ctypedef enum CUgreenCtxCreate_flags:
         CU_GREEN_CTX_DEFAULT_STREAM = 1
 
-    ctypedef enum CUdevSmResourceSplit_flags:
+    ctypedef enum CUdevSmResourceGroup_flags:
+        CU_DEV_SM_RESOURCE_GROUP_DEFAULT = 0
+        CU_DEV_SM_RESOURCE_GROUP_BACKFILL = 1
+
+    ctypedef enum CUdevSmResourceSplitByCount_flags:
         CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING = 1
         CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE = 2
 
     ctypedef enum CUdevResourceType:
         CU_DEV_RESOURCE_TYPE_INVALID = 0
         CU_DEV_RESOURCE_TYPE_SM = 1
+        CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG = 1000
+        CU_DEV_RESOURCE_TYPE_WORKQUEUE = 10000
 
     cdef struct CUdevSmResource_st:
         unsigned int smCount
         unsigned int minSmPartitionSize
         unsigned int smCoscheduledAlignment
+        unsigned int flags
 
     ctypedef CUdevSmResource_st CUdevSmResource
+
+    ctypedef enum CUdevWorkqueueConfigScope:
+        CU_WORKQUEUE_SCOPE_DEVICE_CTX = 0
+        CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED = 1
+
+    cdef struct CUdevWorkqueueConfigResource_st:
+        CUdevice device
+        unsigned int wqConcurrencyLimit
+        CUdevWorkqueueConfigScope sharingScope
+
+    ctypedef CUdevWorkqueueConfigResource_st CUdevWorkqueueConfigResource
+
+    cdef struct CUdevWorkqueueResource_st:
+        unsigned char reserved[40]
+
+    ctypedef CUdevWorkqueueResource_st CUdevWorkqueueResource
+
+    cdef struct CU_DEV_SM_RESOURCE_GROUP_PARAMS_st:
+        unsigned int smCount
+        unsigned int coscheduledSmCount
+        unsigned int preferredCoscheduledSmCount
+        unsigned int flags
+        unsigned int reserved[12]
+
+    ctypedef CU_DEV_SM_RESOURCE_GROUP_PARAMS_st CU_DEV_SM_RESOURCE_GROUP_PARAMS
 
     cdef struct CUdevResource_st:
         CUdevResourceType type
         unsigned char _internal_padding[92]
         CUdevSmResource sm
-        unsigned char _oversize[48]
+        CUdevWorkqueueConfigResource wqConfig
+        CUdevWorkqueueResource wq
+        unsigned char _oversize[40]
+        CUdevResource_st* nextResource
 
     ctypedef CUdevResource_st CUdevResource_v1
 
@@ -3660,9 +3737,19 @@ cdef CUresult cuMulticastAddDevice(CUmemGenericAllocationHandle mcHandle, CUdevi
 cdef CUresult cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuMulticastBindMem_v2' in found_functions}}
+
+cdef CUresult cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuMulticastBindAddr' in found_functions}}
 
 cdef CUresult cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuMulticastBindAddr_v2' in found_functions}}
+
+cdef CUresult cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuMulticastUnbind' in found_functions}}
@@ -4837,7 +4924,7 @@ cdef CUresult cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource* resource,
 
 {{if 'cuDevSmResourceSplitByCount' in found_functions}}
 
-cdef CUresult cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remaining, unsigned int useFlags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil
+cdef CUresult cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuDevResourceGenerateDesc' in found_functions}}
@@ -5030,7 +5117,7 @@ cdef CUresult cuGraphicsVDPAURegisterVideoSurface(CUgraphicsResource* pCudaResou
 cdef CUresult cuGraphicsVDPAURegisterOutputSurface(CUgraphicsResource* pCudaResource, VdpOutputSurface vdpSurface, unsigned int flags) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
-cdef enum: CUDA_VERSION = 13000
+cdef enum: CUDA_VERSION = 13010
 
 cdef enum: CU_IPC_HANDLE_SIZE = 64
 
@@ -5169,10 +5256,6 @@ cdef enum: CU_PARAM_TR_DEFAULT = -1
 cdef enum: CU_DEVICE_CPU = -1
 
 cdef enum: CU_DEVICE_INVALID = -2
-
-cdef enum: RESOURCE_ABI_VERSION = 1
-
-cdef enum: RESOURCE_ABI_EXTERNAL_BYTES = 48
 
 cdef enum: MAX_PLANES = 3
 
