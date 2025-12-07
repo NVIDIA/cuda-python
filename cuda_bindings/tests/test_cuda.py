@@ -1079,3 +1079,23 @@ def test_cuGraphNodeGetContainingGraph(device, ctx):
     assert err == cuda.CUresult.CUDA_SUCCESS
     (err,) = cuda.cuGraphDestroy(child_graph)
     assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+# Phase 2: Resource Management Functions (CUDA 13.1+)
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuStreamGetDevResource"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuStreamGetDevResource(device, ctx):
+    """Test cuStreamGetDevResource - get device resource from stream."""
+    err, stream = cuda.cuStreamCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Get SM resource from stream
+    err, resource = cuda.cuStreamGetDevResource(stream, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    # Verify resource is valid (non-None)
+    assert resource is not None
+
+    (err,) = cuda.cuStreamDestroy(stream)
+    assert err == cuda.CUresult.CUDA_SUCCESS

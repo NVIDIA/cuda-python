@@ -1605,3 +1605,104 @@ def test_cudaGraphNodeGetContainingGraph():
     assertSuccess(err)
     (err,) = cudart.cudaGraphDestroy(child_graph)
     assertSuccess(err)
+
+
+# Phase 2: Resource Management Functions (CUDA 13.1+)
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaStreamGetDevResource"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaStreamGetDevResource():
+    """Test cudaStreamGetDevResource - get device resource from stream."""
+    err, stream = cudart.cudaStreamCreate()
+    assertSuccess(err)
+
+    # Get SM resource from stream
+    err, resource = cudart.cudaStreamGetDevResource(stream, cudart.cudaDevResourceType.cudaDevResourceTypeSm)
+    assertSuccess(err)
+    # Verify resource is valid (non-None)
+    assert resource is not None
+
+    (err,) = cudart.cudaStreamDestroy(stream)
+    assertSuccess(err)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDeviceGetDevResource"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaDeviceGetDevResource():
+    """Test cudaDeviceGetDevResource - get device resource."""
+    device = 0
+
+    # Get SM resource from device
+    err, resource = cudart.cudaDeviceGetDevResource(device, cudart.cudaDevResourceType.cudaDevResourceTypeSm)
+    assertSuccess(err)
+    # Verify resource is valid (non-None)
+    assert resource is not None
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDeviceGetExecutionCtx"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaExecutionCtxGetDevResource():
+    """Test cudaExecutionCtxGetDevResource - get device resource from execution context."""
+    # Get execution context for device 0 (primary context)
+    err, exec_ctx = cudart.cudaDeviceGetExecutionCtx(0)
+    assertSuccess(err)
+    assert exec_ctx is not None
+
+    # Get SM resource from execution context
+    err, resource = cudart.cudaExecutionCtxGetDevResource(exec_ctx, cudart.cudaDevResourceType.cudaDevResourceTypeSm)
+    assertSuccess(err)
+    # Verify resource is valid (non-None)
+    assert resource is not None
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDeviceGetExecutionCtx"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaExecutionCtxGetDevice():
+    """Test cudaExecutionCtxGetDevice - get device from execution context."""
+    device = 0
+
+    # Get execution context for device
+    err, exec_ctx = cudart.cudaDeviceGetExecutionCtx(device)
+    assertSuccess(err)
+    assert exec_ctx is not None
+
+    # Get device from execution context
+    err, device_from_ctx = cudart.cudaExecutionCtxGetDevice(exec_ctx)
+    assertSuccess(err)
+    # Verify it returns the same device
+    assert device_from_ctx == device
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDeviceGetExecutionCtx"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaExecutionCtxGetId():
+    """Test cudaExecutionCtxGetId - get unique ID from execution context."""
+    # Get execution context for device 0 (primary context)
+    err, exec_ctx = cudart.cudaDeviceGetExecutionCtx(0)
+    assertSuccess(err)
+    assert exec_ctx is not None
+
+    # Get unique ID from execution context
+    err, ctx_id = cudart.cudaExecutionCtxGetId(exec_ctx)
+    assertSuccess(err)
+    assert isinstance(ctx_id, int)
+    assert ctx_id > 0
+
+    # Get another execution context and verify it has a different ID
+    err, exec_ctx2 = cudart.cudaDeviceGetExecutionCtx(0)
+    assertSuccess(err)
+    # Should return the same context for the same device
+    assert int(exec_ctx2) == int(exec_ctx)
+    err, ctx_id2 = cudart.cudaExecutionCtxGetId(exec_ctx2)
+    assertSuccess(err)
+    # Should have the same ID since it's the same context
+    assert ctx_id2 == ctx_id
