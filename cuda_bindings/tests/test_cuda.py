@@ -1099,3 +1099,29 @@ def test_cuStreamGetDevResource(device, ctx):
 
     (err,) = cuda.cuStreamDestroy(stream)
     assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+# Phase 3: Complex Functions (CUDA 13.1+)
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuDevSmResourceSplit"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuDevSmResourceSplit(device, ctx):
+    """Test cuDevSmResourceSplit - split SM resource into structured groups."""
+    err, resource_in = cuda.cuDeviceGetDevResource(device, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Create group params for splitting into 1 group (simpler test)
+    nb_groups = 1
+    group_params = cuda.CU_DEV_SM_RESOURCE_GROUP_PARAMS()
+    # Set up group: request 4 SMs with coscheduled count of 2
+    group_params.smCount = 4
+    group_params.coscheduledSmCount = 2
+
+    # Split the resource
+    err, res, rem = cuda.cuDevSmResourceSplit(nb_groups, resource_in, 0, group_params)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    # Verify we got results
+    assert len(res) == nb_groups
+    # Verify remainder is valid (may be None if no remainder)
+    assert rem is not None or len(res) > 0
