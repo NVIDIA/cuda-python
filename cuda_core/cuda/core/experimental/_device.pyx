@@ -19,7 +19,7 @@ from cuda.core.experimental._context cimport (
 )
 from cuda.core.experimental._context import ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._resource_handles cimport ContextHandle
+from cuda.core.experimental._resource_handles cimport ContextHandle, intptr, native
 from cuda.core.experimental._graph import GraphBuilder
 from cuda.core.experimental._stream import IsStreamT, Stream, StreamOptions
 from cuda.core.experimental._utils.clear_error_support import assert_type
@@ -1125,7 +1125,7 @@ class Device:
             HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
         if <int>dev != self._id:
             raise CUDAError("Internal error (current device is not equal to Device.device_id)")
-        return Context._from_ctx(<uintptr_t>(h_context.get()[0]), self._id)
+        return Context._from_ctx(intptr(h_context), self._id)
 
     @property
     def memory_resource(self) -> MemoryResource:
@@ -1229,7 +1229,7 @@ class Device:
                     f" id={ctx._device_id}, which is different from the target id={self._id}"
                 )
             # prev_ctx is the previous context
-            curr_ctx = ctx._h_context.get()[0]
+            curr_ctx = native(ctx._h_context)
             prev_ctx = NULL
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxPopCurrent(&prev_ctx))
@@ -1318,7 +1318,7 @@ class Device:
         h_context = get_current_context()
         if h_context.get() == NULL:
             raise CUDAError("No context is bound to the calling CPU thread.")
-        return Event._init(self._id, <uintptr_t>(h_context.get()[0]), options, True)
+        return Event._init(self._id, intptr(h_context), options, True)
 
     def allocate(self, size, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """Allocate device memory from a specified stream.

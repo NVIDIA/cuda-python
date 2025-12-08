@@ -8,7 +8,7 @@ import threading
 from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._resource_handles cimport create_context_handle_ref
+from cuda.core.experimental._resource_handles cimport create_context_handle_ref, native
 from cuda.core.experimental._utils.cuda_utils import driver
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
@@ -175,7 +175,7 @@ cdef void set_current_context(ContextHandle h_context) except * nogil:
     if h_context.get() == NULL:
         with gil:
             raise ValueError("Cannot set NULL context as current")
-    HANDLE_RETURN(cydriver.cuCtxSetCurrent(h_context.get()[0]))
+    HANDLE_RETURN(cydriver.cuCtxSetCurrent(native(h_context)))
 
 
 # Thread-local storage for primary context cache

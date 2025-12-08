@@ -2,5 +2,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# This module exists to compile _cpp/resource_handles.cpp into a shared library.
-# The C++ code provides handle management for CUDA contexts and other resources.
+from libc.stdint cimport uintptr_t
+
+from cuda.bindings import driver
+from cuda.core.experimental._resource_handles cimport ContextHandle
+
+
+cdef object py(ContextHandle h):
+    """Convert the handle to a Python driver.CUcontext object.
+
+    This is for use with driver (Python) API calls or returning to Python code.
+    """
+    return driver.CUcontext(<uintptr_t>(h.get()[0]))
