@@ -21,6 +21,7 @@ multiple components:
 
 .. _cuda.coop: https://nvidia.github.io/cccl/python/coop
 .. _cuda.compute: https://nvidia.github.io/cccl/python/compute
+.. _numba.cuda: https://nvidia.github.io/numba-cuda/
 .. _cuda.tile: https://docs.nvidia.com/cuda/cutile-python/
 .. _nvmath-python: https://docs.nvidia.com/cuda/nvmath-python/latest
 .. _host: https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#host-apis
