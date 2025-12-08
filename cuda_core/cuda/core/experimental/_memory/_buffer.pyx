@@ -22,6 +22,7 @@ from typing import TypeVar, Union
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._utils.cuda_utils import driver
+from cuda.core.experimental._device import Device
 
 __all__ = ['Buffer', 'MemoryResource']
 
@@ -377,7 +378,6 @@ cdef inline int _query_memory_attrs(unsigned int& memory_type, int & is_managed,
     if ret == cydriver.CUresult.CUDA_ERROR_NOT_INITIALIZED:
         with cython.gil:
             # Device class handles the cuInit call internally
-            from cuda.core.experimental import Device
             Device()
         ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
     HANDLE_RETURN(ret)
