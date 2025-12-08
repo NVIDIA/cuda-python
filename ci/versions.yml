@@ -3,6 +3,6 @@
 
 cuda:
   build:
-    version: "13.0.2"
+    version: "13.1.0"
   prev_build:
     version: "12.9.1"

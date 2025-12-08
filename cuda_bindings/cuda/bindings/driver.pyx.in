@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 from typing import Any, Optional
 from enum import IntEnum
 import cython
@@ -340,10 +340,6 @@ CU_DEVICE_CPU = cydriver.CU_DEVICE_CPU
 #: Device that represents an invalid device
 CU_DEVICE_INVALID = cydriver.CU_DEVICE_INVALID
 
-RESOURCE_ABI_VERSION = cydriver.RESOURCE_ABI_VERSION
-
-RESOURCE_ABI_EXTERNAL_BYTES = cydriver.RESOURCE_ABI_EXTERNAL_BYTES
-
 #: Maximum number of planes per frame
 MAX_PLANES = cydriver.MAX_PLANES
 
@@ -595,6 +591,66 @@ class CUevent_wait_flags(IntEnum):
 
 _dict_CUevent_wait_flags = dict(((int(v), v) for k, v in CUevent_wait_flags.__members__.items()))
 {{endif}}
+{{if 'CUatomicOperation_enum' in found_types}}
+
+class CUatomicOperation(IntEnum):
+    """
+    CUDA-valid Atomic Operations
+    """
+    {{if 'CU_ATOMIC_OPERATION_INTEGER_ADD' in found_values}}
+    CU_ATOMIC_OPERATION_INTEGER_ADD = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_INTEGER_ADD{{endif}}
+    {{if 'CU_ATOMIC_OPERATION_INTEGER_MIN' in found_values}}
+    CU_ATOMIC_OPERATION_INTEGER_MIN = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_INTEGER_MIN{{endif}}
+    {{if 'CU_ATOMIC_OPERATION_INTEGER_MAX' in found_values}}
+    CU_ATOMIC_OPERATION_INTEGER_MAX = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_INTEGER_MAX{{endif}}
+    {{if 'CU_ATOMIC_OPERATION_INTEGER_INCREMENT' in found_values}}
+    CU_ATOMIC_OPERATION_INTEGER_INCREMENT = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_INTEGER_INCREMENT{{endif}}
+    {{if 'CU_ATOMIC_OPERATION_INTEGER_DECREMENT' in found_values}}
+    CU_ATOMIC_OPERATION_INTEGER_DECREMENT = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_INTEGER_DECREMENT{{endif}}
+    {{if 'CU_ATOMIC_OPERATION_AND' in found_values}}
+    CU_ATOMIC_OPERATION_AND = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_AND{{endif}}
+    {{if 'CU_ATOMIC_OPERATION_OR' in found_values}}
+    CU_ATOMIC_OPERATION_OR = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_OR{{endif}}
+    {{if 'CU_ATOMIC_OPERATION_XOR' in found_values}}
+    CU_ATOMIC_OPERATION_XOR = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_XOR{{endif}}
+    {{if 'CU_ATOMIC_OPERATION_EXCHANGE' in found_values}}
+    CU_ATOMIC_OPERATION_EXCHANGE = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_EXCHANGE{{endif}}
+    {{if 'CU_ATOMIC_OPERATION_CAS' in found_values}}
+    CU_ATOMIC_OPERATION_CAS = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_CAS{{endif}}
+    {{if 'CU_ATOMIC_OPERATION_FLOAT_ADD' in found_values}}
+    CU_ATOMIC_OPERATION_FLOAT_ADD = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_FLOAT_ADD{{endif}}
+    {{if 'CU_ATOMIC_OPERATION_FLOAT_MIN' in found_values}}
+    CU_ATOMIC_OPERATION_FLOAT_MIN = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_FLOAT_MIN{{endif}}
+    {{if 'CU_ATOMIC_OPERATION_FLOAT_MAX' in found_values}}
+    CU_ATOMIC_OPERATION_FLOAT_MAX = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_FLOAT_MAX{{endif}}
+    {{if 'CU_ATOMIC_OPERATION_MAX' in found_values}}
+    CU_ATOMIC_OPERATION_MAX = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_MAX{{endif}}
+
+_dict_CUatomicOperation = dict(((int(v), v) for k, v in CUatomicOperation.__members__.items()))
+{{endif}}
+{{if 'CUatomicOperationCapability_enum' in found_types}}
+
+class CUatomicOperationCapability(IntEnum):
+    """
+    CUDA-valid Atomic Operation capabilities
+    """
+    {{if 'CU_ATOMIC_CAPABILITY_SIGNED' in found_values}}
+    CU_ATOMIC_CAPABILITY_SIGNED = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_SIGNED{{endif}}
+    {{if 'CU_ATOMIC_CAPABILITY_UNSIGNED' in found_values}}
+    CU_ATOMIC_CAPABILITY_UNSIGNED = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_UNSIGNED{{endif}}
+    {{if 'CU_ATOMIC_CAPABILITY_REDUCTION' in found_values}}
+    CU_ATOMIC_CAPABILITY_REDUCTION = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_REDUCTION{{endif}}
+    {{if 'CU_ATOMIC_CAPABILITY_SCALAR_32' in found_values}}
+    CU_ATOMIC_CAPABILITY_SCALAR_32 = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_SCALAR_32{{endif}}
+    {{if 'CU_ATOMIC_CAPABILITY_SCALAR_64' in found_values}}
+    CU_ATOMIC_CAPABILITY_SCALAR_64 = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_SCALAR_64{{endif}}
+    {{if 'CU_ATOMIC_CAPABILITY_SCALAR_128' in found_values}}
+    CU_ATOMIC_CAPABILITY_SCALAR_128 = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_SCALAR_128{{endif}}
+    {{if 'CU_ATOMIC_CAPABILITY_VECTOR_32x4' in found_values}}
+    CU_ATOMIC_CAPABILITY_VECTOR_32x4 = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_VECTOR_32x4{{endif}}
+
+_dict_CUatomicOperationCapability = dict(((int(v), v) for k, v in CUatomicOperationCapability.__members__.items()))
+{{endif}}
 {{if 'CUstreamWaitValue_flags_enum' in found_types}}
 
 class CUstreamWaitValue_flags(IntEnum):
@@ -691,6 +747,11 @@ class CUstreamBatchMemOpType(IntEnum):
 
     #: Insert a memory barrier of the specified type
     CU_STREAM_MEM_OP_BARRIER = cydriver.CUstreamBatchMemOpType_enum.CU_STREAM_MEM_OP_BARRIER{{endif}}
+    {{if 'CU_STREAM_MEM_OP_ATOMIC_REDUCTION' in found_values}}
+
+    #: Perform a atomic reduction. See
+    #: :py:obj:`~.CUstreamBatchMemOpParams`::atomicReduction
+    CU_STREAM_MEM_OP_ATOMIC_REDUCTION = cydriver.CUstreamBatchMemOpType_enum.CU_STREAM_MEM_OP_ATOMIC_REDUCTION{{endif}}
 
 _dict_CUstreamBatchMemOpType = dict(((int(v), v) for k, v in CUstreamBatchMemOpType.__members__.items()))
 {{endif}}
@@ -710,6 +771,42 @@ class CUstreamMemoryBarrier_flags(IntEnum):
     CU_STREAM_MEMORY_BARRIER_TYPE_GPU = cydriver.CUstreamMemoryBarrier_flags_enum.CU_STREAM_MEMORY_BARRIER_TYPE_GPU{{endif}}
 
 _dict_CUstreamMemoryBarrier_flags = dict(((int(v), v) for k, v in CUstreamMemoryBarrier_flags.__members__.items()))
+{{endif}}
+{{if 'CUstreamAtomicReductionOpType_enum' in found_types}}
+
+class CUstreamAtomicReductionOpType(IntEnum):
+    """
+    Atomic reduction operation types for
+    :py:obj:`~.CUstreamBatchMemOpParams`::atomicReduction::reductionOp
+    """
+    {{if 'CU_STREAM_ATOMIC_REDUCTION_OP_ADD' in found_values}}
+
+    #: Performs an atomic ADD: *(address) = *(address) + value
+    CU_STREAM_ATOMIC_REDUCTION_OP_ADD = cydriver.CUstreamAtomicReductionOpType_enum.CU_STREAM_ATOMIC_REDUCTION_OP_ADD{{endif}}
+    {{if 'CU_STREAM_ATOMIC_REDUCTION_OP_AND' in found_values}}
+
+    #: Performs an atomic AND: *(address) = *(address) & value
+    CU_STREAM_ATOMIC_REDUCTION_OP_AND = cydriver.CUstreamAtomicReductionOpType_enum.CU_STREAM_ATOMIC_REDUCTION_OP_AND{{endif}}
+    {{if 'CU_STREAM_ATOMIC_REDUCTION_OP_OR' in found_values}}
+
+    #: Performs an atomic OR: *(address) = *(address) | value
+    CU_STREAM_ATOMIC_REDUCTION_OP_OR = cydriver.CUstreamAtomicReductionOpType_enum.CU_STREAM_ATOMIC_REDUCTION_OP_OR{{endif}}
+
+_dict_CUstreamAtomicReductionOpType = dict(((int(v), v) for k, v in CUstreamAtomicReductionOpType.__members__.items()))
+{{endif}}
+{{if 'CUstreamAtomicReductionDataType_enum' in found_types}}
+
+class CUstreamAtomicReductionDataType(IntEnum):
+    """
+    Atomic reduction data types for
+    :py:obj:`~.CUstreamBatchMemOpParams`::atomicReduction::dataType
+    """
+    {{if 'CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_32' in found_values}}
+    CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_32 = cydriver.CUstreamAtomicReductionDataType_enum.CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_32{{endif}}
+    {{if 'CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_64' in found_values}}
+    CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_64 = cydriver.CUstreamAtomicReductionDataType_enum.CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_64{{endif}}
+
+_dict_CUstreamAtomicReductionDataType = dict(((int(v), v) for k, v in CUstreamAtomicReductionDataType.__members__.items()))
 {{endif}}
 {{if 'CUoccupancy_flags_enum' in found_types}}
 
@@ -801,6 +898,65 @@ class CUarray_format(IntEnum):
 
     #: 4 channel unorm R10G10B10A2 RGB format
     CU_AD_FORMAT_UNORM_INT_101010_2 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UNORM_INT_101010_2{{endif}}
+    {{if 'CU_AD_FORMAT_UINT8_PACKED_422' in found_values}}
+
+    #: 4 channel unsigned 8-bit YUV packed format, with 4:2:2 sampling
+    CU_AD_FORMAT_UINT8_PACKED_422 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_PACKED_422{{endif}}
+    {{if 'CU_AD_FORMAT_UINT8_PACKED_444' in found_values}}
+
+    #: 4 channel unsigned 8-bit YUV packed format, with 4:4:4 sampling
+    CU_AD_FORMAT_UINT8_PACKED_444 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_PACKED_444{{endif}}
+    {{if 'CU_AD_FORMAT_UINT8_SEMIPLANAR_420' in found_values}}
+
+    #: 3 channel unsigned 8-bit YUV semi-planar format, with 4:2:0 sampling
+    CU_AD_FORMAT_UINT8_SEMIPLANAR_420 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_SEMIPLANAR_420{{endif}}
+    {{if 'CU_AD_FORMAT_UINT16_SEMIPLANAR_420' in found_values}}
+
+    #: 3 channel unsigned 16-bit YUV semi-planar format, with 4:2:0
+    #: sampling
+    CU_AD_FORMAT_UINT16_SEMIPLANAR_420 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT16_SEMIPLANAR_420{{endif}}
+    {{if 'CU_AD_FORMAT_UINT8_SEMIPLANAR_422' in found_values}}
+
+    #: 3 channel unsigned 8-bit YUV semi-planar format, with 4:2:2 sampling
+    CU_AD_FORMAT_UINT8_SEMIPLANAR_422 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_SEMIPLANAR_422{{endif}}
+    {{if 'CU_AD_FORMAT_UINT16_SEMIPLANAR_422' in found_values}}
+
+    #: 3 channel unsigned 16-bit YUV semi-planar format, with 4:2:2
+    #: sampling
+    CU_AD_FORMAT_UINT16_SEMIPLANAR_422 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT16_SEMIPLANAR_422{{endif}}
+    {{if 'CU_AD_FORMAT_UINT8_SEMIPLANAR_444' in found_values}}
+
+    #: 3 channel unsigned 8-bit YUV semi-planar format, with 4:4:4 sampling
+    CU_AD_FORMAT_UINT8_SEMIPLANAR_444 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_SEMIPLANAR_444{{endif}}
+    {{if 'CU_AD_FORMAT_UINT16_SEMIPLANAR_444' in found_values}}
+
+    #: 3 channel unsigned 16-bit YUV semi-planar format, with 4:4:4
+    #: sampling
+    CU_AD_FORMAT_UINT16_SEMIPLANAR_444 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT16_SEMIPLANAR_444{{endif}}
+    {{if 'CU_AD_FORMAT_UINT8_PLANAR_420' in found_values}}
+
+    #: 3 channel unsigned 8-bit YUV planar format, with 4:2:0 sampling
+    CU_AD_FORMAT_UINT8_PLANAR_420 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_PLANAR_420{{endif}}
+    {{if 'CU_AD_FORMAT_UINT16_PLANAR_420' in found_values}}
+
+    #: 3 channel unsigned 16-bit YUV planar format, with 4:2:0 sampling
+    CU_AD_FORMAT_UINT16_PLANAR_420 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT16_PLANAR_420{{endif}}
+    {{if 'CU_AD_FORMAT_UINT8_PLANAR_422' in found_values}}
+
+    #: 3 channel unsigned 8-bit YUV planar format, with 4:2:2 sampling
+    CU_AD_FORMAT_UINT8_PLANAR_422 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_PLANAR_422{{endif}}
+    {{if 'CU_AD_FORMAT_UINT16_PLANAR_422' in found_values}}
+
+    #: 3 channel unsigned 16-bit YUV planar format, with 4:2:2 sampling
+    CU_AD_FORMAT_UINT16_PLANAR_422 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT16_PLANAR_422{{endif}}
+    {{if 'CU_AD_FORMAT_UINT8_PLANAR_444' in found_values}}
+
+    #: 3 channel unsigned 8-bit YUV planar format, with 4:4:4 sampling
+    CU_AD_FORMAT_UINT8_PLANAR_444 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT8_PLANAR_444{{endif}}
+    {{if 'CU_AD_FORMAT_UINT16_PLANAR_444' in found_values}}
+
+    #: 3 channel unsigned 16-bit YUV planar format, with 4:4:4 sampling
+    CU_AD_FORMAT_UINT16_PLANAR_444 = cydriver.CUarray_format_enum.CU_AD_FORMAT_UINT16_PLANAR_444{{endif}}
     {{if 'CU_AD_FORMAT_BC1_UNORM' in found_values}}
 
     #: 4 channel unsigned normalized block-compressed (BC1 compression)
@@ -1704,6 +1860,11 @@ class CUdevice_attribute(IntEnum):
     #: Link between the device and the host supports only some native
     #: atomic operations
     CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED = cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_ONLY_PARTIAL_HOST_NATIVE_ATOMIC_SUPPORTED{{endif}}
+    {{if 'CU_DEVICE_ATTRIBUTE_ATOMIC_REDUCTION_SUPPORTED' in found_values}}
+
+    #: Device supports atomic reduction operations in stream batch memory
+    #: operations
+    CU_DEVICE_ATTRIBUTE_ATOMIC_REDUCTION_SUPPORTED = cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_ATOMIC_REDUCTION_SUPPORTED{{endif}}
     {{if 'CU_DEVICE_ATTRIBUTE_MAX' in found_values}}
     CU_DEVICE_ATTRIBUTE_MAX = cydriver.CUdevice_attribute_enum.CU_DEVICE_ATTRIBUTE_MAX{{endif}}
 
@@ -2433,6 +2594,17 @@ class CUjit_option(IntEnum):
     #: used. Option type: unsigned int
     #: Applies to: compiler only
     CU_JIT_SPLIT_COMPILE = cydriver.CUjit_option_enum.CU_JIT_SPLIT_COMPILE{{endif}}
+    {{if 'CU_JIT_BINARY_LOADER_THREAD_COUNT' in found_values}}
+
+    #: This option specifies the maximum number of concurrent threads to
+    #: use when compiling device code. If the specified value is 1, the
+    #: option will be ignored. If the specified value is 0, the number of
+    #: threads will match the number of CPUs on the underlying machine.
+    #: Otherwise, if the option is N, then up to N threads will be used.
+    #: This option is ignored if the env var
+    #: CUDA_BINARY_LOADER_THREAD_COUNT is set. Option type: unsigned int
+    #: Applies to: compiler and linker
+    CU_JIT_BINARY_LOADER_THREAD_COUNT = cydriver.CUjit_option_enum.CU_JIT_BINARY_LOADER_THREAD_COUNT{{endif}}
     {{if 'CU_JIT_NUM_OPTIONS' in found_values}}
     CU_JIT_NUM_OPTIONS = cydriver.CUjit_option_enum.CU_JIT_NUM_OPTIONS{{endif}}
 
@@ -4029,6 +4201,13 @@ class CUresult(IntEnum):
     #: This error indicates that an error happened during the key rotation
     #: sequence.
     CUDA_ERROR_KEY_ROTATION = cydriver.cudaError_enum.CUDA_ERROR_KEY_ROTATION{{endif}}
+    {{if 'CUDA_ERROR_STREAM_DETACHED' in found_values}}
+
+    #: This error indicates that the requested operation is not permitted
+    #: because the stream is in a detached state. This can occur if the
+    #: green context associated with the stream has been destroyed,
+    #: limiting the stream's operational capabilities.
+    CUDA_ERROR_STREAM_DETACHED = cydriver.cudaError_enum.CUDA_ERROR_STREAM_DETACHED{{endif}}
     {{if 'CUDA_ERROR_UNKNOWN' in found_values}}
 
     #: This indicates that an unknown internal error has occurred.
@@ -4069,66 +4248,6 @@ class CUdevice_P2PAttribute(IntEnum):
     CU_DEVICE_P2P_ATTRIBUTE_ONLY_PARTIAL_NATIVE_ATOMIC_SUPPORTED = cydriver.CUdevice_P2PAttribute_enum.CU_DEVICE_P2P_ATTRIBUTE_ONLY_PARTIAL_NATIVE_ATOMIC_SUPPORTED{{endif}}
 
 _dict_CUdevice_P2PAttribute = dict(((int(v), v) for k, v in CUdevice_P2PAttribute.__members__.items()))
-{{endif}}
-{{if 'CUatomicOperation_enum' in found_types}}
-
-class CUatomicOperation(IntEnum):
-    """
-    CUDA-valid Atomic Operations
-    """
-    {{if 'CU_ATOMIC_OPERATION_INTEGER_ADD' in found_values}}
-    CU_ATOMIC_OPERATION_INTEGER_ADD = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_INTEGER_ADD{{endif}}
-    {{if 'CU_ATOMIC_OPERATION_INTEGER_MIN' in found_values}}
-    CU_ATOMIC_OPERATION_INTEGER_MIN = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_INTEGER_MIN{{endif}}
-    {{if 'CU_ATOMIC_OPERATION_INTEGER_MAX' in found_values}}
-    CU_ATOMIC_OPERATION_INTEGER_MAX = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_INTEGER_MAX{{endif}}
-    {{if 'CU_ATOMIC_OPERATION_INTEGER_INCREMENT' in found_values}}
-    CU_ATOMIC_OPERATION_INTEGER_INCREMENT = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_INTEGER_INCREMENT{{endif}}
-    {{if 'CU_ATOMIC_OPERATION_INTEGER_DECREMENT' in found_values}}
-    CU_ATOMIC_OPERATION_INTEGER_DECREMENT = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_INTEGER_DECREMENT{{endif}}
-    {{if 'CU_ATOMIC_OPERATION_AND' in found_values}}
-    CU_ATOMIC_OPERATION_AND = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_AND{{endif}}
-    {{if 'CU_ATOMIC_OPERATION_OR' in found_values}}
-    CU_ATOMIC_OPERATION_OR = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_OR{{endif}}
-    {{if 'CU_ATOMIC_OPERATION_XOR' in found_values}}
-    CU_ATOMIC_OPERATION_XOR = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_XOR{{endif}}
-    {{if 'CU_ATOMIC_OPERATION_EXCHANGE' in found_values}}
-    CU_ATOMIC_OPERATION_EXCHANGE = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_EXCHANGE{{endif}}
-    {{if 'CU_ATOMIC_OPERATION_CAS' in found_values}}
-    CU_ATOMIC_OPERATION_CAS = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_CAS{{endif}}
-    {{if 'CU_ATOMIC_OPERATION_FLOAT_ADD' in found_values}}
-    CU_ATOMIC_OPERATION_FLOAT_ADD = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_FLOAT_ADD{{endif}}
-    {{if 'CU_ATOMIC_OPERATION_FLOAT_MIN' in found_values}}
-    CU_ATOMIC_OPERATION_FLOAT_MIN = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_FLOAT_MIN{{endif}}
-    {{if 'CU_ATOMIC_OPERATION_FLOAT_MAX' in found_values}}
-    CU_ATOMIC_OPERATION_FLOAT_MAX = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_FLOAT_MAX{{endif}}
-    {{if 'CU_ATOMIC_OPERATION_MAX' in found_values}}
-    CU_ATOMIC_OPERATION_MAX = cydriver.CUatomicOperation_enum.CU_ATOMIC_OPERATION_MAX{{endif}}
-
-_dict_CUatomicOperation = dict(((int(v), v) for k, v in CUatomicOperation.__members__.items()))
-{{endif}}
-{{if 'CUatomicOperationCapability_enum' in found_types}}
-
-class CUatomicOperationCapability(IntEnum):
-    """
-    CUDA-valid Atomic Operation capabilities
-    """
-    {{if 'CU_ATOMIC_CAPABILITY_SIGNED' in found_values}}
-    CU_ATOMIC_CAPABILITY_SIGNED = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_SIGNED{{endif}}
-    {{if 'CU_ATOMIC_CAPABILITY_UNSIGNED' in found_values}}
-    CU_ATOMIC_CAPABILITY_UNSIGNED = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_UNSIGNED{{endif}}
-    {{if 'CU_ATOMIC_CAPABILITY_REDUCTION' in found_values}}
-    CU_ATOMIC_CAPABILITY_REDUCTION = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_REDUCTION{{endif}}
-    {{if 'CU_ATOMIC_CAPABILITY_SCALAR_32' in found_values}}
-    CU_ATOMIC_CAPABILITY_SCALAR_32 = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_SCALAR_32{{endif}}
-    {{if 'CU_ATOMIC_CAPABILITY_SCALAR_64' in found_values}}
-    CU_ATOMIC_CAPABILITY_SCALAR_64 = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_SCALAR_64{{endif}}
-    {{if 'CU_ATOMIC_CAPABILITY_SCALAR_128' in found_values}}
-    CU_ATOMIC_CAPABILITY_SCALAR_128 = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_SCALAR_128{{endif}}
-    {{if 'CU_ATOMIC_CAPABILITY_VECTOR_32x4' in found_values}}
-    CU_ATOMIC_CAPABILITY_VECTOR_32x4 = cydriver.CUatomicOperationCapability_enum.CU_ATOMIC_CAPABILITY_VECTOR_32x4{{endif}}
-
-_dict_CUatomicOperationCapability = dict(((int(v), v) for k, v in CUatomicOperationCapability.__members__.items()))
 {{endif}}
 {{if 'CUresourceViewFormat_enum' in found_types}}
 
@@ -5354,6 +5473,8 @@ class CUCoredumpGenerationFlags(IntEnum):
     CU_COREDUMP_SKIP_CONSTBANK_MEMORY = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_CONSTBANK_MEMORY{{endif}}
     {{if 'CU_COREDUMP_LIGHTWEIGHT_FLAGS' in found_values}}
     CU_COREDUMP_LIGHTWEIGHT_FLAGS = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS{{endif}}
+    {{if 'CU_COREDUMP_GZIP_COMPRESS' in found_values}}
+    CU_COREDUMP_GZIP_COMPRESS = cydriver.CUCoredumpGenerationFlags.CU_COREDUMP_GZIP_COMPRESS{{endif}}
 
 _dict_CUCoredumpGenerationFlags = dict(((int(v), v) for k, v in CUCoredumpGenerationFlags.__members__.items()))
 {{endif}}
@@ -5370,18 +5491,31 @@ class CUgreenCtxCreate_flags(IntEnum):
 
 _dict_CUgreenCtxCreate_flags = dict(((int(v), v) for k, v in CUgreenCtxCreate_flags.__members__.items()))
 {{endif}}
-{{if 'CUdevSmResourceSplit_flags' in found_types}}
+{{if 'CUdevSmResourceGroup_flags' in found_types}}
 
-class CUdevSmResourceSplit_flags(IntEnum):
+class CUdevSmResourceGroup_flags(IntEnum):
+    """
+
+    """
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_DEFAULT' in found_values}}
+    CU_DEV_SM_RESOURCE_GROUP_DEFAULT = cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_DEFAULT{{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_BACKFILL' in found_values}}
+    CU_DEV_SM_RESOURCE_GROUP_BACKFILL = cydriver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_BACKFILL{{endif}}
+
+_dict_CUdevSmResourceGroup_flags = dict(((int(v), v) for k, v in CUdevSmResourceGroup_flags.__members__.items()))
+{{endif}}
+{{if 'CUdevSmResourceSplitByCount_flags' in found_types}}
+
+class CUdevSmResourceSplitByCount_flags(IntEnum):
     """
 
     """
     {{if 'CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING' in found_values}}
-    CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING = cydriver.CUdevSmResourceSplit_flags.CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING{{endif}}
+    CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING = cydriver.CUdevSmResourceSplitByCount_flags.CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING{{endif}}
     {{if 'CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE' in found_values}}
-    CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE = cydriver.CUdevSmResourceSplit_flags.CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE{{endif}}
+    CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE = cydriver.CUdevSmResourceSplitByCount_flags.CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE{{endif}}
 
-_dict_CUdevSmResourceSplit_flags = dict(((int(v), v) for k, v in CUdevSmResourceSplit_flags.__members__.items()))
+_dict_CUdevSmResourceSplitByCount_flags = dict(((int(v), v) for k, v in CUdevSmResourceSplitByCount_flags.__members__.items()))
 {{endif}}
 {{if 'CUdevResourceType' in found_types}}
 
@@ -5395,8 +5529,35 @@ class CUdevResourceType(IntEnum):
 
     #: Streaming multiprocessors related information
     CU_DEV_RESOURCE_TYPE_SM = cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM{{endif}}
+    {{if 'CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG' in found_values}}
+
+    #: Workqueue configuration related information
+    CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG = cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG{{endif}}
+    {{if 'CU_DEV_RESOURCE_TYPE_WORKQUEUE' in found_values}}
+
+    #: Pre-existing workqueue related information
+    CU_DEV_RESOURCE_TYPE_WORKQUEUE = cydriver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE{{endif}}
 
 _dict_CUdevResourceType = dict(((int(v), v) for k, v in CUdevResourceType.__members__.items()))
+{{endif}}
+{{if 'CUdevWorkqueueConfigScope' in found_types}}
+
+class CUdevWorkqueueConfigScope(IntEnum):
+    """
+    Sharing scope for workqueues
+    """
+    {{if 'CU_WORKQUEUE_SCOPE_DEVICE_CTX' in found_values}}
+
+    #: Use all shared workqueue resources across all contexts. Default
+    #: driver behaviour.
+    CU_WORKQUEUE_SCOPE_DEVICE_CTX = cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_DEVICE_CTX{{endif}}
+    {{if 'CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED' in found_values}}
+
+    #: When possible, use non-overlapping workqueue resources with other
+    #: balanced green contexts.
+    CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED = cydriver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED{{endif}}
+
+_dict_CUdevWorkqueueConfigScope = dict(((int(v), v) for k, v in CUdevWorkqueueConfigScope.__members__.items()))
 {{endif}}
 {{if 'CUlogLevel_enum' in found_types}}
 
@@ -8642,6 +8803,205 @@ cdef class CUstreamMemOpMemoryBarrierParams_st:
         self._pvt_ptr[0].memoryBarrier.flags = flags
     {{endif}}
 {{endif}}
+{{if 'CUstreamBatchMemOpParams_union.atomicReduction' in found_struct}}
+
+cdef class CUstreamMemOpAtomicReductionParams_st:
+    """
+    Attributes
+    ----------
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.operation' in found_struct}}
+    operation : CUstreamBatchMemOpType
+
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.flags' in found_struct}}
+    flags : unsigned int
+        Must be 0
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.reductionOp' in found_struct}}
+    reductionOp : CUstreamAtomicReductionOpType
+        See CUstreamAtomicReductionOpType
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.dataType' in found_struct}}
+    dataType : CUstreamAtomicReductionDataType
+        See CUstreamAtomicReductionDataType
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.address' in found_struct}}
+    address : CUdeviceptr
+        The address the atomic operation will be operated on
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.value' in found_struct}}
+    value : cuuint64_t
+        The operand value the atomic operation will operate with
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.alias' in found_struct}}
+    alias : CUdeviceptr
+        For driver internal use. Initial value is unimportant.
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr):
+        self._pvt_ptr = <cydriver.CUstreamBatchMemOpParams_union *>_ptr
+
+    def __init__(self, void_ptr _ptr):
+        pass
+        {{if 'CUstreamBatchMemOpParams_union.atomicReduction.address' in found_struct}}
+        self._address = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].atomicReduction.address)
+        {{endif}}
+        {{if 'CUstreamBatchMemOpParams_union.atomicReduction.value' in found_struct}}
+        self._value = cuuint64_t(_ptr=<void_ptr>&self._pvt_ptr[0].atomicReduction.value)
+        {{endif}}
+        {{if 'CUstreamBatchMemOpParams_union.atomicReduction.alias' in found_struct}}
+        self._alias = CUdeviceptr(_ptr=<void_ptr>&self._pvt_ptr[0].atomicReduction.alias)
+        {{endif}}
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>&self._pvt_ptr[0].atomicReduction
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+            {{if 'CUstreamBatchMemOpParams_union.atomicReduction.operation' in found_struct}}
+            try:
+                str_list += ['operation : ' + str(self.operation)]
+            except ValueError:
+                str_list += ['operation : <ValueError>']
+            {{endif}}
+            {{if 'CUstreamBatchMemOpParams_union.atomicReduction.flags' in found_struct}}
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+            {{endif}}
+            {{if 'CUstreamBatchMemOpParams_union.atomicReduction.reductionOp' in found_struct}}
+            try:
+                str_list += ['reductionOp : ' + str(self.reductionOp)]
+            except ValueError:
+                str_list += ['reductionOp : <ValueError>']
+            {{endif}}
+            {{if 'CUstreamBatchMemOpParams_union.atomicReduction.dataType' in found_struct}}
+            try:
+                str_list += ['dataType : ' + str(self.dataType)]
+            except ValueError:
+                str_list += ['dataType : <ValueError>']
+            {{endif}}
+            {{if 'CUstreamBatchMemOpParams_union.atomicReduction.address' in found_struct}}
+            try:
+                str_list += ['address : ' + str(self.address)]
+            except ValueError:
+                str_list += ['address : <ValueError>']
+            {{endif}}
+            {{if 'CUstreamBatchMemOpParams_union.atomicReduction.value' in found_struct}}
+            try:
+                str_list += ['value : ' + str(self.value)]
+            except ValueError:
+                str_list += ['value : <ValueError>']
+            {{endif}}
+            {{if 'CUstreamBatchMemOpParams_union.atomicReduction.alias' in found_struct}}
+            try:
+                str_list += ['alias : ' + str(self.alias)]
+            except ValueError:
+                str_list += ['alias : <ValueError>']
+            {{endif}}
+            return '\n'.join(str_list)
+        else:
+            return ''
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.operation' in found_struct}}
+    @property
+    def operation(self):
+        if self._pvt_ptr[0].atomicReduction.operation not in _dict_CUstreamBatchMemOpType:
+            return None
+        return _dict_CUstreamBatchMemOpType[self._pvt_ptr[0].atomicReduction.operation]
+    @operation.setter
+    def operation(self, operation not None : CUstreamBatchMemOpType):
+        self._pvt_ptr[0].atomicReduction.operation = operation.value
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.flags' in found_struct}}
+    @property
+    def flags(self):
+        return self._pvt_ptr[0].atomicReduction.flags
+    @flags.setter
+    def flags(self, unsigned int flags):
+        self._pvt_ptr[0].atomicReduction.flags = flags
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.reductionOp' in found_struct}}
+    @property
+    def reductionOp(self):
+        if self._pvt_ptr[0].atomicReduction.reductionOp not in _dict_CUstreamAtomicReductionOpType:
+            return None
+        return _dict_CUstreamAtomicReductionOpType[self._pvt_ptr[0].atomicReduction.reductionOp]
+    @reductionOp.setter
+    def reductionOp(self, reductionOp not None : CUstreamAtomicReductionOpType):
+        self._pvt_ptr[0].atomicReduction.reductionOp = reductionOp.value
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.dataType' in found_struct}}
+    @property
+    def dataType(self):
+        if self._pvt_ptr[0].atomicReduction.dataType not in _dict_CUstreamAtomicReductionDataType:
+            return None
+        return _dict_CUstreamAtomicReductionDataType[self._pvt_ptr[0].atomicReduction.dataType]
+    @dataType.setter
+    def dataType(self, dataType not None : CUstreamAtomicReductionDataType):
+        self._pvt_ptr[0].atomicReduction.dataType = dataType.value
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.address' in found_struct}}
+    @property
+    def address(self):
+        return self._address
+    @address.setter
+    def address(self, address):
+        cdef cydriver.CUdeviceptr cyaddress
+        if address is None:
+            cyaddress = <cydriver.CUdeviceptr><void_ptr>0
+        elif isinstance(address, (CUdeviceptr)):
+            paddress = int(address)
+            cyaddress = <cydriver.CUdeviceptr><void_ptr>paddress
+        else:
+            paddress = int(CUdeviceptr(address))
+            cyaddress = <cydriver.CUdeviceptr><void_ptr>paddress
+        self._address._pvt_ptr[0] = cyaddress
+
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.value' in found_struct}}
+    @property
+    def value(self):
+        return self._value
+    @value.setter
+    def value(self, value):
+        cdef cydriver.cuuint64_t cyvalue
+        if value is None:
+            cyvalue = <cydriver.cuuint64_t><void_ptr>0
+        elif isinstance(value, (cuuint64_t)):
+            pvalue = int(value)
+            cyvalue = <cydriver.cuuint64_t><void_ptr>pvalue
+        else:
+            pvalue = int(cuuint64_t(value))
+            cyvalue = <cydriver.cuuint64_t><void_ptr>pvalue
+        self._value._pvt_ptr[0] = cyvalue
+
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.alias' in found_struct}}
+    @property
+    def alias(self):
+        return self._alias
+    @alias.setter
+    def alias(self, alias):
+        cdef cydriver.CUdeviceptr cyalias
+        if alias is None:
+            cyalias = <cydriver.CUdeviceptr><void_ptr>0
+        elif isinstance(alias, (CUdeviceptr)):
+            palias = int(alias)
+            cyalias = <cydriver.CUdeviceptr><void_ptr>palias
+        else:
+            palias = int(CUdeviceptr(alias))
+            cyalias = <cydriver.CUdeviceptr><void_ptr>palias
+        self._alias._pvt_ptr[0] = cyalias
+
+    {{endif}}
+{{endif}}
 {{if 'CUstreamBatchMemOpParams_union' in found_struct}}
 
 cdef class CUstreamBatchMemOpParams_union:
@@ -8673,6 +9033,10 @@ cdef class CUstreamBatchMemOpParams_union:
     memoryBarrier : CUstreamMemOpMemoryBarrierParams_st
         Params for CU_STREAM_MEM_OP_BARRIER operations.
     {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction' in found_struct}}
+    atomicReduction : CUstreamMemOpAtomicReductionParams_st
+
+    {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.pad' in found_struct}}
     pad : list[cuuint64_t]
 
@@ -8701,6 +9065,9 @@ cdef class CUstreamBatchMemOpParams_union:
         {{endif}}
         {{if 'CUstreamBatchMemOpParams_union.memoryBarrier' in found_struct}}
         self._memoryBarrier = CUstreamMemOpMemoryBarrierParams_st(_ptr=<void_ptr>self._pvt_ptr)
+        {{endif}}
+        {{if 'CUstreamBatchMemOpParams_union.atomicReduction' in found_struct}}
+        self._atomicReduction = CUstreamMemOpAtomicReductionParams_st(_ptr=<void_ptr>self._pvt_ptr)
         {{endif}}
     def __dealloc__(self):
         pass
@@ -8738,6 +9105,12 @@ cdef class CUstreamBatchMemOpParams_union:
                 str_list += ['memoryBarrier :\n' + '\n'.join(['    ' + line for line in str(self.memoryBarrier).splitlines()])]
             except ValueError:
                 str_list += ['memoryBarrier : <ValueError>']
+            {{endif}}
+            {{if 'CUstreamBatchMemOpParams_union.atomicReduction' in found_struct}}
+            try:
+                str_list += ['atomicReduction :\n' + '\n'.join(['    ' + line for line in str(self.atomicReduction).splitlines()])]
+            except ValueError:
+                str_list += ['atomicReduction : <ValueError>']
             {{endif}}
             {{if 'CUstreamBatchMemOpParams_union.pad' in found_struct}}
             try:
@@ -8789,6 +9162,14 @@ cdef class CUstreamBatchMemOpParams_union:
     @memoryBarrier.setter
     def memoryBarrier(self, memoryBarrier not None : CUstreamMemOpMemoryBarrierParams_st):
         string.memcpy(&self._pvt_ptr[0].memoryBarrier, <cydriver.CUstreamMemOpMemoryBarrierParams_st*><void_ptr>memoryBarrier.getPtr(), sizeof(self._pvt_ptr[0].memoryBarrier))
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction' in found_struct}}
+    @property
+    def atomicReduction(self):
+        return self._atomicReduction
+    @atomicReduction.setter
+    def atomicReduction(self, atomicReduction not None : CUstreamMemOpAtomicReductionParams_st):
+        string.memcpy(&self._pvt_ptr[0].atomicReduction, <cydriver.CUstreamMemOpAtomicReductionParams_st*><void_ptr>atomicReduction.getPtr(), sizeof(self._pvt_ptr[0].atomicReduction))
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.pad' in found_struct}}
     @property
@@ -22444,20 +22825,23 @@ cdef class CUdevSmResource_st:
     {{if 'CUdevSmResource_st.smCount' in found_struct}}
     smCount : unsigned int
         The amount of streaming multiprocessors available in this resource.
-        This is an output parameter only, do not write to this field.
     {{endif}}
     {{if 'CUdevSmResource_st.minSmPartitionSize' in found_struct}}
     minSmPartitionSize : unsigned int
         The minimum number of streaming multiprocessors required to
-        partition this resource. This is an output parameter only, do not
-        write to this field.
+        partition this resource.
     {{endif}}
     {{if 'CUdevSmResource_st.smCoscheduledAlignment' in found_struct}}
     smCoscheduledAlignment : unsigned int
         The number of streaming multiprocessors in this resource that are
         guaranteed to be co-scheduled on the same GPU processing cluster.
-        smCount is a multiple of this value. This is an output parameter
-        only, do not write to this field.
+        smCount will be a multiple of this value, unless the backfill flag
+        is set.
+    {{endif}}
+    {{if 'CUdevSmResource_st.flags' in found_struct}}
+    flags : unsigned int
+        The flags set on this SM resource. For possible values see
+        ::CUdevSmResourceGroup_flags.
     {{endif}}
 
     Methods
@@ -22497,6 +22881,12 @@ cdef class CUdevSmResource_st:
             except ValueError:
                 str_list += ['smCoscheduledAlignment : <ValueError>']
             {{endif}}
+            {{if 'CUdevSmResource_st.flags' in found_struct}}
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+            {{endif}}
             return '\n'.join(str_list)
         else:
             return ''
@@ -22524,6 +22914,287 @@ cdef class CUdevSmResource_st:
     def smCoscheduledAlignment(self, unsigned int smCoscheduledAlignment):
         self._pvt_ptr[0].smCoscheduledAlignment = smCoscheduledAlignment
     {{endif}}
+    {{if 'CUdevSmResource_st.flags' in found_struct}}
+    @property
+    def flags(self):
+        return self._pvt_ptr[0].flags
+    @flags.setter
+    def flags(self, unsigned int flags):
+        self._pvt_ptr[0].flags = flags
+    {{endif}}
+{{endif}}
+{{if 'CUdevWorkqueueConfigResource_st' in found_struct}}
+
+cdef class CUdevWorkqueueConfigResource_st:
+    """
+    Attributes
+    ----------
+    {{if 'CUdevWorkqueueConfigResource_st.device' in found_struct}}
+    device : CUdevice
+        The device on which the workqueue resources are available
+    {{endif}}
+    {{if 'CUdevWorkqueueConfigResource_st.wqConcurrencyLimit' in found_struct}}
+    wqConcurrencyLimit : unsigned int
+        The expected maximum number of concurrent stream-ordered workloads
+    {{endif}}
+    {{if 'CUdevWorkqueueConfigResource_st.sharingScope' in found_struct}}
+    sharingScope : CUdevWorkqueueConfigScope
+        The sharing scope for the workqueue resources
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cydriver.CUdevWorkqueueConfigResource_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+        {{if 'CUdevWorkqueueConfigResource_st.device' in found_struct}}
+        self._device = CUdevice(_ptr=<void_ptr>&self._pvt_ptr[0].device)
+        {{endif}}
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+            {{if 'CUdevWorkqueueConfigResource_st.device' in found_struct}}
+            try:
+                str_list += ['device : ' + str(self.device)]
+            except ValueError:
+                str_list += ['device : <ValueError>']
+            {{endif}}
+            {{if 'CUdevWorkqueueConfigResource_st.wqConcurrencyLimit' in found_struct}}
+            try:
+                str_list += ['wqConcurrencyLimit : ' + str(self.wqConcurrencyLimit)]
+            except ValueError:
+                str_list += ['wqConcurrencyLimit : <ValueError>']
+            {{endif}}
+            {{if 'CUdevWorkqueueConfigResource_st.sharingScope' in found_struct}}
+            try:
+                str_list += ['sharingScope : ' + str(self.sharingScope)]
+            except ValueError:
+                str_list += ['sharingScope : <ValueError>']
+            {{endif}}
+            return '\n'.join(str_list)
+        else:
+            return ''
+    {{if 'CUdevWorkqueueConfigResource_st.device' in found_struct}}
+    @property
+    def device(self):
+        return self._device
+    @device.setter
+    def device(self, device):
+        cdef cydriver.CUdevice cydevice
+        if device is None:
+            cydevice = <cydriver.CUdevice><void_ptr>0
+        elif isinstance(device, (CUdevice)):
+            pdevice = int(device)
+            cydevice = <cydriver.CUdevice><void_ptr>pdevice
+        else:
+            pdevice = int(CUdevice(device))
+            cydevice = <cydriver.CUdevice><void_ptr>pdevice
+        self._device._pvt_ptr[0] = cydevice
+
+    {{endif}}
+    {{if 'CUdevWorkqueueConfigResource_st.wqConcurrencyLimit' in found_struct}}
+    @property
+    def wqConcurrencyLimit(self):
+        return self._pvt_ptr[0].wqConcurrencyLimit
+    @wqConcurrencyLimit.setter
+    def wqConcurrencyLimit(self, unsigned int wqConcurrencyLimit):
+        self._pvt_ptr[0].wqConcurrencyLimit = wqConcurrencyLimit
+    {{endif}}
+    {{if 'CUdevWorkqueueConfigResource_st.sharingScope' in found_struct}}
+    @property
+    def sharingScope(self):
+        if self._pvt_ptr[0].sharingScope not in _dict_CUdevWorkqueueConfigScope:
+            return None
+        return _dict_CUdevWorkqueueConfigScope[self._pvt_ptr[0].sharingScope]
+    @sharingScope.setter
+    def sharingScope(self, sharingScope not None : CUdevWorkqueueConfigScope):
+        self._pvt_ptr[0].sharingScope = sharingScope.value
+    {{endif}}
+{{endif}}
+{{if 'CUdevWorkqueueResource_st' in found_struct}}
+
+cdef class CUdevWorkqueueResource_st:
+    """
+    Attributes
+    ----------
+    {{if 'CUdevWorkqueueResource_st.reserved' in found_struct}}
+    reserved : bytes
+        Reserved for future use
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cydriver.CUdevWorkqueueResource_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+            {{if 'CUdevWorkqueueResource_st.reserved' in found_struct}}
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
+            {{endif}}
+            return '\n'.join(str_list)
+        else:
+            return ''
+    {{if 'CUdevWorkqueueResource_st.reserved' in found_struct}}
+    @property
+    def reserved(self):
+        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 40)
+    @reserved.setter
+    def reserved(self, reserved):
+        if len(reserved) != 40:
+            raise ValueError("reserved length must be 40, is " + str(len(reserved)))
+        for i, b in enumerate(reserved):
+            self._pvt_ptr[0].reserved[i] = b
+    {{endif}}
+{{endif}}
+{{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st' in found_struct}}
+
+cdef class CU_DEV_SM_RESOURCE_GROUP_PARAMS_st:
+    """
+    Attributes
+    ----------
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.smCount' in found_struct}}
+    smCount : unsigned int
+        The amount of SMs available in this resource.
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.coscheduledSmCount' in found_struct}}
+    coscheduledSmCount : unsigned int
+        The amount of co-scheduled SMs grouped together for locality
+        purposes.
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.preferredCoscheduledSmCount' in found_struct}}
+    preferredCoscheduledSmCount : unsigned int
+        When possible, combine co-scheduled groups together into larger
+        groups of this size.
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.flags' in found_struct}}
+    flags : unsigned int
+        Combination of `CUdevSmResourceGroup_flags` values to indicate this
+        this group is created.
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.reserved' in found_struct}}
+    reserved : list[unsigned int]
+        Reserved for future use - ensure this is is zero initialized.
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+            {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.smCount' in found_struct}}
+            try:
+                str_list += ['smCount : ' + str(self.smCount)]
+            except ValueError:
+                str_list += ['smCount : <ValueError>']
+            {{endif}}
+            {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.coscheduledSmCount' in found_struct}}
+            try:
+                str_list += ['coscheduledSmCount : ' + str(self.coscheduledSmCount)]
+            except ValueError:
+                str_list += ['coscheduledSmCount : <ValueError>']
+            {{endif}}
+            {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.preferredCoscheduledSmCount' in found_struct}}
+            try:
+                str_list += ['preferredCoscheduledSmCount : ' + str(self.preferredCoscheduledSmCount)]
+            except ValueError:
+                str_list += ['preferredCoscheduledSmCount : <ValueError>']
+            {{endif}}
+            {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.flags' in found_struct}}
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+            {{endif}}
+            {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.reserved' in found_struct}}
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
+            {{endif}}
+            return '\n'.join(str_list)
+        else:
+            return ''
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.smCount' in found_struct}}
+    @property
+    def smCount(self):
+        return self._pvt_ptr[0].smCount
+    @smCount.setter
+    def smCount(self, unsigned int smCount):
+        self._pvt_ptr[0].smCount = smCount
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.coscheduledSmCount' in found_struct}}
+    @property
+    def coscheduledSmCount(self):
+        return self._pvt_ptr[0].coscheduledSmCount
+    @coscheduledSmCount.setter
+    def coscheduledSmCount(self, unsigned int coscheduledSmCount):
+        self._pvt_ptr[0].coscheduledSmCount = coscheduledSmCount
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.preferredCoscheduledSmCount' in found_struct}}
+    @property
+    def preferredCoscheduledSmCount(self):
+        return self._pvt_ptr[0].preferredCoscheduledSmCount
+    @preferredCoscheduledSmCount.setter
+    def preferredCoscheduledSmCount(self, unsigned int preferredCoscheduledSmCount):
+        self._pvt_ptr[0].preferredCoscheduledSmCount = preferredCoscheduledSmCount
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.flags' in found_struct}}
+    @property
+    def flags(self):
+        return self._pvt_ptr[0].flags
+    @flags.setter
+    def flags(self, unsigned int flags):
+        self._pvt_ptr[0].flags = flags
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.reserved' in found_struct}}
+    @property
+    def reserved(self):
+        return self._pvt_ptr[0].reserved
+    @reserved.setter
+    def reserved(self, reserved):
+        self._pvt_ptr[0].reserved = reserved
+    {{endif}}
 {{endif}}
 {{if 'CUdevResource_st' in found_struct}}
 
@@ -22543,8 +23214,22 @@ cdef class CUdevResource_st:
     sm : CUdevSmResource
         Resource corresponding to CU_DEV_RESOURCE_TYPE_SM `typename`.
     {{endif}}
+    {{if 'CUdevResource_st.wqConfig' in found_struct}}
+    wqConfig : CUdevWorkqueueConfigResource
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG
+        `typename`.
+    {{endif}}
+    {{if 'CUdevResource_st.wq' in found_struct}}
+    wq : CUdevWorkqueueResource
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE
+        `typename`.
+    {{endif}}
     {{if 'CUdevResource_st._oversize' in found_struct}}
     _oversize : bytes
+
+    {{endif}}
+    {{if 'CUdevResource_st.nextResource' in found_struct}}
+    nextResource : CUdevResource_st
 
     {{endif}}
 
@@ -22564,9 +23249,19 @@ cdef class CUdevResource_st:
         {{if 'CUdevResource_st.sm' in found_struct}}
         self._sm = CUdevSmResource(_ptr=<void_ptr>&self._pvt_ptr[0].sm)
         {{endif}}
+        {{if 'CUdevResource_st.wqConfig' in found_struct}}
+        self._wqConfig = CUdevWorkqueueConfigResource(_ptr=<void_ptr>&self._pvt_ptr[0].wqConfig)
+        {{endif}}
+        {{if 'CUdevResource_st.wq' in found_struct}}
+        self._wq = CUdevWorkqueueResource(_ptr=<void_ptr>&self._pvt_ptr[0].wq)
+        {{endif}}
     def __dealloc__(self):
         if self._val_ptr is not NULL:
             free(self._val_ptr)
+        {{if 'CUdevResource_st.nextResource' in found_struct}}
+        if self._nextResource is not NULL:
+            free(self._nextResource)
+        {{endif}}
     def getPtr(self):
         return <void_ptr>self._pvt_ptr
     def __repr__(self):
@@ -22590,11 +23285,29 @@ cdef class CUdevResource_st:
             except ValueError:
                 str_list += ['sm : <ValueError>']
             {{endif}}
+            {{if 'CUdevResource_st.wqConfig' in found_struct}}
+            try:
+                str_list += ['wqConfig :\n' + '\n'.join(['    ' + line for line in str(self.wqConfig).splitlines()])]
+            except ValueError:
+                str_list += ['wqConfig : <ValueError>']
+            {{endif}}
+            {{if 'CUdevResource_st.wq' in found_struct}}
+            try:
+                str_list += ['wq :\n' + '\n'.join(['    ' + line for line in str(self.wq).splitlines()])]
+            except ValueError:
+                str_list += ['wq : <ValueError>']
+            {{endif}}
             {{if 'CUdevResource_st._oversize' in found_struct}}
             try:
                 str_list += ['_oversize : ' + str(self._oversize)]
             except ValueError:
                 str_list += ['_oversize : <ValueError>']
+            {{endif}}
+            {{if 'CUdevResource_st.nextResource' in found_struct}}
+            try:
+                str_list += ['nextResource : ' + str(self.nextResource)]
+            except ValueError:
+                str_list += ['nextResource : <ValueError>']
             {{endif}}
             return '\n'.join(str_list)
         else:
@@ -22628,16 +23341,55 @@ cdef class CUdevResource_st:
     def sm(self, sm not None : CUdevSmResource):
         string.memcpy(&self._pvt_ptr[0].sm, <cydriver.CUdevSmResource*><void_ptr>sm.getPtr(), sizeof(self._pvt_ptr[0].sm))
     {{endif}}
+    {{if 'CUdevResource_st.wqConfig' in found_struct}}
+    @property
+    def wqConfig(self):
+        return self._wqConfig
+    @wqConfig.setter
+    def wqConfig(self, wqConfig not None : CUdevWorkqueueConfigResource):
+        string.memcpy(&self._pvt_ptr[0].wqConfig, <cydriver.CUdevWorkqueueConfigResource*><void_ptr>wqConfig.getPtr(), sizeof(self._pvt_ptr[0].wqConfig))
+    {{endif}}
+    {{if 'CUdevResource_st.wq' in found_struct}}
+    @property
+    def wq(self):
+        return self._wq
+    @wq.setter
+    def wq(self, wq not None : CUdevWorkqueueResource):
+        string.memcpy(&self._pvt_ptr[0].wq, <cydriver.CUdevWorkqueueResource*><void_ptr>wq.getPtr(), sizeof(self._pvt_ptr[0].wq))
+    {{endif}}
     {{if 'CUdevResource_st._oversize' in found_struct}}
     @property
     def _oversize(self):
-        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0]._oversize, 48)
+        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0]._oversize, 40)
     @_oversize.setter
     def _oversize(self, _oversize):
-        if len(_oversize) != 48:
-            raise ValueError("_oversize length must be 48, is " + str(len(_oversize)))
+        if len(_oversize) != 40:
+            raise ValueError("_oversize length must be 40, is " + str(len(_oversize)))
         for i, b in enumerate(_oversize):
             self._pvt_ptr[0]._oversize[i] = b
+    {{endif}}
+    {{if 'CUdevResource_st.nextResource' in found_struct}}
+    @property
+    def nextResource(self):
+        arrs = [<void_ptr>self._pvt_ptr[0].nextResource + x*sizeof(cydriver.CUdevResource_st) for x in range(self._nextResource_length)]
+        return [CUdevResource_st(_ptr=arr) for arr in arrs]
+    @nextResource.setter
+    def nextResource(self, val):
+        if len(val) == 0:
+            free(self._nextResource)
+            self._nextResource_length = 0
+            self._pvt_ptr[0].nextResource = NULL
+        else:
+            if self._nextResource_length != <size_t>len(val):
+                free(self._nextResource)
+                self._nextResource = <cydriver.CUdevResource_st*> calloc(len(val), sizeof(cydriver.CUdevResource_st))
+                if self._nextResource is NULL:
+                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cydriver.CUdevResource_st)))
+                self._nextResource_length = <size_t>len(val)
+                self._pvt_ptr[0].nextResource = self._nextResource
+            for idx in range(len(val)):
+                string.memcpy(&self._nextResource[idx], (<CUdevResource_st>val[idx])._pvt_ptr, sizeof(cydriver.CUdevResource_st))
+
     {{endif}}
 {{endif}}
 {{if True}}
@@ -25243,7 +25995,7 @@ def cuCtxSynchronize():
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED`
 
     See Also
     --------
@@ -25280,7 +26032,7 @@ def cuCtxSynchronize_v2(ctx):
     Returns
     -------
     CUresult
-        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_CONTEXT`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED`
 
     See Also
     --------
@@ -26038,7 +26790,7 @@ def cuModuleLoad(char* fname):
     allocated, :py:obj:`~.cuModuleLoad()` fails. The file should be a
     `cubin` file as output by nvcc, or a `PTX` file either as output by
     nvcc or handwritten, or a `fatbin` file as output by nvcc from
-    toolchain 4.0 or later.
+    toolchain 4.0 or later, or a `Tile` IR file.
 
     Parameters
     ----------
@@ -26073,7 +26825,7 @@ def cuModuleLoadData(image):
     Takes a pointer `image` and loads the corresponding module `module`
     into the current context. The `image` may be a `cubin` or `fatbin` as
     output by nvcc, or a NULL-terminated `PTX`, either as output by nvcc or
-    hand-written.
+    hand-written, or `Tile` IR data.
 
     Parameters
     ----------
@@ -26110,7 +26862,7 @@ def cuModuleLoadDataEx(image, unsigned int numOptions, options : Optional[tuple[
     Takes a pointer `image` and loads the corresponding module `module`
     into the current context. The `image` may be a `cubin` or `fatbin` as
     output by nvcc, or a NULL-terminated `PTX`, either as output by nvcc or
-    hand-written.
+    hand-written, or `Tile` IR data.
 
     Parameters
     ----------
@@ -26869,8 +27621,9 @@ def cuLibraryLoadData(code, jitOptions : Optional[tuple[CUjit_option] | list[CUj
     under the "CUDA environment variables" section.
 
     The `code` may be a `cubin` or `fatbin` as output by nvcc, or a NULL-
-    terminated `PTX`, either as output by nvcc or hand-written. A fatbin
-    should also contain relocatable code when doing separate compilation.
+    terminated `PTX`, either as output by nvcc or hand-written, or `Tile`
+    IR data. A fatbin should also contain relocatable code when doing
+    separate compilation.
 
     Options are passed as an array via `jitOptions` and any corresponding
     parameters are passed in `jitOptionsValues`. The number of total JIT
@@ -26968,8 +27721,8 @@ def cuLibraryLoadFromFile(char* fileName, jitOptions : Optional[tuple[CUjit_opti
 
     The file should be a `cubin` file as output by nvcc, or a `PTX` file
     either as output by nvcc or handwritten, or a `fatbin` file as output
-    by nvcc. A fatbin should also contain relocatable code when doing
-    separate compilation.
+    by nvcc or hand-written, or `Tile` IR file. A fatbin should also
+    contain relocatable code when doing separate compilation.
 
     Options are passed as an array via `jitOptions` and any corresponding
     parameters are passed in `jitOptionsValues`. The number of total
@@ -28117,9 +28870,9 @@ def cuMemGetAddressRange(dptr):
     """ Get information on memory allocations.
 
     Returns the base address in `*pbase` and size in `*psize` of the
-    allocation by :py:obj:`~.cuMemAlloc()` or :py:obj:`~.cuMemAllocPitch()`
-    that contains the input pointer `dptr`. Both parameters `pbase` and
-    `psize` are optional. If one of them is NULL, it is ignored.
+    allocation that contains the input pointer `dptr`. Both parameters
+    `pbase` and `psize` are optional. If one of them is NULL, it is
+    ignored.
 
     Parameters
     ----------
@@ -34111,6 +34864,21 @@ def cuMemPoolCreate(poolProps : Optional[CUmemPoolProps]):
     /proc/devices users can execute the following command: `mknod
     /dev/nvidia-caps-imex-channels/channel0 c <major number> 0`
 
+    To create a managed memory pool, applications must set
+    :py:obj:`~.CUmemPoolProps`::CUmemAllocationType to
+    CU_MEM_ALLOCATION_TYPE_MANAGED.
+    :py:obj:`~.CUmemPoolProps`::CUmemAllocationHandleType must also be set
+    to CU_MEM_HANDLE_TYPE_NONE since IPC is not supported. For managed
+    memory pools, :py:obj:`~.CUmemPoolProps`::CUmemLocation will be treated
+    as the preferred location for all allocations created from the pool. An
+    application can also set CU_MEM_LOCATION_TYPE_NONE to indicate no
+    preferred location. :py:obj:`~.CUmemPoolProps.maxSize` must be set to
+    zero for managed memory pools. :py:obj:`~.CUmemPoolProps.usage` should
+    be zero as decompress for managed memory is not supported. For managed
+    memory pools, all devices on the system must have non-zero
+    :py:obj:`~.concurrentManagedAccess`. If not, this call returns
+    CUDA_ERROR_NOT_SUPPORTED
+
     Parameters
     ----------
     poolProps : :py:obj:`~.CUmemPoolProps`
@@ -34623,10 +35391,10 @@ def cuMulticastCreate(prop : Optional[CUmulticastObjectProp]):
     the multicast object via :py:obj:`~.cuMulticastAddDevice`. All
     participating devices must be added to the multicast object before
     memory can be bound to it. Memory is bound to the multicast object via
-    either :py:obj:`~.cuMulticastBindMem` or
-    :py:obj:`~.cuMulticastBindAddr`, and can be unbound via
-    :py:obj:`~.cuMulticastUnbind`. The total amount of memory that can be
-    bound per device is specified by
+    :py:obj:`~.cuMulticastBindMem`, :py:obj:`~.cuMulticastBindMem_v2`,
+    :py:obj:`~.cuMulticastBindAddr`, or :py:obj:`~.cuMulticastBindAddr_v2`.
+    and can be unbound via :py:obj:`~.cuMulticastUnbind`. The total amount
+    of memory that can be bound per device is specified by
     :py:obj:`~.py`:obj:`~.CUmulticastObjectProp.size`. This size must be a
     multiple of the value returned by :py:obj:`~.cuMulticastGetGranularity`
     with the flag :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM`. For best
@@ -34662,6 +35430,8 @@ def cuMulticastCreate(prop : Optional[CUmulticastObjectProp]):
     :py:obj:`~.cuMulticastAddDevice`, :py:obj:`~.cuMulticastBindMem`, :py:obj:`~.cuMulticastBindAddr`, :py:obj:`~.cuMulticastUnbind`
 
     :py:obj:`~.cuMemCreate`, :py:obj:`~.cuMemRelease`, :py:obj:`~.cuMemExportToShareableHandle`, :py:obj:`~.cuMemImportFromShareableHandle`
+
+    :py:obj:`~.cuMulticastBindAddr_v2`, :py:obj:`~.cuMulticastBindMem_v2`
     """
     cdef CUmemGenericAllocationHandle mcHandle = CUmemGenericAllocationHandle()
     cdef cydriver.CUmulticastObjectProp* cyprop_ptr = prop._pvt_ptr if prop is not None else NULL
@@ -34685,10 +35455,11 @@ def cuMulticastAddDevice(mcHandle, dev):
     multicast object is permanent during the life time of the multicast
     object. All devices must be added to the multicast team before any
     memory can be bound to any device in the team. Any calls to
-    :py:obj:`~.cuMulticastBindMem` or :py:obj:`~.cuMulticastBindAddr` will
-    block until all devices have been added. Similarly all devices must be
-    added to the multicast team before a virtual address range can be
-    mapped to the multicast object. A call to :py:obj:`~.cuMemMap` will
+    :py:obj:`~.cuMulticastBindMem`, :py:obj:`~.cuMulticastBindMem_v2`,
+    :py:obj:`~.cuMulticastBindAddr`, or :py:obj:`~.cuMulticastBindAddr_v2`
+    will block until all devices have been added. Similarly all devices
+    must be added to the multicast team before a virtual address range can
+    be mapped to the multicast object. A call to :py:obj:`~.cuMemMap` will
     block until all devices have been added.
 
     Parameters
@@ -34786,6 +35557,8 @@ def cuMulticastBindMem(mcHandle, size_t mcOffset, memHandle, size_t memOffset, s
     See Also
     --------
     :py:obj:`~.cuMulticastCreate`, :py:obj:`~.cuMulticastAddDevice`, :py:obj:`~.cuMemCreate`
+
+    :py:obj:`~.cuMulticastBindMem_v2`
     """
     cdef cydriver.CUmemGenericAllocationHandle cymemHandle
     if memHandle is None:
@@ -34805,6 +35578,107 @@ def cuMulticastBindMem(mcHandle, size_t mcOffset, memHandle, size_t memOffset, s
     cymcHandle = <cydriver.CUmemGenericAllocationHandle><void_ptr>pmcHandle
     with nogil:
         err = cydriver.cuMulticastBindMem(cymcHandle, mcOffset, cymemHandle, memOffset, size, flags)
+    return (_dict_CUresult[err],)
+{{endif}}
+
+{{if 'cuMulticastBindMem_v2' in found_functions}}
+
+@cython.embedsignature(True)
+def cuMulticastBindMem_v2(mcHandle, dev, size_t mcOffset, memHandle, size_t memOffset, size_t size, unsigned long long flags):
+    """ Bind a memory allocation represented by a handle to a multicast object.
+
+    Binds a memory allocation specified by `memHandle` and created via
+    :py:obj:`~.cuMemCreate` to a multicast object represented by `mcHandle`
+    and created via :py:obj:`~.cuMulticastCreate`. The binding will be
+    applicable for the device `dev`. The intended `size` of the bind, the
+    offset in the multicast range `mcOffset` as well as the offset in the
+    memory `memOffset` must be a multiple of the value returned by
+    :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM`. For best performance
+    however, `size`, `mcOffset` and `memOffset` should be aligned to the
+    granularity of the memory allocation(see
+    :py:obj:`~.cuMemGetAllocationGranularity`) or to the value returned by
+    :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED`.
+
+    The `size` + `memOffset` cannot be larger than the size of the
+    allocated memory. Similarly the `size` + `mcOffset` cannot be larger
+    than the size of the multicast object. The memory allocation must have
+    beeen created on one of the devices that was added to the multicast
+    team via :py:obj:`~.cuMulticastAddDevice`. For device memory, i.e.,
+    type :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`, the memory allocation
+    must have been created on the device specified by `dev`. For host NUMA
+    memory, i.e., type :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`, the
+    memory allocation must have been created on the CPU NUMA node closest
+    to `dev`. That is, the value returned when querying
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID` for `dev`, must be the CPU
+    NUMA node where the memory was allocated. In both cases, the device
+    named by `dev` must have been added to the multicast team via
+    :py:obj:`~.cuMulticastAddDevice`. Externally shareable as well as
+    imported multicast objects can be bound only to externally shareable
+    memory. Note that this call will return CUDA_ERROR_OUT_OF_MEMORY if
+    there are insufficient resources required to perform the bind. This
+    call may also return CUDA_ERROR_SYSTEM_NOT_READY if the necessary
+    system software is not initialized or running.
+
+    This call may return CUDA_ERROR_ILLEGAL_STATE if the system
+    configuration is in an illegal state. In such cases, to continue using
+    multicast, verify that the system configuration is in a valid state and
+    all required driver daemons are running properly.
+
+    Parameters
+    ----------
+    mcHandle : :py:obj:`~.CUmemGenericAllocationHandle`
+        Handle representing a multicast object.
+    dev : :py:obj:`~.CUdevice`
+        The device that for which the multicast memory binding will be
+        applicable.
+    mcOffset : size_t
+        Offset into the multicast object for attachment.
+    memHandle : :py:obj:`~.CUmemGenericAllocationHandle`
+        Handle representing a memory allocation.
+    memOffset : size_t
+        Offset into the memory for attachment.
+    size : size_t
+        Size of the memory that will be bound to the multicast object.
+    flags : unsigned long long
+        Flags for future use, must be zero for now.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`
+
+    See Also
+    --------
+    :py:obj:`~.cuMulticastCreate`, :py:obj:`~.cuMulticastAddDevice`, :py:obj:`~.cuMemCreate`
+    """
+    cdef cydriver.CUmemGenericAllocationHandle cymemHandle
+    if memHandle is None:
+        pmemHandle = 0
+    elif isinstance(memHandle, (CUmemGenericAllocationHandle,)):
+        pmemHandle = int(memHandle)
+    else:
+        pmemHandle = int(CUmemGenericAllocationHandle(memHandle))
+    cymemHandle = <cydriver.CUmemGenericAllocationHandle><void_ptr>pmemHandle
+    cdef cydriver.CUdevice cydev
+    if dev is None:
+        pdev = 0
+    elif isinstance(dev, (CUdevice,)):
+        pdev = int(dev)
+    else:
+        pdev = int(CUdevice(dev))
+    cydev = <cydriver.CUdevice>pdev
+    cdef cydriver.CUmemGenericAllocationHandle cymcHandle
+    if mcHandle is None:
+        pmcHandle = 0
+    elif isinstance(mcHandle, (CUmemGenericAllocationHandle,)):
+        pmcHandle = int(mcHandle)
+    else:
+        pmcHandle = int(CUmemGenericAllocationHandle(mcHandle))
+    cymcHandle = <cydriver.CUmemGenericAllocationHandle><void_ptr>pmcHandle
+    with nogil:
+        err = cydriver.cuMulticastBindMem_v2(cymcHandle, cydev, mcOffset, cymemHandle, memOffset, size, flags)
     return (_dict_CUresult[err],)
 {{endif}}
 
@@ -34862,6 +35736,8 @@ def cuMulticastBindAddr(mcHandle, size_t mcOffset, memptr, size_t size, unsigned
     See Also
     --------
     :py:obj:`~.cuMulticastCreate`, :py:obj:`~.cuMulticastAddDevice`, :py:obj:`~.cuMemCreate`
+
+    :py:obj:`~.cuMulticastBindAddr_v2`
     """
     cdef cydriver.CUdeviceptr cymemptr
     if memptr is None:
@@ -34881,6 +35757,101 @@ def cuMulticastBindAddr(mcHandle, size_t mcOffset, memptr, size_t size, unsigned
     cymcHandle = <cydriver.CUmemGenericAllocationHandle><void_ptr>pmcHandle
     with nogil:
         err = cydriver.cuMulticastBindAddr(cymcHandle, mcOffset, cymemptr, size, flags)
+    return (_dict_CUresult[err],)
+{{endif}}
+
+{{if 'cuMulticastBindAddr_v2' in found_functions}}
+
+@cython.embedsignature(True)
+def cuMulticastBindAddr_v2(mcHandle, dev, size_t mcOffset, memptr, size_t size, unsigned long long flags):
+    """ Bind a memory allocation represented by a virtual address to a multicast object.
+
+    Binds a memory allocation specified by its mapped address `memptr` to a
+    multicast object represented by `mcHandle`. The binding will be
+    applicable for the device `dev`. The memory must have been allocated
+    via :py:obj:`~.cuMemCreate` or :py:obj:`~.cudaMallocAsync`. The
+    intended `size` of the bind, the offset in the multicast range
+    `mcOffset` and `memptr` must be a multiple of the value returned by
+    :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_MINIMUM`. For best performance
+    however, `size`, `mcOffset` and `memptr` should be aligned to the value
+    returned by :py:obj:`~.cuMulticastGetGranularity` with the flag
+    :py:obj:`~.CU_MULTICAST_GRANULARITY_RECOMMENDED`.
+
+    The `size` cannot be larger than the size of the allocated memory.
+    Similarly the `size` + `mcOffset` cannot be larger than the total size
+    of the multicast object. For device memory, i.e., type
+    :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE`, the memory allocation must
+    have been created on the device specified by `dev`. For host NUMA
+    memory, i.e., type :py:obj:`~.CU_MEM_LOCATION_TYPE_HOST_NUMA`, the
+    memory allocation must have been created on the CPU NUMA node closest
+    to `dev`. That is, the value returned when querying
+    :py:obj:`~.CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID` for `dev`, must be the CPU
+    NUMA node where the memory was allocated. In both cases, the device
+    named by `dev` must have been added to the multicast team via
+    :py:obj:`~.cuMulticastAddDevice`. Externally shareable as well as
+    imported multicast objects can be bound only to externally shareable
+    memory. Note that this call will return CUDA_ERROR_OUT_OF_MEMORY if
+    there are insufficient resources required to perform the bind. This
+    call may also return CUDA_ERROR_SYSTEM_NOT_READY if the necessary
+    system software is not initialized or running.
+
+    This call may return CUDA_ERROR_ILLEGAL_STATE if the system
+    configuration is in an illegal state. In such cases, to continue using
+    multicast, verify that the system configuration is in a valid state and
+    all required driver daemons are running properly.
+
+    Parameters
+    ----------
+    mcHandle : :py:obj:`~.CUmemGenericAllocationHandle`
+        Handle representing a multicast object.
+    dev : :py:obj:`~.CUdevice`
+        The device that for which the multicast memory binding will be
+        applicable.
+    mcOffset : size_t
+        Offset into multicast va range for attachment.
+    memptr : :py:obj:`~.CUdeviceptr`
+        Virtual address of the memory allocation.
+    size : size_t
+        Size of memory that will be bound to the multicast object.
+    flags : unsigned long long
+        Flags for future use, must be zero now.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_PERMITTED`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`, :py:obj:`~.CUDA_ERROR_OUT_OF_MEMORY`, :py:obj:`~.CUDA_ERROR_SYSTEM_NOT_READY`, :py:obj:`~.CUDA_ERROR_ILLEGAL_STATE`
+
+    See Also
+    --------
+    :py:obj:`~.cuMulticastCreate`, :py:obj:`~.cuMulticastAddDevice`, :py:obj:`~.cuMemCreate`
+    """
+    cdef cydriver.CUdeviceptr cymemptr
+    if memptr is None:
+        pmemptr = 0
+    elif isinstance(memptr, (CUdeviceptr,)):
+        pmemptr = int(memptr)
+    else:
+        pmemptr = int(CUdeviceptr(memptr))
+    cymemptr = <cydriver.CUdeviceptr><void_ptr>pmemptr
+    cdef cydriver.CUdevice cydev
+    if dev is None:
+        pdev = 0
+    elif isinstance(dev, (CUdevice,)):
+        pdev = int(dev)
+    else:
+        pdev = int(CUdevice(dev))
+    cydev = <cydriver.CUdevice>pdev
+    cdef cydriver.CUmemGenericAllocationHandle cymcHandle
+    if mcHandle is None:
+        pmcHandle = 0
+    elif isinstance(mcHandle, (CUmemGenericAllocationHandle,)):
+        pmcHandle = int(mcHandle)
+    else:
+        pmcHandle = int(CUmemGenericAllocationHandle(mcHandle))
+    cymcHandle = <cydriver.CUmemGenericAllocationHandle><void_ptr>pmcHandle
+    with nogil:
+        err = cydriver.cuMulticastBindAddr_v2(cymcHandle, cydev, mcOffset, cymemptr, size, flags)
     return (_dict_CUresult[err],)
 {{endif}}
 
@@ -34917,6 +35888,8 @@ def cuMulticastUnbind(mcHandle, dev, size_t mcOffset, size_t size):
     See Also
     --------
     :py:obj:`~.cuMulticastBindMem`, :py:obj:`~.cuMulticastBindAddr`
+
+    :py:obj:`~.cuMulticastBindMem_v2`, :py:obj:`~.cuMulticastBindAddr_v2`
 
     Notes
     -----
@@ -34971,6 +35944,8 @@ def cuMulticastGetGranularity(prop : Optional[CUmulticastObjectProp], option not
     See Also
     --------
     :py:obj:`~.cuMulticastCreate`, :py:obj:`~.cuMulticastBindMem`, :py:obj:`~.cuMulticastBindAddr`, :py:obj:`~.cuMulticastUnbind`
+
+    :py:obj:`~.cuMulticastBindMem_v2`, :py:obj:`~.cuMulticastBindAddr_v2`
     """
     cdef size_t granularity = 0
     cdef cydriver.CUmulticastObjectProp* cyprop_ptr = prop._pvt_ptr if prop is not None else NULL
@@ -35206,7 +36181,8 @@ def cuMemPrefetchAsync(devPtr, size_t count, location not None : CUmemLocation, 
     specifies the destination location. `count` specifies the number of
     bytes to copy. `hStream` is the stream in which the operation is
     enqueued. The memory range must refer to managed memory allocated via
-    :py:obj:`~.cuMemAllocManaged` or declared via managed variables.
+    :py:obj:`~.cuMemAllocManaged`, via :py:obj:`~.cuMemAllocFromPool` from
+    a managed memory pool or declared via managed variables.
 
     Specifying :py:obj:`~.CU_MEM_LOCATION_TYPE_DEVICE` for
     :py:obj:`~.CUmemLocation.type` will prefetch memory to GPU specified by
@@ -51000,11 +51976,16 @@ def cuGreenCtxDestroy(hCtx):
     descriptor) are released as well. The API does not destroy streams
     created via :py:obj:`~.cuGreenCtxStreamCreate`,
     :py:obj:`~.cuStreamCreate`, or :py:obj:`~.cuStreamCreateWithPriority`.
-    Once the green context is destroyed, any subsequent API calls involving
-    these streams (including :py:obj:`~.cuStreamDestroy`) will return
-    :py:obj:`~.CUDA_ERROR_CONTEXT_IS_DESTROYED`. Users must explicitly
-    destroy all such streams before invoking :py:obj:`~.cuGreenCtxDestroy`.
-    Failure to do so will result in a memory leak.
+    Users are expected to destroy these streams explicitly using
+    :py:obj:`~.cuStreamDestroy` to avoid resource leaks. Once the green
+    context is destroyed, any subsequent API calls involving these streams
+    will return :py:obj:`~.CUDA_ERROR_STREAM_DETACHED` with the exception
+    of the following APIs:
+
+    - :py:obj:`~.cuStreamDestroy`.
+
+    Additionally, the API will invalidate all active captures on these
+    streams.
 
     Parameters
     ----------
@@ -51220,12 +52201,12 @@ def cuGreenCtxGetDevResource(hCtx, typename not None : CUdevResourceType):
 {{if 'cuDevSmResourceSplitByCount' in found_functions}}
 
 @cython.embedsignature(True)
-def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevResource], unsigned int useFlags, unsigned int minCount):
+def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevResource], unsigned int flags, unsigned int minCount):
     """ Splits `CU_DEV_RESOURCE_TYPE_SM` resources.
 
     Splits `CU_DEV_RESOURCE_TYPE_SM` resources into `nbGroups`, adhering to
     the minimum SM count specified in `minCount` and the usage flags in
-    `useFlags`. If `result` is NULL, the API simulates a split and provides
+    `flags`. If `result` is NULL, the API simulates a split and provides
     the amount of groups that would be created in `nbGroups`. Otherwise,
     `nbGroups` must point to the amount of elements in `result` and on
     return, the API will overwrite `nbGroups` with the amount actually
@@ -51275,13 +52256,13 @@ def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevRe
 
     - A valid array of `result` pointers of size passed in `nbGroups`, with
       `input` of type `CU_DEV_RESOURCE_TYPE_SM`. Value of `minCount` must
-      be between 0 and the SM count specified in `input`. `remaining` may
+      be between 0 and the SM count specified in `input`. `remainder` may
       be NULL.
 
     - NULL passed in for `result`, with a valid integer pointer in
       `nbGroups` and `input` of type `CU_DEV_RESOURCE_TYPE_SM`. Value of
       `minCount` must be between 0 and the SM count specified in `input`.
-      `remaining` may be NULL. This queries the number of groups that would
+      `remainder` may be NULL. This queries the number of groups that would
       be created by the API.
 
     Note: The API is not supported on 32-bit platforms.
@@ -51294,7 +52275,7 @@ def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevRe
     input : :py:obj:`~.CUdevResource`
         Input SM resource to be split. Must be a valid
         `CU_DEV_RESOURCE_TYPE_SM` resource.
-    useFlags : unsigned int
+    flags : unsigned int
         Flags specifying how these partitions are used or which constraints
         to abide by when splitting the input. Zero is valid for default
         behavior.
@@ -51311,9 +52292,9 @@ def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevRe
     nbGroups : unsigned int
         This is a pointer, specifying the number of groups that would be or
         should be created as described below.
-    remaining : :py:obj:`~.CUdevResource`
+    remainder : :py:obj:`~.CUdevResource`
         If the input resource cannot be cleanly split among `nbGroups`, the
-        remaining is placed in here. Can be ommitted (NULL) if the user
+        remainder is placed in here. Can be ommitted (NULL) if the user
         does not need the remaining set.
 
     See Also
@@ -51328,9 +52309,9 @@ def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevRe
             raise MemoryError('Failed to allocate length x size memory: ' + str(nbGroups) + 'x' + str(sizeof(cydriver.CUdevResource)))
     cdef unsigned int cynbGroups = nbGroups
     cdef cydriver.CUdevResource* cyinput__ptr = input_._pvt_ptr if input_ is not None else NULL
-    cdef CUdevResource remaining = CUdevResource()
+    cdef CUdevResource remainder = CUdevResource()
     with nogil:
-        err = cydriver.cuDevSmResourceSplitByCount(cyresult, &cynbGroups, cyinput__ptr, <cydriver.CUdevResource*>remaining._pvt_ptr, useFlags, minCount)
+        err = cydriver.cuDevSmResourceSplitByCount(cyresult, &cynbGroups, cyinput__ptr, <cydriver.CUdevResource*>remainder._pvt_ptr, flags, minCount)
     if CUresult(err) == CUresult(0):
         for idx in range(nbGroups):
             string.memcpy((<CUdevResource>pyresult[idx])._pvt_ptr, &cyresult[idx], sizeof(cydriver.CUdevResource))
@@ -51338,7 +52319,7 @@ def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevRe
         free(cyresult)
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None, None, None)
-    return (_dict_CUresult[err], pyresult, cynbGroups, remaining)
+    return (_dict_CUresult[err], pyresult, cynbGroups, remainder)
 {{endif}}
 
 {{if 'cuDevResourceGenerateDesc' in found_functions}}
@@ -51362,7 +52343,8 @@ def cuDevResourceGenerateDesc(resources : Optional[tuple[CUdevResource] | list[C
       CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION is returned. If multiple
       resources are provided in `resources` and they are of type
       :py:obj:`~.CU_DEV_RESOURCE_TYPE_SM`, they must be outputs (whether
-      `result` or `remaining`) from the same split API instance, otherwise
+      `result` or `remaining`) from the same split API instance and have
+      the same smCoscheduledAlignment values, otherwise
       CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION is returned.
 
     Note: The API is not supported on 32-bit platforms.
@@ -54088,6 +55070,24 @@ def sizeof(objType):
     {{if 'CUdevSmResource' in found_types}}
     if objType == CUdevSmResource:
         return sizeof(cydriver.CUdevSmResource){{endif}}
+    {{if 'CUdevWorkqueueConfigResource_st' in found_struct}}
+    if objType == CUdevWorkqueueConfigResource_st:
+        return sizeof(cydriver.CUdevWorkqueueConfigResource_st){{endif}}
+    {{if 'CUdevWorkqueueConfigResource' in found_types}}
+    if objType == CUdevWorkqueueConfigResource:
+        return sizeof(cydriver.CUdevWorkqueueConfigResource){{endif}}
+    {{if 'CUdevWorkqueueResource_st' in found_struct}}
+    if objType == CUdevWorkqueueResource_st:
+        return sizeof(cydriver.CUdevWorkqueueResource_st){{endif}}
+    {{if 'CUdevWorkqueueResource' in found_types}}
+    if objType == CUdevWorkqueueResource:
+        return sizeof(cydriver.CUdevWorkqueueResource){{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st' in found_struct}}
+    if objType == CU_DEV_SM_RESOURCE_GROUP_PARAMS_st:
+        return sizeof(cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st){{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS' in found_types}}
+    if objType == CU_DEV_SM_RESOURCE_GROUP_PARAMS:
+        return sizeof(cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS){{endif}}
     {{if 'CUdevResource_st' in found_struct}}
     if objType == CUdevResource_st:
         return sizeof(cydriver.CUdevResource_st){{endif}}

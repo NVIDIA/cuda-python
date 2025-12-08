@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 cdef extern from "":
     """
     #define CUDA_API_PER_THREAD_DEFAULT_STREAM
@@ -1731,6 +1731,30 @@ cdef cudaError_t _cudaLibraryEnumerateKernels(cudaKernel_t* kernels, unsigned in
 
 cdef cudaError_t _cudaKernelSetAttributeForDevice(cudaKernel_t kernel, cudaFuncAttribute attr, int value, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
     return cudaKernelSetAttributeForDevice(kernel, attr, value, device)
+{{endif}}
+
+{{if 'cudaExecutionCtxDestroy' in found_functions}}
+
+cdef cudaError_t _cudaExecutionCtxDestroy(cudaExecutionContext_t ctx) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cudaExecutionCtxDestroy(ctx)
+{{endif}}
+
+{{if 'cudaExecutionCtxSynchronize' in found_functions}}
+
+cdef cudaError_t _cudaExecutionCtxSynchronize(cudaExecutionContext_t ctx) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cudaExecutionCtxSynchronize(ctx)
+{{endif}}
+
+{{if 'cudaExecutionCtxRecordEvent' in found_functions}}
+
+cdef cudaError_t _cudaExecutionCtxRecordEvent(cudaExecutionContext_t ctx, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cudaExecutionCtxRecordEvent(ctx, event)
+{{endif}}
+
+{{if 'cudaExecutionCtxWaitEvent' in found_functions}}
+
+cdef cudaError_t _cudaExecutionCtxWaitEvent(cudaExecutionContext_t ctx, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cudaExecutionCtxWaitEvent(ctx, event)
 {{endif}}
 
 {{if 'cudaGetExportTable' in found_functions}}
