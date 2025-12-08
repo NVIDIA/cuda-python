@@ -87,7 +87,7 @@ rst_epilog = f"""
 .. _cuda.core: {CUDA_PYTHON_DOMAIN}/cuda-core/latest
 .. _cuda.bindings: {CUDA_PYTHON_DOMAIN}/cuda-bindings/latest
 .. _cuda.pathfinder: {CUDA_PYTHON_DOMAIN}/cuda-pathfinder/latest
-.. _cuda.cccl.cooperative: https://nvidia.github.io/cccl/python/cooperative
-.. _cuda.cccl.parallel: https://nvidia.github.io/cccl/python/parallel
+.. _cuda.cccl.cooperative: https://nvidia.github.io/cccl/python/coop
+.. _cuda.cccl.parallel: https://nvidia.github.io/cccl/python/compute
 .. _numba.cuda: https://nvidia.github.io/numba-cuda/
 """

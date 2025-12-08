@@ -19,8 +19,8 @@ multiple components:
 - `NSIGHT Python`_: Python kernel profiling interface that automates performance analysis across multiple kernel configurations using NVIDIA Nsight Tools
 - `CUPTI Python`_: Python APIs for creation of profiling tools that target CUDA Python applications via the CUDA Profiling Tools Interface (CUPTI)
 
-.. _cuda.coop: https://nvidia.github.io/cccl/python/cooperative
-.. _cuda.compute: https://nvidia.github.io/cccl/python/parallel
+.. _cuda.coop: https://nvidia.github.io/cccl/python/coop
+.. _cuda.compute: https://nvidia.github.io/cccl/python/compute
 .. _cuda.tile: https://docs.nvidia.com/cuda/cutile-python/
 .. _nvmath-python: https://docs.nvidia.com/cuda/nvmath-python/latest
 .. _host: https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#host-apis
@@ -47,8 +47,8 @@ be available, please refer to the `cuda.bindings`_ documentation for installatio
    cuda.core <https://nvidia.github.io/cuda-python/cuda-core/latest>
    cuda.bindings <https://nvidia.github.io/cuda-python/cuda-bindings/latest>
    cuda.pathfinder <https://nvidia.github.io/cuda-python/cuda-pathfinder/latest>
-   cuda.coop <https://nvidia.github.io/cccl/python/cooperative>
-   cuda.compute <https://nvidia.github.io/cccl/python/parallel>
+   cuda.coop <https://nvidia.github.io/cccl/python/coop>
+   cuda.compute <https://nvidia.github.io/cccl/python/compute>
    numba.cuda <https://nvidia.github.io/numba-cuda/>
    cuda.tile <https://docs.nvidia.com/cuda/cutile-python/>
    nvmath-python <https://docs.nvidia.com/cuda/nvmath-python/>
