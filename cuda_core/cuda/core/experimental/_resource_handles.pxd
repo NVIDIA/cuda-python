@@ -12,4 +12,5 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ctypedef shared_ptr[const cydriver.CUcontext] ContextHandle
 
     # Function to create a non-owning context handle (references existing context)
-    ContextHandle create_context_handle_ref(cydriver.CUcontext ctx)
+    # This is nogil-safe (pure C++, no Python dependencies)
+    ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) nogil

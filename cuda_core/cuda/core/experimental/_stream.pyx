@@ -31,6 +31,7 @@ from cuda.core.experimental._context cimport (
     get_current_context,
 )
 from cuda.core.experimental._event import Event, EventOptions
+from cuda.core.experimental._resource_handles cimport ContextHandle
 from cuda.core.experimental._graph import GraphBuilder
 from cuda.core.experimental._utils.cuda_utils import (
     driver,
@@ -321,16 +322,20 @@ cdef class Stream:
 
     cdef int _get_context(self) except?-1 nogil:
         if self._ctx_handle == CU_CONTEXT_INVALID:
-            self._ctx_handle = get_stream_context(self._handle)
+            h_context = get_stream_context(self._handle)
+            self._ctx_handle = h_context.get()[0]
         return 0
 
     cdef int _get_device_and_context(self) except?-1:
+        cdef ContextHandle h_curr_context
         cdef cydriver.CUcontext curr_ctx
         if self._device_id == cydriver.CU_DEVICE_INVALID:
             # Get the current context
-            curr_ctx = get_current_context()
-            # Get the stream's context (self.ctx_handle is populated)
-            self._get_context()
+            with nogil:
+                h_curr_context = get_current_context()
+                curr_ctx = h_curr_context.get()[0] if h_curr_context.get() != NULL else <cydriver.CUcontext>0
+                # Get the stream's context (self._ctx_handle is populated)
+                self._get_context()
             # Get the stream's device (may require a context-switching dance)
             self._device_id = get_device_from_ctx(self._ctx_handle, curr_ctx)
         return 0

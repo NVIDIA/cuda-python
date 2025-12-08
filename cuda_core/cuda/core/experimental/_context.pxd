@@ -13,11 +13,11 @@ cdef class Context:
     """
 
     cdef:
-        ContextHandle _resource_handle
+        ContextHandle _h_context
         int _device_id
 
-# Cython-level context operations
-cdef cydriver.CUcontext get_primary_context(int dev_id) except?NULL
-cdef cydriver.CUcontext get_current_context() except?NULL nogil
-cdef void set_current_context(cydriver.CUcontext ctx) except *
-cdef cydriver.CUcontext get_stream_context(cydriver.CUstream stream) except?NULL nogil
+# Cython-level context operations (handle-centric API)
+cdef ContextHandle get_primary_context(int dev_id) except *
+cdef ContextHandle get_current_context() except * nogil
+cdef void set_current_context(ContextHandle h_context) except * nogil
+cdef ContextHandle get_stream_context(cydriver.CUstream stream) except * nogil

@@ -19,6 +19,7 @@ from cuda.core.experimental._context cimport (
 )
 from cuda.core.experimental._context import ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
+from cuda.core.experimental._resource_handles cimport ContextHandle
 from cuda.core.experimental._graph import GraphBuilder
 from cuda.core.experimental._stream import IsStreamT, Stream, StreamOptions
 from cuda.core.experimental._utils.clear_error_support import assert_type
@@ -959,14 +960,15 @@ class Device:
         # important: creating a Device instance does not initialize the GPU!
         cdef cydriver.CUdevice dev
         cdef cydriver.CUcontext ctx
+        cdef ContextHandle h_context
         if device_id is None:
             with nogil:
                 err = cydriver.cuCtxGetDevice(&dev)
             if err == cydriver.CUresult.CUDA_SUCCESS:
                 device_id = int(dev)
             elif err == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
-                ctx = get_current_context()
-                assert <void*>(ctx) == NULL
+                h_context = get_current_context()
+                assert h_context.get() == NULL
                 device_id = 0  # cudart behavior
             else:
                 HANDLE_RETURN(err)
@@ -1114,16 +1116,16 @@ class Device:
 
         """
         self._check_context_initialized()
-        cdef cydriver.CUcontext ctx
+        cdef ContextHandle h_context
         cdef cydriver.CUdevice dev
-        with nogil:
-            ctx = get_current_context()
-            HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
-        if ctx == NULL:
+        h_context = get_current_context()
+        if h_context.get() == NULL:
             raise CUDAError("No context is bound to the calling CPU thread.")
+        with nogil:
+            HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
         if <int>dev != self._id:
             raise CUDAError("Internal error (current device is not equal to Device.device_id)")
-        return Context._from_ctx(<uintptr_t>(ctx), self._id)
+        return Context._from_ctx(<uintptr_t>(h_context.get()[0]), self._id)
 
     @property
     def memory_resource(self) -> MemoryResource:
@@ -1215,18 +1217,19 @@ class Device:
         >>> # ... do work on device 0 ...
 
         """
-        cdef cydriver.CUcontext prev_ctx
-        cdef cydriver.CUcontext curr_ctx
+        cdef ContextHandle h_context
+        cdef cydriver.CUcontext prev_ctx, curr_ctx
+
         if ctx is not None:
             # TODO: revisit once Context is cythonized
             assert_type(ctx, Context)
-            if ctx._id != self._id:
+            if ctx._device_id != self._id:
                 raise RuntimeError(
                     "the provided context was created on the device with"
-                    f" id={ctx._id}, which is different from the target id={self._id}"
+                    f" id={ctx._device_id}, which is different from the target id={self._id}"
                 )
             # prev_ctx is the previous context
-            curr_ctx = ctx._resource_handle.get()[0]
+            curr_ctx = ctx._h_context.get()[0]
             prev_ctx = NULL
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxPopCurrent(&prev_ctx))
@@ -1236,8 +1239,9 @@ class Device:
                 return Context._from_ctx(<uintptr_t>(prev_ctx), self._id)
         else:
             # use primary ctx
-            curr_ctx = get_primary_context(self._id)
-            set_current_context(curr_ctx)
+            h_context = get_primary_context(self._id)
+            with nogil:
+                set_current_context(h_context)
             self._has_inited = True
 
     def create_context(self, options: ContextOptions = None) -> Context:
@@ -1310,12 +1314,11 @@ class Device:
 
         """
         self._check_context_initialized()
-        cdef cydriver.CUcontext ctx
-        with nogil:
-            ctx = get_current_context()
-        if ctx == NULL:
+        cdef ContextHandle h_context
+        h_context = get_current_context()
+        if h_context.get() == NULL:
             raise CUDAError("No context is bound to the calling CPU thread.")
-        return Event._init(self._id, <uintptr_t>(ctx), options, True)
+        return Event._init(self._id, <uintptr_t>(h_context.get()[0]), options, True)
 
     def allocate(self, size, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """Allocate device memory from a specified stream.
