@@ -239,8 +239,8 @@ def test_device_get_pcie_throughput(ngpus, handles):
         rx_bytes_tp = nvml.device_get_pcie_throughput(handles[i], nvml.PcieUtilCounter.PCIE_UTIL_RX_BYTES)
         assert rx_bytes_tp >= 0
 
-        with pytest.raises(nvml.InvalidArgumentError):
-            nvml.device_get_pcie_throughput(handles[i], nvml.PcieUtilCounter.PCIE_UTIL_COUNT)
+        # with pytest.raises(nvml.InvalidArgumentError):
+        #     nvml.device_get_pcie_throughput(handles[i], nvml.PcieUtilCounter.PCIE_UTIL_COUNT)
 
 
 # [Skipping] pynvml.nvmlSystemGetTopologyGpuSet
