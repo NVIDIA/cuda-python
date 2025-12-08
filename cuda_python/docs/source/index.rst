@@ -14,9 +14,9 @@ multiple components:
 - `cuda.compute`_: A Python module for easy access to CCCL's highly efficient and customizable parallel algorithms, like ``sort``, ``scan``, ``reduce``, ``transform``, etc. that are callable on the *host*
 - `numba.cuda`_: A Python DSL that exposes CUDA **SIMT** programming model and compiles a restricted subset of Python code into CUDA kernels and device functions
 - `cuda.tile`_: A new Python DSL that exposes CUDA **Tile** programming model and allows users to write NumPy-like code in CUDA kernels
-- `nvmath-python`_: Pythonic access to NVIDIA CPU & GPU Math Libraries, with `host`_, `device`_, and distributed `distributed`_ APIs. It also provides low-level Python bindings to host C APIs (`nvmath.bindings`_).
+- `nvmath-python`_: Pythonic access to NVIDIA CPU & GPU Math Libraries, with `host`_, `device`_, and `distributed`_ APIs. It also provides low-level Python bindings to host C APIs (`nvmath.bindings`_).
 - `nvshmem4py`_: Pythonic interface to the NVSHMEM library, enabling Python applications to leverage NVSHMEM's high-performance PGAS (Partitioned Global Address Space) programming model for GPU-accelerated computing
-- `NSIGHT Python`_: Python kernel profiling interface that automates performance analysis across multiple kernel configurations using NVIDIA Nsight Tools
+- `Nsight Python`_: Python kernel profiling interface that automates performance analysis across multiple kernel configurations using NVIDIA Nsight Tools
 - `CUPTI Python`_: Python APIs for creation of profiling tools that target CUDA Python applications via the CUDA Profiling Tools Interface (CUPTI)
 
 .. _cuda.coop: https://nvidia.github.io/cccl/python/coop
@@ -29,7 +29,7 @@ multiple components:
 .. _distributed: https://docs.nvidia.com/cuda/nvmath-python/latest/distributed-apis/index.html
 .. _nvmath.bindings: https://docs.nvidia.com/cuda/nvmath-python/latest/bindings/index.html
 .. _nvshmem4py: https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html
-.. _NSIGHT Python: https://docs.nvidia.com/nsight-python/index.html
+.. _Nsight Python: https://docs.nvidia.com/nsight-python/index.html
 .. _CUPTI Python: https://docs.nvidia.com/cupti-python/
 
 CUDA Python is currently undergoing an overhaul to improve existing and introduce new components.
@@ -54,5 +54,5 @@ be available, please refer to the `cuda.bindings`_ documentation for installatio
    cuda.tile <https://docs.nvidia.com/cuda/cutile-python/>
    nvmath-python <https://docs.nvidia.com/cuda/nvmath-python/>
    nvshmem4py <https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html>
-   NSIGHT Python <https://docs.nvidia.com/nsight-python/index.html>
+   Nsight Python <https://docs.nvidia.com/nsight-python/index.html>
    CUPTI Python <https://docs.nvidia.com/cupti-python/>
