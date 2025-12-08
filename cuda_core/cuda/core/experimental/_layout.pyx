@@ -4,7 +4,7 @@
 
 cimport cython
 
-from libc.stdint cimport int64_t, uintptr_t
+from libc.stdint cimport int64_t, intptr_t
 
 from cpython.object cimport PyObject
 
@@ -626,7 +626,7 @@ cdef class StridedLayout:
         self.broadcast_into(new_layout, new_shape)
         return new_layout
 
-    def repacked(self : StridedLayout, itemsize : int, data_ptr : uintptr_t = 0, axis : int = -1, keep_dim : bool = True) -> StridedLayout:
+    def repacked(self : StridedLayout, itemsize : int, data_ptr : intptr_t = 0, axis : int = -1, keep_dim : bool = True) -> StridedLayout:
         """
         Converts the layout to match the specified itemsize.
         If ``new_itemsize < itemsize``, each element of the tensor is **unpacked** into multiple elements,
@@ -688,7 +688,7 @@ cdef class StridedLayout:
             self.unpack_into(new_layout, itemsize, axis)
         return new_layout
 
-    def max_compatible_itemsize(self : StridedLayout, max_itemsize : int = 16, data_ptr : uintptr_t = 0, axis : int = -1) -> int:
+    def max_compatible_itemsize(self : StridedLayout, max_itemsize : int = 16, data_ptr : intptr_t = 0, axis : int = -1) -> int:
         """
         Returns the maximum itemsize (but no greater than ``max_itemsize``) that can be used
         with the :meth:`repacked` method for the current layout.
@@ -723,7 +723,7 @@ cdef class StridedLayout:
     cdef axes_mask_t get_flattened_axis_mask(StridedLayout self) except? -1 nogil:
         return flattened_strides_in_c_index_order_mask(self.base)
 
-    cdef int get_max_compatible_itemsize(StridedLayout self, int max_itemsize, uintptr_t data_ptr, int axis=-1) except -1 nogil:
+    cdef int get_max_compatible_itemsize(StridedLayout self, int max_itemsize, intptr_t data_ptr, int axis=-1) except -1 nogil:
         return max_compatible_itemsize(self.base, self.slice_offset, self.itemsize, max_itemsize, data_ptr, axis)
 
     cdef int reshape_into(StridedLayout self, StridedLayout out_layout, BaseLayout& new_shape) except -1 nogil:
@@ -841,7 +841,7 @@ cdef class StridedLayout:
         _swap_layout(out_layout.base, broadcast)
         return 0
 
-    cdef int pack_into(StridedLayout self, StridedLayout out_layout, int itemsize, uintptr_t data_ptr, bint keep_dim, int axis=-1) except -1 nogil:
+    cdef int pack_into(StridedLayout self, StridedLayout out_layout, int itemsize, intptr_t data_ptr, bint keep_dim, int axis=-1) except -1 nogil:
 
         cdef BaseLayout packed
         cdef stride_t new_slice_offset = 0
@@ -1212,7 +1212,7 @@ cdef inline int64_t gcd(int64_t a, int64_t b) except? -1 nogil:
     return a
 
 
-cdef inline int pack_extents(BaseLayout& out_layout, stride_t& out_slice_offset, BaseLayout& in_layout, stride_t slice_offset, int itemsize, int new_itemsize, uintptr_t data_ptr, bint keep_dim, int axis) except -1 nogil:
+cdef inline int pack_extents(BaseLayout& out_layout, stride_t& out_slice_offset, BaseLayout& in_layout, stride_t slice_offset, int itemsize, int new_itemsize, intptr_t data_ptr, bint keep_dim, int axis) except -1 nogil:
     cdef int ndim = in_layout.ndim
     if new_itemsize <= 0 or new_itemsize & (new_itemsize - 1):
         raise ValueError(f"new itemsize must be a power of two, got {new_itemsize}.")
@@ -1299,7 +1299,7 @@ cdef inline int unpack_extents(BaseLayout &out_layout, BaseLayout &in_layout, in
     return vec_size
 
 
-cdef inline int max_compatible_itemsize(BaseLayout& layout, stride_t slice_offset, int itemsize, int max_itemsize, uintptr_t data_ptr, int axis) except? -1 nogil:
+cdef inline int max_compatible_itemsize(BaseLayout& layout, stride_t slice_offset, int itemsize, int max_itemsize, intptr_t data_ptr, int axis) except? -1 nogil:
     cdef int ndim = layout.ndim
     if max_itemsize <= 0 or max_itemsize & (max_itemsize - 1):
         raise ValueError(f"max_itemsize must be a power of two, got {max_itemsize}.")

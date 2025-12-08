@@ -5,7 +5,7 @@
 cimport cython
 from cython.operator cimport dereference as deref
 
-from libc.stdint cimport int64_t, int32_t, uint32_t, uint64_t, uintptr_t
+from libc.stdint cimport int64_t, int32_t, uint32_t, uint64_t, intptr_t
 from libcpp cimport vector
 
 ctypedef int64_t extent_t
@@ -312,7 +312,7 @@ cdef class StridedLayout:
         return _overflow_checked_mul(self.slice_offset, self.itemsize)
 
     cdef axes_mask_t get_flattened_axis_mask(StridedLayout self) except? -1 nogil
-    cdef int get_max_compatible_itemsize(StridedLayout self, int max_itemsize, uintptr_t data_ptr, int axis=*) except -1 nogil
+    cdef int get_max_compatible_itemsize(StridedLayout self, int max_itemsize, intptr_t data_ptr, int axis=*) except -1 nogil
 
     # ==============================
     # Layout manipulation
@@ -326,7 +326,7 @@ cdef class StridedLayout:
     cdef int squeeze_into(StridedLayout self, StridedLayout out_layout) except -1 nogil
     cdef int unsqueeze_into(StridedLayout self, StridedLayout out_layout, axis_vec_t& axis_vec) except -1 nogil
     cdef int broadcast_into(StridedLayout self, StridedLayout out_layout, BaseLayout& broadcast) except -1 nogil
-    cdef int pack_into(StridedLayout self, StridedLayout out_layout, int itemsize, uintptr_t data_ptr, bint keep_dim, int axis=*) except -1 nogil
+    cdef int pack_into(StridedLayout self, StridedLayout out_layout, int itemsize, intptr_t data_ptr, bint keep_dim, int axis=*) except -1 nogil
     cdef int unpack_into(StridedLayout self, StridedLayout out_layout, int itemsize, int axis=*) except -1 nogil
     cdef int slice_into(StridedLayout self, StridedLayout out_layout, tuple slices) except -1
 

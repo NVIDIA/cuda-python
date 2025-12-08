@@ -301,7 +301,7 @@ def _get_ptr(array):
         for view_as in ["dlpack", "cai"]
     ],
 )
-def test_from_buffer_sliced_external(shape, slices, stride_order, view_as):
+def test_view_sliced_external(shape, slices, stride_order, view_as):
     if view_as == "dlpack":
         if np is None:
             pytest.skip("NumPy is not installed")
@@ -324,6 +324,43 @@ def test_from_buffer_sliced_external(shape, slices, stride_order, view_as):
     assert sliced_view.ptr != view.ptr
 
     assert 0 <= sliced_layout.required_size_in_bytes() <= a.nbytes
+    assert not sliced_layout.is_dense
+    assert sliced_view.layout is sliced_layout
+    assert view.dtype == sliced_view.dtype
+    assert sliced_view.layout.itemsize == a_sliced.itemsize == layout.itemsize
+    assert sliced_view.shape == a_sliced.shape
+    assert sliced_view.layout.strides_in_bytes == a_sliced.strides
+
+
+@pytest.mark.parametrize(
+    ("stride_order", "view_as"),
+    [(stride_order, view_as) for stride_order in ["C", "F"] for view_as in ["dlpack", "cai"]],
+)
+def test_view_sliced_external_negative_offset(stride_order, view_as):
+    shape = (5,)
+    if view_as == "dlpack":
+        if np is None:
+            pytest.skip("NumPy is not installed")
+        a = np.arange(math.prod(shape), dtype=np.int32).reshape(shape, order=stride_order)
+        a = a[::-1]
+        view = StridedMemoryView(a, -1)
+    else:
+        if cp is None:
+            pytest.skip("CuPy is not installed")
+        a = cp.arange(math.prod(shape), dtype=cp.int32).reshape(shape, order=stride_order)
+        a = a[::-1]
+        view = StridedMemoryView(_EnforceCAIView(a), -1)
+    layout = view.layout
+    assert not layout.is_dense
+    assert layout.strides == (-1,)
+    assert view.ptr == _get_ptr(a)
+
+    sliced_layout = layout[3:]
+    sliced_view = view.view(sliced_layout)
+    a_sliced = a[3:]
+    assert sliced_view.ptr == _get_ptr(a_sliced)
+    assert sliced_view.ptr == view.ptr - 3 * a.itemsize
+
     assert not sliced_layout.is_dense
     assert sliced_view.layout is sliced_layout
     assert view.dtype == sliced_view.dtype

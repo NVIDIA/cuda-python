@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from ._dlpack cimport *
-from libc.stdint cimport uintptr_t
+from libc.stdint cimport intptr_t
 from cuda.core.experimental._layout cimport StridedLayout
 from cuda.core.experimental._stream import Stream
 
@@ -76,7 +76,7 @@ cdef class StridedMemoryView:
 
     """
     cdef readonly:
-        uintptr_t ptr
+        intptr_t ptr
         int device_id
         bint is_device_accessible
         bint readonly
@@ -424,7 +424,7 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
     buf.dl_tensor = dl_tensor
     buf.metadata = capsule
-    buf.ptr = <uintptr_t>(dl_tensor.data)
+    buf.ptr = <intptr_t>(dl_tensor.data)
     buf.device_id = device_id
     buf.is_device_accessible = is_device_accessible
     buf.readonly = is_readonly
@@ -535,13 +535,13 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
             driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
             buf.ptr))
 
-    cdef uintptr_t producer_s, consumer_s
+    cdef intptr_t producer_s, consumer_s
     stream_ptr = int(stream_ptr)
     if stream_ptr != -1:
         stream = cai_data.get("stream")
         if stream is not None:
-            producer_s = <uintptr_t>(stream)
-            consumer_s = <uintptr_t>(stream_ptr)
+            producer_s = <intptr_t>(stream)
+            consumer_s = <intptr_t>(stream_ptr)
             assert producer_s > 0
             # establish stream order
             if producer_s != consumer_s:
@@ -614,8 +614,8 @@ cdef StridedLayout layout_from_cai(object metadata):
     return layout
 
 
-cdef inline uintptr_t get_data_ptr(object buffer, StridedLayout layout) except? 0:
-    return <uintptr_t>(int(buffer.handle)) + layout.get_slice_offset_in_bytes()
+cdef inline intptr_t get_data_ptr(object buffer, StridedLayout layout) except? 0:
+    return <intptr_t>(int(buffer.handle)) + layout.get_slice_offset_in_bytes()
 
 
 cdef inline int view_buffer_strided(
