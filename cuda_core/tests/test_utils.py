@@ -322,12 +322,12 @@ def test_view_sliced_external(shape, slices, stride_order, view_as):
         if np is None:
             pytest.skip("NumPy is not installed")
         a = np.arange(math.prod(shape), dtype=np.int32).reshape(shape, order=stride_order)
-        view = StridedMemoryView(a, -1)
+        view = StridedMemoryView.from_dlpack(a, -1)
     else:
         if cp is None:
             pytest.skip("CuPy is not installed")
         a = cp.arange(math.prod(shape), dtype=cp.int32).reshape(shape, order=stride_order)
-        view = StridedMemoryView(_EnforceCAIView(a), -1)
+        view = StridedMemoryView.from_cuda_array_interface(_EnforceCAIView(a), -1)
     layout = view.layout
     assert layout.is_dense
     assert layout.required_size_in_bytes() == a.nbytes
@@ -359,13 +359,13 @@ def test_view_sliced_external_negative_offset(stride_order, view_as):
             pytest.skip("NumPy is not installed")
         a = np.arange(math.prod(shape), dtype=np.int32).reshape(shape, order=stride_order)
         a = a[::-1]
-        view = StridedMemoryView(a, -1)
+        view = StridedMemoryView.from_dlpack(a, -1)
     else:
         if cp is None:
             pytest.skip("CuPy is not installed")
         a = cp.arange(math.prod(shape), dtype=cp.int32).reshape(shape, order=stride_order)
         a = a[::-1]
-        view = StridedMemoryView(_EnforceCAIView(a), -1)
+        view = StridedMemoryView.from_cuda_array_interface(_EnforceCAIView(a), -1)
     layout = view.layout
     assert not layout.is_dense
     assert layout.strides == (-1,)

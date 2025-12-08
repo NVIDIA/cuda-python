@@ -158,23 +158,6 @@ cdef class StridedMemoryView:
             return cls.from_dlpack(obj, stream_ptr)
         return cls.from_cuda_array_interface(obj, stream_ptr)
 
-    def __dealloc__(self):
-        if self.dl_tensor == NULL:
-            return
-
-        if cpython.PyCapsule_IsValid(
-                self.metadata, DLPACK_VERSIONED_TENSOR_USED_NAME):
-            data = cpython.PyCapsule_GetPointer(
-                self.metadata, DLPACK_VERSIONED_TENSOR_USED_NAME)
-            dlm_tensor_ver = <DLManagedTensorVersioned*>data
-            dlm_tensor_ver.deleter(dlm_tensor_ver)
-        elif cpython.PyCapsule_IsValid(
-                self.metadata, DLPACK_TENSOR_USED_NAME):
-            data = cpython.PyCapsule_GetPointer(
-                self.metadata, DLPACK_TENSOR_USED_NAME)
-            dlm_tensor = <DLManagedTensor*>data
-            dlm_tensor.deleter(dlm_tensor)
-
     @classmethod
     def from_buffer(
         cls, buffer : Buffer, layout : StridedLayout,
@@ -216,6 +199,23 @@ cdef class StridedMemoryView:
         cdef StridedMemoryView view = StridedMemoryView.__new__(cls)
         view_buffer_strided(view, buffer, layout, dtype, is_readonly)
         return view
+
+    def __dealloc__(self):
+        if self.dl_tensor == NULL:
+            return
+
+        if cpython.PyCapsule_IsValid(
+                self.metadata, DLPACK_VERSIONED_TENSOR_USED_NAME):
+            data = cpython.PyCapsule_GetPointer(
+                self.metadata, DLPACK_VERSIONED_TENSOR_USED_NAME)
+            dlm_tensor_ver = <DLManagedTensorVersioned*>data
+            dlm_tensor_ver.deleter(dlm_tensor_ver)
+        elif cpython.PyCapsule_IsValid(
+                self.metadata, DLPACK_TENSOR_USED_NAME):
+            data = cpython.PyCapsule_GetPointer(
+                self.metadata, DLPACK_TENSOR_USED_NAME)
+            dlm_tensor = <DLManagedTensor*>data
+            dlm_tensor.deleter(dlm_tensor)
 
     def view(
         self, layout : StridedLayout | None = None, dtype : numpy.dtype | None = None
