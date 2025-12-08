@@ -26,7 +26,10 @@ cuda.core.experimental.utils.StridedMemoryView
    .. automethod:: __init__
    .. automethod:: copy_from
    .. automethod:: copy_to
+   .. automethod:: from_any_interface
    .. automethod:: from_buffer
+   .. automethod:: from_cuda_array_interface
+   .. automethod:: from_dlpack
    .. automethod:: view
 
    
