@@ -18,6 +18,7 @@ from cuda.core.experimental._linker import Linker, LinkerHandleT, LinkerOptions
 from cuda.core.experimental._module import ObjectCode
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
+    CUDAError,
     _handle_boolean_option,
     check_or_create_options,
     driver,
@@ -422,7 +423,326 @@ class ProgramOptions:
         if self.numba_debug:
             self._formatted_options.append("--numba-debug")
 
+    def _prepare_nvrtc_options(self) -> list[bytes]:
+        """Prepare options for NVRTC backend.
+        
+        This method transforms the formatted options into bytes suitable for NVRTC compilation.
+        It validates that only NVRTC-compatible options are set and raises CUDAError for
+        unsupported options.
+        
+        Returns
+        -------
+        list[bytes]
+            List of option strings encoded as bytes for NVRTC.
+            
+        Raises
+        ------
+        CUDAError
+            If an option incompatible with NVRTC is set.
+        """
+        # NVRTC uses all the formatted options that were set in __post_init__
+        # All options in _formatted_options are already NVRTC-compatible
+        return list(o.encode() for o in self._formatted_options)
+
+    def _prepare_nvjitlink_options(self) -> list[bytes]:
+        """Prepare options for nvJitLink backend.
+        
+        This method transforms the ProgramOptions into options suitable for nvJitLink linking.
+        It validates that only nvJitLink-compatible options are set and raises CUDAError for
+        unsupported options.
+        
+        Returns
+        -------
+        list[bytes]
+            List of option strings encoded as bytes for nvJitLink.
+            
+        Raises
+        ------
+        CUDAError
+            If an option incompatible with nvJitLink is set.
+        """
+        options = []
+        
+        # Options supported by nvJitLink (subset of ProgramOptions)
+        # Based on LinkerOptions._init_nvjitlink() in _linker.py
+        
+        # arch is always set
+        assert self.arch is not None
+        options.append(f"-arch={self.arch}")
+        
+        if self.max_register_count is not None:
+            options.append(f"-maxrregcount={self.max_register_count}")
+        
+        if self.time is not None:
+            options.append("-time")
+        
+        if self.debug is not None and self.debug:
+            options.append("-g")
+        
+        if self.lineinfo is not None and self.lineinfo:
+            options.append("-lineinfo")
+        
+        if self.ftz is not None:
+            options.append(f"-ftz={'true' if self.ftz else 'false'}")
+        
+        if self.prec_div is not None:
+            options.append(f"-prec-div={'true' if self.prec_div else 'false'}")
+        
+        if self.prec_sqrt is not None:
+            options.append(f"-prec-sqrt={'true' if self.prec_sqrt else 'false'}")
+        
+        if self.fma is not None:
+            options.append(f"-fma={'true' if self.fma else 'false'}")
+        
+        if self.link_time_optimization is not None and self.link_time_optimization:
+            options.append("-lto")
+        
+        if self.ptxas_options is not None:
+            if isinstance(self.ptxas_options, str):
+                options.append(f"-Xptxas={self.ptxas_options}")
+            elif is_sequence(self.ptxas_options):
+                for opt in self.ptxas_options:
+                    options.append(f"-Xptxas={opt}")
+        
+        if self.split_compile is not None:
+            options.append(f"-split-compile={self.split_compile}")
+        
+        # Check for unsupported options and raise error if they are set
+        unsupported = []
+        if self.relocatable_device_code is not None:
+            unsupported.append("relocatable_device_code")
+        if self.extensible_whole_program is not None and self.extensible_whole_program:
+            unsupported.append("extensible_whole_program")
+        if self.device_code_optimize is not None:
+            unsupported.append("device_code_optimize")
+        if self.use_fast_math is not None and self.use_fast_math:
+            unsupported.append("use_fast_math")
+        if self.extra_device_vectorization is not None and self.extra_device_vectorization:
+            unsupported.append("extra_device_vectorization")
+        if self.gen_opt_lto is not None and self.gen_opt_lto:
+            unsupported.append("gen_opt_lto")
+        if self.define_macro is not None:
+            unsupported.append("define_macro")
+        if self.undefine_macro is not None:
+            unsupported.append("undefine_macro")
+        if self.include_path is not None:
+            unsupported.append("include_path")
+        if self.pre_include is not None:
+            unsupported.append("pre_include")
+        if self.no_source_include is not None and self.no_source_include:
+            unsupported.append("no_source_include")
+        if self.std is not None:
+            unsupported.append("std")
+        if self.builtin_move_forward is not None:
+            unsupported.append("builtin_move_forward")
+        if self.builtin_initializer_list is not None:
+            unsupported.append("builtin_initializer_list")
+        if self.disable_warnings is not None and self.disable_warnings:
+            unsupported.append("disable_warnings")
+        if self.restrict is not None and self.restrict:
+            unsupported.append("restrict")
+        if self.device_as_default_execution_space is not None and self.device_as_default_execution_space:
+            unsupported.append("device_as_default_execution_space")
+        if self.device_int128 is not None and self.device_int128:
+            unsupported.append("device_int128")
+        if self.optimization_info is not None:
+            unsupported.append("optimization_info")
+        if self.no_display_error_number is not None and self.no_display_error_number:
+            unsupported.append("no_display_error_number")
+        if self.diag_error is not None:
+            unsupported.append("diag_error")
+        if self.diag_suppress is not None:
+            unsupported.append("diag_suppress")
+        if self.diag_warn is not None:
+            unsupported.append("diag_warn")
+        if self.brief_diagnostics is not None:
+            unsupported.append("brief_diagnostics")
+        if self.fdevice_syntax_only is not None and self.fdevice_syntax_only:
+            unsupported.append("fdevice_syntax_only")
+        if self.minimal is not None and self.minimal:
+            unsupported.append("minimal")
+        if self.numba_debug is not None and self.numba_debug:
+            unsupported.append("numba_debug")
+        
+        if unsupported:
+            raise CUDAError(
+                f"The following options are not supported by nvJitLink backend: {', '.join(unsupported)}"
+            )
+        
+        return list(o.encode() for o in options)
+
+    def _prepare_nvvm_options(self) -> list[str]:
+        """Prepare options for NVVM backend.
+        
+        This method transforms the ProgramOptions into options suitable for NVVM compilation.
+        It validates that only NVVM-compatible options are set and raises CUDAError for
+        unsupported options.
+        
+        Returns
+        -------
+        list[str]
+            List of option strings for NVVM (not encoded as bytes).
+            
+        Raises
+        ------
+        CUDAError
+            If an option incompatible with NVVM is set.
+        """
+        options = []
+        
+        # Options supported by NVVM
+        # Based on _translate_program_options_to_nvvm() method
+        
+        assert self.arch is not None
+        arch = self.arch
+        if arch.startswith("sm_"):
+            arch = f"compute_{arch[3:]}"
+        options.append(f"-arch={arch}")
+        
+        if self.debug is not None and self.debug:
+            options.append("-g")
+        
+        if self.device_code_optimize is False:
+            options.append("-opt=0")
+        elif self.device_code_optimize is True:
+            options.append("-opt=3")
+        
+        # NVVM uses 0/1 instead of true/false for boolean options
+        if self.ftz is not None:
+            options.append(f"-ftz={'1' if self.ftz else '0'}")
+        
+        if self.prec_sqrt is not None:
+            options.append(f"-prec-sqrt={'1' if self.prec_sqrt else '0'}")
+        
+        if self.prec_div is not None:
+            options.append(f"-prec-div={'1' if self.prec_div else '0'}")
+        
+        if self.fma is not None:
+            options.append(f"-fma={'1' if self.fma else '0'}")
+        
+        # Check for unsupported options and raise error if they are set
+        unsupported = []
+        if self.relocatable_device_code is not None:
+            unsupported.append("relocatable_device_code")
+        if self.extensible_whole_program is not None and self.extensible_whole_program:
+            unsupported.append("extensible_whole_program")
+        if self.lineinfo is not None and self.lineinfo:
+            unsupported.append("lineinfo")
+        if self.ptxas_options is not None:
+            unsupported.append("ptxas_options")
+        if self.max_register_count is not None:
+            unsupported.append("max_register_count")
+        if self.use_fast_math is not None and self.use_fast_math:
+            unsupported.append("use_fast_math")
+        if self.extra_device_vectorization is not None and self.extra_device_vectorization:
+            unsupported.append("extra_device_vectorization")
+        if self.link_time_optimization is not None and self.link_time_optimization:
+            unsupported.append("link_time_optimization")
+        if self.gen_opt_lto is not None and self.gen_opt_lto:
+            unsupported.append("gen_opt_lto")
+        if self.define_macro is not None:
+            unsupported.append("define_macro")
+        if self.undefine_macro is not None:
+            unsupported.append("undefine_macro")
+        if self.include_path is not None:
+            unsupported.append("include_path")
+        if self.pre_include is not None:
+            unsupported.append("pre_include")
+        if self.no_source_include is not None and self.no_source_include:
+            unsupported.append("no_source_include")
+        if self.std is not None:
+            unsupported.append("std")
+        if self.builtin_move_forward is not None:
+            unsupported.append("builtin_move_forward")
+        if self.builtin_initializer_list is not None:
+            unsupported.append("builtin_initializer_list")
+        if self.disable_warnings is not None and self.disable_warnings:
+            unsupported.append("disable_warnings")
+        if self.restrict is not None and self.restrict:
+            unsupported.append("restrict")
+        if self.device_as_default_execution_space is not None and self.device_as_default_execution_space:
+            unsupported.append("device_as_default_execution_space")
+        if self.device_int128 is not None and self.device_int128:
+            unsupported.append("device_int128")
+        if self.optimization_info is not None:
+            unsupported.append("optimization_info")
+        if self.no_display_error_number is not None and self.no_display_error_number:
+            unsupported.append("no_display_error_number")
+        if self.diag_error is not None:
+            unsupported.append("diag_error")
+        if self.diag_suppress is not None:
+            unsupported.append("diag_suppress")
+        if self.diag_warn is not None:
+            unsupported.append("diag_warn")
+        if self.brief_diagnostics is not None:
+            unsupported.append("brief_diagnostics")
+        if self.time is not None:
+            unsupported.append("time")
+        if self.split_compile is not None:
+            unsupported.append("split_compile")
+        if self.fdevice_syntax_only is not None and self.fdevice_syntax_only:
+            unsupported.append("fdevice_syntax_only")
+        if self.minimal is not None and self.minimal:
+            unsupported.append("minimal")
+        if self.numba_debug is not None and self.numba_debug:
+            unsupported.append("numba_debug")
+        
+        if unsupported:
+            raise CUDAError(
+                f"The following options are not supported by NVVM backend: {', '.join(unsupported)}"
+            )
+        
+        return options
+
+    def as_bytes(self, backend: str) -> Union[list[bytes], list[str]]:
+        """Convert program options to bytes format for the specified backend.
+        
+        This method transforms the program options into a format suitable for the
+        specified compiler backend. Different backends may use different option names
+        and formats even for the same conceptual options.
+        
+        Parameters
+        ----------
+        backend : str
+            The compiler backend to prepare options for. Must be one of:
+            - "nvrtc": NVIDIA Runtime Compilation (NVRTC)
+            - "nvjitlink": NVIDIA JIT Linker
+            - "nvvm": NVIDIA LLVM-based compiler
+        
+        Returns
+        -------
+        Union[list[bytes], list[str]]
+            For "nvrtc" and "nvjitlink": list of option strings encoded as bytes.
+            For "nvvm": list of option strings (not encoded).
+        
+        Raises
+        ------
+        ValueError
+            If an unknown backend is specified.
+        CUDAError
+            If an option incompatible with the specified backend is set.
+        
+        Examples
+        --------
+        >>> options = ProgramOptions(arch="sm_80", debug=True)
+        >>> nvrtc_options = options.as_bytes("nvrtc")
+        >>> nvjitlink_options = options.as_bytes("nvjitlink")
+        >>> nvvm_options = options.as_bytes("nvvm")
+        """
+        backend = backend.lower()
+        if backend == "nvrtc":
+            return self._prepare_nvrtc_options()
+        elif backend == "nvjitlink":
+            return self._prepare_nvjitlink_options()
+        elif backend == "nvvm":
+            return self._prepare_nvvm_options()
+        else:
+            raise ValueError(
+                f"Unknown backend '{backend}'. Must be one of: 'nvrtc', 'nvjitlink', 'nvvm'"
+            )
+
     def _as_bytes(self):
+        """Private method for backward compatibility. Use as_bytes('nvrtc') instead."""
         # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
         return list(o.encode() for o in self._formatted_options)
 
@@ -531,31 +851,11 @@ class Program:
         )
 
     def _translate_program_options_to_nvvm(self, options: ProgramOptions) -> list[str]:
-        """Translate ProgramOptions to NVVM-specific compilation options."""
-        nvvm_options = []
-
-        assert options.arch is not None
-        arch = options.arch
-        if arch.startswith("sm_"):
-            arch = f"compute_{arch[3:]}"
-        nvvm_options.append(f"-arch={arch}")
-        if options.debug:
-            nvvm_options.append("-g")
-        if options.device_code_optimize is False:
-            nvvm_options.append("-opt=0")
-        elif options.device_code_optimize is True:
-            nvvm_options.append("-opt=3")
-        # NVVM is not consistent with NVRTC, it uses 0/1 instead...
-        if options.ftz is not None:
-            nvvm_options.append(f"-ftz={'1' if options.ftz else '0'}")
-        if options.prec_sqrt is not None:
-            nvvm_options.append(f"-prec-sqrt={'1' if options.prec_sqrt else '0'}")
-        if options.prec_div is not None:
-            nvvm_options.append(f"-prec-div={'1' if options.prec_div else '0'}")
-        if options.fma is not None:
-            nvvm_options.append(f"-fma={'1' if options.fma else '0'}")
-
-        return nvvm_options
+        """Translate ProgramOptions to NVVM-specific compilation options.
+        
+        This method uses the new _prepare_nvvm_options private method.
+        """
+        return options._prepare_nvvm_options()
 
     def close(self):
         """Destroy this program."""

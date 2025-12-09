@@ -411,3 +411,76 @@ def test_nvvm_program_options(init_cuda, nvvm_ir, options):
     assert ".visible .entry simple(" in ptx_text
 
     program.close()
+
+
+def test_program_options_as_bytes_nvrtc():
+    """Test ProgramOptions.as_bytes() for NVRTC backend"""
+    options = ProgramOptions(arch="sm_80", debug=True, lineinfo=True, ftz=True)
+    nvrtc_options = options.as_bytes("nvrtc")
+    
+    # Should return list of bytes
+    assert isinstance(nvrtc_options, list)
+    assert all(isinstance(opt, bytes) for opt in nvrtc_options)
+    
+    # Decode to check content
+    options_str = [opt.decode() for opt in nvrtc_options]
+    assert "-arch=sm_80" in options_str
+    assert "--device-debug" in options_str
+    assert "--generate-line-info" in options_str
+    assert "--ftz=true" in options_str
+
+
+def test_program_options_as_bytes_nvjitlink():
+    """Test ProgramOptions.as_bytes() for nvJitLink backend"""
+    options = ProgramOptions(arch="sm_80", debug=True, ftz=True, max_register_count=32)
+    nvjitlink_options = options.as_bytes("nvjitlink")
+    
+    # Should return list of bytes
+    assert isinstance(nvjitlink_options, list)
+    assert all(isinstance(opt, bytes) for opt in nvjitlink_options)
+    
+    # Decode to check content
+    options_str = [opt.decode() for opt in nvjitlink_options]
+    assert "-arch=sm_80" in options_str
+    assert "-g" in options_str
+    assert "-ftz=true" in options_str
+    assert "-maxrregcount=32" in options_str
+
+
+@nvvm_available
+def test_program_options_as_bytes_nvvm():
+    """Test ProgramOptions.as_bytes() for NVVM backend"""
+    options = ProgramOptions(arch="sm_80", debug=True, ftz=True, device_code_optimize=True)
+    nvvm_options = options.as_bytes("nvvm")
+    
+    # Should return list of strings (not bytes for NVVM)
+    assert isinstance(nvvm_options, list)
+    assert all(isinstance(opt, str) for opt in nvvm_options)
+    
+    # Check content
+    assert "-arch=compute_80" in nvvm_options
+    assert "-g" in nvvm_options
+    assert "-ftz=1" in nvvm_options
+    assert "-opt=3" in nvvm_options
+
+
+def test_program_options_as_bytes_invalid_backend():
+    """Test ProgramOptions.as_bytes() with invalid backend"""
+    options = ProgramOptions(arch="sm_80")
+    with pytest.raises(ValueError, match="Unknown backend 'invalid'"):
+        options.as_bytes("invalid")
+
+
+def test_program_options_as_bytes_nvjitlink_unsupported_option():
+    """Test that unsupported options raise CUDAError for nvJitLink backend"""
+    options = ProgramOptions(arch="sm_80", std="c++17")
+    with pytest.raises(CUDAError, match="not supported by nvJitLink backend"):
+        options.as_bytes("nvjitlink")
+
+
+@nvvm_available
+def test_program_options_as_bytes_nvvm_unsupported_option():
+    """Test that unsupported options raise CUDAError for NVVM backend"""
+    options = ProgramOptions(arch="sm_80", lineinfo=True)
+    with pytest.raises(CUDAError, match="not supported by NVVM backend"):
+        options.as_bytes("nvvm")
