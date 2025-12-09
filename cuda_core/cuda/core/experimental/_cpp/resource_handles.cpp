@@ -44,6 +44,38 @@ private:
     bool released_;
 };
 
+// Helper to acquire the GIL when we might not hold it.
+// Use in C++ destructors that need to manipulate Python objects.
+// Symmetric counterpart to GILReleaseGuard.
+class GILAcquireGuard {
+public:
+    GILAcquireGuard() : acquired_(false) {
+        // Don't try to acquire GIL if Python is finalizing
+        if (!Py_IsInitialized() || _Py_IsFinalizing()) {
+            return;
+        }
+        gstate_ = PyGILState_Ensure();
+        acquired_ = true;
+    }
+
+    ~GILAcquireGuard() {
+        if (acquired_) {
+            PyGILState_Release(gstate_);
+        }
+    }
+
+    // Check if GIL was successfully acquired (for conditional operations)
+    bool acquired() const { return acquired_; }
+
+    // Non-copyable, non-movable
+    GILAcquireGuard(const GILAcquireGuard&) = delete;
+    GILAcquireGuard& operator=(const GILAcquireGuard&) = delete;
+
+private:
+    PyGILState_STATE gstate_;
+    bool acquired_;
+};
+
 // Internal box structure for Context (kept private to this TU)
 struct ContextBox {
     CUcontext resource;
@@ -129,8 +161,19 @@ struct StreamBox {
     CUstream resource;
 };
 
-StreamHandle create_stream_handle(CUstream stream) {
-    // Creates an owning handle - stream will be destroyed when handle is released
+StreamHandle create_stream_handle(unsigned int flags, int priority) {
+    // Creates an owning stream handle - calls cuStreamCreateWithPriority internally.
+    // Returns empty handle on error (caller must check).
+    CUstream stream;
+    CUresult err;
+    {
+        GILReleaseGuard gil;
+        err = cuStreamCreateWithPriority(&stream, flags, priority);
+    }
+    if (err != CUDA_SUCCESS) {
+        return StreamHandle();
+    }
+
     auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream}, [](const StreamBox* b) {
         GILReleaseGuard gil;
         cuStreamDestroy(b->resource);
@@ -147,6 +190,39 @@ StreamHandle create_stream_handle_ref(CUstream stream) {
 
     // Use aliasing constructor to expose only CUstream
     return StreamHandle(box, &box->resource);
+}
+
+StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
+    // Creates a non-owning handle that prevents a Python owner from being GC'd.
+    // The owner's refcount is incremented here and decremented when handle is released.
+    Py_XINCREF(owner);
+
+    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream}, [owner](const StreamBox* b) {
+        // Safely decrement owner refcount (GILAcquireGuard handles finalization check)
+        {
+            GILAcquireGuard gil;
+            if (gil.acquired()) {
+                Py_XDECREF(owner);
+            }
+        }
+        delete b;
+    });
+
+    return StreamHandle(box, &box->resource);
+}
+
+StreamHandle get_legacy_stream() noexcept {
+    // Return non-owning handle to the legacy default stream.
+    // Use function-local static for efficient repeated access.
+    static StreamHandle handle = create_stream_handle_ref(CU_STREAM_LEGACY);
+    return handle;
+}
+
+StreamHandle get_per_thread_stream() noexcept {
+    // Return non-owning handle to the per-thread default stream.
+    // Use function-local static for efficient repeated access.
+    static StreamHandle handle = create_stream_handle_ref(CU_STREAM_PER_THREAD);
+    return handle;
 }
 
 }  // namespace cuda_core

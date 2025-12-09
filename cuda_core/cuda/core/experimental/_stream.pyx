@@ -34,8 +34,10 @@ from cuda.core.experimental._resource_handles cimport (
     ContextHandle,
     StreamHandle,
     create_stream_handle,
-    create_stream_handle_ref,
+    create_stream_handle_with_owner,
     get_current_context,
+    get_legacy_stream,
+    get_per_thread_stream,
     intptr,
     native,
     py,
@@ -91,57 +93,54 @@ cdef class Stream:
     object, or created directly through using an existing handle
     using Stream.from_handle().
     """
-    def __cinit__(self):
-        # _h_stream is default-initialized to empty StreamHandle by C++
-        self._owner = None
-        self._builtin = False
-        self._nonblocking = -1  # lazy init'd
-        self._priority = INT32_MIN  # lazy init'd
-        self._device_id = cydriver.CU_DEVICE_INVALID  # lazy init'd
-        self._ctx_handle = CU_CONTEXT_INVALID  # lazy init'd
-
     def __init__(self, *args, **kwargs):
         raise RuntimeError(
             "Stream objects cannot be instantiated directly. "
             "Please use Device APIs (create_stream) or other Stream APIs (from_handle)."
         )
 
+    @staticmethod
+    cdef Stream _from_handle(type cls, StreamHandle h_stream):
+        """Create a Stream from an existing StreamHandle (cdef-only factory)."""
+        cdef Stream s = cls.__new__(cls)
+        s._h_stream = h_stream
+        s._nonblocking = -1  # lazy init'd
+        s._priority = INT32_MIN  # lazy init'd
+        s._device_id = cydriver.CU_DEVICE_INVALID  # lazy init'd
+        s._ctx_handle = CU_CONTEXT_INVALID  # lazy init'd
+        return s
+
     @classmethod
     def _legacy_default(cls):
-        cdef Stream self = Stream.__new__(cls)
-        # Built-in streams are non-owning references
-        self._h_stream = create_stream_handle_ref(<cydriver.CUstream>(cydriver.CU_STREAM_LEGACY))
-        self._builtin = True
-        return self
+        """Return the legacy default stream (supports subclassing)."""
+        return Stream._from_handle(cls, get_legacy_stream())
 
     @classmethod
     def _per_thread_default(cls):
-        cdef Stream self = Stream.__new__(cls)
-        # Built-in streams are non-owning references
-        self._h_stream = create_stream_handle_ref(<cydriver.CUstream>(cydriver.CU_STREAM_PER_THREAD))
-        self._builtin = True
-        return self
+        """Return the per-thread default stream (supports subclassing)."""
+        return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
     def _init(cls, obj: IsStreamT | None = None, options=None, device_id: int = None):
-        cdef Stream self = Stream.__new__(cls)
+        cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed
+        cdef Stream self
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
         if obj is not None:
-            # Borrowed stream from foreign object - non-owning reference
-            # Hold a reference to the owner to keep the underlying stream alive
+            # Borrowed stream from foreign object
+            # C++ handle prevents owner from being GC'd until handle is released
             borrowed = _handle_from_stream_protocol(obj)
-            self._h_stream = create_stream_handle_ref(borrowed)
-            self._owner = obj
-            return self
+            h_stream = create_stream_handle_with_owner(borrowed, obj)
+            return Stream._from_handle(cls, h_stream)
 
         cdef StreamOptions opts = check_or_create_options(StreamOptions, options, "Stream options")
         nonblocking = opts.nonblocking
         priority = opts.priority
 
-        flags = cydriver.CUstream_flags.CU_STREAM_NON_BLOCKING if nonblocking else cydriver.CUstream_flags.CU_STREAM_DEFAULT
+        cdef unsigned int flags = (cydriver.CUstream_flags.CU_STREAM_NON_BLOCKING if nonblocking
+                                   else cydriver.CUstream_flags.CU_STREAM_DEFAULT)
         # TODO: we might want to consider memoizing high/low per CUDA context and avoid this call
         cdef int high, low
         with nogil:
@@ -154,26 +153,25 @@ cdef class Stream:
         else:
             prio = high
 
-        cdef cydriver.CUstream s
-        with nogil:
-            HANDLE_RETURN(cydriver.cuStreamCreateWithPriority(&s, flags, prio))
-        # Owned stream - will be destroyed when handle is released
-        self._h_stream = create_stream_handle(s)
+        # C++ creates the stream and returns owning handle
+        h_stream = create_stream_handle(flags, prio)
+        if not h_stream:
+            raise RuntimeError("Failed to create CUDA stream")
+        self = Stream._from_handle(cls, h_stream)
         self._nonblocking = int(nonblocking)
         self._priority = prio
-        self._device_id = device_id if device_id is not None else self._device_id
+        if device_id is not None:
+            self._device_id = device_id
         return self
 
     cpdef close(self):
         """Destroy the stream.
 
         Releases the stream handle. For owned streams, this destroys the
-        underlying CUDA stream. For borrowed streams, this just releases
-        the reference.
+        underlying CUDA stream. For borrowed streams, this releases the
+        reference and allows the Python owner to be GC'd.
         """
-        # Reset handle to empty - this decrements refcount and may trigger destruction
         self._h_stream.reset()
-        self._owner = None
 
     def __cuda_stream__(self) -> tuple[int, int]:
         """Return an instance of a __cuda_stream__ protocol."""

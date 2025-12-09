@@ -10,12 +10,13 @@ cdef class Stream:
 
     cdef:
         StreamHandle _h_stream
-        object _owner
-        bint _builtin
         int _nonblocking
         int _priority
         cydriver.CUdevice _device_id
         cydriver.CUcontext _ctx_handle
+
+    @staticmethod
+    cdef Stream _from_handle(type cls, StreamHandle h_stream)
 
     cpdef close(self)
     cdef int _get_context(self) except?-1 nogil
