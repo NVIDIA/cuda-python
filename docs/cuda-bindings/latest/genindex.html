@@ -4317,6 +4317,10 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceGetDefaultMemPool">cudaDeviceGetDefaultMemPool() (in module cuda.bindings.runtime)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceGetDevResource">cudaDeviceGetDevResource() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceGetExecutionCtx">cudaDeviceGetExecutionCtx() (in module cuda.bindings.runtime)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceGetGraphMemAttribute">cudaDeviceGetGraphMemAttribute() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceGetHostAtomicCapabilities">cudaDeviceGetHostAtomicCapabilities() (in module cuda.bindings.runtime)</a>
@@ -4397,9 +4401,9 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource_st">cudaDevResource_st (class in cuda.bindings.runtime)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResourceDesc_t">cudaDevResourceDesc_t (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResourceGenerateDesc">cudaDevResourceGenerateDesc() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResourceType">cudaDevResourceType (class in cuda.bindings.runtime)</a>
 </li>
@@ -4417,11 +4421,17 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill">cudaDevSmResourceGroupBackfill (cuda.bindings.runtime.cudaDevSmResourceGroup_flags attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupDefault">cudaDevSmResourceGroupDefault (cuda.bindings.runtime.cudaDevSmResourceGroup_flags attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams">cudaDevSmResourceGroupParams (class in cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams_st">cudaDevSmResourceGroupParams_st (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceSplit">cudaDevSmResourceSplit() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceSplitByCount">cudaDevSmResourceSplitByCount() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags">cudaDevSmResourceSplitByCount_flags (class in cuda.bindings.runtime)</a>
 </li>
@@ -5037,7 +5047,15 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxDestroy">cudaExecutionCtxDestroy() (in module cuda.bindings.runtime)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxGetDevice">cudaExecutionCtxGetDevice() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxGetDevResource">cudaExecutionCtxGetDevResource() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxGetId">cudaExecutionCtxGetId() (in module cuda.bindings.runtime)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxRecordEvent">cudaExecutionCtxRecordEvent() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxStreamCreate">cudaExecutionCtxStreamCreate() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxSynchronize">cudaExecutionCtxSynchronize() (in module cuda.bindings.runtime)</a>
 </li>
@@ -5293,6 +5311,8 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphConditionalHandleCreate">cudaGraphConditionalHandleCreate() (in module cuda.bindings.runtime)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphConditionalHandleCreate_v2">cudaGraphConditionalHandleCreate_v2() (in module cuda.bindings.runtime)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphConditionalHandleFlags">cudaGraphConditionalHandleFlags (class in cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphConditionalNodeType">cudaGraphConditionalNodeType (class in cuda.bindings.runtime)</a>
@@ -5371,6 +5391,8 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphExecGetFlags">cudaGraphExecGetFlags() (in module cuda.bindings.runtime)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphExecGetId">cudaGraphExecGetId() (in module cuda.bindings.runtime)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphExecHostNodeSetParams">cudaGraphExecHostNodeSetParams() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphExecKernelNodeSetParams">cudaGraphExecKernelNodeSetParams() (in module cuda.bindings.runtime)</a>
@@ -5418,6 +5440,8 @@
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphExternalSemaphoresWaitNodeSetParams">cudaGraphExternalSemaphoresWaitNodeSetParams() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphGetEdges">cudaGraphGetEdges() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphGetId">cudaGraphGetId() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphGetNodes">cudaGraphGetNodes() (in module cuda.bindings.runtime)</a>
 </li>
@@ -5581,11 +5605,17 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeFindInClone">cudaGraphNodeFindInClone() (in module cuda.bindings.runtime)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetContainingGraph">cudaGraphNodeGetContainingGraph() (in module cuda.bindings.runtime)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetDependencies">cudaGraphNodeGetDependencies() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetDependentNodes">cudaGraphNodeGetDependentNodes() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetEnabled">cudaGraphNodeGetEnabled() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetLocalId">cudaGraphNodeGetLocalId() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetToolsId">cudaGraphNodeGetToolsId() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetType">cudaGraphNodeGetType() (in module cuda.bindings.runtime)</a>
 </li>
@@ -5634,6 +5664,8 @@
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphUpload">cudaGraphUpload() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaUserObjectRetainFlags.cudaGraphUserObjectMove">cudaGraphUserObjectMove (cuda.bindings.runtime.cudaUserObjectRetainFlags attribute)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGreenCtxCreate">cudaGreenCtxCreate() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaHostAlloc">cudaHostAlloc() (in module cuda.bindings.runtime)</a>
 </li>
@@ -6413,6 +6445,8 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaStreamGetDevice">cudaStreamGetDevice() (in module cuda.bindings.runtime)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaStreamGetDevResource">cudaStreamGetDevResource() (in module cuda.bindings.runtime)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaStreamGetFlags">cudaStreamGetFlags() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaStreamGetId">cudaStreamGetId() (in module cuda.bindings.runtime)</a>
@@ -6620,6 +6654,8 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource_st">CUdevSmResource_st (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceGroup_flags">CUdevSmResourceGroup_flags (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuDevSmResourceSplit">cuDevSmResourceSplit() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuDevSmResourceSplitByCount">cuDevSmResourceSplitByCount() (in module cuda.bindings.driver)</a>
 </li>
@@ -6879,6 +6915,8 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphExecGetFlags">cuGraphExecGetFlags() (in module cuda.bindings.driver)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuGraphExecGetId">cuGraphExecGetId() (in module cuda.bindings.driver)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphExecHostNodeSetParams">cuGraphExecHostNodeSetParams() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphExecKernelNodeSetParams">cuGraphExecKernelNodeSetParams() (in module cuda.bindings.driver)</a>
@@ -6908,6 +6946,8 @@
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphExternalSemaphoresWaitNodeSetParams">cuGraphExternalSemaphoresWaitNodeSetParams() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphGetEdges">cuGraphGetEdges() (in module cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuGraphGetId">cuGraphGetId() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphGetNodes">cuGraphGetNodes() (in module cuda.bindings.driver)</a>
 </li>
@@ -6987,11 +7027,17 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeFindInClone">cuGraphNodeFindInClone() (in module cuda.bindings.driver)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetContainingGraph">cuGraphNodeGetContainingGraph() (in module cuda.bindings.driver)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetDependencies">cuGraphNodeGetDependencies() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetDependentNodes">cuGraphNodeGetDependentNodes() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetEnabled">cuGraphNodeGetEnabled() (in module cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetLocalId">cuGraphNodeGetLocalId() (in module cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetToolsId">cuGraphNodeGetToolsId() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetType">cuGraphNodeGetType() (in module cuda.bindings.driver)</a>
 </li>
@@ -7630,6 +7676,8 @@
       <li><a href="module/driver.html#cuda.bindings.driver.cuStreamGetCtx_v2">cuStreamGetCtx_v2() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuStreamGetDevice">cuStreamGetDevice() (in module cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuStreamGetDevResource">cuStreamGetDevResource() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuStreamGetFlags">cuStreamGetFlags() (in module cuda.bindings.driver)</a>
 </li>
