@@ -453,3 +453,67 @@ def test_program_options_as_bytes_empty():
     assert all(isinstance(opt, bytes) for opt in byte_options)
     # The arch option should be present (automatically determined from current device)
     assert any(b"-arch=" in opt for opt in byte_options)
+
+
+def test_program_options_as_bytes_nvvm_backend():
+    """Test that ProgramOptions.as_bytes() formats options correctly for NVVM backend"""
+    options = ProgramOptions(
+        arch="sm_80",
+        debug=True,
+        ftz=True,
+        prec_sqrt=False,
+        prec_div=True,
+        fma=False,
+        device_code_optimize=True,
+    )
+
+    byte_options = options.as_bytes("NVVM")
+
+    # Verify the return type
+    assert isinstance(byte_options, list)
+    assert all(isinstance(opt, bytes) for opt in byte_options)
+
+    # NVVM uses compute_ instead of sm_ and 1/0 for booleans, with hyphens in option names
+    assert b"-arch=compute_80" in byte_options
+    assert b"-g" in byte_options
+    assert b"-ftz=1" in byte_options
+    assert b"-prec-sqrt=0" in byte_options
+    assert b"-prec-div=1" in byte_options
+    assert b"-fma=0" in byte_options
+    assert b"-opt=3" in byte_options
+
+
+def test_program_options_as_bytes_nvjitlink_backend():
+    """Test that ProgramOptions.as_bytes() formats options correctly for nvJitLink backend"""
+    options = ProgramOptions(
+        arch="sm_80",
+        debug=True,
+        lineinfo=True,
+        max_register_count=32,
+        ftz=False,
+        prec_sqrt=True,
+        link_time_optimization=True,
+    )
+
+    byte_options = options.as_bytes("nvJitLink")
+
+    # Verify the return type
+    assert isinstance(byte_options, list)
+    assert all(isinstance(opt, bytes) for opt in byte_options)
+
+    # nvJitLink uses - prefix and true/false for booleans, with hyphens in option names
+    assert b"-arch=sm_80" in byte_options
+    assert b"-g" in byte_options
+    assert b"-lineinfo" in byte_options
+    assert b"-maxrregcount=32" in byte_options
+    assert b"-ftz=false" in byte_options
+    assert b"-prec-sqrt=true" in byte_options
+    assert b"-lto" in byte_options
+
+
+def test_program_options_as_bytes_invalid_backend():
+    """Test that ProgramOptions.as_bytes() raises error for invalid backend"""
+    options = ProgramOptions()
+
+    with pytest.raises(ValueError, match="Unsupported backend 'invalid'"):
+        options.as_bytes("invalid")
