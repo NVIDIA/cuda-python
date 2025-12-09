@@ -18,7 +18,7 @@ Experimental
 ------------
 
 * Experimental NVML bindings were added under ``cuda.bindings._nvml``
-  (`PR #1284 <https://github.com/NVIDIA/cuda-python/pull/1284`_)
+  (`PR #1284 <https://github.com/NVIDIA/cuda-python/pull/1284>`_)
 
 Known issues
 ------------
