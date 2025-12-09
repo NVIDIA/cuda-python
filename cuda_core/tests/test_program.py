@@ -411,3 +411,45 @@ def test_nvvm_program_options(init_cuda, nvvm_ir, options):
     assert ".visible .entry simple(" in ptx_text
 
     program.close()
+
+
+def test_program_options_as_bytes():
+    """Test that ProgramOptions.as_bytes() returns correct byte strings"""
+    # Test with various options
+    options = ProgramOptions(
+        arch="sm_80",
+        debug=True,
+        lineinfo=True,
+        max_register_count=32,
+        ftz=True,
+        use_fast_math=True,
+    )
+
+    byte_options = options.as_bytes()
+
+    # Verify the return type
+    assert isinstance(byte_options, list)
+    assert all(isinstance(opt, bytes) for opt in byte_options)
+
+    # Verify specific options are present in byte format
+    assert b"-arch=sm_80" in byte_options
+    assert b"--device-debug" in byte_options
+    assert b"--generate-line-info" in byte_options
+    assert b"--maxrregcount=32" in byte_options
+    assert b"--ftz=true" in byte_options
+    assert b"--use_fast_math" in byte_options
+
+
+def test_program_options_as_bytes_empty():
+    """Test that ProgramOptions.as_bytes() works with minimal options"""
+    # Test with minimal options (only defaults)
+    options = ProgramOptions()
+
+    byte_options = options.as_bytes()
+
+    # Should at least have arch option (set to device default)
+    assert isinstance(byte_options, list)
+    assert len(byte_options) > 0
+    assert all(isinstance(opt, bytes) for opt in byte_options)
+    # The arch option should be present (even if it's the default)
+    assert any(b"-arch=" in opt for opt in byte_options)
