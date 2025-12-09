@@ -17,7 +17,6 @@ cdef class Context:
         int _device_id
 
 # Cython-level context operations (handle-centric API)
-cdef ContextHandle get_primary_context(int dev_id) except *
-cdef ContextHandle get_current_context() except * nogil
+# Note: get_primary_context and get_current_context are now pure C++ (imported from _resource_handles)
 cdef void set_current_context(ContextHandle h_context) except * nogil
 cdef ContextHandle get_stream_context(cydriver.CUstream stream) except * nogil

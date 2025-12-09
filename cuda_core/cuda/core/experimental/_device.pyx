@@ -13,13 +13,17 @@ from typing import Optional, TYPE_CHECKING, Union
 
 from cuda.core.experimental._context cimport (
     Context,
-    get_primary_context,
-    get_current_context,
     set_current_context,
 )
 from cuda.core.experimental._context import ContextOptions
 from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._resource_handles cimport ContextHandle, intptr, native
+from cuda.core.experimental._resource_handles cimport (
+    ContextHandle,
+    get_primary_context,
+    get_current_context,
+    intptr,
+    native,
+)
 from cuda.core.experimental._graph import GraphBuilder
 from cuda.core.experimental._stream import IsStreamT, Stream, StreamOptions
 from cuda.core.experimental._utils.clear_error_support import assert_type

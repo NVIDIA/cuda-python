@@ -28,10 +28,13 @@ if TYPE_CHECKING:
 from cuda.core.experimental._context cimport (
     Context,
     get_stream_context,
-    get_current_context,
 )
 from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._resource_handles cimport ContextHandle, native
+from cuda.core.experimental._resource_handles cimport (
+    ContextHandle,
+    get_current_context,
+    native,
+)
 from cuda.core.experimental._graph import GraphBuilder
 from cuda.core.experimental._utils.cuda_utils import (
     driver,

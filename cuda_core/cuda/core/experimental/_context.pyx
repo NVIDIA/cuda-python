@@ -4,31 +4,20 @@
 
 from dataclasses import dataclass
 
-import threading
 from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._resource_handles cimport create_context_handle_ref, native
+from cuda.core.experimental._resource_handles cimport (
+    create_context_handle_ref,
+    get_primary_context,
+    get_current_context,
+    native,
+)
 from cuda.core.experimental._utils.cuda_utils import driver
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 
 __all__ = ['Context', 'ContextOptions']
-
-
-# Lightweight Python wrapper for ContextHandle (for caching in TLS)
-cdef class _ContextHandleWrapper:
-    """Internal wrapper to store ContextHandle in Python containers."""
-    cdef ContextHandle h_context
-
-    def __cinit__(self):
-        pass
-
-    @staticmethod
-    cdef _ContextHandleWrapper create(ContextHandle h_context):
-        cdef _ContextHandleWrapper wrapper = _ContextHandleWrapper.__new__(_ContextHandleWrapper)
-        wrapper.h_context = h_context
-        return wrapper
 
 
 cdef class Context:
@@ -86,64 +75,8 @@ class ContextOptions:
     pass  # TODO
 
 
-cdef ContextHandle get_current_context() except * nogil:
-    """Get handle to the current CUDA context.
-
-    Returns
-    -------
-    ContextHandle
-        Handle to current context, or empty handle if no context is bound
-    """
-    cdef cydriver.CUcontext ctx = NULL
-    HANDLE_RETURN(cydriver.cuCtxGetCurrent(&ctx))
-    if ctx == NULL:
-        return ContextHandle()
-    return create_context_handle_ref(ctx)
-
-
-cdef ContextHandle get_primary_context(int dev_id) except *:
-    """Get handle to the primary context for a device.
-
-    Uses thread-local storage to cache primary context handles per device.
-    The primary context is lazily initialized on first access.
-
-    Parameters
-    ----------
-    dev_id : int
-        Device ID
-
-    Returns
-    -------
-    ContextHandle
-        Handle to primary context for the device
-    """
-    cdef int total = 0
-    cdef cydriver.CUcontext ctx
-    cdef ContextHandle h_context
-    cdef _ContextHandleWrapper wrapper
-
-    # Check TLS cache
-    try:
-        primary_ctxs = _tls.primary_ctxs
-    except AttributeError:
-        # Initialize primary context cache
-        with nogil:
-            HANDLE_RETURN(cydriver.cuDeviceGetCount(&total))
-        primary_ctxs = _tls.primary_ctxs = [None] * total
-
-    wrapper = primary_ctxs[dev_id]
-    if wrapper is not None:
-        return wrapper.h_context
-
-    # Acquire primary context (release GIL for driver call)
-    with nogil:
-        HANDLE_RETURN(cydriver.cuDevicePrimaryCtxRetain(&ctx, dev_id))
-        h_context = create_context_handle_ref(ctx)
-
-    # Cache the handle (wrapped in Python object)
-    _tls.primary_ctxs[dev_id] = _ContextHandleWrapper.create(h_context)
-
-    return h_context
+# get_current_context() and get_primary_context() are now pure C++ functions
+# imported from _resource_handles (with thread-local caching in C++)
 
 
 cdef ContextHandle get_stream_context(cydriver.CUstream stream) except * nogil:
@@ -176,7 +109,3 @@ cdef void set_current_context(ContextHandle h_context) except * nogil:
         with gil:
             raise ValueError("Cannot set NULL context as current")
     HANDLE_RETURN(cydriver.cuCtxSetCurrent(native(h_context)))
-
-
-# Thread-local storage for primary context cache
-_tls = threading.local()

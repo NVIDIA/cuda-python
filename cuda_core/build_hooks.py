@@ -84,6 +84,18 @@ def _build_cuda_core():
         print("CUDA paths:", CUDA_PATH)
         return CUDA_PATH
 
+    @functools.cache
+    def get_cuda_library_dirs():
+        """Return library search paths for CUDA driver runtime."""
+
+        libdirs = []
+        for root in get_cuda_paths():
+            for subdir in ("lib64", "lib"):
+                candidate = os.path.join(root, subdir)
+                if os.path.isdir(candidate):
+                    libdirs.append(candidate)
+        return libdirs
+
     def get_sources(mod_name):
         """Get source files for a module, including any .cpp files."""
         sources = [f"cuda/core/experimental/{mod_name}.pyx"]
@@ -95,13 +107,27 @@ def _build_cuda_core():
 
         # Modules that use resource handles need to link against _resource_handles_impl.cpp
         # This includes _context, _stream, _event, etc. as they adopt handle-based management
-        resource_handle_users = {"_context", "_stream", "_event"}
+        # Modules that call into the handle helpers implemented in
+        # `_resource_handles_impl.cpp` must link against that translation unit.
+        # Keep this in sync with any module that cimports `get_primary_context`
+        # or other helpers defined there.
+        resource_handle_users = {"_context", "_stream", "_event", "_device"}
         if mod_name in resource_handle_users:
             resource_handles_impl = "cuda/core/experimental/_resource_handles_impl.cpp"
             if os.path.exists(resource_handles_impl):
                 sources.append(resource_handles_impl)
 
         return sources
+
+    def get_extension_kwargs(mod_name):
+        """Return Extension kwargs (libraries, library_dirs) per module."""
+
+        resource_handle_users = {"_context", "_stream", "_event", "_device"}
+        kwargs = {}
+        if mod_name in resource_handle_users:
+            kwargs["libraries"] = ["cuda"]
+            kwargs["library_dirs"] = get_cuda_library_dirs()
+        return kwargs
 
     ext_modules = tuple(
         Extension(
@@ -113,6 +139,7 @@ def _build_cuda_core():
             ]
             + list(os.path.join(root, "include") for root in get_cuda_paths()),
             language="c++",
+            **get_extension_kwargs(mod),
         )
         for mod in module_names
     )
