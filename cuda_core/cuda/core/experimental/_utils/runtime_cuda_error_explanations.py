@@ -7,7 +7,7 @@
 # Also update the CUDA Toolkit version number below.
 
 # ruff: noqa: E501
-# CUDA Toolkit v13.0.0
+# CUDA Toolkit v13.1.0
 RUNTIME_CUDA_ERROR_EXPLANATIONS = {
     0: (
         "The API call returned with no errors. In the case of query calls, this"
@@ -530,6 +530,11 @@ RUNTIME_CUDA_ERROR_EXPLANATIONS = {
     913: ("Indiciates a function handle is not loaded when calling an API that requires a loaded function."),
     914: ("This error indicates one or more resources passed in are not valid resource types for the operation."),
     915: ("This error indicates one or more resources are insufficient or non-applicable for the operation."),
+    917: (
+        "This error indicates that the requested operation is not permitted because the"
+        " stream is in a detached state. This can occur if the green context associated"
+        " with the stream has been destroyed, limiting the stream's operational capabilities."
+    ),
     999: "This indicates that an unknown internal error has occurred.",
     10000: (
         "Any unhandled CUDA driver error is added to this value and returned via"
