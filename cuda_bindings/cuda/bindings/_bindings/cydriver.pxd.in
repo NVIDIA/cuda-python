@@ -1609,6 +1609,31 @@ cdef CUresult _cuGraphNodeFindInClone(CUgraphNode* phNode, CUgraphNode hOriginal
 cdef CUresult _cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType* typename) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuGraphNodeGetContainingGraph' in found_functions}}
+
+cdef CUresult _cuGraphNodeGetContainingGraph(CUgraphNode hNode, CUgraph* phGraph) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuGraphNodeGetLocalId' in found_functions}}
+
+cdef CUresult _cuGraphNodeGetLocalId(CUgraphNode hNode, unsigned int* nodeId) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuGraphNodeGetToolsId' in found_functions}}
+
+cdef CUresult _cuGraphNodeGetToolsId(CUgraphNode hNode, unsigned long long* toolsNodeId) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuGraphGetId' in found_functions}}
+
+cdef CUresult _cuGraphGetId(CUgraph hGraph, unsigned int* graphId) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuGraphExecGetId' in found_functions}}
+
+cdef CUresult _cuGraphExecGetId(CUgraphExec hGraphExec, unsigned int* graphId) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuGraphGetNodes' in found_functions}}
 
 cdef CUresult _cuGraphGetNodes(CUgraph hGraph, CUgraphNode* nodes, size_t* numNodes) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -2174,6 +2199,11 @@ cdef CUresult _cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource* resource
 cdef CUresult _cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
+{{if 'cuDevSmResourceSplit' in found_functions}}
+
+cdef CUresult _cuDevSmResourceSplit(CUdevResource* result, unsigned int nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, CU_DEV_SM_RESOURCE_GROUP_PARAMS* groupParams) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
 {{if 'cuDevResourceGenerateDesc' in found_functions}}
 
 cdef CUresult _cuDevResourceGenerateDesc(CUdevResourceDesc* phDesc, CUdevResource* resources, unsigned int nbResources) except ?CUDA_ERROR_NOT_FOUND nogil
@@ -2202,6 +2232,11 @@ cdef CUresult _cuGreenCtxStreamCreate(CUstream* phStream, CUgreenCtx greenCtx, u
 {{if 'cuGreenCtxGetId' in found_functions}}
 
 cdef CUresult _cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtxId) except ?CUDA_ERROR_NOT_FOUND nogil
+{{endif}}
+
+{{if 'cuStreamGetDevResource' in found_functions}}
+
+cdef CUresult _cuStreamGetDevResource(CUstream hStream, CUdevResource* resource, CUdevResourceType typename) except ?CUDA_ERROR_NOT_FOUND nogil
 {{endif}}
 
 {{if 'cuLogsRegisterCallback' in found_functions}}
