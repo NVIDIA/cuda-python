@@ -427,13 +427,13 @@ class ProgramOptions:
 
         This method encodes each of the formatted options stored in this
         `ProgramOptions` instance into byte strings, suitable for passing
-        to C libraries that perform NVRTC compilation.
+        to C libraries that calls the underlying compiler library.
 
         Returns
         -------
         list[bytes]
             A list of byte-encoded option strings. Each element represents
-            a single compilation option in the format expected by NVRTC.
+            a single compilation option in the format expected by the underlying compiler library.
 
         Examples
         --------
