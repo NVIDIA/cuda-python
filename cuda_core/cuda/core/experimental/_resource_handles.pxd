@@ -20,26 +20,16 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ContextHandle get_primary_context(int dev_id) nogil
     ContextHandle get_current_context() nogil
 
+    # ========================================================================
+    # Helper functions to extract raw resources from handles
+    # Defined in C++ to support overloading when additional handle types are added
+    # ========================================================================
 
-# ============================================================================
-# Helper functions to extract raw resources from handles
-# ============================================================================
+    # native() - extract the raw CUDA handle (nogil-safe)
+    cydriver.CUcontext native(ContextHandle h) nogil
 
-cdef inline cydriver.CUcontext native(ContextHandle h) nogil:
-    """Extract the native C type (cydriver.CUcontext) from the handle.
+    # intptr() - extract handle as uintptr_t (nogil-safe)
+    uintptr_t intptr(ContextHandle h) nogil
 
-    This is for use with cydriver API calls that expect the raw C type.
-    """
-    return h.get()[0]
-
-
-# Python conversion function (implemented in .pyx due to Python module dependency)
-cdef object py(ContextHandle h)
-
-
-cdef inline uintptr_t intptr(ContextHandle h) nogil:
-    """Extract the handle as a uintptr_t integer address.
-
-    This is for use with internal APIs that expect integer addresses.
-    """
-    return <uintptr_t>(h.get()[0])
+    # py() - convert handle to Python driver wrapper object (requires GIL)
+    object py(ContextHandle h)
