@@ -4,14 +4,12 @@
 CUDA Python 13.1.1 Release notes
 ================================
 
-Released on Dec 10, 2025.
-
+Released on Dec 9, 2025.
 
 Included components
 -------------------
 
 * `cuda.bindings 13.1.1 <https://nvidia.github.io/cuda-python/cuda-bindings/13.1.1/release/13.1.1-notes.html>`_
-
 
 Known issues
 ------------
