@@ -1,11 +1,45 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 cimport cuda.bindings.cyruntime as cyruntime
 
 include "_lib/utils.pxd"
 cimport cuda.bindings.driver as driver
+
+{{if 'cudaDevResourceDesc_t' in found_types}}
+
+cdef class cudaDevResourceDesc_t:
+    """
+
+    An opaque descriptor handle. The descriptor encapsulates multiple created and configured resources. Created via ::cudaDeviceResourceGenerateDesc
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef cyruntime.cudaDevResourceDesc_t  _pvt_val
+    cdef cyruntime.cudaDevResourceDesc_t* _pvt_ptr
+{{endif}}
+
+{{if 'cudaExecutionContext_t' in found_types}}
+
+cdef class cudaExecutionContext_t:
+    """
+
+    An opaque handle to a CUDA execution context. It represents an execution context created via CUDA Runtime APIs such as cudaGreenCtxCreate.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    cdef cyruntime.cudaExecutionContext_t  _pvt_val
+    cdef cyruntime.cudaExecutionContext_t* _pvt_ptr
+{{endif}}
 
 {{if 'cudaArray_t' in found_types}}
 
@@ -648,8 +682,13 @@ cdef class cudaMemcpyNodeParams:
         Must be zero
     {{endif}}
     {{if 'cudaMemcpyNodeParams.reserved' in found_struct}}
-    reserved : list[int]
+    reserved : int
         Must be zero
+    {{endif}}
+    {{if 'cudaMemcpyNodeParams.ctx' in found_struct}}
+    ctx : cudaExecutionContext_t
+        Context in which to run the memcpy. If NULL will try to use the
+        current context.
     {{endif}}
     {{if 'cudaMemcpyNodeParams.copyParams' in found_struct}}
     copyParams : cudaMemcpy3DParms
@@ -663,6 +702,9 @@ cdef class cudaMemcpyNodeParams:
     """
     cdef cyruntime.cudaMemcpyNodeParams _pvt_val
     cdef cyruntime.cudaMemcpyNodeParams* _pvt_ptr
+    {{if 'cudaMemcpyNodeParams.ctx' in found_struct}}
+    cdef cudaExecutionContext_t _ctx
+    {{endif}}
     {{if 'cudaMemcpyNodeParams.copyParams' in found_struct}}
     cdef cudaMemcpy3DParms _copyParams
     {{endif}}
@@ -814,6 +856,11 @@ cdef class cudaMemsetParamsV2:
     height : size_t
         Number of rows
     {{endif}}
+    {{if 'cudaMemsetParamsV2.ctx' in found_struct}}
+    ctx : cudaExecutionContext_t
+        Context in which to run the memset. If NULL will try to use the
+        current context.
+    {{endif}}
 
     Methods
     -------
@@ -822,6 +869,9 @@ cdef class cudaMemsetParamsV2:
     """
     cdef cyruntime.cudaMemsetParamsV2 _pvt_val
     cdef cyruntime.cudaMemsetParamsV2* _pvt_ptr
+    {{if 'cudaMemsetParamsV2.ctx' in found_struct}}
+    cdef cudaExecutionContext_t _ctx
+    {{endif}}
 {{endif}}
 {{if 'cudaAccessPolicyWindow' in found_struct}}
 
@@ -2871,6 +2921,208 @@ cdef class cudaExternalSemaphoreWaitParams:
     cdef anon_struct15 _params
     {{endif}}
 {{endif}}
+{{if 'cudaDevSmResource' in found_struct}}
+
+cdef class cudaDevSmResource:
+    """
+    Data for SM-related resources All parameters in this structure are
+    OUTPUT only. Do not write to any of the fields in this structure.
+
+    Attributes
+    ----------
+    {{if 'cudaDevSmResource.smCount' in found_struct}}
+    smCount : unsigned int
+        The amount of streaming multiprocessors available in this resource.
+    {{endif}}
+    {{if 'cudaDevSmResource.minSmPartitionSize' in found_struct}}
+    minSmPartitionSize : unsigned int
+        The minimum number of streaming multiprocessors required to
+        partition this resource.
+    {{endif}}
+    {{if 'cudaDevSmResource.smCoscheduledAlignment' in found_struct}}
+    smCoscheduledAlignment : unsigned int
+        The number of streaming multiprocessors in this resource that are
+        guaranteed to be co-scheduled on the same GPU processing cluster.
+        smCount will be a multiple of this value, unless the backfill flag
+        is set.
+    {{endif}}
+    {{if 'cudaDevSmResource.flags' in found_struct}}
+    flags : unsigned int
+        The flags set on this SM resource. For available flags see
+        ::cudaDevSmResourceGroup_flags.
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cyruntime.cudaDevSmResource _pvt_val
+    cdef cyruntime.cudaDevSmResource* _pvt_ptr
+{{endif}}
+{{if 'cudaDevWorkqueueConfigResource' in found_struct}}
+
+cdef class cudaDevWorkqueueConfigResource:
+    """
+    Data for workqueue configuration related resources
+
+    Attributes
+    ----------
+    {{if 'cudaDevWorkqueueConfigResource.device' in found_struct}}
+    device : int
+        The device on which the workqueue resources are available
+    {{endif}}
+    {{if 'cudaDevWorkqueueConfigResource.wqConcurrencyLimit' in found_struct}}
+    wqConcurrencyLimit : unsigned int
+        The expected maximum number of concurrent stream-ordered workloads
+    {{endif}}
+    {{if 'cudaDevWorkqueueConfigResource.sharingScope' in found_struct}}
+    sharingScope : cudaDevWorkqueueConfigScope
+        The sharing scope for the workqueue resources
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cyruntime.cudaDevWorkqueueConfigResource _pvt_val
+    cdef cyruntime.cudaDevWorkqueueConfigResource* _pvt_ptr
+{{endif}}
+{{if 'cudaDevWorkqueueResource' in found_struct}}
+
+cdef class cudaDevWorkqueueResource:
+    """
+    Handle to a pre-existing workqueue related resource
+
+    Attributes
+    ----------
+    {{if 'cudaDevWorkqueueResource.reserved' in found_struct}}
+    reserved : bytes
+        Reserved for future use
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cyruntime.cudaDevWorkqueueResource _pvt_val
+    cdef cyruntime.cudaDevWorkqueueResource* _pvt_ptr
+{{endif}}
+{{if 'cudaDevSmResourceGroupParams_st' in found_struct}}
+
+cdef class cudaDevSmResourceGroupParams_st:
+    """
+    Input data for splitting SMs
+
+    Attributes
+    ----------
+    {{if 'cudaDevSmResourceGroupParams_st.smCount' in found_struct}}
+    smCount : unsigned int
+        The amount of SMs available in this resource.
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.coscheduledSmCount' in found_struct}}
+    coscheduledSmCount : unsigned int
+        The amount of co-scheduled SMs grouped together for locality
+        purposes.
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.preferredCoscheduledSmCount' in found_struct}}
+    preferredCoscheduledSmCount : unsigned int
+        When possible, combine co-scheduled groups together into larger
+        groups of this size.
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
+    flags : unsigned int
+        Combination of `cudaDevSmResourceGroup_flags` values to indicate
+        this this group is created.
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
+    reserved : list[unsigned int]
+        Reserved for future use - ensure this is is zero initialized.
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cyruntime.cudaDevSmResourceGroupParams_st _pvt_val
+    cdef cyruntime.cudaDevSmResourceGroupParams_st* _pvt_ptr
+{{endif}}
+{{if 'cudaDevResource_st' in found_struct}}
+
+cdef class cudaDevResource_st:
+    """
+    A tagged union describing different resources identified by the
+    type field. This structure should not be directly modified outside
+    of the API that created it. struct enumcudaDevResourceTypetype;
+    union structcudaDevSmResourcesm;
+    structcudaDevWorkqueueConfigResourcewqConfig;
+    structcudaDevWorkqueueResourcewq; ; ;  - If `typename` is
+    `cudaDevResourceTypeInvalid`, this resoure is not valid and cannot
+    be further accessed.    - If `typename` is `cudaDevResourceTypeSm`,
+    the cudaDevSmResource structure `sm` is filled in. For example,
+    `sm.smCount` will reflect the amount of streaming multiprocessors
+    available in this resource.    - If `typename` is
+    `cudaDevResourceTypeWorkqueueConfig`, the
+    cudaDevWorkqueueConfigResource structure `wqConfig` is filled in.
+    - If `typename` is `cudaDevResourceTypeWorkqueue`, the
+    cudaDevWorkqueueResource structure `wq` is filled in.
+
+    Attributes
+    ----------
+    {{if 'cudaDevResource_st.type' in found_struct}}
+    type : cudaDevResourceType
+        Type of resource, dictates which union field was last set
+    {{endif}}
+    {{if 'cudaDevResource_st._internal_padding' in found_struct}}
+    _internal_padding : bytes
+
+    {{endif}}
+    {{if 'cudaDevResource_st.sm' in found_struct}}
+    sm : cudaDevSmResource
+        Resource corresponding to cudaDevResourceTypeSm `typename`.
+    {{endif}}
+    {{if 'cudaDevResource_st.wqConfig' in found_struct}}
+    wqConfig : cudaDevWorkqueueConfigResource
+        Resource corresponding to cudaDevResourceTypeWorkqueueConfig
+        `typename`.
+    {{endif}}
+    {{if 'cudaDevResource_st.wq' in found_struct}}
+    wq : cudaDevWorkqueueResource
+        Resource corresponding to cudaDevResourceTypeWorkqueue `typename`.
+    {{endif}}
+    {{if 'cudaDevResource_st._oversize' in found_struct}}
+    _oversize : bytes
+
+    {{endif}}
+    {{if 'cudaDevResource_st.nextResource' in found_struct}}
+    nextResource : cudaDevResource_st
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cyruntime.cudaDevResource_st* _val_ptr
+    cdef cyruntime.cudaDevResource_st* _pvt_ptr
+    {{if 'cudaDevResource_st.sm' in found_struct}}
+    cdef cudaDevSmResource _sm
+    {{endif}}
+    {{if 'cudaDevResource_st.wqConfig' in found_struct}}
+    cdef cudaDevWorkqueueConfigResource _wqConfig
+    {{endif}}
+    {{if 'cudaDevResource_st.wq' in found_struct}}
+    cdef cudaDevWorkqueueResource _wq
+    {{endif}}
+    {{if 'cudaDevResource_st.nextResource' in found_struct}}
+    cdef size_t _nextResource_length
+    cdef cyruntime.cudaDevResource_st* _nextResource
+    {{endif}}
+{{endif}}
 {{if 'cudalibraryHostUniversalFunctionAndDataTable' in found_struct}}
 
 cdef class cudalibraryHostUniversalFunctionAndDataTable:
@@ -2984,6 +3236,11 @@ cdef class cudaKernelNodeParamsV2:
     extra : Any
         Pointer to kernel arguments in the "extra" format
     {{endif}}
+    {{if 'cudaKernelNodeParamsV2.ctx' in found_struct}}
+    ctx : cudaExecutionContext_t
+        Context in which to run the kernel. If NULL will try to use the
+        current context.
+    {{endif}}
 
     Methods
     -------
@@ -3000,6 +3257,9 @@ cdef class cudaKernelNodeParamsV2:
     {{endif}}
     {{if 'cudaKernelNodeParamsV2.kernelParams' in found_struct}}
     cdef _HelperKernelParams _cykernelParams
+    {{endif}}
+    {{if 'cudaKernelNodeParamsV2.ctx' in found_struct}}
+    cdef cudaExecutionContext_t _ctx
     {{endif}}
 {{endif}}
 {{if 'cudaExternalSemaphoreSignalNodeParams' in found_struct}}
@@ -3196,6 +3456,10 @@ cdef class cudaConditionalNodeParams:
         executed when the condition is equal to n. If the condition >=
         `size`, no body graph is executed.
     {{endif}}
+    {{if 'cudaConditionalNodeParams.ctx' in found_struct}}
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+    {{endif}}
 
     Methods
     -------
@@ -3210,6 +3474,9 @@ cdef class cudaConditionalNodeParams:
     {{if 'cudaConditionalNodeParams.phGraph_out' in found_struct}}
     cdef size_t _phGraph_out_length
     cdef cyruntime.cudaGraph_t* _phGraph_out
+    {{endif}}
+    {{if 'cudaConditionalNodeParams.ctx' in found_struct}}
+    cdef cudaExecutionContext_t _ctx
     {{endif}}
 {{endif}}
 {{if 'cudaChildGraphNodeParams' in found_struct}}
@@ -3566,7 +3833,7 @@ cdef class anon_struct16:
 {{endif}}
 {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
 
-cdef class anon_union7:
+cdef class anon_union8:
     """
     Attributes
     ----------
@@ -3615,7 +3882,7 @@ cdef class cudaGraphKernelNodeUpdate:
         interpreted
     {{endif}}
     {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
-    updateData : anon_union7
+    updateData : anon_union8
         Update data to apply. Which field is used depends on field's value
     {{endif}}
 
@@ -3630,7 +3897,7 @@ cdef class cudaGraphKernelNodeUpdate:
     cdef cudaGraphDeviceNode_t _node
     {{endif}}
     {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
-    cdef anon_union7 _updateData
+    cdef anon_union8 _updateData
     {{endif}}
 {{endif}}
 {{if 'cudaLaunchMemSyncDomainMap_st' in found_struct}}
@@ -3987,7 +4254,7 @@ cdef class anon_struct22:
 {{endif}}
 {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
 
-cdef class anon_union8:
+cdef class anon_union9:
     """
     Attributes
     ----------
@@ -4019,7 +4286,7 @@ cdef class cudaAsyncNotificationInfo:
         The type of notification being sent
     {{endif}}
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
-    info : anon_union8
+    info : anon_union9
         Information about the notification. `typename` must be checked in
         order to interpret this field.
     {{endif}}
@@ -4032,7 +4299,7 @@ cdef class cudaAsyncNotificationInfo:
     cdef cyruntime.cudaAsyncNotificationInfo* _val_ptr
     cdef cyruntime.cudaAsyncNotificationInfo* _pvt_ptr
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
-    cdef anon_union8 _info
+    cdef anon_union9 _info
     {{endif}}
 {{endif}}
 {{if 'cudaTextureDesc' in found_struct}}
@@ -4155,7 +4422,7 @@ cdef class cudaEglPlaneDesc_st:
 {{endif}}
 {{if True}}
 
-cdef class anon_union9:
+cdef class anon_union10:
     """
     Attributes
     ----------
@@ -4191,7 +4458,7 @@ cdef class cudaEglFrame_st:
     Attributes
     ----------
     {{if True}}
-    frame : anon_union9
+    frame : anon_union10
 
     {{endif}}
     {{if True}}
@@ -4219,7 +4486,7 @@ cdef class cudaEglFrame_st:
     cdef cyruntime.cudaEglFrame_st* _val_ptr
     cdef cyruntime.cudaEglFrame_st* _pvt_ptr
     {{if True}}
-    cdef anon_union9 _frame
+    cdef anon_union10 _frame
     {{endif}}
 {{endif}}
 {{if 'CUuuid' in found_types}}
@@ -4306,6 +4573,104 @@ cdef class cudaMemFabricHandle_t(cudaMemFabricHandle_st):
     ----------
     {{if 'cudaMemFabricHandle_st.reserved' in found_struct}}
     reserved : bytes
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'cudaDevSmResourceGroupParams' in found_types}}
+
+cdef class cudaDevSmResourceGroupParams(cudaDevSmResourceGroupParams_st):
+    """
+    Input data for splitting SMs
+
+    Attributes
+    ----------
+    {{if 'cudaDevSmResourceGroupParams_st.smCount' in found_struct}}
+    smCount : unsigned int
+        The amount of SMs available in this resource.
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.coscheduledSmCount' in found_struct}}
+    coscheduledSmCount : unsigned int
+        The amount of co-scheduled SMs grouped together for locality
+        purposes.
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.preferredCoscheduledSmCount' in found_struct}}
+    preferredCoscheduledSmCount : unsigned int
+        When possible, combine co-scheduled groups together into larger
+        groups of this size.
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
+    flags : unsigned int
+        Combination of `cudaDevSmResourceGroup_flags` values to indicate
+        this this group is created.
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
+    reserved : list[unsigned int]
+        Reserved for future use - ensure this is is zero initialized.
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'cudaDevResource' in found_types}}
+
+cdef class cudaDevResource(cudaDevResource_st):
+    """
+    A tagged union describing different resources identified by the
+    type field. This structure should not be directly modified outside
+    of the API that created it. struct enumcudaDevResourceTypetype;
+    union structcudaDevSmResourcesm;
+    structcudaDevWorkqueueConfigResourcewqConfig;
+    structcudaDevWorkqueueResourcewq; ; ;  - If `typename` is
+    `cudaDevResourceTypeInvalid`, this resoure is not valid and cannot
+    be further accessed.    - If `typename` is `cudaDevResourceTypeSm`,
+    the cudaDevSmResource structure `sm` is filled in. For example,
+    `sm.smCount` will reflect the amount of streaming multiprocessors
+    available in this resource.    - If `typename` is
+    `cudaDevResourceTypeWorkqueueConfig`, the
+    cudaDevWorkqueueConfigResource structure `wqConfig` is filled in.
+    - If `typename` is `cudaDevResourceTypeWorkqueue`, the
+    cudaDevWorkqueueResource structure `wq` is filled in.
+
+    Attributes
+    ----------
+    {{if 'cudaDevResource_st.type' in found_struct}}
+    type : cudaDevResourceType
+        Type of resource, dictates which union field was last set
+    {{endif}}
+    {{if 'cudaDevResource_st._internal_padding' in found_struct}}
+    _internal_padding : bytes
+
+    {{endif}}
+    {{if 'cudaDevResource_st.sm' in found_struct}}
+    sm : cudaDevSmResource
+        Resource corresponding to cudaDevResourceTypeSm `typename`.
+    {{endif}}
+    {{if 'cudaDevResource_st.wqConfig' in found_struct}}
+    wqConfig : cudaDevWorkqueueConfigResource
+        Resource corresponding to cudaDevResourceTypeWorkqueueConfig
+        `typename`.
+    {{endif}}
+    {{if 'cudaDevResource_st.wq' in found_struct}}
+    wq : cudaDevWorkqueueResource
+        Resource corresponding to cudaDevResourceTypeWorkqueue `typename`.
+    {{endif}}
+    {{if 'cudaDevResource_st._oversize' in found_struct}}
+    _oversize : bytes
+
+    {{endif}}
+    {{if 'cudaDevResource_st.nextResource' in found_struct}}
+    nextResource : cudaDevResource_st
 
     {{endif}}
 
@@ -4497,7 +4862,7 @@ cdef class cudaAsyncNotificationInfo_t(cudaAsyncNotificationInfo):
         The type of notification being sent
     {{endif}}
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
-    info : anon_union8
+    info : anon_union9
         Information about the notification. `typename` must be checked in
         order to interpret this field.
     {{endif}}
@@ -4814,7 +5179,7 @@ cdef class cudaEglFrame(cudaEglFrame_st):
     Attributes
     ----------
     {{if True}}
-    frame : anon_union9
+    frame : anon_union10
 
     {{endif}}
     {{if True}}

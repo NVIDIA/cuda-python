@@ -33,6 +33,7 @@ cu13 = [
     "cutensor-cu13",
     "nvidia-cublasmp-cu13; sys_platform != 'win32'",
     "nvidia-cudss-cu13",
+    "nvidia-cufftmp-cu13; sys_platform != 'win32'",
     "nvidia-cusparselt-cu13",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
     "nvidia-nvshmem-cu13; sys_platform != 'win32'",

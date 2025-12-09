@@ -14,4 +14,5 @@ else
   exit 1
 fi
 
-cythonize -3 -i -Xfreethreading_compatible=True ${SCRIPTPATH}/test_*.pyx
+# Use -j 1 to side-step any process-pool issues and ensure deterministic single-threaded builds
+cythonize -3 -j 1 -i -Xfreethreading_compatible=True ${SCRIPTPATH}/test_*.pyx

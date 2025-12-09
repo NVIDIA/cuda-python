@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 cimport cuda.bindings._bindings.cyruntime as cyruntime
 cimport cython
 
@@ -1421,6 +1421,36 @@ cdef cudaError_t cudaGraphNodeGetType(cudaGraphNode_t node, cudaGraphNodeType* p
     return cyruntime._cudaGraphNodeGetType(node, pType)
 {{endif}}
 
+{{if 'cudaGraphNodeGetContainingGraph' in found_functions}}
+
+cdef cudaError_t cudaGraphNodeGetContainingGraph(cudaGraphNode_t hNode, cudaGraph_t* phGraph) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaGraphNodeGetContainingGraph(hNode, phGraph)
+{{endif}}
+
+{{if 'cudaGraphNodeGetLocalId' in found_functions}}
+
+cdef cudaError_t cudaGraphNodeGetLocalId(cudaGraphNode_t hNode, unsigned int* nodeId) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaGraphNodeGetLocalId(hNode, nodeId)
+{{endif}}
+
+{{if 'cudaGraphNodeGetToolsId' in found_functions}}
+
+cdef cudaError_t cudaGraphNodeGetToolsId(cudaGraphNode_t hNode, unsigned long long* toolsNodeId) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaGraphNodeGetToolsId(hNode, toolsNodeId)
+{{endif}}
+
+{{if 'cudaGraphGetId' in found_functions}}
+
+cdef cudaError_t cudaGraphGetId(cudaGraph_t hGraph, unsigned int* graphID) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaGraphGetId(hGraph, graphID)
+{{endif}}
+
+{{if 'cudaGraphExecGetId' in found_functions}}
+
+cdef cudaError_t cudaGraphExecGetId(cudaGraphExec_t hGraphExec, unsigned int* graphID) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaGraphExecGetId(hGraphExec, graphID)
+{{endif}}
+
 {{if 'cudaGraphGetNodes' in found_functions}}
 
 cdef cudaError_t cudaGraphGetNodes(cudaGraph_t graph, cudaGraphNode_t* nodes, size_t* numNodes) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -1655,6 +1685,12 @@ cdef cudaError_t cudaGraphConditionalHandleCreate(cudaGraphConditionalHandle* pH
     return cyruntime._cudaGraphConditionalHandleCreate(pHandle_out, graph, defaultLaunchValue, flags)
 {{endif}}
 
+{{if 'cudaGraphConditionalHandleCreate_v2' in found_functions}}
+
+cdef cudaError_t cudaGraphConditionalHandleCreate_v2(cudaGraphConditionalHandle* pHandle_out, cudaGraph_t graph, cudaExecutionContext_t ctx, unsigned int defaultLaunchValue, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaGraphConditionalHandleCreate_v2(pHandle_out, graph, ctx, defaultLaunchValue, flags)
+{{endif}}
+
 {{if 'cudaGetDriverEntryPoint' in found_functions}}
 
 cdef cudaError_t cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) except ?cudaErrorCallRequiresNewerDriver nogil:
@@ -1725,6 +1761,96 @@ cdef cudaError_t cudaLibraryEnumerateKernels(cudaKernel_t* kernels, unsigned int
 
 cdef cudaError_t cudaKernelSetAttributeForDevice(cudaKernel_t kernel, cudaFuncAttribute attr, int value, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
     return cyruntime._cudaKernelSetAttributeForDevice(kernel, attr, value, device)
+{{endif}}
+
+{{if 'cudaDeviceGetDevResource' in found_functions}}
+
+cdef cudaError_t cudaDeviceGetDevResource(int device, cudaDevResource* resource, cudaDevResourceType typename) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaDeviceGetDevResource(device, resource, typename)
+{{endif}}
+
+{{if 'cudaDevSmResourceSplitByCount' in found_functions}}
+
+cdef cudaError_t cudaDevSmResourceSplitByCount(cudaDevResource* result, unsigned int* nbGroups, const cudaDevResource* input, cudaDevResource* remaining, unsigned int flags, unsigned int minCount) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaDevSmResourceSplitByCount(result, nbGroups, input, remaining, flags, minCount)
+{{endif}}
+
+{{if 'cudaDevSmResourceSplit' in found_functions}}
+
+cdef cudaError_t cudaDevSmResourceSplit(cudaDevResource* result, unsigned int nbGroups, const cudaDevResource* input, cudaDevResource* remainder, unsigned int flags, cudaDevSmResourceGroupParams* groupParams) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaDevSmResourceSplit(result, nbGroups, input, remainder, flags, groupParams)
+{{endif}}
+
+{{if 'cudaDevResourceGenerateDesc' in found_functions}}
+
+cdef cudaError_t cudaDevResourceGenerateDesc(cudaDevResourceDesc_t* phDesc, cudaDevResource* resources, unsigned int nbResources) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaDevResourceGenerateDesc(phDesc, resources, nbResources)
+{{endif}}
+
+{{if 'cudaGreenCtxCreate' in found_functions}}
+
+cdef cudaError_t cudaGreenCtxCreate(cudaExecutionContext_t* phCtx, cudaDevResourceDesc_t desc, int device, unsigned int flags) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaGreenCtxCreate(phCtx, desc, device, flags)
+{{endif}}
+
+{{if 'cudaExecutionCtxDestroy' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxDestroy(cudaExecutionContext_t ctx) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaExecutionCtxDestroy(ctx)
+{{endif}}
+
+{{if 'cudaExecutionCtxGetDevResource' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxGetDevResource(cudaExecutionContext_t ctx, cudaDevResource* resource, cudaDevResourceType typename) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaExecutionCtxGetDevResource(ctx, resource, typename)
+{{endif}}
+
+{{if 'cudaExecutionCtxGetDevice' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxGetDevice(int* device, cudaExecutionContext_t ctx) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaExecutionCtxGetDevice(device, ctx)
+{{endif}}
+
+{{if 'cudaExecutionCtxGetId' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxGetId(cudaExecutionContext_t ctx, unsigned long long* ctxId) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaExecutionCtxGetId(ctx, ctxId)
+{{endif}}
+
+{{if 'cudaExecutionCtxStreamCreate' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxStreamCreate(cudaStream_t* phStream, cudaExecutionContext_t ctx, unsigned int flags, int priority) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaExecutionCtxStreamCreate(phStream, ctx, flags, priority)
+{{endif}}
+
+{{if 'cudaExecutionCtxSynchronize' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxSynchronize(cudaExecutionContext_t ctx) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaExecutionCtxSynchronize(ctx)
+{{endif}}
+
+{{if 'cudaStreamGetDevResource' in found_functions}}
+
+cdef cudaError_t cudaStreamGetDevResource(cudaStream_t hStream, cudaDevResource* resource, cudaDevResourceType typename) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaStreamGetDevResource(hStream, resource, typename)
+{{endif}}
+
+{{if 'cudaExecutionCtxRecordEvent' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxRecordEvent(cudaExecutionContext_t ctx, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaExecutionCtxRecordEvent(ctx, event)
+{{endif}}
+
+{{if 'cudaExecutionCtxWaitEvent' in found_functions}}
+
+cdef cudaError_t cudaExecutionCtxWaitEvent(cudaExecutionContext_t ctx, cudaEvent_t event) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaExecutionCtxWaitEvent(ctx, event)
+{{endif}}
+
+{{if 'cudaDeviceGetExecutionCtx' in found_functions}}
+
+cdef cudaError_t cudaDeviceGetExecutionCtx(cudaExecutionContext_t* ctx, int device) except ?cudaErrorCallRequiresNewerDriver nogil:
+    return cyruntime._cudaDeviceGetExecutionCtx(ctx, device)
 {{endif}}
 
 {{if 'cudaGetExportTable' in found_functions}}

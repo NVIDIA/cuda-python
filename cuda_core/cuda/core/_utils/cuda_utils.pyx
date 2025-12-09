@@ -5,6 +5,9 @@
 import functools
 from functools import partial
 import importlib.metadata
+import multiprocessing
+import platform
+import warnings
 from collections import namedtuple
 from collections.abc import Sequence
 from contextlib import ExitStack
@@ -283,3 +286,48 @@ class Transaction:
         """
         # pop_all() empties this stack so no callbacks are triggered on exit.
         self._stack.pop_all()
+
+
+# Track whether we've already warned about fork method
+_fork_warning_checked = False
+
+
+def reset_fork_warning():
+    """Reset the fork warning check flag for testing purposes.
+
+    This function is intended for use in tests to allow multiple test runs
+    to check the warning behavior.
+    """
+    global _fork_warning_checked
+    _fork_warning_checked = False
+
+
+def check_multiprocessing_start_method():
+    """Check if multiprocessing start method is 'fork' and warn if so."""
+    global _fork_warning_checked
+    if _fork_warning_checked:
+        return
+    _fork_warning_checked = True
+
+    # Common warning message parts
+    common_message = (
+        "CUDA does not support. Forked subprocesses exhibit undefined behavior, "
+        "including failure to initialize CUDA contexts and devices. Set the start method "
+        "to 'spawn' before creating processes that use CUDA. "
+        "Use: multiprocessing.set_start_method('spawn')"
+    )
+
+    try:
+        start_method = multiprocessing.get_start_method()
+        if start_method == "fork":
+            message = f"multiprocessing start method is 'fork', which {common_message}"
+            warnings.warn(message, UserWarning, stacklevel=3)
+    except RuntimeError:
+        # get_start_method() can raise RuntimeError if start method hasn't been set
+        # In this case, default is 'fork' on Linux, so we should warn
+        if platform.system() == "Linux":
+            message = (
+                f"multiprocessing start method is not set and defaults to 'fork' on Linux, "
+                f"which {common_message}"
+            )
+            warnings.warn(message, UserWarning, stacklevel=3)

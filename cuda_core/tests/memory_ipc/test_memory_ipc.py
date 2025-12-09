@@ -18,6 +18,7 @@ class TestIpcMempool:
         # Set up the IPC-enabled memory pool and share it.
         device = ipc_device
         mr = ipc_memory_resource
+        assert not mr.is_mapped
         pgen = PatternGen(device, NBYTES)
 
         # Start the child process.
@@ -27,6 +28,7 @@ class TestIpcMempool:
 
         # Allocate and fill memory.
         buffer = mr.allocate(NBYTES)
+        assert not buffer.is_mapped
         pgen.fill_buffer(buffer, seed=False)
 
         # Export the buffer via IPC.
@@ -42,7 +44,9 @@ class TestIpcMempool:
 
     def child_main(self, device, mr, queue):
         device.set_current()
+        assert mr.is_mapped
         buffer = queue.get(timeout=CHILD_TIMEOUT_SEC)
+        assert buffer.is_mapped
         pgen = PatternGen(device, NBYTES)
         pgen.verify_buffer(buffer, seed=False)
         pgen.fill_buffer(buffer, seed=True)

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 cimport cuda.bindings._bindings.cydriver as cydriver
 
 {{if 'cuGetErrorString' in found_functions}}
@@ -1180,10 +1180,22 @@ cdef CUresult cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle, size_t m
     return cydriver._cuMulticastBindMem(mcHandle, mcOffset, memHandle, memOffset, size, flags)
 {{endif}}
 
+{{if 'cuMulticastBindMem_v2' in found_functions}}
+
+cdef CUresult cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMulticastBindMem_v2(mcHandle, dev, mcOffset, memHandle, memOffset, size, flags)
+{{endif}}
+
 {{if 'cuMulticastBindAddr' in found_functions}}
 
 cdef CUresult cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuMulticastBindAddr(mcHandle, mcOffset, memptr, size, flags)
+{{endif}}
+
+{{if 'cuMulticastBindAddr_v2' in found_functions}}
+
+cdef CUresult cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuMulticastBindAddr_v2(mcHandle, dev, mcOffset, memptr, size, flags)
 {{endif}}
 
 {{if 'cuMulticastUnbind' in found_functions}}
@@ -1918,6 +1930,36 @@ cdef CUresult cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType* typename) e
     return cydriver._cuGraphNodeGetType(hNode, typename)
 {{endif}}
 
+{{if 'cuGraphNodeGetContainingGraph' in found_functions}}
+
+cdef CUresult cuGraphNodeGetContainingGraph(CUgraphNode hNode, CUgraph* phGraph) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuGraphNodeGetContainingGraph(hNode, phGraph)
+{{endif}}
+
+{{if 'cuGraphNodeGetLocalId' in found_functions}}
+
+cdef CUresult cuGraphNodeGetLocalId(CUgraphNode hNode, unsigned int* nodeId) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuGraphNodeGetLocalId(hNode, nodeId)
+{{endif}}
+
+{{if 'cuGraphNodeGetToolsId' in found_functions}}
+
+cdef CUresult cuGraphNodeGetToolsId(CUgraphNode hNode, unsigned long long* toolsNodeId) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuGraphNodeGetToolsId(hNode, toolsNodeId)
+{{endif}}
+
+{{if 'cuGraphGetId' in found_functions}}
+
+cdef CUresult cuGraphGetId(CUgraph hGraph, unsigned int* graphId) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuGraphGetId(hGraph, graphId)
+{{endif}}
+
+{{if 'cuGraphExecGetId' in found_functions}}
+
+cdef CUresult cuGraphExecGetId(CUgraphExec hGraphExec, unsigned int* graphId) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuGraphExecGetId(hGraphExec, graphId)
+{{endif}}
+
 {{if 'cuGraphGetNodes' in found_functions}}
 
 cdef CUresult cuGraphGetNodes(CUgraph hGraph, CUgraphNode* nodes, size_t* numNodes) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -2592,8 +2634,14 @@ cdef CUresult cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource* resource,
 
 {{if 'cuDevSmResourceSplitByCount' in found_functions}}
 
-cdef CUresult cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remaining, unsigned int useFlags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil:
-    return cydriver._cuDevSmResourceSplitByCount(result, nbGroups, input, remaining, useFlags, minCount)
+cdef CUresult cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuDevSmResourceSplitByCount(result, nbGroups, input, remainder, flags, minCount)
+{{endif}}
+
+{{if 'cuDevSmResourceSplit' in found_functions}}
+
+cdef CUresult cuDevSmResourceSplit(CUdevResource* result, unsigned int nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, CU_DEV_SM_RESOURCE_GROUP_PARAMS* groupParams) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuDevSmResourceSplit(result, nbGroups, input, remainder, flags, groupParams)
 {{endif}}
 
 {{if 'cuDevResourceGenerateDesc' in found_functions}}
@@ -2630,6 +2678,12 @@ cdef CUresult cuGreenCtxStreamCreate(CUstream* phStream, CUgreenCtx greenCtx, un
 
 cdef CUresult cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtxId) except ?CUDA_ERROR_NOT_FOUND nogil:
     return cydriver._cuGreenCtxGetId(greenCtx, greenCtxId)
+{{endif}}
+
+{{if 'cuStreamGetDevResource' in found_functions}}
+
+cdef CUresult cuStreamGetDevResource(CUstream hStream, CUdevResource* resource, CUdevResourceType typename) except ?CUDA_ERROR_NOT_FOUND nogil:
+    return cydriver._cuStreamGetDevResource(hStream, resource, typename)
 {{endif}}
 
 {{if 'cuLogsRegisterCallback' in found_functions}}

@@ -1,0 +1,38 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+.. currentmodule:: cuda.core.experimental
+
+``cuda.core`` 0.5.x Release Notes
+=================================
+
+
+Highlights
+----------
+
+None.
+
+
+Breaking Changes
+----------------
+
+None.
+
+New features
+------------
+
+None.
+
+
+New examples
+------------
+
+None.
+
+
+Fixes and enhancements
+----------------------
+
+- Python ``bool`` objects are now converted to C++ ``bool`` type when passed as kernel
+  arguments.  Previously, they were converted to ``int``.  This brings them inline
+  with ``ctypes.c_bool`` and ``numpy.bool_``.

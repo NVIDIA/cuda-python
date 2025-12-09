@@ -30,10 +30,10 @@ jobs:
       - name: Get CUDA build versions
         id: get-vars
         run: |
-          cuda_build_ver=$(jq -r .cuda.build.version ci/versions.json)
+          cuda_build_ver=$(yq '.cuda.build.version' ci/versions.yml)
           echo "cuda_build_ver=$cuda_build_ver" >> $GITHUB_OUTPUT
 
-          cuda_prev_build_ver=$(jq -r .cuda.prev_build.version ci/versions.json)
+          cuda_prev_build_ver=$(yq '.cuda.prev_build.version' ci/versions.yml)
           echo "cuda_prev_build_ver=$cuda_prev_build_ver" >> $GITHUB_OUTPUT
 
   should-skip:

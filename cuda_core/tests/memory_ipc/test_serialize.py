@@ -122,7 +122,7 @@ class TestObjectSerializationWithMR:
         buffer.close()
 
 
-def test_object_passing(ipc_device, ipc_memory_resource):
+class TestObjectPassing:
     """
     Test sending objects as arguments when starting a process.
 
@@ -131,61 +131,61 @@ def test_object_passing(ipc_device, ipc_memory_resource):
     in multiprocessing (e.g., Queue) work.
     """
 
-    # Define the objects.
-    device = ipc_device
-    mr = ipc_memory_resource
-    alloc_handle = mr.get_allocation_handle()
-    buffer = mr.allocate(NBYTES)
-    buffer_desc = buffer.get_ipc_descriptor()
+    def test_main(self, ipc_device, ipc_memory_resource):
+        # Define the objects.
+        device = ipc_device
+        mr = ipc_memory_resource
+        alloc_handle = mr.get_allocation_handle()
+        buffer = mr.allocate(NBYTES)
+        buffer_desc = buffer.get_ipc_descriptor()
 
-    pgen = PatternGen(device, NBYTES)
-    pgen.fill_buffer(buffer, seed=False)
+        pgen = PatternGen(device, NBYTES)
+        pgen.fill_buffer(buffer, seed=False)
 
-    # Start the child process.
-    process = mp.Process(target=child_main, args=(alloc_handle, mr, buffer_desc, buffer))
-    process.start()
-    process.join(timeout=CHILD_TIMEOUT_SEC)
-    assert process.exitcode == 0
+        # Start the child process.
+        process = mp.Process(target=self.child_main, args=(alloc_handle, mr, buffer_desc, buffer))
+        process.start()
+        process.join(timeout=CHILD_TIMEOUT_SEC)
+        assert process.exitcode == 0
 
-    pgen.verify_buffer(buffer, seed=True)
-    buffer.close()
+        pgen.verify_buffer(buffer, seed=True)
+        buffer.close()
 
+    def child_main(self, alloc_handle, mr1, buffer_desc, buffer1):
+        device = Device()
+        device.set_current()
+        mr2 = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
+        pgen = PatternGen(device, NBYTES)
 
-def child_main(alloc_handle, mr1, buffer_desc, buffer1):
-    device = Device()
-    device.set_current()
-    mr2 = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
-    pgen = PatternGen(device, NBYTES)
+        # OK to build the buffer from either mr and the descriptor.
+        # All buffer* objects point to the same memory.
+        buffer2 = Buffer.from_ipc_descriptor(mr1, buffer_desc)
+        buffer3 = Buffer.from_ipc_descriptor(mr2, buffer_desc)
 
-    # OK to build the buffer from either mr and the descriptor.
-    # All buffer* objects point to the same memory.
-    buffer2 = Buffer.from_ipc_descriptor(mr1, buffer_desc)
-    buffer3 = Buffer.from_ipc_descriptor(mr2, buffer_desc)
+        pgen.verify_buffer(buffer1, seed=False)
+        pgen.verify_buffer(buffer2, seed=False)
+        pgen.verify_buffer(buffer3, seed=False)
 
-    pgen.verify_buffer(buffer1, seed=False)
-    pgen.verify_buffer(buffer2, seed=False)
-    pgen.verify_buffer(buffer3, seed=False)
+        # Modify 1.
+        pgen.fill_buffer(buffer1, seed=True)
 
-    # Modify 1.
-    pgen.fill_buffer(buffer1, seed=True)
+        pgen.verify_buffer(buffer1, seed=True)
+        pgen.verify_buffer(buffer2, seed=True)
+        pgen.verify_buffer(buffer3, seed=True)
 
-    pgen.verify_buffer(buffer1, seed=True)
-    pgen.verify_buffer(buffer2, seed=True)
-    pgen.verify_buffer(buffer3, seed=True)
+        # Modify 2.
+        pgen.fill_buffer(buffer2, seed=False)
 
-    # Modify 2.
-    pgen.fill_buffer(buffer2, seed=False)
+        pgen.verify_buffer(buffer1, seed=False)
+        pgen.verify_buffer(buffer2, seed=False)
+        pgen.verify_buffer(buffer3, seed=False)
 
-    pgen.verify_buffer(buffer1, seed=False)
-    pgen.verify_buffer(buffer2, seed=False)
-    pgen.verify_buffer(buffer3, seed=False)
+        # Modify 3.
+        pgen.fill_buffer(buffer3, seed=True)
 
-    # Modify 3.
-    pgen.fill_buffer(buffer3, seed=True)
+        pgen.verify_buffer(buffer1, seed=True)
+        pgen.verify_buffer(buffer2, seed=True)
+        pgen.verify_buffer(buffer3, seed=True)
 
-    pgen.verify_buffer(buffer1, seed=True)
-    pgen.verify_buffer(buffer2, seed=True)
-    pgen.verify_buffer(buffer3, seed=True)
-
-    # Close any one buffer.
-    buffer1.close()
+        # Close any one buffer.
+        buffer1.close()

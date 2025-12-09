@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.0.2. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -37,6 +37,7 @@ ctypedef CUFileSizeTConfigParameter_t _SizeTConfigParameter
 ctypedef CUFileBoolConfigParameter_t _BoolConfigParameter
 ctypedef CUFileStringConfigParameter_t _StringConfigParameter
 ctypedef CUFileArrayConfigParameter_t _ArrayConfigParameter
+ctypedef CUfileP2PFlags_t _P2PFlags
 
 
 ###############################################################################
