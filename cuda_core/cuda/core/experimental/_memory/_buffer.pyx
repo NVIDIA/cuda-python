@@ -5,17 +5,14 @@
 from __future__ import annotations
 
 cimport cython
-from libc.stdint cimport uintptr_t
+from libc.stdint cimport uintptr_t, int64_t, uint64_t
 
+from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
 from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor, IPCDataForBuffer
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._stream cimport Stream_accept, Stream
-from cuda.core.experimental._utils.cuda_utils cimport (
-    _check_driver_error as raise_if_driver_error,
-    HANDLE_RETURN,
-)
-from cuda.bindings cimport cydriver
+from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 import abc
 from typing import TypeVar, Union
@@ -152,6 +149,7 @@ cdef class Buffer:
 
         """
         stream = Stream_accept(stream)
+        cdef Stream s_stream = <Stream>stream
         cdef size_t src_size = self._size
 
         if dst is None:
@@ -165,8 +163,14 @@ cdef class Buffer:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        err, = driver.cuMemcpyAsync(dst._ptr, self._ptr, src_size, stream.handle)
-        raise_if_driver_error(err)
+        cdef cydriver.CUstream s = s_stream._handle
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemcpyAsync(
+                <cydriver.CUdeviceptr>dst._ptr,
+                <cydriver.CUdeviceptr>self._ptr,
+                src_size,
+                s
+            ))
         return dst
 
     def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder):
@@ -182,6 +186,7 @@ cdef class Buffer:
 
         """
         stream = Stream_accept(stream)
+        cdef Stream s_stream = <Stream>stream
         cdef size_t dst_size = self._size
         cdef size_t src_size = src._size
 
@@ -189,8 +194,70 @@ cdef class Buffer:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        err, = driver.cuMemcpyAsync(self._ptr, src._ptr, dst_size, stream.handle)
-        raise_if_driver_error(err)
+        cdef cydriver.CUstream s = s_stream._handle
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemcpyAsync(
+                <cydriver.CUdeviceptr>self._ptr,
+                <cydriver.CUdeviceptr>src._ptr,
+                dst_size,
+                s
+            ))
+
+    def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
+        """Fill this buffer with a value pattern asynchronously on the given stream.
+
+        Parameters
+        ----------
+        value : int
+            Integer value to fill the buffer with
+        width : int
+            Width in bytes for each element (must be 1, 2, or 4)
+        stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
+            Keyword argument specifying the stream for the asynchronous fill
+
+        Raises
+        ------
+        ValueError
+            If width is not 1, 2, or 4, if value is out of range for the width,
+            or if buffer size is not divisible by width
+
+        """
+        cdef Stream s_stream = Stream_accept(stream)
+        cdef unsigned char c_value8
+        cdef unsigned short c_value16
+        cdef unsigned int c_value32
+        cdef size_t N
+
+        # Validate width
+        if width not in (1, 2, 4):
+            raise ValueError(f"width must be 1, 2, or 4, got {width}")
+
+        # Validate buffer size modulus.
+        cdef size_t buffer_size = self._size
+        if buffer_size % width != 0:
+            raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
+
+        # Map width (bytes) to bitwidth and validate value
+        cdef int bitwidth = width * 8
+        _validate_value_against_bitwidth(bitwidth, value, is_signed=False)
+
+        # Validate value fits in width and perform fill
+        cdef cydriver.CUstream s = s_stream._handle
+        if width == 1:
+            c_value8 = <unsigned char>value
+            N = buffer_size
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemsetD8Async(<cydriver.CUdeviceptr>self._ptr, c_value8, N, s))
+        elif width == 2:
+            c_value16 = <unsigned short>value
+            N = buffer_size // 2
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemsetD16Async(<cydriver.CUdeviceptr>self._ptr, c_value16, N, s))
+        else:  # width == 4
+            c_value32 = <unsigned int>value
+            N = buffer_size // 4
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemsetD32Async(<cydriver.CUdeviceptr>self._ptr, c_value32, N, s))
 
     def __dlpack__(
         self,
@@ -433,3 +500,43 @@ cdef class MemoryResource:
             and document the behavior.
         """
         ...
+
+
+# Helper Functions
+# ----------------
+cdef void _validate_value_against_bitwidth(int bitwidth, int64_t value, bint is_signed=False) except *:
+    """Validate that a value fits within the representable range for a given bitwidth.
+
+    Parameters
+    ----------
+    bitwidth : int
+        Number of bits (e.g., 8, 16, 32)
+    value : int64_t
+        Value to validate
+    is_signed : bool, optional
+        Whether the value is signed (default: False)
+
+    Raises
+    ------
+    ValueError
+        If value is outside the representable range for the bitwidth
+    """
+    cdef int max_bits = bitwidth
+    assert max_bits < 64, f"bitwidth ({max_bits}) must be less than 64"
+
+    cdef int64_t min_value
+    cdef uint64_t max_value_unsigned
+    cdef int64_t max_value
+
+    if is_signed:
+        min_value = -(<int64_t>1 << (max_bits - 1))
+        max_value = (<int64_t>1 << (max_bits - 1)) - 1
+    else:
+        min_value = 0
+        max_value_unsigned = (<uint64_t>1 << max_bits) - 1
+        max_value = <int64_t>max_value_unsigned
+
+    if not min_value <= value <= max_value:
+        raise ValueError(
+            f"value must be in range [{min_value}, {max_value}]"
+        )

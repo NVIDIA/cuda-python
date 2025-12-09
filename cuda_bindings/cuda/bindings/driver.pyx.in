@@ -44499,6 +44499,209 @@ def cuGraphNodeGetType(hNode):
     return (_dict_CUresult[err], CUgraphNodeType(typename))
 {{endif}}
 
+{{if 'cuGraphNodeGetContainingGraph' in found_functions}}
+
+@cython.embedsignature(True)
+def cuGraphNodeGetContainingGraph(hNode):
+    """ Returns the graph that contains a given graph node.
+
+    Returns the graph that contains `hNode` in `*phGraph`. If `hNode` is in
+    a child graph, the child graph it is in is returned.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to query
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+    *phGraph : :py:obj:`~.CUgraph`
+        Pointer to return the containing graph
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphGetNodes`, :py:obj:`~.cuGraphDebugDotPrint` :py:obj:`~.cuGraphNodeGetLocalId` :py:obj:`~.cuGraphNodeGetToolsId` :py:obj:`~.cuGraphGetId` :py:obj:`~.cuGraphExecGetId`
+    """
+    cdef cydriver.CUgraphNode cyhNode
+    if hNode is None:
+        phNode = 0
+    elif isinstance(hNode, (CUgraphNode,)):
+        phNode = int(hNode)
+    else:
+        phNode = int(CUgraphNode(hNode))
+    cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
+    cdef CUgraph phGraph = CUgraph()
+    with nogil:
+        err = cydriver.cuGraphNodeGetContainingGraph(cyhNode, <cydriver.CUgraph*>phGraph._pvt_ptr)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_dict_CUresult[err], None)
+    return (_dict_CUresult[err], phGraph)
+{{endif}}
+
+{{if 'cuGraphNodeGetLocalId' in found_functions}}
+
+@cython.embedsignature(True)
+def cuGraphNodeGetLocalId(hNode):
+    """ Returns the local node id of a given graph node.
+
+    Returns the node id of `hNode` in `*nodeId`. The nodeId matches that
+    referenced by :py:obj:`~.cuGraphDebugDotPrint`. The local nodeId and
+    graphId together can uniquely identify the node.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to query
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+    nodeId : unsigned int
+        Pointer to return the nodeId
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphGetNodes`, :py:obj:`~.cuGraphDebugDotPrint` :py:obj:`~.cuGraphNodeGetContainingGraph` :py:obj:`~.cuGraphNodeGetToolsId` :py:obj:`~.cuGraphGetId` :py:obj:`~.cuGraphExecGetId`
+    """
+    cdef cydriver.CUgraphNode cyhNode
+    if hNode is None:
+        phNode = 0
+    elif isinstance(hNode, (CUgraphNode,)):
+        phNode = int(hNode)
+    else:
+        phNode = int(CUgraphNode(hNode))
+    cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
+    cdef unsigned int nodeId = 0
+    with nogil:
+        err = cydriver.cuGraphNodeGetLocalId(cyhNode, &nodeId)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_dict_CUresult[err], None)
+    return (_dict_CUresult[err], nodeId)
+{{endif}}
+
+{{if 'cuGraphNodeGetToolsId' in found_functions}}
+
+@cython.embedsignature(True)
+def cuGraphNodeGetToolsId(hNode):
+    """ Returns an id used by tools to identify a given node.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to query
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+    *toolsNodeId : unsigned long long
+        Pointer to return the id used by tools
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphGetNodes`, :py:obj:`~.cuGraphDebugDotPrint` :py:obj:`~.cuGraphNodeGetContainingGraph` :py:obj:`~.cuGraphNodeGetLocalId` :py:obj:`~.cuGraphGetId` :py:obj:`~.cuGraphExecGetId`
+    """
+    cdef cydriver.CUgraphNode cyhNode
+    if hNode is None:
+        phNode = 0
+    elif isinstance(hNode, (CUgraphNode,)):
+        phNode = int(hNode)
+    else:
+        phNode = int(CUgraphNode(hNode))
+    cyhNode = <cydriver.CUgraphNode><void_ptr>phNode
+    cdef unsigned long long toolsNodeId = 0
+    with nogil:
+        err = cydriver.cuGraphNodeGetToolsId(cyhNode, &toolsNodeId)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_dict_CUresult[err], None)
+    return (_dict_CUresult[err], toolsNodeId)
+{{endif}}
+
+{{if 'cuGraphGetId' in found_functions}}
+
+@cython.embedsignature(True)
+def cuGraphGetId(hGraph):
+    """ Returns the id of a given graph.
+
+    Returns the id of `hGraph` in `*graphId`. The value in `*graphId` will
+    match that referenced by :py:obj:`~.cuGraphDebugDotPrint`.
+
+    Parameters
+    ----------
+    hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to query
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+    *graphId : unsigned int
+        Pointer to return the graphId
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphGetNodes`, :py:obj:`~.cuGraphDebugDotPrint` :py:obj:`~.cuGraphNodeGetContainingGraph` :py:obj:`~.cuGraphNodeGetLocalId` :py:obj:`~.cuGraphNodeGetToolsId` :py:obj:`~.cuGraphExecGetId`
+    """
+    cdef cydriver.CUgraph cyhGraph
+    if hGraph is None:
+        phGraph = 0
+    elif isinstance(hGraph, (CUgraph,)):
+        phGraph = int(hGraph)
+    else:
+        phGraph = int(CUgraph(hGraph))
+    cyhGraph = <cydriver.CUgraph><void_ptr>phGraph
+    cdef unsigned int graphId = 0
+    with nogil:
+        err = cydriver.cuGraphGetId(cyhGraph, &graphId)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_dict_CUresult[err], None)
+    return (_dict_CUresult[err], graphId)
+{{endif}}
+
+{{if 'cuGraphExecGetId' in found_functions}}
+
+@cython.embedsignature(True)
+def cuGraphExecGetId(hGraphExec):
+    """ Returns the id of a given graph exec.
+
+    Returns the id of `hGraphExec` in `*graphId`. The value in `*graphId`
+    will match that referenced by :py:obj:`~.cuGraphDebugDotPrint`.
+
+    Parameters
+    ----------
+    hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+        Graph to query
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+    *graphId : unsigned int
+        Pointer to return the graphId
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphGetNodes`, :py:obj:`~.cuGraphDebugDotPrint` :py:obj:`~.cuGraphNodeGetContainingGraph` :py:obj:`~.cuGraphNodeGetLocalId` :py:obj:`~.cuGraphNodeGetToolsId` :py:obj:`~.cuGraphGetId`
+    """
+    cdef cydriver.CUgraphExec cyhGraphExec
+    if hGraphExec is None:
+        phGraphExec = 0
+    elif isinstance(hGraphExec, (CUgraphExec,)):
+        phGraphExec = int(hGraphExec)
+    else:
+        phGraphExec = int(CUgraphExec(hGraphExec))
+    cyhGraphExec = <cydriver.CUgraphExec><void_ptr>phGraphExec
+    cdef unsigned int graphId = 0
+    with nogil:
+        err = cydriver.cuGraphExecGetId(cyhGraphExec, &graphId)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_dict_CUresult[err], None)
+    return (_dict_CUresult[err], graphId)
+{{endif}}
+
 {{if 'cuGraphGetNodes' in found_functions}}
 
 @cython.embedsignature(True)
@@ -52322,6 +52525,167 @@ def cuDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[CUdevRe
     return (_dict_CUresult[err], pyresult, cynbGroups, remainder)
 {{endif}}
 
+{{if 'cuDevSmResourceSplit' in found_functions}}
+
+@cython.embedsignature(True)
+def cuDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[CUdevResource], unsigned int flags, groupParams : Optional[CU_DEV_SM_RESOURCE_GROUP_PARAMS]):
+    """ Splits a `CU_DEV_RESOURCE_TYPE_SM` resource into structured groups.
+
+    This API will split a resource of :py:obj:`~.CU_DEV_RESOURCE_TYPE_SM`
+    into `nbGroups` structured device resource groups (the `result` array),
+    as well as an optional `remainder`, according to a set of requirements
+    specified in the `groupParams` array. The term “structured” is a trait
+    that specifies the `result` has SMs that are co-scheduled together.
+    This co-scheduling can be specified via the `coscheduledSmCount` field
+    of the `groupParams` structure, while the `smCount` will specify how
+    many SMs are required in total for that result. The remainder is always
+    “unstructured”, it does not have any set guarantees with respect to co-
+    scheduling and those properties will need to either be queried via the
+    occupancy set of APIs or further split into structured groups by this
+    API.
+
+    The API has a discovery mode for use cases where it is difficult to
+    know ahead of time what the SM count should be. Discovery happens when
+    the `smCount` field of a given `groupParams` array entry is set to 0 -
+    the smCount will be filled in by the API with the derived SM count
+    according to the provided `groupParams` fields and constraints.
+    Discovery can be used with both a valid result array and with a NULL
+    `result` pointer value. The latter is useful in situations where the
+    smCount will end up being zero, which is an invalid value to create a
+    result entry with, but allowed for discovery purposes when the `result`
+    is NULL.
+
+    The `groupParams` array is evaluated from index 0 to `nbGroups` - 1.
+    For each index in the `groupParams` array, the API will evaluate which
+    SMs may be a good fit based on constraints and assign those SMs to
+    `result`. This evaluation order is important to consider when using
+    discovery mode, as it helps discover the remaining SMs.
+
+    For a valid call:
+
+    - `result` should point to a `None` array of size `nbGroups`, or
+      alternatively, may be NULL, if the developer wishes for only the
+      groupParams entries to be updated
+
+    - `input` should be a valid :py:obj:`~.CU_DEV_RESOURCE_TYPE_SM`
+      resource that originates from querying the green context, device
+      context, or device.
+
+    - The `remainder` group may be NULL.
+
+    - There are no API `flags` at this time, so the value passed in should
+      be 0.
+
+    - A :py:obj:`~.CU_DEV_SM_RESOURCE_GROUP_PARAMS` array of size
+      `nbGroups`. Each entry must be zero-initialized.
+
+      - `smCount:` must be either 0 or in the range of [2,inputSmCount]
+        where inputSmCount is the amount of SMs the `input` resource has.
+        `smCount` must be a multiple of 2, as well as a multiple of
+        `coscheduledSmCount`. When assigning SMs to a group (and if results
+        are expected by having the `result` parameter set), `smCount`
+        cannot end up with 0 or a value less than `coscheduledSmCount`
+        otherwise CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION will be
+        returned.
+
+      - `coscheduledSmCount:` allows grouping SMs together in order to be
+        able to launch clusters on Compute Architecture 9.0+. The default
+        value may be queried from the device’s
+        :py:obj:`~.CU_DEV_RESOURCE_TYPE_SM` resource (8 on Compute
+        Architecture 9.0+ and 2 otherwise). The maximum is 32 on Compute
+        Architecture 9.0+ and 2 otherwise.
+
+      - `preferredCoscheduledSmCount:` Attempts to merge
+        `coscheduledSmCount` groups into larger groups, in order to make
+        use of `preferredClusterDimensions` on Compute Architecture 10.0+.
+        The default value is set to `coscheduledSmCount`.
+
+      - `flags:`
+
+    - `CU_DEV_SM_RESOURCE_SPLIT_BACKFILL:` lets `smCount` be a non-multiple
+    of `coscheduledSmCount`, filling the difference between SM count and
+    already assigned co-scheduled groupings with other SMs. This lets any
+    resulting group behave similar to the `remainder` group for example.
+
+    Example params and their effect:
+
+    A groupParams array element is defined in the following order:
+
+    **View CUDA Toolkit Documentation for a C++ code example**
+
+    **View CUDA Toolkit Documentation for a C++ code example**
+
+    **View CUDA Toolkit Documentation for a C++ code example**
+
+    **View CUDA Toolkit Documentation for a C++ code example**
+
+    The difference between a catch-all param group as the last entry and
+    the remainder is in two aspects:
+
+    - The remainder may be NULL / _TYPE_INVALID (if there are no SMs
+      remaining), while a result group must always be valid.
+
+    - The remainder does not have a structure, while the result group will
+      always need to adhere to a structure of coscheduledSmCount (even if
+      its just 2), and therefore must always have enough coscheduled SMs to
+      cover that requirement (even with the
+      `CU_DEV_SM_RESOURCE_SPLIT_BACKFILL` flag enabled).
+
+    Splitting an input into N groups, can be accomplished by repeatedly
+    splitting off 1 group and re-splitting the remainder (a bisect
+    operation). However, it's recommended to accomplish this with a single
+    call wherever possible.
+
+    Parameters
+    ----------
+    nbGroups : unsigned int
+        Specifies the number of groups in `result` and `groupParams`
+    input : :py:obj:`~.CUdevResource`
+        Input SM resource to be split. Must be a valid
+        `CU_DEV_RESOURCE_TYPE_SM` resource.
+    flags : unsigned int
+        Flags specifying how the API should behave. The value should be 0
+        for now.
+    groupParams : :py:obj:`~.CU_DEV_SM_RESOURCE_GROUP_PARAMS`
+        Description of how the SMs should be split and assigned to the
+        corresponding result entry.
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_DEVICE`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_RESOURCE_TYPE`, :py:obj:`~.CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION`
+    result : list[:py:obj:`~.CUdevResource`]
+        Output array of `None` resources. Can be NULL, alongside an smCount
+        of 0, for discovery purpose.
+    remainder : :py:obj:`~.CUdevResource`
+        If splitting the input resource leaves any SMs, the remainder is
+        placed in here.
+
+    See Also
+    --------
+    :py:obj:`~.cuGreenCtxGetDevResource`, :py:obj:`~.cuCtxGetDevResource`, :py:obj:`~.cuDeviceGetDevResource`
+    """
+    cdef cydriver.CUdevResource* cyresult = NULL
+    pyresult = [CUdevResource() for idx in range(nbGroups)]
+    if nbGroups != 0:
+        cyresult = <cydriver.CUdevResource*>calloc(nbGroups, sizeof(cydriver.CUdevResource))
+        if cyresult is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(nbGroups) + 'x' + str(sizeof(cydriver.CUdevResource)))
+    cdef cydriver.CUdevResource* cyinput__ptr = input_._pvt_ptr if input_ is not None else NULL
+    cdef CUdevResource remainder = CUdevResource()
+    cdef cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS* cygroupParams_ptr = groupParams._pvt_ptr if groupParams is not None else NULL
+    with nogil:
+        err = cydriver.cuDevSmResourceSplit(cyresult, nbGroups, cyinput__ptr, <cydriver.CUdevResource*>remainder._pvt_ptr, flags, cygroupParams_ptr)
+    if CUresult(err) == CUresult(0):
+        for idx in range(nbGroups):
+            string.memcpy((<CUdevResource>pyresult[idx])._pvt_ptr, &cyresult[idx], sizeof(cydriver.CUdevResource))
+    if cyresult is not NULL:
+        free(cyresult)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_dict_CUresult[err], None, None)
+    return (_dict_CUresult[err], pyresult, remainder)
+{{endif}}
+
 {{if 'cuDevResourceGenerateDesc' in found_functions}}
 
 @cython.embedsignature(True)
@@ -52677,6 +53041,54 @@ def cuGreenCtxGetId(greenCtx):
     if err != cydriver.CUDA_SUCCESS:
         return (_dict_CUresult[err], None)
     return (_dict_CUresult[err], greenCtxId)
+{{endif}}
+
+{{if 'cuStreamGetDevResource' in found_functions}}
+
+@cython.embedsignature(True)
+def cuStreamGetDevResource(hStream, typename not None : CUdevResourceType):
+    """ Get stream resources.
+
+    Get the `typename` resources available to the `hStream` and store them
+    in `resource`.
+
+    Note: The API will return :py:obj:`~.CUDA_ERROR_INVALID_RESOURCE_TYPE`
+    is `typename` is `CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG` or
+    `CU_DEV_RESOURCE_TYPE_WORKQUEUE`.
+
+    Parameters
+    ----------
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        Stream to get resource for
+    typename : :py:obj:`~.CUdevResourceType`
+        Type of resource to retrieve
+
+    Returns
+    -------
+    CUresult
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_DEINITIALIZED`, :py:obj:`~.CUDA_ERROR_NOT_INITIALIZED`, :py:obj:`~.CUDA_ERROR_INVALID_RESOURCE_TYPE`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_INVALID_HANDLE`
+    resource : :py:obj:`~.CUdevResource`
+        Output pointer to a :py:obj:`~.CUdevResource` structure
+
+    See Also
+    --------
+    :py:obj:`~.cuGreenCtxCreate`, :py:obj:`~.cuGreenCtxStreamCreate`, :py:obj:`~.cuStreamCreate`, :py:obj:`~.cuDevSmResourceSplitByCount`, :py:obj:`~.cuDevResourceGenerateDesc`, :py:obj:`~.cudaStreamGetDevResource`
+    """
+    cdef cydriver.CUstream cyhStream
+    if hStream is None:
+        phStream = 0
+    elif isinstance(hStream, (CUstream,)):
+        phStream = int(hStream)
+    else:
+        phStream = int(CUstream(hStream))
+    cyhStream = <cydriver.CUstream><void_ptr>phStream
+    cdef CUdevResource resource = CUdevResource()
+    cdef cydriver.CUdevResourceType cytypename = typename.value
+    with nogil:
+        err = cydriver.cuStreamGetDevResource(cyhStream, <cydriver.CUdevResource*>resource._pvt_ptr, cytypename)
+    if err != cydriver.CUDA_SUCCESS:
+        return (_dict_CUresult[err], None)
+    return (_dict_CUresult[err], resource)
 {{endif}}
 
 {{if 'cuLogsRegisterCallback' in found_functions}}
