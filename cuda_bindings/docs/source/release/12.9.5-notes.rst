@@ -6,8 +6,6 @@
 ``cuda-bindings`` 12.9.5 Release notes
 ======================================
 
-
-
 Highlights
 ----------
 
@@ -18,6 +16,11 @@ Bug fixes
 ---------
 
 * Fixed ``cuStreamBeginCaptureToGraph`` to allow the ``dependencyData`` argument to be optional, matching the underlying CUDA API behavior.
+
+Experimental
+------------
+
+* Experimental NVML bindings were added under ``cuda.bindings._nvml``.
 
 Known issues
 ------------
