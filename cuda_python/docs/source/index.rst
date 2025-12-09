@@ -7,7 +7,7 @@ CUDA Python
 CUDA Python is the home for accessing NVIDIA's CUDA platform from Python. It consists of
 multiple components:
 
-- `cuda.core`_: Pythonic access to CUDA Runtime and other core functionalities
+- `cuda.core`_: Pythonic access to CUDA Runtime and other core functionality
 - `cuda.bindings`_: Low-level Python bindings to CUDA C APIs
 - `cuda.pathfinder`_: Utilities for locating CUDA components installed in the user's Python environment
 - `cuda.coop`_: A Python module providing CCCL's reusable block-wide and warp-wide *device* primitives for use within Numba CUDA kernels
@@ -33,7 +33,7 @@ multiple components:
 .. _CUPTI Python: https://docs.nvidia.com/cupti-python/
 
 CUDA Python is currently undergoing an overhaul to improve existing and introduce new components.
-All of the previously available functionalities from the ``cuda-python`` package will continue to
+All of the previously available functionality from the ``cuda-python`` package will continue to
 be available, please refer to the `cuda.bindings`_ documentation for installation guide and further detail.
 
 ..

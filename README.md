@@ -2,7 +2,7 @@
 
 CUDA Python is the home for accessing NVIDIA’s CUDA platform from Python. It consists of multiple components:
 
-* [cuda.core](https://nvidia.github.io/cuda-python/cuda-core/latest): Pythonic access to CUDA Runtime and other core functionalities
+* [cuda.core](https://nvidia.github.io/cuda-python/cuda-core/latest): Pythonic access to CUDA Runtime and other core functionality
 * [cuda.bindings](https://nvidia.github.io/cuda-python/cuda-bindings/latest): Low-level Python bindings to CUDA C APIs
 * [cuda.pathfinder](https://nvidia.github.io/cuda-python/cuda-pathfinder/latest): Utilities for locating CUDA components installed in the user's Python environment
 * [cuda.coop](https://nvidia.github.io/cccl/python/coop): A Python module providing CCCL's reusable block-wide and warp-wide *device* primitives for use within Numba CUDA kernels
@@ -14,7 +14,7 @@ CUDA Python is the home for accessing NVIDIA’s CUDA platform from Python. It c
 * [Nsight Python](https://docs.nvidia.com/nsight-python/index.html): Python kernel profiling interface that automates performance analysis across multiple kernel configurations using NVIDIA Nsight Tools
 * [CUPTI Python](https://docs.nvidia.com/cupti-python/): Python APIs for creation of profiling tools that target CUDA Python applications via the CUDA Profiling Tools Interface (CUPTI)
 
-CUDA Python is currently undergoing an overhaul to improve existing and introduce new components. All of the previously available functionalities from the `cuda-python` package will continue to be available, please refer to the [cuda.bindings](https://nvidia.github.io/cuda-python/cuda-bindings/latest) documentation for installation guide and further detail.
+CUDA Python is currently undergoing an overhaul to improve existing and introduce new components. All of the previously available functionality from the `cuda-python` package will continue to be available, please refer to the [cuda.bindings](https://nvidia.github.io/cuda-python/cuda-bindings/latest) documentation for installation guide and further detail.
 
 ## cuda-python as a metapackage
 
