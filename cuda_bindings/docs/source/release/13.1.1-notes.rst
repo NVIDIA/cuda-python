@@ -14,6 +14,12 @@ Highlights
 * Add missing driver & runtime bindings for functions new in CTK 13.1.0
   (`PR #1321 <https://github.com/NVIDIA/cuda-python/pull/1321>`_)
 
+Experimental
+------------
+
+* Experimental NVML bindings were added under ``cuda.bindings._nvml``
+  (`PR #1284 <https://github.com/NVIDIA/cuda-python/pull/1284`_)
+
 Known issues
 ------------
 
