@@ -447,9 +447,9 @@ def test_program_options_as_bytes_empty():
 
     byte_options = options.as_bytes()
 
-    # Should at least have arch option (set to device default)
+    # Should at least have arch option (automatically set based on Device if not provided)
     assert isinstance(byte_options, list)
     assert len(byte_options) > 0
     assert all(isinstance(opt, bytes) for opt in byte_options)
-    # The arch option should be present (even if it's the default)
+    # The arch option should be present (automatically determined from current device)
     assert any(b"-arch=" in opt for opt in byte_options)
