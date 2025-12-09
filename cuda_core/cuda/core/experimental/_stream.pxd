@@ -2,18 +2,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.bindings cimport cydriver
-from cuda.core.experimental._resource_handles cimport StreamHandle
+from cuda.core.experimental._resource_handles cimport ContextHandle, StreamHandle
 
 
 cdef class Stream:
 
     cdef:
         StreamHandle _h_stream
+        ContextHandle _h_context
+        int _device_id
         int _nonblocking
         int _priority
-        cydriver.CUdevice _device_id
-        cydriver.CUcontext _ctx_handle
 
     @staticmethod
     cdef Stream _from_handle(type cls, StreamHandle h_stream)
