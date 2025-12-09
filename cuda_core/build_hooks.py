@@ -105,26 +105,17 @@ def _build_cuda_core():
         if os.path.exists(cpp_file):
             sources.append(cpp_file)
 
-        # Modules that use resource handles need to link against _resource_handles_impl.cpp
-        # This includes _context, _stream, _event, etc. as they adopt handle-based management
-        # Modules that call into the handle helpers implemented in
-        # `_resource_handles_impl.cpp` must link against that translation unit.
-        # Keep this in sync with any module that cimports `get_primary_context`
-        # or other helpers defined there.
-        resource_handle_users = {"_context", "_stream", "_event", "_device"}
-        if mod_name in resource_handle_users:
-            resource_handles_impl = "cuda/core/experimental/_resource_handles_impl.cpp"
-            if os.path.exists(resource_handles_impl):
-                sources.append(resource_handles_impl)
-
         return sources
 
     def get_extension_kwargs(mod_name):
         """Return Extension kwargs (libraries, library_dirs) per module."""
 
-        resource_handle_users = {"_context", "_stream", "_event", "_device"}
+        # Modules that use CUDA driver APIs need to link against libcuda
+        # _resource_handles: contains the C++ implementation that calls CUDA driver
+        # _context, _stream, _event, _device: use resource handles and may call CUDA driver directly
+        cuda_users = {"_resource_handles", "_context", "_stream", "_event", "_device"}
         kwargs = {}
-        if mod_name in resource_handle_users:
+        if mod_name in cuda_users:
             kwargs["libraries"] = ["cuda"]
             kwargs["library_dirs"] = get_cuda_library_dirs()
         return kwargs

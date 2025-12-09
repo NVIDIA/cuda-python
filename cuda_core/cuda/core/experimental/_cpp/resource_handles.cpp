@@ -35,6 +35,10 @@ public:
         }
     }
 
+    // Non-copyable, non-movable
+    GILReleaseGuard(const GILReleaseGuard&) = delete;
+    GILReleaseGuard& operator=(const GILReleaseGuard&) = delete;
+
 private:
     PyThreadState* tstate_;
     bool released_;
@@ -117,29 +121,5 @@ ContextHandle get_current_context() noexcept {
     }
     return create_context_handle_ref(ctx);
 }
-
-// ============================================================================
-// Stream Handles
-// ============================================================================
-
-// TODO: Implement StreamH create_stream_handle(...) when Stream gets handle support
-
-// ============================================================================
-// Event Handles
-// ============================================================================
-
-// TODO: Implement EventH create_event_handle(...) when Event gets handle support
-
-// ============================================================================
-// Device Pointer Handles
-// ============================================================================
-
-// TODO: Implement DevicePtrH create_deviceptr_handle(...) when DevicePtr gets handle support
-
-// ============================================================================
-// Memory Pool Handles
-// ============================================================================
-
-// TODO: Implement MemPoolH create_mempool_handle(...) when MemPool gets handle support
 
 }  // namespace cuda_core

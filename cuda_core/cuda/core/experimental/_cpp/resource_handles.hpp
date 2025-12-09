@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <memory>
 #include <cuda.h>
+#include <memory>
 
 namespace cuda_core {
 
