@@ -43,17 +43,13 @@ def device_info():
             name = nvml.device_get_name(dev)
             # Get architecture name ex: Ampere, Kepler
             arch_id = nvml.device_get_architecture(dev)
-            # 1 = NVML_DEVICE_ARCH_KEPLER and 12 = NVML_DEVICE_ARCH_COUNT
-            assert 1 <= arch_id <= 12, "Architecture not found, presumably something newer"
-            # arch_name = (utils.nvml_architecture_name.get(archID)).split("_")[-1]
-            # archName = archName[0] + archName[1:].lower()
 
             BoardCfg = namedtuple("BoardCfg", "name, ids_arr")
             board = BoardCfg(name, ids_arr=[(pci_info.pci_device_id, pci_info.pci_sub_system_id)])
 
             try:
                 serial = nvml.device_get_serial(dev)
-            except:
+            except nvml.NvmlError:
                 serial = None
 
             bus_id = pci_info.bus_id

@@ -8,7 +8,6 @@ import time
 
 import pytest
 from cuda.bindings import _nvml as nvml
-from looseversion import LooseVersion
 
 from . import util
 
@@ -18,7 +17,7 @@ XFAIL_LEGACY_NVLINK_MSG = "Legacy NVLink test expected to fail."
 def test_system_get_nvml_version(nvml_init):
     vsn = nvml.system_get_nvml_version()
     assert isinstance(vsn, str)
-    assert vsn > LooseVersion("0.0")
+    assert tuple(int(x) for x in vsn.split(".")[:2]) > (0, 0)
 
 
 def test_system_get_cuda_driver_version(nvml_init):
@@ -38,7 +37,7 @@ def test_nvml_system_get_process_name(nvml_init):
 def test_system_get_driver_version(nvml_init):
     vsn = nvml.system_get_driver_version()
     assert isinstance(vsn, str)
-    assert vsn > LooseVersion("0.0")
+    assert tuple(int(x) for x in vsn.split(".")[:2]) > (0, 0)
 
 
 def test_device_get_attributes(mig_handles):
