@@ -43,14 +43,14 @@
 
 
 
-    <script src="_static/documentation_options.js?v=d8404505"></script>
+    <script src="_static/documentation_options.js?v=cac1c265"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.1a0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -208,8 +208,8 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/cooperative">
-    cuda.cccl.cooperative
+  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/coop">
+    cuda.coop
   </a>
 </li>
 
@@ -222,8 +222,8 @@
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
 <li class=" ">
-  <a class="nav-link dropdown-item nav-external" href="https://nvidia.github.io/cccl/python/parallel">
-    cuda.cccl.parallel
+  <a class="nav-link dropdown-item nav-external" href="https://nvidia.github.io/cccl/python/compute">
+    cuda.compute
   </a>
 </li>
 
@@ -236,8 +236,36 @@
 
 
 <li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://docs.nvidia.com/cuda/cutile-python/">
+    cuda.tile
+  </a>
+</li>
+
+
+<li class=" ">
   <a class="nav-link dropdown-item nav-external" href="https://docs.nvidia.com/cuda/nvmath-python/">
     nvmath-python
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html">
+    nvshmem4py
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://docs.nvidia.com/nsight-python/index.html">
+    Nsight Python
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://docs.nvidia.com/cupti-python/">
+    CUPTI Python
   </a>
 </li>
 
@@ -393,15 +421,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/cooperative">
-    cuda.cccl.cooperative
+  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/coop">
+    cuda.coop
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/parallel">
-    cuda.cccl.parallel
+  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/compute">
+    cuda.compute
   </a>
 </li>
 
@@ -414,8 +442,36 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-external" href="https://docs.nvidia.com/cuda/cutile-python/">
+    cuda.tile
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-external" href="https://docs.nvidia.com/cuda/nvmath-python/">
     nvmath-python
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html">
+    nvshmem4py
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://docs.nvidia.com/nsight-python/index.html">
+    Nsight Python
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://docs.nvidia.com/cupti-python/">
+    CUPTI Python
   </a>
 </li>
 
@@ -452,10 +508,12 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/13.1.0-notes.html">13.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.3-notes.html">13.0.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.4-notes.html">12.9.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.3-notes.html">12.9.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.2-notes.html">12.9.2</a></li>
@@ -471,10 +529,14 @@
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-core/latest">cuda.core</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-pathfinder/latest">cuda.pathfinder</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/cooperative">cuda.cccl.cooperative</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/parallel">cuda.cccl.parallel</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/coop">cuda.coop</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/compute">cuda.compute</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/cuda/cutile-python/">cuda.tile</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/">nvmath-python</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html">nvshmem4py</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/nsight-python/index.html">Nsight Python</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/cupti-python/">CUPTI Python</a></li>
 </ul>
 </div>
 </nav></div>
@@ -507,27 +569,31 @@
 <p>CUDA Python is the home for accessing NVIDIA’s CUDA platform from Python. It consists of
 multiple components:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-core/latest">cuda.core</a>: Pythonic access to CUDA runtime and other core functionalities</p></li>
+<li><p><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-core/latest">cuda.core</a>: Pythonic access to CUDA Runtime and other core functionality</p></li>
 <li><p><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a>: Low-level Python bindings to CUDA C APIs</p></li>
 <li><p><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-pathfinder/latest">cuda.pathfinder</a>: Utilities for locating CUDA components installed in the user’s Python environment</p></li>
-<li><p><a class="reference external" href="https://nvidia.github.io/cccl/python/cooperative">cuda.cccl.cooperative</a>: A Python module providing CCCL’s reusable block-wide and warp-wide <em>device</em> primitives for use within Numba CUDA kernels</p></li>
-<li><p><a class="reference external" href="https://nvidia.github.io/cccl/python/parallel">cuda.cccl.parallel</a>: A Python module for easy access to CCCL’s highly efficient and customizable parallel algorithms, like <code class="docutils literal notranslate"><span class="pre">sort</span></code>, <code class="docutils literal notranslate"><span class="pre">scan</span></code>, <code class="docutils literal notranslate"><span class="pre">reduce</span></code>, <code class="docutils literal notranslate"><span class="pre">transform</span></code>, etc, that are callable on the <em>host</em></p></li>
-<li><p><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a>: Numba’s target for CUDA GPU programming by directly compiling a restricted subset of Python code into CUDA kernels and device functions following the CUDA execution model.</p></li>
+<li><p><a class="reference external" href="https://nvidia.github.io/cccl/python/coop">cuda.coop</a>: A Python module providing CCCL’s reusable block-wide and warp-wide <em>device</em> primitives for use within Numba CUDA kernels</p></li>
+<li><p><a class="reference external" href="https://nvidia.github.io/cccl/python/compute">cuda.compute</a>: A Python module for easy access to CCCL’s highly efficient and customizable parallel algorithms, like <code class="docutils literal notranslate"><span class="pre">sort</span></code>, <code class="docutils literal notranslate"><span class="pre">scan</span></code>, <code class="docutils literal notranslate"><span class="pre">reduce</span></code>, <code class="docutils literal notranslate"><span class="pre">transform</span></code>, etc. that are callable on the <em>host</em></p></li>
+<li><p><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a>: A Python DSL that exposes CUDA <strong>SIMT</strong> programming model and compiles a restricted subset of Python code into CUDA kernels and device functions</p></li>
+<li><p><a class="reference external" href="https://docs.nvidia.com/cuda/cutile-python/">cuda.tile</a>: A new Python DSL that exposes CUDA <strong>Tile</strong> programming model and allows users to write NumPy-like code in CUDA kernels</p></li>
+<li><p><a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest">nvmath-python</a>: Pythonic access to NVIDIA CPU &amp; GPU Math Libraries, with <a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#host-apis">host</a>, <a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#device-apis">device</a>, and <a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest/distributed-apis/index.html">distributed</a> APIs. It also provides low-level Python bindings to host C APIs (<a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest/bindings/index.html">nvmath.bindings</a>).</p></li>
+<li><p><a class="reference external" href="https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html">nvshmem4py</a>: Pythonic interface to the NVSHMEM library, enabling Python applications to leverage NVSHMEM’s high-performance PGAS (Partitioned Global Address Space) programming model for GPU-accelerated computing</p></li>
+<li><p><a class="reference external" href="https://docs.nvidia.com/nsight-python/index.html">Nsight Python</a>: Python kernel profiling interface that automates performance analysis across multiple kernel configurations using NVIDIA Nsight Tools</p></li>
+<li><p><a class="reference external" href="https://docs.nvidia.com/cupti-python/">CUPTI Python</a>: Python APIs for creation of profiling tools that target CUDA Python applications via the CUDA Profiling Tools Interface (CUPTI)</p></li>
 </ul>
-<ul class="simple">
-<li><p><a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest">nvmath-python</a>: Pythonic access to NVIDIA CPU &amp; GPU Math Libraries, with both <em>host</em> and <em>device</em> (through <a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest/overview.html#device-apis">nvmath.device</a>) APIs. It also provides low-level Python bindings to host C APIs (through <a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/latest/bindings/index.html">nvmath.bindings</a>).</p></li>
-</ul>
-<p>CUDA Python is currently undergoing an overhaul to improve existing and bring up new components.
-All of the previously available functionalities from the <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> package will continue to
+<p>CUDA Python is currently undergoing an overhaul to improve existing and introduce new components.
+All of the previously available functionality from the <code class="docutils literal notranslate"><span class="pre">cuda-python</span></code> package will continue to
 be available, please refer to the <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a> documentation for installation guide and further detail.</p>
 <div class="toctree-wrapper compound">
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="release.html">Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/13.1.0-notes.html">13.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.3-notes.html">13.0.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.4-notes.html">12.9.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.3-notes.html">12.9.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.2-notes.html">12.9.2</a></li>
@@ -543,10 +609,14 @@ be available, please refer to the <a class="reference external" href="https://nv
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-core/latest">cuda.core</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-pathfinder/latest">cuda.pathfinder</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/cooperative">cuda.cccl.cooperative</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/parallel">cuda.cccl.parallel</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/coop">cuda.coop</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/compute">cuda.compute</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/cuda/cutile-python/">cuda.tile</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/">nvmath-python</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html">nvshmem4py</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/nsight-python/index.html">Nsight Python</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/cupti-python/">CUPTI Python</a></li>
 </ul>
 </div>
 </section>

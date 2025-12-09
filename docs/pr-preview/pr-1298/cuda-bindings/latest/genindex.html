@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=d8404505"></script>
+    <script src="_static/documentation_options.js?v=cac1c265"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.1a0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -495,10 +495,12 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/13.1.0-notes.html">13.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.3-notes.html">13.0.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.2-notes.html">13.0.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.1-notes.html">13.0.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.5-notes.html">12.9.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.4-notes.html">12.9.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.3-notes.html">12.9.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/12.9.2-notes.html">12.9.2</a></li>
@@ -672,18 +674,26 @@
         <li><a href="module/generated/cuda.bindings.cufile.IOParams.html#cuda.bindings.cufile.IOParams.__init__">(cuda.bindings.cufile.IOParams method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevResource._internal_padding">_internal_padding (cuda.bindings.driver.CUdevResource attribute)</a>
 
       <ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUdevResource_st._internal_padding">(cuda.bindings.driver.CUdevResource_st attribute)</a>
 </li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource._internal_padding">(cuda.bindings.runtime.cudaDevResource attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource_st._internal_padding">(cuda.bindings.runtime.cudaDevResource_st attribute)</a>
+</li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevResource._oversize">_oversize (cuda.bindings.driver.CUdevResource attribute)</a>
 
       <ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUdevResource_st._oversize">(cuda.bindings.driver.CUdevResource_st attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource._oversize">(cuda.bindings.runtime.cudaDevResource attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource_st._oversize">(cuda.bindings.runtime.cudaDevResource_st attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -818,6 +828,14 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.asyncEngineCount">asyncEngineCount (cuda.bindings.runtime.cudaDeviceProp attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUstreamBatchMemOpParams.atomicReduction">atomicReduction (cuda.bindings.driver.CUstreamBatchMemOpParams attribute)</a>
+
+      <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUstreamBatchMemOpParams_union.atomicReduction">(cuda.bindings.driver.CUstreamBatchMemOpParams_union attribute)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUstreamBatchMemOpParams_v1.atomicReduction">(cuda.bindings.driver.CUstreamBatchMemOpParams_v1 attribute)</a>
+</li>
+      </ul></li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUlaunchConfig.attrs">attrs (cuda.bindings.driver.CUlaunchConfig attribute)</a>
 
       <ul>
@@ -1126,6 +1144,16 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemcpyNodeParams.copyParams">(cuda.bindings.runtime.cudaMemcpyNodeParams attribute)</a>
 </li>
       </ul></li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS.coscheduledSmCount">coscheduledSmCount (cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS attribute)</a>, <a href="module/driver.html#id111">[1]</a>
+
+      <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.coscheduledSmCount">(cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams.coscheduledSmCount">(cuda.bindings.runtime.cudaDevSmResourceGroupParams attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams_st.coscheduledSmCount">(cuda.bindings.runtime.cudaDevSmResourceGroupParams_st attribute)</a>
+</li>
+      </ul></li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_BATCH_MEM_OP_NODE_PARAMS.count">count (cuda.bindings.driver.CUDA_BATCH_MEM_OP_NODE_PARAMS attribute)</a>
 
       <ul>
@@ -1153,7 +1181,7 @@
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st.ctx">(cuda.bindings.driver.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st attribute)</a>
 </li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.ctx">(cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS attribute)</a>, <a href="module/driver.html#id13">[1]</a>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.ctx">(cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS attribute)</a>, <a href="module/driver.html#id25">[1]</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_KERNEL_NODE_PARAMS.ctx">(cuda.bindings.driver.CUDA_KERNEL_NODE_PARAMS attribute)</a>
 </li>
@@ -1168,6 +1196,14 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMSET_NODE_PARAMS_v2.ctx">(cuda.bindings.driver.CUDA_MEMSET_NODE_PARAMS_v2 attribute)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMSET_NODE_PARAMS_v2_st.ctx">(cuda.bindings.driver.CUDA_MEMSET_NODE_PARAMS_v2_st attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaConditionalNodeParams.ctx">(cuda.bindings.runtime.cudaConditionalNodeParams attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaKernelNodeParamsV2.ctx">(cuda.bindings.runtime.cudaKernelNodeParamsV2 attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemcpyNodeParams.ctx">(cuda.bindings.runtime.cudaMemcpyNodeParams attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemsetParamsV2.ctx">(cuda.bindings.runtime.cudaMemsetParamsV2 attribute)</a>
 </li>
       </ul></li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUaccessProperty.CU_ACCESS_PROPERTY_NORMAL">CU_ACCESS_PROPERTY_NORMAL (cuda.bindings.driver.CUaccessProperty attribute)</a>
@@ -1241,6 +1277,34 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_SNORM_INT8X2">CU_AD_FORMAT_SNORM_INT8X2 (cuda.bindings.driver.CUarray_format attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_SNORM_INT8X4">CU_AD_FORMAT_SNORM_INT8X4 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT16_PLANAR_420">CU_AD_FORMAT_UINT16_PLANAR_420 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT16_PLANAR_422">CU_AD_FORMAT_UINT16_PLANAR_422 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT16_PLANAR_444">CU_AD_FORMAT_UINT16_PLANAR_444 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT16_SEMIPLANAR_420">CU_AD_FORMAT_UINT16_SEMIPLANAR_420 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT16_SEMIPLANAR_422">CU_AD_FORMAT_UINT16_SEMIPLANAR_422 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT16_SEMIPLANAR_444">CU_AD_FORMAT_UINT16_SEMIPLANAR_444 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_PACKED_422">CU_AD_FORMAT_UINT8_PACKED_422 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_PACKED_444">CU_AD_FORMAT_UINT8_PACKED_444 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_PLANAR_420">CU_AD_FORMAT_UINT8_PLANAR_420 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_PLANAR_422">CU_AD_FORMAT_UINT8_PLANAR_422 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_PLANAR_444">CU_AD_FORMAT_UINT8_PLANAR_444 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_SEMIPLANAR_420">CU_AD_FORMAT_UINT8_SEMIPLANAR_420 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_SEMIPLANAR_422">CU_AD_FORMAT_UINT8_SEMIPLANAR_422 (cuda.bindings.driver.CUarray_format attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_SEMIPLANAR_444">CU_AD_FORMAT_UINT8_SEMIPLANAR_444 (cuda.bindings.driver.CUarray_format attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UNORM_INT16X1">CU_AD_FORMAT_UNORM_INT16X1 (cuda.bindings.driver.CUarray_format attribute)</a>
 </li>
@@ -1342,6 +1406,8 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUcoredumpSettings.CU_COREDUMP_GENERATION_FLAGS">CU_COREDUMP_GENERATION_FLAGS (cuda.bindings.driver.CUcoredumpSettings attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_GZIP_COMPRESS">CU_COREDUMP_GZIP_COMPRESS (cuda.bindings.driver.CUCoredumpGenerationFlags attribute)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUcoredumpSettings.CU_COREDUMP_LIGHTWEIGHT">CU_COREDUMP_LIGHTWEIGHT (cuda.bindings.driver.CUcoredumpSettings attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS">CU_COREDUMP_LIGHTWEIGHT_FLAGS (cuda.bindings.driver.CUCoredumpGenerationFlags attribute)</a>
@@ -1404,11 +1470,25 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM">CU_DEV_RESOURCE_TYPE_SM (cuda.bindings.driver.CUdevResourceType attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceSplit_flags.CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING">CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING (cuda.bindings.driver.CUdevSmResourceSplit_flags attribute)</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE">CU_DEV_RESOURCE_TYPE_WORKQUEUE (cuda.bindings.driver.CUdevResourceType attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceSplit_flags.CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE">CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE (cuda.bindings.driver.CUdevSmResourceSplit_flags attribute)</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG">CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG (cuda.bindings.driver.CUdevResourceType attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_BACKFILL">CU_DEV_SM_RESOURCE_GROUP_BACKFILL (cuda.bindings.driver.CUdevSmResourceGroup_flags attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_DEFAULT">CU_DEV_SM_RESOURCE_GROUP_DEFAULT (cuda.bindings.driver.CUdevSmResourceGroup_flags attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS">CU_DEV_SM_RESOURCE_GROUP_PARAMS (class in cuda.bindings.driver)</a>, <a href="module/driver.html#id109">[1]</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st">CU_DEV_SM_RESOURCE_GROUP_PARAMS_st (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceSplitByCount_flags.CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING">CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING (cuda.bindings.driver.CUdevSmResourceSplitByCount_flags attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceSplitByCount_flags.CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE">CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE (cuda.bindings.driver.CUdevSmResourceSplitByCount_flags attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ASYNC_ENGINE_COUNT">CU_DEVICE_ATTRIBUTE_ASYNC_ENGINE_COUNT (cuda.bindings.driver.CUdevice_attribute attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ATOMIC_REDUCTION_SUPPORTED">CU_DEVICE_ATTRIBUTE_ATOMIC_REDUCTION_SUPPORTED (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_CAN_FLUSH_REMOTE_WRITES">CU_DEVICE_ATTRIBUTE_CAN_FLUSH_REMOTE_WRITES (cuda.bindings.driver.CUdevice_attribute attribute)</a>
 </li>
@@ -2260,6 +2340,8 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUipcMem_flags.CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS">CU_IPC_MEM_LAZY_ENABLE_PEER_ACCESS (cuda.bindings.driver.CUipcMem_flags attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUjit_option.CU_JIT_BINARY_LOADER_THREAD_COUNT">CU_JIT_BINARY_LOADER_THREAD_COUNT (cuda.bindings.driver.CUjit_option attribute)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUjit_option.CU_JIT_CACHE_MODE">CU_JIT_CACHE_MODE (cuda.bindings.driver.CUjit_option attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUjit_cacheMode.CU_JIT_CACHE_OPTION_CA">CU_JIT_CACHE_OPTION_CA (cuda.bindings.driver.CUjit_cacheMode attribute)</a>
@@ -2788,6 +2870,14 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUstreamUpdateCaptureDependencies_flags.CU_STREAM_ADD_CAPTURE_DEPENDENCIES">CU_STREAM_ADD_CAPTURE_DEPENDENCIES (cuda.bindings.driver.CUstreamUpdateCaptureDependencies_flags attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_ADD">CU_STREAM_ATOMIC_REDUCTION_OP_ADD (cuda.bindings.driver.CUstreamAtomicReductionOpType attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_AND">CU_STREAM_ATOMIC_REDUCTION_OP_AND (cuda.bindings.driver.CUstreamAtomicReductionOpType attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_OR">CU_STREAM_ATOMIC_REDUCTION_OP_OR (cuda.bindings.driver.CUstreamAtomicReductionOpType attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUstreamAtomicReductionDataType.CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_32">CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_32 (cuda.bindings.driver.CUstreamAtomicReductionDataType attribute)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW">CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW (cuda.bindings.driver attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CU_STREAM_ATTRIBUTE_MEM_SYNC_DOMAIN">CU_STREAM_ATTRIBUTE_MEM_SYNC_DOMAIN (cuda.bindings.driver attribute)</a>
@@ -2813,6 +2903,8 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUstream_flags.CU_STREAM_DEFAULT">CU_STREAM_DEFAULT (cuda.bindings.driver.CUstream_flags attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CU_STREAM_LEGACY">CU_STREAM_LEGACY (cuda.bindings.driver attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUstreamBatchMemOpType.CU_STREAM_MEM_OP_ATOMIC_REDUCTION">CU_STREAM_MEM_OP_ATOMIC_REDUCTION (cuda.bindings.driver.CUstreamBatchMemOpType attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUstreamBatchMemOpType.CU_STREAM_MEM_OP_BARRIER">CU_STREAM_MEM_OP_BARRIER (cuda.bindings.driver.CUstreamBatchMemOpType attribute)</a>
 </li>
@@ -3022,6 +3114,10 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUuserObject_flags.CU_USER_OBJECT_NO_DESTRUCTOR_SYNC">CU_USER_OBJECT_NO_DESTRUCTOR_SYNC (cuda.bindings.driver.CUuserObject_flags attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_DEVICE_CTX">CU_WORKQUEUE_SCOPE_DEVICE_CTX (cuda.bindings.driver.CUdevWorkqueueConfigScope attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED">CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED (cuda.bindings.driver.CUdevWorkqueueConfigScope attribute)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUaccessPolicyWindow">CUaccessPolicyWindow (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUaccessPolicyWindow_st">CUaccessPolicyWindow_st (class in cuda.bindings.driver)</a>
@@ -3198,7 +3294,7 @@
     cuda.bindings
 
       <ul>
-        <li><a href="release/12.9.1-notes.html#module-cuda.bindings">module</a>, <a href="release/12.9.2-notes.html#module-cuda.bindings">[1]</a>, <a href="release/12.9.3-notes.html#module-cuda.bindings">[2]</a>, <a href="release/12.9.4-notes.html#module-cuda.bindings">[3]</a>, <a href="release/12.9.Y-notes.html#module-cuda.bindings">[4]</a>, <a href="release/13.0.0-notes.html#module-cuda.bindings">[5]</a>, <a href="release/13.0.1-notes.html#module-cuda.bindings">[6]</a>, <a href="release/13.0.2-notes.html#module-cuda.bindings">[7]</a>, <a href="release/13.0.3-notes.html#module-cuda.bindings">[8]</a>, <a href="release/13.X.Y-notes.html#module-cuda.bindings">[9]</a>
+        <li><a href="release/12.9.1-notes.html#module-cuda.bindings">module</a>, <a href="release/12.9.2-notes.html#module-cuda.bindings">[1]</a>, <a href="release/12.9.3-notes.html#module-cuda.bindings">[2]</a>, <a href="release/12.9.4-notes.html#module-cuda.bindings">[3]</a>, <a href="release/12.9.5-notes.html#module-cuda.bindings">[4]</a>, <a href="release/13.0.0-notes.html#module-cuda.bindings">[5]</a>, <a href="release/13.0.1-notes.html#module-cuda.bindings">[6]</a>, <a href="release/13.0.2-notes.html#module-cuda.bindings">[7]</a>, <a href="release/13.0.3-notes.html#module-cuda.bindings">[8]</a>, <a href="release/13.1.0-notes.html#module-cuda.bindings">[9]</a>
 </li>
       </ul></li>
       <li>
@@ -3462,6 +3558,8 @@
       <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED">CUDA_ERROR_STREAM_CAPTURE_UNSUPPORTED (cuda.bindings.driver.CUresult attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_STREAM_CAPTURE_WRONG_THREAD">CUDA_ERROR_STREAM_CAPTURE_WRONG_THREAD (cuda.bindings.driver.CUresult attribute)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_STREAM_DETACHED">CUDA_ERROR_STREAM_DETACHED (cuda.bindings.driver.CUresult attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUresult.CUDA_ERROR_STUB_LIBRARY">CUDA_ERROR_STUB_LIBRARY (cuda.bindings.driver.CUresult attribute)</a>
 </li>
@@ -4219,6 +4317,10 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceGetDefaultMemPool">cudaDeviceGetDefaultMemPool() (in module cuda.bindings.runtime)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceGetDevResource">cudaDeviceGetDevResource() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceGetExecutionCtx">cudaDeviceGetExecutionCtx() (in module cuda.bindings.runtime)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceGetGraphMemAttribute">cudaDeviceGetGraphMemAttribute() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceGetHostAtomicCapabilities">cudaDeviceGetHostAtomicCapabilities() (in module cuda.bindings.runtime)</a>
@@ -4295,12 +4397,62 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceP2PAttr.cudaDevP2PAttrPerformanceRank">cudaDevP2PAttrPerformanceRank (cuda.bindings.runtime.cudaDeviceP2PAttr attribute)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource">cudaDevResource (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource_st">cudaDevResource_st (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResourceDesc_t">cudaDevResourceDesc_t (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResourceGenerateDesc">cudaDevResourceGenerateDesc() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResourceType">cudaDevResourceType (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResourceType.cudaDevResourceTypeInvalid">cudaDevResourceTypeInvalid (cuda.bindings.runtime.cudaDevResourceType attribute)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResourceType.cudaDevResourceTypeSm">cudaDevResourceTypeSm (cuda.bindings.runtime.cudaDevResourceType attribute)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResourceType.cudaDevResourceTypeWorkqueue">cudaDevResourceTypeWorkqueue (cuda.bindings.runtime.cudaDevResourceType attribute)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResourceType.cudaDevResourceTypeWorkqueueConfig">cudaDevResourceTypeWorkqueueConfig (cuda.bindings.runtime.cudaDevResourceType attribute)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResource">cudaDevSmResource (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroup_flags">cudaDevSmResourceGroup_flags (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill">cudaDevSmResourceGroupBackfill (cuda.bindings.runtime.cudaDevSmResourceGroup_flags attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupDefault">cudaDevSmResourceGroupDefault (cuda.bindings.runtime.cudaDevSmResourceGroup_flags attribute)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams">cudaDevSmResourceGroupParams (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams_st">cudaDevSmResourceGroupParams_st (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceSplit">cudaDevSmResourceSplit() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceSplitByCount">cudaDevSmResourceSplitByCount() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags">cudaDevSmResourceSplitByCount_flags (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags.cudaDevSmResourceSplitIgnoreSmCoscheduling">cudaDevSmResourceSplitIgnoreSmCoscheduling (cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags attribute)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags.cudaDevSmResourceSplitMaxPotentialClusterSize">cudaDevSmResourceSplitMaxPotentialClusterSize (cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags attribute)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevWorkqueueConfigResource">cudaDevWorkqueueConfigResource (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevWorkqueueConfigScope">cudaDevWorkqueueConfigScope (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevWorkqueueConfigScope.cudaDevWorkqueueConfigScopeDeviceCtx">cudaDevWorkqueueConfigScopeDeviceCtx (cuda.bindings.runtime.cudaDevWorkqueueConfigScope attribute)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevWorkqueueConfigScope.cudaDevWorkqueueConfigScopeGreenCtxBalanced">cudaDevWorkqueueConfigScopeGreenCtxBalanced (cuda.bindings.runtime.cudaDevWorkqueueConfigScope attribute)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevWorkqueueResource">cudaDevWorkqueueResource (class in cuda.bindings.runtime)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDriverEntryPointQueryResult">cudaDriverEntryPointQueryResult (class in cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDriverEntryPointQueryResult.cudaDriverEntryPointSuccess">cudaDriverEntryPointSuccess (cuda.bindings.runtime.cudaDriverEntryPointQueryResult attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDriverEntryPointQueryResult.cudaDriverEntryPointSymbolNotFound">cudaDriverEntryPointSymbolNotFound (cuda.bindings.runtime.cudaDriverEntryPointQueryResult attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDriverEntryPointQueryResult.cudaDriverEntryPointVersionNotSufficent">cudaDriverEntryPointVersionNotSufficent (cuda.bindings.runtime.cudaDriverEntryPointQueryResult attribute)</a>
@@ -4815,6 +4967,8 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaError_t.cudaErrorStreamCaptureWrongThread">cudaErrorStreamCaptureWrongThread (cuda.bindings.runtime.cudaError_t attribute)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaError_t.cudaErrorStreamDetached">cudaErrorStreamDetached (cuda.bindings.runtime.cudaError_t attribute)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaError_t.cudaErrorStubLibrary">cudaErrorStubLibrary (cuda.bindings.runtime.cudaError_t attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaError_t.cudaErrorSymbolNotFound">cudaErrorSymbolNotFound (cuda.bindings.runtime.cudaError_t attribute)</a>
@@ -4888,6 +5042,24 @@
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEventWaitExternal">cudaEventWaitExternal (cuda.bindings.runtime attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEventWaitNodeParams">cudaEventWaitNodeParams (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionContext_t">cudaExecutionContext_t (class in cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxDestroy">cudaExecutionCtxDestroy() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxGetDevice">cudaExecutionCtxGetDevice() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxGetDevResource">cudaExecutionCtxGetDevResource() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxGetId">cudaExecutionCtxGetId() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxRecordEvent">cudaExecutionCtxRecordEvent() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxStreamCreate">cudaExecutionCtxStreamCreate() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxSynchronize">cudaExecutionCtxSynchronize() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxWaitEvent">cudaExecutionCtxWaitEvent() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExtent">cudaExtent (class in cuda.bindings.runtime)</a>
 </li>
@@ -5139,6 +5311,8 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphConditionalHandleCreate">cudaGraphConditionalHandleCreate() (in module cuda.bindings.runtime)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphConditionalHandleCreate_v2">cudaGraphConditionalHandleCreate_v2() (in module cuda.bindings.runtime)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphConditionalHandleFlags">cudaGraphConditionalHandleFlags (class in cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphConditionalNodeType">cudaGraphConditionalNodeType (class in cuda.bindings.runtime)</a>
@@ -5217,6 +5391,8 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphExecGetFlags">cudaGraphExecGetFlags() (in module cuda.bindings.runtime)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphExecGetId">cudaGraphExecGetId() (in module cuda.bindings.runtime)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphExecHostNodeSetParams">cudaGraphExecHostNodeSetParams() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphExecKernelNodeSetParams">cudaGraphExecKernelNodeSetParams() (in module cuda.bindings.runtime)</a>
@@ -5264,6 +5440,8 @@
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphExternalSemaphoresWaitNodeSetParams">cudaGraphExternalSemaphoresWaitNodeSetParams() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphGetEdges">cudaGraphGetEdges() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphGetId">cudaGraphGetId() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphGetNodes">cudaGraphGetNodes() (in module cuda.bindings.runtime)</a>
 </li>
@@ -5427,11 +5605,17 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeFindInClone">cudaGraphNodeFindInClone() (in module cuda.bindings.runtime)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetContainingGraph">cudaGraphNodeGetContainingGraph() (in module cuda.bindings.runtime)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetDependencies">cudaGraphNodeGetDependencies() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetDependentNodes">cudaGraphNodeGetDependentNodes() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetEnabled">cudaGraphNodeGetEnabled() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetLocalId">cudaGraphNodeGetLocalId() (in module cuda.bindings.runtime)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetToolsId">cudaGraphNodeGetToolsId() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetType">cudaGraphNodeGetType() (in module cuda.bindings.runtime)</a>
 </li>
@@ -5480,6 +5664,8 @@
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphUpload">cudaGraphUpload() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaUserObjectRetainFlags.cudaGraphUserObjectMove">cudaGraphUserObjectMove (cuda.bindings.runtime.cudaUserObjectRetainFlags attribute)</a>
+</li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGreenCtxCreate">cudaGreenCtxCreate() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaHostAlloc">cudaHostAlloc() (in module cuda.bindings.runtime)</a>
 </li>
@@ -6259,6 +6445,8 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaStreamGetDevice">cudaStreamGetDevice() (in module cuda.bindings.runtime)</a>
 </li>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaStreamGetDevResource">cudaStreamGetDevResource() (in module cuda.bindings.runtime)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaStreamGetFlags">cudaStreamGetFlags() (in module cuda.bindings.runtime)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaStreamGetId">cudaStreamGetId() (in module cuda.bindings.runtime)</a>
@@ -6461,13 +6649,27 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevResourceType">CUdevResourceType (class in cuda.bindings.driver)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource">CUdevSmResource (class in cuda.bindings.driver)</a>, <a href="module/driver.html#id83">[1]</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource">CUdevSmResource (class in cuda.bindings.driver)</a>, <a href="module/driver.html#id95">[1]</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource_st">CUdevSmResource_st (class in cuda.bindings.driver)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceSplit_flags">CUdevSmResourceSplit_flags (class in cuda.bindings.driver)</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceGroup_flags">CUdevSmResourceGroup_flags (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuDevSmResourceSplit">cuDevSmResourceSplit() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuDevSmResourceSplitByCount">cuDevSmResourceSplitByCount() (in module cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResourceSplitByCount_flags">CUdevSmResourceSplitByCount_flags (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigResource">CUdevWorkqueueConfigResource (class in cuda.bindings.driver)</a>, <a href="module/driver.html#id101">[1]</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigResource_st">CUdevWorkqueueConfigResource_st (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigScope">CUdevWorkqueueConfigScope (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueResource">CUdevWorkqueueResource (class in cuda.bindings.driver)</a>, <a href="module/driver.html#id106">[1]</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueResource_st">CUdevWorkqueueResource_st (class in cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuDriverGetVersion">cuDriverGetVersion() (in module cuda.bindings.driver)</a>
 </li>
@@ -6713,6 +6915,8 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphExecGetFlags">cuGraphExecGetFlags() (in module cuda.bindings.driver)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuGraphExecGetId">cuGraphExecGetId() (in module cuda.bindings.driver)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphExecHostNodeSetParams">cuGraphExecHostNodeSetParams() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphExecKernelNodeSetParams">cuGraphExecKernelNodeSetParams() (in module cuda.bindings.driver)</a>
@@ -6742,6 +6946,8 @@
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphExternalSemaphoresWaitNodeSetParams">cuGraphExternalSemaphoresWaitNodeSetParams() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphGetEdges">cuGraphGetEdges() (in module cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuGraphGetId">cuGraphGetId() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphGetNodes">cuGraphGetNodes() (in module cuda.bindings.driver)</a>
 </li>
@@ -6821,11 +7027,17 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeFindInClone">cuGraphNodeFindInClone() (in module cuda.bindings.driver)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetContainingGraph">cuGraphNodeGetContainingGraph() (in module cuda.bindings.driver)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetDependencies">cuGraphNodeGetDependencies() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetDependentNodes">cuGraphNodeGetDependentNodes() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetEnabled">cuGraphNodeGetEnabled() (in module cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetLocalId">cuGraphNodeGetLocalId() (in module cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetToolsId">cuGraphNodeGetToolsId() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetType">cuGraphNodeGetType() (in module cuda.bindings.driver)</a>
 </li>
@@ -7337,7 +7549,11 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuMulticastBindAddr">cuMulticastBindAddr() (in module cuda.bindings.driver)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuMulticastBindAddr_v2">cuMulticastBindAddr_v2() (in module cuda.bindings.driver)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuMulticastBindMem">cuMulticastBindMem() (in module cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuMulticastBindMem_v2">cuMulticastBindMem_v2() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuMulticastCreate">cuMulticastCreate() (in module cuda.bindings.driver)</a>
 </li>
@@ -7409,6 +7625,10 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuStreamAddCallback">cuStreamAddCallback() (in module cuda.bindings.driver)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUstreamAtomicReductionDataType">CUstreamAtomicReductionDataType (class in cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUstreamAtomicReductionOpType">CUstreamAtomicReductionOpType (class in cuda.bindings.driver)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuStreamAttachMemAsync">cuStreamAttachMemAsync() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUstreamAttrID">CUstreamAttrID (class in cuda.bindings.driver)</a>
@@ -7456,6 +7676,8 @@
       <li><a href="module/driver.html#cuda.bindings.driver.cuStreamGetCtx_v2">cuStreamGetCtx_v2() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuStreamGetDevice">cuStreamGetDevice() (in module cuda.bindings.driver)</a>
+</li>
+      <li><a href="module/driver.html#cuda.bindings.driver.cuStreamGetDevResource">cuStreamGetDevResource() (in module cuda.bindings.driver)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cuStreamGetFlags">cuStreamGetFlags() (in module cuda.bindings.driver)</a>
 </li>
@@ -7673,8 +7895,16 @@
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.destroy">destroy() (in module cuda.bindings.nvjitlink)</a>
 </li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaPointerAttributes.device">device (cuda.bindings.runtime.cudaPointerAttributes attribute)</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigResource.device">device (cuda.bindings.driver.CUdevWorkqueueConfigResource attribute)</a>, <a href="module/driver.html#id102">[1]</a>
+
+      <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigResource_st.device">(cuda.bindings.driver.CUdevWorkqueueConfigResource_st attribute)</a>
 </li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevWorkqueueConfigResource.device">(cuda.bindings.runtime.cudaDevWorkqueueConfigResource attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaPointerAttributes.device">(cuda.bindings.runtime.cudaPointerAttributes attribute)</a>
+</li>
+      </ul></li>
       <li><a href="module/generated/cuda.bindings.cufile.OpError.html#cuda.bindings.cufile.OpError.DEVICE_NOT_FOUND">DEVICE_NOT_FOUND (cuda.bindings.cufile.OpError attribute)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.cufile.OpError.html#cuda.bindings.cufile.OpError.DEVICE_NOT_SUPPORTED">DEVICE_NOT_SUPPORTED (cuda.bindings.cufile.OpError attribute)</a>
@@ -7799,6 +8029,8 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUmemDecompressParams_st.dstActBytes">(cuda.bindings.driver.CUmemDecompressParams_st attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY2D.dstArray">dstArray (cuda.bindings.driver.CUDA_MEMCPY2D attribute)</a>
 
       <ul>
@@ -7823,8 +8055,6 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemcpy3DPeerParms.dstArray">(cuda.bindings.runtime.cudaMemcpy3DPeerParms attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY3D_PEER.dstContext">dstContext (cuda.bindings.driver.CUDA_MEMCPY3D_PEER attribute)</a>
 
       <ul>
@@ -8309,9 +8539,13 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaResourceViewDesc.firstMipmapLevel">(cuda.bindings.runtime.cudaResourceViewDesc attribute)</a>
 </li>
       </ul></li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUarrayMapInfo.flags">flags (cuda.bindings.driver.CUarrayMapInfo attribute)</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS.flags">flags (cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS attribute)</a>, <a href="module/driver.html#id113">[1]</a>
 
       <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.flags">(cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st attribute)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUarrayMapInfo.flags">(cuda.bindings.driver.CUarrayMapInfo attribute)</a>
+</li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUarrayMapInfo_st.flags">(cuda.bindings.driver.CUarrayMapInfo_st attribute)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUarrayMapInfo_v1.flags">(cuda.bindings.driver.CUarrayMapInfo_v1 attribute)</a>
@@ -8398,6 +8632,10 @@
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_TEXTURE_DESC_v1.flags">(cuda.bindings.driver.CUDA_TEXTURE_DESC_v1 attribute)</a>
 </li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource.flags">(cuda.bindings.driver.CUdevSmResource attribute)</a>, <a href="module/driver.html#id99">[1]</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource_st.flags">(cuda.bindings.driver.CUdevSmResource_st attribute)</a>
+</li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUmemAccessDesc.flags">(cuda.bindings.driver.CUmemAccessDesc attribute)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUmemAccessDesc_st.flags">(cuda.bindings.driver.CUmemAccessDesc_st attribute)</a>
@@ -8417,6 +8655,12 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUmulticastObjectProp_v1.flags">(cuda.bindings.driver.CUmulticastObjectProp_v1 attribute)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaArraySparseProperties.flags">(cuda.bindings.runtime.cudaArraySparseProperties attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResource.flags">(cuda.bindings.runtime.cudaDevSmResource attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams.flags">(cuda.bindings.runtime.cudaDevSmResourceGroupParams attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams_st.flags">(cuda.bindings.runtime.cudaDevSmResourceGroupParams_st attribute)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExternalMemoryBufferDesc.flags">(cuda.bindings.runtime.cudaExternalMemoryBufferDesc attribute)</a>
 </li>
@@ -8637,9 +8881,13 @@
 </li>
       <li><a href="module/generated/cuda.bindings.cufile.OpError.html#cuda.bindings.cufile.OpError.GETNEWFD_FAILED">GETNEWFD_FAILED (cuda.bindings.cufile.OpError attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUaccessPolicyWindow.getPtr">getPtr() (cuda.bindings.driver.CUaccessPolicyWindow method)</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS.getPtr">getPtr() (cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS method)</a>, <a href="module/driver.html#id115">[1]</a>
 
       <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.getPtr">(cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUaccessPolicyWindow.getPtr">(cuda.bindings.driver.CUaccessPolicyWindow method)</a>
+</li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUaccessPolicyWindow_st.getPtr">(cuda.bindings.driver.CUaccessPolicyWindow_st method)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUaccessPolicyWindow_v1.getPtr">(cuda.bindings.driver.CUaccessPolicyWindow_v1 method)</a>
@@ -8728,7 +8976,7 @@
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CHILD_GRAPH_NODE_PARAMS_st.getPtr">(cuda.bindings.driver.CUDA_CHILD_GRAPH_NODE_PARAMS_st method)</a>
 </li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.getPtr">(cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS method)</a>, <a href="module/driver.html#id14">[1]</a>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.getPtr">(cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS method)</a>, <a href="module/driver.html#id26">[1]</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_EVENT_RECORD_NODE_PARAMS.getPtr">(cuda.bindings.driver.CUDA_EVENT_RECORD_NODE_PARAMS method)</a>
 </li>
@@ -8924,9 +9172,17 @@
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUdevResourceDesc.getPtr">(cuda.bindings.driver.CUdevResourceDesc method)</a>
 </li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource.getPtr">(cuda.bindings.driver.CUdevSmResource method)</a>, <a href="module/driver.html#id87">[1]</a>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource.getPtr">(cuda.bindings.driver.CUdevSmResource method)</a>, <a href="module/driver.html#id100">[1]</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource_st.getPtr">(cuda.bindings.driver.CUdevSmResource_st method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigResource.getPtr">(cuda.bindings.driver.CUdevWorkqueueConfigResource method)</a>, <a href="module/driver.html#id105">[1]</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigResource_st.getPtr">(cuda.bindings.driver.CUdevWorkqueueConfigResource_st method)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueResource.getPtr">(cuda.bindings.driver.CUdevWorkqueueResource method)</a>, <a href="module/driver.html#id108">[1]</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueResource_st.getPtr">(cuda.bindings.driver.CUdevWorkqueueResource_st method)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUeglFrame.getPtr">(cuda.bindings.driver.CUeglFrame method)</a>
 </li>
@@ -9180,6 +9436,22 @@
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.getPtr">(cuda.bindings.runtime.cudaDeviceProp method)</a>
 </li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource.getPtr">(cuda.bindings.runtime.cudaDevResource method)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource_st.getPtr">(cuda.bindings.runtime.cudaDevResource_st method)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResourceDesc_t.getPtr">(cuda.bindings.runtime.cudaDevResourceDesc_t method)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResource.getPtr">(cuda.bindings.runtime.cudaDevSmResource method)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams.getPtr">(cuda.bindings.runtime.cudaDevSmResourceGroupParams method)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams_st.getPtr">(cuda.bindings.runtime.cudaDevSmResourceGroupParams_st method)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevWorkqueueConfigResource.getPtr">(cuda.bindings.runtime.cudaDevWorkqueueConfigResource method)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevWorkqueueResource.getPtr">(cuda.bindings.runtime.cudaDevWorkqueueResource method)</a>
+</li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglFrame.getPtr">(cuda.bindings.runtime.cudaEglFrame method)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglFrame_st.getPtr">(cuda.bindings.runtime.cudaEglFrame_st method)</a>
@@ -9195,6 +9467,8 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEventRecordNodeParams.getPtr">(cuda.bindings.runtime.cudaEventRecordNodeParams method)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEventWaitNodeParams.getPtr">(cuda.bindings.runtime.cudaEventWaitNodeParams method)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExecutionContext_t.getPtr">(cuda.bindings.runtime.cudaExecutionContext_t method)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExtent.getPtr">(cuda.bindings.runtime.cudaExtent method)</a>
 </li>
@@ -9499,7 +9773,7 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.handle">handle (cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS attribute)</a>, <a href="module/driver.html#id9">[1]</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.handle">handle (cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS attribute)</a>, <a href="module/driver.html#id21">[1]</a>
 
       <ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.handle">(cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC attribute)</a>
@@ -9937,6 +10211,8 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.MAX_PLANES">MAX_PLANES (cuda.bindings.driver attribute)</a>
 </li>
+      <li><a href="module/generated/cuda.bindings.cufile.DriverStatusFlags.html#cuda.bindings.cufile.DriverStatusFlags.MAX_TARGET_TYPES">MAX_TARGET_TYPES (cuda.bindings.cufile.DriverStatusFlags attribute)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_TEXTURE_DESC.maxAnisotropy">maxAnisotropy (cuda.bindings.driver.CUDA_TEXTURE_DESC attribute)</a>
 
       <ul>
@@ -10163,10 +10439,12 @@
       </ul></li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.minor">minor (cuda.bindings.runtime.cudaDeviceProp attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource.minSmPartitionSize">minSmPartitionSize (cuda.bindings.driver.CUdevSmResource attribute)</a>, <a href="module/driver.html#id85">[1]</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource.minSmPartitionSize">minSmPartitionSize (cuda.bindings.driver.CUdevSmResource attribute)</a>, <a href="module/driver.html#id97">[1]</a>
 
       <ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource_st.minSmPartitionSize">(cuda.bindings.driver.CUdevSmResource_st attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResource.minSmPartitionSize">(cuda.bindings.runtime.cudaDevSmResource attribute)</a>
 </li>
       </ul></li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_TEXTURE_DESC.mipmapFilterMode">mipmapFilterMode (cuda.bindings.driver.CUDA_TEXTURE_DESC attribute)</a>
@@ -10223,7 +10501,7 @@
     module
 
       <ul>
-        <li><a href="release/12.9.1-notes.html#module-cuda.bindings">cuda.bindings</a>, <a href="release/12.9.2-notes.html#module-cuda.bindings">[1]</a>, <a href="release/12.9.3-notes.html#module-cuda.bindings">[2]</a>, <a href="release/12.9.4-notes.html#module-cuda.bindings">[3]</a>, <a href="release/12.9.Y-notes.html#module-cuda.bindings">[4]</a>, <a href="release/13.0.0-notes.html#module-cuda.bindings">[5]</a>, <a href="release/13.0.1-notes.html#module-cuda.bindings">[6]</a>, <a href="release/13.0.2-notes.html#module-cuda.bindings">[7]</a>, <a href="release/13.0.3-notes.html#module-cuda.bindings">[8]</a>, <a href="release/13.X.Y-notes.html#module-cuda.bindings">[9]</a>
+        <li><a href="release/12.9.1-notes.html#module-cuda.bindings">cuda.bindings</a>, <a href="release/12.9.2-notes.html#module-cuda.bindings">[1]</a>, <a href="release/12.9.3-notes.html#module-cuda.bindings">[2]</a>, <a href="release/12.9.4-notes.html#module-cuda.bindings">[3]</a>, <a href="release/12.9.5-notes.html#module-cuda.bindings">[4]</a>, <a href="release/13.0.0-notes.html#module-cuda.bindings">[5]</a>, <a href="release/13.0.1-notes.html#module-cuda.bindings">[6]</a>, <a href="release/13.0.2-notes.html#module-cuda.bindings">[7]</a>, <a href="release/13.0.3-notes.html#module-cuda.bindings">[8]</a>, <a href="release/13.1.0-notes.html#module-cuda.bindings">[9]</a>
 </li>
         <li><a href="module/cufile.html#module-cuda.bindings.cufile">cuda.bindings.cufile</a>
 </li>
@@ -10248,6 +10526,16 @@
 
       <ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUcheckpointGpuPair_st.newUuid">(cuda.bindings.driver.CUcheckpointGpuPair_st attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevResource.nextResource">nextResource (cuda.bindings.driver.CUdevResource attribute)</a>
+
+      <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevResource_st.nextResource">(cuda.bindings.driver.CUdevResource_st attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource.nextResource">(cuda.bindings.runtime.cudaDevResource attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource_st.nextResource">(cuda.bindings.runtime.cudaDevResource_st attribute)</a>
 </li>
       </ul></li>
       <li><a href="module/generated/cuda.bindings.cufile.DriverStatusFlags.html#cuda.bindings.cufile.DriverStatusFlags.NFS_SUPPORTED">NFS_SUPPORTED (cuda.bindings.cufile.DriverStatusFlags attribute)</a>
@@ -10372,12 +10660,12 @@
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cl_event_flags.NVCL_EVENT_SCHED_BLOCKING_SYNC">NVCL_EVENT_SCHED_BLOCKING_SYNC (cuda.bindings.driver.cl_event_flags attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/driver.html#cuda.bindings.driver.cl_event_flags.NVCL_EVENT_SCHED_SPIN">NVCL_EVENT_SCHED_SPIN (cuda.bindings.driver.cl_event_flags attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.cl_event_flags.NVCL_EVENT_SCHED_YIELD">NVCL_EVENT_SCHED_YIELD (cuda.bindings.driver.cl_event_flags attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/generated/cuda.bindings.cufile.OpError.html#cuda.bindings.cufile.OpError.NVFS_DRIVER_ERROR">NVFS_DRIVER_ERROR (cuda.bindings.cufile.OpError attribute)</a>
 </li>
       <li><a href="module/generated/cuda.bindings.cufile.OpError.html#cuda.bindings.cufile.OpError.NVFS_INTERNAL_DRIVER_ERROR">NVFS_INTERNAL_DRIVER_ERROR (cuda.bindings.cufile.OpError attribute)</a>
@@ -10580,6 +10868,8 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module/generated/cuda.bindings.cufile.FeatureFlags.html#cuda.bindings.cufile.FeatureFlags.P2P_SUPPORTED">P2P_SUPPORTED (cuda.bindings.cufile.FeatureFlags attribute)</a>
+</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS.p2pToken">p2pToken (cuda.bindings.driver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS attribute)</a>
 
       <ul>
@@ -10702,7 +10992,7 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.persistingL2CacheMaxSize">persistingL2CacheMaxSize (cuda.bindings.runtime.cudaDeviceProp attribute)</a>
 </li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.phGraph_out">phGraph_out (cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS attribute)</a>, <a href="module/driver.html#id12">[1]</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.phGraph_out">phGraph_out (cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS attribute)</a>, <a href="module/driver.html#id24">[1]</a>
 
       <ul>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaConditionalNodeParams.phGraph_out">(cuda.bindings.runtime.cudaConditionalNodeParams attribute)</a>
@@ -10792,6 +11082,16 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUstreamAttrValue_v1.preferredClusterDim">(cuda.bindings.driver.CUstreamAttrValue_v1 attribute)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaLaunchAttributeValue.preferredClusterDim">(cuda.bindings.runtime.cudaLaunchAttributeValue attribute)</a>, <a href="module/runtime.html#id38">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS.preferredCoscheduledSmCount">preferredCoscheduledSmCount (cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS attribute)</a>, <a href="module/driver.html#id112">[1]</a>
+
+      <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.preferredCoscheduledSmCount">(cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams.preferredCoscheduledSmCount">(cuda.bindings.runtime.cudaDevSmResourceGroupParams attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams_st.preferredCoscheduledSmCount">(cuda.bindings.runtime.cudaDevSmResourceGroupParams_st attribute)</a>
 </li>
       </ul></li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaFuncAttributes.preferredShmemCarveout">preferredShmemCarveout (cuda.bindings.runtime.cudaFuncAttributes attribute)</a>
@@ -10932,9 +11232,13 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaResourceDesc.res">(cuda.bindings.runtime.cudaResourceDesc attribute)</a>
 </li>
       </ul></li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUarrayMapInfo.reserved">reserved (cuda.bindings.driver.CUarrayMapInfo attribute)</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS.reserved">reserved (cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS attribute)</a>, <a href="module/driver.html#id114">[1]</a>
 
       <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.reserved">(cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st attribute)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUarrayMapInfo.reserved">(cuda.bindings.driver.CUarrayMapInfo attribute)</a>
+</li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUarrayMapInfo_st.reserved">(cuda.bindings.driver.CUarrayMapInfo_st attribute)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUarrayMapInfo_v1.reserved">(cuda.bindings.driver.CUarrayMapInfo_v1 attribute)</a>
@@ -11015,6 +11319,10 @@
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_TEXTURE_DESC_v1.reserved">(cuda.bindings.driver.CUDA_TEXTURE_DESC_v1 attribute)</a>
 </li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueResource.reserved">(cuda.bindings.driver.CUdevWorkqueueResource attribute)</a>, <a href="module/driver.html#id107">[1]</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueResource_st.reserved">(cuda.bindings.driver.CUdevWorkqueueResource_st attribute)</a>
+</li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUgraphEdgeData.reserved">(cuda.bindings.driver.CUgraphEdgeData attribute)</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUgraphEdgeData_st.reserved">(cuda.bindings.driver.CUgraphEdgeData_st attribute)</a>
@@ -11048,6 +11356,12 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaArraySparseProperties.reserved">(cuda.bindings.runtime.cudaArraySparseProperties attribute)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.reserved">(cuda.bindings.runtime.cudaDeviceProp attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams.reserved">(cuda.bindings.runtime.cudaDevSmResourceGroupParams attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams_st.reserved">(cuda.bindings.runtime.cudaDevSmResourceGroupParams_st attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevWorkqueueResource.reserved">(cuda.bindings.runtime.cudaDevWorkqueueResource attribute)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEglPlaneDesc.reserved">(cuda.bindings.runtime.cudaEglPlaneDesc attribute)</a>
 </li>
@@ -11154,10 +11468,6 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUarrayMapInfo_v1.resource">(cuda.bindings.driver.CUarrayMapInfo_v1 attribute)</a>
 </li>
       </ul></li>
-      <li><a href="module/driver.html#cuda.bindings.driver.RESOURCE_ABI_EXTERNAL_BYTES">RESOURCE_ABI_EXTERNAL_BYTES (cuda.bindings.driver attribute)</a>
-</li>
-      <li><a href="module/driver.html#cuda.bindings.driver.RESOURCE_ABI_VERSION">RESOURCE_ABI_VERSION (cuda.bindings.driver attribute)</a>
-</li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUarrayMapInfo.resourceType">resourceType (cuda.bindings.driver.CUarrayMapInfo attribute)</a>
 
       <ul>
@@ -11298,6 +11608,14 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaFuncAttributes.sharedSizeBytes">sharedSizeBytes (cuda.bindings.runtime.cudaFuncAttributes attribute)</a>
 </li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigResource.sharingScope">sharingScope (cuda.bindings.driver.CUdevWorkqueueConfigResource attribute)</a>, <a href="module/driver.html#id104">[1]</a>
+
+      <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigResource_st.sharingScope">(cuda.bindings.driver.CUdevWorkqueueConfigResource_st attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevWorkqueueConfigResource.sharingScope">(cuda.bindings.runtime.cudaDevWorkqueueConfigResource attribute)</a>
+</li>
+      </ul></li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevprop.SIMDWidth">SIMDWidth (cuda.bindings.driver.CUdevprop attribute)</a>
 
       <ul>
@@ -11313,7 +11631,7 @@
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_ARRAY_MEMORY_REQUIREMENTS_v1.size">(cuda.bindings.driver.CUDA_ARRAY_MEMORY_REQUIREMENTS_v1 attribute)</a>
 </li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.size">(cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS attribute)</a>, <a href="module/driver.html#id11">[1]</a>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.size">(cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS attribute)</a>, <a href="module/driver.html#id23">[1]</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC.size">(cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_BUFFER_DESC attribute)</a>
 </li>
@@ -11349,17 +11667,33 @@
       <ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUdevResource_st.sm">(cuda.bindings.driver.CUdevResource_st attribute)</a>
 </li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource.sm">(cuda.bindings.runtime.cudaDevResource attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource_st.sm">(cuda.bindings.runtime.cudaDevResource_st attribute)</a>
+</li>
       </ul></li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource.smCoscheduledAlignment">smCoscheduledAlignment (cuda.bindings.driver.CUdevSmResource attribute)</a>, <a href="module/driver.html#id86">[1]</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource.smCoscheduledAlignment">smCoscheduledAlignment (cuda.bindings.driver.CUdevSmResource attribute)</a>, <a href="module/driver.html#id98">[1]</a>
 
       <ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource_st.smCoscheduledAlignment">(cuda.bindings.driver.CUdevSmResource_st attribute)</a>
 </li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResource.smCoscheduledAlignment">(cuda.bindings.runtime.cudaDevSmResource attribute)</a>
+</li>
       </ul></li>
-      <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource.smCount">smCount (cuda.bindings.driver.CUdevSmResource attribute)</a>, <a href="module/driver.html#id84">[1]</a>
+      <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS.smCount">smCount (cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS attribute)</a>, <a href="module/driver.html#id110">[1]</a>
 
       <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.smCount">(cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st attribute)</a>
+</li>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource.smCount">(cuda.bindings.driver.CUdevSmResource attribute)</a>, <a href="module/driver.html#id96">[1]</a>
+</li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUdevSmResource_st.smCount">(cuda.bindings.driver.CUdevSmResource_st attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResource.smCount">(cuda.bindings.runtime.cudaDevSmResource attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams.smCount">(cuda.bindings.runtime.cudaDevSmResourceGroupParams attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams_st.smCount">(cuda.bindings.runtime.cudaDevSmResourceGroupParams_st attribute)</a>
 </li>
       </ul></li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDeviceProp.sparseCudaArraySupported">sparseCudaArraySupported (cuda.bindings.runtime.cudaDeviceProp attribute)</a>
@@ -11428,6 +11762,8 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY3D_PEER_v1.srcContext">(cuda.bindings.driver.CUDA_MEMCPY3D_PEER_v1 attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY2D.srcDevice">srcDevice (cuda.bindings.driver.CUDA_MEMCPY2D attribute)</a>
 
       <ul>
@@ -11450,8 +11786,6 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemcpy3DPeerParms.srcDevice">(cuda.bindings.runtime.cudaMemcpy3DPeerParms attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_MEMCPY3D.srcHeight">srcHeight (cuda.bindings.driver.CUDA_MEMCPY3D attribute)</a>
 
       <ul>
@@ -11743,7 +12077,7 @@
       <ul>
         <li><a href="module/driver.html#cuda.bindings.driver.CUasyncNotificationInfo_st.type">(cuda.bindings.driver.CUasyncNotificationInfo_st attribute)</a>
 </li>
-        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.type">(cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS attribute)</a>, <a href="module/driver.html#id10">[1]</a>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS.type">(cuda.bindings.driver.CUDA_CONDITIONAL_NODE_PARAMS attribute)</a>, <a href="module/driver.html#id22">[1]</a>
 </li>
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC.type">(cuda.bindings.driver.CUDA_EXTERNAL_MEMORY_HANDLE_DESC attribute)</a>
 </li>
@@ -11798,6 +12132,10 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaAsyncNotificationInfo_t.type">(cuda.bindings.runtime.cudaAsyncNotificationInfo_t attribute)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaConditionalNodeParams.type">(cuda.bindings.runtime.cudaConditionalNodeParams attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource.type">(cuda.bindings.runtime.cudaDevResource attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource_st.type">(cuda.bindings.runtime.cudaDevResource_st attribute)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExternalMemoryHandleDesc.type">(cuda.bindings.runtime.cudaExternalMemoryHandleDesc attribute)</a>
 </li>
@@ -11928,6 +12266,8 @@
         <li><a href="module/nvvm.html#cuda.bindings.nvvm.version">(in module cuda.bindings.nvvm)</a>
 </li>
       </ul></li>
+      <li><a href="module/generated/cuda.bindings.cufile.DriverStatusFlags.html#cuda.bindings.cufile.DriverStatusFlags.VIRTIOFS_SUPPORTED">VIRTIOFS_SUPPORTED (cuda.bindings.cufile.DriverStatusFlags attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -12044,6 +12384,34 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUmemPoolProps_v1.win32SecurityAttributes">(cuda.bindings.driver.CUmemPoolProps_v1 attribute)</a>
 </li>
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaMemPoolProps.win32SecurityAttributes">(cuda.bindings.runtime.cudaMemPoolProps attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevResource.wq">wq (cuda.bindings.driver.CUdevResource attribute)</a>
+
+      <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevResource_st.wq">(cuda.bindings.driver.CUdevResource_st attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource.wq">(cuda.bindings.runtime.cudaDevResource attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource_st.wq">(cuda.bindings.runtime.cudaDevResource_st attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigResource.wqConcurrencyLimit">wqConcurrencyLimit (cuda.bindings.driver.CUdevWorkqueueConfigResource attribute)</a>, <a href="module/driver.html#id103">[1]</a>
+
+      <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigResource_st.wqConcurrencyLimit">(cuda.bindings.driver.CUdevWorkqueueConfigResource_st attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevWorkqueueConfigResource.wqConcurrencyLimit">(cuda.bindings.runtime.cudaDevWorkqueueConfigResource attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="module/driver.html#cuda.bindings.driver.CUdevResource.wqConfig">wqConfig (cuda.bindings.driver.CUdevResource attribute)</a>
+
+      <ul>
+        <li><a href="module/driver.html#cuda.bindings.driver.CUdevResource_st.wqConfig">(cuda.bindings.driver.CUdevResource_st attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource.wqConfig">(cuda.bindings.runtime.cudaDevResource attribute)</a>
+</li>
+        <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevResource_st.wqConfig">(cuda.bindings.runtime.cudaDevResource_st attribute)</a>
 </li>
       </ul></li>
       <li><a href="module/generated/cuda.bindings.cufile.Opcode.html#cuda.bindings.cufile.Opcode.WRITE">WRITE (cuda.bindings.cufile.Opcode attribute)</a>

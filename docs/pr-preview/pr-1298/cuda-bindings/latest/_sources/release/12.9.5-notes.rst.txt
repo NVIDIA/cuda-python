@@ -3,7 +3,7 @@
 
 .. module:: cuda.bindings
 
-``cuda-bindings`` 13.X.Y Release notes
+``cuda-bindings`` 12.9.5 Release notes
 ======================================
 
 
@@ -11,14 +11,16 @@
 Highlights
 ----------
 
+* Added ``__cuda_stream__`` protocol support to ``driver.CUStream`` class, enabling better interoperability with libraries that expect this protocol.
+* Python 3.9 support was dropped (end of life).
 
 Bug fixes
 ---------
 
-
+* Fixed ``cuStreamBeginCaptureToGraph`` to allow the ``dependencyData`` argument to be optional, matching the underlying CUDA API behavior.
 
 Known issues
 ------------
 
 * Updating from older versions (v12.6.2.post1 and below) via ``pip install -U cuda-python`` might not work. Please do a clean re-installation by uninstalling ``pip uninstall -y cuda-python`` followed by installing ``pip install cuda-python``.
-* The graphics APIs in ``cuda.bindings.runtime`` are inadvertently disabled in 13.0.2.  Users needing these APIs should update to 13.0.3.
+* The graphics APIs in ``cuda.bindings.runtime`` are inadvertently disabled in 12.9.3.  Users needing these APIs should update to 12.9.4 or higher.
