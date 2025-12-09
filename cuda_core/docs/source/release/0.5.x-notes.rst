@@ -16,10 +16,7 @@ None.
 Breaking Changes
 ----------------
 
-- Python ``bool`` objects are now converted to C++ ``bool`` type when passed as kernel
-  arguments.  Previously, they were converted to ``int``.  This brings them inline
-  with ``ctypes.c_bool`` and ``numpy.bool_``.
-
+None.
 
 New features
 ------------
@@ -36,4 +33,6 @@ None.
 Fixes and enhancements
 ----------------------
 
-None.
+- Python ``bool`` objects are now converted to C++ ``bool`` type when passed as kernel
+  arguments.  Previously, they were converted to ``int``.  This brings them inline
+  with ``ctypes.c_bool`` and ``numpy.bool_``.
