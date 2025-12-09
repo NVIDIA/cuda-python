@@ -204,6 +204,7 @@ def _format_options_for_backend(options_dict: dict, backend: str) -> list[str]:
             elif key == "debug" and value:
                 formatted.append("-g")
             elif key == "device_code_optimize":
+                # NVVM explicitly handles both True and False
                 if value is False:
                     formatted.append("-opt=0")
                 elif value is True:
@@ -213,6 +214,7 @@ def _format_options_for_backend(options_dict: dict, backend: str) -> list[str]:
                 # NVVM uses hyphens in option names
                 option_name = key.replace("_", "-")
                 formatted.append(f"-{option_name}={bool_val}")
+            # lineinfo and link_time_optimization are not supported by NVVM, skip them
 
         elif backend == "nvJitLink":
             # nvJitLink uses - prefix and true/false for booleans
@@ -231,7 +233,7 @@ def _format_options_for_backend(options_dict: dict, backend: str) -> list[str]:
                 formatted.append(f"-{option_name}={bool_val}")
             elif key == "link_time_optimization" and value:
                 formatted.append("-lto")
-            # Add more nvJitLink-specific options as needed
+            # device_code_optimize is not supported by nvJitLink, skip it
 
     return formatted
 
@@ -595,7 +597,7 @@ class ProgramOptions:
                 options_dict["arch"] = self.arch
             if self.debug is not None:
                 options_dict["debug"] = self.debug
-            if self.lineinfo is not None and backend == "nvJitLink":
+            if self.lineinfo is not None:
                 options_dict["lineinfo"] = self.lineinfo
             if self.max_register_count is not None:
                 options_dict["max_register_count"] = self.max_register_count
@@ -607,9 +609,9 @@ class ProgramOptions:
                 options_dict["prec_div"] = self.prec_div
             if self.fma is not None:
                 options_dict["fma"] = self.fma
-            if self.device_code_optimize is not None and backend == "NVVM":
+            if self.device_code_optimize is not None:
                 options_dict["device_code_optimize"] = self.device_code_optimize
-            if self.link_time_optimization is not None and backend == "nvJitLink":
+            if self.link_time_optimization is not None:
                 options_dict["link_time_optimization"] = self.link_time_optimization
 
             formatted_options = _format_options_for_backend(options_dict, backend)
