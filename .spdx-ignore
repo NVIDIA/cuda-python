@@ -11,3 +11,5 @@ cuda_bindings/examples/*
 
 # Vendored
 cuda_core/cuda/core/experimental/include/dlpack.h
+
+qa/ctk-next.drawio.svg

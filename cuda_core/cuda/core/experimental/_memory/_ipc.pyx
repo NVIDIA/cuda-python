@@ -10,6 +10,7 @@ from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer
 from cuda.core.experimental._stream cimport default_stream
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core.experimental._utils.cuda_utils import check_multiprocessing_start_method
 
 import multiprocessing
 import os
@@ -129,6 +130,7 @@ cdef class IPCAllocationHandle:
 
 
 def _reduce_allocation_handle(alloc_handle):
+    check_multiprocessing_start_method()
     df = multiprocessing.reduction.DupFd(alloc_handle.handle)
     return _reconstruct_allocation_handle, (type(alloc_handle), df, alloc_handle.uuid)
 
@@ -141,6 +143,7 @@ multiprocessing.reduction.register(IPCAllocationHandle, _reduce_allocation_handl
 
 
 def _deep_reduce_device_memory_resource(mr):
+    check_multiprocessing_start_method()
     from .._device import Device
     device = Device(mr.device_id)
     alloc_handle = mr.get_allocation_handle()

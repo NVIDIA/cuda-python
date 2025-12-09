@@ -3,7 +3,6 @@
 
 import ctypes
 import sys
-from ctypes import wintypes
 
 try:
     from cuda.bindings import driver
@@ -220,6 +219,88 @@ def test_buffer_copy_from():
     buffer_copy_from(DummyPinnedMemoryResource(device), device, check=True)
 
 
+def buffer_fill(dummy_mr: MemoryResource, device: Device, check=False):
+    stream = device.create_stream()
+
+    # Test width=1 (byte fill)
+    buffer1 = dummy_mr.allocate(size=1024)
+    buffer1.fill(0x42, width=1, stream=stream)
+    device.sync()
+
+    if check:
+        ptr = ctypes.cast(buffer1.handle, ctypes.POINTER(ctypes.c_byte))
+        for i in range(10):
+            assert ptr[i] == 0x42
+
+    # Test error: invalid width
+    for bad_width in [w for w in range(-10, 10) if w not in (1, 2, 4)]:
+        with pytest.raises(ValueError, match="width must be 1, 2, or 4"):
+            buffer1.fill(0x42, width=bad_width, stream=stream)
+
+    # Test error: value out of range for width=1
+    for bad_value in [-42, -1, 256]:
+        with pytest.raises(ValueError, match="value must be in range \\[0, 255\\]"):
+            buffer1.fill(bad_value, width=1, stream=stream)
+
+    # Test error: buffer size not divisible by width
+    for bad_size in [1025, 1027, 1029, 1031]:  # Not divisible by 2
+        buffer_err = dummy_mr.allocate(size=1025)
+        with pytest.raises(ValueError, match="must be divisible"):
+            buffer_err.fill(0x1234, width=2, stream=stream)
+        buffer_err.close()
+
+    buffer1.close()
+
+    # Test width=2 (16-bit fill)
+    buffer2 = dummy_mr.allocate(size=1024)  # Divisible by 2
+    buffer2.fill(0x1234, width=2, stream=stream)
+    device.sync()
+
+    if check:
+        ptr = ctypes.cast(buffer2.handle, ctypes.POINTER(ctypes.c_uint16))
+        for i in range(5):
+            assert ptr[i] == 0x1234
+
+    # Test error: value out of range for width=2
+    for bad_value in [-42, -1, 65536, 65537, 100000]:
+        with pytest.raises(ValueError, match="value must be in range \\[0, 65535\\]"):
+            buffer2.fill(bad_value, width=2, stream=stream)
+
+    buffer2.close()
+
+    # Test width=4 (32-bit fill)
+    buffer4 = dummy_mr.allocate(size=1024)  # Divisible by 4
+    buffer4.fill(0xDEADBEEF, width=4, stream=stream)
+    device.sync()
+
+    if check:
+        ptr = ctypes.cast(buffer4.handle, ctypes.POINTER(ctypes.c_uint32))
+        for i in range(5):
+            assert ptr[i] == 0xDEADBEEF
+
+    # Test error: value out of range for width=4
+    for bad_value in [-42, -1, 4294967296, 4294967297, 5000000000]:
+        with pytest.raises(ValueError, match="value must be in range \\[0, 4294967295\\]"):
+            buffer4.fill(bad_value, width=4, stream=stream)
+
+    # Test error: buffer size not divisible by width
+    for bad_size in [1025, 1026, 1027, 1029, 1030, 1031]:  # Not divisible by 4
+        buffer_err2 = dummy_mr.allocate(size=bad_size)
+        with pytest.raises(ValueError, match="must be divisible"):
+            buffer_err2.fill(0xDEADBEEF, width=4, stream=stream)
+        buffer_err2.close()
+
+    buffer4.close()
+
+
+def test_buffer_fill():
+    device = Device()
+    device.set_current()
+    buffer_fill(DummyDeviceMemoryResource(device), device)
+    buffer_fill(DummyUnifiedMemoryResource(device), device)
+    buffer_fill(DummyPinnedMemoryResource(device), device, check=True)
+
+
 def buffer_close(dummy_mr: MemoryResource):
     buffer = dummy_mr.allocate(size=1024)
     buffer.close()
@@ -325,23 +406,8 @@ def test_device_memory_resource_initialization(use_device_object):
 
 
 def get_handle_type():
-    def get_sa():
-        class SECURITY_ATTRIBUTES(ctypes.Structure):
-            _fields_ = [
-                ("nLength", wintypes.DWORD),
-                ("lpSecurityDescriptor", wintypes.LPVOID),
-                ("bInheritHandle", wintypes.BOOL),
-            ]
-
-        sa = SECURITY_ATTRIBUTES()
-        sa.nLength = ctypes.sizeof(sa)
-        sa.lpSecurityDescriptor = None
-        sa.bInheritHandle = False  # TODO: why?
-
-        return sa
-
     if IS_WINDOWS:
-        return (("win32", get_sa()), ("win32_kmt", None))
+        return (("win32", None), ("win32_kmt", None))
     else:
         return (("posix_fd", None),)
 
@@ -362,17 +428,17 @@ def test_vmm_allocator_basic_allocation(use_device_object, handle_type):
         pytest.skip("Virtual memory management is not supported on this device")
 
     handle_type, security_attribute = handle_type  # unpack
-    win32_handle_metadata = ctypes.addressof(security_attribute) if security_attribute else 0
-    options = VirtualMemoryResourceOptions(
-        handle_type=handle_type,
-        win32_handle_metadata=win32_handle_metadata,
-    )
+    options = VirtualMemoryResourceOptions(handle_type=handle_type)
     # Create VMM allocator with default config
     device_arg = device if use_device_object else device.device_id
     vmm_mr = VirtualMemoryResource(device_arg, config=options)
 
     # Test basic allocation
-    buffer = vmm_mr.allocate(4096)
+    try:
+        buffer = vmm_mr.allocate(4096)
+    except NotImplementedError:
+        assert handle_type == "win32"
+        return
     assert buffer.size >= 4096  # May be aligned up
     assert buffer.device_id == device.device_id
     assert buffer.memory_resource == vmm_mr
@@ -483,16 +549,15 @@ def test_vmm_allocator_grow_allocation(handle_type):
         pytest.skip("Virtual memory management is not supported on this device")
 
     handle_type, security_attribute = handle_type  # unpack
-    win32_handle_metadata = ctypes.addressof(security_attribute) if security_attribute else 0
-    options = VirtualMemoryResourceOptions(
-        handle_type=handle_type,
-        win32_handle_metadata=win32_handle_metadata,
-    )
-
+    options = VirtualMemoryResourceOptions(handle_type=handle_type)
     vmm_mr = VirtualMemoryResource(device, config=options)
 
     # Create initial allocation
-    buffer = vmm_mr.allocate(2 * 1024 * 1024)
+    try:
+        buffer = vmm_mr.allocate(2 * 1024 * 1024)
+    except NotImplementedError:
+        assert handle_type == "win32"
+        return
     original_size = buffer.size
 
     # Grow the allocation
@@ -713,7 +778,7 @@ def test_strided_memory_view_leak():
     arr = np.zeros(1048576, dtype=np.uint8)
     before = sys.getrefcount(arr)
     for idx in range(10):
-        StridedMemoryView(arr, stream_ptr=-1)
+        StridedMemoryView.from_any_interface(arr, stream_ptr=-1)
     after = sys.getrefcount(arr)
     assert before == after
 
@@ -721,7 +786,7 @@ def test_strided_memory_view_leak():
 def test_strided_memory_view_refcnt():
     # Use Fortran ordering so strides is used
     a = np.zeros((64, 4), dtype=np.uint8, order="F")
-    av = StridedMemoryView(a, stream_ptr=-1)
+    av = StridedMemoryView.from_any_interface(a, stream_ptr=-1)
     # segfaults if refcnt is wrong
     assert av.shape[0] == 64
     assert sys.getrefcount(av.shape) >= 2

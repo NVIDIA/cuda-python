@@ -199,6 +199,9 @@ def parse_headers(header_dict):
             if discovered:
                 found_struct += discovered
 
+    # TODO(#1312): make this work properly
+    found_types.append("CUstreamAtomicReductionDataType_enum")
+
     return found_types, found_functions, found_values, found_struct, struct_list
 
 
@@ -218,15 +221,15 @@ def generate_output(infile, local):
     assert infile.endswith(".in")
     outfile = infile[:-3]
 
-    with open(infile) as f:
+    with open(infile, encoding="utf-8") as f:
         pxdcontent = Tempita.Template(f.read()).substitute(local)
 
     if os.path.exists(outfile):
-        with open(outfile) as f:
+        with open(outfile, encoding="utf-8") as f:
             if f.read() == pxdcontent:
                 print(f"Skipping {infile} (No change)", flush=True)
                 return
-    with open(outfile, "w") as f:
+    with open(outfile, "w", encoding="utf-8") as f:
         print(f"Generating {infile}", flush=True)
         f.write(pxdcontent)
 
