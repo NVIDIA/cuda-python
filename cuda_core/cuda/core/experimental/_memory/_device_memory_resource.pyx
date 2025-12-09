@@ -13,6 +13,7 @@ from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle, IPCDataForMR
+from cuda.core.experimental._resource_handles cimport native
 from cuda.core.experimental._stream cimport default_stream, Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
@@ -552,7 +553,7 @@ cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
 
 
 cdef inline Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream stream):
-    cdef cydriver.CUstream s = stream._handle
+    cdef cydriver.CUstream s = native(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr
     with nogil:
         check_not_capturing(s)
@@ -569,7 +570,7 @@ cdef inline Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream s
 cdef inline void DMR_deallocate(
     DeviceMemoryResource self, uintptr_t ptr, size_t size, Stream stream
 ) noexcept:
-    cdef cydriver.CUstream s = stream._handle
+    cdef cydriver.CUstream s = native(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     cdef cydriver.CUresult r
     with nogil:

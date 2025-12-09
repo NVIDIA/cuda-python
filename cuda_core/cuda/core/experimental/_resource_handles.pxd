@@ -9,11 +9,12 @@ from cuda.bindings cimport cydriver
 
 # Declare the C++ namespace and types
 cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
-    # Handle type - shared_ptr to const CUcontext
+    # ========================================================================
+    # Context Handle
+    # ========================================================================
     ctypedef shared_ptr[const cydriver.CUcontext] ContextHandle
 
     # Function to create a non-owning context handle (references existing context)
-    # This is nogil-safe (pure C++, no Python dependencies)
     ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) nogil
 
     # Context acquisition functions (pure C++, nogil-safe with thread-local caching)
@@ -21,15 +22,28 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ContextHandle get_current_context() nogil
 
     # ========================================================================
-    # Helper functions to extract raw resources from handles
-    # Defined in C++ to support overloading when additional handle types are added
+    # Stream Handle
+    # ========================================================================
+    ctypedef shared_ptr[const cydriver.CUstream] StreamHandle
+
+    # Create an owning stream handle (stream destroyed when handle released)
+    StreamHandle create_stream_handle(cydriver.CUstream stream) nogil
+
+    # Create a non-owning stream handle (stream NOT destroyed when handle released)
+    StreamHandle create_stream_handle_ref(cydriver.CUstream stream) nogil
+
+    # ========================================================================
+    # Overloaded helper functions (C++ handles dispatch by type)
     # ========================================================================
 
-    # native() - extract the raw CUDA handle (nogil-safe)
+    # native() - extract the raw CUDA handle
     cydriver.CUcontext native(ContextHandle h) nogil
+    cydriver.CUstream native(StreamHandle h) nogil
 
-    # intptr() - extract handle as uintptr_t (nogil-safe)
+    # intptr() - extract handle as uintptr_t for Python interop
     uintptr_t intptr(ContextHandle h) nogil
+    uintptr_t intptr(StreamHandle h) nogil
 
     # py() - convert handle to Python driver wrapper object (requires GIL)
     object py(ContextHandle h)
+    object py(StreamHandle h)

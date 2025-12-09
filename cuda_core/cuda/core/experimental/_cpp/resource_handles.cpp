@@ -55,12 +55,11 @@ ContextHandle create_context_handle_ref(CUcontext ctx) {
 
     // Use default deleter - it will delete the box, but not touch the CUcontext
     // CUcontext lifetime is managed externally (e.g., by CUDA driver)
-    auto box = new ContextBox{ctx};
-    auto box_ptr = std::shared_ptr<const ContextBox>(box);
+    auto box = std::shared_ptr<const ContextBox>(new ContextBox{ctx});
 
     // Use aliasing constructor to create handle that exposes only CUcontext
-    // The handle's reference count is tied to box_ptr, but it points to &box_ptr->resource
-    return ContextHandle(box_ptr, &box_ptr->resource);
+    // The handle's reference count is tied to box, but it points to &box->resource
+    return ContextHandle(box, &box->resource);
 }
 
 // Thread-local storage for primary context cache
@@ -89,15 +88,14 @@ ContextHandle get_primary_context(int dev_id) noexcept {
     }
 
     // Create owning handle with custom deleter that releases the primary context
-    auto box = new ContextBox{ctx};
-    auto box_ptr = std::shared_ptr<const ContextBox>(box, [dev_id](const ContextBox* b) {
+    auto box = std::shared_ptr<const ContextBox>(new ContextBox{ctx}, [dev_id](const ContextBox* b) {
         GILReleaseGuard gil;
         cuDevicePrimaryCtxRelease(dev_id);
         delete b;
     });
 
     // Use aliasing constructor to expose only CUcontext
-    auto h_context = ContextHandle(box_ptr, &box_ptr->resource);
+    auto h_context = ContextHandle(box, &box->resource);
 
     // Resize cache if needed
     if (static_cast<size_t>(dev_id) >= primary_context_cache.size()) {
@@ -120,6 +118,35 @@ ContextHandle get_current_context() noexcept {
         return ContextHandle();
     }
     return create_context_handle_ref(ctx);
+}
+
+// ============================================================================
+// Stream Handles
+// ============================================================================
+
+// Internal box structure for Stream
+struct StreamBox {
+    CUstream resource;
+};
+
+StreamHandle create_stream_handle(CUstream stream) {
+    // Creates an owning handle - stream will be destroyed when handle is released
+    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream}, [](const StreamBox* b) {
+        GILReleaseGuard gil;
+        cuStreamDestroy(b->resource);
+        delete b;
+    });
+
+    // Use aliasing constructor to expose only CUstream
+    return StreamHandle(box, &box->resource);
+}
+
+StreamHandle create_stream_handle_ref(CUstream stream) {
+    // Creates a non-owning handle - stream will NOT be destroyed
+    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream});
+
+    // Use aliasing constructor to expose only CUstream
+    return StreamHandle(box, &box->resource);
 }
 
 }  // namespace cuda_core

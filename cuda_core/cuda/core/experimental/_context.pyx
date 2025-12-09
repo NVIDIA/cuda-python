@@ -9,9 +9,9 @@ from libc.stdint cimport uintptr_t
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._resource_handles cimport (
     create_context_handle_ref,
-    get_primary_context,
-    get_current_context,
+    intptr,
     native,
+    py,
 )
 from cuda.core.experimental._utils.cuda_utils import driver
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
@@ -42,28 +42,18 @@ cdef class Context:
     @property
     def handle(self):
         """Return the underlying CUcontext handle."""
-        cdef const cydriver.CUcontext* ptr = self._h_context.get()
-        if ptr != NULL:
-            return driver.CUcontext(<uintptr_t>(ptr[0]))
-        return None
+        if self._h_context.get() == NULL:
+            return None
+        return py(self._h_context)
 
     def __eq__(self, other):
         if not isinstance(other, Context):
             return NotImplemented
         cdef Context _other = <Context>other
-        # Compare the actual CUcontext values, not the shared_ptr objects
-        # (aliasing constructor creates different addresses even for same CUcontext)
-        cdef const cydriver.CUcontext* ptr1 = self._h_context.get()
-        cdef const cydriver.CUcontext* ptr2 = _other._h_context.get()
-        if ptr1 == NULL or ptr2 == NULL:
-            return ptr1 == ptr2
-        return ptr1[0] == ptr2[0]
+        return intptr(self._h_context) == intptr(_other._h_context)
 
     def __hash__(self) -> int:
-        cdef const cydriver.CUcontext* ptr = self._h_context.get()
-        if ptr == NULL:
-            return hash((type(self), 0))
-        return hash((type(self), <uintptr_t>(ptr[0])))
+        return hash((type(self), intptr(self._h_context)))
 
 
 @dataclass
@@ -73,10 +63,6 @@ class ContextOptions:
     Currently unused, reserved for future use.
     """
     pass  # TODO
-
-
-# get_current_context() and get_primary_context() are now pure C++ functions
-# imported from _resource_handles (with thread-local caching in C++)
 
 
 cdef ContextHandle get_stream_context(cydriver.CUstream stream) except * nogil:

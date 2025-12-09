@@ -8,6 +8,7 @@ from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
+from cuda.core.experimental._resource_handles cimport native
 from cuda.core.experimental._stream cimport default_stream, Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
@@ -186,7 +187,7 @@ cdef inline int check_capturing(cydriver.CUstream s) except?-1 nogil:
 
 
 cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream stream):
-    cdef cydriver.CUstream s = stream._handle
+    cdef cydriver.CUstream s = native(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr
     with nogil:
         check_capturing(s)
@@ -201,7 +202,7 @@ cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream 
 
 
 cdef inline void GMR_deallocate(intptr_t ptr, size_t size, Stream stream) noexcept:
-    cdef cydriver.CUstream s = stream._handle
+    cdef cydriver.CUstream s = native(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
