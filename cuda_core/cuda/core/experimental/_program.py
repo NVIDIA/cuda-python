@@ -676,8 +676,6 @@ class ProgramOptions:
         --------
         >>> options = ProgramOptions(arch="sm_80", debug=True)
         >>> nvrtc_options = options.as_bytes("nvrtc")
-        >>> nvjitlink_options = options.as_bytes("nvjitlink")
-        >>> nvvm_options = options.as_bytes("nvvm")
         """
         backend = backend.lower()
         if backend == "nvrtc":
