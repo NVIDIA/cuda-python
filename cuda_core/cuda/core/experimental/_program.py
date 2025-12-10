@@ -431,9 +431,6 @@ class ProgramOptions:
     def _prepare_nvjitlink_options(self) -> list[bytes]:
         options = []
         
-        # Options supported by nvJitLink (subset of ProgramOptions)
-        # Based on LinkerOptions._init_nvjitlink() in _linker.py
-        
         # arch is always set
         assert self.arch is not None
         options.append(f"-arch={self.arch}")
@@ -543,7 +540,6 @@ class ProgramOptions:
         options = []
         
         # Options supported by NVVM
-        # Based on _translate_program_options_to_nvvm() method
         
         assert self.arch is not None
         arch = self.arch
@@ -760,7 +756,22 @@ class Program:
         elif code_type == "ptx":
             assert_type(code, str)
             self._linker = Linker(
-                ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
+                ObjectCode._init(code.encode(), code_type),
+                options=LinkerOptions(
+                    name=options.name,
+                    arch=options.arch,
+                    max_register_count=options.max_register_count,
+                    time=options.time,
+                    debug=options.debug,
+                    lineinfo=options.lineinfo,
+                    ftz=options.ftz,
+                    prec_div=options.prec_div,
+                    prec_sqrt=options.prec_sqrt,
+                    fma=options.fma,
+                    link_time_optimization=options.link_time_optimization,
+                    split_compile=options.split_compile,
+                    ptxas_options=options.ptxas_options,
+                ),
             )
             self._backend = self._linker.backend
 
@@ -781,26 +792,6 @@ class Program:
             supported_code_types = ("c++", "ptx", "nvvm")
             assert code_type not in supported_code_types, f"{code_type=}"
             raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
-
-    def _translate_program_options(self, options: ProgramOptions) -> LinkerOptions:
-        return LinkerOptions(
-            name=options.name,
-            arch=options.arch,
-            max_register_count=options.max_register_count,
-            time=options.time,
-            debug=options.debug,
-            lineinfo=options.lineinfo,
-            ftz=options.ftz,
-            prec_div=options.prec_div,
-            prec_sqrt=options.prec_sqrt,
-            fma=options.fma,
-            link_time_optimization=options.link_time_optimization,
-            split_compile=options.split_compile,
-            ptxas_options=options.ptxas_options,
-        )
-
-    def _translate_program_options_to_nvvm(self, options: ProgramOptions) -> list[str]:
-        return options._prepare_nvvm_options(as_bytes=False)
 
     def close(self):
         """Destroy this program."""
@@ -886,7 +877,8 @@ class Program:
             if target_type not in ("ptx", "ltoir"):
                 raise ValueError(f'NVVM backend only supports target_type="ptx", "ltoir", got "{target_type}"')
 
-            nvvm_options = self._translate_program_options_to_nvvm(self._options)
+            # TODO: flip to True when NVIDIA/cuda-python#1354 is resolved and CUDA 12 is dropped
+            nvvm_options = self._options._prepare_nvvm_options(as_bytes=False)
             if target_type == "ltoir" and "-gen-lto" not in nvvm_options:
                 nvvm_options.append("-gen-lto")
             nvvm = _get_nvvm_module()
