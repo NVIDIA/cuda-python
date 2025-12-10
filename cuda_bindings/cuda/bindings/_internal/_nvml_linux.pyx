@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.0.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t, uintptr_t
 
@@ -407,6 +407,9 @@ cdef void* __nvmlDeviceGetNvLinkInfo = NULL
 cdef void* __nvmlDeviceReadWritePRM_v1 = NULL
 cdef void* __nvmlDeviceGetGpuInstanceProfileInfoByIdV = NULL
 cdef void* __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = NULL
+cdef void* __nvmlDeviceGetUnrepairableMemoryFlag_v1 = NULL
+cdef void* __nvmlDeviceReadPRMCounters_v1 = NULL
+cdef void* __nvmlDeviceSetRusdSettings_v1 = NULL
 
 
 cdef void* load_library() except* with gil:
@@ -2852,6 +2855,27 @@ cdef int _init_nvml() except -1 nogil:
                 handle = load_library()
             __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = dlsym(handle, 'nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts')
 
+        global __nvmlDeviceGetUnrepairableMemoryFlag_v1
+        __nvmlDeviceGetUnrepairableMemoryFlag_v1 = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetUnrepairableMemoryFlag_v1')
+        if __nvmlDeviceGetUnrepairableMemoryFlag_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceGetUnrepairableMemoryFlag_v1 = dlsym(handle, 'nvmlDeviceGetUnrepairableMemoryFlag_v1')
+
+        global __nvmlDeviceReadPRMCounters_v1
+        __nvmlDeviceReadPRMCounters_v1 = dlsym(RTLD_DEFAULT, 'nvmlDeviceReadPRMCounters_v1')
+        if __nvmlDeviceReadPRMCounters_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceReadPRMCounters_v1 = dlsym(handle, 'nvmlDeviceReadPRMCounters_v1')
+
+        global __nvmlDeviceSetRusdSettings_v1
+        __nvmlDeviceSetRusdSettings_v1 = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetRusdSettings_v1')
+        if __nvmlDeviceSetRusdSettings_v1 == NULL:
+            if handle == NULL:
+                handle = load_library()
+            __nvmlDeviceSetRusdSettings_v1 = dlsym(handle, 'nvmlDeviceSetRusdSettings_v1')
+
         __py_nvml_init = True
         return 0
 
@@ -3914,6 +3938,15 @@ cpdef dict _inspect_function_pointers():
 
     global __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
     data["__nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts"] = <intptr_t>__nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
+
+    global __nvmlDeviceGetUnrepairableMemoryFlag_v1
+    data["__nvmlDeviceGetUnrepairableMemoryFlag_v1"] = <intptr_t>__nvmlDeviceGetUnrepairableMemoryFlag_v1
+
+    global __nvmlDeviceReadPRMCounters_v1
+    data["__nvmlDeviceReadPRMCounters_v1"] = <intptr_t>__nvmlDeviceReadPRMCounters_v1
+
+    global __nvmlDeviceSetRusdSettings_v1
+    data["__nvmlDeviceSetRusdSettings_v1"] = <intptr_t>__nvmlDeviceSetRusdSettings_v1
 
     func_ptrs = data
     return data
@@ -7398,3 +7431,33 @@ cdef nvmlReturn_t _nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(nvmlDevice_t
             raise FunctionNotFoundError("function nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts is not found")
     return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlEccSramUniqueUncorrectedErrorCounts_t*) noexcept nogil>__nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts)(
         device, errorCounts)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetUnrepairableMemoryFlag_v1(nvmlDevice_t device, nvmlUnrepairableMemoryStatus_v1_t* unrepairableMemoryStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetUnrepairableMemoryFlag_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetUnrepairableMemoryFlag_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetUnrepairableMemoryFlag_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlUnrepairableMemoryStatus_v1_t*) noexcept nogil>__nvmlDeviceGetUnrepairableMemoryFlag_v1)(
+        device, unrepairableMemoryStatus)
+
+
+cdef nvmlReturn_t _nvmlDeviceReadPRMCounters_v1(nvmlDevice_t device, nvmlPRMCounterList_v1_t* counterList) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceReadPRMCounters_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceReadPRMCounters_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceReadPRMCounters_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlPRMCounterList_v1_t*) noexcept nogil>__nvmlDeviceReadPRMCounters_v1)(
+        device, counterList)
+
+
+cdef nvmlReturn_t _nvmlDeviceSetRusdSettings_v1(nvmlDevice_t device, nvmlRusdSettings_v1_t* settings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceSetRusdSettings_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceSetRusdSettings_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceSetRusdSettings_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlRusdSettings_v1_t*) noexcept nogil>__nvmlDeviceSetRusdSettings_v1)(
+        device, settings)

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.0.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
 
 from ._internal cimport _nvml as _nvml
 
@@ -1397,3 +1397,15 @@ cdef nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfoByIdV(nvmlDevice_t device, 
 
 cdef nvmlReturn_t nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(nvmlDevice_t device, nvmlEccSramUniqueUncorrectedErrorCounts_t* errorCounts) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     return _nvml._nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(device, errorCounts)
+
+
+cdef nvmlReturn_t nvmlDeviceGetUnrepairableMemoryFlag_v1(nvmlDevice_t device, nvmlUnrepairableMemoryStatus_v1_t* unrepairableMemoryStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetUnrepairableMemoryFlag_v1(device, unrepairableMemoryStatus)
+
+
+cdef nvmlReturn_t nvmlDeviceReadPRMCounters_v1(nvmlDevice_t device, nvmlPRMCounterList_v1_t* counterList) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceReadPRMCounters_v1(device, counterList)
+
+
+cdef nvmlReturn_t nvmlDeviceSetRusdSettings_v1(nvmlDevice_t device, nvmlRusdSettings_v1_t* settings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceSetRusdSettings_v1(device, settings)
