@@ -40,7 +40,7 @@ def test_gpu_get_platform_info(all_devices):
             skip_reasons.add(f"Not supported returned, linkely NVLink is disable for {device}")
             continue
 
-        assert isinstance(platform_info, nvml.PlatformInfo_v2)
+        assert isinstance(platform_info, (nvml.PlatformInfo_v2, nvml.PlatformInfo_v1))
 
     if skip_reasons:
         pytest.skip(" ; ".join(skip_reasons))
