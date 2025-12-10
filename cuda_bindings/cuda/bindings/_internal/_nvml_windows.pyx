@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 12.9.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.0.1. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -234,6 +234,7 @@ cdef void* __nvmlSystemSetConfComputeKeyRotationThresholdInfo = NULL
 cdef void* __nvmlSystemGetConfComputeSettings = NULL
 cdef void* __nvmlDeviceGetGspFirmwareVersion = NULL
 cdef void* __nvmlDeviceGetGspFirmwareMode = NULL
+cdef void* __nvmlDeviceGetSramEccErrorStatus = NULL
 cdef void* __nvmlDeviceGetAccountingMode = NULL
 cdef void* __nvmlDeviceGetAccountingStats = NULL
 cdef void* __nvmlDeviceGetAccountingPids = NULL
@@ -412,6 +413,17 @@ cdef void* __nvmlDeviceWorkloadPowerProfileClearRequestedProfiles = NULL
 cdef void* __nvmlDevicePowerSmoothingActivatePresetProfile = NULL
 cdef void* __nvmlDevicePowerSmoothingUpdatePresetProfileParam = NULL
 cdef void* __nvmlDevicePowerSmoothingSetState = NULL
+cdef void* __nvmlDeviceGetAddressingMode = NULL
+cdef void* __nvmlDeviceGetRepairStatus = NULL
+cdef void* __nvmlDeviceGetPowerMizerMode_v1 = NULL
+cdef void* __nvmlDeviceSetPowerMizerMode_v1 = NULL
+cdef void* __nvmlDeviceGetPdi = NULL
+cdef void* __nvmlDeviceSetHostname_v1 = NULL
+cdef void* __nvmlDeviceGetHostname_v1 = NULL
+cdef void* __nvmlDeviceGetNvLinkInfo = NULL
+cdef void* __nvmlDeviceReadWritePRM_v1 = NULL
+cdef void* __nvmlDeviceGetGpuInstanceProfileInfoByIdV = NULL
+cdef void* __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = NULL
 
 
 cdef uintptr_t load_library() except* with gil:
@@ -923,6 +935,9 @@ cdef int _init_nvml() except -1 nogil:
 
         global __nvmlDeviceGetGspFirmwareMode
         __nvmlDeviceGetGspFirmwareMode = GetProcAddress(handle, 'nvmlDeviceGetGspFirmwareMode')
+
+        global __nvmlDeviceGetSramEccErrorStatus
+        __nvmlDeviceGetSramEccErrorStatus = GetProcAddress(handle, 'nvmlDeviceGetSramEccErrorStatus')
 
         global __nvmlDeviceGetAccountingMode
         __nvmlDeviceGetAccountingMode = GetProcAddress(handle, 'nvmlDeviceGetAccountingMode')
@@ -1458,6 +1473,39 @@ cdef int _init_nvml() except -1 nogil:
         global __nvmlDevicePowerSmoothingSetState
         __nvmlDevicePowerSmoothingSetState = GetProcAddress(handle, 'nvmlDevicePowerSmoothingSetState')
 
+        global __nvmlDeviceGetAddressingMode
+        __nvmlDeviceGetAddressingMode = GetProcAddress(handle, 'nvmlDeviceGetAddressingMode')
+
+        global __nvmlDeviceGetRepairStatus
+        __nvmlDeviceGetRepairStatus = GetProcAddress(handle, 'nvmlDeviceGetRepairStatus')
+
+        global __nvmlDeviceGetPowerMizerMode_v1
+        __nvmlDeviceGetPowerMizerMode_v1 = GetProcAddress(handle, 'nvmlDeviceGetPowerMizerMode_v1')
+
+        global __nvmlDeviceSetPowerMizerMode_v1
+        __nvmlDeviceSetPowerMizerMode_v1 = GetProcAddress(handle, 'nvmlDeviceSetPowerMizerMode_v1')
+
+        global __nvmlDeviceGetPdi
+        __nvmlDeviceGetPdi = GetProcAddress(handle, 'nvmlDeviceGetPdi')
+
+        global __nvmlDeviceSetHostname_v1
+        __nvmlDeviceSetHostname_v1 = GetProcAddress(handle, 'nvmlDeviceSetHostname_v1')
+
+        global __nvmlDeviceGetHostname_v1
+        __nvmlDeviceGetHostname_v1 = GetProcAddress(handle, 'nvmlDeviceGetHostname_v1')
+
+        global __nvmlDeviceGetNvLinkInfo
+        __nvmlDeviceGetNvLinkInfo = GetProcAddress(handle, 'nvmlDeviceGetNvLinkInfo')
+
+        global __nvmlDeviceReadWritePRM_v1
+        __nvmlDeviceReadWritePRM_v1 = GetProcAddress(handle, 'nvmlDeviceReadWritePRM_v1')
+
+        global __nvmlDeviceGetGpuInstanceProfileInfoByIdV
+        __nvmlDeviceGetGpuInstanceProfileInfoByIdV = GetProcAddress(handle, 'nvmlDeviceGetGpuInstanceProfileInfoByIdV')
+
+        global __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
+        __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts = GetProcAddress(handle, 'nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts')
+
         __py_nvml_init = True
         return 0
 
@@ -1950,6 +1998,9 @@ cpdef dict _inspect_function_pointers():
 
     global __nvmlDeviceGetGspFirmwareMode
     data["__nvmlDeviceGetGspFirmwareMode"] = <intptr_t>__nvmlDeviceGetGspFirmwareMode
+
+    global __nvmlDeviceGetSramEccErrorStatus
+    data["__nvmlDeviceGetSramEccErrorStatus"] = <intptr_t>__nvmlDeviceGetSramEccErrorStatus
 
     global __nvmlDeviceGetAccountingMode
     data["__nvmlDeviceGetAccountingMode"] = <intptr_t>__nvmlDeviceGetAccountingMode
@@ -2484,6 +2535,39 @@ cpdef dict _inspect_function_pointers():
 
     global __nvmlDevicePowerSmoothingSetState
     data["__nvmlDevicePowerSmoothingSetState"] = <intptr_t>__nvmlDevicePowerSmoothingSetState
+
+    global __nvmlDeviceGetAddressingMode
+    data["__nvmlDeviceGetAddressingMode"] = <intptr_t>__nvmlDeviceGetAddressingMode
+
+    global __nvmlDeviceGetRepairStatus
+    data["__nvmlDeviceGetRepairStatus"] = <intptr_t>__nvmlDeviceGetRepairStatus
+
+    global __nvmlDeviceGetPowerMizerMode_v1
+    data["__nvmlDeviceGetPowerMizerMode_v1"] = <intptr_t>__nvmlDeviceGetPowerMizerMode_v1
+
+    global __nvmlDeviceSetPowerMizerMode_v1
+    data["__nvmlDeviceSetPowerMizerMode_v1"] = <intptr_t>__nvmlDeviceSetPowerMizerMode_v1
+
+    global __nvmlDeviceGetPdi
+    data["__nvmlDeviceGetPdi"] = <intptr_t>__nvmlDeviceGetPdi
+
+    global __nvmlDeviceSetHostname_v1
+    data["__nvmlDeviceSetHostname_v1"] = <intptr_t>__nvmlDeviceSetHostname_v1
+
+    global __nvmlDeviceGetHostname_v1
+    data["__nvmlDeviceGetHostname_v1"] = <intptr_t>__nvmlDeviceGetHostname_v1
+
+    global __nvmlDeviceGetNvLinkInfo
+    data["__nvmlDeviceGetNvLinkInfo"] = <intptr_t>__nvmlDeviceGetNvLinkInfo
+
+    global __nvmlDeviceReadWritePRM_v1
+    data["__nvmlDeviceReadWritePRM_v1"] = <intptr_t>__nvmlDeviceReadWritePRM_v1
+
+    global __nvmlDeviceGetGpuInstanceProfileInfoByIdV
+    data["__nvmlDeviceGetGpuInstanceProfileInfoByIdV"] = <intptr_t>__nvmlDeviceGetGpuInstanceProfileInfoByIdV
+
+    global __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
+    data["__nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts"] = <intptr_t>__nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
 
     func_ptrs = data
     return data
@@ -4068,6 +4152,16 @@ cdef nvmlReturn_t _nvmlDeviceGetGspFirmwareMode(nvmlDevice_t device, unsigned in
             raise FunctionNotFoundError("function nvmlDeviceGetGspFirmwareMode is not found")
     return (<nvmlReturn_t (*)(nvmlDevice_t, unsigned int*, unsigned int*) noexcept nogil>__nvmlDeviceGetGspFirmwareMode)(
         device, isEnabled, defaultMode)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetSramEccErrorStatus(nvmlDevice_t device, nvmlEccSramErrorStatus_t* status) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetSramEccErrorStatus
+    _check_or_init_nvml()
+    if __nvmlDeviceGetSramEccErrorStatus == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetSramEccErrorStatus is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlEccSramErrorStatus_t*) noexcept nogil>__nvmlDeviceGetSramEccErrorStatus)(
+        device, status)
 
 
 cdef nvmlReturn_t _nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEnableState_t* mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
@@ -5848,3 +5942,113 @@ cdef nvmlReturn_t _nvmlDevicePowerSmoothingSetState(nvmlDevice_t device, nvmlPow
             raise FunctionNotFoundError("function nvmlDevicePowerSmoothingSetState is not found")
     return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlPowerSmoothingState_t*) noexcept nogil>__nvmlDevicePowerSmoothingSetState)(
         device, state)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetAddressingMode(nvmlDevice_t device, nvmlDeviceAddressingMode_t* mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetAddressingMode
+    _check_or_init_nvml()
+    if __nvmlDeviceGetAddressingMode == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetAddressingMode is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlDeviceAddressingMode_t*) noexcept nogil>__nvmlDeviceGetAddressingMode)(
+        device, mode)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetRepairStatus(nvmlDevice_t device, nvmlRepairStatus_t* repairStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetRepairStatus
+    _check_or_init_nvml()
+    if __nvmlDeviceGetRepairStatus == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetRepairStatus is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlRepairStatus_t*) noexcept nogil>__nvmlDeviceGetRepairStatus)(
+        device, repairStatus)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevicePowerMizerModes_v1_t* powerMizerMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetPowerMizerMode_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetPowerMizerMode_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetPowerMizerMode_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlDevicePowerMizerModes_v1_t*) noexcept nogil>__nvmlDeviceGetPowerMizerMode_v1)(
+        device, powerMizerMode)
+
+
+cdef nvmlReturn_t _nvmlDeviceSetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevicePowerMizerModes_v1_t* powerMizerMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceSetPowerMizerMode_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceSetPowerMizerMode_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceSetPowerMizerMode_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlDevicePowerMizerModes_v1_t*) noexcept nogil>__nvmlDeviceSetPowerMizerMode_v1)(
+        device, powerMizerMode)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetPdi(nvmlDevice_t device, nvmlPdi_t* pdi) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetPdi
+    _check_or_init_nvml()
+    if __nvmlDeviceGetPdi == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetPdi is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlPdi_t*) noexcept nogil>__nvmlDeviceGetPdi)(
+        device, pdi)
+
+
+cdef nvmlReturn_t _nvmlDeviceSetHostname_v1(nvmlDevice_t device, nvmlHostname_v1_t* hostname) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceSetHostname_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceSetHostname_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceSetHostname_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlHostname_v1_t*) noexcept nogil>__nvmlDeviceSetHostname_v1)(
+        device, hostname)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetHostname_v1(nvmlDevice_t device, nvmlHostname_v1_t* hostname) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetHostname_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceGetHostname_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetHostname_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlHostname_v1_t*) noexcept nogil>__nvmlDeviceGetHostname_v1)(
+        device, hostname)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetNvLinkInfo(nvmlDevice_t device, nvmlNvLinkInfo_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetNvLinkInfo
+    _check_or_init_nvml()
+    if __nvmlDeviceGetNvLinkInfo == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetNvLinkInfo is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlNvLinkInfo_t*) noexcept nogil>__nvmlDeviceGetNvLinkInfo)(
+        device, info)
+
+
+cdef nvmlReturn_t _nvmlDeviceReadWritePRM_v1(nvmlDevice_t device, nvmlPRMTLV_v1_t* buffer) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceReadWritePRM_v1
+    _check_or_init_nvml()
+    if __nvmlDeviceReadWritePRM_v1 == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceReadWritePRM_v1 is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlPRMTLV_v1_t*) noexcept nogil>__nvmlDeviceReadWritePRM_v1)(
+        device, buffer)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetGpuInstanceProfileInfoByIdV(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstanceProfileInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetGpuInstanceProfileInfoByIdV
+    _check_or_init_nvml()
+    if __nvmlDeviceGetGpuInstanceProfileInfoByIdV == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetGpuInstanceProfileInfoByIdV is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, unsigned int, nvmlGpuInstanceProfileInfo_v2_t*) noexcept nogil>__nvmlDeviceGetGpuInstanceProfileInfoByIdV)(
+        device, profileId, info)
+
+
+cdef nvmlReturn_t _nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(nvmlDevice_t device, nvmlEccSramUniqueUncorrectedErrorCounts_t* errorCounts) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    global __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts
+    _check_or_init_nvml()
+    if __nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts is not found")
+    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlEccSramUniqueUncorrectedErrorCounts_t*) noexcept nogil>__nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts)(
+        device, errorCounts)

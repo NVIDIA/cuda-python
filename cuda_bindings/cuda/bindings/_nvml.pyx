@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 12.9.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.0.1. Do not modify it directly.
 
 cimport cython  # NOQA
 from cython cimport view
@@ -12,6 +12,8 @@ from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
                                nested_resource)
 
 from enum import IntEnum as _IntEnum
+
+from cuda.bindings.cydriver import CUDA_VERSION
 
 
 from libc.stdlib cimport calloc, free, malloc
@@ -382,6 +384,7 @@ class Return(_IntEnum):
     ERROR_NOT_READY = NVML_ERROR_NOT_READY
     ERROR_GPU_NOT_FOUND = NVML_ERROR_GPU_NOT_FOUND
     ERROR_INVALID_STATE = NVML_ERROR_INVALID_STATE
+    ERROR_RESET_TYPE_NOT_SUPPORTED = NVML_ERROR_RESET_TYPE_NOT_SUPPORTED
     ERROR_UNKNOWN = NVML_ERROR_UNKNOWN
 
 class MemoryLocation(_IntEnum):
@@ -746,6 +749,12 @@ class PowerProfileType(_IntEnum):
     POWER_PROFILE_HPC = NVML_POWER_PROFILE_HPC
     POWER_PROFILE_MIG = NVML_POWER_PROFILE_MIG
     POWER_PROFILE_MAX = NVML_POWER_PROFILE_MAX
+
+class DeviceAddressingModeType(_IntEnum):
+    """See `nvmlDeviceAddressingModeType_t`."""
+    DEVICE_ADDRESSING_MODE_NONE = NVML_DEVICE_ADDRESSING_MODE_NONE
+    DEVICE_ADDRESSING_MODE_HMM = NVML_DEVICE_ADDRESSING_MODE_HMM
+    DEVICE_ADDRESSING_MODE_ATS = NVML_DEVICE_ADDRESSING_MODE_ATS
 
 
 class AffinityScope(_IntEnum):
@@ -1229,6 +1238,9 @@ class GpuNotFoundError(NvmlError):
 class InvalidStateError(NvmlError):
     pass
 
+class ResetTypeNotSupportedError(NvmlError):
+    pass
+
 class UnknownError(NvmlError):
     pass
 
@@ -1292,6 +1304,8 @@ cdef object _nvml_error_factory(int status):
         return GpuNotFoundError(pystatus)
     elif status == 29:
         return InvalidStateError(pystatus)
+    elif status == 30:
+        return ResetTypeNotSupportedError(pystatus)
     elif status == 999:
         return UnknownError(pystatus)
     return NvmlError(status)
@@ -11455,7 +11469,7 @@ cdef class GpuFabricInfo_v2:
 
     @property
     def status(self):
-        """int: Error status, if any. Must be checked only if state returns "complete"."""
+        """int: Probe Error status, if any. Must be checked only if Probe state returns "complete"."""
         return <int>(self._ptr[0].status)
 
     @status.setter
@@ -11477,7 +11491,7 @@ cdef class GpuFabricInfo_v2:
 
     @property
     def state(self):
-        """int: Current state of GPU registration process."""
+        """int: Current Probe State of GPU registration process. See NVML_GPU_FABRIC_STATE_*."""
         return <unsigned char>(self._ptr[0].state)
 
     @state.setter
@@ -11488,7 +11502,7 @@ cdef class GpuFabricInfo_v2:
 
     @property
     def health_mask(self):
-        """int: GPU Fabric health Status Mask."""
+        """int: GPU Fabric health Status Mask. See NVML_GPU_FABRIC_HEALTH_MASK_*."""
         return self._ptr[0].healthMask
 
     @health_mask.setter
@@ -14048,6 +14062,1116 @@ cdef class DeviceCapabilities_v1:
             obj._owned = True
         else:
             obj._ptr = <nvmlDeviceCapabilities_v1_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_device_addressing_mode_v1_dtype_offsets():
+    cdef nvmlDeviceAddressingMode_v1_t pod = nvmlDeviceAddressingMode_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'value'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlDeviceAddressingMode_v1_t),
+    })
+
+device_addressing_mode_v1_dtype = _get_device_addressing_mode_v1_dtype_offsets()
+
+cdef class DeviceAddressingMode_v1:
+    """Empty-initialize an instance of `nvmlDeviceAddressingMode_v1_t`.
+
+
+    .. seealso:: `nvmlDeviceAddressingMode_v1_t`
+    """
+    cdef:
+        nvmlDeviceAddressingMode_v1_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlDeviceAddressingMode_v1_t *>calloc(1, sizeof(nvmlDeviceAddressingMode_v1_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating DeviceAddressingMode_v1")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlDeviceAddressingMode_v1_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.DeviceAddressingMode_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef DeviceAddressingMode_v1 other_
+        if not isinstance(other, DeviceAddressingMode_v1):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDeviceAddressingMode_v1_t)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlDeviceAddressingMode_v1_t *>malloc(sizeof(nvmlDeviceAddressingMode_v1_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating DeviceAddressingMode_v1")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDeviceAddressingMode_v1_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def version(self):
+        """int: API version."""
+        return self._ptr[0].version
+
+    @version.setter
+    def version(self, val):
+        if self._readonly:
+            raise ValueError("This DeviceAddressingMode_v1 instance is read-only")
+        self._ptr[0].version = val
+
+    @property
+    def value(self):
+        """int: One of `nvmlDeviceAddressingModeType_t`."""
+        return self._ptr[0].value
+
+    @value.setter
+    def value(self, val):
+        if self._readonly:
+            raise ValueError("This DeviceAddressingMode_v1 instance is read-only")
+        self._ptr[0].value = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an DeviceAddressingMode_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `device_addressing_mode_v1_dtype` holding the data.
+        """
+        return __from_data(data, "device_addressing_mode_v1_dtype", device_addressing_mode_v1_dtype, DeviceAddressingMode_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an DeviceAddressingMode_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef DeviceAddressingMode_v1 obj = DeviceAddressingMode_v1.__new__(DeviceAddressingMode_v1)
+        if owner is None:
+            obj._ptr = <nvmlDeviceAddressingMode_v1_t *>malloc(sizeof(nvmlDeviceAddressingMode_v1_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating DeviceAddressingMode_v1")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDeviceAddressingMode_v1_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlDeviceAddressingMode_v1_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_repair_status_v1_dtype_offsets():
+    cdef nvmlRepairStatus_v1_t pod = nvmlRepairStatus_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'b_channel_repair_pending', 'b_tpc_repair_pending'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bChannelRepairPending)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.bTpcRepairPending)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlRepairStatus_v1_t),
+    })
+
+repair_status_v1_dtype = _get_repair_status_v1_dtype_offsets()
+
+cdef class RepairStatus_v1:
+    """Empty-initialize an instance of `nvmlRepairStatus_v1_t`.
+
+
+    .. seealso:: `nvmlRepairStatus_v1_t`
+    """
+    cdef:
+        nvmlRepairStatus_v1_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlRepairStatus_v1_t *>calloc(1, sizeof(nvmlRepairStatus_v1_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating RepairStatus_v1")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlRepairStatus_v1_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.RepairStatus_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef RepairStatus_v1 other_
+        if not isinstance(other, RepairStatus_v1):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlRepairStatus_v1_t)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlRepairStatus_v1_t *>malloc(sizeof(nvmlRepairStatus_v1_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating RepairStatus_v1")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlRepairStatus_v1_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def version(self):
+        """int: API version number."""
+        return self._ptr[0].version
+
+    @version.setter
+    def version(self, val):
+        if self._readonly:
+            raise ValueError("This RepairStatus_v1 instance is read-only")
+        self._ptr[0].version = val
+
+    @property
+    def b_channel_repair_pending(self):
+        """int: Reference to `unsigned` int."""
+        return self._ptr[0].bChannelRepairPending
+
+    @b_channel_repair_pending.setter
+    def b_channel_repair_pending(self, val):
+        if self._readonly:
+            raise ValueError("This RepairStatus_v1 instance is read-only")
+        self._ptr[0].bChannelRepairPending = val
+
+    @property
+    def b_tpc_repair_pending(self):
+        """int: Reference to `unsigned` int."""
+        return self._ptr[0].bTpcRepairPending
+
+    @b_tpc_repair_pending.setter
+    def b_tpc_repair_pending(self, val):
+        if self._readonly:
+            raise ValueError("This RepairStatus_v1 instance is read-only")
+        self._ptr[0].bTpcRepairPending = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an RepairStatus_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `repair_status_v1_dtype` holding the data.
+        """
+        return __from_data(data, "repair_status_v1_dtype", repair_status_v1_dtype, RepairStatus_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an RepairStatus_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef RepairStatus_v1 obj = RepairStatus_v1.__new__(RepairStatus_v1)
+        if owner is None:
+            obj._ptr = <nvmlRepairStatus_v1_t *>malloc(sizeof(nvmlRepairStatus_v1_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating RepairStatus_v1")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlRepairStatus_v1_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlRepairStatus_v1_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_pdi_v1_dtype_offsets():
+    cdef nvmlPdi_v1_t pod = nvmlPdi_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'value'],
+        'formats': [_numpy.uint32, _numpy.uint64],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.value)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPdi_v1_t),
+    })
+
+pdi_v1_dtype = _get_pdi_v1_dtype_offsets()
+
+cdef class Pdi_v1:
+    """Empty-initialize an instance of `nvmlPdi_v1_t`.
+
+
+    .. seealso:: `nvmlPdi_v1_t`
+    """
+    cdef:
+        nvmlPdi_v1_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlPdi_v1_t *>calloc(1, sizeof(nvmlPdi_v1_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating Pdi_v1")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlPdi_v1_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.Pdi_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef Pdi_v1 other_
+        if not isinstance(other, Pdi_v1):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPdi_v1_t)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlPdi_v1_t *>malloc(sizeof(nvmlPdi_v1_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating Pdi_v1")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPdi_v1_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def version(self):
+        """int: API version number."""
+        return self._ptr[0].version
+
+    @version.setter
+    def version(self, val):
+        if self._readonly:
+            raise ValueError("This Pdi_v1 instance is read-only")
+        self._ptr[0].version = val
+
+    @property
+    def value(self):
+        """int: 64-bit PDI value"""
+        return self._ptr[0].value
+
+    @value.setter
+    def value(self, val):
+        if self._readonly:
+            raise ValueError("This Pdi_v1 instance is read-only")
+        self._ptr[0].value = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an Pdi_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `pdi_v1_dtype` holding the data.
+        """
+        return __from_data(data, "pdi_v1_dtype", pdi_v1_dtype, Pdi_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an Pdi_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef Pdi_v1 obj = Pdi_v1.__new__(Pdi_v1)
+        if owner is None:
+            obj._ptr = <nvmlPdi_v1_t *>malloc(sizeof(nvmlPdi_v1_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating Pdi_v1")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPdi_v1_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlPdi_v1_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_device_power_mizer_modes_v1_dtype_offsets():
+    cdef nvmlDevicePowerMizerModes_v1_t pod = nvmlDevicePowerMizerModes_v1_t()
+    return _numpy.dtype({
+        'names': ['current_mode', 'mode', 'supported_power_mizer_modes'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.currentMode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.mode)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.supportedPowerMizerModes)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlDevicePowerMizerModes_v1_t),
+    })
+
+device_power_mizer_modes_v1_dtype = _get_device_power_mizer_modes_v1_dtype_offsets()
+
+cdef class DevicePowerMizerModes_v1:
+    """Empty-initialize an instance of `nvmlDevicePowerMizerModes_v1_t`.
+
+
+    .. seealso:: `nvmlDevicePowerMizerModes_v1_t`
+    """
+    cdef:
+        nvmlDevicePowerMizerModes_v1_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlDevicePowerMizerModes_v1_t *>calloc(1, sizeof(nvmlDevicePowerMizerModes_v1_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating DevicePowerMizerModes_v1")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlDevicePowerMizerModes_v1_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.DevicePowerMizerModes_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef DevicePowerMizerModes_v1 other_
+        if not isinstance(other, DevicePowerMizerModes_v1):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlDevicePowerMizerModes_v1_t)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlDevicePowerMizerModes_v1_t *>malloc(sizeof(nvmlDevicePowerMizerModes_v1_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating DevicePowerMizerModes_v1")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlDevicePowerMizerModes_v1_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def current_mode(self):
+        """int: OUT: the current powermizer mode."""
+        return self._ptr[0].currentMode
+
+    @current_mode.setter
+    def current_mode(self, val):
+        if self._readonly:
+            raise ValueError("This DevicePowerMizerModes_v1 instance is read-only")
+        self._ptr[0].currentMode = val
+
+    @property
+    def mode(self):
+        """int: IN: the powermizer mode to set."""
+        return self._ptr[0].mode
+
+    @mode.setter
+    def mode(self, val):
+        if self._readonly:
+            raise ValueError("This DevicePowerMizerModes_v1 instance is read-only")
+        self._ptr[0].mode = val
+
+    @property
+    def supported_power_mizer_modes(self):
+        """int: OUT: Bitmask of supported powermizer modes."""
+        return self._ptr[0].supportedPowerMizerModes
+
+    @supported_power_mizer_modes.setter
+    def supported_power_mizer_modes(self, val):
+        if self._readonly:
+            raise ValueError("This DevicePowerMizerModes_v1 instance is read-only")
+        self._ptr[0].supportedPowerMizerModes = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an DevicePowerMizerModes_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `device_power_mizer_modes_v1_dtype` holding the data.
+        """
+        return __from_data(data, "device_power_mizer_modes_v1_dtype", device_power_mizer_modes_v1_dtype, DevicePowerMizerModes_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an DevicePowerMizerModes_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef DevicePowerMizerModes_v1 obj = DevicePowerMizerModes_v1.__new__(DevicePowerMizerModes_v1)
+        if owner is None:
+            obj._ptr = <nvmlDevicePowerMizerModes_v1_t *>malloc(sizeof(nvmlDevicePowerMizerModes_v1_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating DevicePowerMizerModes_v1")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlDevicePowerMizerModes_v1_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlDevicePowerMizerModes_v1_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_ecc_sram_unique_uncorrected_error_entry_v1_dtype_offsets():
+    cdef nvmlEccSramUniqueUncorrectedErrorEntry_v1_t pod = nvmlEccSramUniqueUncorrectedErrorEntry_v1_t()
+    return _numpy.dtype({
+        'names': ['unit', 'location', 'sublocation', 'extlocation', 'address', 'is_parity', 'count'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.unit)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.location)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.sublocation)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.extlocation)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.address)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.isParity)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t),
+    })
+
+ecc_sram_unique_uncorrected_error_entry_v1_dtype = _get_ecc_sram_unique_uncorrected_error_entry_v1_dtype_offsets()
+
+cdef class EccSramUniqueUncorrectedErrorEntry_v1:
+    """Empty-initialize an array of `nvmlEccSramUniqueUncorrectedErrorEntry_v1_t`.
+
+    The resulting object is of length `size` and of dtype `ecc_sram_unique_uncorrected_error_entry_v1_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+
+    .. seealso:: `nvmlEccSramUniqueUncorrectedErrorEntry_v1_t`
+    """
+    cdef:
+        readonly object _data
+
+
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.EccSramUniqueUncorrectedErrorEntry_v1_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.EccSramUniqueUncorrectedErrorEntry_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, EccSramUniqueUncorrectedErrorEntry_v1)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    @property
+    def unit(self):
+        """Union[~_numpy.uint32, int]: the SRAM unit index"""
+        if self._data.size == 1:
+            return int(self._data.unit[0])
+        return self._data.unit
+
+    @unit.setter
+    def unit(self, val):
+        self._data.unit = val
+
+    @property
+    def location(self):
+        """Union[~_numpy.uint32, int]: the error location within the SRAM unit"""
+        if self._data.size == 1:
+            return int(self._data.location[0])
+        return self._data.location
+
+    @location.setter
+    def location(self, val):
+        self._data.location = val
+
+    @property
+    def sublocation(self):
+        """Union[~_numpy.uint32, int]: the error sublocation within the SRAM unit"""
+        if self._data.size == 1:
+            return int(self._data.sublocation[0])
+        return self._data.sublocation
+
+    @sublocation.setter
+    def sublocation(self, val):
+        self._data.sublocation = val
+
+    @property
+    def extlocation(self):
+        """Union[~_numpy.uint32, int]: the error extlocation within the SRAM unit"""
+        if self._data.size == 1:
+            return int(self._data.extlocation[0])
+        return self._data.extlocation
+
+    @extlocation.setter
+    def extlocation(self, val):
+        self._data.extlocation = val
+
+    @property
+    def address(self):
+        """Union[~_numpy.uint32, int]: the error address within the SRAM unit"""
+        if self._data.size == 1:
+            return int(self._data.address[0])
+        return self._data.address
+
+    @address.setter
+    def address(self, val):
+        self._data.address = val
+
+    @property
+    def is_parity(self):
+        """Union[~_numpy.uint32, int]: if the SRAM error is parity or not"""
+        if self._data.size == 1:
+            return int(self._data.is_parity[0])
+        return self._data.is_parity
+
+    @is_parity.setter
+    def is_parity(self, val):
+        self._data.is_parity = val
+
+    @property
+    def count(self):
+        """Union[~_numpy.uint32, int]: the error count at the same SRAM address"""
+        if self._data.size == 1:
+            return int(self._data.count[0])
+        return self._data.count
+
+    @count.setter
+    def count(self, val):
+        self._data.count = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return EccSramUniqueUncorrectedErrorEntry_v1.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == ecc_sram_unique_uncorrected_error_entry_v1_dtype:
+            return EccSramUniqueUncorrectedErrorEntry_v1.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an EccSramUniqueUncorrectedErrorEntry_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `ecc_sram_unique_uncorrected_error_entry_v1_dtype` holding the data.
+        """
+        cdef EccSramUniqueUncorrectedErrorEntry_v1 obj = EccSramUniqueUncorrectedErrorEntry_v1.__new__(EccSramUniqueUncorrectedErrorEntry_v1)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != ecc_sram_unique_uncorrected_error_entry_v1_dtype:
+            raise ValueError("data array must be of dtype ecc_sram_unique_uncorrected_error_entry_v1_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an EccSramUniqueUncorrectedErrorEntry_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef EccSramUniqueUncorrectedErrorEntry_v1 obj = EccSramUniqueUncorrectedErrorEntry_v1.__new__(EccSramUniqueUncorrectedErrorEntry_v1)
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlEccSramUniqueUncorrectedErrorEntry_v1_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=ecc_sram_unique_uncorrected_error_entry_v1_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
+cdef _get_gpu_fabric_info_v3_dtype_offsets():
+    cdef nvmlGpuFabricInfo_v3_t pod = nvmlGpuFabricInfo_v3_t()
+    return _numpy.dtype({
+        'names': ['version', 'cluster_uuid', 'status', 'clique_id', 'state', 'health_mask', 'health_summary'],
+        'formats': [_numpy.uint32, _numpy.uint8, _numpy.int32, _numpy.uint32, _numpy.uint8, _numpy.uint32, _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.clusterUuid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.cliqueId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.state)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.healthMask)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.healthSummary)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGpuFabricInfo_v3_t),
+    })
+
+gpu_fabric_info_v3_dtype = _get_gpu_fabric_info_v3_dtype_offsets()
+
+cdef class GpuFabricInfo_v3:
+    """Empty-initialize an instance of `nvmlGpuFabricInfo_v3_t`.
+
+
+    .. seealso:: `nvmlGpuFabricInfo_v3_t`
+    """
+    cdef:
+        nvmlGpuFabricInfo_v3_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlGpuFabricInfo_v3_t *>calloc(1, sizeof(nvmlGpuFabricInfo_v3_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating GpuFabricInfo_v3")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlGpuFabricInfo_v3_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.GpuFabricInfo_v3 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef GpuFabricInfo_v3 other_
+        if not isinstance(other, GpuFabricInfo_v3):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuFabricInfo_v3_t)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlGpuFabricInfo_v3_t *>malloc(sizeof(nvmlGpuFabricInfo_v3_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating GpuFabricInfo_v3")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuFabricInfo_v3_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def version(self):
+        """int: Structure version identifier (set to nvmlGpuFabricInfo_v2)"""
+        return self._ptr[0].version
+
+    @version.setter
+    def version(self, val):
+        if self._readonly:
+            raise ValueError("This GpuFabricInfo_v3 instance is read-only")
+        self._ptr[0].version = val
+
+    @property
+    def cluster_uuid(self):
+        """~_numpy.uint8: (array of length 16).Uuid of the cluster to which this GPU belongs."""
+        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].clusterUuid))
+        return _numpy.asarray(arr)
+
+    @cluster_uuid.setter
+    def cluster_uuid(self, val):
+        if self._readonly:
+            raise ValueError("This GpuFabricInfo_v3 instance is read-only")
+        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
+        memcpy(<void *>(&(self._ptr[0].clusterUuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+
+    @property
+    def status(self):
+        """int: Probe Error status, if any. Must be checked only if Probe state returns "complete"."""
+        return <int>(self._ptr[0].status)
+
+    @status.setter
+    def status(self, val):
+        if self._readonly:
+            raise ValueError("This GpuFabricInfo_v3 instance is read-only")
+        self._ptr[0].status = <nvmlReturn_t><int>val
+
+    @property
+    def clique_id(self):
+        """int: ID of the fabric clique to which this GPU belongs."""
+        return self._ptr[0].cliqueId
+
+    @clique_id.setter
+    def clique_id(self, val):
+        if self._readonly:
+            raise ValueError("This GpuFabricInfo_v3 instance is read-only")
+        self._ptr[0].cliqueId = val
+
+    @property
+    def state(self):
+        """int: Current Probe State of GPU registration process. See NVML_GPU_FABRIC_STATE_*."""
+        return <unsigned char>(self._ptr[0].state)
+
+    @state.setter
+    def state(self, val):
+        if self._readonly:
+            raise ValueError("This GpuFabricInfo_v3 instance is read-only")
+        self._ptr[0].state = <nvmlGpuFabricState_t><unsigned char>val
+
+    @property
+    def health_mask(self):
+        """int: GPU Fabric health Status Mask. See NVML_GPU_FABRIC_HEALTH_MASK_*."""
+        return self._ptr[0].healthMask
+
+    @health_mask.setter
+    def health_mask(self, val):
+        if self._readonly:
+            raise ValueError("This GpuFabricInfo_v3 instance is read-only")
+        self._ptr[0].healthMask = val
+
+    @property
+    def health_summary(self):
+        """int: GPU Fabric health summary. See NVML_GPU_FABRIC_HEALTH_SUMMARY_*."""
+        return self._ptr[0].healthSummary
+
+    @health_summary.setter
+    def health_summary(self, val):
+        if self._readonly:
+            raise ValueError("This GpuFabricInfo_v3 instance is read-only")
+        self._ptr[0].healthSummary = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an GpuFabricInfo_v3 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `gpu_fabric_info_v3_dtype` holding the data.
+        """
+        return __from_data(data, "gpu_fabric_info_v3_dtype", gpu_fabric_info_v3_dtype, GpuFabricInfo_v3)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an GpuFabricInfo_v3 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef GpuFabricInfo_v3 obj = GpuFabricInfo_v3.__new__(GpuFabricInfo_v3)
+        if owner is None:
+            obj._ptr = <nvmlGpuFabricInfo_v3_t *>malloc(sizeof(nvmlGpuFabricInfo_v3_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating GpuFabricInfo_v3")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuFabricInfo_v3_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlGpuFabricInfo_v3_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
+cdef _get_nvlink_firmware_version_dtype_offsets():
+    cdef nvmlNvlinkFirmwareVersion_t pod = nvmlNvlinkFirmwareVersion_t()
+    return _numpy.dtype({
+        'names': ['ucode_type', 'major', 'minor', 'sub_minor'],
+        'formats': [_numpy.uint8, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.ucodeType)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.major)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.minor)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.subMinor)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkFirmwareVersion_t),
+    })
+
+nvlink_firmware_version_dtype = _get_nvlink_firmware_version_dtype_offsets()
+
+cdef class NvlinkFirmwareVersion:
+    """Empty-initialize an instance of `nvmlNvlinkFirmwareVersion_t`.
+
+
+    .. seealso:: `nvmlNvlinkFirmwareVersion_t`
+    """
+    cdef:
+        nvmlNvlinkFirmwareVersion_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlNvlinkFirmwareVersion_t *>calloc(1, sizeof(nvmlNvlinkFirmwareVersion_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating NvlinkFirmwareVersion")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlNvlinkFirmwareVersion_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.NvlinkFirmwareVersion object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvlinkFirmwareVersion other_
+        if not isinstance(other, NvlinkFirmwareVersion):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkFirmwareVersion_t)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlNvlinkFirmwareVersion_t *>malloc(sizeof(nvmlNvlinkFirmwareVersion_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating NvlinkFirmwareVersion")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkFirmwareVersion_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def ucode_type(self):
+        """int: """
+        return self._ptr[0].ucodeType
+
+    @ucode_type.setter
+    def ucode_type(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
+        self._ptr[0].ucodeType = val
+
+    @property
+    def major(self):
+        """int: """
+        return self._ptr[0].major
+
+    @major.setter
+    def major(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
+        self._ptr[0].major = val
+
+    @property
+    def minor(self):
+        """int: """
+        return self._ptr[0].minor
+
+    @minor.setter
+    def minor(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
+        self._ptr[0].minor = val
+
+    @property
+    def sub_minor(self):
+        """int: """
+        return self._ptr[0].subMinor
+
+    @sub_minor.setter
+    def sub_minor(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkFirmwareVersion instance is read-only")
+        self._ptr[0].subMinor = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvlinkFirmwareVersion instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nvlink_firmware_version_dtype` holding the data.
+        """
+        return __from_data(data, "nvlink_firmware_version_dtype", nvlink_firmware_version_dtype, NvlinkFirmwareVersion)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvlinkFirmwareVersion instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvlinkFirmwareVersion obj = NvlinkFirmwareVersion.__new__(NvlinkFirmwareVersion)
+        if owner is None:
+            obj._ptr = <nvmlNvlinkFirmwareVersion_t *>malloc(sizeof(nvmlNvlinkFirmwareVersion_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating NvlinkFirmwareVersion")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkFirmwareVersion_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlNvlinkFirmwareVersion_t *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -17010,6 +18134,282 @@ cdef class ComputeInstanceInfo:
         return obj
 
 
+cdef _get_ecc_sram_unique_uncorrected_error_counts_v1_dtype_offsets():
+    cdef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t pod = nvmlEccSramUniqueUncorrectedErrorCounts_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'entry_count', 'entries'],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.intp],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.entryCount)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.entries)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t),
+    })
+
+ecc_sram_unique_uncorrected_error_counts_v1_dtype = _get_ecc_sram_unique_uncorrected_error_counts_v1_dtype_offsets()
+
+cdef class EccSramUniqueUncorrectedErrorCounts_v1:
+    """Empty-initialize an instance of `nvmlEccSramUniqueUncorrectedErrorCounts_v1_t`.
+
+
+    .. seealso:: `nvmlEccSramUniqueUncorrectedErrorCounts_v1_t`
+    """
+    cdef:
+        nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+        dict _refs
+
+    def __init__(self):
+        self._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>calloc(1, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating EccSramUniqueUncorrectedErrorCounts_v1")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+        self._refs = {}
+
+    def __dealloc__(self):
+        cdef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.EccSramUniqueUncorrectedErrorCounts_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef EccSramUniqueUncorrectedErrorCounts_v1 other_
+        if not isinstance(other, EccSramUniqueUncorrectedErrorCounts_v1):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>malloc(sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating EccSramUniqueUncorrectedErrorCounts_v1")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def version(self):
+        """int: the API version number"""
+        return self._ptr[0].version
+
+    @version.setter
+    def version(self, val):
+        if self._readonly:
+            raise ValueError("This EccSramUniqueUncorrectedErrorCounts_v1 instance is read-only")
+        self._ptr[0].version = val
+
+    @property
+    def entries(self):
+        """int: pointer to caller-supplied buffer to return the SRAM unique uncorrected ECC error count entries"""
+        if self._ptr[0].entries == NULL or self._ptr[0].entryCount == 0:
+            return []
+        return EccSramUniqueUncorrectedErrorEntry_v1.from_ptr(<intptr_t>(self._ptr[0].entries), self._ptr[0].entryCount)
+
+    @entries.setter
+    def entries(self, val):
+        if self._readonly:
+            raise ValueError("This EccSramUniqueUncorrectedErrorCounts_v1 instance is read-only")
+        cdef EccSramUniqueUncorrectedErrorEntry_v1 arr = val
+        self._ptr[0].entries = <nvmlEccSramUniqueUncorrectedErrorEntry_v1_t*><intptr_t>(arr._get_ptr())
+        self._ptr[0].entryCount = len(arr)
+        self._refs["entries"] = arr
+
+    @staticmethod
+    def from_data(data):
+        """Create an EccSramUniqueUncorrectedErrorCounts_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `ecc_sram_unique_uncorrected_error_counts_v1_dtype` holding the data.
+        """
+        return __from_data(data, "ecc_sram_unique_uncorrected_error_counts_v1_dtype", ecc_sram_unique_uncorrected_error_counts_v1_dtype, EccSramUniqueUncorrectedErrorCounts_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an EccSramUniqueUncorrectedErrorCounts_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef EccSramUniqueUncorrectedErrorCounts_v1 obj = EccSramUniqueUncorrectedErrorCounts_v1.__new__(EccSramUniqueUncorrectedErrorCounts_v1)
+        if owner is None:
+            obj._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>malloc(sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating EccSramUniqueUncorrectedErrorCounts_v1")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        obj._refs = {}
+        return obj
+
+
+cdef _get_nvlink_firmware_info_dtype_offsets():
+    cdef nvmlNvlinkFirmwareInfo_t pod = nvmlNvlinkFirmwareInfo_t()
+    return _numpy.dtype({
+        'names': ['firmware_version', 'num_valid_entries'],
+        'formats': [nvlink_firmware_version_dtype, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.firmwareVersion)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.numValidEntries)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvlinkFirmwareInfo_t),
+    })
+
+nvlink_firmware_info_dtype = _get_nvlink_firmware_info_dtype_offsets()
+
+cdef class NvlinkFirmwareInfo:
+    """Empty-initialize an instance of `nvmlNvlinkFirmwareInfo_t`.
+
+
+    .. seealso:: `nvmlNvlinkFirmwareInfo_t`
+    """
+    cdef:
+        nvmlNvlinkFirmwareInfo_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlNvlinkFirmwareInfo_t *>calloc(1, sizeof(nvmlNvlinkFirmwareInfo_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating NvlinkFirmwareInfo")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlNvlinkFirmwareInfo_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.NvlinkFirmwareInfo object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvlinkFirmwareInfo other_
+        if not isinstance(other, NvlinkFirmwareInfo):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvlinkFirmwareInfo_t)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlNvlinkFirmwareInfo_t *>malloc(sizeof(nvmlNvlinkFirmwareInfo_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating NvlinkFirmwareInfo")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvlinkFirmwareInfo_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def firmware_version(self):
+        """NvlinkFirmwareVersion: OUT - NVLINK firmware version."""
+        return NvlinkFirmwareVersion.from_ptr(<intptr_t>&(self._ptr[0].firmwareVersion), 100, self._readonly)
+
+    @firmware_version.setter
+    def firmware_version(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkFirmwareInfo instance is read-only")
+        cdef NvlinkFirmwareVersion val_ = val
+        if len(val) != 100:
+            raise ValueError(f"Expected length 100 for field firmware_version, got {len(val)}")
+        memcpy(<void *>&(self._ptr[0].firmwareVersion), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkFirmwareVersion_t) * 100)
+
+    @property
+    def num_valid_entries(self):
+        """int: OUT - Number of valid firmware entries."""
+        return self._ptr[0].numValidEntries
+
+    @num_valid_entries.setter
+    def num_valid_entries(self, val):
+        if self._readonly:
+            raise ValueError("This NvlinkFirmwareInfo instance is read-only")
+        self._ptr[0].numValidEntries = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvlinkFirmwareInfo instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nvlink_firmware_info_dtype` holding the data.
+        """
+        return __from_data(data, "nvlink_firmware_info_dtype", nvlink_firmware_info_dtype, NvlinkFirmwareInfo)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvlinkFirmwareInfo instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvlinkFirmwareInfo obj = NvlinkFirmwareInfo.__new__(NvlinkFirmwareInfo)
+        if owner is None:
+            obj._ptr = <nvmlNvlinkFirmwareInfo_t *>malloc(sizeof(nvmlNvlinkFirmwareInfo_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating NvlinkFirmwareInfo")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvlinkFirmwareInfo_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlNvlinkFirmwareInfo_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_vgpu_instances_utilization_info_v1_dtype_offsets():
     cdef nvmlVgpuInstancesUtilizationInfo_v1_t pod = nvmlVgpuInstancesUtilizationInfo_v1_t()
     return _numpy.dtype({
@@ -18185,6 +19585,151 @@ cdef class GridLicensableFeatures:
         return obj
 
 
+cdef _get_nv_link_info_v2_dtype_offsets():
+    cdef nvmlNvLinkInfo_v2_t pod = nvmlNvLinkInfo_v2_t()
+    return _numpy.dtype({
+        'names': ['version', 'is_nvle_enabled', 'firmware_info'],
+        'formats': [_numpy.uint32, _numpy.uint32, nvlink_firmware_info_dtype],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.isNvleEnabled)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.firmwareInfo)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvLinkInfo_v2_t),
+    })
+
+nv_link_info_v2_dtype = _get_nv_link_info_v2_dtype_offsets()
+
+cdef class NvLinkInfo_v2:
+    """Empty-initialize an instance of `nvmlNvLinkInfo_v2_t`.
+
+
+    .. seealso:: `nvmlNvLinkInfo_v2_t`
+    """
+    cdef:
+        nvmlNvLinkInfo_v2_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlNvLinkInfo_v2_t *>calloc(1, sizeof(nvmlNvLinkInfo_v2_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating NvLinkInfo_v2")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlNvLinkInfo_v2_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.NvLinkInfo_v2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvLinkInfo_v2 other_
+        if not isinstance(other, NvLinkInfo_v2):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvLinkInfo_v2_t)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlNvLinkInfo_v2_t *>malloc(sizeof(nvmlNvLinkInfo_v2_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating NvLinkInfo_v2")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvLinkInfo_v2_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def firmware_info(self):
+        """NvlinkFirmwareInfo: OUT - NVLINK Firmware info."""
+        return NvlinkFirmwareInfo.from_ptr(<intptr_t>&(self._ptr[0].firmwareInfo), self._readonly, self)
+
+    @firmware_info.setter
+    def firmware_info(self, val):
+        if self._readonly:
+            raise ValueError("This NvLinkInfo_v2 instance is read-only")
+        cdef NvlinkFirmwareInfo val_ = val
+        memcpy(<void *>&(self._ptr[0].firmwareInfo), <void *>(val_._get_ptr()), sizeof(nvmlNvlinkFirmwareInfo_t) * 1)
+
+    @property
+    def version(self):
+        """int: IN - the API version number."""
+        return self._ptr[0].version
+
+    @version.setter
+    def version(self, val):
+        if self._readonly:
+            raise ValueError("This NvLinkInfo_v2 instance is read-only")
+        self._ptr[0].version = val
+
+    @property
+    def is_nvle_enabled(self):
+        """int: OUT - NVLINK encryption enablement."""
+        return self._ptr[0].isNvleEnabled
+
+    @is_nvle_enabled.setter
+    def is_nvle_enabled(self, val):
+        if self._readonly:
+            raise ValueError("This NvLinkInfo_v2 instance is read-only")
+        self._ptr[0].isNvleEnabled = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvLinkInfo_v2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nv_link_info_v2_dtype` holding the data.
+        """
+        return __from_data(data, "nv_link_info_v2_dtype", nv_link_info_v2_dtype, NvLinkInfo_v2)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvLinkInfo_v2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvLinkInfo_v2 obj = NvLinkInfo_v2.__new__(NvLinkInfo_v2)
+        if owner is None:
+            obj._ptr = <nvmlNvLinkInfo_v2_t *>malloc(sizeof(nvmlNvLinkInfo_v2_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating NvLinkInfo_v2")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvLinkInfo_v2_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlNvLinkInfo_v2_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
 
 cpdef init_v2():
     """Initialize NVML, but don't initialize any GPUs yet.
@@ -19283,7 +20828,7 @@ cpdef unsigned int device_get_max_customer_boost_clock(intptr_t device, int cloc
 
 
 cpdef object device_get_supported_memory_clocks(intptr_t device):
-    """Retrieves the list of possible memory clocks that can be used as an argument for ``nvmlDeviceSetApplicationsClocks``.
+    """Retrieves the list of possible memory clocks that can be used as an argument for ``nvmlDeviceSetMemoryLockedClocks``.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -19305,7 +20850,7 @@ cpdef object device_get_supported_memory_clocks(intptr_t device):
 
 
 cpdef object device_get_supported_graphics_clocks(intptr_t device, unsigned int memory_clock_m_hz):
-    """Retrieves the list of possible graphics clocks that can be used as an argument for ``nvmlDeviceSetApplicationsClocks``.
+    """Retrieves the list of possible graphics clocks that can be used as an argument for ``nvmlDeviceSetGpuLockedClocks``.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -19949,7 +21494,7 @@ cpdef tuple device_get_gpu_operation_mode(intptr_t device):
 
 
 cpdef object device_get_memory_info_v2(intptr_t device):
-    """Retrieves the amount of used, free, reserved and total memory available on the device, in bytes. The reserved amount is supported on version 2 only.
+    """Retrieves the amount of used, free, reserved and total memory available on the device, in bytes.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -20676,26 +22221,6 @@ cpdef unsigned int device_get_bus_type(intptr_t device) except? 0:
     return <unsigned int>type
 
 
-cpdef object device_get_gpu_fabric_info_v(intptr_t device):
-    """Versioned wrapper around ``nvmlDeviceGetGpuFabricInfo`` that accepts a versioned ``nvmlGpuFabricInfo_v2_t`` or later output structure.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlGpuFabricInfo_v2_t: Information about GPU fabric state.
-
-    .. seealso:: `nvmlDeviceGetGpuFabricInfoV`
-    """
-    cdef GpuFabricInfo_v2 gpu_fabric_info_py = GpuFabricInfo_v2()
-    cdef nvmlGpuFabricInfoV_t *gpu_fabric_info = <nvmlGpuFabricInfoV_t *><intptr_t>(gpu_fabric_info_py._get_ptr())
-    gpu_fabric_info.version = sizeof(nvmlGpuFabricInfo_v2_t) | (2 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetGpuFabricInfoV(<Device>device, gpu_fabric_info)
-    check_status(__status__)
-    return gpu_fabric_info_py
-
-
 cpdef object system_get_conf_compute_capabilities():
     """Get Conf Computing System capabilities.
 
@@ -20931,6 +22456,26 @@ cpdef tuple device_get_gsp_firmware_mode(intptr_t device):
         __status__ = nvmlDeviceGetGspFirmwareMode(<Device>device, &is_enabled, &default_mode)
     check_status(__status__)
     return (is_enabled, default_mode)
+
+
+cpdef object device_get_sram_ecc_error_status(intptr_t device):
+    """Get SRAM ECC error status of this device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlEccSramErrorStatus_v1_t: Returns SRAM ECC error status.
+
+    .. seealso:: `nvmlDeviceGetSramEccErrorStatus`
+    """
+    cdef EccSramErrorStatus_v1 status_py = EccSramErrorStatus_v1()
+    cdef nvmlEccSramErrorStatus_t *status = <nvmlEccSramErrorStatus_t *><intptr_t>(status_py._get_ptr())
+    status.version = sizeof(nvmlEccSramErrorStatus_v1_t) | (1 << 24)
+    with nogil:
+        __status__ = nvmlDeviceGetSramEccErrorStatus(<Device>device, status)
+    check_status(__status__)
+    return status_py
 
 
 cpdef int device_get_accounting_mode(intptr_t device) except? -1:
@@ -21800,6 +23345,13 @@ cpdef event_set_free(intptr_t set):
 
 
 cpdef system_event_set_create(intptr_t request):
+    """Create an empty set of system events. Event set should be freed by ``nvmlSystemEventSetFree``.
+
+    Args:
+        request (intptr_t): Reference to nvmlSystemEventSetCreateRequest_t.
+
+    .. seealso:: `nvmlSystemEventSetCreate`
+    """
     with nogil:
         __status__ = nvmlSystemEventSetCreate(<nvmlSystemEventSetCreateRequest_t*>request)
     check_status(__status__)
@@ -21819,7 +23371,7 @@ cpdef system_event_set_free(intptr_t request):
 
 
 cpdef system_register_events(intptr_t request):
-    """Starts recording of events on system and add the events to specified nvmlSystemEventSet_t.
+    """Starts recording of events on system and add the events to specified ``nvmlSystemEventSet_t``.
 
     Args:
         request (intptr_t): Reference to the struct nvmlSystemRegisterEventRequest_t.
@@ -23697,6 +25249,154 @@ cpdef device_power_smoothing_set_state(intptr_t device, intptr_t state):
     check_status(__status__)
 
 
+cpdef object device_get_addressing_mode(intptr_t device):
+    """Get the addressing mode for a given GPU. Addressing modes can be one of:.
+
+    Args:
+        device (intptr_t): The device handle.
+
+    Returns:
+        nvmlDeviceAddressingMode_v1_t: Pointer to addressing mode of the device.
+
+    .. seealso:: `nvmlDeviceGetAddressingMode`
+    """
+    cdef DeviceAddressingMode_v1 mode_py = DeviceAddressingMode_v1()
+    cdef nvmlDeviceAddressingMode_t *mode = <nvmlDeviceAddressingMode_t *><intptr_t>(mode_py._get_ptr())
+    mode.version = sizeof(nvmlDeviceAddressingMode_v1_t) | (1 << 24)
+    with nogil:
+        __status__ = nvmlDeviceGetAddressingMode(<Device>device, mode)
+    check_status(__status__)
+    return mode_py
+
+
+cpdef object device_get_repair_status(intptr_t device):
+    """Get the repair status for TPC/Channel repair.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlRepairStatus_v1_t: Reference to ``nvmlRepairStatus_t``.
+
+    .. seealso:: `nvmlDeviceGetRepairStatus`
+    """
+    cdef RepairStatus_v1 repair_status_py = RepairStatus_v1()
+    cdef nvmlRepairStatus_t *repair_status = <nvmlRepairStatus_t *><intptr_t>(repair_status_py._get_ptr())
+    repair_status.version = sizeof(nvmlRepairStatus_v1_t) | (1 << 24)
+    with nogil:
+        __status__ = nvmlDeviceGetRepairStatus(<Device>device, repair_status)
+    check_status(__status__)
+    return repair_status_py
+
+
+cpdef object device_get_power_mizer_mode_v1(intptr_t device):
+    """Retrieves current power mizer mode on this device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlDevicePowerMizerModes_v1_t: Reference in which to return the power mizer mode.
+
+    .. seealso:: `nvmlDeviceGetPowerMizerMode_v1`
+    """
+    cdef DevicePowerMizerModes_v1 power_mizer_mode_py = DevicePowerMizerModes_v1()
+    cdef nvmlDevicePowerMizerModes_v1_t *power_mizer_mode = <nvmlDevicePowerMizerModes_v1_t *><intptr_t>(power_mizer_mode_py._get_ptr())
+    with nogil:
+        __status__ = nvmlDeviceGetPowerMizerMode_v1(<Device>device, power_mizer_mode)
+    check_status(__status__)
+    return power_mizer_mode_py
+
+
+cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode):
+    """Sets the new power mizer mode.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        power_mizer_mode (intptr_t): Reference in which to set the power mizer mode.
+
+    .. seealso:: `nvmlDeviceSetPowerMizerMode_v1`
+    """
+    with nogil:
+        __status__ = nvmlDeviceSetPowerMizerMode_v1(<Device>device, <nvmlDevicePowerMizerModes_v1_t*>power_mizer_mode)
+    check_status(__status__)
+
+
+cpdef object device_get_pdi(intptr_t device):
+    """Retrieves the Per Device Identifier (PDI) associated with this device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlPdi_v1_t: Reference to the caller-provided structure to return the GPU PDI.
+
+    .. seealso:: `nvmlDeviceGetPdi`
+    """
+    cdef Pdi_v1 pdi_py = Pdi_v1()
+    cdef nvmlPdi_t *pdi = <nvmlPdi_t *><intptr_t>(pdi_py._get_ptr())
+    pdi.version = sizeof(nvmlPdi_v1_t) | (1 << 24)
+    with nogil:
+        __status__ = nvmlDeviceGetPdi(<Device>device, pdi)
+    check_status(__status__)
+    return pdi_py
+
+
+cpdef object device_get_nvlink_info(intptr_t device):
+    """Query NVLINK information associated with this device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlNvLinkInfo_v2_t: Reference to ``nvmlNvLinkInfo_t``.
+
+    .. seealso:: `nvmlDeviceGetNvLinkInfo`
+    """
+    cdef NvLinkInfo_v2 info_py = NvLinkInfo_v2()
+    cdef nvmlNvLinkInfo_t *info = <nvmlNvLinkInfo_t *><intptr_t>(info_py._get_ptr())
+    info.version = sizeof(nvmlNvLinkInfo_v2_t) | (2 << 24)
+    with nogil:
+        __status__ = nvmlDeviceGetNvLinkInfo(<Device>device, info)
+    check_status(__status__)
+    return info_py
+
+
+cpdef device_read_write_prm_v1(intptr_t device, intptr_t buffer):
+    """Read or write a GPU PRM register. The input is assumed to be in TLV format in network byte order.
+
+    Args:
+        device (intptr_t): Identifer of target GPU device.
+        buffer (intptr_t): Structure holding the input data in TLV format as well as the PRM register contents in TLV format (in the case of a successful read operation). Note: the input data and any returned data shall be in network byte order.
+
+    .. seealso:: `nvmlDeviceReadWritePRM_v1`
+    """
+    with nogil:
+        __status__ = nvmlDeviceReadWritePRM_v1(<Device>device, <nvmlPRMTLV_v1_t*>buffer)
+    check_status(__status__)
+
+
+cpdef object device_get_gpu_instance_profile_info_by_id_v(intptr_t device, unsigned int profile_id):
+    """GPU instance profile query function that accepts profile ID, instead of profile name. It accepts a versioned ``nvmlGpuInstanceProfileInfo_v2_t`` or later output structure.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        profile_id (unsigned int): One of the profile IDs.
+
+    Returns:
+        nvmlGpuInstanceProfileInfo_v2_t: Returns detailed profile information.
+
+    .. seealso:: `nvmlDeviceGetGpuInstanceProfileInfoByIdV`
+    """
+    cdef GpuInstanceProfileInfo_v2 info_py = GpuInstanceProfileInfo_v2()
+    cdef nvmlGpuInstanceProfileInfo_v2_t *info = <nvmlGpuInstanceProfileInfo_v2_t *><intptr_t>(info_py._get_ptr())
+    info.version = sizeof(nvmlGpuInstanceProfileInfo_v3_t) | (3 << 24)
+    with nogil:
+        __status__ = nvmlDeviceGetGpuInstanceProfileInfoByIdV(<Device>device, profile_id, info)
+    check_status(__status__)
+    return info_py
+
+
 cpdef object system_get_topology_gpu_set(unsigned int cpuNumber):
     """Retrieve the set of GPUs that have a CPU affinity with the given CPU number
 
@@ -23958,6 +25658,41 @@ cpdef object device_get_processes_utilization_info(intptr_t device, unsigned lon
     check_status(__status__)
 
     return procesesUtilInfo
+
+
+cpdef device_set_hostname_v1(intptr_t device, str hostname):
+    """Set the hostname for the device.
+
+    Args:
+        device (Device): The identifier of the target device.
+        hostname (str): The new hostname to set.
+    """
+    cdef bytes = cpython.PyUnicode_AsASCIIString(hostname)
+    if len(bytes) > 64:
+        raise ValueError("hostname must 64 characters or less")
+
+    cdef nvmlHostname_v1_t hostname_struct
+    memcpy(<void *>hostname_struct.value, <void *>cpython.PyBytes_AsString(bytes), len(bytes))
+
+    with nogil:
+        __status__ = nvmlDeviceSetHostname_v1(<Device>device, &hostname_struct)
+    check_status(__status__)
+
+
+cpdef str device_get_hostname_v1(intptr_t device):
+    """Get the hostname for the device.
+
+    Args:
+        device (Device): The identifier of the target device.
+
+    Returns:
+        str: Hostname of the device.
+    """
+    cdef nvmlHostname_v1_t hostname
+    with nogil:
+        __status__ = nvmlDeviceGetHostname_v1(<Device>device, &hostname)
+    check_status(__status__)
+    return cpython.PyUnicode_FromString(hostname.value)
 
 
 cdef FieldValue _cast_field_values(values):
@@ -24437,3 +26172,68 @@ cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned 
 
     return computeInstances
 
+
+cpdef object device_get_sram_unique_uncorrected_ecc_error_counts(intptr_t device):
+    """Retrieves the counts of SRAM unique uncorrected ECC errors
+
+    Args:
+        device (Device): The identifier of the target device.
+
+    Returns:
+        EccSramUniqueUncorrectedErrorCounts_v1: The ECC SRAM unique uncorrected error counts structure.
+    """
+
+    cdef EccSramUniqueUncorrectedErrorCounts_v1 errorCounts = EccSramUniqueUncorrectedErrorCounts_v1()
+    cdef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>errorCounts._get_ptr()
+
+    with nogil:
+        ptr.version = sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t) | (1 << 24)
+        ptr.entryCount = 0
+        ptr.entries = NULL
+        __status__ = nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(<Device>device, ptr)
+    check_status_size(__status__)
+
+    cdef EccSramUniqueUncorrectedErrorEntry_v1 entries = EccSramUniqueUncorrectedErrorEntry_v1(ptr.entryCount)
+    errorCounts.entries = entries
+
+    if ptr.entryCount == 0:
+        return errorCounts
+
+    with nogil:
+        __status__ = nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(<Device>device, ptr)
+    check_status(__status__)
+
+    return errorCounts
+
+
+cpdef object device_get_gpu_fabric_info_v(intptr_t device):
+    """Versioned wrapper around nvmlDeviceGetGpuFabricInfo that accepts a versioned ``nvmlGpuFabricInfo_v2_t`` or later output structure.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlGpuFabricInfo_v3_t: Information about GPU fabric state.
+
+    .. seealso:: `nvmlDeviceGetGpuFabricInfoV`
+    """
+    cdef GpuFabricInfo_v3 gpu_fabric_info_v3_py
+    cdef GpuFabricInfo_v2 gpu_fabric_info_v2_py
+    cdef nvmlGpuFabricInfoV_t *gpu_fabric_info
+    if CUDA_VERSION >= 13000:
+        gpu_fabric_info_v3_py = GpuFabricInfo_v3()
+        gpu_fabric_info = <nvmlGpuFabricInfoV_t *><intptr_t>(gpu_fabric_info_v3_py._get_ptr())
+        gpu_fabric_info.version = sizeof(nvmlGpuFabricInfo_v3_t) | (3 << 24)
+        with nogil:
+            __status__ = nvmlDeviceGetGpuFabricInfoV(<Device>device, gpu_fabric_info)
+        check_status(__status__)
+        return gpu_fabric_info_v3_py
+
+    else:
+        gpu_fabric_info_v2_py = GpuFabricInfo_v2()
+        gpu_fabric_info = <nvmlGpuFabricInfoV_t *><intptr_t>(gpu_fabric_info_v2_py._get_ptr())
+        gpu_fabric_info.version = sizeof(nvmlGpuFabricInfo_v2_t) | (2 << 24)
+        with nogil:
+            __status__ = nvmlDeviceGetGpuFabricInfoV(<Device>device, gpu_fabric_info)
+        check_status(__status__)
+        return gpu_fabric_info_v2_py

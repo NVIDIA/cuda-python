@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 12.9.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.0.1. Do not modify it directly.
 
 from ._internal cimport _nvml as _nvml
 
@@ -637,6 +637,10 @@ cdef nvmlReturn_t nvmlDeviceGetGspFirmwareVersion(nvmlDevice_t device, char* ver
 
 cdef nvmlReturn_t nvmlDeviceGetGspFirmwareMode(nvmlDevice_t device, unsigned int* isEnabled, unsigned int* defaultMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     return _nvml._nvmlDeviceGetGspFirmwareMode(device, isEnabled, defaultMode)
+
+
+cdef nvmlReturn_t nvmlDeviceGetSramEccErrorStatus(nvmlDevice_t device, nvmlEccSramErrorStatus_t* status) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetSramEccErrorStatus(device, status)
 
 
 cdef nvmlReturn_t nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEnableState_t* mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
@@ -1349,3 +1353,47 @@ cdef nvmlReturn_t nvmlDevicePowerSmoothingUpdatePresetProfileParam(nvmlDevice_t 
 
 cdef nvmlReturn_t nvmlDevicePowerSmoothingSetState(nvmlDevice_t device, nvmlPowerSmoothingState_t* state) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     return _nvml._nvmlDevicePowerSmoothingSetState(device, state)
+
+
+cdef nvmlReturn_t nvmlDeviceGetAddressingMode(nvmlDevice_t device, nvmlDeviceAddressingMode_t* mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetAddressingMode(device, mode)
+
+
+cdef nvmlReturn_t nvmlDeviceGetRepairStatus(nvmlDevice_t device, nvmlRepairStatus_t* repairStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetRepairStatus(device, repairStatus)
+
+
+cdef nvmlReturn_t nvmlDeviceGetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevicePowerMizerModes_v1_t* powerMizerMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetPowerMizerMode_v1(device, powerMizerMode)
+
+
+cdef nvmlReturn_t nvmlDeviceSetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevicePowerMizerModes_v1_t* powerMizerMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceSetPowerMizerMode_v1(device, powerMizerMode)
+
+
+cdef nvmlReturn_t nvmlDeviceGetPdi(nvmlDevice_t device, nvmlPdi_t* pdi) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetPdi(device, pdi)
+
+
+cdef nvmlReturn_t nvmlDeviceSetHostname_v1(nvmlDevice_t device, nvmlHostname_v1_t* hostname) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceSetHostname_v1(device, hostname)
+
+
+cdef nvmlReturn_t nvmlDeviceGetHostname_v1(nvmlDevice_t device, nvmlHostname_v1_t* hostname) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetHostname_v1(device, hostname)
+
+
+cdef nvmlReturn_t nvmlDeviceGetNvLinkInfo(nvmlDevice_t device, nvmlNvLinkInfo_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetNvLinkInfo(device, info)
+
+
+cdef nvmlReturn_t nvmlDeviceReadWritePRM_v1(nvmlDevice_t device, nvmlPRMTLV_v1_t* buffer) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceReadWritePRM_v1(device, buffer)
+
+
+cdef nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfoByIdV(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstanceProfileInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetGpuInstanceProfileInfoByIdV(device, profileId, info)
+
+
+cdef nvmlReturn_t nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(nvmlDevice_t device, nvmlEccSramUniqueUncorrectedErrorCounts_t* errorCounts) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
+    return _nvml._nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(device, errorCounts)

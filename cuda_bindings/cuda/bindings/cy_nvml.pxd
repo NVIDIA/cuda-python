@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 12.9.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.0.1. Do not modify it directly.
 
 from libc.stdint cimport int64_t
 
@@ -197,7 +197,7 @@ ctypedef enum nvmlBrandType_t "nvmlBrandType_t":
     NVML_BRAND_NVIDIA "NVML_BRAND_NVIDIA" = 14
     NVML_BRAND_GEFORCE_RTX "NVML_BRAND_GEFORCE_RTX" = 15
     NVML_BRAND_TITAN_RTX "NVML_BRAND_TITAN_RTX" = 16
-    NVML_BRAND_COUNT "NVML_BRAND_COUNT"
+    NVML_BRAND_COUNT "NVML_BRAND_COUNT" = 18
 
 ctypedef enum nvmlTemperatureThresholds_t "nvmlTemperatureThresholds_t":
     NVML_TEMPERATURE_THRESHOLD_SHUTDOWN "NVML_TEMPERATURE_THRESHOLD_SHUTDOWN" = 0
@@ -322,6 +322,7 @@ ctypedef enum nvmlReturn_t "nvmlReturn_t":
     NVML_ERROR_NOT_READY "NVML_ERROR_NOT_READY" = 27
     NVML_ERROR_GPU_NOT_FOUND "NVML_ERROR_GPU_NOT_FOUND" = 28
     NVML_ERROR_INVALID_STATE "NVML_ERROR_INVALID_STATE" = 29
+    NVML_ERROR_RESET_TYPE_NOT_SUPPORTED "NVML_ERROR_RESET_TYPE_NOT_SUPPORTED" = 30
     NVML_ERROR_UNKNOWN "NVML_ERROR_UNKNOWN" = 999
     _NVMLRETURN_T_INTERNAL_LOADING_ERROR "_NVMLRETURN_T_INTERNAL_LOADING_ERROR" = -42
 
@@ -664,6 +665,11 @@ ctypedef enum nvmlPowerProfileType_t "nvmlPowerProfileType_t":
     NVML_POWER_PROFILE_MIG "NVML_POWER_PROFILE_MIG" = 14
     NVML_POWER_PROFILE_MAX "NVML_POWER_PROFILE_MAX" = 15
 
+ctypedef enum nvmlDeviceAddressingModeType_t "nvmlDeviceAddressingModeType_t":
+    NVML_DEVICE_ADDRESSING_MODE_NONE "NVML_DEVICE_ADDRESSING_MODE_NONE" = 0
+    NVML_DEVICE_ADDRESSING_MODE_HMM "NVML_DEVICE_ADDRESSING_MODE_HMM" = 1
+    NVML_DEVICE_ADDRESSING_MODE_ATS "NVML_DEVICE_ADDRESSING_MODE_ATS" = 2
+
 
 # types
 ctypedef struct nvmlPciInfoExt_v1_t 'nvmlPciInfoExt_v1_t':
@@ -821,6 +827,19 @@ ctypedef struct nvmlPowerSmoothingProfile_v1_t 'nvmlPowerSmoothingProfile_v1_t':
 ctypedef struct nvmlPowerSmoothingState_v1_t 'nvmlPowerSmoothingState_v1_t':
     unsigned int version
     nvmlEnableState_t state
+
+ctypedef struct nvmlDeviceAddressingMode_v1_t 'nvmlDeviceAddressingMode_v1_t':
+    unsigned int version
+    unsigned int value
+
+ctypedef struct nvmlRepairStatus_v1_t 'nvmlRepairStatus_v1_t':
+    unsigned int version
+    unsigned int bChannelRepairPending
+    unsigned int bTpcRepairPending
+
+ctypedef struct nvmlPdi_v1_t 'nvmlPdi_v1_t':
+    unsigned int version
+    unsigned long long value
 
 ctypedef void* nvmlDevice_t 'nvmlDevice_t'
 ctypedef void* nvmlGpuInstance_t 'nvmlGpuInstance_t'
@@ -1228,6 +1247,37 @@ ctypedef struct nvmlGpmSupport_t 'nvmlGpmSupport_t':
 ctypedef struct nvmlMask255_t 'nvmlMask255_t':
     unsigned int mask[8]
 
+ctypedef struct nvmlDevicePowerMizerModes_v1_t 'nvmlDevicePowerMizerModes_v1_t':
+    unsigned int currentMode
+    unsigned int mode
+    unsigned int supportedPowerMizerModes
+
+ctypedef struct nvmlHostname_v1_t 'nvmlHostname_v1_t':
+    char value[64]
+
+ctypedef struct nvmlEccSramUniqueUncorrectedErrorEntry_v1_t 'nvmlEccSramUniqueUncorrectedErrorEntry_v1_t':
+    unsigned int unit
+    unsigned int location
+    unsigned int sublocation
+    unsigned int extlocation
+    unsigned int address
+    unsigned int isParity
+    unsigned int count
+
+ctypedef struct nvmlNvLinkInfo_v1_t 'nvmlNvLinkInfo_v1_t':
+    unsigned int version
+    unsigned int isNvleEnabled
+
+ctypedef struct nvmlNvlinkFirmwareVersion_t 'nvmlNvlinkFirmwareVersion_t':
+    unsigned char ucodeType
+    unsigned int major
+    unsigned int minor
+    unsigned int subMinor
+
+ctypedef union _anon_pod7 '_anon_pod7':
+    unsigned char inData[496]
+    unsigned char outData[496]
+
 ctypedef nvmlPciInfoExt_v1_t nvmlPciInfoExt_t 'nvmlPciInfoExt_t'
 ctypedef nvmlCoolerInfo_v1_t nvmlCoolerInfo_t 'nvmlCoolerInfo_t'
 ctypedef nvmlDramEncryptionInfo_v1_t nvmlDramEncryptionInfo_t 'nvmlDramEncryptionInfo_t'
@@ -1333,6 +1383,15 @@ ctypedef struct nvmlGpuFabricInfo_v2_t 'nvmlGpuFabricInfo_v2_t':
     nvmlGpuFabricState_t state
     unsigned int healthMask
 
+ctypedef struct nvmlGpuFabricInfo_v3_t 'nvmlGpuFabricInfo_v3_t':
+    unsigned int version
+    unsigned char clusterUuid[16]
+    nvmlReturn_t status
+    unsigned int cliqueId
+    nvmlGpuFabricState_t state
+    unsigned int healthMask
+    unsigned char healthSummary
+
 ctypedef nvmlSystemDriverBranchInfo_v1_t nvmlSystemDriverBranchInfo_t 'nvmlSystemDriverBranchInfo_t'
 ctypedef nvmlTemperature_v1_t nvmlTemperature_t 'nvmlTemperature_t'
 ctypedef nvmlNvlinkSupportedBwModes_v1_t nvmlNvlinkSupportedBwModes_t 'nvmlNvlinkSupportedBwModes_t'
@@ -1341,6 +1400,9 @@ ctypedef nvmlNvlinkSetBwMode_v1_t nvmlNvlinkSetBwMode_t 'nvmlNvlinkSetBwMode_t'
 ctypedef nvmlDeviceCapabilities_v1_t nvmlDeviceCapabilities_t 'nvmlDeviceCapabilities_t'
 ctypedef nvmlPowerSmoothingProfile_v1_t nvmlPowerSmoothingProfile_t 'nvmlPowerSmoothingProfile_t'
 ctypedef nvmlPowerSmoothingState_v1_t nvmlPowerSmoothingState_t 'nvmlPowerSmoothingState_t'
+ctypedef nvmlDeviceAddressingMode_v1_t nvmlDeviceAddressingMode_t 'nvmlDeviceAddressingMode_t'
+ctypedef nvmlRepairStatus_v1_t nvmlRepairStatus_t 'nvmlRepairStatus_t'
+ctypedef nvmlPdi_v1_t nvmlPdi_t 'nvmlPdi_t'
 ctypedef struct nvmlEventData_t 'nvmlEventData_t':
     nvmlDevice_t device
     unsigned long long eventType
@@ -1508,6 +1570,20 @@ ctypedef struct nvmlWorkloadPowerProfileRequestedProfiles_v1_t 'nvmlWorkloadPowe
     unsigned int version
     nvmlMask255_t requestedProfilesMask
 
+ctypedef struct nvmlEccSramUniqueUncorrectedErrorCounts_v1_t 'nvmlEccSramUniqueUncorrectedErrorCounts_v1_t':
+    unsigned int version
+    unsigned int entryCount
+    nvmlEccSramUniqueUncorrectedErrorEntry_v1_t* entries
+
+ctypedef struct nvmlNvlinkFirmwareInfo_t 'nvmlNvlinkFirmwareInfo_t':
+    nvmlNvlinkFirmwareVersion_t firmwareVersion[100]
+    unsigned int numValidEntries
+
+ctypedef struct nvmlPRMTLV_v1_t 'nvmlPRMTLV_v1_t':
+    unsigned dataSize
+    unsigned status
+    _anon_pod7 _anon_pod_member0
+
 ctypedef nvmlVgpuTypeIdInfo_v1_t nvmlVgpuTypeIdInfo_t 'nvmlVgpuTypeIdInfo_t'
 ctypedef nvmlVgpuTypeMaxInstance_v1_t nvmlVgpuTypeMaxInstance_t 'nvmlVgpuTypeMaxInstance_t'
 ctypedef nvmlVgpuCreatablePlacementInfo_v1_t nvmlVgpuCreatablePlacementInfo_t 'nvmlVgpuCreatablePlacementInfo_t'
@@ -1518,7 +1594,7 @@ ctypedef struct nvmlVgpuProcessesUtilizationInfo_v1_t 'nvmlVgpuProcessesUtilizat
     nvmlVgpuProcessUtilizationInfo_v1_t* vgpuProcUtilArray
 
 ctypedef nvmlActiveVgpuInstanceInfo_v1_t nvmlActiveVgpuInstanceInfo_t 'nvmlActiveVgpuInstanceInfo_t'
-ctypedef nvmlGpuFabricInfo_v2_t nvmlGpuFabricInfoV_t 'nvmlGpuFabricInfoV_t'
+ctypedef nvmlGpuFabricInfo_v3_t nvmlGpuFabricInfoV_t 'nvmlGpuFabricInfoV_t'
 ctypedef nvmlSystemEventSetCreateRequest_v1_t nvmlSystemEventSetCreateRequest_t 'nvmlSystemEventSetCreateRequest_t'
 ctypedef nvmlSystemEventSetFreeRequest_v1_t nvmlSystemEventSetFreeRequest_t 'nvmlSystemEventSetFreeRequest_t'
 ctypedef nvmlSystemRegisterEventRequest_v1_t nvmlSystemRegisterEventRequest_t 'nvmlSystemRegisterEventRequest_t'
@@ -1589,6 +1665,12 @@ ctypedef struct nvmlGpmMetricsGet_t 'nvmlGpmMetricsGet_t':
 ctypedef nvmlWorkloadPowerProfileInfo_v1_t nvmlWorkloadPowerProfileInfo_t 'nvmlWorkloadPowerProfileInfo_t'
 ctypedef nvmlWorkloadPowerProfileCurrentProfiles_v1_t nvmlWorkloadPowerProfileCurrentProfiles_t 'nvmlWorkloadPowerProfileCurrentProfiles_t'
 ctypedef nvmlWorkloadPowerProfileRequestedProfiles_v1_t nvmlWorkloadPowerProfileRequestedProfiles_t 'nvmlWorkloadPowerProfileRequestedProfiles_t'
+ctypedef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t nvmlEccSramUniqueUncorrectedErrorCounts_t 'nvmlEccSramUniqueUncorrectedErrorCounts_t'
+ctypedef struct nvmlNvLinkInfo_v2_t 'nvmlNvLinkInfo_v2_t':
+    unsigned int version
+    unsigned int isNvleEnabled
+    nvmlNvlinkFirmwareInfo_t firmwareInfo
+
 ctypedef nvmlVgpuProcessesUtilizationInfo_v1_t nvmlVgpuProcessesUtilizationInfo_t 'nvmlVgpuProcessesUtilizationInfo_t'
 ctypedef nvmlVgpuInstancesUtilizationInfo_v1_t nvmlVgpuInstancesUtilizationInfo_t 'nvmlVgpuInstancesUtilizationInfo_t'
 ctypedef nvmlVgpuSchedulerStateInfo_v1_t nvmlVgpuSchedulerStateInfo_t 'nvmlVgpuSchedulerStateInfo_t'
@@ -1599,6 +1681,7 @@ ctypedef struct nvmlWorkloadPowerProfileProfilesInfo_v1_t 'nvmlWorkloadPowerProf
     nvmlMask255_t perfProfilesMask
     nvmlWorkloadPowerProfileInfo_t perfProfile[255]
 
+ctypedef nvmlNvLinkInfo_v2_t nvmlNvLinkInfo_t 'nvmlNvLinkInfo_t'
 ctypedef nvmlWorkloadPowerProfileProfilesInfo_v1_t nvmlWorkloadPowerProfileProfilesInfo_t 'nvmlWorkloadPowerProfileProfilesInfo_t'
 
 
@@ -1763,6 +1846,7 @@ cdef nvmlReturn_t nvmlSystemSetConfComputeKeyRotationThresholdInfo(nvmlConfCompu
 cdef nvmlReturn_t nvmlSystemGetConfComputeSettings(nvmlSystemConfComputeSettings_t* settings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetGspFirmwareVersion(nvmlDevice_t device, char* version) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetGspFirmwareMode(nvmlDevice_t device, unsigned int* isEnabled, unsigned int* defaultMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetSramEccErrorStatus(nvmlDevice_t device, nvmlEccSramErrorStatus_t* status) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEnableState_t* mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetAccountingStats(nvmlDevice_t device, unsigned int pid, nvmlAccountingStats_t* stats) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetAccountingPids(nvmlDevice_t device, unsigned int* count, unsigned int* pids) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
@@ -1941,3 +2025,14 @@ cdef nvmlReturn_t nvmlDeviceWorkloadPowerProfileClearRequestedProfiles(nvmlDevic
 cdef nvmlReturn_t nvmlDevicePowerSmoothingActivatePresetProfile(nvmlDevice_t device, nvmlPowerSmoothingProfile_t* profile) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDevicePowerSmoothingUpdatePresetProfileParam(nvmlDevice_t device, nvmlPowerSmoothingProfile_t* profile) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDevicePowerSmoothingSetState(nvmlDevice_t device, nvmlPowerSmoothingState_t* state) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetAddressingMode(nvmlDevice_t device, nvmlDeviceAddressingMode_t* mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetRepairStatus(nvmlDevice_t device, nvmlRepairStatus_t* repairStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevicePowerMizerModes_v1_t* powerMizerMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceSetPowerMizerMode_v1(nvmlDevice_t device, nvmlDevicePowerMizerModes_v1_t* powerMizerMode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetPdi(nvmlDevice_t device, nvmlPdi_t* pdi) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceSetHostname_v1(nvmlDevice_t device, nvmlHostname_v1_t* hostname) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetHostname_v1(nvmlDevice_t device, nvmlHostname_v1_t* hostname) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetNvLinkInfo(nvmlDevice_t device, nvmlNvLinkInfo_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceReadWritePRM_v1(nvmlDevice_t device, nvmlPRMTLV_v1_t* buffer) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfoByIdV(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstanceProfileInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(nvmlDevice_t device, nvmlEccSramUniqueUncorrectedErrorCounts_t* errorCounts) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
