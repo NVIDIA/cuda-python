@@ -13,7 +13,7 @@ from ._internal.utils cimport (get_buffer_pointer, get_nested_resource_ptr,
 
 from enum import IntEnum as _IntEnum
 
-from cuda.bindings.cydriver import CUDA_VERSION
+from cuda.bindings.cydriver cimport CUDA_VERSION
 
 
 from libc.stdlib cimport calloc, free, malloc
