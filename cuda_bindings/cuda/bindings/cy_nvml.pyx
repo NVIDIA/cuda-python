@@ -639,10 +639,6 @@ cdef nvmlReturn_t nvmlDeviceGetGspFirmwareMode(nvmlDevice_t device, unsigned int
     return _nvml._nvmlDeviceGetGspFirmwareMode(device, isEnabled, defaultMode)
 
 
-cdef nvmlReturn_t nvmlDeviceGetSramEccErrorStatus(nvmlDevice_t device, nvmlEccSramErrorStatus_t* status) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    return _nvml._nvmlDeviceGetSramEccErrorStatus(device, status)
-
-
 cdef nvmlReturn_t nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEnableState_t* mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     return _nvml._nvmlDeviceGetAccountingMode(device, mode)
 

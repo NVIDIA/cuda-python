@@ -42,7 +42,6 @@ ctypedef nvmlMask255_t Mask255
 ctypedef nvmlPowerValue_v2_t PowerValue_v2
 ctypedef nvmlVgpuProcessUtilizationSample_t VgpuProcessUtilizationSample
 ctypedef nvmlGpuFabricInfo_t GpuFabricInfo
-ctypedef nvmlGpuFabricInfo_v2_t GpuFabricInfo_v2
 ctypedef nvmlSystemEventSetCreateRequest_v1_t SystemEventSetCreateRequest_v1
 ctypedef nvmlSystemEventSetFreeRequest_v1_t SystemEventSetFreeRequest_v1
 ctypedef nvmlSystemRegisterEventRequest_v1_t SystemRegisterEventRequest_v1
@@ -259,7 +258,7 @@ cpdef unsigned int device_get_pcie_link_max_speed(intptr_t device) except? 0
 cpdef unsigned int device_get_pcie_speed(intptr_t device) except? 0
 cpdef unsigned int device_get_adaptive_clock_info_status(intptr_t device) except? 0
 cpdef unsigned int device_get_bus_type(intptr_t device) except? 0
-cpdef nvmlGpuFabricInfo_v2_t device_get_gpu_fabric_info_v(intptr_t device) except? 0
+cpdef object device_get_gpu_fabric_info_v(intptr_t device)
 cpdef object system_get_conf_compute_capabilities()
 cpdef object system_get_conf_compute_state()
 cpdef object device_get_conf_compute_mem_size_info(intptr_t device)
@@ -274,7 +273,6 @@ cpdef system_set_conf_compute_key_rotation_threshold_info(intptr_t p_key_rotatio
 cpdef object system_get_conf_compute_settings()
 cpdef char device_get_gsp_firmware_version(intptr_t device) except? 0
 cpdef tuple device_get_gsp_firmware_mode(intptr_t device)
-cpdef object device_get_sram_ecc_error_status(intptr_t device)
 cpdef int device_get_accounting_mode(intptr_t device) except? -1
 cpdef object device_get_accounting_stats(intptr_t device, unsigned int pid)
 cpdef object device_get_accounting_pids(intptr_t device)

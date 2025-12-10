@@ -11349,6 +11349,190 @@ cdef class ConfComputeGetKeyRotationThresholdInfo_v1:
         return obj
 
 
+cdef _get_gpu_fabric_info_v2_dtype_offsets():
+    cdef nvmlGpuFabricInfo_v2_t pod = nvmlGpuFabricInfo_v2_t()
+    return _numpy.dtype({
+        'names': ['version', 'cluster_uuid', 'status', 'clique_id', 'state', 'health_mask'],
+        'formats': [_numpy.uint32, _numpy.uint8, _numpy.int32, _numpy.uint32, _numpy.uint8, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.clusterUuid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.status)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.cliqueId)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.state)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.healthMask)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlGpuFabricInfo_v2_t),
+    })
+
+gpu_fabric_info_v2_dtype = _get_gpu_fabric_info_v2_dtype_offsets()
+
+cdef class GpuFabricInfo_v2:
+    """Empty-initialize an instance of `nvmlGpuFabricInfo_v2_t`.
+
+
+    .. seealso:: `nvmlGpuFabricInfo_v2_t`
+    """
+    cdef:
+        nvmlGpuFabricInfo_v2_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlGpuFabricInfo_v2_t *>calloc(1, sizeof(nvmlGpuFabricInfo_v2_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating GpuFabricInfo_v2")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlGpuFabricInfo_v2_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.GpuFabricInfo_v2 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef GpuFabricInfo_v2 other_
+        if not isinstance(other, GpuFabricInfo_v2):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlGpuFabricInfo_v2_t)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlGpuFabricInfo_v2_t *>malloc(sizeof(nvmlGpuFabricInfo_v2_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating GpuFabricInfo_v2")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlGpuFabricInfo_v2_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def version(self):
+        """int: Structure version identifier (set to nvmlGpuFabricInfo_v2)"""
+        return self._ptr[0].version
+
+    @version.setter
+    def version(self, val):
+        if self._readonly:
+            raise ValueError("This GpuFabricInfo_v2 instance is read-only")
+        self._ptr[0].version = val
+
+    @property
+    def cluster_uuid(self):
+        """~_numpy.uint8: (array of length 16).Uuid of the cluster to which this GPU belongs."""
+        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].clusterUuid))
+        return _numpy.asarray(arr)
+
+    @cluster_uuid.setter
+    def cluster_uuid(self, val):
+        if self._readonly:
+            raise ValueError("This GpuFabricInfo_v2 instance is read-only")
+        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
+        memcpy(<void *>(&(self._ptr[0].clusterUuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+
+    @property
+    def status(self):
+        """int: Error status, if any. Must be checked only if state returns "complete"."""
+        return <int>(self._ptr[0].status)
+
+    @status.setter
+    def status(self, val):
+        if self._readonly:
+            raise ValueError("This GpuFabricInfo_v2 instance is read-only")
+        self._ptr[0].status = <nvmlReturn_t><int>val
+
+    @property
+    def clique_id(self):
+        """int: ID of the fabric clique to which this GPU belongs."""
+        return self._ptr[0].cliqueId
+
+    @clique_id.setter
+    def clique_id(self, val):
+        if self._readonly:
+            raise ValueError("This GpuFabricInfo_v2 instance is read-only")
+        self._ptr[0].cliqueId = val
+
+    @property
+    def state(self):
+        """int: Current state of GPU registration process."""
+        return <unsigned char>(self._ptr[0].state)
+
+    @state.setter
+    def state(self, val):
+        if self._readonly:
+            raise ValueError("This GpuFabricInfo_v2 instance is read-only")
+        self._ptr[0].state = <nvmlGpuFabricState_t><unsigned char>val
+
+    @property
+    def health_mask(self):
+        """int: GPU Fabric health Status Mask."""
+        return self._ptr[0].healthMask
+
+    @health_mask.setter
+    def health_mask(self, val):
+        if self._readonly:
+            raise ValueError("This GpuFabricInfo_v2 instance is read-only")
+        self._ptr[0].healthMask = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an GpuFabricInfo_v2 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `gpu_fabric_info_v2_dtype` holding the data.
+        """
+        return __from_data(data, "gpu_fabric_info_v2_dtype", gpu_fabric_info_v2_dtype, GpuFabricInfo_v2)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an GpuFabricInfo_v2 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef GpuFabricInfo_v2 obj = GpuFabricInfo_v2.__new__(GpuFabricInfo_v2)
+        if owner is None:
+            obj._ptr = <nvmlGpuFabricInfo_v2_t *>malloc(sizeof(nvmlGpuFabricInfo_v2_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating GpuFabricInfo_v2")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlGpuFabricInfo_v2_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlGpuFabricInfo_v2_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_nvlink_supported_bw_modes_v1_dtype_offsets():
     cdef nvmlNvlinkSupportedBwModes_v1_t pod = nvmlNvlinkSupportedBwModes_v1_t()
     return _numpy.dtype({
@@ -19264,6 +19448,17 @@ cpdef tuple device_get_min_max_fan_speed(intptr_t device):
 
 
 cpdef unsigned int device_get_fan_control_policy_v2(intptr_t device, unsigned int fan) except *:
+    """Gets current fan control policy.
+
+    Args:
+        device (intptr_t): The identifier of the target ``device``.
+        fan (unsigned int): The index of the target fan, zero indexed.
+
+    Returns:
+        unsigned int: Reference in which to return the fan control ``policy``.
+
+    .. seealso:: `nvmlDeviceGetFanControlPolicy_v2`
+    """
     cdef nvmlFanControlPolicy_t policy
     with nogil:
         __status__ = nvmlDeviceGetFanControlPolicy_v2(<Device>device, fan, &policy)
@@ -19754,6 +19949,16 @@ cpdef tuple device_get_gpu_operation_mode(intptr_t device):
 
 
 cpdef object device_get_memory_info_v2(intptr_t device):
+    """Retrieves the amount of used, free, reserved and total memory available on the device, in bytes. The reserved amount is supported on version 2 only.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlMemory_v2_t: Reference in which to return the memory information.
+
+    .. seealso:: `nvmlDeviceGetMemoryInfo_v2`
+    """
     cdef Memory_v2 memory_py = Memory_v2()
     cdef nvmlMemory_v2_t *memory = <nvmlMemory_v2_t *><intptr_t>(memory_py._get_ptr())
     memory.version = sizeof(nvmlMemory_v2_t) | (2 << 24)
@@ -20471,7 +20676,7 @@ cpdef unsigned int device_get_bus_type(intptr_t device) except? 0:
     return <unsigned int>type
 
 
-cpdef nvmlGpuFabricInfo_v2_t device_get_gpu_fabric_info_v(intptr_t device) except? 0:
+cpdef object device_get_gpu_fabric_info_v(intptr_t device):
     """Versioned wrapper around ``nvmlDeviceGetGpuFabricInfo`` that accepts a versioned ``nvmlGpuFabricInfo_v2_t`` or later output structure.
 
     Args:
@@ -20482,12 +20687,13 @@ cpdef nvmlGpuFabricInfo_v2_t device_get_gpu_fabric_info_v(intptr_t device) excep
 
     .. seealso:: `nvmlDeviceGetGpuFabricInfoV`
     """
-    cdef nvmlGpuFabricInfoV_t gpu_fabric_info
-    gpu_fabric_info.version = sizeof(nvmlGpuFabricInfo_v3_t) | (3 << 24)
+    cdef GpuFabricInfo_v2 gpu_fabric_info_py = GpuFabricInfo_v2()
+    cdef nvmlGpuFabricInfoV_t *gpu_fabric_info = <nvmlGpuFabricInfoV_t *><intptr_t>(gpu_fabric_info_py._get_ptr())
+    gpu_fabric_info.version = sizeof(nvmlGpuFabricInfo_v2_t) | (2 << 24)
     with nogil:
-        __status__ = nvmlDeviceGetGpuFabricInfoV(<Device>device, &gpu_fabric_info)
+        __status__ = nvmlDeviceGetGpuFabricInfoV(<Device>device, gpu_fabric_info)
     check_status(__status__)
-    return <nvmlGpuFabricInfo_v2_t>gpu_fabric_info
+    return gpu_fabric_info_py
 
 
 cpdef object system_get_conf_compute_capabilities():
@@ -20725,26 +20931,6 @@ cpdef tuple device_get_gsp_firmware_mode(intptr_t device):
         __status__ = nvmlDeviceGetGspFirmwareMode(<Device>device, &is_enabled, &default_mode)
     check_status(__status__)
     return (is_enabled, default_mode)
-
-
-cpdef object device_get_sram_ecc_error_status(intptr_t device):
-    """Get SRAM ECC error status of this device.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlEccSramErrorStatus_v1_t: Returns SRAM ECC error status.
-
-    .. seealso:: `nvmlDeviceGetSramEccErrorStatus`
-    """
-    cdef EccSramErrorStatus_v1 status_py = EccSramErrorStatus_v1()
-    cdef nvmlEccSramErrorStatus_t *status = <nvmlEccSramErrorStatus_t *><intptr_t>(status_py._get_ptr())
-    status.version = sizeof(nvmlEccSramErrorStatus_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetSramEccErrorStatus(<Device>device, status)
-    check_status(__status__)
-    return status_py
 
 
 cpdef int device_get_accounting_mode(intptr_t device) except? -1:
@@ -21176,6 +21362,15 @@ cpdef device_set_default_fan_speed_v2(intptr_t device, unsigned int fan):
 
 
 cpdef device_set_fan_control_policy(intptr_t device, unsigned int fan, unsigned int policy):
+    """Sets current fan control policy.
+
+    Args:
+        device (intptr_t): The identifier of the target ``device``.
+        fan (unsigned int): The index of the fan, starting at zero.
+        policy (unsigned int): The fan control ``policy`` to set.
+
+    .. seealso:: `nvmlDeviceSetFanControlPolicy`
+    """
     with nogil:
         __status__ = nvmlDeviceSetFanControlPolicy(<Device>device, fan, <nvmlFanControlPolicy_t>policy)
     check_status(__status__)
@@ -21240,6 +21435,15 @@ cpdef device_set_api_restriction(intptr_t device, int api_type, int is_restricte
 
 
 cpdef device_set_fan_speed_v2(intptr_t device, unsigned int fan, unsigned int speed):
+    """Sets the speed of a specified fan.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        fan (unsigned int): The index of the fan, starting at zero.
+        speed (unsigned int): The target speed of the fan [0-100] in % of max speed.
+
+    .. seealso:: `nvmlDeviceSetFanSpeed_v2`
+    """
     with nogil:
         __status__ = nvmlDeviceSetFanSpeed_v2(<Device>device, fan, speed)
     check_status(__status__)
@@ -23756,41 +23960,6 @@ cpdef object device_get_processes_utilization_info(intptr_t device, unsigned lon
     return procesesUtilInfo
 
 
-cpdef device_set_hostname_v1(intptr_t device, str hostname):
-    """Set the hostname for the device.
-
-    Args:
-        device (Device): The identifier of the target device.
-        hostname (str): The new hostname to set.
-    """
-    cdef bytes = cpython.PyUnicode_AsASCIIString(hostname)
-    if len(bytes) > 64:
-        raise ValueError("hostname must 64 characters or less")
-
-    cdef nvmlHostname_v1_t hostname_struct
-    memcpy(<void *>hostname_struct.value, <void *>cpython.PyBytes_AsString(bytes), len(bytes))
-
-    with nogil:
-        __status__ = nvmlDeviceSetHostname_v1(<Device>device, &hostname_struct)
-    check_status(__status__)
-
-
-cpdef str device_get_hostname_v1(intptr_t device):
-    """Get the hostname for the device.
-
-    Args:
-        device (Device): The identifier of the target device.
-
-    Returns:
-        str: Hostname of the device.
-    """
-    cdef nvmlHostname_v1_t hostname
-    with nogil:
-        __status__ = nvmlDeviceGetHostname_v1(<Device>device, &hostname)
-    check_status(__status__)
-    return cpython.PyUnicode_FromString(hostname.value)
-
-
 cdef FieldValue _cast_field_values(values):
     if isinstance(values, FieldValue):
         return values
@@ -24268,35 +24437,3 @@ cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned 
 
     return computeInstances
 
-
-cpdef object device_get_sram_unique_uncorrected_ecc_error_counts(intptr_t device):
-    """Retrieves the counts of SRAM unique uncorrected ECC errors
-
-    Args:
-        device (Device): The identifier of the target device.
-
-    Returns:
-        EccSramUniqueUncorrectedErrorCounts_v1: The ECC SRAM unique uncorrected error counts structure.
-    """
-
-    cdef EccSramUniqueUncorrectedErrorCounts_v1 errorCounts = EccSramUniqueUncorrectedErrorCounts_v1()
-    cdef nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *ptr = <nvmlEccSramUniqueUncorrectedErrorCounts_v1_t *>errorCounts._get_ptr()
-
-    with nogil:
-        ptr.version = sizeof(nvmlEccSramUniqueUncorrectedErrorCounts_v1_t) | (1 << 24)
-        ptr.entryCount = 0
-        ptr.entries = NULL
-        __status__ = nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(<Device>device, ptr)
-    check_status_size(__status__)
-
-    cdef EccSramUniqueUncorrectedErrorEntry_v1 entries = EccSramUniqueUncorrectedErrorEntry_v1(ptr.entryCount)
-    errorCounts.entries = entries
-
-    if ptr.entryCount == 0:
-        return errorCounts
-
-    with nogil:
-        __status__ = nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(<Device>device, ptr)
-    check_status(__status__)
-
-    return errorCounts

@@ -234,7 +234,6 @@ cdef void* __nvmlSystemSetConfComputeKeyRotationThresholdInfo = NULL
 cdef void* __nvmlSystemGetConfComputeSettings = NULL
 cdef void* __nvmlDeviceGetGspFirmwareVersion = NULL
 cdef void* __nvmlDeviceGetGspFirmwareMode = NULL
-cdef void* __nvmlDeviceGetSramEccErrorStatus = NULL
 cdef void* __nvmlDeviceGetAccountingMode = NULL
 cdef void* __nvmlDeviceGetAccountingStats = NULL
 cdef void* __nvmlDeviceGetAccountingPids = NULL
@@ -924,9 +923,6 @@ cdef int _init_nvml() except -1 nogil:
 
         global __nvmlDeviceGetGspFirmwareMode
         __nvmlDeviceGetGspFirmwareMode = GetProcAddress(handle, 'nvmlDeviceGetGspFirmwareMode')
-
-        global __nvmlDeviceGetSramEccErrorStatus
-        __nvmlDeviceGetSramEccErrorStatus = GetProcAddress(handle, 'nvmlDeviceGetSramEccErrorStatus')
 
         global __nvmlDeviceGetAccountingMode
         __nvmlDeviceGetAccountingMode = GetProcAddress(handle, 'nvmlDeviceGetAccountingMode')
@@ -1954,9 +1950,6 @@ cpdef dict _inspect_function_pointers():
 
     global __nvmlDeviceGetGspFirmwareMode
     data["__nvmlDeviceGetGspFirmwareMode"] = <intptr_t>__nvmlDeviceGetGspFirmwareMode
-
-    global __nvmlDeviceGetSramEccErrorStatus
-    data["__nvmlDeviceGetSramEccErrorStatus"] = <intptr_t>__nvmlDeviceGetSramEccErrorStatus
 
     global __nvmlDeviceGetAccountingMode
     data["__nvmlDeviceGetAccountingMode"] = <intptr_t>__nvmlDeviceGetAccountingMode
@@ -4075,16 +4068,6 @@ cdef nvmlReturn_t _nvmlDeviceGetGspFirmwareMode(nvmlDevice_t device, unsigned in
             raise FunctionNotFoundError("function nvmlDeviceGetGspFirmwareMode is not found")
     return (<nvmlReturn_t (*)(nvmlDevice_t, unsigned int*, unsigned int*) noexcept nogil>__nvmlDeviceGetGspFirmwareMode)(
         device, isEnabled, defaultMode)
-
-
-cdef nvmlReturn_t _nvmlDeviceGetSramEccErrorStatus(nvmlDevice_t device, nvmlEccSramErrorStatus_t* status) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    global __nvmlDeviceGetSramEccErrorStatus
-    _check_or_init_nvml()
-    if __nvmlDeviceGetSramEccErrorStatus == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvmlDeviceGetSramEccErrorStatus is not found")
-    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlEccSramErrorStatus_t*) noexcept nogil>__nvmlDeviceGetSramEccErrorStatus)(
-        device, status)
 
 
 cdef nvmlReturn_t _nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEnableState_t* mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
