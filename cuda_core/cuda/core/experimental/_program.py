@@ -756,22 +756,7 @@ class Program:
         elif code_type == "ptx":
             assert_type(code, str)
             self._linker = Linker(
-                ObjectCode._init(code.encode(), code_type),
-                options=LinkerOptions(
-                    name=options.name,
-                    arch=options.arch,
-                    max_register_count=options.max_register_count,
-                    time=options.time,
-                    debug=options.debug,
-                    lineinfo=options.lineinfo,
-                    ftz=options.ftz,
-                    prec_div=options.prec_div,
-                    prec_sqrt=options.prec_sqrt,
-                    fma=options.fma,
-                    link_time_optimization=options.link_time_optimization,
-                    split_compile=options.split_compile,
-                    ptxas_options=options.ptxas_options,
-                ),
+                ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
             self._backend = self._linker.backend
 
@@ -792,6 +777,23 @@ class Program:
             supported_code_types = ("c++", "ptx", "nvvm")
             assert code_type not in supported_code_types, f"{code_type=}"
             raise RuntimeError(f"Unsupported {code_type=} ({supported_code_types=})")
+
+    def _translate_program_options(self, options: ProgramOptions) -> LinkerOptions:
+        return LinkerOptions(
+            name=options.name,
+            arch=options.arch,
+            max_register_count=options.max_register_count,
+            time=options.time,
+            debug=options.debug,
+            lineinfo=options.lineinfo,
+            ftz=options.ftz,
+            prec_div=options.prec_div,
+            prec_sqrt=options.prec_sqrt,
+            fma=options.fma,
+            link_time_optimization=options.link_time_optimization,
+            split_compile=options.split_compile,
+            ptxas_options=options.ptxas_options,
+        )
 
     def close(self):
         """Destroy this program."""
