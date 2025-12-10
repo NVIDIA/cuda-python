@@ -75,6 +75,7 @@ Utility functions
 
    args_viewable_as_strided_memory
 
-   :template: dataclass.rst
+   :template: autosummary/cyclass.rst
 
    StridedMemoryView
+   StridedLayout

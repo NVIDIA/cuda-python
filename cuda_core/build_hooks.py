@@ -84,11 +84,16 @@ def _build_cuda_core():
         print("CUDA paths:", CUDA_PATH)
         return CUDA_PATH
 
+    # Add local include directory for cuda/core/include
+    local_include_dirs = ["cuda/core"]
+    cuda_include_dirs = list(os.path.join(root, "include") for root in get_cuda_paths())
+    all_include_dirs = local_include_dirs + cuda_include_dirs
+
     ext_modules = tuple(
         Extension(
             f"cuda.core.{mod.replace(os.path.sep, '.')}",
             sources=[f"cuda/core/{mod}.pyx"],
-            include_dirs=list(os.path.join(root, "include") for root in get_cuda_paths()),
+            include_dirs=all_include_dirs,
             language="c++",
         )
         for mod in module_names
