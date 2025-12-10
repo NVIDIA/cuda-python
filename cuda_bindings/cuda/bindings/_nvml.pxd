@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.0.1. Do not modify it directly.
+# This code was automatically generated with version 12.9.1. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -39,8 +39,6 @@ ctypedef nvmlSystemEventData_v1_t SystemEventData_v1
 ctypedef nvmlGpuInstanceProfileInfo_t GpuInstanceProfileInfo
 ctypedef nvmlComputeInstanceProfileInfo_t ComputeInstanceProfileInfo
 ctypedef nvmlMask255_t Mask255
-ctypedef nvmlHostname_v1_t Hostname_v1
-ctypedef nvmlNvLinkInfo_v1_t NvLinkInfo_v1
 ctypedef nvmlPowerValue_v2_t PowerValue_v2
 ctypedef nvmlVgpuProcessUtilizationSample_t VgpuProcessUtilizationSample
 ctypedef nvmlGpuFabricInfo_t GpuFabricInfo
@@ -55,7 +53,6 @@ ctypedef nvmlGpmMetric_t GpmMetric
 ctypedef nvmlWorkloadPowerProfileInfo_v1_t WorkloadPowerProfileInfo_v1
 ctypedef nvmlWorkloadPowerProfileCurrentProfiles_v1_t WorkloadPowerProfileCurrentProfiles_v1
 ctypedef nvmlWorkloadPowerProfileRequestedProfiles_v1_t WorkloadPowerProfileRequestedProfiles_v1
-ctypedef nvmlPRMTLV_v1_t PRMTLV_v1
 ctypedef nvmlVgpuSchedulerSetState_t VgpuSchedulerSetState
 ctypedef nvmlGpmMetricsGet_t GpmMetricsGet
 ctypedef nvmlWorkloadPowerProfileProfilesInfo_v1_t WorkloadPowerProfileProfilesInfo_v1
@@ -122,7 +119,6 @@ ctypedef nvmlVgpuVmCompatibility_t _VgpuVmCompatibility
 ctypedef nvmlVgpuPgpuCompatibilityLimitCode_t _VgpuPgpuCompatibilityLimitCode
 ctypedef nvmlGpmMetricId_t _GpmMetricId
 ctypedef nvmlPowerProfileType_t _PowerProfileType
-ctypedef nvmlDeviceAddressingModeType_t _DeviceAddressingModeType
 
 
 ###############################################################################
@@ -263,7 +259,7 @@ cpdef unsigned int device_get_pcie_link_max_speed(intptr_t device) except? 0
 cpdef unsigned int device_get_pcie_speed(intptr_t device) except? 0
 cpdef unsigned int device_get_adaptive_clock_info_status(intptr_t device) except? 0
 cpdef unsigned int device_get_bus_type(intptr_t device) except? 0
-cpdef object device_get_gpu_fabric_info_v(intptr_t device)
+cpdef nvmlGpuFabricInfo_v2_t device_get_gpu_fabric_info_v(intptr_t device) except? 0
 cpdef object system_get_conf_compute_capabilities()
 cpdef object system_get_conf_compute_state()
 cpdef object device_get_conf_compute_mem_size_info(intptr_t device)
@@ -437,11 +433,3 @@ cpdef device_workload_power_profile_clear_requested_profiles(intptr_t device, in
 cpdef device_power_smoothing_activate_preset_profile(intptr_t device, intptr_t profile)
 cpdef device_power_smoothing_update_preset_profile_param(intptr_t device, intptr_t profile)
 cpdef device_power_smoothing_set_state(intptr_t device, intptr_t state)
-cpdef object device_get_addressing_mode(intptr_t device)
-cpdef object device_get_repair_status(intptr_t device)
-cpdef object device_get_power_mizer_mode_v1(intptr_t device)
-cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
-cpdef object device_get_pdi(intptr_t device)
-cpdef object device_get_nvlink_info(intptr_t device)
-cpdef device_read_write_prm_v1(intptr_t device, intptr_t buffer)
-cpdef object device_get_gpu_instance_profile_info_by_id_v(intptr_t device, unsigned int profile_id)
