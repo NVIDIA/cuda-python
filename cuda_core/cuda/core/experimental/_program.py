@@ -430,6 +430,7 @@ class ProgramOptions:
 
     def _prepare_nvjitlink_options(self) -> list[bytes]:
         options = []
+
         # arch is always set
         assert self.arch is not None
         options.append(f"-arch={self.arch}")
@@ -459,6 +460,7 @@ class ProgramOptions:
                     options.append(f"-Xptxas={opt}")
         if self.split_compile is not None:
             options.append(f"-split-compile={self.split_compile}")
+
         # Check for unsupported options and raise error if they are set
         unsupported = []
         if self.relocatable_device_code is not None:
@@ -524,6 +526,7 @@ class ProgramOptions:
 
     def _prepare_nvvm_options(self, as_bytes: bool = True) -> Union[list[bytes], list[str]]:
         options = []
+
         # Options supported by NVVM
         assert self.arch is not None
         arch = self.arch
@@ -545,6 +548,7 @@ class ProgramOptions:
             options.append(f"-prec-div={'1' if self.prec_div else '0'}")
         if self.fma is not None:
             options.append(f"-fma={'1' if self.fma else '0'}")
+
         # Check for unsupported options and raise error if they are set
         unsupported = []
         if self.relocatable_device_code is not None:
@@ -615,6 +619,7 @@ class ProgramOptions:
             raise CUDAError(
                 f"The following options are not supported by NVVM backend: {', '.join(unsupported)}"
             )
+
         if as_bytes:
             return list(o.encode() for o in options)
         else:
@@ -630,10 +635,8 @@ class ProgramOptions:
         Parameters
         ----------
         backend : str
-            The compiler backend to prepare options for. Must be one of:
-            - "nvrtc": NVIDIA Runtime Compilation (NVRTC)
-            - "nvjitlink": NVIDIA JIT Linker
-            - "nvvm": NVIDIA LLVM-based compiler
+            The compiler backend to prepare options for. Must be either "nvrtc", "nvjitlink",
+            or "nvvm".
         
         Returns
         -------
