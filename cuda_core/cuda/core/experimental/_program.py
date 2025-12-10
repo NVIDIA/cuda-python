@@ -518,10 +518,8 @@ class ProgramOptions:
         if self.numba_debug is not None and self.numba_debug:
             unsupported.append("numba_debug")
         if unsupported:
-            raise CUDAError(
-                f"The following options are not supported by nvJitLink backend: {', '.join(unsupported)}"
-            )
-        
+            raise CUDAError(f"The following options are not supported by nvJitLink backend: {', '.join(unsupported)}")
+
         return list(o.encode() for o in options)
 
     def _prepare_nvvm_options(self, as_bytes: bool = True) -> Union[list[bytes], list[str]]:
@@ -616,9 +614,7 @@ class ProgramOptions:
         if self.numba_debug is not None and self.numba_debug:
             unsupported.append("numba_debug")
         if unsupported:
-            raise CUDAError(
-                f"The following options are not supported by NVVM backend: {', '.join(unsupported)}"
-            )
+            raise CUDAError(f"The following options are not supported by NVVM backend: {', '.join(unsupported)}")
 
         if as_bytes:
             return list(o.encode() for o in options)
@@ -627,29 +623,29 @@ class ProgramOptions:
 
     def as_bytes(self, backend: str) -> list[bytes]:
         """Convert program options to bytes format for the specified backend.
-        
+
         This method transforms the program options into a format suitable for the
         specified compiler backend. Different backends may use different option names
         and formats even for the same conceptual options.
-        
+
         Parameters
         ----------
         backend : str
             The compiler backend to prepare options for. Must be either "nvrtc", "nvjitlink",
             or "nvvm".
-        
+
         Returns
         -------
         list[bytes]
             List of option strings encoded as bytes.
-        
+
         Raises
         ------
         ValueError
             If an unknown backend is specified.
         CUDAError
             If an option incompatible with the specified backend is set.
-        
+
         Examples
         --------
         >>> options = ProgramOptions(arch="sm_80", debug=True)
@@ -663,9 +659,7 @@ class ProgramOptions:
         elif backend == "nvvm":
             return self._prepare_nvvm_options(as_bytes=True)
         else:
-            raise ValueError(
-                f"Unknown backend '{backend}'. Must be one of: 'nvrtc', 'nvjitlink', 'nvvm'"
-            )
+            raise ValueError(f"Unknown backend '{backend}'. Must be one of: 'nvrtc', 'nvjitlink', 'nvvm'")
 
     def __repr__(self):
         # __TODO__ improve this
