@@ -489,6 +489,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LinkerOptions.html">cuda.core.experimental.LinkerOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.utils.args_viewable_as_strided_memory.html">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.utils.StridedMemoryView.html">cuda.core.experimental.utils.StridedMemoryView</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.utils.StridedLayout.html">cuda.core.experimental.utils.StridedLayout</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
@@ -713,7 +714,10 @@ moved out of the <code class="docutils literal notranslate"><span class="pre">ex
 <td><p>Decorator to create proxy objects to <a class="reference internal" href="generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView" title="cuda.core.experimental.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> for the specified positional arguments.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView" title="cuda.core.experimental.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a>(obj, int stream_ptr)</p></td>
-<td><p>A dataclass holding metadata of a strided dense array/tensor.</p></td>
+<td><p>A class holding metadata of a strided dense array/tensor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.experimental.utils.StridedLayout.html#cuda.core.experimental.utils.StridedLayout" title="cuda.core.experimental.utils.StridedLayout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedLayout</span></code></a>(tuple shape, tuple strides, ...)</p></td>
+<td><p>A class describing the layout of a multi-dimensional tensor with a shape, strides and itemsize.</p></td>
 </tr>
 </tbody>
 </table>
