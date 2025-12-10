@@ -544,6 +544,11 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.bindings.runtime.cudaGraphClone
 .. autofunction:: cuda.bindings.runtime.cudaGraphNodeFindInClone
 .. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetType
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetContainingGraph
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetLocalId
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetToolsId
+.. autofunction:: cuda.bindings.runtime.cudaGraphGetId
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecGetId
 .. autofunction:: cuda.bindings.runtime.cudaGraphGetNodes
 .. autofunction:: cuda.bindings.runtime.cudaGraphGetRootNodes
 .. autofunction:: cuda.bindings.runtime.cudaGraphGetEdges
@@ -583,6 +588,7 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.bindings.runtime.cudaGraphNodeSetParams
 .. autofunction:: cuda.bindings.runtime.cudaGraphExecNodeSetParams
 .. autofunction:: cuda.bindings.runtime.cudaGraphConditionalHandleCreate
+.. autofunction:: cuda.bindings.runtime.cudaGraphConditionalHandleCreate_v2
 
 Driver Entry Point Access
 -------------------------
@@ -875,10 +881,21 @@ Additionally, there are two known scenarios, where its possible for the workload
 
 - On Compute Architecture 9.x: When a module with dynamic parallelism (CDP) is loaded, all future kernels running under green contexts may use and share an additional set of 2 SMs.
 
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetDevResource
+.. autofunction:: cuda.bindings.runtime.cudaDevSmResourceSplitByCount
+.. autofunction:: cuda.bindings.runtime.cudaDevSmResourceSplit
+.. autofunction:: cuda.bindings.runtime.cudaDevResourceGenerateDesc
+.. autofunction:: cuda.bindings.runtime.cudaGreenCtxCreate
 .. autofunction:: cuda.bindings.runtime.cudaExecutionCtxDestroy
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxGetDevResource
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxGetDevice
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxGetId
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxStreamCreate
 .. autofunction:: cuda.bindings.runtime.cudaExecutionCtxSynchronize
+.. autofunction:: cuda.bindings.runtime.cudaStreamGetDevResource
 .. autofunction:: cuda.bindings.runtime.cudaExecutionCtxRecordEvent
 .. autofunction:: cuda.bindings.runtime.cudaExecutionCtxWaitEvent
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetExecutionCtx
 
 C++ API Routines
 ----------------

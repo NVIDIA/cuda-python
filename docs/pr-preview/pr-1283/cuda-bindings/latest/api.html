@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=cac1c265"></script>
+    <script src="_static/documentation_options.js?v=3a15012f"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.1a0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -498,6 +498,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.1.0-notes.html">13.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.3-notes.html">13.0.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/13.0.2-notes.html">13.0.2</a></li>
@@ -1456,6 +1457,11 @@
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphClone"><code class="docutils literal notranslate"><span class="pre">cuGraphClone()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphNodeFindInClone"><code class="docutils literal notranslate"><span class="pre">cuGraphNodeFindInClone()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetType"><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetType()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetContainingGraph"><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetContainingGraph()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetLocalId"><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetLocalId()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphNodeGetToolsId"><code class="docutils literal notranslate"><span class="pre">cuGraphNodeGetToolsId()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphGetId"><code class="docutils literal notranslate"><span class="pre">cuGraphGetId()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphExecGetId"><code class="docutils literal notranslate"><span class="pre">cuGraphExecGetId()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphGetNodes"><code class="docutils literal notranslate"><span class="pre">cuGraphGetNodes()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphGetRootNodes"><code class="docutils literal notranslate"><span class="pre">cuGraphGetRootNodes()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGraphGetEdges"><code class="docutils literal notranslate"><span class="pre">cuGraphGetEdges()</span></code></a></li>
@@ -1588,12 +1594,14 @@
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuCtxGetDevResource"><code class="docutils literal notranslate"><span class="pre">cuCtxGetDevResource()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGreenCtxGetDevResource"><code class="docutils literal notranslate"><span class="pre">cuGreenCtxGetDevResource()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuDevSmResourceSplitByCount"><code class="docutils literal notranslate"><span class="pre">cuDevSmResourceSplitByCount()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuDevSmResourceSplit"><code class="docutils literal notranslate"><span class="pre">cuDevSmResourceSplit()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuDevResourceGenerateDesc"><code class="docutils literal notranslate"><span class="pre">cuDevResourceGenerateDesc()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGreenCtxRecordEvent"><code class="docutils literal notranslate"><span class="pre">cuGreenCtxRecordEvent()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGreenCtxWaitEvent"><code class="docutils literal notranslate"><span class="pre">cuGreenCtxWaitEvent()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuStreamGetGreenCtx"><code class="docutils literal notranslate"><span class="pre">cuStreamGetGreenCtx()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGreenCtxStreamCreate"><code class="docutils literal notranslate"><span class="pre">cuGreenCtxStreamCreate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuGreenCtxGetId"><code class="docutils literal notranslate"><span class="pre">cuGreenCtxGetId()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/driver.html#cuda.bindings.driver.cuStreamGetDevResource"><code class="docutils literal notranslate"><span class="pre">cuStreamGetDevResource()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="module/driver.html#error-log-management-functions">Error Log Management Functions</a><ul>
@@ -1974,6 +1982,11 @@
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphClone"><code class="docutils literal notranslate"><span class="pre">cudaGraphClone()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeFindInClone"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeFindInClone()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetType"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetType()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetContainingGraph"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetContainingGraph()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetLocalId"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetLocalId()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeGetToolsId"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetToolsId()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphGetId"><code class="docutils literal notranslate"><span class="pre">cudaGraphGetId()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphExecGetId"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecGetId()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphGetNodes"><code class="docutils literal notranslate"><span class="pre">cudaGraphGetNodes()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphGetRootNodes"><code class="docutils literal notranslate"><span class="pre">cudaGraphGetRootNodes()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphGetEdges"><code class="docutils literal notranslate"><span class="pre">cudaGraphGetEdges()</span></code></a></li>
@@ -2013,6 +2026,7 @@
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphNodeSetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeSetParams()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphExecNodeSetParams"><code class="docutils literal notranslate"><span class="pre">cudaGraphExecNodeSetParams()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphConditionalHandleCreate"><code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandleCreate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGraphConditionalHandleCreate_v2"><code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandleCreate_v2()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="module/runtime.html#driver-entry-point-access">Driver Entry Point Access</a><ul>
@@ -2034,10 +2048,21 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="module/runtime.html#execution-context-management">Execution Context Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaDeviceGetDevResource"><code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDevResource()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceSplitByCount"><code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitByCount()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceSplit"><code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaDevResourceGenerateDesc"><code class="docutils literal notranslate"><span class="pre">cudaDevResourceGenerateDesc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaGreenCtxCreate"><code class="docutils literal notranslate"><span class="pre">cudaGreenCtxCreate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxDestroy"><code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxDestroy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxGetDevResource"><code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxGetDevResource()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxGetDevice"><code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxGetDevice()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxGetId"><code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxGetId()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxStreamCreate"><code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxStreamCreate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxSynchronize"><code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxSynchronize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaStreamGetDevResource"><code class="docutils literal notranslate"><span class="pre">cudaStreamGetDevResource()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxRecordEvent"><code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxRecordEvent()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaExecutionCtxWaitEvent"><code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxWaitEvent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/runtime.html#cuda.bindings.runtime.cudaDeviceGetExecutionCtx"><code class="docutils literal notranslate"><span class="pre">cudaDeviceGetExecutionCtx()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="module/runtime.html#c-api-routines">C++ API Routines</a></li>

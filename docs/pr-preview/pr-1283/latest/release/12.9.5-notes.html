@@ -43,14 +43,14 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=cac1c265"></script>
+    <script src="../_static/documentation_options.js?v=3a15012f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'release/12.9.5-notes';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.1a0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -209,8 +209,8 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/cooperative">
-    cuda.cccl.cooperative
+  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/coop">
+    cuda.coop
   </a>
 </li>
 
@@ -223,8 +223,8 @@
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
 <li class=" ">
-  <a class="nav-link dropdown-item nav-external" href="https://nvidia.github.io/cccl/python/parallel">
-    cuda.cccl.parallel
+  <a class="nav-link dropdown-item nav-external" href="https://nvidia.github.io/cccl/python/compute">
+    cuda.compute
   </a>
 </li>
 
@@ -237,8 +237,36 @@
 
 
 <li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://docs.nvidia.com/cuda/cutile-python/">
+    cuda.tile
+  </a>
+</li>
+
+
+<li class=" ">
   <a class="nav-link dropdown-item nav-external" href="https://docs.nvidia.com/cuda/nvmath-python/">
     nvmath-python
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html">
+    nvshmem4py
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://docs.nvidia.com/nsight-python/index.html">
+    Nsight Python
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://docs.nvidia.com/cupti-python/">
+    CUPTI Python
   </a>
 </li>
 
@@ -398,15 +426,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/cooperative">
-    cuda.cccl.cooperative
+  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/coop">
+    cuda.coop
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/parallel">
-    cuda.cccl.parallel
+  <a class="nav-link nav-external" href="https://nvidia.github.io/cccl/python/compute">
+    cuda.compute
   </a>
 </li>
 
@@ -419,8 +447,36 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-external" href="https://docs.nvidia.com/cuda/cutile-python/">
+    cuda.tile
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-external" href="https://docs.nvidia.com/cuda/nvmath-python/">
     nvmath-python
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html">
+    nvshmem4py
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://docs.nvidia.com/nsight-python/index.html">
+    Nsight Python
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://docs.nvidia.com/cupti-python/">
+    CUPTI Python
   </a>
 </li>
 
@@ -457,6 +513,7 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="13.1.1-notes.html">13.1.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.1.0-notes.html">13.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.3-notes.html">13.0.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13.0.2-notes.html">13.0.2</a></li>
@@ -478,10 +535,14 @@
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-core/latest">cuda.core</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest">cuda.bindings</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-pathfinder/latest">cuda.pathfinder</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/cooperative">cuda.cccl.cooperative</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/parallel">cuda.cccl.parallel</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/coop">cuda.coop</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/cccl/python/compute">cuda.compute</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://nvidia.github.io/numba-cuda/">numba.cuda</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/cuda/cutile-python/">cuda.tile</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/cuda/nvmath-python/">nvmath-python</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html">nvshmem4py</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/nsight-python/index.html">Nsight Python</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://docs.nvidia.com/cupti-python/">CUPTI Python</a></li>
 </ul>
 </div>
 </nav></div>

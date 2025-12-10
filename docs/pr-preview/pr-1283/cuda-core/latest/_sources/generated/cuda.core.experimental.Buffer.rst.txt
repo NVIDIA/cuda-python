@@ -17,6 +17,7 @@ cuda.core.experimental.Buffer
    .. automethod:: close
    .. automethod:: copy_from
    .. automethod:: copy_to
+   .. automethod:: fill
    .. automethod:: from_handle
    .. automethod:: from_ipc_descriptor
    .. automethod:: get_ipc_descriptor
