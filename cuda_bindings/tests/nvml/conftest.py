@@ -72,14 +72,9 @@ def get_devices(device_info):
 
 
 @pytest.fixture
-def for_all_devices(device_info):
+def all_devices(device_info):
     with NVMLInitializer():
-        unique_devices = set()
-        for device_id in get_devices(device_info):
-            if device_id not in unique_devices:
-                unique_devices.add(device_id)
-                yield device_id
-                # RestoreDefaultEnvironment.restore()
+        yield sorted(list(set(get_devices(device_info))))
 
 
 @pytest.fixture

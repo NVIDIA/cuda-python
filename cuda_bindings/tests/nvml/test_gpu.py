@@ -23,19 +23,24 @@ def test_gpu_get_module_id(nvml_init):
         assert isinstance(module_id, int)
 
 
-def test_gpu_get_platform_info(for_all_devices):
-    device = for_all_devices
+def test_gpu_get_platform_info(all_devices):
+    skip_reasons = set()
+    for device in all_devices:
+        if util.is_vgpu(device):
+            skip_reasons.add(f"Not supported on vGPU device {device}")
+            continue
 
-    if util.is_vgpu(device):
-        pytest.skip("Not supported on vGPU device")
+        # TODO
+        # if device.feature_dict.board.chip < board_class.Architecture.Blackwell:
+        #     test_utils.skip_test("Not supported on chip before Blackwell")
 
-    # TODO
-    # if device.feature_dict.board.chip < board_class.Architecture.Blackwell:
-    #     test_utils.skip_test("Not supported on chip before Blackwell")
+        try:
+            platform_info = nvml.device_get_platform_info(device)
+        except nvml.NotSupportedError:
+            skip_reasons.add(f"Not supported returned, linkely NVLink is disable for {device}")
+            continue
 
-    try:
-        platform_info = nvml.device_get_platform_info(device)
-    except nvml.NotSupportedError:
-        pytest.skip("Not supported returned, likely NVLink is disabled.")
+        assert isinstance(platform_info, nvml.PlatformInfo_v2)
 
-    assert isinstance(platform_info, nvml.PlatformInfo_v2)
+    if skip_reasons:
+        pytest.skip(" ; ".join(skip_reasons))
