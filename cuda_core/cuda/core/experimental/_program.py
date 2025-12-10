@@ -424,43 +424,11 @@ class ProgramOptions:
             self._formatted_options.append("--numba-debug")
 
     def _prepare_nvrtc_options(self) -> list[bytes]:
-        """Prepare options for NVRTC backend.
-        
-        This method transforms the formatted options into bytes suitable for NVRTC compilation.
-        It validates that only NVRTC-compatible options are set and raises CUDAError for
-        unsupported options.
-        
-        Returns
-        -------
-        list[bytes]
-            List of option strings encoded as bytes for NVRTC.
-            
-        Raises
-        ------
-        CUDAError
-            If an option incompatible with NVRTC is set.
-        """
         # NVRTC uses all the formatted options that were set in __post_init__
         # All options in _formatted_options are already NVRTC-compatible
         return list(o.encode() for o in self._formatted_options)
 
     def _prepare_nvjitlink_options(self) -> list[bytes]:
-        """Prepare options for nvJitLink backend.
-        
-        This method transforms the ProgramOptions into options suitable for nvJitLink linking.
-        It validates that only nvJitLink-compatible options are set and raises CUDAError for
-        unsupported options.
-        
-        Returns
-        -------
-        list[bytes]
-            List of option strings encoded as bytes for nvJitLink.
-            
-        Raises
-        ------
-        CUDAError
-            If an option incompatible with nvJitLink is set.
-        """
         options = []
         
         # Options supported by nvJitLink (subset of ProgramOptions)
@@ -571,23 +539,7 @@ class ProgramOptions:
         
         return list(o.encode() for o in options)
 
-    def _prepare_nvvm_options(self) -> list[str]:
-        """Prepare options for NVVM backend.
-        
-        This method transforms the ProgramOptions into options suitable for NVVM compilation.
-        It validates that only NVVM-compatible options are set and raises CUDAError for
-        unsupported options.
-        
-        Returns
-        -------
-        list[str]
-            List of option strings for NVVM (not encoded as bytes).
-            
-        Raises
-        ------
-        CUDAError
-            If an option incompatible with NVVM is set.
-        """
+    def _prepare_nvvm_options(self, as_bytes: bool = True) -> Union[list[bytes], list[str]]:
         options = []
         
         # Options supported by NVVM
@@ -692,9 +644,12 @@ class ProgramOptions:
                 f"The following options are not supported by NVVM backend: {', '.join(unsupported)}"
             )
         
-        return options
+        if as_bytes:
+            return list(o.encode() for o in options)
+        else:
+            return options
 
-    def as_bytes(self, backend: str) -> Union[list[bytes], list[str]]:
+    def as_bytes(self, backend: str) -> list[bytes]:
         """Convert program options to bytes format for the specified backend.
         
         This method transforms the program options into a format suitable for the
@@ -711,9 +666,8 @@ class ProgramOptions:
         
         Returns
         -------
-        Union[list[bytes], list[str]]
-            For "nvrtc" and "nvjitlink": list of option strings encoded as bytes.
-            For "nvvm": list of option strings (not encoded).
+        list[bytes]
+            List of option strings encoded as bytes.
         
         Raises
         ------
@@ -735,16 +689,11 @@ class ProgramOptions:
         elif backend == "nvjitlink":
             return self._prepare_nvjitlink_options()
         elif backend == "nvvm":
-            return self._prepare_nvvm_options()
+            return self._prepare_nvvm_options(as_bytes=True)
         else:
             raise ValueError(
                 f"Unknown backend '{backend}'. Must be one of: 'nvrtc', 'nvjitlink', 'nvvm'"
             )
-
-    def _as_bytes(self):
-        """Private method for backward compatibility. Use as_bytes('nvrtc') instead."""
-        # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
-        return list(o.encode() for o in self._formatted_options)
 
     def __repr__(self):
         # __TODO__ improve this
@@ -851,11 +800,7 @@ class Program:
         )
 
     def _translate_program_options_to_nvvm(self, options: ProgramOptions) -> list[str]:
-        """Translate ProgramOptions to NVVM-specific compilation options.
-        
-        This method uses the new _prepare_nvvm_options private method.
-        """
-        return options._prepare_nvvm_options()
+        return options._prepare_nvvm_options(as_bytes=False)
 
     def close(self):
         """Destroy this program."""
@@ -909,7 +854,7 @@ class Program:
                         nvrtc.nvrtcAddNameExpression(self._mnff.handle, n.encode()),
                         handle=self._mnff.handle,
                     )
-            options = self._options._as_bytes()
+            options = self._options.as_bytes("nvrtc")
             handle_return(
                 nvrtc.nvrtcCompileProgram(self._mnff.handle, len(options), options),
                 handle=self._mnff.handle,

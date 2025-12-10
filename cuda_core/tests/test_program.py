@@ -453,15 +453,16 @@ def test_program_options_as_bytes_nvvm():
     options = ProgramOptions(arch="sm_80", debug=True, ftz=True, device_code_optimize=True)
     nvvm_options = options.as_bytes("nvvm")
     
-    # Should return list of strings (not bytes for NVVM)
+    # Should return list of bytes (same as other backends)
     assert isinstance(nvvm_options, list)
-    assert all(isinstance(opt, str) for opt in nvvm_options)
+    assert all(isinstance(opt, bytes) for opt in nvvm_options)
     
-    # Check content
-    assert "-arch=compute_80" in nvvm_options
-    assert "-g" in nvvm_options
-    assert "-ftz=1" in nvvm_options
-    assert "-opt=3" in nvvm_options
+    # Decode to check content
+    options_str = [opt.decode() for opt in nvvm_options]
+    assert "-arch=compute_80" in options_str
+    assert "-g" in options_str
+    assert "-ftz=1" in options_str
+    assert "-opt=3" in options_str
 
 
 def test_program_options_as_bytes_invalid_backend():
