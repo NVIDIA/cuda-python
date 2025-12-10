@@ -84,12 +84,12 @@ class LegacyPinnedMemoryResource(MemoryResource):
 
 
 class _SynchronousMemoryResource(MemoryResource):
-    __slots__ = ("_dev_id",)
+    __slots__ = ("_device_id",)
 
     def __init__(self, device_id):
         from .._device import Device
 
-        self._dev_id = Device(device_id).device_id
+        self._device_id = Device(device_id).device_id
 
     def allocate(self, size, stream=None) -> Buffer:
         if stream is None:
@@ -116,4 +116,4 @@ class _SynchronousMemoryResource(MemoryResource):
 
     @property
     def device_id(self) -> int:
-        return self._dev_id
+        return self._device_id

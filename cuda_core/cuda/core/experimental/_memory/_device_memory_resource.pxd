@@ -9,7 +9,7 @@ from cuda.core.experimental._memory._ipc cimport IPCDataForMR
 
 cdef class DeviceMemoryResource(MemoryResource):
     cdef:
-        int                   _dev_id
+        int                   _device_id
         cydriver.CUmemoryPool _handle
         bint                  _mempool_owned
         IPCDataForMR          _ipc_data

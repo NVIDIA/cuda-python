@@ -27,7 +27,7 @@ ContextHandle create_context_handle_ref(CUcontext ctx);
 
 // Get handle to the primary context for a device (with thread-local caching)
 // Returns empty handle on error (caller must check)
-ContextHandle get_primary_context(int dev_id) noexcept;
+ContextHandle get_primary_context(int device_id) noexcept;
 
 // Get handle to the current CUDA context
 // Returns empty handle if no context is current (caller must check)

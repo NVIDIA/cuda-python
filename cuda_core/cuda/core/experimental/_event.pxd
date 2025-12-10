@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.bindings cimport cydriver
+from cuda.core.experimental._resource_handles cimport ContextHandle
 
 
 cdef class Event:
@@ -14,6 +15,9 @@ cdef class Event:
         bint _ipc_enabled
         object _ipc_descriptor
         int _device_id
-        object _ctx_handle
+        ContextHandle _h_context
+
+    @staticmethod
+    cdef Event _init(type cls, int device_id, ContextHandle h_context, options, bint is_free)
 
     cpdef close(self)

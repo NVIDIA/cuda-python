@@ -4,16 +4,14 @@
 
 from dataclasses import dataclass
 
-from libc.stdint cimport uintptr_t
-
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._resource_handles cimport (
+    ContextHandle,
     create_context_handle_ref,
     intptr,
     native,
     py,
 )
-from cuda.core.experimental._utils.cuda_utils import driver
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 
@@ -30,12 +28,11 @@ cdef class Context:
     def __init__(self, *args, **kwargs):
         raise RuntimeError("Context objects cannot be instantiated directly. Please use Device or Stream APIs.")
 
-    @classmethod
-    def _from_ctx(cls, handle: driver.CUcontext, int device_id):
-        cdef Context ctx = Context.__new__(Context)
-        # Convert Python CUcontext to C-level CUcontext and create non-owning ContextHandle
-        cdef cydriver.CUcontext c_ctx = <cydriver.CUcontext><uintptr_t>int(handle)
-        ctx._h_context = create_context_handle_ref(c_ctx)
+    @staticmethod
+    cdef Context _from_handle(type cls, ContextHandle h_context, int device_id):
+        """Create Context from existing ContextHandle (cdef-only factory)."""
+        cdef Context ctx = cls.__new__(cls)
+        ctx._h_context = h_context
         ctx._device_id = device_id
         return ctx
 
@@ -63,35 +60,3 @@ class ContextOptions:
     Currently unused, reserved for future use.
     """
     pass  # TODO
-
-
-cdef ContextHandle get_stream_context(cydriver.CUstream stream) except * nogil:
-    """Get handle to the context associated with a stream.
-
-    Parameters
-    ----------
-    stream : CUstream
-        Stream handle
-
-    Returns
-    -------
-    ContextHandle
-        Handle to context associated with the stream
-    """
-    cdef cydriver.CUcontext ctx = NULL
-    HANDLE_RETURN(cydriver.cuStreamGetCtx(stream, &ctx))
-    return create_context_handle_ref(ctx)
-
-
-cdef void set_current_context(ContextHandle h_context) except * nogil:
-    """Set the current CUDA context from a handle.
-
-    Parameters
-    ----------
-    h_context : ContextHandle
-        Context handle to set as current
-    """
-    if h_context.get() == NULL:
-        with gil:
-            raise ValueError("Cannot set NULL context as current")
-    HANDLE_RETURN(cydriver.cuCtxSetCurrent(native(h_context)))

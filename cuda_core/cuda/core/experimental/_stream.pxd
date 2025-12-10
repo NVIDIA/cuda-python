@@ -18,8 +18,6 @@ cdef class Stream:
     cdef Stream _from_handle(type cls, StreamHandle h_stream)
 
     cpdef close(self)
-    cdef int _get_context(self) except?-1 nogil
-    cdef int _get_device_and_context(self) except?-1
 
 
 cpdef Stream default_stream()

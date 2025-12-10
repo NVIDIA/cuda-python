@@ -11,17 +11,15 @@ from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 import threading
 from typing import Optional, TYPE_CHECKING, Union
 
-from cuda.core.experimental._context cimport (
-    Context,
-    set_current_context,
-)
+from cuda.core.experimental._context cimport Context
 from cuda.core.experimental._context import ContextOptions
+from cuda.core.experimental._event cimport Event as cyEvent
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._resource_handles cimport (
     ContextHandle,
+    create_context_handle_ref,
     get_primary_context,
     get_current_context,
-    intptr,
     native,
 )
 from cuda.core.experimental._graph import GraphBuilder
@@ -945,7 +943,7 @@ class Device:
         Default value of `None` return the currently used device.
 
     """
-    __slots__ = ("_id", "_memory_resource", "_has_inited", "_properties", "_uuid")
+    __slots__ = ("_device_id", "_memory_resource", "_has_inited", "_properties", "_uuid")
 
     def __new__(cls, device_id: Device | int | None = None):
         # Handle device_id argument.
@@ -987,9 +985,9 @@ class Device:
             with nogil:
                 HANDLE_RETURN(cydriver.cuDeviceGetCount(&total))
             devices = _tls.devices = []
-            for dev_id in range(total):
+            for i in range(total):
                 device = super().__new__(cls)
-                device._id = dev_id
+                device._device_id = i
                 device._memory_resource = None
                 device._has_inited = False
                 device._properties = None
@@ -1004,19 +1002,19 @@ class Device:
     def _check_context_initialized(self):
         if not self._has_inited:
             raise CUDAError(
-                f"Device {self._id} is not yet initialized, perhaps you forgot to call .set_current() first?"
+                f"Device {self._device_id} is not yet initialized, perhaps you forgot to call .set_current() first?"
             )
 
 
     @property
     def device_id(self) -> int:
         """Return device ordinal."""
-        return self._id
+        return self._device_id
 
     @property
     def pci_bus_id(self) -> str:
         """Return a PCI Bus Id string for this device."""
-        bus_id = handle_return(runtime.cudaDeviceGetPCIBusId(13, self._id))
+        bus_id = handle_return(runtime.cudaDeviceGetPCIBusId(13, self._device_id))
         return bus_id[:12].decode()
 
     def can_access_peer(self, peer: Device | int) -> bool:
@@ -1062,7 +1060,7 @@ class Device:
         cdef str uuid_hex
 
         if self._uuid is None:
-            dev = self._id
+            dev = self._device_id
             with nogil:
                 IF CUDA_CORE_BUILD_MAJOR == "12":
                     HANDLE_RETURN(cydriver.cuDeviceGetUuid_v2(&uuid, dev))
@@ -1081,7 +1079,7 @@ class Device:
         cdef int LENGTH = 256
         cdef bytes name = bytes(LENGTH)
         cdef char* name_ptr = name
-        cdef cydriver.CUdevice this_dev = self._id
+        cdef cydriver.CUdevice this_dev = self._device_id
         with nogil:
             HANDLE_RETURN(cydriver.cuDeviceGetName(name_ptr, LENGTH, this_dev))
         name = name.split(b"\0")[0]
@@ -1091,7 +1089,7 @@ class Device:
     def properties(self) -> DeviceProperties:
         """Return a :obj:`~_device.DeviceProperties` class with information about the device."""
         if self._properties is None:
-            self._properties = DeviceProperties._init(self._id)
+            self._properties = DeviceProperties._init(self._device_id)
 
         return self._properties
 
@@ -1127,9 +1125,9 @@ class Device:
             raise CUDAError("No context is bound to the calling CPU thread.")
         with nogil:
             HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
-        if <int>dev != self._id:
+        if <int>dev != self._device_id:
             raise CUDAError("Internal error (current device is not equal to Device.device_id)")
-        return Context._from_ctx(intptr(h_context), self._id)
+        return Context._from_handle(Context, h_context, self._device_id)
 
     @property
     def memory_resource(self) -> MemoryResource:
@@ -1138,7 +1136,7 @@ class Device:
         if self._memory_resource is None:
             # If the device is in TCC mode, or does not support memory pools for some other reason,
             # use the SynchronousMemoryResource which does not use memory pools.
-            device_id = self._id
+            device_id = self._device_id
             with nogil:
                 HANDLE_RETURN(
                     cydriver.cuDeviceGetAttribute(
@@ -1147,10 +1145,10 @@ class Device:
                 )
             if attr == 1:
                 from cuda.core.experimental._memory import DeviceMemoryResource
-                self._memory_resource = DeviceMemoryResource(self._id)
+                self._memory_resource = DeviceMemoryResource(self._device_id)
             else:
                 from cuda.core.experimental._memory import _SynchronousMemoryResource
-                self._memory_resource = _SynchronousMemoryResource(self._id)
+                self._memory_resource = _SynchronousMemoryResource(self._device_id)
 
         return self._memory_resource
 
@@ -1175,10 +1173,10 @@ class Device:
 
     def __int__(self):
         """Return device_id."""
-        return self._id
+        return self._device_id
 
     def __repr__(self):
-        return f"<Device {self._id} ({self.name})>"
+        return f"<Device {self._device_id} ({self.name})>"
 
     def __hash__(self) -> int:
         return hash(self.uuid)
@@ -1186,7 +1184,7 @@ class Device:
     def __eq__(self, other) -> bool:
         if not isinstance(other, Device):
             return NotImplemented
-        return self._id == other._id
+        return self._device_id == other._device_id
 
     def __reduce__(self):
         return Device, (self.device_id,)
@@ -1227,10 +1225,10 @@ class Device:
         if ctx is not None:
             # TODO: revisit once Context is cythonized
             assert_type(ctx, Context)
-            if ctx._device_id != self._id:
+            if ctx._device_id != self._device_id:
                 raise RuntimeError(
                     "the provided context was created on the device with"
-                    f" id={ctx._device_id}, which is different from the target id={self._id}"
+                    f" id={ctx._device_id}, which is different from the target id={self._device_id}"
                 )
             # prev_ctx is the previous context
             curr_ctx = native(ctx._h_context)
@@ -1240,12 +1238,14 @@ class Device:
                 HANDLE_RETURN(cydriver.cuCtxPushCurrent(curr_ctx))
             self._has_inited = True
             if prev_ctx != NULL:
-                return Context._from_ctx(<uintptr_t>(prev_ctx), self._id)
+                return Context._from_handle(Context, create_context_handle_ref(prev_ctx), self._device_id)
         else:
             # use primary ctx
-            h_context = get_primary_context(self._id)
+            h_context = get_primary_context(self._device_id)
+            if h_context.get() == NULL:
+                raise ValueError("Cannot set NULL context as current")
             with nogil:
-                set_current_context(h_context)
+                HANDLE_RETURN(cydriver.cuCtxSetCurrent(native(h_context)))
             self._has_inited = True
 
     def create_context(self, options: ContextOptions = None) -> Context:
@@ -1297,7 +1297,7 @@ class Device:
 
         """
         self._check_context_initialized()
-        return Stream._init(obj=obj, options=options, device_id=self._id)
+        return Stream._init(obj=obj, options=options, device_id=self._device_id)
 
     def create_event(self, options: EventOptions | None = None) -> Event:
         """Create an Event object without recording it to a Stream.
@@ -1322,7 +1322,7 @@ class Device:
         h_context = get_current_context()
         if h_context.get() == NULL:
             raise CUDAError("No context is bound to the calling CPU thread.")
-        return Event._init(self._id, intptr(h_context), options, True)
+        return cyEvent._init(cyEvent, self._device_id, h_context, options, True)
 
     def allocate(self, size, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """Allocate device memory from a specified stream.

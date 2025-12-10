@@ -8,6 +8,8 @@ cimport cpython
 from libc.stdint cimport uintptr_t
 from libc.string cimport memcpy
 from cuda.bindings cimport cydriver
+from cuda.core.experimental._context cimport Context
+from cuda.core.experimental._resource_handles cimport ContextHandle, intptr
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN
@@ -17,8 +19,6 @@ import cython
 from dataclasses import dataclass
 import multiprocessing
 from typing import TYPE_CHECKING, Optional
-
-from cuda.core.experimental._context import Context
 from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
     check_multiprocessing_start_method,
@@ -87,9 +87,9 @@ cdef class Event:
     def __init__(self, *args, **kwargs):
         raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
 
-    @classmethod
-    def _init(cls, device_id: int, ctx_handle: Context, options=None, is_free=False):
-        cdef Event self = Event.__new__(cls)
+    @staticmethod
+    cdef Event _init(type cls, int device_id, ContextHandle h_context, options, bint is_free):
+        cdef Event self = cls.__new__(cls)
         cdef EventOptions opts = check_or_create_options(EventOptions, options, "Event options")
         cdef unsigned int flags = 0x0
         self._timing_disabled = False
@@ -114,7 +114,7 @@ cdef class Event:
         with nogil:
             HANDLE_RETURN(cydriver.cuEventCreate(&self._handle, flags))
         self._device_id = device_id
-        self._ctx_handle = ctx_handle
+        self._h_context = h_context
         if opts.ipc_enabled:
             self.get_ipc_descriptor()
         return self
@@ -165,7 +165,7 @@ cdef class Event:
             raise RuntimeError(explanation)
 
     def __hash__(self) -> int:
-        return hash((self._ctx_handle, <uintptr_t>(self._handle)))
+        return hash((type(self), intptr(self._h_context), <uintptr_t>(self._handle)))
 
     def __eq__(self, other) -> bool:
         # Note: using isinstance because `Event` can be subclassed.
@@ -199,8 +199,8 @@ cdef class Event:
         self._busy_waited = ipc_descriptor._busy_waited
         self._ipc_enabled = True
         self._ipc_descriptor = ipc_descriptor
-        self._device_id = -1  # ??
-        self._ctx_handle = None  # ??
+        self._device_id = -1
+        self._h_context = ContextHandle()
         return self
 
     @property
@@ -271,8 +271,8 @@ cdef class Event:
     @property
     def context(self) -> Context:
         """Return the :obj:`~_context.Context` associated with this event."""
-        if self._ctx_handle is not None and self._device_id >= 0:
-            return Context._from_ctx(self._ctx_handle, self._device_id)
+        if self._h_context and self._device_id >= 0:
+            return Context._from_handle(Context, self._h_context, self._device_id)
 
 
 cdef class IPCEventDescriptor:

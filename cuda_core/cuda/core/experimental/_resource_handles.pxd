@@ -18,7 +18,7 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) nogil
 
     # Context acquisition functions (pure C++, nogil-safe with thread-local caching)
-    ContextHandle get_primary_context(int dev_id) nogil
+    ContextHandle get_primary_context(int device_id) nogil
     ContextHandle get_current_context() nogil
 
     # ========================================================================

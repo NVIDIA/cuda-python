@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from cuda.bindings cimport cydriver
 from cuda.core.experimental._resource_handles cimport ContextHandle
 
 cdef class Context:
@@ -16,7 +15,5 @@ cdef class Context:
         ContextHandle _h_context
         int _device_id
 
-# Cython-level context operations (handle-centric API)
-# Note: get_primary_context and get_current_context are now pure C++ (imported from _resource_handles)
-cdef void set_current_context(ContextHandle h_context) except * nogil
-cdef ContextHandle get_stream_context(cydriver.CUstream stream) except * nogil
+    @staticmethod
+    cdef Context _from_handle(type cls, ContextHandle h_context, int device_id)

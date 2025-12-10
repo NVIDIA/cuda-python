@@ -98,10 +98,10 @@ ContextHandle create_context_handle_ref(CUcontext ctx) {
 // Each thread maintains its own cache of primary contexts indexed by device ID
 thread_local std::vector<ContextHandle> primary_context_cache;
 
-ContextHandle get_primary_context(int dev_id) noexcept {
+ContextHandle get_primary_context(int device_id) noexcept {
     // Check thread-local cache
-    if (static_cast<size_t>(dev_id) < primary_context_cache.size()) {
-        auto cached = primary_context_cache[dev_id];
+    if (static_cast<size_t>(device_id) < primary_context_cache.size()) {
+        auto cached = primary_context_cache[device_id];
         if (cached.get() != nullptr) {
             return cached;  // Cache hit
         }
@@ -112,7 +112,7 @@ ContextHandle get_primary_context(int dev_id) noexcept {
     CUresult err;
     {
         GILReleaseGuard gil;
-        err = cuDevicePrimaryCtxRetain(&ctx, dev_id);
+        err = cuDevicePrimaryCtxRetain(&ctx, device_id);
     }
     if (err != CUDA_SUCCESS) {
         // Return empty handle on error (caller must check)
@@ -120,9 +120,9 @@ ContextHandle get_primary_context(int dev_id) noexcept {
     }
 
     // Create owning handle with custom deleter that releases the primary context
-    auto box = std::shared_ptr<const ContextBox>(new ContextBox{ctx}, [dev_id](const ContextBox* b) {
+    auto box = std::shared_ptr<const ContextBox>(new ContextBox{ctx}, [device_id](const ContextBox* b) {
         GILReleaseGuard gil;
-        cuDevicePrimaryCtxRelease(dev_id);
+        cuDevicePrimaryCtxRelease(device_id);
         delete b;
     });
 
@@ -130,10 +130,10 @@ ContextHandle get_primary_context(int dev_id) noexcept {
     auto h_context = ContextHandle(box, &box->resource);
 
     // Resize cache if needed
-    if (static_cast<size_t>(dev_id) >= primary_context_cache.size()) {
-        primary_context_cache.resize(dev_id + 1);
+    if (static_cast<size_t>(device_id) >= primary_context_cache.size()) {
+        primary_context_cache.resize(device_id + 1);
     }
-    primary_context_cache[dev_id] = h_context;
+    primary_context_cache[device_id] = h_context;
 
     return h_context;
 }

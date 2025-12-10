@@ -197,25 +197,6 @@ def precondition(checker: Callable[..., None], str what="") -> Callable:
     return outer
 
 
-cdef cydriver.CUdevice get_device_from_ctx(
-        cydriver.CUcontext target_ctx, cydriver.CUcontext curr_ctx) except?cydriver.CU_DEVICE_INVALID nogil:
-    """Get device ID from the given ctx."""
-    cdef bint switch_context = (curr_ctx != target_ctx)
-    cdef cydriver.CUcontext ctx
-    cdef cydriver.CUdevice target_dev
-    with nogil:
-        if switch_context:
-            HANDLE_RETURN(cydriver.cuCtxPopCurrent(&ctx))
-            assert curr_ctx == ctx
-            HANDLE_RETURN(cydriver.cuCtxPushCurrent(target_ctx))
-        HANDLE_RETURN(cydriver.cuCtxGetDevice(&target_dev))
-        if switch_context:
-            HANDLE_RETURN(cydriver.cuCtxPopCurrent(&ctx))
-            assert target_ctx == ctx
-            HANDLE_RETURN(cydriver.cuCtxPushCurrent(curr_ctx))
-    return target_dev
-
-
 def is_sequence(obj):
     """
     Check if the given object is a sequence (list or tuple).

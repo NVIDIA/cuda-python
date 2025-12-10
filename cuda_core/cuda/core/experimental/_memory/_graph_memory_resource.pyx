@@ -23,7 +23,7 @@ __all__ = ['GraphMemoryResource']
 
 cdef class GraphMemoryResourceAttributes:
     cdef:
-        int _dev_id
+        int _device_id
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError("GraphMemoryResourceAttributes cannot be instantiated directly. Please use MemoryResource APIs.")
@@ -31,7 +31,7 @@ cdef class GraphMemoryResourceAttributes:
     @classmethod
     def _init(cls, device_id: int):
         cdef GraphMemoryResourceAttributes self = GraphMemoryResourceAttributes.__new__(cls)
-        self._dev_id = device_id
+        self._device_id = device_id
         return self
 
     def __repr__(self):
@@ -42,12 +42,12 @@ cdef class GraphMemoryResourceAttributes:
 
     cdef int _getattribute(self, cydriver.CUgraphMem_attribute attr_enum, void* value) except?-1:
         with nogil:
-            HANDLE_RETURN(cydriver.cuDeviceGetGraphMemAttribute(self._dev_id, attr_enum, value))
+            HANDLE_RETURN(cydriver.cuDeviceGetGraphMemAttribute(self._device_id, attr_enum, value))
         return 0
 
     cdef int _setattribute(self, cydriver.CUgraphMem_attribute attr_enum, void* value) except?-1:
         with nogil:
-            HANDLE_RETURN(cydriver.cuDeviceSetGraphMemAttribute(self._dev_id, attr_enum, value))
+            HANDLE_RETURN(cydriver.cuDeviceSetGraphMemAttribute(self._device_id, attr_enum, value))
         return 0
 
     @property
@@ -101,7 +101,7 @@ cdef class GraphMemoryResourceAttributes:
 
 cdef class cyGraphMemoryResource(MemoryResource):
     def __cinit__(self, int device_id):
-        self._dev_id = device_id
+        self._device_id = device_id
 
     def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """
@@ -124,17 +124,17 @@ cdef class cyGraphMemoryResource(MemoryResource):
     def trim(self):
         """Free unused memory that was cached on the specified device for use with graphs back to the OS."""
         with nogil:
-             HANDLE_RETURN(cydriver.cuDeviceGraphMemTrim(self._dev_id))
+             HANDLE_RETURN(cydriver.cuDeviceGraphMemTrim(self._device_id))
 
     @property
     def attributes(self) -> GraphMemoryResourceAttributes:
         """Asynchronous allocation attributes related to graphs."""
-        return GraphMemoryResourceAttributes._init(self._dev_id)
+        return GraphMemoryResourceAttributes._init(self._device_id)
 
     @property
     def device_id(self) -> int:
         """The associated device ordinal."""
-        return self._dev_id
+        return self._device_id
 
     @property
     def is_device_accessible(self) -> bool:

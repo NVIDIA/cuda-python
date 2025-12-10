@@ -12,7 +12,6 @@ from cuda.bindings cimport cydriver
 from cuda.core.experimental._event cimport Event as cyEvent
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
-    get_device_from_ctx,
     HANDLE_RETURN,
 )
 
@@ -24,14 +23,12 @@ from typing import TYPE_CHECKING, Optional, Protocol, Union
 if TYPE_CHECKING:
     import cuda.bindings
     from cuda.core.experimental._device import Device
-from cuda.core.experimental._context cimport (
-    Context,
-    get_stream_context,
-)
+from cuda.core.experimental._context cimport Context
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._resource_handles cimport (
     ContextHandle,
     StreamHandle,
+    create_context_handle_ref,
     create_stream_handle,
     create_stream_handle_with_owner,
     get_current_context,
@@ -178,8 +175,7 @@ cdef class Stream:
 
     def __hash__(self) -> int:
         # Ensure context is initialized for hash consistency
-        if not self._h_context:
-            self._get_context()
+        Stream_ensure_ctx(self)
         return hash((intptr(self._h_context), intptr(self._h_stream)))
 
     def __eq__(self, other) -> bool:
@@ -190,10 +186,8 @@ cdef class Stream:
         if intptr(self._h_stream) != intptr(_other._h_stream):
             return False
         # Ensure contexts are initialized for both streams
-        if not self._h_context:
-            self._get_context()
-        if not _other._h_context:
-            _other._get_context()
+        Stream_ensure_ctx(self)
+        Stream_ensure_ctx(_other)
         # Compare contexts as well
         return intptr(self._h_context) == intptr(_other._h_context)
 
@@ -256,8 +250,8 @@ cdef class Stream:
         # on the stream. Event flags such as disabling timing, nonblocking,
         # and CU_EVENT_RECORD_EXTERNAL, can be set in EventOptions.
         if event is None:
-            self._get_device_and_context()
-            event = Event._init(self._device_id, intptr(self._h_context), options, False)
+            Stream_ensure_ctx_device(self)
+            event = cyEvent._init(cyEvent, self._device_id, self._h_context, options, False)
         elif event.is_ipc_enabled:
             raise TypeError(
                 "IPC-enabled events should not be re-recorded, instead create a "
@@ -318,34 +312,15 @@ cdef class Stream:
 
         """
         from cuda.core.experimental._device import Device  # avoid circular import
-        self._get_device_and_context()
+        Stream_ensure_ctx_device(self)
         return Device(self._device_id)
-
-    cdef int _get_context(self) except?-1 nogil:
-        if not self._h_context:
-            self._h_context = get_stream_context(native(self._h_stream))
-        return 0
-
-    cdef int _get_device_and_context(self) except?-1:
-        cdef ContextHandle h_curr_context
-        cdef cydriver.CUcontext curr_ctx
-        if self._device_id < 0:
-            # Get the current context
-            with nogil:
-                h_curr_context = get_current_context()
-                curr_ctx = native(h_curr_context) if h_curr_context else <cydriver.CUcontext>0
-                # Get the stream's context (self._h_context is populated)
-                self._get_context()
-            # Get the stream's device (may require a context-switching dance)
-            self._device_id = get_device_from_ctx(native(self._h_context), curr_ctx)
-        return 0
 
     @property
     def context(self) -> Context:
         """Return the :obj:`~_context.Context` associated with this stream."""
-        self._get_context()
-        self._get_device_and_context()
-        return Context._from_ctx(intptr(self._h_context), self._device_id)
+        Stream_ensure_ctx(self)
+        Stream_ensure_ctx_device(self)
+        return Context._from_handle(Context, self._h_context, self._device_id)
 
     @staticmethod
     def from_handle(handle: int) -> Stream:
@@ -423,6 +398,36 @@ cpdef Stream default_stream():
         return C_PER_THREAD_DEFAULT_STREAM
     else:
         return C_LEGACY_DEFAULT_STREAM
+
+
+cdef inline int Stream_ensure_ctx(Stream self) except?-1 nogil:
+    """Ensure the stream's context handle is populated."""
+    cdef cydriver.CUcontext ctx
+    if not self._h_context:
+        HANDLE_RETURN(cydriver.cuStreamGetCtx(native(self._h_stream), &ctx))
+        self._h_context = create_context_handle_ref(ctx)
+    return 0
+
+
+cdef inline int Stream_ensure_ctx_device(Stream self) except?-1:
+    """Ensure the stream's context and device_id are populated."""
+    cdef ContextHandle h_curr_context
+    cdef cydriver.CUcontext target_ctx, curr_ctx, ctx
+    cdef cydriver.CUdevice target_dev
+    cdef bint switch_context
+
+    if self._device_id < 0:
+        with nogil:
+            # Get device ID from context, switching context temporarily if needed
+            Stream_ensure_ctx(self)
+            switch_context = (get_current_context() != self._h_context)
+            if switch_context:
+                HANDLE_RETURN(cydriver.cuCtxPushCurrent(native(self._h_context)))
+            HANDLE_RETURN(cydriver.cuCtxGetDevice(&target_dev))
+            if switch_context:
+                HANDLE_RETURN(cydriver.cuCtxPopCurrent(&ctx))
+        self._device_id = <int>target_dev
+    return 0
 
 
 cdef cydriver.CUstream _handle_from_stream_protocol(obj) except*:

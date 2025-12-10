@@ -212,7 +212,7 @@ cdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handl
     # Construct a new DMR.
     cdef DeviceMemoryResource self = DeviceMemoryResource.__new__(cls)
     from .._device import Device
-    self._dev_id = Device(device_id).device_id
+    self._device_id = Device(device_id).device_id
     self._mempool_owned = True
     self._ipc_data = IPCDataForMR(alloc_handle, True)
 
