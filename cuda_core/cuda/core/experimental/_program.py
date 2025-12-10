@@ -430,48 +430,35 @@ class ProgramOptions:
 
     def _prepare_nvjitlink_options(self) -> list[bytes]:
         options = []
-        
         # arch is always set
         assert self.arch is not None
         options.append(f"-arch={self.arch}")
-        
         if self.max_register_count is not None:
             options.append(f"-maxrregcount={self.max_register_count}")
-        
         if self.time is not None:
             options.append("-time")
-        
         if self.debug is not None and self.debug:
             options.append("-g")
-        
         if self.lineinfo is not None and self.lineinfo:
             options.append("-lineinfo")
-        
         if self.ftz is not None:
             options.append(f"-ftz={'true' if self.ftz else 'false'}")
-        
         if self.prec_div is not None:
             options.append(f"-prec-div={'true' if self.prec_div else 'false'}")
-        
         if self.prec_sqrt is not None:
             options.append(f"-prec-sqrt={'true' if self.prec_sqrt else 'false'}")
-        
         if self.fma is not None:
             options.append(f"-fma={'true' if self.fma else 'false'}")
-        
         if self.link_time_optimization is not None and self.link_time_optimization:
             options.append("-lto")
-        
         if self.ptxas_options is not None:
             if isinstance(self.ptxas_options, str):
                 options.append(f"-Xptxas={self.ptxas_options}")
             elif is_sequence(self.ptxas_options):
                 for opt in self.ptxas_options:
                     options.append(f"-Xptxas={opt}")
-        
         if self.split_compile is not None:
             options.append(f"-split-compile={self.split_compile}")
-        
         # Check for unsupported options and raise error if they are set
         unsupported = []
         if self.relocatable_device_code is not None:
@@ -528,7 +515,6 @@ class ProgramOptions:
             unsupported.append("minimal")
         if self.numba_debug is not None and self.numba_debug:
             unsupported.append("numba_debug")
-        
         if unsupported:
             raise CUDAError(
                 f"The following options are not supported by nvJitLink backend: {', '.join(unsupported)}"
@@ -538,36 +524,27 @@ class ProgramOptions:
 
     def _prepare_nvvm_options(self, as_bytes: bool = True) -> Union[list[bytes], list[str]]:
         options = []
-        
         # Options supported by NVVM
-        
         assert self.arch is not None
         arch = self.arch
         if arch.startswith("sm_"):
             arch = f"compute_{arch[3:]}"
         options.append(f"-arch={arch}")
-        
         if self.debug is not None and self.debug:
             options.append("-g")
-        
         if self.device_code_optimize is False:
             options.append("-opt=0")
         elif self.device_code_optimize is True:
             options.append("-opt=3")
-        
         # NVVM uses 0/1 instead of true/false for boolean options
         if self.ftz is not None:
             options.append(f"-ftz={'1' if self.ftz else '0'}")
-        
         if self.prec_sqrt is not None:
             options.append(f"-prec-sqrt={'1' if self.prec_sqrt else '0'}")
-        
         if self.prec_div is not None:
             options.append(f"-prec-div={'1' if self.prec_div else '0'}")
-        
         if self.fma is not None:
             options.append(f"-fma={'1' if self.fma else '0'}")
-        
         # Check for unsupported options and raise error if they are set
         unsupported = []
         if self.relocatable_device_code is not None:
@@ -634,12 +611,10 @@ class ProgramOptions:
             unsupported.append("minimal")
         if self.numba_debug is not None and self.numba_debug:
             unsupported.append("numba_debug")
-        
         if unsupported:
             raise CUDAError(
                 f"The following options are not supported by NVVM backend: {', '.join(unsupported)}"
             )
-        
         if as_bytes:
             return list(o.encode() for o in options)
         else:
