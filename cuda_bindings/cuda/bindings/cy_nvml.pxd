@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.0.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
 
 from libc.stdint cimport int64_t
 
@@ -670,6 +670,29 @@ ctypedef enum nvmlDeviceAddressingModeType_t "nvmlDeviceAddressingModeType_t":
     NVML_DEVICE_ADDRESSING_MODE_HMM "NVML_DEVICE_ADDRESSING_MODE_HMM" = 1
     NVML_DEVICE_ADDRESSING_MODE_ATS "NVML_DEVICE_ADDRESSING_MODE_ATS" = 2
 
+ctypedef enum nvmlPRMCounterId_t "nvmlPRMCounterId_t":
+    NVML_PRM_COUNTER_ID_NONE "NVML_PRM_COUNTER_ID_NONE" = 0
+    NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_LINK_DOWN_EVENTS "NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_LINK_DOWN_EVENTS" = 1
+    NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_SUCCESSFUL_RECOVERY_EVENTS "NVML_PRM_COUNTER_ID_PPCNT_PHYSICAL_LAYER_CTRS_SUCCESSFUL_RECOVERY_EVENTS" = 2
+    NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TOTAL_SUCCESSFUL_RECOVERY_EVENTS "NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TOTAL_SUCCESSFUL_RECOVERY_EVENTS" = 101
+    NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TIME_SINCE_LAST_RECOVERY "NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TIME_SINCE_LAST_RECOVERY" = 102
+    NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TIME_BETWEEN_LAST_TWO_RECOVERIES "NVML_PRM_COUNTER_ID_PPCNT_RECOVERY_CTRS_TIME_BETWEEN_LAST_TWO_RECOVERIES" = 103
+    NVML_PRM_COUNTER_ID_PPCNT_PORTCOUNTERS_PORT_XMIT_WAIT "NVML_PRM_COUNTER_ID_PPCNT_PORTCOUNTERS_PORT_XMIT_WAIT" = 201
+    NVML_PRM_COUNTER_ID_PPCNT_PLR_RCV_CODES "NVML_PRM_COUNTER_ID_PPCNT_PLR_RCV_CODES" = 301
+    NVML_PRM_COUNTER_ID_PPCNT_PLR_RCV_CODE_ERR "NVML_PRM_COUNTER_ID_PPCNT_PLR_RCV_CODE_ERR" = 302
+    NVML_PRM_COUNTER_ID_PPCNT_PLR_RCV_UNCORRECTABLE_CODE "NVML_PRM_COUNTER_ID_PPCNT_PLR_RCV_UNCORRECTABLE_CODE" = 303
+    NVML_PRM_COUNTER_ID_PPCNT_PLR_XMIT_CODES "NVML_PRM_COUNTER_ID_PPCNT_PLR_XMIT_CODES" = 304
+    NVML_PRM_COUNTER_ID_PPCNT_PLR_XMIT_RETRY_CODES "NVML_PRM_COUNTER_ID_PPCNT_PLR_XMIT_RETRY_CODES" = 305
+    NVML_PRM_COUNTER_ID_PPCNT_PLR_XMIT_RETRY_EVENTS "NVML_PRM_COUNTER_ID_PPCNT_PLR_XMIT_RETRY_EVENTS" = 306
+    NVML_PRM_COUNTER_ID_PPCNT_PLR_SYNC_EVENTS "NVML_PRM_COUNTER_ID_PPCNT_PLR_SYNC_EVENTS" = 307
+    NVML_PRM_COUNTER_ID_PPRM_OPER_RECOVERY "NVML_PRM_COUNTER_ID_PPRM_OPER_RECOVERY" = 1001
+
+ctypedef enum nvmlPowerProfileOperation_t "nvmlPowerProfileOperation_t":
+    NVML_POWER_PROFILE_OPERATION_CLEAR "NVML_POWER_PROFILE_OPERATION_CLEAR" = 0
+    NVML_POWER_PROFILE_OPERATION_SET "NVML_POWER_PROFILE_OPERATION_SET" = 1
+    NVML_POWER_PROFILE_OPERATION_SET_AND_OVERWRITE "NVML_POWER_PROFILE_OPERATION_SET_AND_OVERWRITE" = 2
+    NVML_POWER_PROFILE_OPERATION_MAX "NVML_POWER_PROFILE_OPERATION_MAX" = 3
+
 
 # types
 ctypedef struct nvmlPciInfoExt_v1_t 'nvmlPciInfoExt_v1_t':
@@ -1278,6 +1301,16 @@ ctypedef union _anon_pod7 '_anon_pod7':
     unsigned char inData[496]
     unsigned char outData[496]
 
+ctypedef struct nvmlUnrepairableMemoryStatus_v1_t 'nvmlUnrepairableMemoryStatus_v1_t':
+    unsigned int bUnrepairableMemory
+
+ctypedef struct nvmlRusdSettings_v1_t 'nvmlRusdSettings_v1_t':
+    unsigned int version
+    unsigned long long pollMask
+
+ctypedef struct nvmlPRMCounterInput_v1_t 'nvmlPRMCounterInput_v1_t':
+    unsigned int localPort
+
 ctypedef nvmlPciInfoExt_v1_t nvmlPciInfoExt_t 'nvmlPciInfoExt_t'
 ctypedef nvmlCoolerInfo_v1_t nvmlCoolerInfo_t 'nvmlCoolerInfo_t'
 ctypedef nvmlDramEncryptionInfo_v1_t nvmlDramEncryptionInfo_t 'nvmlDramEncryptionInfo_t'
@@ -1468,6 +1501,11 @@ ctypedef struct nvmlFieldValue_t 'nvmlFieldValue_t':
     nvmlReturn_t nvmlReturn
     nvmlValue_t value
 
+ctypedef struct nvmlPRMCounterValue_v1_t 'nvmlPRMCounterValue_v1_t':
+    nvmlReturn_t status
+    nvmlValueType_t outputType
+    nvmlValue_t outputValue
+
 ctypedef struct nvmlGpuThermalSettings_t 'nvmlGpuThermalSettings_t':
     unsigned int count
     _anon_pod0 sensor[3]
@@ -1570,6 +1608,10 @@ ctypedef struct nvmlWorkloadPowerProfileRequestedProfiles_v1_t 'nvmlWorkloadPowe
     unsigned int version
     nvmlMask255_t requestedProfilesMask
 
+ctypedef struct nvmlWorkloadPowerProfileUpdateProfiles_v1_t 'nvmlWorkloadPowerProfileUpdateProfiles_v1_t':
+    nvmlPowerProfileOperation_t operation
+    nvmlMask255_t updateProfilesMask
+
 ctypedef struct nvmlEccSramUniqueUncorrectedErrorCounts_v1_t 'nvmlEccSramUniqueUncorrectedErrorCounts_v1_t':
     unsigned int version
     unsigned int entryCount
@@ -1605,6 +1647,11 @@ ctypedef struct nvmlVgpuInstancesUtilizationInfo_v1_t 'nvmlVgpuInstancesUtilizat
     unsigned int vgpuInstanceCount
     unsigned long long lastSeenTimeStamp
     nvmlVgpuInstanceUtilizationInfo_v1_t* vgpuUtilArray
+
+ctypedef struct nvmlPRMCounter_v1_t 'nvmlPRMCounter_v1_t':
+    unsigned int counterId
+    nvmlPRMCounterInput_v1_t inData
+    nvmlPRMCounterValue_v1_t counterValue
 
 ctypedef nvmlUUID_v1_t nvmlUUID_t 'nvmlUUID_t'
 ctypedef nvmlProcessesUtilizationInfo_v1_t nvmlProcessesUtilizationInfo_t 'nvmlProcessesUtilizationInfo_t'
@@ -1673,6 +1720,10 @@ ctypedef struct nvmlNvLinkInfo_v2_t 'nvmlNvLinkInfo_v2_t':
 
 ctypedef nvmlVgpuProcessesUtilizationInfo_v1_t nvmlVgpuProcessesUtilizationInfo_t 'nvmlVgpuProcessesUtilizationInfo_t'
 ctypedef nvmlVgpuInstancesUtilizationInfo_v1_t nvmlVgpuInstancesUtilizationInfo_t 'nvmlVgpuInstancesUtilizationInfo_t'
+ctypedef struct nvmlPRMCounterList_v1_t 'nvmlPRMCounterList_v1_t':
+    unsigned int numCounters
+    nvmlPRMCounter_v1_t* counters
+
 ctypedef nvmlVgpuSchedulerStateInfo_v1_t nvmlVgpuSchedulerStateInfo_t 'nvmlVgpuSchedulerStateInfo_t'
 ctypedef nvmlVgpuSchedulerLogInfo_v1_t nvmlVgpuSchedulerLogInfo_t 'nvmlVgpuSchedulerLogInfo_t'
 ctypedef nvmlVgpuSchedulerState_v1_t nvmlVgpuSchedulerState_t 'nvmlVgpuSchedulerState_t'
@@ -2036,3 +2087,6 @@ cdef nvmlReturn_t nvmlDeviceGetNvLinkInfo(nvmlDevice_t device, nvmlNvLinkInfo_t*
 cdef nvmlReturn_t nvmlDeviceReadWritePRM_v1(nvmlDevice_t device, nvmlPRMTLV_v1_t* buffer) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfoByIdV(nvmlDevice_t device, unsigned int profileId, nvmlGpuInstanceProfileInfo_v2_t* info) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
 cdef nvmlReturn_t nvmlDeviceGetSramUniqueUncorrectedEccErrorCounts(nvmlDevice_t device, nvmlEccSramUniqueUncorrectedErrorCounts_t* errorCounts) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceGetUnrepairableMemoryFlag_v1(nvmlDevice_t device, nvmlUnrepairableMemoryStatus_v1_t* unrepairableMemoryStatus) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceReadPRMCounters_v1(nvmlDevice_t device, nvmlPRMCounterList_v1_t* counterList) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
+cdef nvmlReturn_t nvmlDeviceSetRusdSettings_v1(nvmlDevice_t device, nvmlRusdSettings_v1_t* settings) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil
