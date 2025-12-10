@@ -32,7 +32,6 @@ ctypedef nvmlProcessInfo_v2_t ProcessInfo_v2
 ctypedef nvmlNvLinkUtilizationControl_t NvLinkUtilizationControl
 ctypedef nvmlViolationTime_t ViolationTime
 ctypedef nvmlUUIDValue_t UUIDValue
-ctypedef nvmlPlatformInfo_v1_t PlatformInfo_v1
 ctypedef nvmlVgpuPlacementList_v1_t VgpuPlacementList_v1
 ctypedef nvmlNvLinkPowerThres_t NvLinkPowerThres
 ctypedef nvmlSystemEventData_v1_t SystemEventData_v1
@@ -40,7 +39,6 @@ ctypedef nvmlGpuInstanceProfileInfo_t GpuInstanceProfileInfo
 ctypedef nvmlComputeInstanceProfileInfo_t ComputeInstanceProfileInfo
 ctypedef nvmlMask255_t Mask255
 ctypedef nvmlHostname_v1_t Hostname_v1
-ctypedef nvmlNvLinkInfo_v1_t NvLinkInfo_v1
 ctypedef nvmlPowerValue_v2_t PowerValue_v2
 ctypedef nvmlVgpuProcessUtilizationSample_t VgpuProcessUtilizationSample
 ctypedef nvmlGpuFabricInfo_t GpuFabricInfo
@@ -288,7 +286,6 @@ cpdef object device_get_row_remapper_histogram(intptr_t device)
 cpdef unsigned int device_get_architecture(intptr_t device) except? 0
 cpdef object device_get_clk_mon_status(intptr_t device)
 cpdef object device_get_process_utilization(intptr_t device, unsigned long long last_seen_time_stamp)
-cpdef object device_get_platform_info(intptr_t device)
 cpdef unit_set_led_state(intptr_t unit, int color)
 cpdef device_set_persistence_mode(intptr_t device, int mode)
 cpdef device_set_compute_mode(intptr_t device, int mode)
@@ -440,6 +437,5 @@ cpdef object device_get_repair_status(intptr_t device)
 cpdef object device_get_power_mizer_mode_v1(intptr_t device)
 cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
 cpdef object device_get_pdi(intptr_t device)
-cpdef object device_get_nvlink_info(intptr_t device)
 cpdef device_read_write_prm_v1(intptr_t device, intptr_t buffer)
 cpdef object device_get_gpu_instance_profile_info_by_id_v(intptr_t device, unsigned int profile_id)

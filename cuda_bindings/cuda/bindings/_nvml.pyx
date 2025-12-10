@@ -5392,6 +5392,218 @@ cdef class EccSramErrorStatus_v1:
         return obj
 
 
+cdef _get_platform_info_v1_dtype_offsets():
+    cdef nvmlPlatformInfo_v1_t pod = nvmlPlatformInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'ib_guid', 'rack_guid', 'chassis_physical_slot_number', 'compute_slot_ind_ex', 'node_ind_ex', 'peer_type', 'module_id'],
+        'formats': [_numpy.uint32, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.ibGuid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.rackGuid)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.chassisPhysicalSlotNumber)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.computeSlotIndex)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.nodeIndex)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.peerType)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.moduleId)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlPlatformInfo_v1_t),
+    })
+
+platform_info_v1_dtype = _get_platform_info_v1_dtype_offsets()
+
+cdef class PlatformInfo_v1:
+    """Empty-initialize an instance of `nvmlPlatformInfo_v1_t`.
+
+
+    .. seealso:: `nvmlPlatformInfo_v1_t`
+    """
+    cdef:
+        nvmlPlatformInfo_v1_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlPlatformInfo_v1_t *>calloc(1, sizeof(nvmlPlatformInfo_v1_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating PlatformInfo_v1")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlPlatformInfo_v1_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.PlatformInfo_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef PlatformInfo_v1 other_
+        if not isinstance(other, PlatformInfo_v1):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlPlatformInfo_v1_t)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlPlatformInfo_v1_t *>malloc(sizeof(nvmlPlatformInfo_v1_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating PlatformInfo_v1")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlPlatformInfo_v1_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def version(self):
+        """int: the API version number"""
+        return self._ptr[0].version
+
+    @version.setter
+    def version(self, val):
+        if self._readonly:
+            raise ValueError("This PlatformInfo_v1 instance is read-only")
+        self._ptr[0].version = val
+
+    @property
+    def ib_guid(self):
+        """~_numpy.uint8: (array of length 16).Infiniband GUID reported by platform (for Blackwell, ibGuid is 8 bytes so indices 8-15 are zero)"""
+        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].ibGuid))
+        return _numpy.asarray(arr)
+
+    @ib_guid.setter
+    def ib_guid(self, val):
+        if self._readonly:
+            raise ValueError("This PlatformInfo_v1 instance is read-only")
+        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
+        memcpy(<void *>(&(self._ptr[0].ibGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+
+    @property
+    def rack_guid(self):
+        """~_numpy.uint8: (array of length 16).GUID of the rack containing this GPU (for Blackwell rackGuid is 13 bytes so indices 13-15 are zero)"""
+        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c", allocate_buffer=False)
+        arr.data = <char *>(&(self._ptr[0].rackGuid))
+        return _numpy.asarray(arr)
+
+    @rack_guid.setter
+    def rack_guid(self, val):
+        if self._readonly:
+            raise ValueError("This PlatformInfo_v1 instance is read-only")
+        cdef view.array arr = view.array(shape=(16,), itemsize=sizeof(unsigned char), format="B", mode="c")
+        arr[:] = _numpy.asarray(val, dtype=_numpy.uint8)
+        memcpy(<void *>(&(self._ptr[0].rackGuid)), <void *>(arr.data), sizeof(unsigned char) * len(val))
+
+    @property
+    def chassis_physical_slot_number(self):
+        """int: The slot number in the rack containing this GPU (includes switches)"""
+        return self._ptr[0].chassisPhysicalSlotNumber
+
+    @chassis_physical_slot_number.setter
+    def chassis_physical_slot_number(self, val):
+        if self._readonly:
+            raise ValueError("This PlatformInfo_v1 instance is read-only")
+        self._ptr[0].chassisPhysicalSlotNumber = val
+
+    @property
+    def compute_slot_ind_ex(self):
+        """int: The index within the compute slots in the rack containing this GPU (does not include switches)"""
+        return self._ptr[0].computeSlotIndex
+
+    @compute_slot_ind_ex.setter
+    def compute_slot_ind_ex(self, val):
+        if self._readonly:
+            raise ValueError("This PlatformInfo_v1 instance is read-only")
+        self._ptr[0].computeSlotIndex = val
+
+    @property
+    def node_ind_ex(self):
+        """int: Index of the node within the slot containing this GPU."""
+        return self._ptr[0].nodeIndex
+
+    @node_ind_ex.setter
+    def node_ind_ex(self, val):
+        if self._readonly:
+            raise ValueError("This PlatformInfo_v1 instance is read-only")
+        self._ptr[0].nodeIndex = val
+
+    @property
+    def peer_type(self):
+        """int: Platform indicated NVLink-peer type (e.g. switch present or not)"""
+        return self._ptr[0].peerType
+
+    @peer_type.setter
+    def peer_type(self, val):
+        if self._readonly:
+            raise ValueError("This PlatformInfo_v1 instance is read-only")
+        self._ptr[0].peerType = val
+
+    @property
+    def module_id(self):
+        """int: ID of this GPU within the node."""
+        return self._ptr[0].moduleId
+
+    @module_id.setter
+    def module_id(self, val):
+        if self._readonly:
+            raise ValueError("This PlatformInfo_v1 instance is read-only")
+        self._ptr[0].moduleId = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an PlatformInfo_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `platform_info_v1_dtype` holding the data.
+        """
+        return __from_data(data, "platform_info_v1_dtype", platform_info_v1_dtype, PlatformInfo_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an PlatformInfo_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef PlatformInfo_v1 obj = PlatformInfo_v1.__new__(PlatformInfo_v1)
+        if owner is None:
+            obj._ptr = <nvmlPlatformInfo_v1_t *>malloc(sizeof(nvmlPlatformInfo_v1_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating PlatformInfo_v1")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlPlatformInfo_v1_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlPlatformInfo_v1_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_platform_info_v2_dtype_offsets():
     cdef nvmlPlatformInfo_v2_t pod = nvmlPlatformInfo_v2_t()
     return _numpy.dtype({
@@ -15022,6 +15234,138 @@ cdef class GpuFabricInfo_v3:
         return obj
 
 
+cdef _get_nv_link_info_v1_dtype_offsets():
+    cdef nvmlNvLinkInfo_v1_t pod = nvmlNvLinkInfo_v1_t()
+    return _numpy.dtype({
+        'names': ['version', 'is_nvle_enabled'],
+        'formats': [_numpy.uint32, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.isNvleEnabled)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlNvLinkInfo_v1_t),
+    })
+
+nv_link_info_v1_dtype = _get_nv_link_info_v1_dtype_offsets()
+
+cdef class NvLinkInfo_v1:
+    """Empty-initialize an instance of `nvmlNvLinkInfo_v1_t`.
+
+
+    .. seealso:: `nvmlNvLinkInfo_v1_t`
+    """
+    cdef:
+        nvmlNvLinkInfo_v1_t *_ptr
+        object _owner
+        bint _owned
+        bint _readonly
+
+    def __init__(self):
+        self._ptr = <nvmlNvLinkInfo_v1_t *>calloc(1, sizeof(nvmlNvLinkInfo_v1_t))
+        if self._ptr == NULL:
+            raise MemoryError("Error allocating NvLinkInfo_v1")
+        self._owner = None
+        self._owned = True
+        self._readonly = False
+
+    def __dealloc__(self):
+        cdef nvmlNvLinkInfo_v1_t *ptr
+        if self._owned and self._ptr != NULL:
+            ptr = self._ptr
+            self._ptr = NULL
+            free(ptr)
+
+    def __repr__(self):
+        return f"<{__name__}.NvLinkInfo_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return <intptr_t>(self._ptr)
+
+    cdef intptr_t _get_ptr(self):
+        return <intptr_t>(self._ptr)
+
+    def __int__(self):
+        return <intptr_t>(self._ptr)
+
+    def __eq__(self, other):
+        cdef NvLinkInfo_v1 other_
+        if not isinstance(other, NvLinkInfo_v1):
+            return False
+        other_ = other
+        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlNvLinkInfo_v1_t)) == 0)
+
+    def __setitem__(self, key, val):
+        if key == 0 and isinstance(val, _numpy.ndarray):
+            self._ptr = <nvmlNvLinkInfo_v1_t *>malloc(sizeof(nvmlNvLinkInfo_v1_t))
+            if self._ptr == NULL:
+                raise MemoryError("Error allocating NvLinkInfo_v1")
+            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlNvLinkInfo_v1_t))
+            self._owner = None
+            self._owned = True
+            self._readonly = not val.flags.writeable
+        else:
+            setattr(self, key, val)
+
+    @property
+    def version(self):
+        """int: IN - the API version number."""
+        return self._ptr[0].version
+
+    @version.setter
+    def version(self, val):
+        if self._readonly:
+            raise ValueError("This NvLinkInfo_v1 instance is read-only")
+        self._ptr[0].version = val
+
+    @property
+    def is_nvle_enabled(self):
+        """int: OUT - NVLINK encryption enablement."""
+        return self._ptr[0].isNvleEnabled
+
+    @is_nvle_enabled.setter
+    def is_nvle_enabled(self, val):
+        if self._readonly:
+            raise ValueError("This NvLinkInfo_v1 instance is read-only")
+        self._ptr[0].isNvleEnabled = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an NvLinkInfo_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a single-element array of dtype `nv_link_info_v1_dtype` holding the data.
+        """
+        return __from_data(data, "nv_link_info_v1_dtype", nv_link_info_v1_dtype, NvLinkInfo_v1)
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
+        """Create an NvLinkInfo_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef NvLinkInfo_v1 obj = NvLinkInfo_v1.__new__(NvLinkInfo_v1)
+        if owner is None:
+            obj._ptr = <nvmlNvLinkInfo_v1_t *>malloc(sizeof(nvmlNvLinkInfo_v1_t))
+            if obj._ptr == NULL:
+                raise MemoryError("Error allocating NvLinkInfo_v1")
+            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlNvLinkInfo_v1_t))
+            obj._owner = None
+            obj._owned = True
+        else:
+            obj._ptr = <nvmlNvLinkInfo_v1_t *>ptr
+            obj._owner = owner
+            obj._owned = False
+        obj._readonly = readonly
+        return obj
+
+
 cdef _get_nvlink_firmware_version_dtype_offsets():
     cdef nvmlNvlinkFirmwareVersion_t pod = nvmlNvlinkFirmwareVersion_t()
     return _numpy.dtype({
@@ -22702,26 +23046,6 @@ cpdef object device_get_process_utilization(intptr_t device, unsigned long long 
     return utilization
 
 
-cpdef object device_get_platform_info(intptr_t device):
-    """Get platform information of this device.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlPlatformInfo_v2_t: Pointer to the caller-provided structure of nvmlPlatformInfo_t.
-
-    .. seealso:: `nvmlDeviceGetPlatformInfo`
-    """
-    cdef PlatformInfo_v2 platform_info_py = PlatformInfo_v2()
-    cdef nvmlPlatformInfo_t *platform_info = <nvmlPlatformInfo_t *><intptr_t>(platform_info_py._get_ptr())
-    platform_info.version = sizeof(nvmlPlatformInfo_v2_t) | (2 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetPlatformInfo(<Device>device, platform_info)
-    check_status(__status__)
-    return platform_info_py
-
-
 cpdef unit_set_led_state(intptr_t unit, int color):
     """Set the LED state for the unit. The LED can be either green (0) or amber (1).
 
@@ -25342,26 +25666,6 @@ cpdef object device_get_pdi(intptr_t device):
     return pdi_py
 
 
-cpdef object device_get_nvlink_info(intptr_t device):
-    """Query NVLINK information associated with this device.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlNvLinkInfo_v2_t: Reference to ``nvmlNvLinkInfo_t``.
-
-    .. seealso:: `nvmlDeviceGetNvLinkInfo`
-    """
-    cdef NvLinkInfo_v2 info_py = NvLinkInfo_v2()
-    cdef nvmlNvLinkInfo_t *info = <nvmlNvLinkInfo_t *><intptr_t>(info_py._get_ptr())
-    info.version = sizeof(nvmlNvLinkInfo_v2_t) | (2 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetNvLinkInfo(<Device>device, info)
-    check_status(__status__)
-    return info_py
-
-
 cpdef device_read_write_prm_v1(intptr_t device, intptr_t buffer):
     """Read or write a GPU PRM register. The input is assumed to be in TLV format in network byte order.
 
@@ -26237,3 +26541,71 @@ cpdef object device_get_gpu_fabric_info_v(intptr_t device):
             __status__ = nvmlDeviceGetGpuFabricInfoV(<Device>device, gpu_fabric_info)
         check_status(__status__)
         return gpu_fabric_info_v2_py
+
+
+cpdef object device_get_platform_info(intptr_t device):
+    """Get platform information of this device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlPlatformInfo_v2_t: Pointer to the caller-provided structure of nvmlPlatformInfo_t.
+
+    .. seealso:: `nvmlDeviceGetPlatformInfo`
+    """
+    cdef PlatformInfo_v1 platform_info_v1_py
+    cdef PlatformInfo_v2 platform_info_v2_py
+    cdef nvmlPlatformInfo_t *platform_info
+    
+    if CUDA_VERSION >= 13000:
+        platform_info_v2_py = PlatformInfo_v2()
+        platform_info = <nvmlPlatformInfo_t *><intptr_t>(platform_info_v2_py._get_ptr())
+        platform_info.version = sizeof(nvmlPlatformInfo_v2_t) | (2 << 24)
+        with nogil:
+            __status__ = nvmlDeviceGetPlatformInfo(<Device>device, platform_info)
+        check_status(__status__)
+        return platform_info_v2_py
+
+    else:
+        platform_info_v1_py = PlatformInfo_v1()
+        platform_info = <nvmlPlatformInfo_t *><intptr_t>(platform_info_v1_py._get_ptr())
+        platform_info.version = sizeof(nvmlPlatformInfo_v1_t) | (1 << 24)
+        with nogil:
+            __status__ = nvmlDeviceGetPlatformInfo(<Device>device, platform_info)
+        check_status(__status__)
+        return platform_info_v1_py
+
+
+cpdef object device_get_nvlink_info(intptr_t device):
+    """Query NVLINK information associated with this device.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlNvLinkInfo_v2_t: Reference to ``nvmlNvLinkInfo_t``.
+
+    .. seealso:: `nvmlDeviceGetNvLinkInfo`
+    """
+    cdef NvLinkInfo_v1 info_v1_py
+    cdef NvLinkInfo_v2 info_v2_py
+    cdef nvmlNvLinkInfo_t *info
+    
+    if CUDA_VERSION >= 13000:
+        info_v2_py = NvLinkInfo_v2()
+        info = <nvmlNvLinkInfo_t *><intptr_t>(info_v2_py._get_ptr())
+        info.version = sizeof(nvmlNvLinkInfo_v2_t) | (2 << 24)
+        with nogil:
+            __status__ = nvmlDeviceGetNvLinkInfo(<Device>device, info)
+        check_status(__status__)
+        return info_v2_py
+
+    else:
+        info_v1_py = NvLinkInfo_v1()
+        info = <nvmlNvLinkInfo_t *><intptr_t>(info_v1_py._get_ptr())
+        info.version = sizeof(nvmlNvLinkInfo_v1_t) | (1 << 24)
+        with nogil:
+            __status__ = nvmlDeviceGetNvLinkInfo(<Device>device, info)
+        check_status(__status__)
+        return info_v1_py
