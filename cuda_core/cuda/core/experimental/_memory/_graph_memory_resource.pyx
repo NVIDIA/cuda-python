@@ -7,8 +7,12 @@ from __future__ import annotations
 from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
-from cuda.core.experimental._resource_handles cimport native
+from cuda.core.experimental._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
+from cuda.core.experimental._resource_handles cimport (
+    DevicePtrHandle,
+    deviceptr_alloc_async,
+    native,
+)
 from cuda.core.experimental._stream cimport default_stream, Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
@@ -188,17 +192,12 @@ cdef inline int check_capturing(cydriver.CUstream s) except?-1 nogil:
 
 cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream stream):
     cdef cydriver.CUstream s = native(stream._h_stream)
-    cdef cydriver.CUdeviceptr devptr
     with nogil:
         check_capturing(s)
-        HANDLE_RETURN(cydriver.cuMemAllocAsync(&devptr, size, s))
-    cdef Buffer buf = Buffer.__new__(Buffer)
-    buf._ptr = <intptr_t>(devptr)
-    buf._ptr_obj = None
-    buf._size = size
-    buf._memory_resource = self
-    buf._alloc_stream = stream
-    return buf
+    cdef DevicePtrHandle h_ptr = deviceptr_alloc_async(size, stream._h_stream)
+    if not h_ptr:
+        raise RuntimeError("Failed to allocate memory asynchronously")
+    return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
 
 
 cdef inline void GMR_deallocate(intptr_t ptr, size_t size, Stream stream) noexcept:

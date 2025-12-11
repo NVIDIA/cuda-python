@@ -89,6 +89,50 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     MemoryPoolHandle create_mempool_handle_ipc(int fd, cydriver.CUmemAllocationHandleType handle_type) nogil
 
     # ========================================================================
+    # Device Pointer Handle
+    # ========================================================================
+    ctypedef shared_ptr[const cydriver.CUdeviceptr] DevicePtrHandle
+
+    # Allocate device memory from a pool asynchronously via cuMemAllocFromPoolAsync
+    # Pool handle is captured in deleter to keep pool alive
+    # Returns empty handle on error (caller must check)
+    DevicePtrHandle deviceptr_alloc_from_pool(
+        size_t size,
+        MemoryPoolHandle h_pool,
+        StreamHandle h_stream) nogil
+
+    # Allocate device memory asynchronously via cuMemAllocAsync
+    # Returns empty handle on error (caller must check)
+    DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) nogil
+
+    # Allocate device memory synchronously via cuMemAlloc
+    # Returns empty handle on error (caller must check)
+    DevicePtrHandle deviceptr_alloc(size_t size) nogil
+
+    # Allocate pinned host memory via cuMemAllocHost
+    # Returns empty handle on error (caller must check)
+    DevicePtrHandle deviceptr_alloc_host(size_t size) nogil
+
+    # Create a non-owning device pointer handle (pointer NOT freed when released)
+    # Use for foreign pointers from external libraries
+    DevicePtrHandle deviceptr_create_ref(cydriver.CUdeviceptr ptr) nogil
+
+    # Import a device pointer from IPC via cuMemPoolImportPointer
+    # Note: Does not yet implement reference counting for nvbug 5570902
+    # Error code is written to error_out (caller must check)
+    DevicePtrHandle deviceptr_import_ipc(
+        MemoryPoolHandle h_pool,
+        const void* export_data,
+        StreamHandle h_stream,
+        cydriver.CUresult* error_out) nogil
+
+    # Access the deallocation stream for a device pointer handle (read-only)
+    StreamHandle deallocation_stream(const DevicePtrHandle& h) nogil
+
+    # Set the deallocation stream for a device pointer handle
+    void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) nogil
+
+    # ========================================================================
     # Overloaded helper functions (C++ handles dispatch by type)
     # ========================================================================
 
@@ -97,15 +141,18 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUstream native(StreamHandle h) nogil
     cydriver.CUevent native(EventHandle h) nogil
     cydriver.CUmemoryPool native(MemoryPoolHandle h) nogil
+    cydriver.CUdeviceptr native(DevicePtrHandle h) nogil
 
     # intptr() - extract handle as uintptr_t for Python interop
     uintptr_t intptr(ContextHandle h) nogil
     uintptr_t intptr(StreamHandle h) nogil
     uintptr_t intptr(EventHandle h) nogil
     uintptr_t intptr(MemoryPoolHandle h) nogil
+    uintptr_t intptr(DevicePtrHandle h) nogil
 
     # py() - convert handle to Python driver wrapper object (requires GIL)
     object py(ContextHandle h)
     object py(StreamHandle h)
     object py(EventHandle h)
     object py(MemoryPoolHandle h)
+    object py(DevicePtrHandle h)

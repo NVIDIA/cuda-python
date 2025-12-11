@@ -386,4 +386,174 @@ MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType han
     return err == CUDA_SUCCESS ? wrap_mempool_owned(pool) : MemoryPoolHandle();
 }
 
+// ============================================================================
+// Device Pointer Handles
+// ============================================================================
+
+// Internal box structure for DevicePtr.
+// The h_stream is mutable to allow updating the deallocation stream after creation.
+struct DevicePtrBox {
+    CUdeviceptr resource;
+    mutable StreamHandle h_stream;
+};
+
+// Internal helper to retrieve the box from a handle (for deallocation_stream access).
+static DevicePtrBox* get_box(const DevicePtrHandle& h) {
+    const CUdeviceptr* p = h.get();
+    return reinterpret_cast<DevicePtrBox*>(
+        reinterpret_cast<char*>(const_cast<CUdeviceptr*>(p))
+        - offsetof(DevicePtrBox, resource)
+    );
+}
+
+StreamHandle deallocation_stream(const DevicePtrHandle& h) {
+    return get_box(h)->h_stream;
+}
+
+void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) {
+    get_box(h)->h_stream = std::move(h_stream);
+}
+
+DevicePtrHandle deviceptr_alloc_from_pool(
+    size_t size,
+    MemoryPoolHandle h_pool,
+    StreamHandle h_stream)
+{
+    // Allocate from pool asynchronously.
+    // Pool handle is captured in deleter to keep pool alive.
+    CUdeviceptr ptr;
+    CUresult err;
+    {
+        GILReleaseGuard gil;
+        err = cuMemAllocFromPoolAsync(&ptr, size, *h_pool, native(h_stream));
+    }
+    if (err != CUDA_SUCCESS) {
+        return DevicePtrHandle();
+    }
+
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, h_stream},
+        [h_pool](DevicePtrBox* b) {
+            GILReleaseGuard gil;
+            // cuMemFreeAsync accepts NULL stream (uses legacy default stream)
+            cuMemFreeAsync(b->resource, native(b->h_stream));
+            delete b;
+            // h_pool destructor runs here, releasing pool reference
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
+DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
+    // Allocate asynchronously (not from a specific pool).
+    CUdeviceptr ptr;
+    CUresult err;
+    {
+        GILReleaseGuard gil;
+        err = cuMemAllocAsync(&ptr, size, native(h_stream));
+    }
+    if (err != CUDA_SUCCESS) {
+        return DevicePtrHandle();
+    }
+
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, h_stream},
+        [](DevicePtrBox* b) {
+            GILReleaseGuard gil;
+            // cuMemFreeAsync accepts NULL stream (uses legacy default stream)
+            cuMemFreeAsync(b->resource, native(b->h_stream));
+            delete b;
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
+DevicePtrHandle deviceptr_alloc(size_t size) {
+    // Allocate synchronously.
+    CUdeviceptr ptr;
+    CUresult err;
+    {
+        GILReleaseGuard gil;
+        err = cuMemAlloc(&ptr, size);
+    }
+    if (err != CUDA_SUCCESS) {
+        return DevicePtrHandle();
+    }
+
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, StreamHandle{}},
+        [](DevicePtrBox* b) {
+            GILReleaseGuard gil;
+            cuMemFree(b->resource);
+            delete b;
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
+DevicePtrHandle deviceptr_alloc_host(size_t size) {
+    // Allocate pinned host memory.
+    void* ptr;
+    CUresult err;
+    {
+        GILReleaseGuard gil;
+        err = cuMemAllocHost(&ptr, size);
+    }
+    if (err != CUDA_SUCCESS) {
+        return DevicePtrHandle();
+    }
+
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), StreamHandle{}},
+        [](DevicePtrBox* b) {
+            GILReleaseGuard gil;
+            cuMemFreeHost(reinterpret_cast<void*>(b->resource));
+            delete b;
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
+DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) {
+    // Non-owning reference - pointer will NOT be freed.
+    auto box = std::shared_ptr<DevicePtrBox>(new DevicePtrBox{ptr, StreamHandle{}});
+    return DevicePtrHandle(box, &box->resource);
+}
+
+DevicePtrHandle deviceptr_import_ipc(
+    MemoryPoolHandle h_pool,
+    const void* export_data,
+    StreamHandle h_stream,
+    CUresult* error_out)
+{
+    // Import pointer from IPC.
+    // Note: Does not implement reference counting workaround for nvbug 5570902 yet.
+    CUdeviceptr ptr;
+    CUresult err;
+    {
+        GILReleaseGuard gil;
+        err = cuMemPoolImportPointer(&ptr, *h_pool,
+            const_cast<CUmemPoolPtrExportData*>(
+                reinterpret_cast<const CUmemPoolPtrExportData*>(export_data)));
+    }
+    if (error_out) {
+        *error_out = err;
+    }
+    if (err != CUDA_SUCCESS) {
+        return DevicePtrHandle();
+    }
+
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, h_stream},
+        [h_pool](DevicePtrBox* b) {
+            GILReleaseGuard gil;
+            // cuMemFreeAsync accepts NULL stream (uses legacy default stream)
+            cuMemFreeAsync(b->resource, native(b->h_stream));
+            delete b;
+            // h_pool destructor runs here
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
 }  // namespace cuda_core

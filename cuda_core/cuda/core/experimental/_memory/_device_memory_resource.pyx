@@ -10,12 +10,14 @@ from libc.stdlib cimport malloc, free
 from libc.string cimport memset
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
+from cuda.core.experimental._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle, IPCDataForMR
 from cuda.core.experimental._resource_handles cimport (
+    DevicePtrHandle,
     MemoryPoolHandle,
     create_mempool_handle,
+    deviceptr_alloc_from_pool,
     get_device_mempool,
     native,
     py,
@@ -557,18 +559,12 @@ cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
 
 cdef inline Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream stream):
     cdef cydriver.CUstream s = native(stream._h_stream)
-    cdef cydriver.CUmemoryPool pool = native(self._h_pool)
-    cdef cydriver.CUdeviceptr devptr
     with nogil:
         check_not_capturing(s)
-        HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, pool, s))
-    cdef Buffer buf = Buffer.__new__(Buffer)
-    buf._ptr = <uintptr_t>(devptr)
-    buf._ptr_obj = None
-    buf._size = size
-    buf._memory_resource = self
-    buf._alloc_stream = stream
-    return buf
+    cdef DevicePtrHandle h_ptr = deviceptr_alloc_from_pool(size, self._h_pool, stream._h_stream)
+    if not h_ptr:
+        raise RuntimeError("Failed to allocate memory from pool")
+    return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
 
 
 cdef inline void DMR_deallocate(

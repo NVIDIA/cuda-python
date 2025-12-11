@@ -41,6 +41,8 @@ cdef class IPCBufferDescriptor:
         bytes  _payload
         size_t _size
 
+    cdef const void* payload_ptr(self) noexcept
+
 
 cdef class IPCAllocationHandle:
     cdef:

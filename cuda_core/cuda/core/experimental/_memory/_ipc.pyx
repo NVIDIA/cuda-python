@@ -7,10 +7,13 @@ from libc.stdint cimport uintptr_t
 from libc.string cimport memcpy
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._memory._buffer cimport Buffer
+from cuda.core.experimental._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle
+from cuda.core.experimental._stream cimport Stream
 from cuda.core.experimental._resource_handles cimport (
+    DevicePtrHandle,
     MemoryPoolHandle,
     create_mempool_handle_ipc,
+    deviceptr_import_ipc,
     native,
 )
 from cuda.core.experimental._stream cimport default_stream
@@ -92,6 +95,10 @@ cdef class IPCBufferDescriptor:
     def size(self):
         return self._size
 
+    cdef const void* payload_ptr(self) noexcept:
+        """Return the payload as a const void* for C API calls."""
+        return <const void*><const char*>(self._payload)
+
 
 cdef class IPCAllocationHandle:
     """Shareable handle to an IPC-enabled device memory pool."""
@@ -166,7 +173,7 @@ cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
     cdef cydriver.CUmemPoolPtrExportData data
     with nogil:
         HANDLE_RETURN(
-            cydriver.cuMemPoolExportPointer(&data, <cydriver.CUdeviceptr>(self._ptr))
+            cydriver.cuMemPoolExportPointer(&data, native(self._h_ptr))
         )
     cdef bytes data_b = cpython.PyBytes_FromStringAndSize(
         <char*>(data.reserved), sizeof(data.reserved)
@@ -182,16 +189,16 @@ cdef Buffer Buffer_from_ipc_descriptor(
     if stream is None:
         # Note: match this behavior to DeviceMemoryResource.allocate()
         stream = default_stream()
-    cdef cydriver.CUmemPoolPtrExportData data
-    memcpy(
-        data.reserved,
-        <const void*><const char*>(ipc_descriptor._payload),
-        sizeof(data.reserved)
+    cdef Stream s = <Stream>stream
+    cdef cydriver.CUresult err
+    cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(
+        mr._h_pool,
+        ipc_descriptor.payload_ptr(),
+        s._h_stream,
+        &err
     )
-    cdef cydriver.CUdeviceptr ptr
-    with nogil:
-        HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, native(mr._h_pool), &data))
-    return Buffer._init(<uintptr_t>ptr, ipc_descriptor.size, mr, stream, ipc_descriptor)
+    HANDLE_RETURN(err)
+    return Buffer_from_deviceptr_handle(h_ptr, ipc_descriptor.size, mr, ipc_descriptor)
 
 
 # DeviceMemoryResource IPC Implementation

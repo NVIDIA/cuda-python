@@ -112,6 +112,58 @@ MemoryPoolHandle get_device_mempool(int device_id) noexcept;
 MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type);
 
 // ============================================================================
+// Device pointer handle functions
+// ============================================================================
+
+using DevicePtrHandle = std::shared_ptr<const CUdeviceptr>;
+
+// Allocate device memory from a pool asynchronously via cuMemAllocFromPoolAsync.
+// The pointer structurally depends on the provided pool handle (captured in deleter).
+// When the last reference is released, cuMemFreeAsync is called on the stored stream.
+// Returns empty handle on error (caller must check).
+DevicePtrHandle deviceptr_alloc_from_pool(
+    size_t size,
+    MemoryPoolHandle h_pool,
+    StreamHandle h_stream);
+
+// Allocate device memory asynchronously via cuMemAllocAsync.
+// When the last reference is released, cuMemFreeAsync is called on the stored stream.
+// Returns empty handle on error (caller must check).
+DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream);
+
+// Allocate device memory synchronously via cuMemAlloc.
+// When the last reference is released, cuMemFree is called.
+// Returns empty handle on error (caller must check).
+DevicePtrHandle deviceptr_alloc(size_t size);
+
+// Allocate pinned host memory via cuMemAllocHost.
+// When the last reference is released, cuMemFreeHost is called.
+// Returns empty handle on error (caller must check).
+DevicePtrHandle deviceptr_alloc_host(size_t size);
+
+// Create a non-owning device pointer handle (references existing pointer).
+// Use for foreign pointers (e.g., from external libraries).
+// The pointer will NOT be freed when the handle is released.
+DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr);
+
+// Import a device pointer from IPC via cuMemPoolImportPointer.
+// When the last reference is released, cuMemFreeAsync is called on the stored stream.
+// Note: Does not yet implement reference counting for nvbug 5570902.
+// Error code is written to error_out (caller must check).
+DevicePtrHandle deviceptr_import_ipc(
+    MemoryPoolHandle h_pool,
+    const void* export_data,
+    StreamHandle h_stream,
+    CUresult* error_out);
+
+// Access the deallocation stream for a device pointer handle (read-only).
+// For non-owning handles, the stream is not used but can still be accessed.
+StreamHandle deallocation_stream(const DevicePtrHandle& h);
+
+// Set the deallocation stream for a device pointer handle.
+void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream);
+
+// ============================================================================
 // Overloaded helper functions to extract raw resources from handles
 // ============================================================================
 
@@ -132,6 +184,10 @@ inline CUmemoryPool native(const MemoryPoolHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUdeviceptr native(const DevicePtrHandle& h) noexcept {
+    return h ? *h : 0;
+}
+
 // intptr() - extract handle as uintptr_t for Python interop
 inline std::uintptr_t intptr(const ContextHandle& h) noexcept {
     return reinterpret_cast<std::uintptr_t>(h ? *h : nullptr);
@@ -147,6 +203,10 @@ inline std::uintptr_t intptr(const EventHandle& h) noexcept {
 
 inline std::uintptr_t intptr(const MemoryPoolHandle& h) noexcept {
     return reinterpret_cast<std::uintptr_t>(h ? *h : nullptr);
+}
+
+inline std::uintptr_t intptr(const DevicePtrHandle& h) noexcept {
+    return h ? static_cast<std::uintptr_t>(*h) : 0;
 }
 
 // py() - convert handle to Python driver wrapper object
@@ -200,6 +260,19 @@ inline PyObject* py(const MemoryPoolHandle& h) {
         if (!cls) return nullptr;
     }
     std::uintptr_t val = h ? reinterpret_cast<std::uintptr_t>(*h) : 0;
+    return PyObject_CallFunction(cls, "K", val);
+}
+
+inline PyObject* py(const DevicePtrHandle& h) {
+    static PyObject* cls = nullptr;
+    if (!cls) {
+        PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
+        if (!mod) return nullptr;
+        cls = PyObject_GetAttrString(mod, "CUdeviceptr");
+        Py_DECREF(mod);
+        if (!cls) return nullptr;
+    }
+    std::uintptr_t val = h ? static_cast<std::uintptr_t>(*h) : 0;
     return PyObject_CallFunction(cls, "K", val);
 }
 
