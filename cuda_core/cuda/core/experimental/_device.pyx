@@ -1080,7 +1080,7 @@ class Device:
         if self._uuid is None:
             dev = self._id
             with nogil:
-                IF CUDA_CORE_BUILD_MAJOR == "12":
+                IF CUDA_CORE_BUILD_MAJOR == 12:
                     HANDLE_RETURN(cydriver.cuDeviceGetUuid_v2(&uuid, dev))
                 ELSE:  # 13.0+
                     HANDLE_RETURN(cydriver.cuDeviceGetUuid(&uuid, dev))

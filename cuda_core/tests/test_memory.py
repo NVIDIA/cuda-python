@@ -24,6 +24,7 @@ from cuda.core.experimental import (
     DeviceMemoryResourceOptions,
     GraphMemoryResource,
     MemoryResource,
+    PinnedMemoryResource,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
@@ -132,6 +133,8 @@ def test_package_contents():
         "IPCBufferDescriptor",
         "IPCAllocationHandle",
         "LegacyPinnedMemoryResource",
+        "PinnedMemoryResourceOptions",
+        "PinnedMemoryResource",
         "VirtualMemoryResourceOptions",
         "VirtualMemoryResource",
     ]
@@ -512,35 +515,42 @@ def test_buffer_dlpack_failure_clean_up():
     assert after == before
 
 
-@pytest.mark.parametrize("use_device_object", [True, False])
-def test_device_memory_resource_initialization(use_device_object):
-    """Test that DeviceMemoryResource can be initialized successfully.
-
-    This test verifies that the DeviceMemoryResource initializes properly,
-    including the release threshold configuration for performance optimization.
-    """
+def test_modern_device_memory_resource_initialization(memory_resource_factory_with_device):
     device = Device()
+    MR, MRops, use_device_object = memory_resource_factory_with_device
 
-    if not device.properties.memory_pools_supported:
+    if MR is DeviceMemoryResource and not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
+    elif MR is PinnedMemoryResource and not device.properties.host_memory_pools_supported:
+        pytest.skip("Device does not support host mempool operations")
 
     device.set_current()
 
-    # This should succeed and configure the memory pool release threshold.
-    # The resource can be constructed from either a device or device ordinal.
-    device_arg = device if use_device_object else device.device_id
-    mr = DeviceMemoryResource(device_arg)
-
-    # Verify basic properties
-    assert mr.device_id == device.device_id
-    assert mr.is_device_accessible
-    assert not mr.is_host_accessible
-    assert not mr.is_ipc_enabled
+    if MR is DeviceMemoryResource:
+        # This should succeed and configure the memory pool release threshold.
+        # The resource can be constructed from either a device or device ordinal.
+        device_arg = device if use_device_object else device.device_id
+        mr = MR(device_arg)
+        assert mr.device_id == device.device_id
+        assert mr.is_device_accessible
+        assert not mr.is_host_accessible
+        assert not mr.is_ipc_enabled
+    elif MR is PinnedMemoryResource:
+        mr = PinnedMemoryResource()
+        assert mr.is_device_accessible
+        assert mr.is_host_accessible
 
     # Test allocation/deallocation works
     buffer = mr.allocate(1024)
     assert buffer.size == 1024
-    assert buffer.device_id == device.device_id
+    if MR is DeviceMemoryResource:
+        assert buffer.device_id == device.device_id
+        assert not buffer.is_host_accessible
+    elif MR is PinnedMemoryResource:
+        assert buffer.device_id == -1  # Not bound to any GPU
+        assert buffer.is_host_accessible
+    assert buffer.memory_resource == mr
+    assert buffer.is_device_accessible
     buffer.close()
 
 
@@ -745,21 +755,32 @@ def test_vmm_allocator_rdma_unsupported_exception():
         VirtualMemoryResource(device, config=options)
 
 
-def test_device_memory_resource():
+def test_modern_memory_resources(memory_resource_factory_with_device):
     device = Device()
 
-    if not device.properties.memory_pools_supported:
+    MR, MRops, _ = memory_resource_factory_with_device
+
+    if MR is DeviceMemoryResource and not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
+    elif MR is PinnedMemoryResource and not device.properties.host_memory_pools_supported:
+        pytest.skip("Device does not support host mempool operations")
 
     device.set_current()
 
     # Test basic pool creation
-    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE)
-    mr = DeviceMemoryResource(device, options=options)
-    assert mr.device_id == device.device_id
-    assert mr.is_device_accessible
-    assert not mr.is_host_accessible
-    assert not mr.is_ipc_enabled
+    options = MRops(max_size=POOL_SIZE)
+    if MR is DeviceMemoryResource:
+        mr = MR(device, options=options)
+        assert mr.device_id == device.device_id
+        assert mr.is_device_accessible
+        assert not mr.is_host_accessible
+        assert not mr.is_ipc_enabled
+    elif MR is PinnedMemoryResource:
+        mr = MR(options)
+        assert mr.device_id == -1  # Not bound to any GPU
+        assert mr.is_device_accessible
+        assert mr.is_host_accessible
+        assert not mr.is_ipc_enabled
 
     # Test allocation and deallocation
     buffer1 = mr.allocate(1024)
@@ -781,7 +802,7 @@ def test_device_memory_resource():
     stream = device.create_stream()
     buffer = mr.allocate(1024, stream=stream)
     assert buffer.handle != 0
-    buffer.close()
+    buffer.close(stream)
 
     # Test memory copying between buffers from same pool
     src_buffer = mr.allocate(64)
@@ -828,18 +849,36 @@ def test_mempool_ipc_errors(mempool_device):
         ("used_mem_high", int),
     ],
 )
-def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected_type):
-    """Test all properties of the DeviceMemoryResource class."""
-    device = mempool_device
+def test_mempool_attributes(ipc_enabled, memory_resource_factory_with_device, property_name, expected_type):
+    """Test all properties of memory pool attributes for DeviceMemoryResource and PinnedMemoryResource."""
+    MR, MRops, _ = memory_resource_factory_with_device
+    device = Device()
+
+    if MR is DeviceMemoryResource and not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+    elif MR is PinnedMemoryResource and not device.properties.host_memory_pools_supported:
+        pytest.skip("Device does not support host mempool operations")
+
+    # PinnedMemoryResource does not support IPC
+    if MR is PinnedMemoryResource and ipc_enabled:
+        pytest.skip("PinnedMemoryResource does not support IPC")
+
+    device.set_current()
+
     if platform.system() == "Windows":
         return  # IPC not implemented for Windows
 
     if ipc_enabled and not supports_ipc_mempool(device):
         pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
-    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=ipc_enabled)
-    mr = DeviceMemoryResource(device, options=options)
-    assert mr.is_ipc_enabled == ipc_enabled
+    if MR is DeviceMemoryResource:
+        options = MRops(max_size=POOL_SIZE, ipc_enabled=ipc_enabled)
+        mr = MR(device, options=options)
+        assert mr.is_ipc_enabled == ipc_enabled
+    elif MR is PinnedMemoryResource:
+        options = MRops(max_size=POOL_SIZE)
+        mr = MR(options)
+        assert not mr.is_ipc_enabled
 
     # Get the property value
     value = getattr(mr.attributes, property_name)
@@ -872,10 +911,23 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
         assert value >= current_value, f"{property_name} should be >= {current_prop}"
 
 
-def test_mempool_attributes_repr(mempool_device):
+def test_mempool_attributes_repr(memory_resource_factory_with_device):
+    """Test the repr of memory pool attributes for both DeviceMemoryResource and PinnedMemoryResource."""
+    MR, MRops, _ = memory_resource_factory_with_device
     device = Device()
+
+    if MR is DeviceMemoryResource and not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+    elif MR is PinnedMemoryResource and not device.properties.host_memory_pools_supported:
+        pytest.skip("Device does not support host mempool operations")
+
     device.set_current()
-    mr = DeviceMemoryResource(device, options={"max_size": 2048})
+
+    if MR is DeviceMemoryResource:
+        mr = MR(device, options={"max_size": 2048})
+    elif MR is PinnedMemoryResource:
+        mr = MR(options={"max_size": 2048})
+
     buffer1 = mr.allocate(64)
     buffer2 = mr.allocate(64)
     buffer1.close()
@@ -888,14 +940,27 @@ def test_mempool_attributes_repr(mempool_device):
     buffer2.close()
 
 
-def test_mempool_attributes_ownership(mempool_device):
-    """Ensure the attributes bundle handles references correctly."""
-    device = mempool_device
-    # Skip if IPC mempool is not supported on this platform/device
-    if not supports_ipc_mempool(device):
+def test_mempool_attributes_ownership(memory_resource_factory_with_device):
+    """Ensure the attributes bundle handles references correctly for both memory resource types."""
+    MR, MRops, _ = memory_resource_factory_with_device
+    device = Device()
+
+    if MR is DeviceMemoryResource and not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+    elif MR is PinnedMemoryResource and not device.properties.host_memory_pools_supported:
+        pytest.skip("Device does not support host mempool operations")
+
+    # Skip if IPC mempool is not supported on this platform/device (only relevant for DeviceMemoryResource)
+    if MR is DeviceMemoryResource and not supports_ipc_mempool(device):
         pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
+    device.set_current()
+
+    if MR is DeviceMemoryResource:
+        mr = MR(device, dict(max_size=POOL_SIZE))
+    elif MR is PinnedMemoryResource:
+        mr = MR(dict(max_size=POOL_SIZE))
+
     attributes = mr.attributes
     mr.close()
     del mr
@@ -906,7 +971,11 @@ def test_mempool_attributes_ownership(mempool_device):
 
     # Even when a new object is created (we found a case where the same
     # mempool handle was really reused).
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))  # noqa: F841
+    if MR is DeviceMemoryResource:
+        mr = MR(device, dict(max_size=POOL_SIZE))  # noqa: F841
+    elif MR is PinnedMemoryResource:
+        mr = MR(dict(max_size=POOL_SIZE))  # noqa: F841
+
     with pytest.raises(RuntimeError, match="is expired"):
         _ = attributes.used_mem_high
 

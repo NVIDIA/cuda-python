@@ -25,3 +25,4 @@ cdef class _MemPoolOptions:
         size_t _max_size
         cydriver.CUmemLocationType _location
         cydriver.CUmemAllocationType _type
+        bint _use_current

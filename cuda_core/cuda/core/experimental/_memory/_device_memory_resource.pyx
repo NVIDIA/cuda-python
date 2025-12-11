@@ -140,6 +140,7 @@ cdef class DeviceMemoryResource(_MemPool):
             if ipc_enabled and not _ipc.is_supported():
                 raise RuntimeError("IPC is not available on {platform.system()}")
             opts_base._max_size = opts.max_size
+            opts_base._use_current = False
         opts_base._ipc_enabled = ipc_enabled
         opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
         opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED

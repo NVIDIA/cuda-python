@@ -13,7 +13,14 @@ except ImportError:
     from cuda import cuda as driver
 
 import cuda.core.experimental
-from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, _device
+from cuda.core.experimental import (
+    Device,
+    DeviceMemoryResource,
+    DeviceMemoryResourceOptions,
+    PinnedMemoryResource,
+    PinnedMemoryResourceOptions,
+    _device,
+)
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
@@ -151,6 +158,34 @@ def mempool_device_x2():
 def mempool_device_x3():
     """Fixture that provides three devices if available, otherwise skips test."""
     return _mempool_device_impl(3)
+
+
+@pytest.fixture(
+    params=[
+        pytest.param((DeviceMemoryResource, DeviceMemoryResourceOptions, True), id="DeviceMR-device_object"),
+        pytest.param((DeviceMemoryResource, DeviceMemoryResourceOptions, False), id="DeviceMR-device_id"),
+        pytest.param((PinnedMemoryResource, PinnedMemoryResourceOptions, None), id="PinnedMR"),
+    ]
+)
+def memory_resource_factory_with_device(request, init_cuda):
+    """Parametrized fixture providing memory resource types with device usage configuration.
+
+    Returns a 3-tuple of (MRClass, MROptionClass, use_device_object).
+    For DeviceMemoryResource, use_device_object is True/False indicating whether to pass
+    a Device object or device_id. For PinnedMemoryResource, use_device_object is None
+    as it doesn't require a device parameter.
+
+    Usage:
+        def test_something(memory_resource_factory_with_device):
+            MRClass, MROptions, use_device_object = memory_resource_factory_with_device
+            device = Device(0)
+            if MRClass is DeviceMemoryResource:
+                device_arg = device if use_device_object else device.device_id
+                mr = MRClass(device_arg)
+            elif MRClass is PinnedMemoryResource:
+                mr = MRClass()
+    """
+    return request.param
 
 
 skipif_need_cuda_headers = pytest.mark.skipif(helpers.CUDA_INCLUDE_PATH is None, reason="need CUDA header")

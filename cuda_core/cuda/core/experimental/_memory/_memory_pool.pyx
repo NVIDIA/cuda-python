@@ -35,6 +35,7 @@ cdef class _MemPoolOptions:
         self._max_size = 0
         self._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_INVALID
         self._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_INVALID
+        self._use_current = True
 
 
 cdef class _MemPoolAttributes:
@@ -132,14 +133,11 @@ cdef class _MemPool(MemoryResource):
         self._attributes = None
         self._peer_accessible_by = ()
 
-    def __init__(self, device_id: Device | int, _MemPoolOptions opts):
-        from .._device import Device
-        cdef int dev_id = Device(device_id).device_id
-
-        if opts is None:
-            _MP_init_current(self, dev_id)
+    def __init__(self, int device_id, _MemPoolOptions opts):
+        if opts._use_current:
+            _MP_init_current(self, device_id, opts)
         else:
-            _MP_init_create(self, dev_id, opts)
+            _MP_init_create(self, device_id, opts)
 
     def __dealloc__(self):
         _MP_close(self)
@@ -284,43 +282,58 @@ cdef class _MemPool(MemoryResource):
 # _MemPool Implementation
 # -----------------------
 
-cdef int _MP_init_current(_MemPool self, int dev_id) except?-1:
+cdef int _MP_init_current(_MemPool self, int dev_id, _MemPoolOptions opts) except?-1:
     # Get the current memory pool.
     cdef cydriver.cuuint64_t current_threshold
     cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX
+    cdef cydriver.CUmemLocation loc
 
     self._dev_id = dev_id
     self._mempool_owned = False
 
     with nogil:
-        HANDLE_RETURN(cydriver.cuDeviceGetMemPool(&(self._handle), dev_id))
+        if opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED \
+                and opts._location == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE:
+            assert dev_id >= 0
+            HANDLE_RETURN(cydriver.cuDeviceGetMemPool(&(self._handle), dev_id))
 
-        # Set a higher release threshold to improve performance when there are
-        # no active allocations.  By default, the release threshold is 0, which
-        # means memory is immediately released back to the OS when there are no
-        # active suballocations, causing performance issues.
-        HANDLE_RETURN(
-            cydriver.cuMemPoolGetAttribute(
-                self._handle,
-                cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
-                &current_threshold
+            # Set a higher release threshold to improve performance when there are
+            # no active allocations.  By default, the release threshold is 0, which
+            # means memory is immediately released back to the OS when there are no
+            # active suballocations, causing performance issues.
+            HANDLE_RETURN(
+                cydriver.cuMemPoolGetAttribute(
+                    self._handle,
+                    cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+                    &current_threshold
+                )
             )
-        )
 
-        # If threshold is 0 (default), set it to maximum to retain memory in the pool.
-        if current_threshold == 0:
-            HANDLE_RETURN(cydriver.cuMemPoolSetAttribute(
-                self._handle,
-                cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
-                &max_threshold
-            ))
+            # If threshold is 0 (default), set it to maximum to retain memory in the pool.
+            if current_threshold == 0:
+                HANDLE_RETURN(cydriver.cuMemPoolSetAttribute(
+                    self._handle,
+                    cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+                    &max_threshold
+                ))
+        elif opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED \
+                and opts._location == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST:
+            IF CUDA_CORE_BUILD_MAJOR >= 13:
+                assert dev_id == -1
+                loc.id = dev_id
+                loc.type = opts._location
+                HANDLE_RETURN(cydriver.cuMemGetMemPool(&(self._handle), &loc, opts._type))
+            ELSE:
+                raise RuntimeError("not supported")
+        #TODO
+        #elif opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
+        else:
+            assert False
 
     return 0
 
 
-cdef void _MP_init_create(
-    _MemPool self, int dev_id, _MemPoolOptions opts
-):
+cdef int _MP_init_create(_MemPool self, int dev_id, _MemPoolOptions opts) except?-1:
     cdef cydriver.CUmemPoolProps properties
     memset(&properties, 0, sizeof(cydriver.CUmemPoolProps))
 
@@ -343,6 +356,8 @@ cdef void _MP_init_create(
     if ipc_enabled:
         alloc_handle = _ipc.MP_export_mempool(self)
         self._ipc_data = _ipc.IPCDataForMR(alloc_handle, False)
+
+    return 0
 
 
 # Raise an exception if the given stream is capturing.
