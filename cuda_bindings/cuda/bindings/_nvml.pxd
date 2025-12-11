@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.0.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -52,6 +52,7 @@ ctypedef nvmlGpmMetric_t GpmMetric
 ctypedef nvmlWorkloadPowerProfileInfo_v1_t WorkloadPowerProfileInfo_v1
 ctypedef nvmlWorkloadPowerProfileCurrentProfiles_v1_t WorkloadPowerProfileCurrentProfiles_v1
 ctypedef nvmlWorkloadPowerProfileRequestedProfiles_v1_t WorkloadPowerProfileRequestedProfiles_v1
+ctypedef nvmlWorkloadPowerProfileUpdateProfiles_v1_t WorkloadPowerProfileUpdateProfiles_v1
 ctypedef nvmlPRMTLV_v1_t PRMTLV_v1
 ctypedef nvmlVgpuSchedulerSetState_t VgpuSchedulerSetState
 ctypedef nvmlGpmMetricsGet_t GpmMetricsGet
@@ -120,6 +121,8 @@ ctypedef nvmlVgpuPgpuCompatibilityLimitCode_t _VgpuPgpuCompatibilityLimitCode
 ctypedef nvmlGpmMetricId_t _GpmMetricId
 ctypedef nvmlPowerProfileType_t _PowerProfileType
 ctypedef nvmlDeviceAddressingModeType_t _DeviceAddressingModeType
+ctypedef nvmlPRMCounterId_t _PRMCounterId
+ctypedef nvmlPowerProfileOperation_t _PowerProfileOperation
 
 
 ###############################################################################
@@ -439,3 +442,6 @@ cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
 cpdef object device_get_pdi(intptr_t device)
 cpdef device_read_write_prm_v1(intptr_t device, intptr_t buffer)
 cpdef object device_get_gpu_instance_profile_info_by_id_v(intptr_t device, unsigned int profile_id)
+cpdef object device_get_unrepairable_memory_flag_v1(intptr_t device)
+cpdef device_read_prm_counters_v1(intptr_t device, intptr_t counter_list)
+cpdef device_set_rusd_settings_v1(intptr_t device, intptr_t settings)
