@@ -6,6 +6,8 @@
 
 #include "resource_handles.hpp"
 #include <cuda.h>
+#include <mutex>
+#include <unordered_map>
 #include <vector>
 
 namespace cuda_core {
@@ -436,6 +438,22 @@ DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) {
     return DevicePtrHandle(box, &box->resource);
 }
 
+// ============================================================================
+// IPC Pointer Cache (workaround for nvbug 5570902)
+// ============================================================================
+// IPC-imported pointers are not correctly reference counted by the driver.
+// The first cuMemFreeAsync incorrectly unmaps the memory even when the pointer
+// was imported multiple times. We work around this by caching imported pointers
+// and returning the same handle for duplicate imports.
+
+// TODO: When driver fix is available, add version check here to bypass cache.
+static bool use_ipc_ptr_cache() {
+    return true;
+}
+
+static std::mutex ipc_ptr_cache_mutex;
+static std::unordered_map<CUdeviceptr, std::weak_ptr<DevicePtrBox>> ipc_ptr_cache;
+
 DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
@@ -445,15 +463,46 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
         return {};
     }
 
-    auto box = std::shared_ptr<DevicePtrBox>(
-        new DevicePtrBox{ptr, h_stream},
-        [h_pool](DevicePtrBox* b) {
-            GILReleaseGuard gil;
-            cuMemFreeAsync(b->resource, native(b->h_stream));
-            delete b;
+    if (use_ipc_ptr_cache()) {
+        std::lock_guard<std::mutex> lock(ipc_ptr_cache_mutex);
+
+        // Check for existing handle
+        auto it = ipc_ptr_cache.find(ptr);
+        if (it != ipc_ptr_cache.end()) {
+            if (auto box = it->second.lock()) {
+                return DevicePtrHandle(box, &box->resource);
+            }
+            ipc_ptr_cache.erase(it);  // Expired entry
         }
-    );
-    return DevicePtrHandle(box, &box->resource);
+
+        // Create new handle with cache-clearing deleter
+        auto box = std::shared_ptr<DevicePtrBox>(
+            new DevicePtrBox{ptr, h_stream},
+            [h_pool, ptr](DevicePtrBox* b) {
+                {
+                    std::lock_guard<std::mutex> lock(ipc_ptr_cache_mutex);
+                    ipc_ptr_cache.erase(ptr);
+                }
+                GILReleaseGuard gil;
+                cuMemFreeAsync(b->resource, native(b->h_stream));
+                delete b;
+            }
+        );
+        ipc_ptr_cache[ptr] = box;
+        return DevicePtrHandle(box, &box->resource);
+
+    } else {
+        // No caching - simple handle creation
+        auto box = std::shared_ptr<DevicePtrBox>(
+            new DevicePtrBox{ptr, h_stream},
+            [h_pool](DevicePtrBox* b) {
+                GILReleaseGuard gil;
+                cuMemFreeAsync(b->resource, native(b->h_stream));
+                delete b;
+            }
+        );
+        return DevicePtrHandle(box, &box->resource);
+    }
 }
 
 }  // namespace cuda_core
