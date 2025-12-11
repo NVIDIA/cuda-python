@@ -17,6 +17,7 @@ namespace cuda_core {
 
 using ContextHandle = std::shared_ptr<const CUcontext>;
 using StreamHandle = std::shared_ptr<const CUstream>;
+using EventHandle = std::shared_ptr<const CUevent>;
 
 // ============================================================================
 // Context handle functions
@@ -63,6 +64,22 @@ StreamHandle get_legacy_stream() noexcept;
 StreamHandle get_per_thread_stream() noexcept;
 
 // ============================================================================
+// Event handle functions
+// ============================================================================
+
+// Create an owning event handle by calling cuEventCreate.
+// The event structurally depends on the provided context handle.
+// When the last reference is released, cuEventDestroy is called automatically.
+// Returns empty handle on error (caller must check).
+EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags);
+
+// Create an owning event handle from an IPC handle.
+// The originating process owns the event and its context.
+// When the last reference is released, cuEventDestroy is called automatically.
+// Returns empty handle on error (caller must check).
+EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle);
+
+// ============================================================================
 // Overloaded helper functions to extract raw resources from handles
 // ============================================================================
 
@@ -75,12 +92,20 @@ inline CUstream native(const StreamHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUevent native(const EventHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
 // intptr() - extract handle as uintptr_t for Python interop
 inline std::uintptr_t intptr(const ContextHandle& h) noexcept {
     return reinterpret_cast<std::uintptr_t>(h ? *h : nullptr);
 }
 
 inline std::uintptr_t intptr(const StreamHandle& h) noexcept {
+    return reinterpret_cast<std::uintptr_t>(h ? *h : nullptr);
+}
+
+inline std::uintptr_t intptr(const EventHandle& h) noexcept {
     return reinterpret_cast<std::uintptr_t>(h ? *h : nullptr);
 }
 
@@ -105,6 +130,19 @@ inline PyObject* py(const StreamHandle& h) {
         PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
         if (!mod) return nullptr;
         cls = PyObject_GetAttrString(mod, "CUstream");
+        Py_DECREF(mod);
+        if (!cls) return nullptr;
+    }
+    std::uintptr_t val = h ? reinterpret_cast<std::uintptr_t>(*h) : 0;
+    return PyObject_CallFunction(cls, "K", val);
+}
+
+inline PyObject* py(const EventHandle& h) {
+    static PyObject* cls = nullptr;
+    if (!cls) {
+        PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
+        if (!mod) return nullptr;
+        cls = PyObject_GetAttrString(mod, "CUevent");
         Py_DECREF(mod);
         if (!cls) return nullptr;
     }

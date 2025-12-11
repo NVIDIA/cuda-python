@@ -27,6 +27,7 @@ from cuda.core.experimental._context cimport Context
 from cuda.core.experimental._event import Event, EventOptions
 from cuda.core.experimental._resource_handles cimport (
     ContextHandle,
+    EventHandle,
     StreamHandle,
     create_context_handle_ref,
     create_stream_handle,
@@ -265,7 +266,7 @@ cdef class Stream:
                 "new event by supplying options."
             )
 
-        cdef cydriver.CUevent e = (<cyEvent?>(event))._handle
+        cdef cydriver.CUevent e = native((<cyEvent?>(event))._h_event)
         with nogil:
             HANDLE_RETURN(cydriver.cuEventRecord(e, native(self._h_stream)))
         return event

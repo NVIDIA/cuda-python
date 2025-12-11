@@ -9,7 +9,15 @@ from libc.stdint cimport uintptr_t
 from libc.string cimport memcpy
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._context cimport Context
-from cuda.core.experimental._resource_handles cimport ContextHandle, intptr
+from cuda.core.experimental._resource_handles cimport (
+    ContextHandle,
+    EventHandle,
+    create_event_handle,
+    create_event_handle_ipc,
+    intptr,
+    native,
+    py,
+)
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN
@@ -81,8 +89,6 @@ cdef class Event:
     and they should instead be created through a :obj:`~_stream.Stream` object.
 
     """
-    def __cinit__(self):
-        self._handle = <cydriver.CUevent>(NULL)
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError("Event objects cannot be instantiated directly. Please use Stream APIs (record).")
@@ -111,23 +117,24 @@ cdef class Event:
             self._ipc_enabled = True
             if not self._timing_disabled:
                 raise TypeError("IPC-enabled events cannot use timing.")
-        with nogil:
-            HANDLE_RETURN(cydriver.cuEventCreate(&self._handle, flags))
-        self._device_id = device_id
+        # C++ creates the event and returns owning handle with context dependency
+        cdef EventHandle h_event = create_event_handle(h_context, flags)
+        if not h_event:
+            raise RuntimeError("Failed to create CUDA event")
+        self._h_event = h_event
         self._h_context = h_context
+        self._device_id = device_id
         if opts.ipc_enabled:
             self.get_ipc_descriptor()
         return self
 
     cpdef close(self):
-        """Destroy the event."""
-        if self._handle != NULL:
-            with nogil:
-                HANDLE_RETURN(cydriver.cuEventDestroy(self._handle))
-            self._handle = <cydriver.CUevent>(NULL)
+        """Destroy the event.
 
-    def __dealloc__(self):
-        self.close()
+        Releases the event handle. The underlying CUDA event is destroyed
+        when the last reference is released.
+        """
+        self._h_event.reset()
 
     def __isub__(self, other):
         return NotImplemented
@@ -139,7 +146,7 @@ cdef class Event:
         # return self - other (in milliseconds)
         cdef float timing
         with nogil:
-            err = cydriver.cuEventElapsedTime(&timing, other._handle, self._handle)
+            err = cydriver.cuEventElapsedTime(&timing, native((<Event>other)._h_event), native(self._h_event))
         if err == 0:
             return timing
         else:
@@ -165,14 +172,14 @@ cdef class Event:
             raise RuntimeError(explanation)
 
     def __hash__(self) -> int:
-        return hash((type(self), intptr(self._h_context), <uintptr_t>(self._handle)))
+        return hash((type(self), intptr(self._h_context), intptr(self._h_event)))
 
     def __eq__(self, other) -> bool:
         # Note: using isinstance because `Event` can be subclassed.
         if not isinstance(other, Event):
             return NotImplemented
         cdef Event _other = <Event>other
-        return <uintptr_t>(self._handle) == <uintptr_t>(_other._handle)
+        return intptr(self._h_event) == intptr(_other._h_event)
 
     def get_ipc_descriptor(self) -> IPCEventDescriptor:
         """Export an event allocated for sharing between processes."""
@@ -182,7 +189,7 @@ cdef class Event:
             raise RuntimeError("Event is not IPC-enabled")
         cdef cydriver.CUipcEventHandle data
         with nogil:
-            HANDLE_RETURN(cydriver.cuIpcGetEventHandle(&data, <cydriver.CUevent>(self._handle)))
+            HANDLE_RETURN(cydriver.cuIpcGetEventHandle(&data, native(self._h_event)))
         cdef bytes data_b = cpython.PyBytes_FromStringAndSize(<char*>(data.reserved), sizeof(data.reserved))
         self._ipc_descriptor = IPCEventDescriptor._init(data_b, self._busy_waited)
         return self._ipc_descriptor
@@ -193,14 +200,17 @@ cdef class Event:
         cdef cydriver.CUipcEventHandle data
         memcpy(data.reserved, <const void*><const char*>(ipc_descriptor._reserved), sizeof(data.reserved))
         cdef Event self = Event.__new__(cls)
-        with nogil:
-            HANDLE_RETURN(cydriver.cuIpcOpenEventHandle(&self._handle, data))
+        # IPC events: the originating process owns the event and its context
+        cdef EventHandle h_event = create_event_handle_ipc(data)
+        if not h_event:
+            raise RuntimeError("Failed to open IPC event handle")
+        self._h_event = h_event
+        self._h_context = ContextHandle()
         self._timing_disabled = True
         self._busy_waited = ipc_descriptor._busy_waited
         self._ipc_enabled = True
         self._ipc_descriptor = ipc_descriptor
         self._device_id = -1
-        self._h_context = ContextHandle()
         return self
 
     @property
@@ -229,13 +239,13 @@ cdef class Event:
 
         """
         with nogil:
-            HANDLE_RETURN(cydriver.cuEventSynchronize(self._handle))
+            HANDLE_RETURN(cydriver.cuEventSynchronize(native(self._h_event)))
 
     @property
     def is_done(self) -> bool:
         """Return True if all captured works have been completed, otherwise False."""
         with nogil:
-            result = cydriver.cuEventQuery(self._handle)
+            result = cydriver.cuEventQuery(native(self._h_event))
         if result == cydriver.CUresult.CUDA_SUCCESS:
             return True
         if result == cydriver.CUresult.CUDA_ERROR_NOT_READY:
@@ -251,7 +261,7 @@ cdef class Event:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(Event.handle)``.
         """
-        return driver.CUevent(<uintptr_t>(self._handle))
+        return py(self._h_event)
 
     @property
     def device(self) -> Device:

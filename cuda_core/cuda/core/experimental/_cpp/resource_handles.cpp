@@ -230,4 +230,63 @@ StreamHandle get_per_thread_stream() noexcept {
     return handle;
 }
 
+// ============================================================================
+// Event Handles
+// ============================================================================
+
+// Internal box structure for Event
+struct EventBox {
+    CUevent resource;
+};
+
+EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
+    // Creates an owning event handle - calls cuEventCreate internally.
+    // The context handle is captured in the deleter to ensure context outlives the event.
+    // Returns empty handle on error (caller must check).
+    CUevent event;
+    CUresult err;
+    {
+        GILReleaseGuard gil;
+        err = cuEventCreate(&event, flags);
+    }
+    if (err != CUDA_SUCCESS) {
+        return EventHandle();
+    }
+
+    // Capture h_ctx in lambda - shared_ptr control block keeps it alive
+    auto box = std::shared_ptr<const EventBox>(new EventBox{event}, [h_ctx](const EventBox* b) {
+        GILReleaseGuard gil;
+        cuEventDestroy(b->resource);
+        delete b;
+        // h_ctx destructor runs here when last event reference is released
+    });
+
+    // Use aliasing constructor to expose only CUevent
+    return EventHandle(box, &box->resource);
+}
+
+EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
+    // Creates an owning event handle from an IPC handle.
+    // The originating process owns the event and its context.
+    // Returns empty handle on error (caller must check).
+    CUevent event;
+    CUresult err;
+    {
+        GILReleaseGuard gil;
+        err = cuIpcOpenEventHandle(&event, ipc_handle);
+    }
+    if (err != CUDA_SUCCESS) {
+        return EventHandle();
+    }
+
+    auto box = std::shared_ptr<const EventBox>(new EventBox{event}, [](const EventBox* b) {
+        GILReleaseGuard gil;
+        cuEventDestroy(b->resource);
+        delete b;
+    });
+
+    // Use aliasing constructor to expose only CUevent
+    return EventHandle(box, &box->resource);
+}
+
 }  // namespace cuda_core
