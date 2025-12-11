@@ -30,6 +30,7 @@ from cuda.core.experimental._resource_handles cimport (
     EventHandle,
     StreamHandle,
     create_context_handle_ref,
+    create_event_handle,
     create_stream_handle,
     create_stream_handle_with_owner,
     get_current_context,
@@ -281,32 +282,36 @@ cdef class Stream:
         on the stream and then waiting on it.
 
         """
-        cdef cydriver.CUevent event
-        cdef cydriver.CUstream stream
+        cdef Stream stream
+        cdef EventHandle h_event
 
+        # Handle Event directly
         if isinstance(event_or_stream, Event):
-            event = <cydriver.CUevent><uintptr_t>(event_or_stream.handle)
             with nogil:
                 # TODO: support flags other than 0?
-                HANDLE_RETURN(cydriver.cuStreamWaitEvent(native(self._h_stream), event, 0))
+                HANDLE_RETURN(cydriver.cuStreamWaitEvent(
+                    native(self._h_stream), native((<cyEvent>event_or_stream)._h_event), 0))
+            return
+
+        # Convert to Stream if needed
+        if isinstance(event_or_stream, Stream):
+            stream = <Stream>event_or_stream
         else:
-            if isinstance(event_or_stream, Stream):
-                stream = <cydriver.CUstream><uintptr_t>(event_or_stream.handle)
-            else:
-                try:
-                    s = Stream._init(obj=event_or_stream)
-                except Exception as e:
-                    raise ValueError(
-                        "only an Event, Stream, or object supporting __cuda_stream__ can be waited,"
-                        f" got {type(event_or_stream)}"
-                    ) from e
-                stream = <cydriver.CUstream><uintptr_t>(s.handle)
-            with nogil:
-                HANDLE_RETURN(cydriver.cuEventCreate(&event, cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING))
-                HANDLE_RETURN(cydriver.cuEventRecord(event, stream))
-                # TODO: support flags other than 0?
-                HANDLE_RETURN(cydriver.cuStreamWaitEvent(native(self._h_stream), event, 0))
-                HANDLE_RETURN(cydriver.cuEventDestroy(event))
+            try:
+                stream = Stream._init(obj=event_or_stream)
+            except Exception as e:
+                raise ValueError(
+                    "only an Event, Stream, or object supporting __cuda_stream__ can be waited,"
+                    f" got {type(event_or_stream)}"
+                ) from e
+
+        # Wait on stream via temporary event
+        Stream_ensure_ctx(self)
+        h_event = create_event_handle(self._h_context, cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuEventRecord(native(h_event), native(stream._h_stream)))
+            # TODO: support flags other than 0?
+            HANDLE_RETURN(cydriver.cuStreamWaitEvent(native(self._h_stream), native(h_event), 0))
 
     @property
     def device(self) -> Device:
