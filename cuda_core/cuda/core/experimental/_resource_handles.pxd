@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from libc.stdint cimport uintptr_t
+from libc.stdint cimport intptr_t
 from libcpp.memory cimport shared_ptr
 
 from cuda.bindings cimport cydriver
@@ -143,12 +143,13 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUmemoryPool native(MemoryPoolHandle h) nogil
     cydriver.CUdeviceptr native(DevicePtrHandle h) nogil
 
-    # intptr() - extract handle as uintptr_t for Python interop
-    uintptr_t intptr(ContextHandle h) nogil
-    uintptr_t intptr(StreamHandle h) nogil
-    uintptr_t intptr(EventHandle h) nogil
-    uintptr_t intptr(MemoryPoolHandle h) nogil
-    uintptr_t intptr(DevicePtrHandle h) nogil
+    # intptr() - extract handle as intptr_t for Python interop
+    # Using signed intptr_t per C standard convention and issue #1342
+    intptr_t intptr(ContextHandle h) nogil
+    intptr_t intptr(StreamHandle h) nogil
+    intptr_t intptr(EventHandle h) nogil
+    intptr_t intptr(MemoryPoolHandle h) nogil
+    intptr_t intptr(DevicePtrHandle h) nogil
 
     # py() - convert handle to Python driver wrapper object (requires GIL)
     object py(ContextHandle h)

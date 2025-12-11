@@ -188,25 +188,26 @@ inline CUdeviceptr native(const DevicePtrHandle& h) noexcept {
     return h ? *h : 0;
 }
 
-// intptr() - extract handle as uintptr_t for Python interop
-inline std::uintptr_t intptr(const ContextHandle& h) noexcept {
-    return reinterpret_cast<std::uintptr_t>(h ? *h : nullptr);
+// intptr() - extract handle as intptr_t for Python interop
+// Using signed intptr_t per C standard convention and issue #1342
+inline std::intptr_t intptr(const ContextHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(h ? *h : nullptr);
 }
 
-inline std::uintptr_t intptr(const StreamHandle& h) noexcept {
-    return reinterpret_cast<std::uintptr_t>(h ? *h : nullptr);
+inline std::intptr_t intptr(const StreamHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(h ? *h : nullptr);
 }
 
-inline std::uintptr_t intptr(const EventHandle& h) noexcept {
-    return reinterpret_cast<std::uintptr_t>(h ? *h : nullptr);
+inline std::intptr_t intptr(const EventHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(h ? *h : nullptr);
 }
 
-inline std::uintptr_t intptr(const MemoryPoolHandle& h) noexcept {
-    return reinterpret_cast<std::uintptr_t>(h ? *h : nullptr);
+inline std::intptr_t intptr(const MemoryPoolHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(h ? *h : nullptr);
 }
 
-inline std::uintptr_t intptr(const DevicePtrHandle& h) noexcept {
-    return h ? static_cast<std::uintptr_t>(*h) : 0;
+inline std::intptr_t intptr(const DevicePtrHandle& h) noexcept {
+    return h ? static_cast<std::intptr_t>(*h) : 0;
 }
 
 // py() - convert handle to Python driver wrapper object
