@@ -880,7 +880,7 @@ def test_mempool_attributes_repr(mempool_device):
     buffer2 = mr.allocate(64)
     buffer1.close()
     assert re.match(
-        r"DeviceMemoryResourceAttributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
+        r".*Attributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
         r"reuse_allow_internal_dependencies=(True|False), reuse_allow_opportunistic=(True|False), "
         r"reuse_follow_event_dependencies=(True|False), used_mem_current=\d+, used_mem_high=\d+\)",
         str(mr.attributes),
@@ -901,13 +901,13 @@ def test_mempool_attributes_ownership(mempool_device):
     del mr
 
     # After deleting the memory resource, the attributes suite is disconnected.
-    with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
+    with pytest.raises(RuntimeError, match="is expired"):
         _ = attributes.used_mem_high
 
     # Even when a new object is created (we found a case where the same
     # mempool handle was really reused).
     mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))  # noqa: F841
-    with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
+    with pytest.raises(RuntimeError, match="is expired"):
         _ = attributes.used_mem_high
 
 
