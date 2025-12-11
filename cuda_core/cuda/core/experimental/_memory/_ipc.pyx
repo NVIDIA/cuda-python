@@ -14,6 +14,7 @@ from cuda.core.experimental._resource_handles cimport (
     MemoryPoolHandle,
     create_mempool_handle_ipc,
     deviceptr_import_ipc,
+    get_last_error,
     native,
 )
 from cuda.core.experimental._stream cimport default_stream
@@ -190,14 +191,13 @@ cdef Buffer Buffer_from_ipc_descriptor(
         # Note: match this behavior to DeviceMemoryResource.allocate()
         stream = default_stream()
     cdef Stream s = <Stream>stream
-    cdef cydriver.CUresult err
     cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(
         mr._h_pool,
         ipc_descriptor.payload_ptr(),
-        s._h_stream,
-        &err
+        s._h_stream
     )
-    HANDLE_RETURN(err)
+    if not h_ptr:
+        HANDLE_RETURN(get_last_error())
     return Buffer_from_deviceptr_handle(h_ptr, ipc_descriptor.size, mr, ipc_descriptor)
 
 

@@ -10,6 +10,31 @@
 
 namespace cuda_core {
 
+// ============================================================================
+// Thread-local error handling
+// ============================================================================
+
+// Thread-local status of the most recent CUDA API call in this module.
+thread_local CUresult err = CUDA_SUCCESS;
+
+CUresult get_last_error() noexcept {
+    CUresult e = err;
+    err = CUDA_SUCCESS;
+    return e;
+}
+
+CUresult peek_last_error() noexcept {
+    return err;
+}
+
+void clear_last_error() noexcept {
+    err = CUDA_SUCCESS;
+}
+
+// ============================================================================
+// GIL management helpers
+// ============================================================================
+
 // Helper to release the GIL while calling into the CUDA driver.
 // This guard is *conditional*: if the caller already dropped the GIL,
 // we avoid calling PyEval_SaveThread (which requires holding the GIL).
@@ -46,7 +71,6 @@ private:
 
 // Helper to acquire the GIL when we might not hold it.
 // Use in C++ destructors that need to manipulate Python objects.
-// Symmetric counterpart to GILReleaseGuard.
 class GILAcquireGuard {
 public:
     GILAcquireGuard() : acquired_(false) {
@@ -64,7 +88,6 @@ public:
         }
     }
 
-    // Check if GIL was successfully acquired (for conditional operations)
     bool acquired() const { return acquired_; }
 
     // Non-copyable, non-movable
@@ -76,78 +99,63 @@ private:
     bool acquired_;
 };
 
-// Internal box structure for Context (kept private to this TU)
+// ============================================================================
+// Context Handles
+// ============================================================================
+
 struct ContextBox {
     CUcontext resource;
 };
 
 ContextHandle create_context_handle_ref(CUcontext ctx) {
-    // Creates a non-owning handle that references an existing context
-    // (e.g., primary context managed by CUDA driver)
-
-    // Use default deleter - it will delete the box, but not touch the CUcontext
-    // CUcontext lifetime is managed externally (e.g., by CUDA driver)
-    auto box = std::shared_ptr<const ContextBox>(new ContextBox{ctx});
-
-    // Use aliasing constructor to create handle that exposes only CUcontext
-    // The handle's reference count is tied to box, but it points to &box->resource
+    auto box = std::make_shared<const ContextBox>(ContextBox{ctx});
     return ContextHandle(box, &box->resource);
 }
 
-// Thread-local storage for primary context cache
-// Each thread maintains its own cache of primary contexts indexed by device ID
+// Thread-local cache of primary contexts indexed by device ID
 thread_local std::vector<ContextHandle> primary_context_cache;
 
 ContextHandle get_primary_context(int device_id) noexcept {
     // Check thread-local cache
     if (static_cast<size_t>(device_id) < primary_context_cache.size()) {
-        auto cached = primary_context_cache[device_id];
-        if (cached.get() != nullptr) {
-            return cached;  // Cache hit
+        if (auto cached = primary_context_cache[device_id]) {
+            return cached;
         }
     }
 
     // Cache miss - acquire primary context from driver
+    GILReleaseGuard gil;
     CUcontext ctx;
-    CUresult err;
-    {
-        GILReleaseGuard gil;
-        err = cuDevicePrimaryCtxRetain(&ctx, device_id);
-    }
-    if (err != CUDA_SUCCESS) {
-        // Return empty handle on error (caller must check)
-        return ContextHandle();
+    if (CUDA_SUCCESS != (err = cuDevicePrimaryCtxRetain(&ctx, device_id))) {
+        return {};
     }
 
-    // Create owning handle with custom deleter that releases the primary context
-    auto box = std::shared_ptr<const ContextBox>(new ContextBox{ctx}, [device_id](const ContextBox* b) {
-        GILReleaseGuard gil;
-        cuDevicePrimaryCtxRelease(device_id);
-        delete b;
-    });
+    auto box = std::shared_ptr<const ContextBox>(
+        new ContextBox{ctx},
+        [device_id](const ContextBox* b) {
+            GILReleaseGuard gil;
+            cuDevicePrimaryCtxRelease(device_id);
+            delete b;
+        }
+    );
+    auto h = ContextHandle(box, &box->resource);
 
-    // Use aliasing constructor to expose only CUcontext
-    auto h_context = ContextHandle(box, &box->resource);
-
-    // Resize cache if needed
+    // Update cache
     if (static_cast<size_t>(device_id) >= primary_context_cache.size()) {
         primary_context_cache.resize(device_id + 1);
     }
-    primary_context_cache[device_id] = h_context;
-
-    return h_context;
+    primary_context_cache[device_id] = h;
+    return h;
 }
 
 ContextHandle get_current_context() noexcept {
+    GILReleaseGuard gil;
     CUcontext ctx = nullptr;
-    CUresult err;
-    {
-        GILReleaseGuard gil;
-        err = cuCtxGetCurrent(&ctx);
+    if (CUDA_SUCCESS != (err = cuCtxGetCurrent(&ctx))) {
+        return {};
     }
-    if (err != CUDA_SUCCESS || ctx == nullptr) {
-        // Return empty handle if no current context or error
-        return ContextHandle();
+    if (!ctx) {
+        return {};  // No current context (not an error)
     }
     return create_context_handle_ref(ctx);
 }
@@ -156,76 +164,54 @@ ContextHandle get_current_context() noexcept {
 // Stream Handles
 // ============================================================================
 
-// Internal box structure for Stream
 struct StreamBox {
     CUstream resource;
 };
 
 StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) {
-    // Creates an owning stream handle - calls cuStreamCreateWithPriority internally.
-    // The context handle is captured in the deleter to ensure context outlives the stream.
-    // Returns empty handle on error (caller must check).
+    GILReleaseGuard gil;
     CUstream stream;
-    CUresult err;
-    {
-        GILReleaseGuard gil;
-        err = cuStreamCreateWithPriority(&stream, flags, priority);
-    }
-    if (err != CUDA_SUCCESS) {
-        return StreamHandle();
+    if (CUDA_SUCCESS != (err = cuStreamCreateWithPriority(&stream, flags, priority))) {
+        return {};
     }
 
-    // Capture h_ctx in lambda - shared_ptr control block keeps it alive
-    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream}, [h_ctx](const StreamBox* b) {
-        GILReleaseGuard gil;
-        cuStreamDestroy(b->resource);
-        delete b;
-        // h_ctx destructor runs here when last stream reference is released
-    });
-
-    // Use aliasing constructor to expose only CUstream
+    auto box = std::shared_ptr<const StreamBox>(
+        new StreamBox{stream},
+        [h_ctx](const StreamBox* b) {
+            GILReleaseGuard gil;
+            cuStreamDestroy(b->resource);
+            delete b;
+        }
+    );
     return StreamHandle(box, &box->resource);
 }
 
 StreamHandle create_stream_handle_ref(CUstream stream) {
-    // Creates a non-owning handle - stream will NOT be destroyed.
-    // Caller is responsible for keeping the stream's context alive.
-    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream});
-
-    // Use aliasing constructor to expose only CUstream
+    auto box = std::make_shared<const StreamBox>(StreamBox{stream});
     return StreamHandle(box, &box->resource);
 }
 
 StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
-    // Creates a non-owning handle that prevents a Python owner from being GC'd.
-    // The owner's refcount is incremented here and decremented when handle is released.
-    // The owner is responsible for keeping the stream's context alive.
     Py_XINCREF(owner);
-
-    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream}, [owner](const StreamBox* b) {
-        // Safely decrement owner refcount (GILAcquireGuard handles finalization check)
-        {
+    auto box = std::shared_ptr<const StreamBox>(
+        new StreamBox{stream},
+        [owner](const StreamBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
                 Py_XDECREF(owner);
             }
+            delete b;
         }
-        delete b;
-    });
-
+    );
     return StreamHandle(box, &box->resource);
 }
 
 StreamHandle get_legacy_stream() noexcept {
-    // Return non-owning handle to the legacy default stream.
-    // Use function-local static for efficient repeated access.
     static StreamHandle handle = create_stream_handle_ref(CU_STREAM_LEGACY);
     return handle;
 }
 
 StreamHandle get_per_thread_stream() noexcept {
-    // Return non-owning handle to the per-thread default stream.
-    // Use function-local static for efficient repeated access.
     static StreamHandle handle = create_stream_handle_ref(CU_STREAM_PER_THREAD);
     return handle;
 }
@@ -234,65 +220,47 @@ StreamHandle get_per_thread_stream() noexcept {
 // Event Handles
 // ============================================================================
 
-// Internal box structure for Event
 struct EventBox {
     CUevent resource;
 };
 
 EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
-    // Creates an owning event handle - calls cuEventCreate internally.
-    // The context handle is captured in the deleter to ensure context outlives the event.
-    // Returns empty handle on error (caller must check).
+    GILReleaseGuard gil;
     CUevent event;
-    CUresult err;
-    {
-        GILReleaseGuard gil;
-        err = cuEventCreate(&event, flags);
-    }
-    if (err != CUDA_SUCCESS) {
-        return EventHandle();
+    if (CUDA_SUCCESS != (err = cuEventCreate(&event, flags))) {
+        return {};
     }
 
-    // Capture h_ctx in lambda - shared_ptr control block keeps it alive
-    auto box = std::shared_ptr<const EventBox>(new EventBox{event}, [h_ctx](const EventBox* b) {
-        GILReleaseGuard gil;
-        cuEventDestroy(b->resource);
-        delete b;
-        // h_ctx destructor runs here when last event reference is released
-    });
-
-    // Use aliasing constructor to expose only CUevent
+    auto box = std::shared_ptr<const EventBox>(
+        new EventBox{event},
+        [h_ctx](const EventBox* b) {
+            GILReleaseGuard gil;
+            cuEventDestroy(b->resource);
+            delete b;
+        }
+    );
     return EventHandle(box, &box->resource);
 }
 
 EventHandle create_event_handle(unsigned int flags) {
-    // Creates an owning event handle without context dependency.
-    // Use for temporary events that are created and destroyed in the same scope.
-    // Returns empty handle on error (caller must check).
     return create_event_handle(ContextHandle{}, flags);
 }
 
 EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
-    // Creates an owning event handle from an IPC handle.
-    // The originating process owns the event and its context.
-    // Returns empty handle on error (caller must check).
+    GILReleaseGuard gil;
     CUevent event;
-    CUresult err;
-    {
-        GILReleaseGuard gil;
-        err = cuIpcOpenEventHandle(&event, ipc_handle);
-    }
-    if (err != CUDA_SUCCESS) {
-        return EventHandle();
+    if (CUDA_SUCCESS != (err = cuIpcOpenEventHandle(&event, ipc_handle))) {
+        return {};
     }
 
-    auto box = std::shared_ptr<const EventBox>(new EventBox{event}, [](const EventBox* b) {
-        GILReleaseGuard gil;
-        cuEventDestroy(b->resource);
-        delete b;
-    });
-
-    // Use aliasing constructor to expose only CUevent
+    auto box = std::shared_ptr<const EventBox>(
+        new EventBox{event},
+        [](const EventBox* b) {
+            GILReleaseGuard gil;
+            cuEventDestroy(b->resource);
+            delete b;
+        }
+    );
     return EventHandle(box, &box->resource);
 }
 
@@ -300,7 +268,6 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
 // Memory Pool Handles
 // ============================================================================
 
-// Internal box structure for MemoryPool
 struct MemoryPoolBox {
     CUmemoryPool resource;
 };
@@ -319,90 +286,68 @@ static void clear_mempool_peer_access(CUmemoryPool pool) {
         clear_access[i].location.id = i;
         clear_access[i].flags = CU_MEM_ACCESS_FLAGS_PROT_NONE;
     }
-
-    // Ignore errors - best effort cleanup
-    cuMemPoolSetAccess(pool, clear_access.data(), device_count);
+    cuMemPoolSetAccess(pool, clear_access.data(), device_count);  // Best effort
 }
 
-// Helper to wrap a raw pool in an owning handle.
-// The deleter clears peer access (nvbug 5698116 workaround) and destroys the pool.
 static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool) {
-    auto box = std::shared_ptr<const MemoryPoolBox>(new MemoryPoolBox{pool}, [](const MemoryPoolBox* b) {
-        GILReleaseGuard gil;
-        clear_mempool_peer_access(b->resource);
-        cuMemPoolDestroy(b->resource);
-        delete b;
-    });
+    auto box = std::shared_ptr<const MemoryPoolBox>(
+        new MemoryPoolBox{pool},
+        [](const MemoryPoolBox* b) {
+            GILReleaseGuard gil;
+            clear_mempool_peer_access(b->resource);
+            cuMemPoolDestroy(b->resource);
+            delete b;
+        }
+    );
     return MemoryPoolHandle(box, &box->resource);
 }
 
 MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) {
-    // Creates an owning memory pool handle - calls cuMemPoolCreate internally.
-    // Memory pools are device-scoped (not context-scoped).
-    // Returns empty handle on error (caller must check).
+    GILReleaseGuard gil;
     CUmemoryPool pool;
-    CUresult err;
-    {
-        GILReleaseGuard gil;
-        err = cuMemPoolCreate(&pool, &props);
+    if (CUDA_SUCCESS != (err = cuMemPoolCreate(&pool, &props))) {
+        return {};
     }
-    return err == CUDA_SUCCESS ? wrap_mempool_owned(pool) : MemoryPoolHandle();
+    return wrap_mempool_owned(pool);
 }
 
 MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) {
-    // Creates a non-owning handle - pool will NOT be destroyed.
-    // Use for device default/current pools managed by the driver.
-    auto box = std::shared_ptr<const MemoryPoolBox>(new MemoryPoolBox{pool});
-
-    // Use aliasing constructor to expose only CUmemoryPool
+    auto box = std::make_shared<const MemoryPoolBox>(MemoryPoolBox{pool});
     return MemoryPoolHandle(box, &box->resource);
 }
 
 MemoryPoolHandle get_device_mempool(int device_id) noexcept {
-    // Get the current memory pool for a device.
-    // Returns a non-owning handle (pool managed by driver).
+    GILReleaseGuard gil;
     CUmemoryPool pool;
-    CUresult err;
-    {
-        GILReleaseGuard gil;
-        err = cuDeviceGetMemPool(&pool, device_id);
-    }
-    if (err != CUDA_SUCCESS) {
-        return MemoryPoolHandle();
+    if (CUDA_SUCCESS != (err = cuDeviceGetMemPool(&pool, device_id))) {
+        return {};
     }
     return create_mempool_handle_ref(pool);
 }
 
 MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type) {
-    // Creates an owning memory pool handle from an IPC import.
-    // The file descriptor is NOT owned by this handle.
-    // Returns empty handle on error (caller must check).
+    GILReleaseGuard gil;
     CUmemoryPool pool;
-    CUresult err;
-    {
-        GILReleaseGuard gil;
-        err = cuMemPoolImportFromShareableHandle(&pool, reinterpret_cast<void*>(static_cast<uintptr_t>(fd)), handle_type, 0);
+    auto handle_ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(fd));
+    if (CUDA_SUCCESS != (err = cuMemPoolImportFromShareableHandle(&pool, handle_ptr, handle_type, 0))) {
+        return {};
     }
-    return err == CUDA_SUCCESS ? wrap_mempool_owned(pool) : MemoryPoolHandle();
+    return wrap_mempool_owned(pool);
 }
 
 // ============================================================================
 // Device Pointer Handles
 // ============================================================================
 
-// Internal box structure for DevicePtr.
-// The h_stream is mutable to allow updating the deallocation stream after creation.
 struct DevicePtrBox {
     CUdeviceptr resource;
     mutable StreamHandle h_stream;
 };
 
-// Internal helper to retrieve the box from a handle (for deallocation_stream access).
 static DevicePtrBox* get_box(const DevicePtrHandle& h) {
     const CUdeviceptr* p = h.get();
     return reinterpret_cast<DevicePtrBox*>(
-        reinterpret_cast<char*>(const_cast<CUdeviceptr*>(p))
-        - offsetof(DevicePtrBox, resource)
+        reinterpret_cast<char*>(const_cast<CUdeviceptr*>(p)) - offsetof(DevicePtrBox, resource)
     );
 }
 
@@ -414,53 +359,35 @@ void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) {
     get_box(h)->h_stream = std::move(h_stream);
 }
 
-DevicePtrHandle deviceptr_alloc_from_pool(
-    size_t size,
-    MemoryPoolHandle h_pool,
-    StreamHandle h_stream)
-{
-    // Allocate from pool asynchronously.
-    // Pool handle is captured in deleter to keep pool alive.
+DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) {
+    GILReleaseGuard gil;
     CUdeviceptr ptr;
-    CUresult err;
-    {
-        GILReleaseGuard gil;
-        err = cuMemAllocFromPoolAsync(&ptr, size, *h_pool, native(h_stream));
-    }
-    if (err != CUDA_SUCCESS) {
-        return DevicePtrHandle();
+    if (CUDA_SUCCESS != (err = cuMemAllocFromPoolAsync(&ptr, size, *h_pool, native(h_stream)))) {
+        return {};
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
         new DevicePtrBox{ptr, h_stream},
         [h_pool](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            // cuMemFreeAsync accepts NULL stream (uses legacy default stream)
             cuMemFreeAsync(b->resource, native(b->h_stream));
             delete b;
-            // h_pool destructor runs here, releasing pool reference
         }
     );
     return DevicePtrHandle(box, &box->resource);
 }
 
 DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
-    // Allocate asynchronously (not from a specific pool).
+    GILReleaseGuard gil;
     CUdeviceptr ptr;
-    CUresult err;
-    {
-        GILReleaseGuard gil;
-        err = cuMemAllocAsync(&ptr, size, native(h_stream));
-    }
-    if (err != CUDA_SUCCESS) {
-        return DevicePtrHandle();
+    if (CUDA_SUCCESS != (err = cuMemAllocAsync(&ptr, size, native(h_stream)))) {
+        return {};
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
         new DevicePtrBox{ptr, h_stream},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            // cuMemFreeAsync accepts NULL stream (uses legacy default stream)
             cuMemFreeAsync(b->resource, native(b->h_stream));
             delete b;
         }
@@ -469,15 +396,10 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
 }
 
 DevicePtrHandle deviceptr_alloc(size_t size) {
-    // Allocate synchronously.
+    GILReleaseGuard gil;
     CUdeviceptr ptr;
-    CUresult err;
-    {
-        GILReleaseGuard gil;
-        err = cuMemAlloc(&ptr, size);
-    }
-    if (err != CUDA_SUCCESS) {
-        return DevicePtrHandle();
+    if (CUDA_SUCCESS != (err = cuMemAlloc(&ptr, size))) {
+        return {};
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
@@ -492,15 +414,10 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
 }
 
 DevicePtrHandle deviceptr_alloc_host(size_t size) {
-    // Allocate pinned host memory.
+    GILReleaseGuard gil;
     void* ptr;
-    CUresult err;
-    {
-        GILReleaseGuard gil;
-        err = cuMemAllocHost(&ptr, size);
-    }
-    if (err != CUDA_SUCCESS) {
-        return DevicePtrHandle();
+    if (CUDA_SUCCESS != (err = cuMemAllocHost(&ptr, size))) {
+        return {};
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
@@ -515,42 +432,25 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
 }
 
 DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) {
-    // Non-owning reference - pointer will NOT be freed.
-    auto box = std::shared_ptr<DevicePtrBox>(new DevicePtrBox{ptr, StreamHandle{}});
+    auto box = std::make_shared<DevicePtrBox>(DevicePtrBox{ptr, StreamHandle{}});
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_import_ipc(
-    MemoryPoolHandle h_pool,
-    const void* export_data,
-    StreamHandle h_stream,
-    CUresult* error_out)
-{
-    // Import pointer from IPC.
-    // Note: Does not implement reference counting workaround for nvbug 5570902 yet.
+DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) {
+    GILReleaseGuard gil;
     CUdeviceptr ptr;
-    CUresult err;
-    {
-        GILReleaseGuard gil;
-        err = cuMemPoolImportPointer(&ptr, *h_pool,
-            const_cast<CUmemPoolPtrExportData*>(
-                reinterpret_cast<const CUmemPoolPtrExportData*>(export_data)));
-    }
-    if (error_out) {
-        *error_out = err;
-    }
-    if (err != CUDA_SUCCESS) {
-        return DevicePtrHandle();
+    auto data = const_cast<CUmemPoolPtrExportData*>(
+        reinterpret_cast<const CUmemPoolPtrExportData*>(export_data));
+    if (CUDA_SUCCESS != (err = cuMemPoolImportPointer(&ptr, *h_pool, data))) {
+        return {};
     }
 
     auto box = std::shared_ptr<DevicePtrBox>(
         new DevicePtrBox{ptr, h_stream},
         [h_pool](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            // cuMemFreeAsync accepts NULL stream (uses legacy default stream)
             cuMemFreeAsync(b->resource, native(b->h_stream));
             delete b;
-            // h_pool destructor runs here
         }
     );
     return DevicePtrHandle(box, &box->resource);

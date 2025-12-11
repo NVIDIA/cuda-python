@@ -10,6 +10,13 @@ from cuda.bindings cimport cydriver
 # Declare the C++ namespace and types
 cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # ========================================================================
+    # Thread-local error handling
+    # ========================================================================
+    cydriver.CUresult get_last_error() nogil
+    cydriver.CUresult peek_last_error() nogil
+    void clear_last_error() nogil
+
+    # ========================================================================
     # Context Handle
     # ========================================================================
     ctypedef shared_ptr[const cydriver.CUcontext] ContextHandle
@@ -119,12 +126,11 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # Import a device pointer from IPC via cuMemPoolImportPointer
     # Note: Does not yet implement reference counting for nvbug 5570902
-    # Error code is written to error_out (caller must check)
+    # On error, returns empty handle and sets thread-local error (use get_last_error())
     DevicePtrHandle deviceptr_import_ipc(
         MemoryPoolHandle h_pool,
         const void* export_data,
-        StreamHandle h_stream,
-        cydriver.CUresult* error_out) nogil
+        StreamHandle h_stream) nogil
 
     # Access the deallocation stream for a device pointer handle (read-only)
     StreamHandle deallocation_stream(const DevicePtrHandle& h) nogil

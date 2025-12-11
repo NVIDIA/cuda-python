@@ -12,6 +12,19 @@
 namespace cuda_core {
 
 // ============================================================================
+// Thread-local error handling
+// ============================================================================
+
+// Get and clear the last CUDA error (like cudaGetLastError)
+CUresult get_last_error() noexcept;
+
+// Get the last CUDA error without clearing it (like cudaPeekAtLastError)
+CUresult peek_last_error() noexcept;
+
+// Explicitly clear the last error
+void clear_last_error() noexcept;
+
+// ============================================================================
 // Handle type aliases - expose only the raw CUDA resource
 // ============================================================================
 
@@ -149,12 +162,11 @@ DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr);
 // Import a device pointer from IPC via cuMemPoolImportPointer.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
 // Note: Does not yet implement reference counting for nvbug 5570902.
-// Error code is written to error_out (caller must check).
+// On error, returns empty handle and sets thread-local error (use get_last_error()).
 DevicePtrHandle deviceptr_import_ipc(
     MemoryPoolHandle h_pool,
     const void* export_data,
-    StreamHandle h_stream,
-    CUresult* error_out);
+    StreamHandle h_stream);
 
 // Access the deallocation stream for a device pointer handle (read-only).
 // For non-owning handles, the stream is not used but can still be accessed.
