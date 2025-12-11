@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 cimport cython
-from libc.stdint cimport uintptr_t, int64_t, uint64_t
+from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
@@ -15,7 +15,13 @@ from cuda.core.experimental._stream cimport Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 import abc
+import sys
 from typing import TypeVar, Union
+
+if sys.version_info >= (3, 12):
+    from collections.abc import Buffer as BufferProtocol
+else:
+    BufferProtocol = object
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._utils.cuda_utils import driver
@@ -203,23 +209,26 @@ cdef class Buffer:
                 s
             ))
 
-    def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
-        """Fill this buffer with a value pattern asynchronously on the given stream.
+    def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder):
+        """Fill this buffer with a repeating byte pattern.
 
         Parameters
         ----------
-        value : int
-            Integer value to fill the buffer with
-        width : int
-            Width in bytes for each element (must be 1, 2, or 4)
+        value : int | :obj:`collections.abc.Buffer`
+            - int: Must be in range [0, 256). Converted to 1 byte.
+            - :obj:`collections.abc.Buffer`: Must be 1, 2, or 4 bytes.
         stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
-            Keyword argument specifying the stream for the asynchronous fill
+            Stream for the asynchronous fill operation.
 
         Raises
         ------
+        TypeError
+            If value is not an int and does not support the buffer protocol.
         ValueError
-            If width is not 1, 2, or 4, if value is out of range for the width,
-            or if buffer size is not divisible by width
+            If value byte length is not 1, 2, or 4.
+            If buffer size is not divisible by value byte length.
+        OverflowError
+            If int value is outside [0, 256).
 
         """
         cdef Stream s_stream = Stream_accept(stream)
@@ -227,34 +236,58 @@ cdef class Buffer:
         cdef unsigned short c_value16
         cdef unsigned int c_value32
         cdef size_t N
+        cdef size_t width
+        cdef unsigned int int_value
 
-        # Validate width
-        if width not in (1, 2, 4):
-            raise ValueError(f"width must be 1, 2, or 4, got {width}")
+        # Get fill pattern from value
+        if isinstance(value, int):
+            # We define the int input to mean a 1-byte pattern.
+            # Match int.to_bytes(1, "little") behavior: raise OverflowError if not in [0, 256).
+            if value < 0 or value >= 256:
+                raise OverflowError("int value must be in range [0, 256)")
+            width = 1
+            int_value = <unsigned int>value
+        else:
+            try:
+                mv = memoryview(value)
+            except TypeError:
+                raise TypeError(
+                    f"value must be an int or support the buffer protocol, got {type(value).__name__}"
+                ) from None
+            width = mv.nbytes
+
+            # Validate width early to avoid copying/processing large invalid inputs.
+            if width not in (1, 2, 4):
+                raise ValueError(f"value must be 1, 2, or 4 bytes, got {width}")
+
+            # Convert to a 1-D view of bytes.
+            #
+            # Note: NumPy scalar memoryviews are 0-D, and int.from_bytes(mv, ...) errors with
+            # "0-dim memory has no length". Casting to 'B' gives us a byte-addressable view.
+            try:
+                int_value = int.from_bytes(mv.cast("B"), "little")
+            except TypeError:
+                int_value = int.from_bytes(mv.tobytes(), "little")
 
         # Validate buffer size modulus.
         cdef size_t buffer_size = self._size
         if buffer_size % width != 0:
-            raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
+            raise ValueError(f"buffer size ({buffer_size}) must be divisible by {width}")
 
-        # Map width (bytes) to bitwidth and validate value
-        cdef int bitwidth = width * 8
-        _validate_value_against_bitwidth(bitwidth, value, is_signed=False)
-
-        # Validate value fits in width and perform fill
+        # Perform fill based on width
         cdef cydriver.CUstream s = s_stream._handle
         if width == 1:
-            c_value8 = <unsigned char>value
+            c_value8 = <unsigned char>int_value
             N = buffer_size
             with nogil:
                 HANDLE_RETURN(cydriver.cuMemsetD8Async(<cydriver.CUdeviceptr>self._ptr, c_value8, N, s))
         elif width == 2:
-            c_value16 = <unsigned short>value
+            c_value16 = <unsigned short>int_value
             N = buffer_size // 2
             with nogil:
                 HANDLE_RETURN(cydriver.cuMemsetD16Async(<cydriver.CUdeviceptr>self._ptr, c_value16, N, s))
         else:  # width == 4
-            c_value32 = <unsigned int>value
+            c_value32 = <unsigned int>int_value
             N = buffer_size // 4
             with nogil:
                 HANDLE_RETURN(cydriver.cuMemsetD32Async(<cydriver.CUdeviceptr>self._ptr, c_value32, N, s))
@@ -500,43 +533,3 @@ cdef class MemoryResource:
             and document the behavior.
         """
         ...
-
-
-# Helper Functions
-# ----------------
-cdef void _validate_value_against_bitwidth(int bitwidth, int64_t value, bint is_signed=False) except *:
-    """Validate that a value fits within the representable range for a given bitwidth.
-
-    Parameters
-    ----------
-    bitwidth : int
-        Number of bits (e.g., 8, 16, 32)
-    value : int64_t
-        Value to validate
-    is_signed : bool, optional
-        Whether the value is signed (default: False)
-
-    Raises
-    ------
-    ValueError
-        If value is outside the representable range for the bitwidth
-    """
-    cdef int max_bits = bitwidth
-    assert max_bits < 64, f"bitwidth ({max_bits}) must be less than 64"
-
-    cdef int64_t min_value
-    cdef uint64_t max_value_unsigned
-    cdef int64_t max_value
-
-    if is_signed:
-        min_value = -(<int64_t>1 << (max_bits - 1))
-        max_value = (<int64_t>1 << (max_bits - 1)) - 1
-    else:
-        min_value = 0
-        max_value_unsigned = (<uint64_t>1 << max_bits) - 1
-        max_value = <int64_t>max_value_unsigned
-
-    if not min_value <= value <= max_value:
-        raise ValueError(
-            f"value must be in range [{min_value}, {max_value}]"
-        )
