@@ -34,7 +34,6 @@ cu13 = { features = ["cu13", "test"], solve-group = "cu13" }
 [package]
 name = "cuda-pathfinder"
 version = "1.3.4a0"
-noarch = "python"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }
