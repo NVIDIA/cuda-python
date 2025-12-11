@@ -19,7 +19,6 @@ from cuda.core.experimental._resource_handles cimport (
     ContextHandle,
     create_context_handle_ref,
     get_primary_context,
-    get_current_context,
     native,
 )
 from cuda.core.experimental._graph import GraphBuilder
@@ -943,7 +942,7 @@ class Device:
         Default value of `None` return the currently used device.
 
     """
-    __slots__ = ("_device_id", "_memory_resource", "_has_inited", "_properties", "_uuid")
+    __slots__ = ("_device_id", "_memory_resource", "_has_inited", "_properties", "_uuid", "_context")
 
     def __new__(cls, device_id: Device | int | None = None):
         # Handle device_id argument.
@@ -962,16 +961,15 @@ class Device:
         # important: creating a Device instance does not initialize the GPU!
         cdef cydriver.CUdevice dev
         cdef cydriver.CUcontext ctx
-        cdef ContextHandle h_context
         if device_id is None:
             with nogil:
                 err = cydriver.cuCtxGetDevice(&dev)
             if err == cydriver.CUresult.CUDA_SUCCESS:
                 device_id = int(dev)
             elif err == cydriver.CUresult.CUDA_ERROR_INVALID_CONTEXT:
-                h_context = get_current_context()
-                assert h_context.get() == NULL
-                device_id = 0  # cudart behavior
+                # No context is current - verify and default to device 0 (cudart behavior)
+                assert cydriver.cuCtxGetCurrent(&ctx) == cydriver.CUresult.CUDA_SUCCESS and ctx == NULL
+                device_id = 0
             else:
                 HANDLE_RETURN(err)
         elif device_id < 0:
@@ -992,6 +990,7 @@ class Device:
                 device._has_inited = False
                 device._properties = None
                 device._uuid = None
+                device._context = None
                 devices.append(device)
 
         try:
@@ -1110,7 +1109,7 @@ class Device:
 
     @property
     def context(self) -> Context:
-        """Return the current :obj:`~_context.Context` associated with this device.
+        """Return the :obj:`~_context.Context` associated with this device.
 
         Note
         ----
@@ -1118,16 +1117,7 @@ class Device:
 
         """
         self._check_context_initialized()
-        cdef ContextHandle h_context
-        cdef cydriver.CUdevice dev
-        h_context = get_current_context()
-        if h_context.get() == NULL:
-            raise CUDAError("No context is bound to the calling CPU thread.")
-        with nogil:
-            HANDLE_RETURN(cydriver.cuCtxGetDevice(&dev))
-        if <int>dev != self._device_id:
-            raise CUDAError("Internal error (current device is not equal to Device.device_id)")
-        return Context._from_handle(Context, h_context, self._device_id)
+        return self._context
 
     @property
     def memory_resource(self) -> MemoryResource:
@@ -1237,6 +1227,7 @@ class Device:
                 HANDLE_RETURN(cydriver.cuCtxPopCurrent(&prev_ctx))
                 HANDLE_RETURN(cydriver.cuCtxPushCurrent(curr_ctx))
             self._has_inited = True
+            self._context = ctx  # Store owning context reference
             if prev_ctx != NULL:
                 return Context._from_handle(Context, create_context_handle_ref(prev_ctx), self._device_id)
         else:
@@ -1247,6 +1238,7 @@ class Device:
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxSetCurrent(native(h_context)))
             self._has_inited = True
+            self._context = Context._from_handle(Context, h_context, self._device_id)  # Store owning context
 
     def create_context(self, options: ContextOptions = None) -> Context:
         """Create a new :obj:`~_context.Context` object.
@@ -1297,7 +1289,7 @@ class Device:
 
         """
         self._check_context_initialized()
-        return Stream._init(obj=obj, options=options, device_id=self._device_id)
+        return Stream._init(obj=obj, options=options, device_id=self._device_id, ctx=self._context)
 
     def create_event(self, options: EventOptions | None = None) -> Event:
         """Create an Event object without recording it to a Stream.
@@ -1318,11 +1310,8 @@ class Device:
 
         """
         self._check_context_initialized()
-        cdef ContextHandle h_context
-        h_context = get_current_context()
-        if h_context.get() == NULL:
-            raise CUDAError("No context is bound to the calling CPU thread.")
-        return cyEvent._init(cyEvent, self._device_id, h_context, options, True)
+        cdef Context ctx = self._context
+        return cyEvent._init(cyEvent, self._device_id, ctx._h_context, options, True)
 
     def allocate(self, size, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """Allocate device memory from a specified stream.

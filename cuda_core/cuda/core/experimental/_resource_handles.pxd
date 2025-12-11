@@ -27,19 +27,22 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ctypedef shared_ptr[const cydriver.CUstream] StreamHandle
 
     # Create an owning stream handle via cuStreamCreateWithPriority
+    # Context handle establishes structural dependency (context outlives stream)
     # Returns empty handle on error (caller must check)
-    StreamHandle create_stream_handle(unsigned int flags, int priority) nogil
+    StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) nogil
 
     # Create a non-owning stream handle (stream NOT destroyed when handle released)
+    # Caller is responsible for keeping the stream's context alive
     StreamHandle create_stream_handle_ref(cydriver.CUstream stream) nogil
 
     # Create non-owning handle that prevents Python owner from being GC'd
+    # Owner is responsible for keeping the stream's context alive
     StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner)
 
-    # Get non-owning handle to the legacy default stream
+    # Get non-owning handle to the legacy default stream (no context dependency)
     StreamHandle get_legacy_stream() nogil
 
-    # Get non-owning handle to the per-thread default stream
+    # Get non-owning handle to the per-thread default stream (no context dependency)
     StreamHandle get_per_thread_stream() nogil
 
     # ========================================================================

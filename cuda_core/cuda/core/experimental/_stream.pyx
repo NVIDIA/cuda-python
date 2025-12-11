@@ -117,16 +117,23 @@ cdef class Stream:
         return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
-    def _init(cls, obj: IsStreamT | None = None, options=None, device_id: int = None):
+    def _init(cls, obj: IsStreamT | None = None, options=None, device_id: int = None,
+              ctx: Context = None):
         cdef StreamHandle h_stream
         cdef cydriver.CUstream borrowed
+        cdef ContextHandle h_context
         cdef Stream self
+
+        # Extract context handle if provided
+        if ctx is not None:
+            h_context = (<Context>ctx)._h_context
 
         if obj is not None and options is not None:
             raise ValueError("obj and options cannot be both specified")
         if obj is not None:
             # Borrowed stream from foreign object
             # C++ handle prevents owner from being GC'd until handle is released
+            # Owner is responsible for keeping the stream's context alive
             borrowed = _handle_from_stream_protocol(obj)
             h_stream = create_stream_handle_with_owner(borrowed, obj)
             return Stream._from_handle(cls, h_stream)
@@ -149,8 +156,8 @@ cdef class Stream:
         else:
             prio = high
 
-        # C++ creates the stream and returns owning handle
-        h_stream = create_stream_handle(flags, prio)
+        # C++ creates the stream and returns owning handle with context dependency
+        h_stream = create_stream_handle(h_context, flags, prio)
         if not h_stream:
             raise RuntimeError("Failed to create CUDA stream")
         self = Stream._from_handle(cls, h_stream)

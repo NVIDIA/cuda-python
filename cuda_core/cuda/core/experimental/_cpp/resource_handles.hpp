@@ -38,23 +38,28 @@ ContextHandle get_current_context() noexcept;
 // ============================================================================
 
 // Create an owning stream handle by calling cuStreamCreateWithPriority.
+// The stream structurally depends on the provided context handle.
 // When the last reference is released, cuStreamDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-StreamHandle create_stream_handle(unsigned int flags, int priority);
+StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority);
 
 // Create a non-owning stream handle (references existing stream).
 // Use for borrowed streams (from foreign code) or built-in streams.
 // The stream will NOT be destroyed when the handle is released.
+// Caller is responsible for keeping the stream's context alive.
 StreamHandle create_stream_handle_ref(CUstream stream);
 
 // Create a non-owning stream handle that prevents a Python owner from being GC'd.
 // The owner's refcount is incremented; decremented when handle is released.
+// The owner is responsible for keeping the stream's context alive.
 StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner);
 
 // Get non-owning handle to the legacy default stream (CU_STREAM_LEGACY)
+// Note: Legacy stream has no specific context dependency.
 StreamHandle get_legacy_stream() noexcept;
 
 // Get non-owning handle to the per-thread default stream (CU_STREAM_PER_THREAD)
+// Note: Per-thread stream has no specific context dependency.
 StreamHandle get_per_thread_stream() noexcept;
 
 // ============================================================================

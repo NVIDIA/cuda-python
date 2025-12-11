@@ -161,8 +161,9 @@ struct StreamBox {
     CUstream resource;
 };
 
-StreamHandle create_stream_handle(unsigned int flags, int priority) {
+StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) {
     // Creates an owning stream handle - calls cuStreamCreateWithPriority internally.
+    // The context handle is captured in the deleter to ensure context outlives the stream.
     // Returns empty handle on error (caller must check).
     CUstream stream;
     CUresult err;
@@ -174,10 +175,12 @@ StreamHandle create_stream_handle(unsigned int flags, int priority) {
         return StreamHandle();
     }
 
-    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream}, [](const StreamBox* b) {
+    // Capture h_ctx in lambda - shared_ptr control block keeps it alive
+    auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream}, [h_ctx](const StreamBox* b) {
         GILReleaseGuard gil;
         cuStreamDestroy(b->resource);
         delete b;
+        // h_ctx destructor runs here when last stream reference is released
     });
 
     // Use aliasing constructor to expose only CUstream
@@ -185,7 +188,8 @@ StreamHandle create_stream_handle(unsigned int flags, int priority) {
 }
 
 StreamHandle create_stream_handle_ref(CUstream stream) {
-    // Creates a non-owning handle - stream will NOT be destroyed
+    // Creates a non-owning handle - stream will NOT be destroyed.
+    // Caller is responsible for keeping the stream's context alive.
     auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream});
 
     // Use aliasing constructor to expose only CUstream
@@ -195,6 +199,7 @@ StreamHandle create_stream_handle_ref(CUstream stream) {
 StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
     // Creates a non-owning handle that prevents a Python owner from being GC'd.
     // The owner's refcount is incremented here and decremented when handle is released.
+    // The owner is responsible for keeping the stream's context alive.
     Py_XINCREF(owner);
 
     auto box = std::shared_ptr<const StreamBox>(new StreamBox{stream}, [owner](const StreamBox* b) {
