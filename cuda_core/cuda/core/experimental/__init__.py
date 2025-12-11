@@ -44,6 +44,8 @@ from cuda.core.experimental._memory import (  # noqa: E402
     DeviceMemoryResourceOptions,
     GraphMemoryResource,
     LegacyPinnedMemoryResource,
+    ManagedMemoryResource,
+    ManagedMemoryResourceOptions,
     MemoryResource,
     PinnedMemoryResource,
     PinnedMemoryResourceOptions,

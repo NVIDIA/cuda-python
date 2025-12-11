@@ -325,8 +325,14 @@ cdef int _MP_init_current(_MemPool self, int dev_id, _MemPoolOptions opts) excep
                 HANDLE_RETURN(cydriver.cuMemGetMemPool(&(self._handle), &loc, opts._type))
             ELSE:
                 raise RuntimeError("not supported")
-        #TODO
-        #elif opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
+        elif opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED:
+            # Managed memory pools
+            IF CUDA_CORE_BUILD_MAJOR >= 13:
+                loc.id = dev_id
+                loc.type = opts._location
+                HANDLE_RETURN(cydriver.cuMemGetMemPool(&(self._handle), &loc, opts._type))
+            ELSE:
+                raise RuntimeError("Managed memory pools not supported in CUDA < 13")
         else:
             assert False
 

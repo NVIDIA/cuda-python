@@ -17,6 +17,8 @@ from cuda.core.experimental import (
     Device,
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
+    ManagedMemoryResource,
+    ManagedMemoryResourceOptions,
     PinnedMemoryResource,
     PinnedMemoryResourceOptions,
     _device,
@@ -165,6 +167,7 @@ def mempool_device_x3():
         pytest.param((DeviceMemoryResource, DeviceMemoryResourceOptions, True), id="DeviceMR-device_object"),
         pytest.param((DeviceMemoryResource, DeviceMemoryResourceOptions, False), id="DeviceMR-device_id"),
         pytest.param((PinnedMemoryResource, PinnedMemoryResourceOptions, None), id="PinnedMR"),
+        pytest.param((ManagedMemoryResource, ManagedMemoryResourceOptions, None), id="ManagedMR"),
     ]
 )
 def memory_resource_factory_with_device(request, init_cuda):
@@ -172,8 +175,8 @@ def memory_resource_factory_with_device(request, init_cuda):
 
     Returns a 3-tuple of (MRClass, MROptionClass, use_device_object).
     For DeviceMemoryResource, use_device_object is True/False indicating whether to pass
-    a Device object or device_id. For PinnedMemoryResource, use_device_object is None
-    as it doesn't require a device parameter.
+    a Device object or device_id. For PinnedMemoryResource and ManagedMemoryResource,
+    use_device_object is None as they don't require a device parameter.
 
     Usage:
         def test_something(memory_resource_factory_with_device):
@@ -183,6 +186,8 @@ def memory_resource_factory_with_device(request, init_cuda):
                 device_arg = device if use_device_object else device.device_id
                 mr = MRClass(device_arg)
             elif MRClass is PinnedMemoryResource:
+                mr = MRClass()
+            elif MRClass is ManagedMemoryResource:
                 mr = MRClass()
     """
     return request.param
