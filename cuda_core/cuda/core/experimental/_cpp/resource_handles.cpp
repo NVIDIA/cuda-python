@@ -265,6 +265,13 @@ EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
     return EventHandle(box, &box->resource);
 }
 
+EventHandle create_event_handle(unsigned int flags) {
+    // Creates an owning event handle without context dependency.
+    // Use for temporary events that are created and destroyed in the same scope.
+    // Returns empty handle on error (caller must check).
+    return create_event_handle(ContextHandle{}, flags);
+}
+
 EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
     // Creates an owning event handle from an IPC handle.
     // The originating process owns the event and its context.

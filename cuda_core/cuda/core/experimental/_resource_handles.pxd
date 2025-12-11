@@ -55,6 +55,11 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Returns empty handle on error (caller must check)
     EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) nogil
 
+    # Create an owning event handle without context dependency
+    # Use for temporary events that are created and destroyed in the same scope
+    # Returns empty handle on error (caller must check)
+    EventHandle create_event_handle(unsigned int flags) nogil
+
     # Create an owning event handle from IPC handle
     # The originating process owns the event and its context
     # Returns empty handle on error (caller must check)

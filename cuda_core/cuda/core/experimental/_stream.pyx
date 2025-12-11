@@ -306,8 +306,7 @@ cdef class Stream:
                 ) from e
 
         # Wait on stream via temporary event
-        Stream_ensure_ctx(self)
-        h_event = create_event_handle(self._h_context, cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+        h_event = create_event_handle(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
         with nogil:
             HANDLE_RETURN(cydriver.cuEventRecord(native(h_event), native(stream._h_stream)))
             # TODO: support flags other than 0?

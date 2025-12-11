@@ -73,6 +73,12 @@ StreamHandle get_per_thread_stream() noexcept;
 // Returns empty handle on error (caller must check).
 EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags);
 
+// Create an owning event handle without context dependency.
+// Use for temporary events that are created and destroyed in the same scope.
+// When the last reference is released, cuEventDestroy is called automatically.
+// Returns empty handle on error (caller must check).
+EventHandle create_event_handle(unsigned int flags);
+
 // Create an owning event handle from an IPC handle.
 // The originating process owns the event and its context.
 // When the last reference is released, cuEventDestroy is called automatically.
