@@ -296,4 +296,94 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
     return EventHandle(box, &box->resource);
 }
 
+// ============================================================================
+// Memory Pool Handles
+// ============================================================================
+
+// Internal box structure for MemoryPool
+struct MemoryPoolBox {
+    CUmemoryPool resource;
+};
+
+// Helper to clear peer access before destroying a memory pool.
+// Works around nvbug 5698116: recycled pool handles inherit peer access state.
+static void clear_mempool_peer_access(CUmemoryPool pool) {
+    int device_count = 0;
+    if (cuDeviceGetCount(&device_count) != CUDA_SUCCESS || device_count <= 0) {
+        return;
+    }
+
+    std::vector<CUmemAccessDesc> clear_access(device_count);
+    for (int i = 0; i < device_count; ++i) {
+        clear_access[i].location.type = CU_MEM_LOCATION_TYPE_DEVICE;
+        clear_access[i].location.id = i;
+        clear_access[i].flags = CU_MEM_ACCESS_FLAGS_PROT_NONE;
+    }
+
+    // Ignore errors - best effort cleanup
+    cuMemPoolSetAccess(pool, clear_access.data(), device_count);
+}
+
+// Helper to wrap a raw pool in an owning handle.
+// The deleter clears peer access (nvbug 5698116 workaround) and destroys the pool.
+static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool) {
+    auto box = std::shared_ptr<const MemoryPoolBox>(new MemoryPoolBox{pool}, [](const MemoryPoolBox* b) {
+        GILReleaseGuard gil;
+        clear_mempool_peer_access(b->resource);
+        cuMemPoolDestroy(b->resource);
+        delete b;
+    });
+    return MemoryPoolHandle(box, &box->resource);
+}
+
+MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) {
+    // Creates an owning memory pool handle - calls cuMemPoolCreate internally.
+    // Memory pools are device-scoped (not context-scoped).
+    // Returns empty handle on error (caller must check).
+    CUmemoryPool pool;
+    CUresult err;
+    {
+        GILReleaseGuard gil;
+        err = cuMemPoolCreate(&pool, &props);
+    }
+    return err == CUDA_SUCCESS ? wrap_mempool_owned(pool) : MemoryPoolHandle();
+}
+
+MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) {
+    // Creates a non-owning handle - pool will NOT be destroyed.
+    // Use for device default/current pools managed by the driver.
+    auto box = std::shared_ptr<const MemoryPoolBox>(new MemoryPoolBox{pool});
+
+    // Use aliasing constructor to expose only CUmemoryPool
+    return MemoryPoolHandle(box, &box->resource);
+}
+
+MemoryPoolHandle get_device_mempool(int device_id) noexcept {
+    // Get the current memory pool for a device.
+    // Returns a non-owning handle (pool managed by driver).
+    CUmemoryPool pool;
+    CUresult err;
+    {
+        GILReleaseGuard gil;
+        err = cuDeviceGetMemPool(&pool, device_id);
+    }
+    if (err != CUDA_SUCCESS) {
+        return MemoryPoolHandle();
+    }
+    return create_mempool_handle_ref(pool);
+}
+
+MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type) {
+    // Creates an owning memory pool handle from an IPC import.
+    // The file descriptor is NOT owned by this handle.
+    // Returns empty handle on error (caller must check).
+    CUmemoryPool pool;
+    CUresult err;
+    {
+        GILReleaseGuard gil;
+        err = cuMemPoolImportFromShareableHandle(&pool, reinterpret_cast<void*>(static_cast<uintptr_t>(fd)), handle_type, 0);
+    }
+    return err == CUDA_SUCCESS ? wrap_mempool_owned(pool) : MemoryPoolHandle();
+}
+
 }  // namespace cuda_core

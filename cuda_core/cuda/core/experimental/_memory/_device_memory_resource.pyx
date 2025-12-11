@@ -13,7 +13,13 @@ from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle, IPCDataForMR
-from cuda.core.experimental._resource_handles cimport native
+from cuda.core.experimental._resource_handles cimport (
+    MemoryPoolHandle,
+    create_mempool_handle,
+    get_device_mempool,
+    native,
+    py,
+)
 from cuda.core.experimental._stream cimport default_stream, Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
@@ -77,7 +83,7 @@ cdef class DeviceMemoryResourceAttributes:
         cdef DeviceMemoryResource mr = <DeviceMemoryResource>(self._mr_weakref())
         if mr is None:
             raise RuntimeError("DeviceMemoryResource is expired")
-        cdef cydriver.CUmemoryPool pool_handle = mr._handle
+        cdef cydriver.CUmemoryPool pool_handle = native(mr._h_pool)
         with nogil:
             HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(pool_handle, attr_enum, value))
         return 0
@@ -219,9 +225,9 @@ cdef class DeviceMemoryResource(MemoryResource):
     """
 
     def __cinit__(self):
+        # _h_pool is default-initialized (empty shared_ptr) by C++
         self._device_id = cydriver.CU_DEVICE_INVALID
-        self._handle = NULL
-        self._mempool_owned = False
+        self._pool_owned = False
         self._ipc_data = None
         self._attributes = None
         self._peer_accessible_by = ()
@@ -238,9 +244,6 @@ cdef class DeviceMemoryResource(MemoryResource):
             DMR_init_current(self, c_device_id)
         else:
             DMR_init_create(self, c_device_id, opts)
-
-    def __dealloc__(self):
-        DMR_close(self)
 
     def close(self):
         """
@@ -371,7 +374,7 @@ cdef class DeviceMemoryResource(MemoryResource):
     @property
     def handle(self) -> driver.CUmemoryPool:
         """Handle to the underlying memory pool."""
-        return driver.CUmemoryPool(<uintptr_t>(self._handle))
+        return py(self._h_pool)
 
     @property
     def is_device_accessible(self) -> bool:
@@ -381,7 +384,7 @@ cdef class DeviceMemoryResource(MemoryResource):
     @property
     def is_handle_owned(self) -> bool:
         """Whether the memory resource handle is owned. If False, ``close`` has no effect."""
-        return self._mempool_owned
+        return self._pool_owned
 
     @property
     def is_host_accessible(self) -> bool:
@@ -469,7 +472,7 @@ cdef class DeviceMemoryResource(MemoryResource):
                     i += 1
 
                 with nogil:
-                    HANDLE_RETURN(cydriver.cuMemPoolSetAccess(self._handle, access_desc, count))
+                    HANDLE_RETURN(cydriver.cuMemPoolSetAccess(native(self._h_pool), access_desc, count))
             finally:
                 if access_desc != NULL:
                     free(access_desc)
@@ -485,19 +488,20 @@ cdef void DMR_init_current(DeviceMemoryResource self, int device_id):
     cdef cydriver.cuuint64_t current_threshold
     cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX
 
+    self._h_pool = get_device_mempool(device_id)
+    if not self._h_pool:
+        raise RuntimeError("Failed to get device memory pool")
     self._device_id = device_id
-    self._mempool_owned = False
+    self._pool_owned = False
 
     with nogil:
-        HANDLE_RETURN(cydriver.cuDeviceGetMemPool(&(self._handle), device_id))
-
         # Set a higher release threshold to improve performance when there are
         # no active allocations.  By default, the release threshold is 0, which
         # means memory is immediately released back to the OS when there are no
         # active suballocations, causing performance issues.
         HANDLE_RETURN(
             cydriver.cuMemPoolGetAttribute(
-                self._handle,
+                native(self._h_pool),
                 cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
                 &current_threshold
             )
@@ -506,7 +510,7 @@ cdef void DMR_init_current(DeviceMemoryResource self, int device_id):
         # If threshold is 0 (default), set it to maximum to retain memory in the pool.
         if current_threshold == 0:
             HANDLE_RETURN(cydriver.cuMemPoolSetAttribute(
-                self._handle,
+                native(self._h_pool),
                 cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
                 &max_threshold
             ))
@@ -530,16 +534,15 @@ cdef void DMR_init_create(
     properties.win32SecurityAttributes = NULL
     properties.usage = 0
 
+    self._h_pool = create_mempool_handle(properties)
+    if not self._h_pool:
+        raise RuntimeError("Failed to create memory pool")
     self._device_id = device_id
-    self._mempool_owned = True
-
-    with nogil:
-        HANDLE_RETURN(cydriver.cuMemPoolCreate(&(self._handle), &properties))
-        # TODO: should we also set the threshold here?
-
+    self._pool_owned = True
     if opts.ipc_enabled:
         alloc_handle = _ipc.DMR_export_mempool(self)
         self._ipc_data = IPCDataForMR(alloc_handle, False)
+    # TODO: should we also set the threshold here?
 
 
 # Raise an exception if the given stream is capturing.
@@ -554,10 +557,11 @@ cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
 
 cdef inline Buffer DMR_allocate(DeviceMemoryResource self, size_t size, Stream stream):
     cdef cydriver.CUstream s = native(stream._h_stream)
+    cdef cydriver.CUmemoryPool pool = native(self._h_pool)
     cdef cydriver.CUdeviceptr devptr
     with nogil:
         check_not_capturing(s)
-        HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, self._handle, s))
+        HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, pool, s))
     cdef Buffer buf = Buffer.__new__(Buffer)
     buf._ptr = <uintptr_t>(devptr)
     buf._ptr_obj = None
@@ -580,25 +584,18 @@ cdef inline void DMR_deallocate(
 
 
 cdef inline DMR_close(DeviceMemoryResource self):
-    if self._handle == NULL:
+    if not self._h_pool:
         return
 
-    # This works around nvbug 5698116. When a memory pool handle is recycled
-    # the new handle inherits the peer access state of the previous handle.
-    if self._peer_accessible_by:
-        self.peer_accessible_by = []
-
-    try:
-        if self._mempool_owned:
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemPoolDestroy(self._handle))
-    finally:
-        self._device_id = cydriver.CU_DEVICE_INVALID
-        self._handle = NULL
-        self._attributes = None
-        self._mempool_owned = False
-        self._ipc_data = None
-        self._peer_accessible_by = ()
+    # Reset members in declaration order.
+    # The RAII deleter handles nvbug 5698116 workaround (clears peer access)
+    # and calls cuMemPoolDestroy if this is an owning handle.
+    self._h_pool.reset()
+    self._device_id = cydriver.CU_DEVICE_INVALID
+    self._pool_owned = False
+    self._ipc_data = None
+    self._attributes = None
+    self._peer_accessible_by = ()
 
 
 # Note: this is referenced in instructions to debug nvbug 5698116.
@@ -626,7 +623,7 @@ cpdef DMR_mempool_get_access(DeviceMemoryResource dmr, int device_id):
     location.id = c_device_id
 
     with nogil:
-        HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, dmr._handle, &location))
+        HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, native(dmr._h_pool), &location))
 
     if flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE:
         return "rw"

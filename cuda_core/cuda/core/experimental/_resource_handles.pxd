@@ -66,6 +66,29 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     EventHandle create_event_handle_ipc(const cydriver.CUipcEventHandle& ipc_handle) nogil
 
     # ========================================================================
+    # Memory Pool Handle
+    # ========================================================================
+    ctypedef shared_ptr[const cydriver.CUmemoryPool] MemoryPoolHandle
+
+    # Create an owning memory pool handle via cuMemPoolCreate
+    # Memory pools are device-scoped (not context-scoped)
+    # Returns empty handle on error (caller must check)
+    MemoryPoolHandle create_mempool_handle(const cydriver.CUmemPoolProps& props) nogil
+
+    # Create a non-owning memory pool handle (pool NOT destroyed when released)
+    # Use for device default/current pools managed by the driver
+    MemoryPoolHandle create_mempool_handle_ref(cydriver.CUmemoryPool pool) nogil
+
+    # Get non-owning handle to the current memory pool for a device
+    # Returns empty handle on error (caller must check)
+    MemoryPoolHandle get_device_mempool(int device_id) nogil
+
+    # Create an owning memory pool handle from IPC import
+    # File descriptor NOT owned by this handle (caller manages FD separately)
+    # Returns empty handle on error (caller must check)
+    MemoryPoolHandle create_mempool_handle_ipc(int fd, cydriver.CUmemAllocationHandleType handle_type) nogil
+
+    # ========================================================================
     # Overloaded helper functions (C++ handles dispatch by type)
     # ========================================================================
 
@@ -73,13 +96,16 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUcontext native(ContextHandle h) nogil
     cydriver.CUstream native(StreamHandle h) nogil
     cydriver.CUevent native(EventHandle h) nogil
+    cydriver.CUmemoryPool native(MemoryPoolHandle h) nogil
 
     # intptr() - extract handle as uintptr_t for Python interop
     uintptr_t intptr(ContextHandle h) nogil
     uintptr_t intptr(StreamHandle h) nogil
     uintptr_t intptr(EventHandle h) nogil
+    uintptr_t intptr(MemoryPoolHandle h) nogil
 
     # py() - convert handle to Python driver wrapper object (requires GIL)
     object py(ContextHandle h)
     object py(StreamHandle h)
     object py(EventHandle h)
+    object py(MemoryPoolHandle h)

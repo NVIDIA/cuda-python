@@ -18,6 +18,7 @@ namespace cuda_core {
 using ContextHandle = std::shared_ptr<const CUcontext>;
 using StreamHandle = std::shared_ptr<const CUstream>;
 using EventHandle = std::shared_ptr<const CUevent>;
+using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
 
 // ============================================================================
 // Context handle functions
@@ -86,6 +87,31 @@ EventHandle create_event_handle(unsigned int flags);
 EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle);
 
 // ============================================================================
+// Memory pool handle functions
+// ============================================================================
+
+// Create an owning memory pool handle by calling cuMemPoolCreate.
+// Memory pools are device-scoped (not context-scoped).
+// When the last reference is released, cuMemPoolDestroy is called automatically.
+// Returns empty handle on error (caller must check).
+MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props);
+
+// Create a non-owning memory pool handle (references existing pool).
+// Use for device default/current pools that are managed by the driver.
+// The pool will NOT be destroyed when the handle is released.
+MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool);
+
+// Get non-owning handle to the current memory pool for a device.
+// Returns empty handle on error (caller must check).
+MemoryPoolHandle get_device_mempool(int device_id) noexcept;
+
+// Create an owning memory pool handle from an IPC import.
+// The file descriptor is NOT owned by this handle (caller manages FD separately).
+// When the last reference is released, cuMemPoolDestroy is called automatically.
+// Returns empty handle on error (caller must check).
+MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type);
+
+// ============================================================================
 // Overloaded helper functions to extract raw resources from handles
 // ============================================================================
 
@@ -102,6 +128,10 @@ inline CUevent native(const EventHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
+inline CUmemoryPool native(const MemoryPoolHandle& h) noexcept {
+    return h ? *h : nullptr;
+}
+
 // intptr() - extract handle as uintptr_t for Python interop
 inline std::uintptr_t intptr(const ContextHandle& h) noexcept {
     return reinterpret_cast<std::uintptr_t>(h ? *h : nullptr);
@@ -112,6 +142,10 @@ inline std::uintptr_t intptr(const StreamHandle& h) noexcept {
 }
 
 inline std::uintptr_t intptr(const EventHandle& h) noexcept {
+    return reinterpret_cast<std::uintptr_t>(h ? *h : nullptr);
+}
+
+inline std::uintptr_t intptr(const MemoryPoolHandle& h) noexcept {
     return reinterpret_cast<std::uintptr_t>(h ? *h : nullptr);
 }
 
@@ -149,6 +183,19 @@ inline PyObject* py(const EventHandle& h) {
         PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
         if (!mod) return nullptr;
         cls = PyObject_GetAttrString(mod, "CUevent");
+        Py_DECREF(mod);
+        if (!cls) return nullptr;
+    }
+    std::uintptr_t val = h ? reinterpret_cast<std::uintptr_t>(*h) : 0;
+    return PyObject_CallFunction(cls, "K", val);
+}
+
+inline PyObject* py(const MemoryPoolHandle& h) {
+    static PyObject* cls = nullptr;
+    if (!cls) {
+        PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
+        if (!mod) return nullptr;
+        cls = PyObject_GetAttrString(mod, "CUmemoryPool");
         Py_DECREF(mod);
         if (!cls) return nullptr;
     }

@@ -5,17 +5,18 @@
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport MemoryResource
 from cuda.core.experimental._memory._ipc cimport IPCDataForMR
+from cuda.core.experimental._resource_handles cimport MemoryPoolHandle
 
 
 cdef class DeviceMemoryResource(MemoryResource):
     cdef:
-        int                   _device_id
-        cydriver.CUmemoryPool _handle
-        bint                  _mempool_owned
-        IPCDataForMR          _ipc_data
-        object                _attributes
-        object                _peer_accessible_by
-        object                __weakref__
+        MemoryPoolHandle _h_pool
+        int              _device_id
+        bint             _pool_owned
+        IPCDataForMR     _ipc_data
+        object           _attributes
+        object           _peer_accessible_by
+        object           __weakref__
 
 
 cpdef DMR_mempool_get_access(DeviceMemoryResource, int)
