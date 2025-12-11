@@ -112,7 +112,7 @@ def test_graph_alloc(mempool_device, mode, action):
         # Fills out with 3
         def apply_kernels(mr, stream, out):
             buffer = mr.allocate(NBYTES, stream=stream)
-            buffer.fill(3, width=1, stream=stream)
+            buffer.fill(3, stream=stream)
             out.copy_from(buffer, stream=stream)
             buffer.close()
 
