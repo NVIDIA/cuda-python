@@ -30,7 +30,7 @@ _current_logger = None
 
 @contextlib.contextmanager
 def _with_logger(logger):
-    # Utility meant for debuggin and testing purposes.
+    # Utility meant for debugging and testing purposes.
     global _current_logger
     _current_logger = logger
     yield
@@ -43,7 +43,7 @@ class CopyAllocatorOptions:
     device : DeviceMemoryResource | None = None
 
 
-cdef inline alocator_options(allocator : CopyAllocatorOptions | dict[str, MemoryResource] | None):
+cdef inline allocator_options(allocator : CopyAllocatorOptions | dict[str, MemoryResource] | None):
     if allocator is None or type(allocator) is CopyAllocatorOptions:
         return allocator
     return CopyAllocatorOptions(**allocator)
@@ -55,14 +55,14 @@ cdef inline object _numpy_empty(
     object logger,
 ):
     """
-    The layout must be contigious in some order (layout.get_is_contiguous_any() is True)
+    The layout must be contiguous in some order (layout.get_is_contiguous_any() is True)
     If host_alloc is not None, returns a numpy array being a view on the host_alloc with
     shape, itemsize and strides as in the layout.
     Otherwise, returns a new numpy array with shape, itemsize and strides as in the layout.
     """
     if host_alloc is not None:
         return _view_as_numpy(int(host_alloc.handle), volume_in_bytes(layout), layout)
-    cdef object a =_numpy.empty(layout.get_volume(), dtype=_np_dtype(layout.itemsize))
+    cdef object a = _numpy.empty(layout.get_volume(), dtype=_np_dtype(layout.itemsize))
     return _view_as_strided(a, layout)
 
 
@@ -77,8 +77,8 @@ cdef inline object _numpy_ascontiguousarray(
     Returns a numpy array with the same shape and itemsize as the layout,
     but C-contiguous strides. The data_ptr must be a valid host pointer to
     a tensor described with the layout.
-    The layout is modified in place so that it is C-contigious and dense.
-    If host_alloc is provied, copies the data there and returns a view on it.
+    The layout is modified in place so that it is C-contiguous and dense.
+    If host_alloc is provided, copies the data there and returns a view on it.
     Otherwise, returns a new numpy array.
     """
     cdef object a = _view_as_numpy(data_ptr, size, layout)
@@ -149,8 +149,7 @@ cdef inline int _copy_into_d2d(
 
     # Normalize the layouts:
     # 1. permute the layouts so that the dst layouts order is C-like.
-    # 2. remove all extents equal to 1, as their strides are irrelevant
-    # 3. flatten extents that are mergable in both layouts
+    # 2. flatten extents that are mergable in both layouts
     cdef axis_vec_t axis_order
     dst_layout.get_stride_order(axis_order)
     dst_layout.permute_into(dst_layout, axis_order)
@@ -204,8 +203,8 @@ cdef inline int _copy_into_h2d(
     only H2D memcpy is needed.
     Otherwise, up to 2 extra copies (H2H and D2D) may be needed
     for 3 different reasons:
-    * if src is non-contigious we need a H2H 'coalescing' copy
-    * if dst is non-contigious we need a D2D 'scattering' copy
+    * if src is non-contiguous we need a H2H 'coalescing' copy
+    * if dst is non-contiguous we need a D2D 'scattering' copy
     * if the dst and src's stride orders differ, we need
       a either H2H or D2D copy to transpose the data.
     Moving data around in the device memory should be faster,
@@ -265,8 +264,8 @@ cdef inline int _copy_into_h2d(
             maybe_sync(stream_ptr, blocking, logger)
         return 0
 
-    # Otherwise, either dst is not contigious or src has a different stride order than dst.
-    # In either case, src is contigious is some order, so we can just memcopy
+    # Otherwise, either dst is not contiguous or src has a different stride order than dst.
+    # In either case, src is contiguous in some order, so we can just memcopy
     # it to a temporary buffer and then perform a D2D transpose/scatter copy to dst.
     cdef Buffer dev_tmp = _device_allocate(device_allocator, size, device_id, stream)
     cdef intptr_t dev_tmp_data_ptr = int(dev_tmp.handle)
@@ -307,9 +306,9 @@ cdef inline int _copy_into_d2h(
     Copies data from device to host, rearranging the data if needed.
     In a simplest case of contiguous layouts with matching stride orders,
     only D2H memcpy is needed.
-    Otherwise,up to 2 extra copies (D2D and H2H) may be needed:
-    * if src is non-contigious we need a D2D 'coalescing' copy
-    * if dst is non-contigious we need a H2H 'scattering' copy
+    Otherwise, up to 2 extra copies (D2D and H2H) may be needed:
+    * if src is non-contiguous we need a D2D 'coalescing' copy
+    * if dst is non-contiguous we need a H2H 'scattering' copy
     * if the dst and src's stride orders differ, we need
       a either D2D or H2H copy to transpose the data.
     Moving data around in the device memory should be faster,
@@ -435,7 +434,7 @@ cdef int copy_into_d2d(
     cdef intptr_t src_data_ptr = get_data_ptr(src_buffer, src_layout)
 
     # Get rid of all 1-extents, as their strides are irrelevant.
-    # Make sure the copy of the layouts is passed, as the _copy_into_h2d
+    # Make sure the copy of the layouts is passed, as the _copy_into_d2d
     # may modify those
     cdef StridedLayout squeezed_dst = StridedLayout.__new__(StridedLayout)
     cdef StridedLayout squeezed_src = StridedLayout.__new__(StridedLayout)
@@ -467,7 +466,7 @@ cdef int copy_into_h2d(
     cdef intptr_t src_data_ptr = get_data_ptr(src_buffer, src_layout)
     cdef host_allocator = None
     cdef device_allocator = None
-    allocator = alocator_options(allocator)
+    allocator = allocator_options(allocator)
     if allocator is not None:
         host_allocator = allocator.host
         device_allocator = allocator.device
@@ -506,13 +505,13 @@ cdef int copy_into_d2h(
     cdef intptr_t src_data_ptr = get_data_ptr(src_buffer, src_layout)
     cdef host_allocator = None
     cdef device_allocator = None
-    allocator = alocator_options(allocator)
+    allocator = allocator_options(allocator)
     if allocator is not None:
         host_allocator = allocator.host
         device_allocator = allocator.device
 
     # Get rid of all 1-extents, as their strides are irrelevant.
-    # Make sure the copy of the layouts is passed, as the _copy_into_h2d
+    # Make sure the copy of the layouts is passed, as the _copy_into_d2h
     # may modify those
     cdef StridedLayout squeezed_dst = StridedLayout.__new__(StridedLayout)
     cdef StridedLayout squeezed_src = StridedLayout.__new__(StridedLayout)

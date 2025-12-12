@@ -46,6 +46,9 @@ cdef inline object _np_dtype(int itemsize):
 
 
 cdef inline _view_as_strided(object array, StridedLayout layout):
+    """
+    Array must be a 1d numpy array with dtype.itemsize == layout.itemsize.
+    """
     cdef tuple strides = layout.get_strides_in_bytes_tuple()
     if strides is None:
         return array.reshape(layout.get_shape_tuple(), order='C')
