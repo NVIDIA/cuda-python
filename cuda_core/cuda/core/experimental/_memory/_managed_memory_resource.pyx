@@ -29,13 +29,8 @@ cdef class ManagedMemoryResourceOptions:
         The preferred device location for the managed memory.
         Use a device ID (0, 1, 2, ...) for device preference, or -1 for CPU/host.
         (Default to -1 for CPU/host)
-
-    max_size : int, optional
-        Maximum pool size. When set to 0, defaults to a system-dependent value.
-        (Default to 0)
     """
     preferred_location : int = -1
-    max_size : int = 0
 
 
 cdef class ManagedMemoryResource(_MemPool):
@@ -77,7 +72,6 @@ cdef class ManagedMemoryResource(_MemPool):
         cdef int device_id = -1  # Default: CPU/host preference
         if opts:
             device_id = opts.preferred_location
-            opts_base._max_size = opts.max_size
             opts_base._use_current = False
 
         opts_base._ipc_enabled = False  # IPC not supported for managed memory pools

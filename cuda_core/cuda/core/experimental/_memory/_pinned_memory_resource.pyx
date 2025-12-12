@@ -14,8 +14,42 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 
 from dataclasses import dataclass
 from typing import Optional
+import multiprocessing
 import platform  # no-cython-lint
+import subprocess
 import uuid
+import warnings
+
+from cuda.core.experimental._utils.cuda_utils import check_multiprocessing_start_method
+
+
+def _check_numa_nodes():
+    """Check if system has multiple NUMA nodes and warn if so."""
+    if platform.system() != "Linux":
+        return
+
+    try:
+        result = subprocess.run(
+            ["lscpu"],
+            capture_output=True,
+            text=True,
+            timeout=1
+        )
+        for line in result.stdout.splitlines():
+            if line.startswith("NUMA node(s):"):
+                numa_count = int(line.split(":")[1].strip())
+                if numa_count > 1:
+                    warnings.warn(
+                        f"System has {numa_count} NUMA nodes. IPC-enabled pinned memory "
+                        f"uses location ID 0, which may not work correctly with multiple "
+                        f"NUMA nodes.",
+                        UserWarning,
+                        stacklevel=3
+                    )
+                break
+    except (subprocess.SubprocessError, ValueError, FileNotFoundError):
+        # If we can't check, don't warn
+        pass
 
 
 __all__ = ['PinnedMemoryResource', 'PinnedMemoryResourceOptions']
@@ -27,10 +61,16 @@ cdef class PinnedMemoryResourceOptions:
 
     Attributes
     ----------
+    ipc_enabled : bool, optional
+        Specifies whether to create an IPC-enabled memory pool. When set to
+        True, the memory pool and its allocations can be shared with other
+        processes. (Default to False)
+
     max_size : int, optional
         Maximum pool size. When set to 0, defaults to a system-dependent value.
         (Default to 0)
     """
+    ipc_enabled : bool = False
     max_size : int = 0
 
 
@@ -57,8 +97,16 @@ cdef class PinnedMemoryResource(_MemPool):
 
     Notes
     -----
-    IPC (Inter-Process Communication) is not currently supported for pinned
-    memory pools.
+    To create an IPC-Enabled memory resource (MR) that is capable of sharing
+    allocations between processes, specify ``ipc_enabled=True`` in the initializer
+    option. When IPC is enabled, the location type is automatically set to
+    CU_MEM_LOCATION_TYPE_HOST_NUMA instead of CU_MEM_LOCATION_TYPE_HOST,
+    with location ID 0.
+
+    Note: IPC support for pinned memory requires a single NUMA node. A warning
+    is issued if multiple NUMA nodes are detected.
+
+    See :class:`DeviceMemoryResource` for more details on IPC usage patterns.
     """
 
     def __init__(self, options=None):
@@ -68,14 +116,24 @@ cdef class PinnedMemoryResource(_MemPool):
         )
         cdef _MemPoolOptions opts_base = _MemPoolOptions()
 
+        cdef bint ipc_enabled = False
         if opts:
+            ipc_enabled = opts.ipc_enabled
+            if ipc_enabled and not _ipc.is_supported():
+                raise RuntimeError(f"IPC is not available on {platform.system()}")
+            if ipc_enabled:
+                # Check for multiple NUMA nodes on Linux
+                _check_numa_nodes()
             opts_base._max_size = opts.max_size
             opts_base._use_current = False
-        opts_base._ipc_enabled = False  # IPC not supported for pinned memory pools
-        opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
+        opts_base._ipc_enabled = ipc_enabled
+        if ipc_enabled:
+            opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA
+        else:
+            opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
         opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
 
-        super().__init__(-1, opts_base)
+        super().__init__(0 if ipc_enabled else -1, opts_base)
 
     def __reduce__(self):
         return PinnedMemoryResource.from_registry, (self.uuid,)
@@ -136,13 +194,10 @@ cdef class PinnedMemoryResource(_MemPool):
         Returns
         -------
             The shareable handle for the memory pool.
-
-        Raises
-        ------
-        RuntimeError
-            IPC is not currently supported for pinned memory pools.
         """
-        raise RuntimeError("IPC is not currently supported for pinned memory pools")
+        if not self.is_ipc_enabled:
+            raise RuntimeError("Memory resource is not IPC-enabled")
+        return self._ipc_data._alloc_handle
 
     @property
     def is_device_accessible(self) -> bool:
@@ -177,8 +232,9 @@ cdef class PinnedMemoryResource(_MemPool):
 
 
 def _deep_reduce_pinned_memory_resource(mr):
-    raise RuntimeError("IPC is not currently supported for pinned memory pools")
+    check_multiprocessing_start_method()
+    alloc_handle = mr.get_allocation_handle()
+    return mr.from_allocation_handle, (alloc_handle,)
 
 
-# Multiprocessing support disabled until IPC is supported for pinned memory pools
-# multiprocessing.reduction.register(PinnedMemoryResource, _deep_reduce_pinned_memory_resource)
+multiprocessing.reduction.register(PinnedMemoryResource, _deep_reduce_pinned_memory_resource)

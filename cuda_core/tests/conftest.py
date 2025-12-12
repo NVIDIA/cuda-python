@@ -164,27 +164,22 @@ def mempool_device_x3():
 
 @pytest.fixture(
     params=[
-        pytest.param((DeviceMemoryResource, DeviceMemoryResourceOptions, True), id="DeviceMR-device_object"),
-        pytest.param((DeviceMemoryResource, DeviceMemoryResourceOptions, False), id="DeviceMR-device_id"),
-        pytest.param((PinnedMemoryResource, PinnedMemoryResourceOptions, None), id="PinnedMR"),
-        pytest.param((ManagedMemoryResource, ManagedMemoryResourceOptions, None), id="ManagedMR"),
+        pytest.param((DeviceMemoryResource, DeviceMemoryResourceOptions), id="DeviceMR"),
+        pytest.param((PinnedMemoryResource, PinnedMemoryResourceOptions), id="PinnedMR"),
+        pytest.param((ManagedMemoryResource, ManagedMemoryResourceOptions), id="ManagedMR"),
     ]
 )
-def memory_resource_factory_with_device(request, init_cuda):
-    """Parametrized fixture providing memory resource types with device usage configuration.
+def memory_resource_factory(request, init_cuda):
+    """Parametrized fixture providing memory resource types.
 
-    Returns a 3-tuple of (MRClass, MROptionClass, use_device_object).
-    For DeviceMemoryResource, use_device_object is True/False indicating whether to pass
-    a Device object or device_id. For PinnedMemoryResource and ManagedMemoryResource,
-    use_device_object is None as they don't require a device parameter.
+    Returns a 2-tuple of (MRClass, MROptionClass).
 
     Usage:
-        def test_something(memory_resource_factory_with_device):
-            MRClass, MROptions, use_device_object = memory_resource_factory_with_device
-            device = Device(0)
+        def test_something(memory_resource_factory):
+            MRClass, MROptions = memory_resource_factory
+            device = Device()
             if MRClass is DeviceMemoryResource:
-                device_arg = device if use_device_object else device.device_id
-                mr = MRClass(device_arg)
+                mr = MRClass(device)
             elif MRClass is PinnedMemoryResource:
                 mr = MRClass()
             elif MRClass is ManagedMemoryResource:
