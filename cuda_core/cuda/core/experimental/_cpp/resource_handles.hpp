@@ -159,6 +159,12 @@ DevicePtrHandle deviceptr_alloc_host(size_t size);
 // The pointer will NOT be freed when the handle is released.
 DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr);
 
+// Create a non-owning device pointer handle that prevents a Python owner from being GC'd.
+// The owner's refcount is incremented; decremented when handle is released.
+// The pointer will NOT be freed when the handle is released.
+// If owner is nullptr, equivalent to deviceptr_create_ref.
+DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner);
+
 // Import a device pointer from IPC via cuMemPoolImportPointer.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
 // Note: Does not yet implement reference counting for nvbug 5570902.

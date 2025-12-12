@@ -124,6 +124,11 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     # Use for foreign pointers from external libraries
     DevicePtrHandle deviceptr_create_ref(cydriver.CUdeviceptr ptr) nogil
 
+    # Create non-owning handle that prevents Python owner from being GC'd
+    # Pointer NOT freed when released; owner's refcount decremented on release
+    # If owner is None, equivalent to deviceptr_create_ref
+    DevicePtrHandle deviceptr_create_with_owner(cydriver.CUdeviceptr ptr, object owner)
+
     # Import a device pointer from IPC via cuMemPoolImportPointer
     # Note: Does not yet implement reference counting for nvbug 5570902
     # On error, returns empty handle and sets thread-local error (use get_last_error())

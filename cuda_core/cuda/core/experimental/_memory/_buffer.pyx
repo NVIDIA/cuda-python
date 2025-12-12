@@ -13,7 +13,7 @@ from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor, IPCDataFor
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._resource_handles cimport (
     DevicePtrHandle,
-    deviceptr_create_ref,
+    deviceptr_create_with_owner,
     intptr,
     native,
     set_deallocation_stream,
@@ -64,9 +64,6 @@ cdef class Buffer:
         raise RuntimeError("Buffer objects cannot be instantiated directly. "
                            "Please use MemoryResource APIs.")
 
-    # Note: _init_from_handle is a cdef inline function, not a method
-    # See Buffer_init_from_handle below
-
     @classmethod
     def _init(
         cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
@@ -78,11 +75,11 @@ cdef class Buffer:
         Note: The stream parameter is accepted for API compatibility but is
         ignored since non-owning refs are never freed by the handle.
         """
-        cdef Buffer self = Buffer.__new__(cls)
-        self._h_ptr = deviceptr_create_ref(<uintptr_t>(int(ptr)))
-        self._size = size
         if mr is not None and owner is not None:
             raise ValueError("owner and memory resource cannot be both specified together")
+        cdef Buffer self = Buffer.__new__(cls)
+        self._h_ptr = deviceptr_create_with_owner(<uintptr_t>(int(ptr)), owner)
+        self._size = size
         self._memory_resource = mr
         self._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
         self._owner = owner
@@ -495,7 +492,7 @@ cdef inline void Buffer_close(Buffer self, object stream):
     if stream is not None:
         s = Stream_accept(stream)
         set_deallocation_stream(self._h_ptr, s._h_stream)
-    # Reset handle - RAII deleter will free the memory
+    # Reset handle - RAII deleter will free the memory (and release owner ref in C++)
     self._h_ptr.reset()
     self._size = 0
     self._memory_resource = None

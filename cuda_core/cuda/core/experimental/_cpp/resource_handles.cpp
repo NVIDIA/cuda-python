@@ -438,6 +438,24 @@ DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) {
     return DevicePtrHandle(box, &box->resource);
 }
 
+DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
+    if (!owner) {
+        return deviceptr_create_ref(ptr);
+    }
+    Py_INCREF(owner);
+    auto box = std::shared_ptr<DevicePtrBox>(
+        new DevicePtrBox{ptr, StreamHandle{}},
+        [owner](DevicePtrBox* b) {
+            GILAcquireGuard gil;
+            if (gil.acquired()) {
+                Py_DECREF(owner);
+            }
+            delete b;
+        }
+    );
+    return DevicePtrHandle(box, &box->resource);
+}
+
 // ============================================================================
 // IPC Pointer Cache (workaround for nvbug 5570902)
 // ============================================================================
