@@ -334,16 +334,17 @@ cdef int _MP_init_current(_MemPool self, int dev_id, _MemPoolOptions opts) excep
                 HANDLE_RETURN(cydriver.cuMemGetMemPool(&(self._handle), &loc, opts._type))
             ELSE:
                 raise RuntimeError("not supported")
-        elif opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED:
-            # Managed memory pools
-            IF CUDA_CORE_BUILD_MAJOR >= 13:
-                loc.id = dev_id
-                loc.type = opts._location
-                HANDLE_RETURN(cydriver.cuMemGetMemPool(&(self._handle), &loc, opts._type))
-            ELSE:
-                raise RuntimeError("Managed memory pools not supported in CUDA < 13")
         else:
-            assert False
+            IF CUDA_CORE_BUILD_MAJOR >= 13:
+                if opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED:
+                    # Managed memory pools
+                    loc.id = dev_id
+                    loc.type = opts._location
+                    HANDLE_RETURN(cydriver.cuMemGetMemPool(&(self._handle), &loc, opts._type))
+                else:
+                    assert False
+            ELSE:
+                assert False
 
     return 0
 
@@ -358,7 +359,10 @@ cdef int _MP_init_create(_MemPool self, int dev_id, _MemPoolOptions opts) except
     properties.location.id = dev_id
     properties.location.type = opts._location
     # managed memory does not support maxSize as of CUDA 13.0
-    if properties.allocType != cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED:
+    IF CUDA_CORE_BUILD_MAJOR >= 13:
+        if properties.allocType != cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED:
+            properties.maxSize = opts._max_size
+    ELSE:
         properties.maxSize = opts._max_size
 
     self._dev_id = dev_id

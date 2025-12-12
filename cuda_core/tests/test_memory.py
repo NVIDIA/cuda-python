@@ -41,6 +41,11 @@ from cuda.core.experimental.utils import StridedMemoryView
 from helpers import IS_WINDOWS
 from helpers.buffers import DummyUnifiedMemoryResource
 
+from conftest import (
+    create_managed_memory_resource_or_skip,
+    skip_if_managed_memory_unsupported,
+    skip_if_pinned_memory_unsupported,
+)
 from cuda_python_test_helpers import supports_ipc_mempool
 
 POOL_SIZE = 2097152  # 2MB size
@@ -554,8 +559,7 @@ def test_device_memory_resource_initialization(use_device_object):
 
 def test_pinned_memory_resource_initialization(init_cuda):
     device = Device()
-    if not device.properties.host_memory_pools_supported:
-        pytest.skip("Device does not support host mempool operations")
+    skip_if_pinned_memory_unsupported(device)
 
     device.set_current()
 
@@ -575,12 +579,11 @@ def test_pinned_memory_resource_initialization(init_cuda):
 
 def test_managed_memory_resource_initialization(init_cuda):
     device = Device()
-    if not device.properties.memory_pools_supported or not device.properties.managed_memory:
-        pytest.skip("Device does not support managed memory pool operations")
+    skip_if_managed_memory_unsupported(device)
 
     device.set_current()
 
-    mr = ManagedMemoryResource()
+    mr = create_managed_memory_resource_or_skip()
     assert mr.is_device_accessible
     assert mr.is_host_accessible
 
@@ -843,8 +846,7 @@ def test_device_memory_resource_with_options(init_cuda):
 
 def test_pinned_memory_resource_with_options(init_cuda):
     device = Device()
-    if not device.properties.host_memory_pools_supported:
-        pytest.skip("Device does not support host mempool operations")
+    skip_if_pinned_memory_unsupported(device)
 
     device.set_current()
 
@@ -890,14 +892,13 @@ def test_pinned_memory_resource_with_options(init_cuda):
 
 def test_managed_memory_resource_with_options(init_cuda):
     device = Device()
-    if not device.properties.memory_pools_supported or not device.properties.managed_memory:
-        pytest.skip("Device does not support managed memory pool operations")
+    skip_if_managed_memory_unsupported(device)
 
     device.set_current()
 
     # Test basic pool creation
     options = ManagedMemoryResourceOptions()
-    mr = ManagedMemoryResource(options)
+    mr = create_managed_memory_resource_or_skip(options)
     assert mr.is_device_accessible
     assert mr.is_host_accessible
     assert not mr.is_ipc_enabled
@@ -960,8 +961,7 @@ def test_pinned_mempool_ipc_basic():
     device = Device()
     device.set_current()
 
-    if not device.properties.host_memory_pools_supported:
-        pytest.skip("Device does not support host mempool operations")
+    skip_if_pinned_memory_unsupported(device)
 
     if platform.system() == "Windows":
         pytest.skip("IPC not implemented for Windows")
@@ -1001,8 +1001,7 @@ def test_pinned_mempool_ipc_errors():
     device = Device()
     device.set_current()
 
-    if not device.properties.host_memory_pools_supported:
-        pytest.skip("Device does not support host mempool operations")
+    skip_if_pinned_memory_unsupported(device)
 
     # Test with IPC disabled (default)
     options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
@@ -1048,12 +1047,10 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
 
     if MR is DeviceMemoryResource and not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
-    elif MR is PinnedMemoryResource and not device.properties.host_memory_pools_supported:
-        pytest.skip("Device does not support host mempool operations")
-    elif MR is ManagedMemoryResource and (
-        not device.properties.memory_pools_supported or not device.properties.managed_memory
-    ):
-        pytest.skip("Device does not support managed memory pool operations")
+    elif MR is PinnedMemoryResource:
+        skip_if_pinned_memory_unsupported(device)
+    elif MR is ManagedMemoryResource:
+        skip_if_managed_memory_unsupported(device)
 
     # ManagedMemoryResource does not support IPC
     if MR is ManagedMemoryResource and ipc_enabled:
@@ -1077,7 +1074,7 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
         assert mr.is_ipc_enabled == ipc_enabled
     elif MR is ManagedMemoryResource:
         options = MRops()
-        mr = MR(options)
+        mr = create_managed_memory_resource_or_skip(options)
         assert not mr.is_ipc_enabled
 
     # Get the property value
@@ -1118,12 +1115,10 @@ def test_mempool_attributes_repr(memory_resource_factory):
 
     if MR is DeviceMemoryResource and not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
-    elif MR is PinnedMemoryResource and not device.properties.host_memory_pools_supported:
-        pytest.skip("Device does not support host mempool operations")
-    elif MR is ManagedMemoryResource and (
-        not device.properties.memory_pools_supported or not device.properties.managed_memory
-    ):
-        pytest.skip("Device does not support managed memory pool operations")
+    elif MR is PinnedMemoryResource:
+        skip_if_pinned_memory_unsupported(device)
+    elif MR is ManagedMemoryResource:
+        skip_if_managed_memory_unsupported(device)
 
     device.set_current()
 
@@ -1132,7 +1127,7 @@ def test_mempool_attributes_repr(memory_resource_factory):
     elif MR is PinnedMemoryResource:
         mr = MR(options={"max_size": 2048})
     elif MR is ManagedMemoryResource:
-        mr = MR(options={})
+        mr = create_managed_memory_resource_or_skip(options={})
 
     buffer1 = mr.allocate(64)
     buffer2 = mr.allocate(64)
@@ -1153,12 +1148,10 @@ def test_mempool_attributes_ownership(memory_resource_factory):
 
     if MR is DeviceMemoryResource and not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
-    elif MR is PinnedMemoryResource and not device.properties.host_memory_pools_supported:
-        pytest.skip("Device does not support host mempool operations")
-    elif MR is ManagedMemoryResource and (
-        not device.properties.memory_pools_supported or not device.properties.managed_memory
-    ):
-        pytest.skip("Device does not support managed memory pool operations")
+    elif MR is PinnedMemoryResource:
+        skip_if_pinned_memory_unsupported(device)
+    elif MR is ManagedMemoryResource:
+        skip_if_managed_memory_unsupported(device)
 
     # Skip if IPC mempool is not supported on this platform/device (only relevant for DeviceMemoryResource)
     if MR is DeviceMemoryResource and not supports_ipc_mempool(device):
@@ -1171,7 +1164,7 @@ def test_mempool_attributes_ownership(memory_resource_factory):
     elif MR is PinnedMemoryResource:
         mr = MR(dict(max_size=POOL_SIZE))
     elif MR is ManagedMemoryResource:
-        mr = MR(dict())
+        mr = create_managed_memory_resource_or_skip(dict())
 
     attributes = mr.attributes
     mr.close()
@@ -1188,7 +1181,7 @@ def test_mempool_attributes_ownership(memory_resource_factory):
     elif MR is PinnedMemoryResource:
         mr = MR(dict(max_size=POOL_SIZE))  # noqa: F841
     elif MR is ManagedMemoryResource:
-        mr = MR(dict())  # noqa: F841
+        mr = create_managed_memory_resource_or_skip(dict())  # noqa: F841
 
     with pytest.raises(RuntimeError, match="is expired"):
         _ = attributes.used_mem_high

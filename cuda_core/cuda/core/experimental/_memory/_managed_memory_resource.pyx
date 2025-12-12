@@ -77,18 +77,21 @@ cdef class ManagedMemoryResource(_MemPool):
 
         opts_base._ipc_enabled = False  # IPC not supported for managed memory pools
 
-        # Set location based on preferred_location
-        if preferred_location is None:
-            # Let the driver decide
-            opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE
-        elif device_id == -1:
-            # CPU/host preference
-            opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
-        else:
-            # Device preference
-            opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            # Set location based on preferred_location
+            if preferred_location is None:
+                # Let the driver decide
+                opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE
+            elif device_id == -1:
+                # CPU/host preference
+                opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
+            else:
+                # Device preference
+                opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
 
-        opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
+            opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
+        ELSE:
+            raise RuntimeError("ManagedMemoryResource requires CUDA 13.0 or later")
 
         super().__init__(device_id, opts_base)
 
