@@ -44,10 +44,6 @@ setuptools = ">=64"
 
 [package.run-dependencies]
 python = ">=3.10"
-setuptools = ">=64"
-
-[package.run-dependencies]
-python = ">=3.10"
 
 [target.linux.tasks.test]
 cmd = ["pytest", "$PIXI_PROJECT_ROOT"]
