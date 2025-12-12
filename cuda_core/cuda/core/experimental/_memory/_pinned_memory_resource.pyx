@@ -197,6 +197,13 @@ cdef class PinnedMemoryResource(_MemPool):
         -------
             A new host-pinned memory resource instance with the imported handle.
         """
+        # TODO: Investigate if we need to initialize CUDA here. Currently required
+        # to avoid CUDA_ERROR_NOT_INITIALIZED in cuMemPoolImportFromShareableHandle.
+        # DMR doesn't explicitly do this, but it requires device_id parameter which
+        # may implicitly initialize CUDA. Need to find a cleaner solution.
+        from .._device import Device
+        Device(0).set_current()
+
         cdef PinnedMemoryResource mr = <PinnedMemoryResource>(
             _ipc.MP_from_allocation_handle(cls, alloc_handle))
         return mr

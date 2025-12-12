@@ -111,11 +111,26 @@ def ipc_device():
     return device
 
 
-@pytest.fixture
-def ipc_memory_resource(ipc_device):
+@pytest.fixture(
+    params=[
+        pytest.param("device", id="DeviceMR"),
+        pytest.param("pinned", id="PinnedMR"),
+    ]
+)
+def ipc_memory_resource(request, ipc_device):
+    """Provides IPC-enabled memory resource (either Device or Pinned)."""
     POOL_SIZE = 2097152
-    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-    mr = DeviceMemoryResource(ipc_device, options=options)
+    mr_type = request.param
+
+    if mr_type == "device":
+        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        mr = DeviceMemoryResource(ipc_device, options=options)
+    else:  # pinned
+        if not ipc_device.properties.host_memory_pools_supported:
+            pytest.skip("Device does not support host mempool operations")
+        options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        mr = PinnedMemoryResource(options=options)
+
     assert mr.is_ipc_enabled
     return mr
 
