@@ -28,28 +28,44 @@ def _check_numa_nodes():
     if platform.system() != "Linux":
         return
 
+    numa_count = None
+
+    # Try /sys filesystem first (most reliable and doesn't require external tools)
     try:
-        result = subprocess.run(
-            ["lscpu"],
-            capture_output=True,
-            text=True,
-            timeout=1
-        )
-        for line in result.stdout.splitlines():
-            if line.startswith("NUMA node(s):"):
-                numa_count = int(line.split(":")[1].strip())
-                if numa_count > 1:
-                    warnings.warn(
-                        f"System has {numa_count} NUMA nodes. IPC-enabled pinned memory "
-                        f"uses location ID 0, which may not work correctly with multiple "
-                        f"NUMA nodes.",
-                        UserWarning,
-                        stacklevel=3
-                    )
-                break
-    except (subprocess.SubprocessError, ValueError, FileNotFoundError):
-        # If we can't check, don't warn
+        import os
+        node_path = "/sys/devices/system/node"
+        if os.path.exists(node_path):
+            # Count directories named "node[0-9]+"
+            nodes = [d for d in os.listdir(node_path) if d.startswith("node") and d[4:].isdigit()]
+            numa_count = len(nodes)
+    except (OSError, PermissionError):
         pass
+
+    # Fallback to lscpu if /sys check didn't work
+    if numa_count is None:
+        try:
+            result = subprocess.run(
+                ["lscpu"],
+                capture_output=True,
+                text=True,
+                timeout=1
+            )
+            for line in result.stdout.splitlines():
+                if line.startswith("NUMA node(s):"):
+                    numa_count = int(line.split(":")[1].strip())
+                    break
+        except (subprocess.SubprocessError, ValueError, FileNotFoundError):
+            pass
+
+    # Warn if multiple NUMA nodes detected
+    if numa_count is not None and numa_count > 1:
+        warnings.warn(
+            f"System has {numa_count} NUMA nodes. IPC-enabled pinned memory "
+            f"uses location ID 0, which may not work correctly with multiple "
+            f"NUMA nodes.",
+            UserWarning,
+            stacklevel=3
+        )
 
 
 __all__ = ['PinnedMemoryResource', 'PinnedMemoryResourceOptions']
