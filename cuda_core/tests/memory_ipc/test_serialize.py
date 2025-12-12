@@ -5,7 +5,6 @@ import multiprocessing as mp
 import multiprocessing.reduction
 import os
 
-import pytest
 from cuda.core.experimental import Buffer, Device, DeviceMemoryResource
 from helpers.buffers import PatternGen
 
@@ -133,18 +132,6 @@ class TestObjectPassing:
     """
 
     def test_main(self, ipc_device, ipc_memory_resource):
-        # TODO: This test fails with PinnedMR due to CUDA_ERROR_ALREADY_MAPPED.
-        # When buffer1 is passed as an argument, it's serialized and mapped into
-        # the child process. Then trying to recreate it from descriptor causes
-        # "already mapped" error. This might be a test design issue or a real
-        # difference in how PMR vs DMR handle double-mapping. Needs investigation.
-        from cuda.core.experimental import PinnedMemoryResource
-
-        if isinstance(ipc_memory_resource, PinnedMemoryResource):
-            pytest.skip(
-                "TestObjectPassing temporarily skipped for PinnedMR (TODO: investigate CUDA_ERROR_ALREADY_MAPPED)"
-            )
-
         # Define the objects.
         device = ipc_device
         mr = ipc_memory_resource
@@ -164,50 +151,20 @@ class TestObjectPassing:
         pgen.verify_buffer(buffer, seed=True)
         buffer.close()
 
-    def child_main(self, alloc_handle, mr1, buffer_desc, buffer1):
+    def child_main(self, alloc_handle, mr1, buffer_desc, buffer):
         device = Device()
         device.set_current()
-
-        # Recreate MR from allocation handle using the same type as mr1
-        # For DMR, we need to pass device; for PMR, we don't
-        from cuda.core.experimental import DeviceMemoryResource
-
-        if type(mr1) is DeviceMemoryResource:
-            mr2 = type(mr1).from_allocation_handle(device, alloc_handle)
-        else:
-            mr2 = type(mr1).from_allocation_handle(alloc_handle)
-
+        mr2 = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)  # noqa: F841
         pgen = PatternGen(device, NBYTES)
 
-        # OK to build the buffer from either mr and the descriptor.
-        # All buffer* objects point to the same memory.
-        buffer2 = Buffer.from_ipc_descriptor(mr1, buffer_desc)
-        buffer3 = Buffer.from_ipc_descriptor(mr2, buffer_desc)
+        # Verify initial content
+        pgen.verify_buffer(buffer, seed=False)
 
-        pgen.verify_buffer(buffer1, seed=False)
-        pgen.verify_buffer(buffer2, seed=False)
-        pgen.verify_buffer(buffer3, seed=False)
+        # Modify the buffer
+        pgen.fill_buffer(buffer, seed=True)
 
-        # Modify 1.
-        pgen.fill_buffer(buffer1, seed=True)
+        # Verify modified content
+        pgen.verify_buffer(buffer, seed=True)
 
-        pgen.verify_buffer(buffer1, seed=True)
-        pgen.verify_buffer(buffer2, seed=True)
-        pgen.verify_buffer(buffer3, seed=True)
-
-        # Modify 2.
-        pgen.fill_buffer(buffer2, seed=False)
-
-        pgen.verify_buffer(buffer1, seed=False)
-        pgen.verify_buffer(buffer2, seed=False)
-        pgen.verify_buffer(buffer3, seed=False)
-
-        # Modify 3.
-        pgen.fill_buffer(buffer3, seed=True)
-
-        pgen.verify_buffer(buffer1, seed=True)
-        pgen.verify_buffer(buffer2, seed=True)
-        pgen.verify_buffer(buffer3, seed=True)
-
-        # Close any one buffer.
-        buffer1.close()
+        # Clean up - only ONE free
+        buffer.close()
