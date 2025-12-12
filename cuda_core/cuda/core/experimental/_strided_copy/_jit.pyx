@@ -27,10 +27,11 @@ cpdef str get_strided_copy_include_dir(object logger):
     """
     # TODO(ktokarski) Once Program API supports passing includes as strings and names,
     # read all the headers once and cache them.
-    if hasattr(_tls, "strided_copy_include_dir"):
-        return _tls.strided_copy_include_dir
+    cdef str strided_copy_include_dir = getattr(_tls, "strided_copy_include_dir", None)
+    if strided_copy_include_dir is not None:
+        return strided_copy_include_dir
     cdef str current_dir = os.path.dirname(os.path.abspath(__file__))
-    cdef str copy_kernel_dir = os.path.normpath(os.path.join(current_dir, "..", "include", "strided_copy"))
+    cdef str copy_kernel_dir = os.path.normpath(os.path.join(current_dir, os.pardir, "include", "strided_copy"))
     _tls.strided_copy_include_dir = copy_kernel_dir
     if logger is not None:
         logger.debug(f"Strided copy include dir: {copy_kernel_dir}")
@@ -39,9 +40,10 @@ cpdef str get_strided_copy_include_dir(object logger):
 
 cdef inline str get_device_arch(int device_id):
     # device_id -> arch
-    if not hasattr(_tls, "device_ccs"):
-        _tls.device_ccs = {}
-    cdef dict device_ccs = _tls.device_ccs
+    cdef dict device_ccs = getattr(_tls, "device_ccs", None)
+    if device_ccs is None:
+        device_ccs = {}
+        _tls.device_ccs = device_ccs
     cdef str arch = device_ccs.get(device_id)
     if arch is None:
         arch = f"sm_{Device(device_id).arch}"
@@ -51,7 +53,7 @@ cdef inline str get_device_arch(int device_id):
 
 cdef compile_load_kernel(str kernel_code, str arch, object logger):
     cdef str include_dir = get_strided_copy_include_dir(logger)
-    cdef options = ProgramOptions(std="c++17", arch=arch, include_path=include_dir)
+    cdef options = ProgramOptions(arch=arch, include_path=include_dir)
     cdef program = Program(kernel_code, code_type="c++", options=options)
     cdef object_code = program.compile("cubin")
     cdef kernel = object_code.get_kernel("execute")
@@ -88,9 +90,10 @@ cdef intptr_t get_kernel(str kernel_code, int device_id, object logger) except? 
     modules, if the cache is not populated, the shared cache guarded with _kernel_lock is used.
     """
     cdef str arch = get_device_arch(device_id)
-    if not hasattr(_tls, "local_kernel_cache"):
-        _tls.local_kernel_cache = {}
-    cdef dict local_kernel_cache = _tls.local_kernel_cache
+    cdef dict local_kernel_cache = getattr(_tls, "local_kernel_cache", None)
+    if local_kernel_cache is None:
+        local_kernel_cache = {}
+        _tls.local_kernel_cache = local_kernel_cache
     cdef dict local_cc_cache = local_kernel_cache.get(arch)
     if local_cc_cache is None:
         local_cc_cache = {}

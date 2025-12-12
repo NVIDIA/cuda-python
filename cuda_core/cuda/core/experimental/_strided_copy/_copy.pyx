@@ -95,9 +95,10 @@ cdef inline object _numpy_ascontiguousarray(
 
 
 cdef inline get_device_default_mr(int device_id):
-    if not hasattr(_thread_local, "device_default_mrs"):
-        _thread_local.device_default_mrs = {}
-    cdef dict device_default_mrs = _thread_local.device_default_mrs
+    cdef dict device_default_mrs = getattr(_thread_local, "device_default_mrs", None)
+    if device_default_mrs is None:
+        device_default_mrs = {}
+        _thread_local.device_default_mrs = device_default_mrs
     cdef mr = device_default_mrs.get(device_id)
     if mr is not None:
         return mr
@@ -216,7 +217,7 @@ cdef inline int _copy_into_h2d(
     # already and can be modified in place (i.e. they are not
     # referenced elsewhere, e.g. by StridedMemoryView).
 
-    cdef intptr_t stream_ptr = int(stream.handle)
+    cdef intptr_t stream_ptr = <intptr_t>stream._handle
     cdef int64_t size = volume_in_bytes(dst_layout)
     if size == 0:
         return 0
@@ -320,7 +321,7 @@ cdef inline int _copy_into_d2h(
     # already and can be modified in place (i.e. they are not
     # referenced elsewhere, e.g. by StridedMemoryView).
 
-    cdef intptr_t stream_ptr = int(stream.handle)
+    cdef intptr_t stream_ptr = <intptr_t>stream._handle
     cdef int64_t size = volume_in_bytes(dst_layout)
     if size == 0:
         return 0
@@ -429,7 +430,7 @@ cdef int copy_into_d2d(
     check_itemsize(dst_layout, src_layout)
     src_layout = maybe_broadcast_src(dst_layout, src_layout)
 
-    cdef intptr_t stream_ptr = int(stream.handle)
+    cdef intptr_t stream_ptr = <intptr_t>stream._handle
     cdef intptr_t dst_data_ptr = get_data_ptr(dst_buffer, dst_layout)
     cdef intptr_t src_data_ptr = get_data_ptr(src_buffer, src_layout)
 

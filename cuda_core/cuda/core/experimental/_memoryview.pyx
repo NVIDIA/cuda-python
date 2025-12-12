@@ -236,7 +236,7 @@ cdef class StridedMemoryView:
         return view
 
     def copy_from(
-        self, other : StridedMemoryView, Stream stream,
+        self, other : StridedMemoryView, stream : Stream,
         allocator : CopyAllocatorOptions | dict[str, MemoryResource] | None = None,
         blocking : bool | None = None,
     ):
@@ -704,13 +704,13 @@ cdef inline int view_buffer_strided(
     return 0
 
 
-cdef inline copy_into(
+cdef int copy_into(
     StridedMemoryView dst,
     StridedMemoryView src,
     Stream stream,
     allocator : CopyAllocatorOptions | dict[str, MemoryResource] | None = None,
     blocking : bool | None = None,
-):
+) except -1:
     cdef object dst_dtype = dst.get_dtype()
     cdef object src_dtype = src.get_dtype()
     if dst_dtype is not None and src_dtype is not None and dst_dtype != src_dtype:
@@ -737,14 +737,17 @@ cdef inline copy_into(
             )
         is_blocking = blocking if blocking is not None else False
         copy_into_d2d(dst_buffer, dst_layout, src_buffer, src_layout, device_id, stream, is_blocking)
+        return 0
     elif is_src_device_accessible:
         device_id = src.device_id
         is_blocking = blocking if blocking is not None else True
         copy_into_d2h(dst_buffer, dst_layout, src_buffer, src_layout, device_id, stream, allocator, is_blocking)
+        return 0
     elif is_dst_device_accessible:
         device_id = dst.device_id
         is_blocking = blocking if blocking is not None else True
         copy_into_h2d(dst_buffer, dst_layout, src_buffer, src_layout, device_id, stream, allocator, is_blocking)
+        return 0
     else:
         raise ValueError(
             "The host-to-host copy is not supported, "

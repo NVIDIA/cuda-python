@@ -411,7 +411,11 @@ cdef inline bint _base_equal_strides(BaseLayout& a, BaseLayout& b) noexcept nogi
     return True
 
 
-cdef inline bint _base_layout_equal(BaseLayout& a, BaseLayout& b) noexcept nogil:
+cdef inline bint base_equal_strides(BaseLayout& a, BaseLayout& b) noexcept nogil:
+    return a.ndim == b.ndim and _base_equal_strides(a, b)
+
+
+cdef inline bint base_layout_equal(BaseLayout& a, BaseLayout& b) noexcept nogil:
     return base_equal_shapes(a, b) and _base_equal_strides(a, b)
 
 
