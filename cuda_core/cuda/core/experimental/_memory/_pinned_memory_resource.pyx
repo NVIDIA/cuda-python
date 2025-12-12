@@ -10,6 +10,7 @@ from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
+    HANDLE_RETURN,
 )
 
 from dataclasses import dataclass
@@ -207,12 +208,12 @@ cdef class PinnedMemoryResource(_MemPool):
         -------
             A new host-pinned memory resource instance with the imported handle.
         """
-        # TODO: Investigate if we need to initialize CUDA here. Currently required
-        # to avoid CUDA_ERROR_NOT_INITIALIZED in cuMemPoolImportFromShareableHandle.
-        # DMR doesn't explicitly do this, but it requires device_id parameter which
-        # may implicitly initialize CUDA. Need to find a cleaner solution.
-        from .._device import Device
-        Device(0).set_current()
+        # cuMemPoolImportFromShareableHandle requires CUDA to be initialized, but in
+        # a child process CUDA may not be initialized yet. For DeviceMemoryResource,
+        # this is not a concern because most likely when retrieving the device_id the
+        # user would have already initialized CUDA. But since PinnedMemoryResource is
+        # not device-specific it is unlikelt the case.
+        HANDLE_RETURN(cydriver.cuInit(0))
 
         cdef PinnedMemoryResource mr = <PinnedMemoryResource>(
             _ipc.MP_from_allocation_handle(cls, alloc_handle))
