@@ -4,6 +4,7 @@
 import multiprocessing
 import os
 
+import cuda.core
 import helpers
 import pytest
 
@@ -12,9 +13,8 @@ try:
 except ImportError:
     from cuda import cuda as driver
 
-import cuda.core.experimental
-from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, _device
-from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, _device
+from cuda.core._utils.cuda_utils import handle_return
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -124,7 +124,7 @@ def mempool_device():
 
 
 def _mempool_device_impl(num):
-    num_devices = len(cuda.core.experimental.system.devices)
+    num_devices = len(cuda.core.system.devices)
     if num_devices < num:
         pytest.skip(f"Test requires at least {num} GPUs")
 

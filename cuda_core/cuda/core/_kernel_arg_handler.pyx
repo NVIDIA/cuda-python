@@ -15,8 +15,8 @@ import ctypes
 
 import numpy
 
-from cuda.core.experimental._memory import Buffer
-from cuda.core.experimental._utils.cuda_utils import driver
+from cuda.core._memory import Buffer
+from cuda.core._utils.cuda_utils import driver
 from cuda.bindings cimport cydriver
 
 

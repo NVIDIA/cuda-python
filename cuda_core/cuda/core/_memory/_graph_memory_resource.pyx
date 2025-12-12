@@ -7,15 +7,15 @@ from __future__ import annotations
 from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
-from cuda.core.experimental._stream cimport default_stream, Stream_accept, Stream
-from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._memory._buffer cimport Buffer, MemoryResource
+from cuda.core._stream cimport default_stream, Stream_accept, Stream
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 from functools import cache
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from cuda.core.experimental._memory.buffer import DevicePointerT
+    from cuda.core._memory.buffer import DevicePointerT
 
 __all__ = ['GraphMemoryResource']
 

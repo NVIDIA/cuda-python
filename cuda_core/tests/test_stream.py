@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from cuda.core.experimental import Device, Stream, StreamOptions
-from cuda.core.experimental._event import Event
-from cuda.core.experimental._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
-from cuda.core.experimental._utils.cuda_utils import driver
+from cuda.core import Device, Stream, StreamOptions
+from cuda.core._event import Event
+from cuda.core._stream import LEGACY_DEFAULT_STREAM, PER_THREAD_DEFAULT_STREAM
+from cuda.core._utils.cuda_utils import driver
 from helpers.misc import StreamWrapper
 
 

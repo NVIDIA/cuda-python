@@ -10,6 +10,6 @@ requirements*.txt
 cuda_bindings/examples/*
 
 # Vendored
-cuda_core/cuda/core/experimental/include/dlpack.h
+cuda_core/cuda/core/include/dlpack.h
 
 qa/ctk-next.drawio.svg

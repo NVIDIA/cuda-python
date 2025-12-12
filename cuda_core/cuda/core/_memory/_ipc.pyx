@@ -7,10 +7,10 @@ from libc.stdint cimport uintptr_t
 from libc.string cimport memcpy
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._memory._buffer cimport Buffer
-from cuda.core.experimental._stream cimport default_stream
-from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
-from cuda.core.experimental._utils.cuda_utils import check_multiprocessing_start_method
+from cuda.core._memory._buffer cimport Buffer
+from cuda.core._stream cimport default_stream
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
 
 import multiprocessing
 import os

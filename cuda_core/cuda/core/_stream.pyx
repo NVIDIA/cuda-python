@@ -9,8 +9,8 @@ from libc.stdlib cimport strtol, getenv
 
 from cuda.bindings cimport cydriver
 
-from cuda.core.experimental._event cimport Event as cyEvent
-from cuda.core.experimental._utils.cuda_utils cimport (
+from cuda.core._event cimport Event as cyEvent
+from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     CU_CONTEXT_INVALID,
     get_device_from_ctx,
@@ -24,11 +24,11 @@ from typing import TYPE_CHECKING, Optional, Protocol, Union
 
 if TYPE_CHECKING:
     import cuda.bindings
-    from cuda.core.experimental._device import Device
-from cuda.core.experimental._context import Context
-from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._graph import GraphBuilder
-from cuda.core.experimental._utils.cuda_utils import (
+    from cuda.core._device import Device
+from cuda.core._context import Context
+from cuda.core._event import Event, EventOptions
+from cuda.core._graph import GraphBuilder
+from cuda.core._utils.cuda_utils import (
     driver,
 )
 
@@ -311,7 +311,7 @@ cdef class Stream:
         context is set current after a stream is created.
 
         """
-        from cuda.core.experimental._device import Device  # avoid circular import
+        from cuda.core._device import Device  # avoid circular import
         self._get_device_and_context()
         return Device(<int>(self._device_id))
 

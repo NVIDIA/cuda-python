@@ -8,18 +8,18 @@ cimport cython
 from libc.stdint cimport uintptr_t, int64_t, uint64_t
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
-from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor, IPCDataForBuffer
-from cuda.core.experimental._memory cimport _ipc
-from cuda.core.experimental._stream cimport Stream_accept, Stream
-from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._memory._device_memory_resource cimport DeviceMemoryResource
+from cuda.core._memory._ipc cimport IPCBufferDescriptor, IPCDataForBuffer
+from cuda.core._memory cimport _ipc
+from cuda.core._stream cimport Stream_accept, Stream
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import abc
 from typing import TypeVar, Union
 
-from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
-from cuda.core.experimental._utils.cuda_utils import driver
-from cuda.core.experimental._device import Device
+from cuda.core._dlpack import DLDeviceType, make_py_capsule
+from cuda.core._utils.cuda_utils import driver
+from cuda.core._device import Device
 
 __all__ = ['Buffer', 'MemoryResource']
 

@@ -9,7 +9,7 @@ import sys
 from contextlib import suppress
 from typing import Union
 
-from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core._utils.cuda_utils import handle_return
 
 __all__ = [
     "IS_WINDOWS",

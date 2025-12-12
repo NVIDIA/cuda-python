@@ -9,8 +9,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from cuda.core.experimental._stream import Stream
-from cuda.core.experimental._utils.cuda_utils import (
+    from cuda.core._stream import Stream
+from cuda.core._utils.cuda_utils import (
     driver,
     get_binding_version,
     handle_return,

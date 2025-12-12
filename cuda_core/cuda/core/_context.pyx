@@ -4,7 +4,7 @@
 
 from dataclasses import dataclass
 
-from cuda.core.experimental._utils.cuda_utils import driver
+from cuda.core._utils.cuda_utils import driver
 
 
 @dataclass

@@ -18,7 +18,7 @@ ctypedef uint32_t property_mask_t
 ctypedef vector.vector[stride_t] extents_strides_t
 ctypedef vector.vector[axis_t] axis_vec_t
 
-from cuda.core.experimental._utils cimport cuda_utils
+from cuda.core._utils cimport cuda_utils
 
 
 ctypedef fused integer_t:

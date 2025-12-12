@@ -5,7 +5,7 @@
 from ._dlpack cimport *
 from libc.stdint cimport intptr_t
 from cuda.core.experimental._layout cimport StridedLayout
-from cuda.core.experimental._stream import Stream
+from cuda.core._stream import Stream
 
 import functools
 import warnings
@@ -13,10 +13,10 @@ from typing import Optional
 
 import numpy
 
-from cuda.core.experimental._utils.cuda_utils import handle_return, driver
+from cuda.core._utils.cuda_utils import handle_return, driver
 
 
-from cuda.core.experimental._memory import Buffer
+from cuda.core._memory import Buffer
 
 # TODO(leofang): support NumPy structured dtypes
 

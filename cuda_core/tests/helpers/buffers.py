@@ -3,8 +3,8 @@
 
 import ctypes
 
-from cuda.core.experimental import Buffer, Device, MemoryResource
-from cuda.core.experimental._utils.cuda_utils import driver, handle_return
+from cuda.core import Buffer, Device, MemoryResource
+from cuda.core._utils.cuda_utils import driver, handle_return
 
 from . import libc
 

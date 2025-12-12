@@ -12,13 +12,13 @@ using fork, avoiding the need for subprocess isolation.
 import warnings
 from unittest.mock import patch
 
-from cuda.core.experimental import DeviceMemoryResource, DeviceMemoryResourceOptions, EventOptions
-from cuda.core.experimental._event import _reduce_event
-from cuda.core.experimental._memory._ipc import (
+from cuda.core import DeviceMemoryResource, DeviceMemoryResourceOptions, EventOptions
+from cuda.core._event import _reduce_event
+from cuda.core._memory._ipc import (
     _deep_reduce_device_memory_resource,
     _reduce_allocation_handle,
 )
-from cuda.core.experimental._utils.cuda_utils import reset_fork_warning
+from cuda.core._utils.cuda_utils import reset_fork_warning
 
 
 def test_warn_on_fork_method_device_memory_resource(ipc_device):
