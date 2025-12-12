@@ -25,12 +25,13 @@ cdef class ManagedMemoryResourceOptions:
 
     Attributes
     ----------
-    preferred_location : int, optional
+    preferred_location : int | None, optional
         The preferred device location for the managed memory.
-        Use a device ID (0, 1, 2, ...) for device preference, or -1 for CPU/host.
-        (Default to -1 for CPU/host)
+        Use a device ID (0, 1, 2, ...) for device preference, -1 for CPU/host,
+        or None to let the driver decide.
+        (Default to None)
     """
-    preferred_location : int = -1
+    preferred_location : Optional[int] = None
 
 
 cdef class ManagedMemoryResource(_MemPool):
@@ -69,15 +70,21 @@ cdef class ManagedMemoryResource(_MemPool):
         )
         cdef _MemPoolOptions opts_base = _MemPoolOptions()
 
-        cdef int device_id = -1  # Default: CPU/host preference
+        cdef int device_id = -1
+        cdef object preferred_location = None
         if opts:
-            device_id = opts.preferred_location
+            preferred_location = opts.preferred_location
+            if preferred_location is not None:
+                device_id = preferred_location
             opts_base._use_current = False
 
         opts_base._ipc_enabled = False  # IPC not supported for managed memory pools
 
         # Set location based on preferred_location
-        if device_id == -1:
+        if preferred_location is None:
+            # Let the driver decide
+            opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_NONE
+        elif device_id == -1:
             # CPU/host preference
             opts_base._location = cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST
         else:
@@ -87,73 +94,6 @@ cdef class ManagedMemoryResource(_MemPool):
         opts_base._type = cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED
 
         super().__init__(device_id, opts_base)
-
-    def __reduce__(self):
-        return ManagedMemoryResource.from_registry, (self.uuid,)
-
-    @staticmethod
-    def from_registry(uuid: uuid.UUID) -> ManagedMemoryResource:  # no-cython-lint
-        """
-        Obtain a registered mapped memory resource.
-
-        Raises
-        ------
-        RuntimeError
-            If no mapped memory resource is found in the registry.
-        """
-        return <ManagedMemoryResource>(_ipc.MP_from_registry(uuid))
-
-    def register(self, uuid: uuid.UUID) -> ManagedMemoryResource:  # no-cython-lint
-        """
-        Register a mapped memory resource.
-
-        Returns
-        -------
-        The registered mapped memory resource. If one was previously registered
-        with the given key, it is returned.
-        """
-        return <ManagedMemoryResource>(_ipc.MP_register(self, uuid))
-
-    @classmethod
-    def from_allocation_handle(
-        cls, alloc_handle: int | IPCAllocationHandle
-    ) -> ManagedMemoryResource:
-        """Create a managed memory resource from an allocation handle.
-
-        Construct a new `ManagedMemoryResource` instance that imports a memory
-        pool from a shareable handle. The memory pool is marked as owned.
-
-        Parameters
-        ----------
-        alloc_handle : int | IPCAllocationHandle
-            The shareable handle of the managed memory resource to import. If an
-            integer is supplied, it must represent a valid platform-specific
-            handle. It is the caller's responsibility to close that handle.
-
-        Returns
-        -------
-            A new managed memory resource instance with the imported handle.
-        """
-        cdef ManagedMemoryResource mr = <ManagedMemoryResource>(
-            _ipc.MP_from_allocation_handle(cls, alloc_handle))
-        return mr
-
-    def get_allocation_handle(self) -> IPCAllocationHandle:
-        """Export the memory pool handle to be shared (requires IPC).
-
-        The handle can be used to share the memory pool with other processes.
-        The handle is cached in this `MemoryResource` and owned by it.
-
-        Returns
-        -------
-            The shareable handle for the memory pool.
-
-        Raises
-        ------
-        RuntimeError
-            IPC is not currently supported for managed memory pools.
-        """
-        raise RuntimeError("IPC is not currently supported for managed memory pools")
 
     @property
     def is_device_accessible(self) -> bool:
@@ -177,19 +117,3 @@ cdef class ManagedMemoryResource(_MemPool):
         another process.  If True, allocation is not permitted.
         """
         return self._ipc_data is not None and self._ipc_data._is_mapped
-
-    @property
-    def uuid(self) -> Optional[uuid.UUID]:
-        """
-        A universally unique identifier for this memory resource. Meaningful
-        only for IPC-enabled memory resources.
-        """
-        return getattr(self._ipc_data, 'uuid', None)
-
-
-def _deep_reduce_managed_memory_resource(mr):
-    raise RuntimeError("IPC is not currently supported for managed memory pools")
-
-
-# Multiprocessing support disabled until IPC is supported for managed memory pools
-# multiprocessing.reduction.register(ManagedMemoryResource, _deep_reduce_managed_memory_resource)
