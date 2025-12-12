@@ -26,12 +26,16 @@ CUDA runtime
    Event
    MemoryResource
    DeviceMemoryResource
+   PinnedMemoryResource
+   ManagedMemoryResource
    LegacyPinnedMemoryResource
    VirtualMemoryResource
 
    :template: dataclass.rst
 
    DeviceMemoryResourceOptions
+   PinnedMemoryResourceOptions
+   ManagedMemoryResourceOptions
    EventOptions
    GraphCompleteOptions
    GraphDebugPrintOptions

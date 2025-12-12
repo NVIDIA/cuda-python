@@ -1050,7 +1050,9 @@ def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name,
         pytest.skip("Device does not support mempool operations")
     elif MR is PinnedMemoryResource and not device.properties.host_memory_pools_supported:
         pytest.skip("Device does not support host mempool operations")
-    elif MR is ManagedMemoryResource and (not device.properties.memory_pools_supported or not device.properties.managed_memory):
+    elif MR is ManagedMemoryResource and (
+        not device.properties.memory_pools_supported or not device.properties.managed_memory
+    ):
         pytest.skip("Device does not support managed memory pool operations")
 
     # ManagedMemoryResource does not support IPC
@@ -1118,7 +1120,9 @@ def test_mempool_attributes_repr(memory_resource_factory):
         pytest.skip("Device does not support mempool operations")
     elif MR is PinnedMemoryResource and not device.properties.host_memory_pools_supported:
         pytest.skip("Device does not support host mempool operations")
-    elif MR is ManagedMemoryResource and (not device.properties.memory_pools_supported or not device.properties.managed_memory):
+    elif MR is ManagedMemoryResource and (
+        not device.properties.memory_pools_supported or not device.properties.managed_memory
+    ):
         pytest.skip("Device does not support managed memory pool operations")
 
     device.set_current()
@@ -1151,7 +1155,9 @@ def test_mempool_attributes_ownership(memory_resource_factory):
         pytest.skip("Device does not support mempool operations")
     elif MR is PinnedMemoryResource and not device.properties.host_memory_pools_supported:
         pytest.skip("Device does not support host mempool operations")
-    elif MR is ManagedMemoryResource and (not device.properties.memory_pools_supported or not device.properties.managed_memory):
+    elif MR is ManagedMemoryResource and (
+        not device.properties.memory_pools_supported or not device.properties.managed_memory
+    ):
         pytest.skip("Device does not support managed memory pool operations")
 
     # Skip if IPC mempool is not supported on this platform/device (only relevant for DeviceMemoryResource)

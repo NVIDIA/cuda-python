@@ -6,15 +6,12 @@ from __future__ import annotations
 
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._memory_pool cimport _MemPool, _MemPoolOptions
-from cuda.core.experimental._memory cimport _ipc
-from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle
 from cuda.core.experimental._utils.cuda_utils cimport (
     check_or_create_options,
 )
 
 from dataclasses import dataclass
 from typing import Optional
-import uuid
 
 __all__ = ['ManagedMemoryResource', 'ManagedMemoryResourceOptions']
 
