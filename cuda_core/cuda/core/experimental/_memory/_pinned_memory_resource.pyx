@@ -23,8 +23,16 @@ import warnings
 from cuda.core.experimental._utils.cuda_utils import check_multiprocessing_start_method
 
 
+# Cache to ensure NUMA warning is only raised once per process
+cdef bint _numa_warning_shown = False
+
+
 def _check_numa_nodes():
     """Check if system has multiple NUMA nodes and warn if so."""
+    global _numa_warning_shown
+    if _numa_warning_shown:
+        return
+
     if platform.system() != "Linux":
         return
 
@@ -66,6 +74,8 @@ def _check_numa_nodes():
             UserWarning,
             stacklevel=3
         )
+
+    _numa_warning_shown = True
 
 
 __all__ = ['PinnedMemoryResource', 'PinnedMemoryResourceOptions']
