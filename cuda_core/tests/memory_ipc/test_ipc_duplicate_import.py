@@ -9,11 +9,11 @@ crashing. This tests the workaround for nvbug 5570902 where IPC-imported
 pointers are not correctly reference counted by the driver.
 """
 
+import contextlib
 import multiprocessing as mp
 
 import pytest
-
-from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
+from cuda.core.experimental import Buffer, Device
 from helpers.logging import TimestampedLogger
 
 CHILD_TIMEOUT_SEC = 20
@@ -57,14 +57,12 @@ class TestIpcDuplicateImport:
     @pytest.fixture(autouse=True)
     def _set_start_method(self):
         # Ensure spawn is used for multiprocessing
-        try:
+        with contextlib.suppress(RuntimeError):
             mp.set_start_method("spawn", force=True)
-        except RuntimeError:
-            pass  # Already set
 
     def test_main(self, ipc_device, ipc_memory_resource):
         log = TimestampedLogger(prefix="parent: ", enabled=ENABLE_LOGGING)
-        device = ipc_device
+        ipc_device.set_current()
         mr = ipc_memory_resource
 
         log("allocating buffer")

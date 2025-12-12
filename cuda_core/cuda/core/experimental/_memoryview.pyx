@@ -20,7 +20,6 @@ from cuda.core.experimental._resource_handles cimport (
     native,
 )
 from cuda.core.experimental._utils.cuda_utils import handle_return, driver
-from cuda.core.experimental._utils cimport cuda_utils
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 

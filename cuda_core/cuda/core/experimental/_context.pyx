@@ -4,15 +4,11 @@
 
 from dataclasses import dataclass
 
-from cuda.bindings cimport cydriver
 from cuda.core.experimental._resource_handles cimport (
     ContextHandle,
-    create_context_handle_ref,
     intptr,
-    native,
     py,
 )
-from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 
 __all__ = ['Context', 'ContextOptions']

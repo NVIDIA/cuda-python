@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 cimport cpython
-from libc.stdint cimport uintptr_t
 from libc.string cimport memcpy
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._context cimport Context
@@ -30,7 +29,6 @@ from typing import TYPE_CHECKING, Optional
 from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
     check_multiprocessing_start_method,
-    driver,
 )
 if TYPE_CHECKING:
     import cuda.bindings

@@ -41,9 +41,6 @@ from cuda.core.experimental._resource_handles cimport (
     py,
 )
 from cuda.core.experimental._graph import GraphBuilder
-from cuda.core.experimental._utils.cuda_utils import (
-    driver,
-)
 
 
 @dataclass
@@ -423,8 +420,7 @@ cdef inline int Stream_ensure_ctx(Stream self) except?-1 nogil:
 
 cdef inline int Stream_ensure_ctx_device(Stream self) except?-1:
     """Ensure the stream's context and device_id are populated."""
-    cdef ContextHandle h_curr_context
-    cdef cydriver.CUcontext target_ctx, curr_ctx, ctx
+    cdef cydriver.CUcontext ctx
     cdef cydriver.CUdevice target_dev
     cdef bint switch_context
 

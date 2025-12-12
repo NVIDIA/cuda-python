@@ -13,7 +13,6 @@ These tests verify:
 """
 
 from cuda.core.experimental import Device
-from cuda.core.experimental._event import Event
 from cuda.core.experimental._stream import Stream, StreamOptions
 
 # ============================================================================

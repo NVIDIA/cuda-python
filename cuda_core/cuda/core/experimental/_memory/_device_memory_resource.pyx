@@ -15,7 +15,6 @@ from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._memory._ipc cimport IPCAllocationHandle, IPCDataForMR
 from cuda.core.experimental._resource_handles cimport (
     DevicePtrHandle,
-    MemoryPoolHandle,
     create_mempool_handle,
     deviceptr_alloc_from_pool,
     get_device_mempool,

@@ -3,15 +3,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 cimport cpython
-from libc.stdint cimport uintptr_t
-from libc.string cimport memcpy
 
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle
 from cuda.core.experimental._stream cimport Stream
 from cuda.core.experimental._resource_handles cimport (
     DevicePtrHandle,
-    MemoryPoolHandle,
     create_mempool_handle_ipc,
     deviceptr_import_ipc,
     get_last_error,

@@ -9,7 +9,6 @@ across Device, Stream, Event, and Context objects.
 """
 
 from cuda.core.experimental import Device, Stream
-from cuda.core.experimental._event import Event
 from cuda.core.experimental._stream import StreamOptions
 
 # ============================================================================

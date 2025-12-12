@@ -20,6 +20,9 @@ cdef class Buffer:
         size_t          _size
         MemoryResource  _memory_resource
         object          _ipc_data
+        object          _owner
+        _MemAttrs       _mem_attrs
+        bint            _mem_attrs_inited
 
 
 cdef class MemoryResource:
