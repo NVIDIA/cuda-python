@@ -18,20 +18,16 @@ class TestEventIpc:
     """Check the basic usage of IPC-enabled events with a latch kernel."""
 
     def test_main(self, ipc_device, ipc_memory_resource):
-        # TODO: This test currently fails with PinnedMemoryResource due to timeout
-        # in child process. The failure is likely unrelated to PMR itself since Event
-        # IPC is independent of memory resource type. Need to investigate the root cause.
-        # For now, skip PMR to avoid redundant testing since this is an Event IPC test.
-        from cuda.core.experimental import PinnedMemoryResource
-
-        if isinstance(ipc_memory_resource, PinnedMemoryResource):
-            pytest.skip("Event IPC test temporarily skipped for PinnedMemoryResource (TODO: investigate)")
-
         log = TimestampedLogger(prefix="parent: ", enabled=ENABLE_LOGGING)
         device = ipc_device
         mr = ipc_memory_resource
         stream1 = device.create_stream()
-        latch = LatchKernel(device)
+        # TODO: We pick a timeout here to ensure forward progress (it needs to be
+        # less than CHILD_TIMEOUT_SEC) when a pinned memory resource is in use,
+        # in which case the call to buffer.copy_from(...) below is a synchronous
+        # operation that blocks the host. But calling the latch kernel here does not
+        # make any sense. We should refactor this test.
+        latch = LatchKernel(device, timeout_sec=5)
 
         # Start the child process.
         q_out, q_in = [mp.Queue() for _ in range(2)]
