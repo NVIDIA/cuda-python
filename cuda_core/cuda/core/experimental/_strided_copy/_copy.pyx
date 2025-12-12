@@ -115,7 +115,6 @@ cdef inline get_device_default_mr(int device_id):
     finally:
         if current_dev_id != device_id:
             current_dev.set_current()
-    return mr
 
 
 cdef inline Buffer _device_allocate(
@@ -244,9 +243,8 @@ cdef inline int _copy_into_h2d(
             dst_layout.get_stride_order(axis_order)
             dst_layout.permute_into(dst_layout, axis_order)
             src_layout.permute_into(src_layout, axis_order)
-        # if host_alloc is None, we just use numpy to allocate temp array,
-        # even if the host_alloc is provided, we don't know if it is stream-aware,
-        # so we need to block at after H2D to make sure we don't deallocate too early.
+        # the host allocation may not be stream-aware (in particular, the default numpy is not!)
+        # so we need to block at least until the H2D is complete to avoid deallocating too early.
         blocking = True
         src_tmp = _numpy_ascontiguousarray(host_alloc, src_data_ptr, size, src_layout, logger)
         src_data_ptr = src_tmp.ctypes.data

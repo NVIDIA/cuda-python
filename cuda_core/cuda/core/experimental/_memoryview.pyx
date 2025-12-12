@@ -748,5 +748,5 @@ cdef inline copy_into(
     else:
         raise ValueError(
             "The host-to-host copy is not supported, "
-            "at least one of the views must device-accessible."
+            "at least one of the views must be device-accessible."
         )
