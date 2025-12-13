@@ -226,9 +226,9 @@ def test_buffer_copy_from():
 def buffer_fill(dummy_mr: MemoryResource, device: Device, check=False):
     stream = device.create_stream()
 
-    # Test width=1 (byte fill)
+    # Test 1-byte fill (int in [0, 256))
     buffer1 = dummy_mr.allocate(size=1024)
-    buffer1.fill(0x42, width=1, stream=stream)
+    buffer1.fill(0x42, stream=stream)
     device.sync()
 
     if check:
@@ -236,65 +236,98 @@ def buffer_fill(dummy_mr: MemoryResource, device: Device, check=False):
         for i in range(10):
             assert ptr[i] == 0x42
 
-    # Test error: invalid width
-    for bad_width in [w for w in range(-10, 10) if w not in (1, 2, 4)]:
-        with pytest.raises(ValueError, match="width must be 1, 2, or 4"):
-            buffer1.fill(0x42, width=bad_width, stream=stream)
+    # Test error: int value out of range (OverflowError)
+    for bad_value in [-42, -1, 256, 1000]:
+        with pytest.raises(OverflowError):
+            buffer1.fill(bad_value, stream=stream)
 
-    # Test error: value out of range for width=1
-    for bad_value in [-42, -1, 256]:
-        with pytest.raises(ValueError, match="value must be in range \\[0, 255\\]"):
-            buffer1.fill(bad_value, width=1, stream=stream)
-
-    # Test error: buffer size not divisible by width
-    for bad_size in [1025, 1027, 1029, 1031]:  # Not divisible by 2
-        buffer_err = dummy_mr.allocate(size=1025)
-        with pytest.raises(ValueError, match="must be divisible"):
-            buffer_err.fill(0x1234, width=2, stream=stream)
-        buffer_err.close()
+    # Test error: invalid type (not int and not buffer-protocol)
+    with pytest.raises(TypeError, match="must be an int or support the buffer protocol"):
+        buffer1.fill("invalid", stream=stream)
 
     buffer1.close()
 
-    # Test width=2 (16-bit fill)
-    buffer2 = dummy_mr.allocate(size=1024)  # Divisible by 2
-    buffer2.fill(0x1234, width=2, stream=stream)
+    # Test 2-byte fill via numpy uint16
+    if np is not None:
+        buffer2 = dummy_mr.allocate(size=1024)  # Divisible by 2
+        buffer2.fill(np.uint16(0x1234), stream=stream)
+        device.sync()
+
+        if check:
+            ptr = ctypes.cast(buffer2.handle, ctypes.POINTER(ctypes.c_uint16))
+            for i in range(5):
+                assert ptr[i] == 0x1234
+
+        buffer2.close()
+
+    # Test 2-byte fill via raw bytes
+    buffer2b = dummy_mr.allocate(size=1024)
+    buffer2b.fill(b"\x34\x12", stream=stream)  # 0x1234 in little-endian
     device.sync()
 
     if check:
-        ptr = ctypes.cast(buffer2.handle, ctypes.POINTER(ctypes.c_uint16))
+        ptr = ctypes.cast(buffer2b.handle, ctypes.POINTER(ctypes.c_uint16))
         for i in range(5):
             assert ptr[i] == 0x1234
 
-    # Test error: value out of range for width=2
-    for bad_value in [-42, -1, 65536, 65537, 100000]:
-        with pytest.raises(ValueError, match="value must be in range \\[0, 65535\\]"):
-            buffer2.fill(bad_value, width=2, stream=stream)
+    # Test error: buffer size not divisible by 2
+    buffer_err = dummy_mr.allocate(size=1025)
+    with pytest.raises(ValueError, match="must be divisible by 2"):
+        buffer_err.fill(b"\x12\x34", stream=stream)
+    buffer_err.close()
 
-    buffer2.close()
+    buffer2b.close()
 
-    # Test width=4 (32-bit fill)
-    buffer4 = dummy_mr.allocate(size=1024)  # Divisible by 4
-    buffer4.fill(0xDEADBEEF, width=4, stream=stream)
+    # Test 4-byte fill via numpy uint32
+    if np is not None:
+        buffer4 = dummy_mr.allocate(size=1024)  # Divisible by 4
+        buffer4.fill(np.uint32(0xDEADBEEF), stream=stream)
+        device.sync()
+
+        if check:
+            ptr = ctypes.cast(buffer4.handle, ctypes.POINTER(ctypes.c_uint32))
+            for i in range(5):
+                assert ptr[i] == 0xDEADBEEF
+
+        buffer4.close()
+
+    # Test 4-byte fill via raw bytes
+    buffer4b = dummy_mr.allocate(size=1024)
+    buffer4b.fill(b"\xef\xbe\xad\xde", stream=stream)  # 0xDEADBEEF in little-endian
     device.sync()
 
     if check:
-        ptr = ctypes.cast(buffer4.handle, ctypes.POINTER(ctypes.c_uint32))
+        ptr = ctypes.cast(buffer4b.handle, ctypes.POINTER(ctypes.c_uint32))
         for i in range(5):
             assert ptr[i] == 0xDEADBEEF
 
-    # Test error: value out of range for width=4
-    for bad_value in [-42, -1, 4294967296, 4294967297, 5000000000]:
-        with pytest.raises(ValueError, match="value must be in range \\[0, 4294967295\\]"):
-            buffer4.fill(bad_value, width=4, stream=stream)
-
-    # Test error: buffer size not divisible by width
-    for bad_size in [1025, 1026, 1027, 1029, 1030, 1031]:  # Not divisible by 4
+    # Test error: buffer size not divisible by 4
+    for bad_size in [1025, 1026, 1027]:
         buffer_err2 = dummy_mr.allocate(size=bad_size)
-        with pytest.raises(ValueError, match="must be divisible"):
-            buffer_err2.fill(0xDEADBEEF, width=4, stream=stream)
+        with pytest.raises(ValueError, match="must be divisible by 4"):
+            buffer_err2.fill(b"\xde\xad\xbe\xef", stream=stream)
         buffer_err2.close()
 
-    buffer4.close()
+    buffer4b.close()
+
+    # Test error: invalid byte length (not 1, 2, or 4)
+    buffer_err3 = dummy_mr.allocate(size=1024)
+    with pytest.raises(ValueError, match="value must be 1, 2, or 4 bytes, got 3"):
+        buffer_err3.fill(b"\x01\x02\x03", stream=stream)
+    buffer_err3.close()
+
+    # Test float32 fill via numpy
+    if np is not None:
+        buffer_float = dummy_mr.allocate(size=1024)
+        buffer_float.fill(np.float32(1.0), stream=stream)
+        device.sync()
+
+        if check:
+            ptr = ctypes.cast(buffer_float.handle, ctypes.POINTER(ctypes.c_float))
+            for i in range(5):
+                assert ptr[i] == 1.0
+
+        buffer_float.close()
 
 
 def test_buffer_fill():
