@@ -50,19 +50,16 @@ exclude = ["**/_version.py"]
 "setup.py" = ["F401"]
 
 "cuda_bindings/examples/**" = [
-  "E722",
   "E501", # line too long
 ]
 
 "cuda_bindings/tests/**" = [
-  "E722",
   "UP022",
   "E402",  # module level import not at top of file
   "F841",
 ] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
 
 "cuda_bindings/benchmarks/**" = [
-  "E722",
   "UP022",
   "E402",  # module level import not at top of file
   "F841",
