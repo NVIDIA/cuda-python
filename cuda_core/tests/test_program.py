@@ -220,6 +220,15 @@ def ptx_code_object():
         ProgramOptions(diag_warn=1000),
         ProgramOptions(std="c++11", ptxas_options=["-v"]),
         ProgramOptions(std="c++11", ptxas_options=["-v", "-O2"]),
+        ProgramOptions(brief_diagnostics=True),
+        ProgramOptions(builtin_move_forward=False),
+        ProgramOptions(extensible_whole_program=True),
+        ProgramOptions(fdevice_syntax_only=True),
+        ProgramOptions(gen_opt_lto=True),
+        ProgramOptions(minimal=True),
+        ProgramOptions(no_source_include=True),
+        # TODO: Add test for pre_include once we have a suitable header in the test environment
+        # ProgramOptions(pre_include="cuda_runtime.h"),
     ],
 )
 def test_cpp_program_with_various_options(init_cuda, options):

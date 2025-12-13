@@ -553,8 +553,6 @@ class ProgramOptions:
             unsupported.append("use_fast_math")
         if self.extra_device_vectorization is not None and self.extra_device_vectorization:
             unsupported.append("extra_device_vectorization")
-        if self.link_time_optimization is not None and self.link_time_optimization:
-            unsupported.append("link_time_optimization")
         if self.gen_opt_lto is not None and self.gen_opt_lto:
             unsupported.append("gen_opt_lto")
         if self.define_macro is not None:
