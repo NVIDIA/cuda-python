@@ -84,12 +84,53 @@ def _build_cuda_core():
         print("CUDA paths:", CUDA_PATH)
         return CUDA_PATH
 
+    @functools.cache
+    def get_cuda_library_dirs():
+        """Return library search paths for CUDA driver runtime."""
+
+        libdirs = []
+        for root in get_cuda_paths():
+            for subdir in ("lib64", "lib"):
+                candidate = os.path.join(root, subdir)
+                if os.path.isdir(candidate):
+                    libdirs.append(candidate)
+        return libdirs
+
+    def get_sources(mod_name):
+        """Get source files for a module, including any .cpp files."""
+        sources = [f"cuda/core/experimental/{mod_name}.pyx"]
+
+        # Add module-specific .cpp file from _cpp/ directory if it exists
+        cpp_file = f"cuda/core/experimental/_cpp/{mod_name.lstrip('_')}.cpp"
+        if os.path.exists(cpp_file):
+            sources.append(cpp_file)
+
+        return sources
+
+    def get_extension_kwargs(mod_name):
+        """Return Extension kwargs (libraries, library_dirs) per module."""
+
+        # Modules that use CUDA driver APIs need to link against libcuda
+        # _resource_handles: contains the C++ implementation that calls CUDA driver
+        # _context, _stream, _event, _device: use resource handles and may call CUDA driver directly
+        cuda_users = {"_resource_handles", "_context", "_stream", "_event", "_device"}
+        kwargs = {}
+        if mod_name in cuda_users:
+            kwargs["libraries"] = ["cuda"]
+            kwargs["library_dirs"] = get_cuda_library_dirs()
+        return kwargs
+
     ext_modules = tuple(
         Extension(
             f"cuda.core.experimental.{mod.replace(os.path.sep, '.')}",
-            sources=[f"cuda/core/experimental/{mod}.pyx"],
-            include_dirs=list(os.path.join(root, "include") for root in get_cuda_paths()),
+            sources=get_sources(mod),
+            include_dirs=[
+                "cuda/core/experimental/include",
+                "cuda/core/experimental/_cpp",
+            ]
+            + list(os.path.join(root, "include") for root in get_cuda_paths()),
             language="c++",
+            **get_extension_kwargs(mod),
         )
         for mod in module_names
     )
