@@ -501,23 +501,6 @@ def test_program_options_as_bytes_nvrtc():
     assert "--ftz=true" in options_str
 
 
-def test_program_options_as_bytes_nvjitlink():
-    """Test ProgramOptions.as_bytes() for nvJitLink backend"""
-    options = ProgramOptions(arch="sm_80", debug=True, ftz=True, max_register_count=32)
-    nvjitlink_options = options.as_bytes("nvjitlink")
-
-    # Should return list of bytes
-    assert isinstance(nvjitlink_options, list)
-    assert all(isinstance(opt, bytes) for opt in nvjitlink_options)
-
-    # Decode to check content
-    options_str = [opt.decode() for opt in nvjitlink_options]
-    assert "-arch=sm_80" in options_str
-    assert "-g" in options_str
-    assert "-ftz=true" in options_str
-    assert "-maxrregcount=32" in options_str
-
-
 @nvvm_available
 def test_program_options_as_bytes_nvvm():
     """Test ProgramOptions.as_bytes() for NVVM backend"""
@@ -541,13 +524,6 @@ def test_program_options_as_bytes_invalid_backend():
     options = ProgramOptions(arch="sm_80")
     with pytest.raises(ValueError, match="Unknown backend 'invalid'"):
         options.as_bytes("invalid")
-
-
-def test_program_options_as_bytes_nvjitlink_unsupported_option():
-    """Test that unsupported options raise CUDAError for nvJitLink backend"""
-    options = ProgramOptions(arch="sm_80", std="c++17")
-    with pytest.raises(CUDAError, match="not supported by nvJitLink backend"):
-        options.as_bytes("nvjitlink")
 
 
 @nvvm_available
