@@ -7,7 +7,7 @@ from __future__ import annotations
 import weakref
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, List, Tuple, Union
 from warnings import warn
 
 if TYPE_CHECKING:
@@ -298,6 +298,10 @@ class ProgramOptions:
     split_compile: int | None = None
     fdevice_syntax_only: bool | None = None
     minimal: bool | None = None
+    # Creating as 2 tuples ((names, source), (names,source))
+    extra_sources: (
+        Union[List[Tuple[str, Union[str, bytes, bytearray]]], Tuple[Tuple[str, Union[str, bytes, bytearray]]]] | None
+    ) = None
     numba_debug: bool | None = None  # Custom option for Numba debugging
 
     def __post_init__(self):
@@ -419,8 +423,6 @@ class ProgramOptions:
             self._formatted_options.append("--fdevice-syntax-only")
         if self.minimal is not None and self.minimal:
             self._formatted_options.append("--minimal")
-        if self.numba_debug:
-            self._formatted_options.append("--numba-debug")
 
     def _as_bytes(self):
         # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
@@ -470,19 +472,23 @@ class Program:
                     nvvm.destroy_program(self.handle)
                 self.handle = None
 
-    __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options")
+    __slots__ = ("__weakref__", "_mnff", "_backend", "_linker", "_options", "_module_count")
 
     def __init__(self, code, code_type, options: ProgramOptions = None):
         self._mnff = Program._MembersNeededForFinalize(self, None, None)
 
         self._options = options = check_or_create_options(ProgramOptions, options, "Program options")
         code_type = code_type.lower()
+        self._module_count = 0
 
         if code_type == "c++":
             assert_type(code, str)
             # TODO: support pre-loaded headers & include names
-            # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
 
+            if options.extra_sources is not None:
+                raise ValueError("extra_sources is not supported by the NVRTC backend (C++ code_type)")
+
+            # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
             self._mnff.handle = handle_return(nvrtc.nvrtcCreateProgram(code.encode(), options._name, 0, [], []))
             self._mnff.backend = "NVRTC"
             self._backend = "NVRTC"
@@ -490,6 +496,9 @@ class Program:
 
         elif code_type == "ptx":
             assert_type(code, str)
+            if options.extra_sources is not None:
+                raise ValueError("extra_sources is not supported by the PTX backend.")
+
             self._linker = Linker(
                 ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
             )
@@ -505,6 +514,40 @@ class Program:
             self._mnff.handle = nvvm.create_program()
             self._mnff.backend = "NVVM"
             nvvm.add_module_to_program(self._mnff.handle, code, len(code), options._name.decode())
+            self._module_count = 1
+            # Add extra modules if provided
+            if options.extra_sources is not None:
+                if not is_sequence(options.extra_sources):
+                    raise TypeError(
+                        "extra_modules must be a sequence of 2-tuples:((name1, source1), (name2, source2), ...)"
+                    )
+                for i, module in enumerate(options.extra_sources):
+                    if not isinstance(module, tuple) or len(module) != 2:
+                        raise TypeError(
+                            f"Each extra module must be a 2-tuple (name, source)"
+                            f", got {type(module).__name__} at index {i}"
+                        )
+
+                    module_name, module_source = module
+
+                    if not isinstance(module_name, str):
+                        raise TypeError(f"Module name at index {i} must be a string,got {type(module_name).__name__}")
+
+                    if isinstance(module_source, str):
+                        # Textual LLVM IR - encode to UTF-8 bytes
+                        module_source = module_source.encode("utf-8")
+                    elif not isinstance(module_source, (bytes, bytearray)):
+                        raise TypeError(
+                            f"Module source at index {i} must be str (textual LLVM IR), bytes (textual LLVM IR or bitcode), "
+                            f"or bytearray, got {type(module_source).__name__}"
+                        )
+
+                    if len(module_source) == 0:
+                        raise ValueError(f"Module source for '{module_name}' (index {i}) cannot be empty")
+
+                    nvvm.add_module_to_program(self._mnff.handle, module_source, len(module_source), module_name)
+                    self._module_count += 1
+
             self._backend = "NVVM"
             self._linker = None
 
