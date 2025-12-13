@@ -21,7 +21,10 @@ None.
 New features
 ------------
 
-None.
+- Added :class:`PinnedMemoryResource` and :class:`PinnedMemoryResourceOptions` for managing
+  host-pinned memory pools with optional IPC support.
+- Added :class:`ManagedMemoryResource` and :class:`ManagedMemoryResourceOptions` for managing
+  unified memory pools accessible from both host and device.
 
 
 New examples

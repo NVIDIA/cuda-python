@@ -142,17 +142,6 @@ def _reconstruct_allocation_handle(cls, df, uuid):  # no-cython-lint
 multiprocessing.reduction.register(IPCAllocationHandle, _reduce_allocation_handle)
 
 
-def _deep_reduce_device_memory_resource(mr):
-    check_multiprocessing_start_method()
-    from .._device import Device
-    device = Device(mr.device_id)
-    alloc_handle = mr.get_allocation_handle()
-    return mr.from_allocation_handle, (device, alloc_handle)
-
-
-multiprocessing.reduction.register(DeviceMemoryResource, _deep_reduce_device_memory_resource)
-
-
 # Buffer IPC Implementation
 # -------------------------
 cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
@@ -169,13 +158,13 @@ cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
     return IPCBufferDescriptor._init(data_b, self.size)
 
 cdef Buffer Buffer_from_ipc_descriptor(
-    cls, DeviceMemoryResource mr, IPCBufferDescriptor ipc_descriptor, stream
+    cls, _MemPool mr, IPCBufferDescriptor ipc_descriptor, stream
 ):
     """Import a buffer that was exported from another process."""
     if not mr.is_ipc_enabled:
         raise RuntimeError("Memory resource is not IPC-enabled")
     if stream is None:
-        # Note: match this behavior to DeviceMemoryResource.allocate()
+        # Note: match this behavior to _MemPool.allocate()
         stream = default_stream()
     cdef cydriver.CUmemPoolPtrExportData data
     memcpy(
@@ -189,10 +178,10 @@ cdef Buffer Buffer_from_ipc_descriptor(
     return Buffer._init(<uintptr_t>ptr, ipc_descriptor.size, mr, stream, ipc_descriptor)
 
 
-# DeviceMemoryResource IPC Implementation
-# ---------------------------------------
+# _MemPool IPC Implementation
+# ---------------------------
 
-cdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handle):
+cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
     # Quick exit for registry hits.
     uuid = getattr(alloc_handle, 'uuid', None)  # no-cython-lint
     mr = registry.get(uuid)
@@ -209,10 +198,8 @@ cdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handl
             os.close(fd)
             raise
 
-    # Construct a new DMR.
-    cdef DeviceMemoryResource self = DeviceMemoryResource.__new__(cls)
-    from .._device import Device
-    self._dev_id = Device(device_id).device_id
+    # Construct a new mempool
+    cdef _MemPool self = <_MemPool>(cls.__new__(cls))
     self._mempool_owned = True
     self._ipc_data = IPCDataForMR(alloc_handle, True)
 
@@ -231,14 +218,14 @@ cdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handl
     return self
 
 
-cdef DeviceMemoryResource DMR_from_registry(uuid):
+cdef _MemPool MP_from_registry(uuid):
     try:
         return registry[uuid]
     except KeyError:
         raise RuntimeError(f"Memory resource {uuid} was not found") from None
 
 
-cdef DeviceMemoryResource DMR_register(DeviceMemoryResource self, uuid):
+cdef _MemPool MP_register(_MemPool self, uuid):
     existing = registry.get(uuid)
     if existing is not None:
         return existing
@@ -248,7 +235,7 @@ cdef DeviceMemoryResource DMR_register(DeviceMemoryResource self, uuid):
     return self
 
 
-cdef IPCAllocationHandle DMR_export_mempool(DeviceMemoryResource self):
+cdef IPCAllocationHandle MP_export_mempool(_MemPool self):
     # Note: This is Linux only (int for file descriptor)
     cdef int fd
     with nogil:
