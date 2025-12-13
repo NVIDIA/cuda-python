@@ -177,7 +177,7 @@ cdef class StridedLayout:
             )
 
     def __eq__(self : StridedLayout, other : StridedLayout) -> bool:
-        return self.itemsize == other.itemsize and self.slice_offset == other.slice_offset and _base_layout_equal(self.base, other.base)
+        return self.itemsize == other.itemsize and self.slice_offset == other.slice_offset and base_layout_equal(self.base, other.base)
 
     @property
     def ndim(self : StridedLayout):
