@@ -26,37 +26,7 @@ from cuda.core.experimental import (
 from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
-def _check_pinned_memory_available():
-    """Check if PinnedMemoryResource is available (CUDA 13.0+)."""
-    try:
-        device = Device()
-        return hasattr(device.properties, "host_memory_pools_supported")
-    except Exception:
-        return False
-
-
-def _check_managed_memory_available():
-    """Check if ManagedMemoryResource is available (CUDA 13.0+)."""
-    try:
-        device = Device()
-        return hasattr(device.properties, "memory_pools_supported") and hasattr(device.properties, "managed_memory")
-    except Exception:
-        return False
-
-
-# Skip marks for tests requiring CUDA 13.0+
-skipif_pinned_memory_unavailable = pytest.mark.skipif(
-    not _check_pinned_memory_available(), reason="PinnedMemoryResource requires CUDA 13.0 or later"
-)
-
-skipif_managed_memory_unavailable = pytest.mark.skipif(
-    not _check_managed_memory_available(), reason="ManagedMemoryResource requires CUDA 13.0 or later"
-)
-
-
-# Helper functions for runtime checks within tests
 def skip_if_pinned_memory_unsupported(device):
-    """Skip test if device doesn't support host memory pools or CUDA < 13."""
     try:
         if not device.properties.host_memory_pools_supported:
             pytest.skip("Device does not support host mempool operations")
@@ -65,16 +35,14 @@ def skip_if_pinned_memory_unsupported(device):
 
 
 def skip_if_managed_memory_unsupported(device):
-    """Skip test if device doesn't support managed memory pools or CUDA < 13."""
     try:
-        if not device.properties.memory_pools_supported or not device.properties.managed_memory:
+        if not device.properties.memory_pools_supported or not device.properties.concurrent_managed_access:
             pytest.skip("Device does not support managed memory pool operations")
     except AttributeError:
         pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
 
 
 def create_managed_memory_resource_or_skip(*args, **kwargs):
-    """Create ManagedMemoryResource, skipping test if CUDA 13.0+ required."""
     try:
         return ManagedMemoryResource(*args, **kwargs)
     except RuntimeError as e:
