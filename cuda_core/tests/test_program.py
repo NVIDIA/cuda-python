@@ -7,6 +7,7 @@ import warnings
 
 import pytest
 from cuda.core.experimental import _linker
+from cuda.core.experimental._device import Device
 from cuda.core.experimental._module import Kernel, ObjectCode
 from cuda.core.experimental._program import Program, ProgramOptions
 from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, handle_return
@@ -229,6 +230,67 @@ def ptx_code_object():
         ProgramOptions(no_source_include=True),
         # TODO: Add test for pre_include once we have a suitable header in the test environment
         # ProgramOptions(pre_include="cuda_runtime.h"),
+        ProgramOptions(no_cache=True),
+        ProgramOptions(fdevice_time_trace="trace.json"),
+        pytest.param(
+            ProgramOptions(arch="sm_100", device_float128=True),
+            marks=pytest.mark.skipif(
+                Device().compute_capability < (100, 0),
+                reason="device_float128 requires sm_100 or later",
+            ),
+        ),
+        ProgramOptions(frandom_seed="12345"),
+        ProgramOptions(ofast_compile="min"),
+        pytest.param(
+            ProgramOptions(pch=True),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 12800,
+                reason="PCH requires NVRTC >= 12.8",
+            ),
+        ),
+        pytest.param(
+            ProgramOptions(create_pch="test.pch"),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 12800,
+                reason="PCH requires NVRTC >= 12.8",
+            ),
+        ),
+        pytest.param(
+            ProgramOptions(use_pch="test.pch"),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 12800,
+                reason="PCH requires NVRTC >= 12.8",
+            ),
+        ),
+        # TODO: pch_dir requires actual PCH directory to exist - needs integration test
+        # pytest.param(
+        #     ProgramOptions(pch_dir="/tmp/pch"),
+        #     marks=pytest.mark.skipif(
+        #         (_get_nvrtc_version_for_tests() or 0) < 12800,
+        #         reason="PCH requires NVRTC >= 12.8",
+        #     ),
+        # ),
+        pytest.param(
+            ProgramOptions(pch_verbose=True),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 12800,
+                reason="PCH requires NVRTC >= 12.8",
+            ),
+        ),
+        pytest.param(
+            ProgramOptions(pch_messages=False),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 12800,
+                reason="PCH requires NVRTC >= 12.8",
+            ),
+        ),
+        pytest.param(
+            ProgramOptions(instantiate_templates_in_pch=True),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 12800,
+                reason="PCH requires NVRTC >= 12.8",
+            ),
+        ),
     ],
 )
 def test_cpp_program_with_various_options(init_cuda, options):

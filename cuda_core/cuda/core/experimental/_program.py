@@ -256,6 +256,42 @@ class ProgramOptions:
     minimal : bool, optional
         Omit certain language features to reduce compile time for small programs.
         Default: False
+    no_cache : bool, optional
+        Disable compiler caching.
+        Default: False
+    fdevice_time_trace : str, optional
+        Generate time trace JSON for profiling compilation (NVRTC only).
+        Default: None
+    device_float128 : bool, optional
+        Allow __float128 type in device code (NVRTC only).
+        Default: False
+    frandom_seed : str, optional
+        Set random seed for randomized optimizations (NVRTC only).
+        Default: None
+    ofast_compile : str, optional
+        Fast compilation mode: "0", "min", "mid", or "max" (NVRTC only).
+        Default: None
+    pch : bool, optional
+        Use default precompiled header (NVRTC only, CUDA 12.8+).
+        Default: False
+    create_pch : str, optional
+        Create precompiled header file (NVRTC only, CUDA 12.8+).
+        Default: None
+    use_pch : str, optional
+        Use specific precompiled header file (NVRTC only, CUDA 12.8+).
+        Default: None
+    pch_dir : str, optional
+        PCH directory location (NVRTC only, CUDA 12.8+).
+        Default: None
+    pch_verbose : bool, optional
+        Verbose PCH output (NVRTC only, CUDA 12.8+).
+        Default: False
+    pch_messages : bool, optional
+        Control PCH diagnostic messages (NVRTC only, CUDA 12.8+).
+        Default: False
+    instantiate_templates_in_pch : bool, optional
+        Control template instantiation in PCH (NVRTC only, CUDA 12.8+).
+        Default: False
     """
 
     name: str | None = "<default program>"
@@ -299,6 +335,18 @@ class ProgramOptions:
     split_compile: int | None = None
     fdevice_syntax_only: bool | None = None
     minimal: bool | None = None
+    no_cache: bool | None = None
+    fdevice_time_trace: str | None = None
+    device_float128: bool | None = None
+    frandom_seed: str | None = None
+    ofast_compile: str | None = None
+    pch: bool | None = None
+    create_pch: str | None = None
+    use_pch: str | None = None
+    pch_dir: str | None = None
+    pch_verbose: bool | None = None
+    pch_messages: bool | None = None
+    instantiate_templates_in_pch: bool | None = None
     numba_debug: bool | None = None  # Custom option for Numba debugging
 
     def __post_init__(self):
@@ -382,6 +430,8 @@ class ProgramOptions:
             options.append("--device-as-default-execution-space")
         if self.device_int128 is not None and self.device_int128:
             options.append("--device-int128")
+        if self.device_float128 is not None and self.device_float128:
+            options.append("--device-float128")
         if self.optimization_info is not None:
             options.append(f"--optimization-info={self.optimization_info}")
         if self.no_display_error_number is not None and self.no_display_error_number:
@@ -414,6 +464,31 @@ class ProgramOptions:
             options.append("--fdevice-syntax-only")
         if self.minimal is not None and self.minimal:
             options.append("--minimal")
+        if self.no_cache is not None and self.no_cache:
+            options.append("--no-cache")
+        if self.fdevice_time_trace is not None:
+            options.append(f"--fdevice-time-trace={self.fdevice_time_trace}")
+        if self.frandom_seed is not None:
+            options.append(f"--frandom-seed={self.frandom_seed}")
+        if self.ofast_compile is not None:
+            options.append(f"--Ofast-compile={self.ofast_compile}")
+        # PCH options (CUDA 12.8+)
+        if self.pch is not None and self.pch:
+            options.append("--pch")
+        if self.create_pch is not None:
+            options.append(f"--create-pch={self.create_pch}")
+        if self.use_pch is not None:
+            options.append(f"--use-pch={self.use_pch}")
+        if self.pch_dir is not None:
+            options.append(f"--pch-dir={self.pch_dir}")
+        if self.pch_verbose is not None:
+            options.append(f"--pch-verbose={_handle_boolean_option(self.pch_verbose)}")
+        if self.pch_messages is not None:
+            options.append(f"--pch-messages={_handle_boolean_option(self.pch_messages)}")
+        if self.instantiate_templates_in_pch is not None:
+            options.append(
+                f"--instantiate-templates-in-pch={_handle_boolean_option(self.instantiate_templates_in_pch)}"
+            )
         if self.numba_debug:
             options.append("--numba-debug")
         return list(o.encode() for o in options)
