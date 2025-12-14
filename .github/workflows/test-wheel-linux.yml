@@ -81,6 +81,13 @@ jobs:
     runs-on: "linux-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-1"
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
+    # Our self-hosted runners require a container
+    # TODO: use a different (nvidia?) container
+    container:
+      options: -u root --security-opt seccomp=unconfined --shm-size 16g
+      image: ubuntu:22.04
+      env:
+        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
     steps:
       - name: Ensure GPU is working
         run: nvidia-smi
@@ -218,7 +225,7 @@ jobs:
           python-version: ${{ matrix.PY_VER }}
         env:
           # we use self-hosted runners on which setup-python behaves weirdly (Python include can't be found)...
-          AGENT_TOOLSDIRECTORY: ${{ runner.temp }}/setup_python
+          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
 
       - name: Set up mini CTK
         if: ${{ matrix.LOCAL_CTK == '1' }}
