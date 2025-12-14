@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 cimport cuda.bindings.cydriver as cydriver
 
 include "_lib/utils.pxd"
@@ -794,6 +794,57 @@ cdef class CUstreamMemOpMemoryBarrierParams_st:
     """
     cdef cydriver.CUstreamBatchMemOpParams_union* _pvt_ptr
 {{endif}}
+{{if 'CUstreamBatchMemOpParams_union.atomicReduction' in found_struct}}
+
+cdef class CUstreamMemOpAtomicReductionParams_st:
+    """
+    Attributes
+    ----------
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.operation' in found_struct}}
+    operation : CUstreamBatchMemOpType
+
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.flags' in found_struct}}
+    flags : unsigned int
+        Must be 0
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.reductionOp' in found_struct}}
+    reductionOp : CUstreamAtomicReductionOpType
+        See CUstreamAtomicReductionOpType
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.dataType' in found_struct}}
+    dataType : CUstreamAtomicReductionDataType
+        See CUstreamAtomicReductionDataType
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.address' in found_struct}}
+    address : CUdeviceptr
+        The address the atomic operation will be operated on
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.value' in found_struct}}
+    value : cuuint64_t
+        The operand value the atomic operation will operate with
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.alias' in found_struct}}
+    alias : CUdeviceptr
+        For driver internal use. Initial value is unimportant.
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUstreamBatchMemOpParams_union* _pvt_ptr
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.address' in found_struct}}
+    cdef CUdeviceptr _address
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.value' in found_struct}}
+    cdef cuuint64_t _value
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction.alias' in found_struct}}
+    cdef CUdeviceptr _alias
+    {{endif}}
+{{endif}}
 {{if 'CUstreamBatchMemOpParams_union' in found_struct}}
 
 cdef class CUstreamBatchMemOpParams_union:
@@ -825,6 +876,10 @@ cdef class CUstreamBatchMemOpParams_union:
     memoryBarrier : CUstreamMemOpMemoryBarrierParams_st
         Params for CU_STREAM_MEM_OP_BARRIER operations.
     {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction' in found_struct}}
+    atomicReduction : CUstreamMemOpAtomicReductionParams_st
+
+    {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.pad' in found_struct}}
     pad : list[cuuint64_t]
 
@@ -848,6 +903,9 @@ cdef class CUstreamBatchMemOpParams_union:
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.memoryBarrier' in found_struct}}
     cdef CUstreamMemOpMemoryBarrierParams_st _memoryBarrier
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction' in found_struct}}
+    cdef CUstreamMemOpAtomicReductionParams_st _atomicReduction
     {{endif}}
 {{endif}}
 {{if 'CUDA_BATCH_MEM_OP_NODE_PARAMS_v1_st' in found_struct}}
@@ -5184,20 +5242,23 @@ cdef class CUdevSmResource_st:
     {{if 'CUdevSmResource_st.smCount' in found_struct}}
     smCount : unsigned int
         The amount of streaming multiprocessors available in this resource.
-        This is an output parameter only, do not write to this field.
     {{endif}}
     {{if 'CUdevSmResource_st.minSmPartitionSize' in found_struct}}
     minSmPartitionSize : unsigned int
         The minimum number of streaming multiprocessors required to
-        partition this resource. This is an output parameter only, do not
-        write to this field.
+        partition this resource.
     {{endif}}
     {{if 'CUdevSmResource_st.smCoscheduledAlignment' in found_struct}}
     smCoscheduledAlignment : unsigned int
         The number of streaming multiprocessors in this resource that are
         guaranteed to be co-scheduled on the same GPU processing cluster.
-        smCount is a multiple of this value. This is an output parameter
-        only, do not write to this field.
+        smCount will be a multiple of this value, unless the backfill flag
+        is set.
+    {{endif}}
+    {{if 'CUdevSmResource_st.flags' in found_struct}}
+    flags : unsigned int
+        The flags set on this SM resource. For possible values see
+        ::CUdevSmResourceGroup_flags.
     {{endif}}
 
     Methods
@@ -5207,6 +5268,93 @@ cdef class CUdevSmResource_st:
     """
     cdef cydriver.CUdevSmResource_st _pvt_val
     cdef cydriver.CUdevSmResource_st* _pvt_ptr
+{{endif}}
+{{if 'CUdevWorkqueueConfigResource_st' in found_struct}}
+
+cdef class CUdevWorkqueueConfigResource_st:
+    """
+    Attributes
+    ----------
+    {{if 'CUdevWorkqueueConfigResource_st.device' in found_struct}}
+    device : CUdevice
+        The device on which the workqueue resources are available
+    {{endif}}
+    {{if 'CUdevWorkqueueConfigResource_st.wqConcurrencyLimit' in found_struct}}
+    wqConcurrencyLimit : unsigned int
+        The expected maximum number of concurrent stream-ordered workloads
+    {{endif}}
+    {{if 'CUdevWorkqueueConfigResource_st.sharingScope' in found_struct}}
+    sharingScope : CUdevWorkqueueConfigScope
+        The sharing scope for the workqueue resources
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUdevWorkqueueConfigResource_st _pvt_val
+    cdef cydriver.CUdevWorkqueueConfigResource_st* _pvt_ptr
+    {{if 'CUdevWorkqueueConfigResource_st.device' in found_struct}}
+    cdef CUdevice _device
+    {{endif}}
+{{endif}}
+{{if 'CUdevWorkqueueResource_st' in found_struct}}
+
+cdef class CUdevWorkqueueResource_st:
+    """
+    Attributes
+    ----------
+    {{if 'CUdevWorkqueueResource_st.reserved' in found_struct}}
+    reserved : bytes
+        Reserved for future use
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CUdevWorkqueueResource_st _pvt_val
+    cdef cydriver.CUdevWorkqueueResource_st* _pvt_ptr
+{{endif}}
+{{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st' in found_struct}}
+
+cdef class CU_DEV_SM_RESOURCE_GROUP_PARAMS_st:
+    """
+    Attributes
+    ----------
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.smCount' in found_struct}}
+    smCount : unsigned int
+        The amount of SMs available in this resource.
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.coscheduledSmCount' in found_struct}}
+    coscheduledSmCount : unsigned int
+        The amount of co-scheduled SMs grouped together for locality
+        purposes.
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.preferredCoscheduledSmCount' in found_struct}}
+    preferredCoscheduledSmCount : unsigned int
+        When possible, combine co-scheduled groups together into larger
+        groups of this size.
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.flags' in found_struct}}
+    flags : unsigned int
+        Combination of `CUdevSmResourceGroup_flags` values to indicate this
+        this group is created.
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.reserved' in found_struct}}
+    reserved : list[unsigned int]
+        Reserved for future use - ensure this is is zero initialized.
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    cdef cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st _pvt_val
+    cdef cydriver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st* _pvt_ptr
 {{endif}}
 {{if 'CUdevResource_st' in found_struct}}
 
@@ -5226,8 +5374,22 @@ cdef class CUdevResource_st:
     sm : CUdevSmResource
         Resource corresponding to CU_DEV_RESOURCE_TYPE_SM `typename`.
     {{endif}}
+    {{if 'CUdevResource_st.wqConfig' in found_struct}}
+    wqConfig : CUdevWorkqueueConfigResource
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG
+        `typename`.
+    {{endif}}
+    {{if 'CUdevResource_st.wq' in found_struct}}
+    wq : CUdevWorkqueueResource
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE
+        `typename`.
+    {{endif}}
     {{if 'CUdevResource_st._oversize' in found_struct}}
     _oversize : bytes
+
+    {{endif}}
+    {{if 'CUdevResource_st.nextResource' in found_struct}}
+    nextResource : CUdevResource_st
 
     {{endif}}
 
@@ -5240,6 +5402,16 @@ cdef class CUdevResource_st:
     cdef cydriver.CUdevResource_st* _pvt_ptr
     {{if 'CUdevResource_st.sm' in found_struct}}
     cdef CUdevSmResource _sm
+    {{endif}}
+    {{if 'CUdevResource_st.wqConfig' in found_struct}}
+    cdef CUdevWorkqueueConfigResource _wqConfig
+    {{endif}}
+    {{if 'CUdevResource_st.wq' in found_struct}}
+    cdef CUdevWorkqueueResource _wq
+    {{endif}}
+    {{if 'CUdevResource_st.nextResource' in found_struct}}
+    cdef size_t _nextResource_length
+    cdef cydriver.CUdevResource_st* _nextResource
     {{endif}}
 {{endif}}
 {{if True}}
@@ -5579,6 +5751,10 @@ cdef class CUstreamBatchMemOpParams_v1(CUstreamBatchMemOpParams_union):
     memoryBarrier : CUstreamMemOpMemoryBarrierParams_st
         Params for CU_STREAM_MEM_OP_BARRIER operations.
     {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction' in found_struct}}
+    atomicReduction : CUstreamMemOpAtomicReductionParams_st
+
+    {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.pad' in found_struct}}
     pad : list[cuuint64_t]
 
@@ -5621,6 +5797,10 @@ cdef class CUstreamBatchMemOpParams(CUstreamBatchMemOpParams_v1):
     {{if 'CUstreamBatchMemOpParams_union.memoryBarrier' in found_struct}}
     memoryBarrier : CUstreamMemOpMemoryBarrierParams_st
         Params for CU_STREAM_MEM_OP_BARRIER operations.
+    {{endif}}
+    {{if 'CUstreamBatchMemOpParams_union.atomicReduction' in found_struct}}
+    atomicReduction : CUstreamMemOpAtomicReductionParams_st
+
     {{endif}}
     {{if 'CUstreamBatchMemOpParams_union.pad' in found_struct}}
     pad : list[cuuint64_t]
@@ -10720,20 +10900,104 @@ cdef class CUdevSmResource(CUdevSmResource_st):
     {{if 'CUdevSmResource_st.smCount' in found_struct}}
     smCount : unsigned int
         The amount of streaming multiprocessors available in this resource.
-        This is an output parameter only, do not write to this field.
     {{endif}}
     {{if 'CUdevSmResource_st.minSmPartitionSize' in found_struct}}
     minSmPartitionSize : unsigned int
         The minimum number of streaming multiprocessors required to
-        partition this resource. This is an output parameter only, do not
-        write to this field.
+        partition this resource.
     {{endif}}
     {{if 'CUdevSmResource_st.smCoscheduledAlignment' in found_struct}}
     smCoscheduledAlignment : unsigned int
         The number of streaming multiprocessors in this resource that are
         guaranteed to be co-scheduled on the same GPU processing cluster.
-        smCount is a multiple of this value. This is an output parameter
-        only, do not write to this field.
+        smCount will be a multiple of this value, unless the backfill flag
+        is set.
+    {{endif}}
+    {{if 'CUdevSmResource_st.flags' in found_struct}}
+    flags : unsigned int
+        The flags set on this SM resource. For possible values see
+        ::CUdevSmResourceGroup_flags.
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUdevWorkqueueConfigResource' in found_types}}
+
+cdef class CUdevWorkqueueConfigResource(CUdevWorkqueueConfigResource_st):
+    """
+    Attributes
+    ----------
+    {{if 'CUdevWorkqueueConfigResource_st.device' in found_struct}}
+    device : CUdevice
+        The device on which the workqueue resources are available
+    {{endif}}
+    {{if 'CUdevWorkqueueConfigResource_st.wqConcurrencyLimit' in found_struct}}
+    wqConcurrencyLimit : unsigned int
+        The expected maximum number of concurrent stream-ordered workloads
+    {{endif}}
+    {{if 'CUdevWorkqueueConfigResource_st.sharingScope' in found_struct}}
+    sharingScope : CUdevWorkqueueConfigScope
+        The sharing scope for the workqueue resources
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CUdevWorkqueueResource' in found_types}}
+
+cdef class CUdevWorkqueueResource(CUdevWorkqueueResource_st):
+    """
+    Attributes
+    ----------
+    {{if 'CUdevWorkqueueResource_st.reserved' in found_struct}}
+    reserved : bytes
+        Reserved for future use
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    pass
+{{endif}}
+{{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS' in found_types}}
+
+cdef class CU_DEV_SM_RESOURCE_GROUP_PARAMS(CU_DEV_SM_RESOURCE_GROUP_PARAMS_st):
+    """
+    Attributes
+    ----------
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.smCount' in found_struct}}
+    smCount : unsigned int
+        The amount of SMs available in this resource.
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.coscheduledSmCount' in found_struct}}
+    coscheduledSmCount : unsigned int
+        The amount of co-scheduled SMs grouped together for locality
+        purposes.
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.preferredCoscheduledSmCount' in found_struct}}
+    preferredCoscheduledSmCount : unsigned int
+        When possible, combine co-scheduled groups together into larger
+        groups of this size.
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.flags' in found_struct}}
+    flags : unsigned int
+        Combination of `CUdevSmResourceGroup_flags` values to indicate this
+        this group is created.
+    {{endif}}
+    {{if 'CU_DEV_SM_RESOURCE_GROUP_PARAMS_st.reserved' in found_struct}}
+    reserved : list[unsigned int]
+        Reserved for future use - ensure this is is zero initialized.
     {{endif}}
 
     Methods
@@ -10761,8 +11025,22 @@ cdef class CUdevResource_v1(CUdevResource_st):
     sm : CUdevSmResource
         Resource corresponding to CU_DEV_RESOURCE_TYPE_SM `typename`.
     {{endif}}
+    {{if 'CUdevResource_st.wqConfig' in found_struct}}
+    wqConfig : CUdevWorkqueueConfigResource
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG
+        `typename`.
+    {{endif}}
+    {{if 'CUdevResource_st.wq' in found_struct}}
+    wq : CUdevWorkqueueResource
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE
+        `typename`.
+    {{endif}}
     {{if 'CUdevResource_st._oversize' in found_struct}}
     _oversize : bytes
+
+    {{endif}}
+    {{if 'CUdevResource_st.nextResource' in found_struct}}
+    nextResource : CUdevResource_st
 
     {{endif}}
 
@@ -10791,8 +11069,22 @@ cdef class CUdevResource(CUdevResource_v1):
     sm : CUdevSmResource
         Resource corresponding to CU_DEV_RESOURCE_TYPE_SM `typename`.
     {{endif}}
+    {{if 'CUdevResource_st.wqConfig' in found_struct}}
+    wqConfig : CUdevWorkqueueConfigResource
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG
+        `typename`.
+    {{endif}}
+    {{if 'CUdevResource_st.wq' in found_struct}}
+    wq : CUdevWorkqueueResource
+        Resource corresponding to CU_DEV_RESOURCE_TYPE_WORKQUEUE
+        `typename`.
+    {{endif}}
     {{if 'CUdevResource_st._oversize' in found_struct}}
     _oversize : bytes
+
+    {{endif}}
+    {{if 'CUdevResource_st.nextResource' in found_struct}}
+    nextResource : CUdevResource_st
 
     {{endif}}
 

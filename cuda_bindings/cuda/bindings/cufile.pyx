@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.0.2. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
 
 cimport cython  # NOQA
 from libc cimport errno
@@ -2561,6 +2561,8 @@ class DriverStatusFlags(_IntEnum):
     BEEGFS_SUPPORTED = CU_FILE_BEEGFS_SUPPORTED
     NVME_P2P_SUPPORTED = CU_FILE_NVME_P2P_SUPPORTED
     SCATEFS_SUPPORTED = CU_FILE_SCATEFS_SUPPORTED
+    VIRTIOFS_SUPPORTED = CU_FILE_VIRTIOFS_SUPPORTED
+    MAX_TARGET_TYPES = CU_FILE_MAX_TARGET_TYPES
 
 class DriverControlFlags(_IntEnum):
     """See `CUfileDriverControlFlags_t`."""
@@ -2573,6 +2575,7 @@ class FeatureFlags(_IntEnum):
     BATCH_IO_SUPPORTED = CU_FILE_BATCH_IO_SUPPORTED
     STREAMS_SUPPORTED = CU_FILE_STREAMS_SUPPORTED
     PARALLEL_IO_SUPPORTED = CU_FILE_PARALLEL_IO_SUPPORTED
+    P2P_SUPPORTED = CU_FILE_P2P_SUPPORTED
 
 class FileHandleType(_IntEnum):
     """See `CUfileFileHandleType`."""
@@ -2639,6 +2642,14 @@ class ArrayConfigParameter(_IntEnum):
     """See `CUFileArrayConfigParameter_t`."""
     POSIX_POOL_SLAB_SIZE_KB = CUFILE_PARAM_POSIX_POOL_SLAB_SIZE_KB
     POSIX_POOL_SLAB_COUNT = CUFILE_PARAM_POSIX_POOL_SLAB_COUNT
+
+class P2PFlags(_IntEnum):
+    """See `CUfileP2PFlags_t`."""
+    P2PDMA = CUFILE_P2PDMA
+    NVFS = CUFILE_NVFS
+    DMABUF = CUFILE_DMABUF
+    C2C = CUFILE_C2C
+    NVIDIA_PEERMEM = CUFILE_NVIDIA_PEERMEM
 
 
 ###############################################################################

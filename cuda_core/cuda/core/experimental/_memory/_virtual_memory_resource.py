@@ -74,7 +74,6 @@ class VirtualMemoryResourceOptions:
     peers: Iterable[int] = field(default_factory=tuple)
     self_access: VirtualMemoryAccessTypeT = "rw"
     peer_access: VirtualMemoryAccessTypeT = "rw"
-    win32_handle_metadata: int | None = 0
 
     _a = driver.CUmemAccess_flags
     _access_flags = {"rw": _a.CU_MEM_ACCESS_FLAGS_PROT_READWRITE, "r": _a.CU_MEM_ACCESS_FLAGS_PROT_READ, None: 0}
@@ -128,6 +127,8 @@ class VirtualMemoryResourceOptions:
 
     @staticmethod
     def _handle_type_to_driver(spec: str):
+        if spec == "win32":
+            raise NotImplementedError("win32 is currently not supported, please reach out to the CUDA Python team")
         handle_type = VirtualMemoryResourceOptions._handle_types.get(spec)
         if handle_type is None:
             raise ValueError(f"Unsupported handle_type: {spec!r}")
@@ -151,6 +152,13 @@ class VirtualMemoryResource(MemoryResource):
 
     config : VirtualMemoryResourceOptions
         A configuration object for the VirtualMemoryResource
+
+
+    Warning
+    -------
+        This is a low-level API that is provided only for convenience. Make sure you fully understand
+        how CUDA Virtual Memory Management works before using this. Other MemoryResource subclasses
+        in cuda.core should already meet the common needs.
     """
 
     def __init__(self, device_id: Device | int, config: VirtualMemoryResourceOptions = None):
@@ -217,7 +225,7 @@ class VirtualMemoryResource(MemoryResource):
         prop.location.id = self.device.device_id
         prop.allocFlags.gpuDirectRDMACapable = 1 if self.config.gpu_direct_rdma else 0
         prop.requestedHandleTypes = VirtualMemoryResourceOptions._handle_type_to_driver(self.config.handle_type)
-        prop.win32HandleMetaData = self.config.win32_handle_metadata if self.config.win32_handle_metadata else 0
+        prop.win32HandleMetaData = 0
 
         # Query granularity
         gran_flag = VirtualMemoryResourceOptions._granularity_to_driver(self.config.granularity)
@@ -505,7 +513,7 @@ class VirtualMemoryResource(MemoryResource):
         prop.location.id = self.device.device_id if config.location_type == "device" else -1
         prop.allocFlags.gpuDirectRDMACapable = 1 if config.gpu_direct_rdma else 0
         prop.requestedHandleTypes = VirtualMemoryResourceOptions._handle_type_to_driver(config.handle_type)
-        prop.win32HandleMetaData = self.config.win32_handle_metadata if self.config.win32_handle_metadata else 0
+        prop.win32HandleMetaData = 0
 
         # ---- Query and apply granularity ----
         # Choose min vs recommended granularity per config

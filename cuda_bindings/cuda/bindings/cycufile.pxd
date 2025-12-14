@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.0.2. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
 
 from libc.stdint cimport uint32_t, uint64_t
 from libc.time cimport time_t
@@ -99,6 +99,8 @@ cdef extern from '<cufile.h>':
         CU_FILE_BEEGFS_SUPPORTED
         CU_FILE_NVME_P2P_SUPPORTED
         CU_FILE_SCATEFS_SUPPORTED
+        CU_FILE_VIRTIOFS_SUPPORTED
+        CU_FILE_MAX_TARGET_TYPES
 
 cdef extern from '<cufile.h>':
     ctypedef enum CUfileDriverControlFlags_t:
@@ -111,6 +113,7 @@ cdef extern from '<cufile.h>':
         CU_FILE_BATCH_IO_SUPPORTED
         CU_FILE_STREAMS_SUPPORTED
         CU_FILE_PARALLEL_IO_SUPPORTED
+        CU_FILE_P2P_SUPPORTED
 
 cdef extern from '<cufile.h>':
     ctypedef enum CUfileFileHandleType:
@@ -178,6 +181,14 @@ cdef extern from '<cufile.h>':
         CUFILE_PARAM_POSIX_POOL_SLAB_SIZE_KB
         CUFILE_PARAM_POSIX_POOL_SLAB_COUNT
 
+cdef extern from '<cufile.h>':
+    ctypedef enum CUfileP2PFlags_t:
+        CUFILE_P2PDMA
+        CUFILE_NVFS
+        CUFILE_DMABUF
+        CUFILE_C2C
+        CUFILE_NVIDIA_PEERMEM
+
     # types
 cdef extern from '<cufile.h>':
     ctypedef void* CUfileHandle_t 'CUfileHandle_t'
@@ -206,11 +217,11 @@ cdef extern from '<cufile.h>':
 
 cdef extern from '<cufile.h>':
     ctypedef struct CUfileFSOps_t 'CUfileFSOps_t':
-        char* (*fs_type)(void*)
-        int (*getRDMADeviceList)(void*, sockaddr_t**)
-        int (*getRDMADevicePriority)(void*, char*, size_t, loff_t, sockaddr_t*)
-        ssize_t (*read)(void*, char*, size_t, loff_t, cufileRDMAInfo_t*)
-        ssize_t (*write)(void*, const char*, size_t, loff_t, cufileRDMAInfo_t*)
+        char* (*fs_type)(const void*)
+        int (*getRDMADeviceList)(const void*, sockaddr_t**)
+        int (*getRDMADevicePriority)(const void*, char*, size_t, loff_t, const sockaddr_t*)
+        ssize_t (*read)(const void*, char*, size_t, loff_t, const cufileRDMAInfo_t*)
+        ssize_t (*write)(const void*, const char*, size_t, loff_t, const cufileRDMAInfo_t*)
 
 cdef union _anon_pod1 '_anon_pod1':
     int fd

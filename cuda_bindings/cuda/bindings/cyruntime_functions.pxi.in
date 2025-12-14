@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 cdef extern from "cuda_runtime_api.h":
 
     {{if 'cudaDeviceReset' in found_functions}}
@@ -1184,6 +1184,31 @@ cdef extern from "cuda_runtime_api.h":
     cudaError_t cudaGraphNodeGetType(cudaGraphNode_t node, cudaGraphNodeType* pType) nogil
 
     {{endif}}
+    {{if 'cudaGraphNodeGetContainingGraph' in found_functions}}
+
+    cudaError_t cudaGraphNodeGetContainingGraph(cudaGraphNode_t hNode, cudaGraph_t* phGraph) nogil
+
+    {{endif}}
+    {{if 'cudaGraphNodeGetLocalId' in found_functions}}
+
+    cudaError_t cudaGraphNodeGetLocalId(cudaGraphNode_t hNode, unsigned int* nodeId) nogil
+
+    {{endif}}
+    {{if 'cudaGraphNodeGetToolsId' in found_functions}}
+
+    cudaError_t cudaGraphNodeGetToolsId(cudaGraphNode_t hNode, unsigned long long* toolsNodeId) nogil
+
+    {{endif}}
+    {{if 'cudaGraphGetId' in found_functions}}
+
+    cudaError_t cudaGraphGetId(cudaGraph_t hGraph, unsigned int* graphID) nogil
+
+    {{endif}}
+    {{if 'cudaGraphExecGetId' in found_functions}}
+
+    cudaError_t cudaGraphExecGetId(cudaGraphExec_t hGraphExec, unsigned int* graphID) nogil
+
+    {{endif}}
     {{if 'cudaGraphGetNodes' in found_functions}}
 
     cudaError_t cudaGraphGetNodes(cudaGraph_t graph, cudaGraphNode_t* nodes, size_t* numNodes) nogil
@@ -1379,6 +1404,11 @@ cdef extern from "cuda_runtime_api.h":
     cudaError_t cudaGraphConditionalHandleCreate(cudaGraphConditionalHandle* pHandle_out, cudaGraph_t graph, unsigned int defaultLaunchValue, unsigned int flags) nogil
 
     {{endif}}
+    {{if 'cudaGraphConditionalHandleCreate_v2' in found_functions}}
+
+    cudaError_t cudaGraphConditionalHandleCreate_v2(cudaGraphConditionalHandle* pHandle_out, cudaGraph_t graph, cudaExecutionContext_t ctx, unsigned int defaultLaunchValue, unsigned int flags) nogil
+
+    {{endif}}
     {{if 'cudaGetDriverEntryPoint' in found_functions}}
 
     cudaError_t cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) nogil
@@ -1437,6 +1467,81 @@ cdef extern from "cuda_runtime_api.h":
     {{if 'cudaKernelSetAttributeForDevice' in found_functions}}
 
     cudaError_t cudaKernelSetAttributeForDevice(cudaKernel_t kernel, cudaFuncAttribute attr, int value, int device) nogil
+
+    {{endif}}
+    {{if 'cudaDeviceGetDevResource' in found_functions}}
+
+    cudaError_t cudaDeviceGetDevResource(int device, cudaDevResource* resource, cudaDevResourceType typename) nogil
+
+    {{endif}}
+    {{if 'cudaDevSmResourceSplitByCount' in found_functions}}
+
+    cudaError_t cudaDevSmResourceSplitByCount(cudaDevResource* result, unsigned int* nbGroups, const cudaDevResource* input, cudaDevResource* remaining, unsigned int flags, unsigned int minCount) nogil
+
+    {{endif}}
+    {{if 'cudaDevSmResourceSplit' in found_functions}}
+
+    cudaError_t cudaDevSmResourceSplit(cudaDevResource* result, unsigned int nbGroups, const cudaDevResource* input, cudaDevResource* remainder, unsigned int flags, cudaDevSmResourceGroupParams* groupParams) nogil
+
+    {{endif}}
+    {{if 'cudaDevResourceGenerateDesc' in found_functions}}
+
+    cudaError_t cudaDevResourceGenerateDesc(cudaDevResourceDesc_t* phDesc, cudaDevResource* resources, unsigned int nbResources) nogil
+
+    {{endif}}
+    {{if 'cudaGreenCtxCreate' in found_functions}}
+
+    cudaError_t cudaGreenCtxCreate(cudaExecutionContext_t* phCtx, cudaDevResourceDesc_t desc, int device, unsigned int flags) nogil
+
+    {{endif}}
+    {{if 'cudaExecutionCtxDestroy' in found_functions}}
+
+    cudaError_t cudaExecutionCtxDestroy(cudaExecutionContext_t ctx) nogil
+
+    {{endif}}
+    {{if 'cudaExecutionCtxGetDevResource' in found_functions}}
+
+    cudaError_t cudaExecutionCtxGetDevResource(cudaExecutionContext_t ctx, cudaDevResource* resource, cudaDevResourceType typename) nogil
+
+    {{endif}}
+    {{if 'cudaExecutionCtxGetDevice' in found_functions}}
+
+    cudaError_t cudaExecutionCtxGetDevice(int* device, cudaExecutionContext_t ctx) nogil
+
+    {{endif}}
+    {{if 'cudaExecutionCtxGetId' in found_functions}}
+
+    cudaError_t cudaExecutionCtxGetId(cudaExecutionContext_t ctx, unsigned long long* ctxId) nogil
+
+    {{endif}}
+    {{if 'cudaExecutionCtxStreamCreate' in found_functions}}
+
+    cudaError_t cudaExecutionCtxStreamCreate(cudaStream_t* phStream, cudaExecutionContext_t ctx, unsigned int flags, int priority) nogil
+
+    {{endif}}
+    {{if 'cudaExecutionCtxSynchronize' in found_functions}}
+
+    cudaError_t cudaExecutionCtxSynchronize(cudaExecutionContext_t ctx) nogil
+
+    {{endif}}
+    {{if 'cudaStreamGetDevResource' in found_functions}}
+
+    cudaError_t cudaStreamGetDevResource(cudaStream_t hStream, cudaDevResource* resource, cudaDevResourceType typename) nogil
+
+    {{endif}}
+    {{if 'cudaExecutionCtxRecordEvent' in found_functions}}
+
+    cudaError_t cudaExecutionCtxRecordEvent(cudaExecutionContext_t ctx, cudaEvent_t event) nogil
+
+    {{endif}}
+    {{if 'cudaExecutionCtxWaitEvent' in found_functions}}
+
+    cudaError_t cudaExecutionCtxWaitEvent(cudaExecutionContext_t ctx, cudaEvent_t event) nogil
+
+    {{endif}}
+    {{if 'cudaDeviceGetExecutionCtx' in found_functions}}
+
+    cudaError_t cudaDeviceGetExecutionCtx(cudaExecutionContext_t* ctx, int device) nogil
 
     {{endif}}
     {{if 'cudaGetExportTable' in found_functions}}

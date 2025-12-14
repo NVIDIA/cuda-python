@@ -3,22 +3,22 @@
 
 .. module:: cuda.bindings
 
-``cuda-bindings`` 13.X.Y Release notes
+``cuda-bindings`` 13.1.1 Release notes
 ======================================
 
-
+Released on Dec 9, 2025
 
 Highlights
 ----------
 
+* Add missing driver & runtime bindings for functions new in CTK 13.1.0
+  (`PR #1321 <https://github.com/NVIDIA/cuda-python/pull/1321>`_)
 
-Bug fixes
----------
+Experimental
+------------
 
-Backward incompatible changes
------------------------------
-
-Additionally, ``cufile.StatsLevel3.per_gpu_stats`` no longer returns a singleton that must be manually converted to a Numpy array, instead it returns a ``cufile.PerGpuStats`` array which is directly addressable.
+* Experimental NVML bindings were added under ``cuda.bindings._nvml``
+  (`PR #1284 <https://github.com/NVIDIA/cuda-python/pull/1284>`_)
 
 Known issues
 ------------

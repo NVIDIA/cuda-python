@@ -17,7 +17,7 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: 9c89adb347f6b973f4905a4be0051eb2ecf85dea  # frozen: v0.13.3
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: [--fix, --show-fixes]
       - id: ruff-format
 
@@ -45,6 +45,7 @@ repos:
     rev: "3e8a8703264a2f4a69428a0aa4dcb512790b2c8c"  # frozen: v6.0.0
     hooks:
     - id: check-added-large-files
+      exclude: cuda_bindings/cuda/bindings/nvml.pyx
     - id: check-case-conflict
     - id: check-docstring-first
     - id: check-merge-conflict
