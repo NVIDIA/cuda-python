@@ -294,7 +294,7 @@ class ProgramOptions:
         Default: False
     """
 
-    name: str | None = "<default program>"
+    name: str | None = "default_program"
     arch: str | None = None
     relocatable_device_code: bool | None = None
     extensible_whole_program: bool | None = None

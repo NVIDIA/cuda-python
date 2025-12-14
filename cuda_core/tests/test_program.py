@@ -231,7 +231,13 @@ def ptx_code_object():
         # TODO: Add test for pre_include once we have a suitable header in the test environment
         # ProgramOptions(pre_include="cuda_runtime.h"),
         ProgramOptions(no_cache=True),
-        ProgramOptions(fdevice_time_trace="trace.json"),
+        pytest.param(
+            ProgramOptions(fdevice_time_trace="trace.json"),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 13000,
+                reason="buggy with NVRTC < 13.0 (File 'trace.json.json' could not be opened)",
+            ),
+        ),
         pytest.param(
             ProgramOptions(arch="sm_100", device_float128=True),
             marks=pytest.mark.skipif(
