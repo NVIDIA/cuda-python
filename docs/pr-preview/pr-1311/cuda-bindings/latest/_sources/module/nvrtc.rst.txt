@@ -622,6 +622,26 @@ Inhibit all warning messages.
 
 
 
+  - ``--Wreorder``\  (``-Wreorder``\ )
+
+Generate warnings when member initializers are reordered.
+
+
+
+
+
+
+
+  - ``--warning-as-error=``\  <kind>,... (``-Werror``\ )
+
+Make warnings of the specified kinds into errors. The following is the list of warning kinds accepted by this option:
+
+
+
+
+
+
+
   - ``--restrict``\  (``-restrict``\ )
 
 Programmer assertion that all kernel pointer parameters are restrict pointers.

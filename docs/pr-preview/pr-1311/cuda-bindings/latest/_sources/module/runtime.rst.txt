@@ -544,6 +544,11 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.bindings.runtime.cudaGraphClone
 .. autofunction:: cuda.bindings.runtime.cudaGraphNodeFindInClone
 .. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetType
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetContainingGraph
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetLocalId
+.. autofunction:: cuda.bindings.runtime.cudaGraphNodeGetToolsId
+.. autofunction:: cuda.bindings.runtime.cudaGraphGetId
+.. autofunction:: cuda.bindings.runtime.cudaGraphExecGetId
 .. autofunction:: cuda.bindings.runtime.cudaGraphGetNodes
 .. autofunction:: cuda.bindings.runtime.cudaGraphGetRootNodes
 .. autofunction:: cuda.bindings.runtime.cudaGraphGetEdges
@@ -583,6 +588,7 @@ This section describes the graph management functions of CUDA runtime applicatio
 .. autofunction:: cuda.bindings.runtime.cudaGraphNodeSetParams
 .. autofunction:: cuda.bindings.runtime.cudaGraphExecNodeSetParams
 .. autofunction:: cuda.bindings.runtime.cudaGraphConditionalHandleCreate
+.. autofunction:: cuda.bindings.runtime.cudaGraphConditionalHandleCreate_v2
 
 Driver Entry Point Access
 -------------------------
@@ -608,6 +614,289 @@ This section describes the library management functions of the CUDA runtime appl
 .. autofunction:: cuda.bindings.runtime.cudaLibraryEnumerateKernels
 .. autofunction:: cuda.bindings.runtime.cudaKernelSetAttributeForDevice
 
+Execution Context Management
+----------------------------
+
+This section describes the execution context management functions of the CUDA runtime application programming interface.
+
+
+
+
+
+**Overview**
+
+
+
+A CUDA execution context cudaExecutionContext_t serves as an abstraction for the contexts exposed by the CUDA Runtime, specifically green contexts and the primary context, and provides a unified programming model and API interface for contexts in the Runtime.
+
+There are two primary ways today to obtain an execution context:
+
+- cudaDeviceGetExecutionCtx: Returns the execution context that corresponds to the primary context of the specified device.
+
+
+
+
+
+
+
+- cudaGreenCtxCreate: Creates a green context with the specified resources and returns an execution context.
+
+
+
+
+
+
+
+
+
+Once you have an execution context at hand, you can perform context-level operations via the CUDA Runtime APIs. This includes:
+
+- Submitting work via streams created with cudaExecutionCtxStreamCreate.
+
+
+
+
+
+
+
+- Querying context via cudaExecutionCtxGetDevResource, cudaExecutionCtxGetDevice, etc.
+
+
+
+
+
+
+
+- Synchronizing and tracking context-level operations via cudaExecutionCtxSynchronize, cudaExecutionCtxRecordEvent, cudaExecutionCtxWaitEvent.
+
+
+
+
+
+
+
+- Performing context-level graph node operations via cudaGraphAddNode by specifying the context in ``nodeParams``\ . Note that individual node creation APIs, such as cudaGraphAddKernelNode, do not support specifying an execution context.
+
+
+
+
+
+
+
+
+
+Note: The above APIs take in an explicit cudaExecutionContext_t handle and ignores the context that is current to the calling thread. This enables explicit context-based programming without relying on thread-local state. If no context is specified, the APIs return cudaErrorInvalidValue.
+
+Note: Developers should treat cudaExecutionContext_t as an opaque handle and avoid assumptions about its underlying representation. The CUDA Runtime does not provide a way to convert this handle into driver-level contexts, such as ::CUcontext or ::CUgreenCtx.
+
+
+
+
+
+**Lifetime of CUDA Resources**
+
+
+
+The lifetime of CUDA resources (memory, streams, events, modules, etc) is not tied to the lifetime of the execution context. Their lifetime is tied to the device against which they were created. As such, usage of cudaDeviceReset() should be avoided to persist the lifetime of these resources.
+
+
+
+
+
+**APIs Operating on Current Context**
+
+
+
+The CUDA runtime does not provide a way to set an execution context as current. Since, the majority of the runtime APIs operate on the current context, we document below how the developer can work with these APIs.
+
+
+
+**APIs Operating on Device Resources**
+
+
+
+To work with these APIs (for example, cudaMalloc, cudaEventCreate, etc), developers are expected to call cudaSetDevice() prior to invoking them. Doing so does not impact functional correctness as these APIs operate on resources that are device-wide. If users have a context handle at hand, they can get the device handle from the context handle using cudaExecutionCtxGetDevice().
+
+
+
+
+
+**APIs Operating on Context Resources**
+
+
+
+These APIs (for example, cudaLaunchKernel, cudaMemcpyAsync, cudaMemsetAsync, etc) take in a stream and resources are inferred from the context bound to the stream at creation. See cudaExecutionCtxStreamCreate for more details. Developers are expected to use the stream-based APIs for context awareness and always pass an explicit stream handle to ensure context-awareness, and avoid reliance on the default NULL stream, which implicitly binds to the current context.
+
+
+
+
+
+
+
+**Green Contexts**
+
+
+
+Green contexts are a lightweight alternative to traditional contexts, that can be used to select a subset of device resources. This allows the developer to, for example, select SMs from distinct spatial partitions of the GPU and target them via CUDA stream operations, kernel launches, etc.
+
+Here are the broad initial steps to follow to get started:
+
+- (1) Start with an initial set of resources. For SM resources, they can be fetched via cudaDeviceGetDevResource. In case of workqueues, a new configuration can be used or an existing one queried via the cudaDeviceGetDevResource API.
+
+
+
+
+
+
+
+- (2) Modify these resources by either partitioning them (in case of SMs) or changing the configuration (in case of workqueues). To partition SMs, we recommend cudaDevSmResourceSplit. Changing the workqueue configuration can be done directly in place.
+
+
+
+
+
+
+
+- (3) Finalize the specification of resources by creating a descriptor via cudaDevResourceGenerateDesc.
+
+
+
+
+
+
+
+- (4) Create a green context via cudaGreenCtxCreate. This provisions the resource, such as workqueues (until this step it was only a configuration specification).
+
+
+
+
+
+
+
+- (5) Create a stream via cudaExecutionCtxStreamCreate, and use it throughout your application.
+
+
+
+
+
+
+
+
+
+SMs
+
+There are two possible partition operations - with cudaDevSmResourceSplitByCount the partitions created have to follow default SM count granularity requirements, so it will often be rounded up and aligned to a default value. On the other hand, cudaDevSmResourceSplit is explicit and allows for creation of non-equal groups. It will not round up automatically - instead it is the developer’s responsibility to query and set the correct values. These requirements can be queried with cudaDeviceGetDevResource to determine the alignment granularity (sm.smCoscheduledAlignment). A general guideline on the default values for each compute architecture:
+
+- On Compute Architecture 7.X, 8.X, and all Tegra SoC:
+
+
+
+
+
+  - The smCount must be a multiple of 2.
+
+
+
+
+
+
+
+  - The alignment (and default value of coscheduledSmCount) is 2.
+
+
+
+
+
+
+
+
+
+- On Compute Architecture 9.0+:
+
+
+
+
+
+  - The smCount must be a multiple of 8, or coscheduledSmCount if provided.
+
+
+
+
+
+
+
+  - The alignment (and default value of coscheduledSmCount) is 8. While the maximum value for coscheduled SM count is 32 on all Compute Architecture 9.0+, it's recommended to follow cluster size requirements. The portable cluster size and the max cluster size should be used in order to benefit from this co-scheduling.
+
+
+
+
+
+
+
+
+
+
+
+Workqueues
+
+For ``cudaDevResourceTypeWorkqueueConfig``\ , the resource specifies the expected maximum number of concurrent stream-ordered workloads via the ``wqConcurrencyLimit``\  field. The ``sharingScope``\  field determines how workqueue resources are shared:
+
+- ``cudaDevWorkqueueConfigScopeDeviceCtx:``\  Use all shared workqueue resources across all contexts (default driver behavior).
+
+
+
+
+
+
+
+- ``cudaDevWorkqueueConfigScopeGreenCtxBalanced:``\  When possible, use non-overlapping workqueue resources with other balanced green contexts.
+
+
+
+
+
+
+
+
+
+The maximum concurrency limit depends on ::CUDA_DEVICE_MAX_CONNECTIONS and can be queried from the device via cudaDeviceGetDevResource. Configurations may exceed this concurrency limit, but the driver will not guarantee that work submission remains non-overlapping.
+
+For ``cudaDevResourceTypeWorkqueue``\ , the resource represents a pre-existing workqueue that can be retrieved from existing execution contexts. This allows reusing workqueue resources across different execution contexts.
+
+On Concurrency
+
+Even if the green contexts have disjoint SM partitions, it is not guaranteed that the kernels launched in them will run concurrently or have forward progress guarantees. This is due to other resources that could cause a dependency. Using a combination of disjoint SMs and ``cudaDevWorkqueueConfigScopeGreenCtxBalanced``\  workqueue configurations can provide the best chance of avoiding interference. More resources will be added in the future to provide stronger guarantees.
+
+Additionally, there are two known scenarios, where its possible for the workload to run on more SMs than was provisioned (but never less).
+
+
+
+- On Volta+ MPS: When ``CUDA_MPS_ACTIVE_THREAD_PERCENTAGE``\  is used, the set of SMs that are used for running kernels can be scaled up to the value of SMs used for the MPS client.
+
+
+
+
+
+
+
+- On Compute Architecture 9.x: When a module with dynamic parallelism (CDP) is loaded, all future kernels running under green contexts may use and share an additional set of 2 SMs.
+
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetDevResource
+.. autofunction:: cuda.bindings.runtime.cudaDevSmResourceSplitByCount
+.. autofunction:: cuda.bindings.runtime.cudaDevSmResourceSplit
+.. autofunction:: cuda.bindings.runtime.cudaDevResourceGenerateDesc
+.. autofunction:: cuda.bindings.runtime.cudaGreenCtxCreate
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxDestroy
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxGetDevResource
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxGetDevice
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxGetId
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxStreamCreate
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxSynchronize
+.. autofunction:: cuda.bindings.runtime.cudaStreamGetDevResource
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxRecordEvent
+.. autofunction:: cuda.bindings.runtime.cudaExecutionCtxWaitEvent
+.. autofunction:: cuda.bindings.runtime.cudaDeviceGetExecutionCtx
+
 C++ API Routines
 ----------------
 C++-style interface built on top of CUDA runtime API.
@@ -631,11 +920,47 @@ This section describes the interactions between the CUDA Driver API and the CUDA
 
 
 
-**Primary Contexts**
+**Execution Contexts**
 
 
 
-There exists a one to one relationship between CUDA devices in the CUDA Runtime API and ::CUcontext s in the CUDA Driver API within a process. The specific context which the CUDA Runtime API uses for a device is called the device's primary context. From the perspective of the CUDA Runtime API, a device and its primary context are synonymous.
+The CUDA Runtime provides cudaExecutionContext_t as an abstraction over driver-level contexts—specifically, green contexts and the primary context.
+
+There are two primary ways to obtain an execution context:
+
+- cudaDeviceGetExecutionCtx: Returns the execution context that corresponds to the primary context of the specified device.
+
+
+
+
+
+
+
+- cudaGreenCtxCreate: Creates a green context with the specified resources and returns an execution context.
+
+
+
+
+
+
+
+
+
+Note: Developers should treat cudaExecutionContext_t as an opaque handle and avoid assumptions about its underlying representation. The CUDA Runtime does not provide a way to convert this handle into a ::CUcontext or ::CUgreenCtx.
+
+
+
+
+
+**Primary Context (aka Device Execution Context)**
+
+
+
+The primary context is the default execution context associated with a device in the Runtime. It can be obtained via a call to cudaDeviceGetExecutionCtx(). There is a one-to-one mapping between CUDA devices in the runtime and their primary contexts within a process.
+
+From the CUDA Runtime’s perspective, a device and its primary context are functionally synonymous.
+
+Unless explicitly overridden, either by making a different context current via the Driver API (e.g., ::cuCtxSetCurrent()) or by using an explicit execution context handle, the Runtime will implicitly initialize and use the primary context for API calls as needed.
 
 
 
@@ -645,15 +970,11 @@ There exists a one to one relationship between CUDA devices in the CUDA Runtime 
 
 
 
-CUDA Runtime API calls operate on the CUDA Driver API ::CUcontext which is current to to the calling host thread.
+Unless an explicit execution context is specified (see “Execution Context Management” for APIs), CUDA Runtime API calls operate on the CUDA Driver ::CUcontext which is current to the calling host thread. If no ::CUcontext is current to the calling thread when a CUDA Runtime API call which requires an active context is made, then the primary context (device execution context) for a device will be selected, made current to the calling thread, and initialized. The context will be initialized using the parameters specified by the CUDA Runtime API functions cudaSetDeviceFlags(), ::cudaD3D9SetDirect3DDevice(), ::cudaD3D10SetDirect3DDevice(), ::cudaD3D11SetDirect3DDevice(), cudaGLSetGLDevice(), and cudaVDPAUSetVDPAUDevice(). Note that these functions will fail with cudaErrorSetOnActiveProcess if they are called when the primary context for the specified device has already been initialized, except for cudaSetDeviceFlags() which will simply overwrite the previous settings.
 
 The function cudaInitDevice() ensures that the primary context is initialized for the requested device but does not make it current to the calling thread.
 
 The function cudaSetDevice() initializes the primary context for the specified device and makes it current to the calling thread by calling ::cuCtxSetCurrent().
-
-The CUDA Runtime API will automatically initialize the primary context for a device at the first CUDA Runtime API call which requires an active context. If no ::CUcontext is current to the calling thread when a CUDA Runtime API call which requires an active context is made, then the primary context for a device will be selected, made current to the calling thread, and initialized.
-
-The context which the CUDA Runtime API initializes will be initialized using the parameters specified by the CUDA Runtime API functions cudaSetDeviceFlags(), ::cudaD3D9SetDirect3DDevice(), ::cudaD3D10SetDirect3DDevice(), ::cudaD3D11SetDirect3DDevice(), cudaGLSetGLDevice(), and cudaVDPAUSetVDPAUDevice(). Note that these functions will fail with cudaErrorSetOnActiveProcess if they are called when the primary context for the specified device has already been initialized, except for cudaSetDeviceFlags() which will simply overwrite the previous settings.
 
 Primary contexts will remain active until they are explicitly deinitialized using cudaDeviceReset(). The function cudaDeviceReset() will deinitialize the primary context for the calling thread's current device immediately. The context will remain current to all of the threads that it was current to. The next CUDA Runtime API call on any thread which requires an active context will trigger the reinitialization of that device's primary context.
 
@@ -663,21 +984,19 @@ Note that primary contexts are shared resources. It is recommended that the prim
 
 
 
-**Context Interoperability**
+**CUcontext Interoperability**
 
 
 
-Note that the use of multiple ::CUcontext s per device within a single process will substantially degrade performance and is strongly discouraged. Instead, it is highly recommended that the implicit one-to-one device-to-context mapping for the process provided by the CUDA Runtime API be used.
+Note that the use of multiple ::CUcontext s per device within a single process will substantially degrade performance and is strongly discouraged. Instead, it is highly recommended to either use execution contexts cudaExecutionContext_t or the implicit one-to-one device-to-primary context mapping for the process provided by the CUDA Runtime API.
 
 If a non-primary ::CUcontext created by the CUDA Driver API is current to a thread then the CUDA Runtime API calls to that thread will operate on that ::CUcontext, with some exceptions listed below. Interoperability between data types is discussed in the following sections.
 
-The function cudaPointerGetAttributes() will return the error cudaErrorIncompatibleDriverContext if the pointer being queried was allocated by a non-primary context. The function cudaDeviceEnablePeerAccess() and the rest of the peer access API may not be called when a non-primary ::CUcontext is current. 
-
- To use the pointer query and peer access APIs with a context created using the CUDA Driver API, it is necessary that the CUDA Driver API be used to access these features.
+The function cudaDeviceEnablePeerAccess() and the rest of the peer access API may not be called when a non-primary CUcontext is current. To use the peer access APIs with a context created using the CUDA Driver API, it is necessary that the CUDA Driver API be used to access these features.
 
 All CUDA Runtime API state (e.g, global variables' addresses and values) travels with its underlying ::CUcontext. In particular, if a ::CUcontext is moved from one thread to another then all CUDA Runtime API state will move to that thread as well.
 
-Please note that attaching to legacy contexts (those with a version of 3010 as returned by ::cuCtxGetApiVersion()) is not possible. The CUDA Runtime will return cudaErrorIncompatibleDriverContext in such cases.
+Please note that attaching to legacy CUcontext (those with a version of 3010 as returned by ::cuCtxGetApiVersion()) is not possible. The CUDA Runtime will return cudaErrorIncompatibleDriverContext in such cases.
 
 
 
@@ -828,6 +1147,11 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreHandleDesc
 .. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreSignalParams
 .. autoclass:: cuda.bindings.runtime.cudaExternalSemaphoreWaitParams
+.. autoclass:: cuda.bindings.runtime.cudaDevSmResource
+.. autoclass:: cuda.bindings.runtime.cudaDevWorkqueueConfigResource
+.. autoclass:: cuda.bindings.runtime.cudaDevWorkqueueResource
+.. autoclass:: cuda.bindings.runtime.cudaDevSmResourceGroupParams_st
+.. autoclass:: cuda.bindings.runtime.cudaDevResource_st
 .. autoclass:: cuda.bindings.runtime.cudalibraryHostUniversalFunctionAndDataTable
 .. autoclass:: cuda.bindings.runtime.cudaKernelNodeParams
 .. autoclass:: cuda.bindings.runtime.cudaKernelNodeParamsV2
@@ -2346,6 +2670,12 @@ Data types used by CUDA Runtime
 
 
         This error indicates one or more resources are insufficient or non-applicable for the operation.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorStreamDetached
+
+
+        This error indicates that the requested operation is not permitted because the stream is in a detached state. This can occur if the green context associated with the stream has been destroyed, limiting the stream's operational capabilities.
 
 
     .. autoattribute:: cuda.bindings.runtime.cudaError_t.cudaErrorUnknown
@@ -4568,6 +4898,55 @@ Data types used by CUDA Runtime
 
         Handle is an opaque handle file descriptor referencing a timeline semaphore
 
+.. autoclass:: cuda.bindings.runtime.cudaDevSmResourceGroup_flags
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupDefault
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill
+
+.. autoclass:: cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags.cudaDevSmResourceSplitIgnoreSmCoscheduling
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDevSmResourceSplitByCount_flags.cudaDevSmResourceSplitMaxPotentialClusterSize
+
+.. autoclass:: cuda.bindings.runtime.cudaDevResourceType
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDevResourceType.cudaDevResourceTypeInvalid
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDevResourceType.cudaDevResourceTypeSm
+
+
+        Streaming multiprocessors related information
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDevResourceType.cudaDevResourceTypeWorkqueueConfig
+
+
+        Workqueue configuration related information
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDevResourceType.cudaDevResourceTypeWorkqueue
+
+
+        Pre-existing workqueue related information
+
+.. autoclass:: cuda.bindings.runtime.cudaDevWorkqueueConfigScope
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDevWorkqueueConfigScope.cudaDevWorkqueueConfigScopeDeviceCtx
+
+
+        Use all shared workqueue resources on the device. Default driver behaviour.
+
+
+    .. autoattribute:: cuda.bindings.runtime.cudaDevWorkqueueConfigScope.cudaDevWorkqueueConfigScopeGreenCtxBalanced
+
+
+        When possible, use non-overlapping workqueue resources with other balanced green contexts.
+
 .. autoclass:: cuda.bindings.runtime.cudaJitOption
 
     .. autoattribute:: cuda.bindings.runtime.cudaJitOption.cudaJitMaxRegisters
@@ -5470,6 +5849,8 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaEglPlaneDesc
 .. autoclass:: cuda.bindings.runtime.cudaEglFrame
 .. autoclass:: cuda.bindings.runtime.cudaEglStreamConnection
+.. autoclass:: cuda.bindings.runtime.cudaDevResourceDesc_t
+.. autoclass:: cuda.bindings.runtime.cudaExecutionContext_t
 .. autoclass:: cuda.bindings.runtime.cudaArray_t
 .. autoclass:: cuda.bindings.runtime.cudaArray_const_t
 .. autoclass:: cuda.bindings.runtime.cudaMipmappedArray_t
@@ -5480,6 +5861,8 @@ Data types used by CUDA Runtime
 .. autoclass:: cuda.bindings.runtime.cudaIpcEventHandle_t
 .. autoclass:: cuda.bindings.runtime.cudaIpcMemHandle_t
 .. autoclass:: cuda.bindings.runtime.cudaMemFabricHandle_t
+.. autoclass:: cuda.bindings.runtime.cudaDevSmResourceGroupParams
+.. autoclass:: cuda.bindings.runtime.cudaDevResource
 .. autoclass:: cuda.bindings.runtime.cudaStream_t
 .. autoclass:: cuda.bindings.runtime.cudaEvent_t
 .. autoclass:: cuda.bindings.runtime.cudaGraphicsResource_t
@@ -5761,6 +6144,7 @@ Data types used by CUDA Runtime
 
     When /p flags of :py:obj:`~.cudaDeviceGetNvSciSyncAttributes` is set to this, it indicates that application need waiter specific NvSciSyncAttr to be filled by :py:obj:`~.cudaDeviceGetNvSciSyncAttributes`.
 
+.. autoattribute:: cuda.bindings.runtime.RESOURCE_ABI_BYTES
 .. autoattribute:: cuda.bindings.runtime.cudaGraphKernelNodePortDefault
 
     This port activates when the kernel has finished executing.
