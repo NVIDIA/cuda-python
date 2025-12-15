@@ -112,24 +112,23 @@ del System
 def __getattr__(name):
     """Forward attribute access to the new location with deprecation warning."""
     if name in (
+        "_context",
         "_device",
+        "_dlpack",
         "_event",
         "_graph",
+        "_kernel_arg_handler",
         "_launch_config",
         "_launcher",
         "_layout",
         "_linker",
         "_memory",
+        "_memoryview",
         "_module",
         "_program",
         "_stream",
         "_system",
         "_utils",
-        "_context",
-        "_dlpack",
-        "_kernel_arg_handler",
-        "_launch_config",
-        "_memoryview",
     ):
         _warn_deprecated()
         # Import the submodule from the new location
