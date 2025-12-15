@@ -53,7 +53,6 @@ class System:
           `cuda.core.system.driver_version` will be removed in 0.6.0.
           Use `cuda.core.system.get_driver_version()` instead.
         """
-        raise AssertionError()
         warnings.warn(
             "cuda.core.system.driver_version is deprecated. Use cuda.core.system.get_driver_version() instead.",
             DeprecationWarning,
@@ -86,7 +85,6 @@ class System:
           `cuda.core.system.num_devices` will be removed in 0.6.0.
           Use `cuda.core.system.get_num_devices()` instead.
         """
-        raise AssertionError()
         warnings.warn(
             "cuda.core.system.num_devices is deprecated. Use cuda.core.system.get_num_devices() instead.",
             DeprecationWarning,
@@ -108,7 +106,6 @@ class System:
           `cuda.core.system.devices` will be removed in 0.6.0.
           Use `cuda.core.Device.get_all_devices()` instead.
         """
-        raise AssertionError()
         warnings.warn(
             "cuda.core.system.devices is deprecated. Use cuda.core.Device.get_all_devices() instead.",
             DeprecationWarning,
