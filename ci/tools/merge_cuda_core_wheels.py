@@ -12,8 +12,8 @@ into a single wheel that supports both CUDA versions.
 
 In particular, each wheel contains a CUDA-specific build of the `cuda.core` library
 and the associated bindings. This script merges these directories into a single wheel
-that supports both CUDA versions, i.e., containing both `cuda/core/experimental/cu12`
-and `cuda/core/experimental/cu13`. At runtime, the code in `cuda/core/experimental/__init__.py`
+that supports both CUDA versions, i.e., containing both `cuda/core/cu12`
+and `cuda/core/cu13`. At runtime, the code in `cuda/core/__init__.py`
 is used to import the appropriate CUDA-specific bindings.
 
 This script is based on the one in NVIDIA/CCCL.
@@ -98,7 +98,7 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
         # into the appropriate place in the base wheel
         for i, wheel_dir in enumerate(extracted_wheels):
             cuda_version = wheels[i].name.split(".cu")[1].split(".")[0]
-            base_dir = Path("cuda") / "core" / "experimental"
+            base_dir = Path("cuda") / "core"
             # Copy from other wheels
             print(f"  Copying {wheel_dir} to {base_wheel}", file=sys.stderr)
             shutil.copytree(wheel_dir / base_dir, base_wheel / base_dir / f"cu{cuda_version}")
