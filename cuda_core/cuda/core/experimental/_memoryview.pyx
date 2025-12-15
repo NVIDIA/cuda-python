@@ -170,6 +170,14 @@ cdef class StridedMemoryView:
             dlm_tensor.deleter(dlm_tensor)
 
     @property
+    def size(self) -> int:
+        cdef int i
+        cdef size_t s = 1
+        for i in self.shape:
+            s *= i
+        return s
+
+    @property
     def shape(self) -> tuple[int, ...]:
         if self._shape is None:
             if self.exporting_obj is not None:
