@@ -18,8 +18,21 @@
 #
 # ################################################################################
 
+import os, sys
 import cupy as cp
 from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
+
+# prepare include
+cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
+if cuda_path is None:
+    print("this demo requires a valid CUDA_PATH environment variable set", file=sys.stderr)
+    sys.exit(0)
+cuda_include = os.path.join(cuda_path, "include")
+assert os.path.isdir(cuda_include)
+include_path = [cuda_include]
+cccl_include = os.path.join(cuda_include, "cccl")
+if os.path.isdir(cccl_include):
+    include_path.insert(0, cccl_include)
 
 # ################################################################################
 # C++ Kernel Code for Verifying mdspan Arguments
@@ -28,7 +41,6 @@ from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions
 # Verification kernels that print mdspan properties using printf
 code_verify = """
 #include <cuda/std/mdspan>
-#include <cstdio>
 
 // Kernel to verify layout_right (C-order) mdspan arguments
 template<typename T>
@@ -236,6 +248,7 @@ def verify_layout_right():
     program_options = ProgramOptions(
         std="c++17",
         arch=f"sm_{dev.arch}",
+        include_path=include_path,
     )
     prog = Program(code_verify, code_type="c++", options=program_options)
     
@@ -295,6 +308,7 @@ def verify_layout_left():
     program_options = ProgramOptions(
         std="c++17",
         arch=f"sm_{dev.arch}",
+        include_path=include_path,
     )
     prog = Program(code_verify, code_type="c++", options=program_options)
     
@@ -354,6 +368,7 @@ def verify_layout_stride():
     program_options = ProgramOptions(
         std="c++17",
         arch=f"sm_{dev.arch}",
+        include_path=include_path,
     )
     prog = Program(code_verify, code_type="c++", options=program_options)
     
