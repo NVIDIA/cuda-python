@@ -60,9 +60,8 @@ CUDA compilation toolchain
 CUDA system information
 -----------------------
 
-.. autoproperty:: cuda.core.experimental._system.System.driver_version
-.. autoproperty:: cuda.core.experimental._system.System.num_devices
-.. autoproperty:: cuda.core.experimental._system.System.devices
+.. automethod:: cuda.core.experimental._system.System.get_driver_version
+.. automethod:: cuda.core.experimental._system.System.get_num_devices
 
 
 .. module:: cuda.core.experimental.utils

@@ -1024,6 +1024,20 @@ class Device:
                     raise CUDAError("Internal error (current device is not equal to Device.device_id)")
         return driver.CUcontext(<uintptr_t>ctx)
 
+    @classmethod
+    def get_all_devices(cls):
+        """
+        Query the available device instances.
+
+        Returns
+        -------
+        tuple of Device
+            A tuple containing instances of available devices.
+        """
+        from cuda.core.experimental import system
+        total = system.get_num_devices()
+        return tuple(cls(device_id) for device_id in range(total))
+
     @property
     def device_id(self) -> int:
         """Return device ordinal."""

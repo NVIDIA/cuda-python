@@ -48,7 +48,7 @@ def test_device_alloc(deinit_cuda):
 
 
 def test_device_id(deinit_cuda):
-    for device in cuda.core.experimental.system.devices:
+    for device in Device.get_all_devices():
         device.set_current()
         assert device.device_id == handle_return(runtime.cudaGetDevice())
 
