@@ -297,6 +297,10 @@ cdef class StridedMemoryView:
         return self.get_layout()
 
     @property
+    def size(self) -> int:
+        return self.get_layout().get_volume()
+
+    @property
     def shape(self) -> tuple[int, ...]:
         """
         Shape of the tensor.
