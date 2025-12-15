@@ -16,7 +16,7 @@ import cuda.core.experimental
 import numpy as np
 import pytest
 from cuda.core.experimental import Device
-from cuda.core.experimental.utils import StridedLayout, StridedMemoryView, args_viewable_as_strided_memory
+from cuda.core.experimental.utils import StridedMemoryView, _StridedLayout, args_viewable_as_strided_memory
 
 
 def test_cast_to_3_tuple_success():
@@ -241,7 +241,7 @@ def _dense_strides(shape, stride_order):
 def test_from_buffer(shape, itemsize, stride_order, readonly):
     dev = Device()
     dev.set_current()
-    layout = StridedLayout.dense(shape=shape, itemsize=itemsize, stride_order=stride_order)
+    layout = _StridedLayout.dense(shape=shape, itemsize=itemsize, stride_order=stride_order)
     required_size = layout.required_size_in_bytes()
     assert required_size == math.prod(shape) * itemsize
     buffer = dev.memory_resource.allocate(required_size)
@@ -259,7 +259,7 @@ def test_from_buffer(shape, itemsize, stride_order, readonly):
 
 @pytest.mark.parametrize("stride_order", ["C", "F"])
 def test_from_buffer_sliced(stride_order):
-    layout = StridedLayout.dense((5, 7), 2, stride_order=stride_order)
+    layout = _StridedLayout.dense((5, 7), 2, stride_order=stride_order)
     device = Device()
     device.set_current()
     buffer = device.memory_resource.allocate(layout.required_size_in_bytes())
@@ -277,7 +277,7 @@ def test_from_buffer_sliced(stride_order):
 
 
 def test_from_buffer_too_small():
-    layout = StridedLayout.dense((5, 4), 2)
+    layout = _StridedLayout.dense((5, 4), 2)
     d = Device()
     d.set_current()
     buffer = d.memory_resource.allocate(20)
@@ -286,11 +286,11 @@ def test_from_buffer_too_small():
 
 
 def test_from_buffer_disallowed_negative_offset():
-    layout = StridedLayout((5, 4), (-4, 1), 1)
+    layout = _StridedLayout((5, 4), (-4, 1), 1)
     d = Device()
     d.set_current()
     buffer = d.memory_resource.allocate(20)
-    with pytest.raises(ValueError, match="please use StridedLayout.to_dense()."):
+    with pytest.raises(ValueError, match="please use _StridedLayout.to_dense()."):
         StridedMemoryView.from_buffer(buffer, layout)
 
 

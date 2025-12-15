@@ -15,7 +15,7 @@ cdef extern from "Python.h":
 
 
 @cython.final
-cdef class StridedLayout:
+cdef class _StridedLayout:
     """
     A class describing the layout of a multi-dimensional tensor
     with a shape, strides and itemsize.
@@ -47,7 +47,7 @@ cdef class StridedLayout:
     """
 
     def __init__(
-        self : StridedLayout,
+        self : _StridedLayout,
         shape : tuple[int],
         strides : tuple[int] | None,
         itemsize : int,
@@ -61,9 +61,9 @@ cdef class StridedLayout:
         shape : tuple[int],
         itemsize : int,
         stride_order : str | tuple[int] = 'C'
-    ) -> StridedLayout:
+    ) -> _StridedLayout:
         """
-        Creates a new StridedLayout instance with dense strides.
+        Creates a new _StridedLayout instance with dense strides.
 
         Parameters
         ----------
@@ -84,31 +84,31 @@ cdef class StridedLayout:
         .. highlight:: python
         .. code-block:: python
 
-            assert StridedLayout.dense((5, 3, 7), 1, "C") == StridedLayout((5, 3, 7), (21, 7, 1), 1)
-            assert StridedLayout.dense((5, 3, 7), 1, "F") == StridedLayout((5, 3, 7), (1, 5, 15), 1)
-            assert StridedLayout.dense((5, 3, 7), 1, (2, 0, 1)) == StridedLayout((5, 3, 7), (3, 1, 15), 1)
+            assert _StridedLayout.dense((5, 3, 7), 1, "C") == _StridedLayout((5, 3, 7), (21, 7, 1), 1)
+            assert _StridedLayout.dense((5, 3, 7), 1, "F") == _StridedLayout((5, 3, 7), (1, 5, 15), 1)
+            assert _StridedLayout.dense((5, 3, 7), 1, (2, 0, 1)) == _StridedLayout((5, 3, 7), (3, 1, 15), 1)
 
         """
-        cdef StridedLayout new_layout = StridedLayout.__new__(cls)
+        cdef _StridedLayout new_layout = _StridedLayout.__new__(cls)
         new_layout.init_dense_from_tuple(shape, itemsize, stride_order)
         return new_layout
 
     @classmethod
     def dense_like(
         cls,
-        other : StridedLayout,
+        other : _StridedLayout,
         stride_order : str | tuple[int] = "K"
-    ) -> StridedLayout:
+    ) -> _StridedLayout:
         """
-        Creates a StridedLayout with the same :attr:`shape` and :attr:`itemsize` as the other layout,
+        Creates a _StridedLayout with the same :attr:`shape` and :attr:`itemsize` as the other layout,
         but with contiguous strides in the specified order and no slice offset.
 
         See also :attr:`is_dense`.
 
         Parameters
         ----------
-        other : StridedLayout
-            The StridedLayout to copy the :attr:`shape` and :attr:`itemsize` from.
+        other : _StridedLayout
+            The _StridedLayout to copy the :attr:`shape` and :attr:`itemsize` from.
         stride_order : str or tuple, optional
             The order of the strides:
                 * 'K' (default) - keeps the order of the strides as in the ``other`` layout.
@@ -123,15 +123,15 @@ cdef class StridedLayout:
         .. highlight:: python
         .. code-block:: python
 
-            layout = StridedLayout.dense((5, 3, 7), 1).permuted((2, 0, 1))
-            assert layout == StridedLayout((7, 5, 3), (1, 21, 7), 1)
+            layout = _StridedLayout.dense((5, 3, 7), 1).permuted((2, 0, 1))
+            assert layout == _StridedLayout((7, 5, 3), (1, 21, 7), 1)
 
             # dense_like with the default "K" stride_order
             # keeps the same order of strides as in the original layout
-            assert StridedLayout.dense_like(layout) == layout
+            assert _StridedLayout.dense_like(layout) == layout
             # "C", "F" recompute the strides accordingly
-            assert StridedLayout.dense_like(layout, "C") == StridedLayout((7, 5, 3), (15, 3, 1), 1)
-            assert StridedLayout.dense_like(layout, "F") == StridedLayout((7, 5, 3), (1, 7, 35), 1)
+            assert _StridedLayout.dense_like(layout, "C") == _StridedLayout((7, 5, 3), (15, 3, 1), 1)
+            assert _StridedLayout.dense_like(layout, "F") == _StridedLayout((7, 5, 3), (1, 7, 35), 1)
         """
         cdef OrderFlag order_flag
         cdef axis_vec_t stride_order_vec
@@ -156,7 +156,7 @@ cdef class StridedLayout:
                 if is_dense and other.get_is_contiguous_f():
                     return other
 
-        cdef StridedLayout new_layout = StridedLayout.__new__(cls)
+        cdef _StridedLayout new_layout = _StridedLayout.__new__(cls)
         new_layout.init_dense_from_ptr(
             other.base.ndim,
             other.base.shape,
@@ -166,21 +166,21 @@ cdef class StridedLayout:
         )
         return new_layout
 
-    def __repr__(self : StridedLayout) -> str:
+    def __repr__(self : _StridedLayout) -> str:
         if self.slice_offset == 0:
             return (
-                f"StridedLayout(shape={self.shape}, strides={self.strides}, itemsize={self.itemsize})"
+                f"_StridedLayout(shape={self.shape}, strides={self.strides}, itemsize={self.itemsize})"
             )
         else:
             return (
-                f"StridedLayout(shape={self.shape}, strides={self.strides}, itemsize={self.itemsize}, _slice_offset={self.slice_offset})"
+                f"_StridedLayout(shape={self.shape}, strides={self.strides}, itemsize={self.itemsize}, _slice_offset={self.slice_offset})"
             )
 
-    def __eq__(self : StridedLayout, other : StridedLayout) -> bool:
+    def __eq__(self : _StridedLayout, other : _StridedLayout) -> bool:
         return self.itemsize == other.itemsize and self.slice_offset == other.slice_offset and _base_layout_equal(self.base, other.base)
 
     @property
-    def ndim(self : StridedLayout):
+    def ndim(self : _StridedLayout):
         """
         The number of dimensions (length of the shape tuple).
 
@@ -189,7 +189,7 @@ cdef class StridedLayout:
         return self.base.ndim
 
     @property
-    def shape(self : StridedLayout):
+    def shape(self : _StridedLayout):
         """
         Shape of the tensor.
 
@@ -198,10 +198,10 @@ cdef class StridedLayout:
         return self.get_shape_tuple()
 
     @property
-    def strides(self : StridedLayout):
+    def strides(self : _StridedLayout):
         """
         Strides of the tensor (in **counts**, not bytes).
-        If StridedLayout was created with strides=None, the
+        If _StridedLayout was created with strides=None, the
         returned value is None and layout is implicitly C-contiguous.
 
         :type: tuple[int] | None
@@ -209,7 +209,7 @@ cdef class StridedLayout:
         return self.get_strides_tuple()
 
     @property
-    def strides_in_bytes(self : StridedLayout):
+    def strides_in_bytes(self : _StridedLayout):
         """
         Strides of the tensor (in bytes).
 
@@ -218,7 +218,7 @@ cdef class StridedLayout:
         return self.get_strides_in_bytes_tuple()
 
     @property
-    def stride_order(self : StridedLayout):
+    def stride_order(self : _StridedLayout):
         """
         A permutation of ``tuple(range(ndim))`` describing the
         relative order of the strides.
@@ -227,18 +227,18 @@ cdef class StridedLayout:
         .. code-block:: python
 
             # C-contiguous layout
-            assert StridedLayout.dense((5, 3, 7), 1).stride_order == (0, 1, 2)
+            assert _StridedLayout.dense((5, 3, 7), 1).stride_order == (0, 1, 2)
             # F-contiguous layout
-            assert StridedLayout.dense((5, 3, 7), 1, stride_order="F").stride_order == (2, 1, 0)
+            assert _StridedLayout.dense((5, 3, 7), 1, stride_order="F").stride_order == (2, 1, 0)
             # Permuted layout
-            assert StridedLayout.dense((5, 3, 7), 1, stride_order=(2, 0, 1)).stride_order == (2, 0, 1)
+            assert _StridedLayout.dense((5, 3, 7), 1, stride_order=(2, 0, 1)).stride_order == (2, 0, 1)
 
         :type: tuple[int]
         """
         return self.get_stride_order_tuple()
 
     @property
-    def volume(self : StridedLayout):
+    def volume(self : _StridedLayout):
         """
         The number of elements in the tensor, i.e. the product of the shape tuple.
 
@@ -247,7 +247,7 @@ cdef class StridedLayout:
         return self.get_volume()
 
     @property
-    def is_unique(self : StridedLayout):
+    def is_unique(self : _StridedLayout):
         """
         If True, each element of a tensor with this layout is mapped to
         a unique memory offset.
@@ -268,7 +268,7 @@ cdef class StridedLayout:
         return self.get_is_unique()
 
     @property
-    def is_contiguous_c(self : StridedLayout):
+    def is_contiguous_c(self : _StridedLayout):
         """
         True iff the layout is contiguous in C-order, i.e.
         the rightmost stride is 1 and each subsequent
@@ -278,8 +278,8 @@ cdef class StridedLayout:
         .. highlight:: python
         .. code-block:: python
 
-            layout = StridedLayout.dense((2, 5, 3), 1, "C")
-            assert layout == StridedLayout((2, 5, 3), (15, 3, 1), 1)
+            layout = _StridedLayout.dense((2, 5, 3), 1, "C")
+            assert layout == _StridedLayout((2, 5, 3), (15, 3, 1), 1)
             assert layout.is_contiguous_c
 
         See also :attr:`is_contiguous_any`.
@@ -289,7 +289,7 @@ cdef class StridedLayout:
         return self.get_is_contiguous_c()
 
     @property
-    def is_contiguous_f(self : StridedLayout):
+    def is_contiguous_f(self : _StridedLayout):
         """
         True iff the layout is contiguous in F-order, i.e.
         the leftmost stride is 1 and each subsequent
@@ -299,8 +299,8 @@ cdef class StridedLayout:
         .. highlight:: python
         .. code-block:: python
 
-            layout = StridedLayout.dense((2, 5, 3), 1, "F")
-            assert layout == StridedLayout((2, 5, 3), (1, 2, 10), 1)
+            layout = _StridedLayout.dense((2, 5, 3), 1, "F")
+            assert layout == _StridedLayout((2, 5, 3), (1, 2, 10), 1)
             assert layout.is_contiguous_f
 
         See also :attr:`is_contiguous_any`.
@@ -310,7 +310,7 @@ cdef class StridedLayout:
         return self.get_is_contiguous_f()
 
     @property
-    def is_contiguous_any(self : StridedLayout):
+    def is_contiguous_any(self : _StridedLayout):
         """
         True iff the layout is contiguous in some axis order, i.e.
         there exists a permutation of axes such that the layout
@@ -324,7 +324,7 @@ cdef class StridedLayout:
         .. code-block:: python
 
             # dense defaults to C-contiguous
-            layout = StridedLayout.dense((5, 3, 7), 1)
+            layout = _StridedLayout.dense((5, 3, 7), 1)
             assert layout.is_contiguous_c and not layout.is_contiguous_f
             assert layout.is_contiguous_any
 
@@ -350,7 +350,7 @@ cdef class StridedLayout:
         return self.get_is_contiguous_any()
 
     @property
-    def is_dense(self : StridedLayout):
+    def is_dense(self : _StridedLayout):
         """
         A dense layout is contiguous (:attr:`is_contiguous_any` is True)
         and has no slice offset (:attr:`slice_offset_in_bytes` is 0).
@@ -363,7 +363,7 @@ cdef class StridedLayout:
         return self.get_is_dense()
 
     @property
-    def offset_bounds(self : StridedLayout):
+    def offset_bounds(self : _StridedLayout):
         """
         The memory offset range ``[min_offset, max_offset]`` (in element counts, not bytes)
         that elements of a tensor with this layout are mapped to.
@@ -376,7 +376,7 @@ cdef class StridedLayout:
         .. code-block:: python
 
             # Possible implementation of the offset_bounds
-            def offset_bounds(layout : StridedLayout):
+            def offset_bounds(layout : _StridedLayout):
                 if layout.volume == 0:
                     return 0, -1
                 ndim = layout.ndim
@@ -396,7 +396,7 @@ cdef class StridedLayout:
         return min_offset, max_offset
 
     @property
-    def min_offset(self : StridedLayout):
+    def min_offset(self : _StridedLayout):
         """
         See :attr:`offset_bounds` for details.
 
@@ -408,7 +408,7 @@ cdef class StridedLayout:
         return min_offset
 
     @property
-    def max_offset(self : StridedLayout):
+    def max_offset(self : _StridedLayout):
         """
         See :attr:`offset_bounds` for details.
 
@@ -420,7 +420,7 @@ cdef class StridedLayout:
         return max_offset
 
     @property
-    def slice_offset_in_bytes(self : StridedLayout):
+    def slice_offset_in_bytes(self : _StridedLayout):
         """
         The memory offset (as a number of bytes) of the element at index ``(0,) * ndim``.
         Equal to :attr:`itemsize` ``*`` :attr:`slice_offset`.
@@ -433,7 +433,7 @@ cdef class StridedLayout:
         """
         return self.get_slice_offset_in_bytes()
 
-    def required_size_in_bytes(self : StridedLayout) -> int:
+    def required_size_in_bytes(self : _StridedLayout) -> int:
         """
         The memory allocation size (in bytes) needed so that
         all elements of a tensor with this layout can be mapped
@@ -467,23 +467,23 @@ cdef class StridedLayout:
         """
         return self.get_required_size_in_bytes()
 
-    def flattened_axis_mask(self : StridedLayout) -> axes_mask_t:
+    def flattened_axis_mask(self : _StridedLayout) -> axes_mask_t:
         """
         A mask describing which axes of this layout are mergeable
         using the :meth:`flattened` method.
         """
         return self.get_flattened_axis_mask()
 
-    def to_dense(self : StridedLayout, object stride_order="K") -> StridedLayout:
+    def to_dense(self : _StridedLayout, object stride_order="K") -> _StridedLayout:
         """
         Returns a dense layout with the same shape and itemsize,
         but with dense strides in the specified order.
 
         See :meth:`dense_like` method documentation for details.
         """
-        return StridedLayout.dense_like(self, stride_order)
+        return _StridedLayout.dense_like(self, stride_order)
 
-    def reshaped(self : StridedLayout, shape : tuple[int]) -> StridedLayout:
+    def reshaped(self : _StridedLayout, shape : tuple[int]) -> _StridedLayout:
         """
         Returns a layout with the new shape, if the new shape is compatible
         with the current layout.
@@ -499,13 +499,13 @@ cdef class StridedLayout:
         .. highlight:: python
         .. code-block:: python
 
-            layout = StridedLayout.dense((5, 3, 4), 1)
-            assert layout.reshaped((20, 3)) == StridedLayout.dense((20, 3), 1)
-            assert layout.reshaped((4, -1)) == StridedLayout.dense((4, 15), 1)
-            assert layout.permuted((2, 0, 1)).reshaped((4, 15,)) == StridedLayout((4, 15), (1, 4), 1)
+            layout = _StridedLayout.dense((5, 3, 4), 1)
+            assert layout.reshaped((20, 3)) == _StridedLayout.dense((20, 3), 1)
+            assert layout.reshaped((4, -1)) == _StridedLayout.dense((4, 15), 1)
+            assert layout.permuted((2, 0, 1)).reshaped((4, 15,)) == _StridedLayout((4, 15), (1, 4), 1)
             # layout.permuted((2, 0, 1)).reshaped((20, 3)) -> error
         """
-        cdef StridedLayout new_layout = StridedLayout.__new__(StridedLayout)
+        cdef _StridedLayout new_layout = _StridedLayout.__new__(_StridedLayout)
         cdef BaseLayout new_shape
         init_base_layout(new_shape, len(shape))
         for i in range(len(shape)):
@@ -513,18 +513,18 @@ cdef class StridedLayout:
         self.reshape_into(new_layout, new_shape)
         return new_layout
 
-    def permuted(self : StridedLayout, axis_order : tuple[int]) -> StridedLayout:
+    def permuted(self : _StridedLayout, axis_order : tuple[int]) -> _StridedLayout:
         """
         Returns a new layout where the shape and strides tuples are permuted
         according to the specified permutation of axes.
         """
-        cdef StridedLayout new_layout = StridedLayout.__new__(StridedLayout)
+        cdef _StridedLayout new_layout = _StridedLayout.__new__(_StridedLayout)
         cdef axis_vec_t axis_order_vec
         _tuple2axis_vec(axis_order_vec, axis_order)
         self.permute_into(new_layout, axis_order_vec)
         return new_layout
 
-    def flattened(self : StridedLayout, start_axis : int = 0, end_axis : int = -1, mask : int | None = None) -> StridedLayout:
+    def flattened(self : _StridedLayout, start_axis : int = 0, end_axis : int = -1, mask : int | None = None) -> _StridedLayout:
         """
         Merges consecutive extents into a single extent (equal to the product of merged extents)
         if the corresponding strides can be replaced with a single stride
@@ -536,12 +536,12 @@ cdef class StridedLayout:
 
             # the two extents can be merged into a single extent
             # because layout.strides[0] == layout.strides[1] * layout.shape[1]
-            layout = StridedLayout((3, 2), (2, 1), 1)
-            assert layout.flattened() == StridedLayout((6,), (1,), 1)
+            layout = _StridedLayout((3, 2), (2, 1), 1)
+            assert layout.flattened() == _StridedLayout((6,), (1,), 1)
 
             # the two extents cannot be merged into a single extent
             # because layout.strides[0] != layout.strides[1] * layout.shape[1]
-            layout = StridedLayout((3, 2), (1, 3), 1)
+            layout = _StridedLayout((3, 2), (1, 3), 1)
             assert layout.flattened() == layout
 
         If ``start_axis`` and ``end_axis`` are provided, only the axes in the
@@ -555,19 +555,19 @@ cdef class StridedLayout:
         .. highlight:: python
         .. code-block:: python
 
-            layout = StridedLayout.dense((4, 5, 3), 4)
-            layout2 = StridedLayout((4, 5, 3), (1, 12, 4), 4)
+            layout = _StridedLayout.dense((4, 5, 3), 4)
+            layout2 = _StridedLayout((4, 5, 3), (1, 12, 4), 4)
             # Even though the two layouts have the same shape initially,
             # their shapes differ after flattening.
-            assert layout.flattened() == StridedLayout((60,), (1,), 4)
-            assert layout2.flattened() == StridedLayout((4, 15), (1, 4), 4)
+            assert layout.flattened() == _StridedLayout((60,), (1,), 4)
+            assert layout2.flattened() == _StridedLayout((4, 15), (1, 4), 4)
             # With the mask, only extents that are mergeable in both layouts are flattened
             # and the resulting shape is the same for both layouts.
             mask = layout.flattened_axis_mask() & layout2.flattened_axis_mask()
-            assert layout.flattened(mask=mask) == StridedLayout((4, 15), (15, 1), 4)
-            assert layout2.flattened(mask=mask) == StridedLayout((4, 15), (1, 4), 4)
+            assert layout.flattened(mask=mask) == _StridedLayout((4, 15), (15, 1), 4)
+            assert layout2.flattened(mask=mask) == _StridedLayout((4, 15), (1, 4), 4)
         """
-        cdef StridedLayout new_layout = StridedLayout.__new__(StridedLayout)
+        cdef _StridedLayout new_layout = _StridedLayout.__new__(_StridedLayout)
         cdef axes_mask_t axis_mask
         if mask is None:
             axis_mask = axis_mask_from_range(self.ndim, start_axis, end_axis)
@@ -576,18 +576,18 @@ cdef class StridedLayout:
         self.flatten_into(new_layout, axis_mask)
         return new_layout
 
-    def squeezed(self : StridedLayout) -> StridedLayout:
+    def squeezed(self : _StridedLayout) -> _StridedLayout:
         """
         Returns a new layout where all the singleton dimensions (extents equal to 1)
         are removed. Additionally, if the layout volume is 0,
         the returned layout will be reduced to a 1-dim layout
         with shape (0,) and strides (0,).
         """
-        cdef StridedLayout new_layout = StridedLayout.__new__(StridedLayout)
+        cdef _StridedLayout new_layout = _StridedLayout.__new__(_StridedLayout)
         self.squeeze_into(new_layout)
         return new_layout
 
-    def unsqueezed(self : StridedLayout, axis : int | tuple[int]) -> StridedLayout:
+    def unsqueezed(self : _StridedLayout, axis : int | tuple[int]) -> _StridedLayout:
         """
         Returns a new layout where the specified axis or axes are added as singleton extents.
         The ``axis`` can be either a single integer in range ``[0, ndim]``
@@ -600,11 +600,11 @@ cdef class StridedLayout:
             _tuple2axis_vec(axis_vec, axis)
         if axis_vec.size() == 0:
             return self
-        cdef StridedLayout new_layout = StridedLayout.__new__(StridedLayout)
+        cdef _StridedLayout new_layout = _StridedLayout.__new__(_StridedLayout)
         self.unsqueeze_into(new_layout, axis_vec)
         return new_layout
 
-    def broadcast_to(self : StridedLayout, shape : tuple[int]) -> StridedLayout:
+    def broadcast_to(self : _StridedLayout, shape : tuple[int]) -> _StridedLayout:
         """
         Returns a layout with the new shape, if the old shape can be
         broadcast to the new one.
@@ -617,7 +617,7 @@ cdef class StridedLayout:
         Strides of the added or modified extents are set to 0, the remaining ones are unchanged.
         If the shapes are not compatible, a ValueError is raised.
         """
-        cdef StridedLayout new_layout = StridedLayout.__new__(StridedLayout)
+        cdef _StridedLayout new_layout = _StridedLayout.__new__(_StridedLayout)
         cdef BaseLayout new_shape
         cdef int new_ndim = len(shape)
         init_base_layout(new_shape, new_ndim)
@@ -626,7 +626,7 @@ cdef class StridedLayout:
         self.broadcast_into(new_layout, new_shape)
         return new_layout
 
-    def repacked(self : StridedLayout, itemsize : int, data_ptr : intptr_t = 0, axis : int = -1, keep_dim : bool = True) -> StridedLayout:
+    def repacked(self : _StridedLayout, itemsize : int, data_ptr : intptr_t = 0, axis : int = -1, keep_dim : bool = True) -> _StridedLayout:
         """
         Converts the layout to match the specified itemsize.
         If ``new_itemsize < itemsize``, each element of the tensor is **unpacked** into multiple elements,
@@ -656,11 +656,11 @@ cdef class StridedLayout:
         .. code-block:: python
 
             # Repacking the layout with itemsize = 4 bytes as 2, 8, and 16 sized layouts.
-            layout = StridedLayout.dense((5, 4), 4)
-            assert layout.repacked(2) == StridedLayout.dense((5, 8), 2)
-            assert layout.repacked(8) == StridedLayout.dense((5, 2), 8)
-            assert layout.repacked(16) == StridedLayout.dense((5, 1), 16)
-            assert layout.repacked(16, keep_dim=False) == StridedLayout.dense((5,), 16)
+            layout = _StridedLayout.dense((5, 4), 4)
+            assert layout.repacked(2) == _StridedLayout.dense((5, 8), 2)
+            assert layout.repacked(8) == _StridedLayout.dense((5, 2), 8)
+            assert layout.repacked(16) == _StridedLayout.dense((5, 1), 16)
+            assert layout.repacked(16, keep_dim=False) == _StridedLayout.dense((5,), 16)
 
 
         .. highlight:: python
@@ -681,21 +681,21 @@ cdef class StridedLayout:
 
         if itemsize == self.itemsize:
             return self
-        cdef StridedLayout new_layout = StridedLayout.__new__(StridedLayout)
+        cdef _StridedLayout new_layout = _StridedLayout.__new__(_StridedLayout)
         if itemsize > self.itemsize:
             self.pack_into(new_layout, itemsize, data_ptr, keep_dim, axis)
         else:
             self.unpack_into(new_layout, itemsize, axis)
         return new_layout
 
-    def max_compatible_itemsize(self : StridedLayout, max_itemsize : int = 16, data_ptr : intptr_t = 0, axis : int = -1) -> int:
+    def max_compatible_itemsize(self : _StridedLayout, max_itemsize : int = 16, data_ptr : intptr_t = 0, axis : int = -1) -> int:
         """
         Returns the maximum itemsize (but no greater than ``max_itemsize``) that can be used
         with the :meth:`repacked` method for the current layout.
         """
         return self.get_max_compatible_itemsize(max_itemsize, data_ptr, axis)
 
-    def sliced(self : StridedLayout, slices : int | slice | tuple[int | slice]) -> StridedLayout:
+    def sliced(self : _StridedLayout, slices : int | slice | tuple[int | slice]) -> _StridedLayout:
         """
         Returns a sliced layout.
         The ``slices`` parameter can be a single integer, a single :py:class:`slice` object
@@ -713,20 +713,20 @@ cdef class StridedLayout:
         """
         if not isinstance(slices, tuple):
             slices = (slices,)
-        cdef StridedLayout new_layout = StridedLayout.__new__(StridedLayout)
+        cdef _StridedLayout new_layout = _StridedLayout.__new__(_StridedLayout)
         self.slice_into(new_layout, slices)
         return new_layout
 
-    def __getitem__(self : StridedLayout, slices : int | slice | tuple[int | slice]) -> StridedLayout:
+    def __getitem__(self : _StridedLayout, slices : int | slice | tuple[int | slice]) -> _StridedLayout:
         return self.sliced(slices)
 
-    cdef axes_mask_t get_flattened_axis_mask(StridedLayout self) except? -1 nogil:
+    cdef axes_mask_t get_flattened_axis_mask(_StridedLayout self) except? -1 nogil:
         return flattened_strides_in_c_index_order_mask(self.base)
 
-    cdef int get_max_compatible_itemsize(StridedLayout self, int max_itemsize, intptr_t data_ptr, int axis=-1) except -1 nogil:
+    cdef int get_max_compatible_itemsize(_StridedLayout self, int max_itemsize, intptr_t data_ptr, int axis=-1) except -1 nogil:
         return max_compatible_itemsize(self.base, self.slice_offset, self.itemsize, max_itemsize, data_ptr, axis)
 
-    cdef int reshape_into(StridedLayout self, StridedLayout out_layout, BaseLayout& new_shape) except -1 nogil:
+    cdef int reshape_into(_StridedLayout self, _StridedLayout out_layout, BaseLayout& new_shape) except -1 nogil:
         cdef int64_t old_volume = self.get_volume()
 
         validate_reshaped_shape(new_shape, old_volume)
@@ -750,7 +750,7 @@ cdef class StridedLayout:
         _swap_layout(out_layout.base, new_shape)
         return 0
 
-    cdef int permute_into(StridedLayout self, StridedLayout out_layout, axis_vec_t& axis_order) except -1 nogil:
+    cdef int permute_into(_StridedLayout self, _StridedLayout out_layout, axis_vec_t& axis_order) except -1 nogil:
         if axis_order.size() != <size_t>self.base.ndim:
             raise ValueError(f"Permutation must have the same length as the number of dimensions, got {axis_order.size()} for {self.ndim}D tensor.")
 
@@ -769,7 +769,7 @@ cdef class StridedLayout:
         _swap_layout(out_layout.base, permuted)
         return 0
 
-    cdef int flatten_into(StridedLayout self, StridedLayout out_layout, axes_mask_t axis_mask) except -1 nogil:
+    cdef int flatten_into(_StridedLayout self, _StridedLayout out_layout, axes_mask_t axis_mask) except -1 nogil:
         cdef BaseLayout flattened
         cdef int ndim = flatten_strides_in_c_index_order(flattened, self.base, axis_mask)
 
@@ -788,7 +788,7 @@ cdef class StridedLayout:
         _swap_layout(out_layout.base, flattened)
         return 0
 
-    cdef int squeeze_into(StridedLayout self, StridedLayout out_layout) except -1 nogil:
+    cdef int squeeze_into(_StridedLayout self, _StridedLayout out_layout) except -1 nogil:
         cdef BaseLayout squeezed
         squeeze_extents(squeezed, self.base)
 
@@ -807,7 +807,7 @@ cdef class StridedLayout:
         _swap_layout(out_layout.base, squeezed)
         return 0
 
-    cdef int unsqueeze_into(StridedLayout self, StridedLayout out_layout, axis_vec_t& axis_vec) except -1 nogil:
+    cdef int unsqueeze_into(_StridedLayout self, _StridedLayout out_layout, axis_vec_t& axis_vec) except -1 nogil:
         if axis_vec.size() == 0 and self is out_layout:
             return 0
 
@@ -826,7 +826,7 @@ cdef class StridedLayout:
         _swap_layout(out_layout.base, unsqueezed)
         return 0
 
-    cdef int broadcast_into(StridedLayout self, StridedLayout out_layout, BaseLayout& broadcast) except -1 nogil:
+    cdef int broadcast_into(_StridedLayout self, _StridedLayout out_layout, BaseLayout& broadcast) except -1 nogil:
         _validate_shape(broadcast)
         broadcast_extents(broadcast, self.base)
 
@@ -841,7 +841,7 @@ cdef class StridedLayout:
         _swap_layout(out_layout.base, broadcast)
         return 0
 
-    cdef int pack_into(StridedLayout self, StridedLayout out_layout, int itemsize, intptr_t data_ptr, bint keep_dim, int axis=-1) except -1 nogil:
+    cdef int pack_into(_StridedLayout self, _StridedLayout out_layout, int itemsize, intptr_t data_ptr, bint keep_dim, int axis=-1) except -1 nogil:
 
         cdef BaseLayout packed
         cdef stride_t new_slice_offset = 0
@@ -869,7 +869,7 @@ cdef class StridedLayout:
         _swap_layout(out_layout.base, packed)
         return vec_size
 
-    cdef int unpack_into(StridedLayout self, StridedLayout out_layout, int itemsize, int axis=-1) except -1 nogil:
+    cdef int unpack_into(_StridedLayout self, _StridedLayout out_layout, int itemsize, int axis=-1) except -1 nogil:
         cdef BaseLayout unpacked
         cdef int vec_size = unpack_extents(
             unpacked,
@@ -892,7 +892,7 @@ cdef class StridedLayout:
         _swap_layout(out_layout.base, unpacked)
         return vec_size
 
-    cdef int slice_into(StridedLayout self, StridedLayout out_layout, tuple slices) except -1:
+    cdef int slice_into(_StridedLayout self, _StridedLayout out_layout, tuple slices) except -1:
         cdef BaseLayout sliced
         cdef stride_t slice_offset = slice_extents(sliced, self.base, slices)
         cdef int64_t new_slice_offset = _overflow_checked_sum(self.slice_offset, slice_offset)
@@ -908,7 +908,7 @@ cdef class StridedLayout:
         out_layout.slice_offset = new_slice_offset
         return 0
 
-cdef inline int maybe_copy_volume(StridedLayout out_layout, StridedLayout in_layout) except -1 nogil:
+cdef inline int maybe_copy_volume(_StridedLayout out_layout, _StridedLayout in_layout) except -1 nogil:
     if _has_valid_property(in_layout, PROP_VOLUME):
         out_layout._volume = in_layout.get_volume()
         _mark_property_valid(out_layout, PROP_VOLUME)
