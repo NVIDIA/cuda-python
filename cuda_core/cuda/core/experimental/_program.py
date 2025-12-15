@@ -423,6 +423,8 @@ class ProgramOptions:
             self._formatted_options.append("--fdevice-syntax-only")
         if self.minimal is not None and self.minimal:
             self._formatted_options.append("--minimal")
+        if self.numba_debug:
+            self._formatted_options.append("--numba-debug")
 
     def _as_bytes(self):
         # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
