@@ -357,8 +357,7 @@ class ProgramOptions:
 
     def _prepare_nvrtc_options(self) -> list[bytes]:
         # Build NVRTC-specific options
-        options = []
-        options.append(f"-arch={self.arch}")
+        options = [f"-arch={self.arch}"]
         if self.relocatable_device_code is not None:
             options.append(f"--relocatable-device-code={_handle_boolean_option(self.relocatable_device_code)}")
         if self.extensible_whole_program is not None and self.extensible_whole_program:
@@ -491,7 +490,7 @@ class ProgramOptions:
             )
         if self.numba_debug:
             options.append("--numba-debug")
-        return list(o.encode() for o in options)
+        return [o.encode() for o in options]
 
     def _prepare_nvvm_options(self, as_bytes: bool = True) -> Union[list[bytes], list[str]]:
         options = []
@@ -586,7 +585,7 @@ class ProgramOptions:
             raise CUDAError(f"The following options are not supported by NVVM backend: {', '.join(unsupported)}")
 
         if as_bytes:
-            return list(o.encode() for o in options)
+            return [o.encode() for o in options]
         else:
             return options
 
