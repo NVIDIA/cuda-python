@@ -380,7 +380,7 @@ def test_strided_memory_view_copy(
         with cp.cuda.Device(device_id):
             if default_stream:
                 stream = ccx.Device(device_id).default_stream
-                cp_stream = cp.cuda.Stream(stream)
+                cp_stream = cp.cuda.ExternalStream(int(stream.handle), device_id)
             else:
                 cp_stream = cp.cuda.Stream(non_blocking=True)
                 stream = ccx.Stream.from_handle(cp_stream.ptr)
@@ -455,14 +455,30 @@ def test_strided_memory_view_copy(
             stream.close()
 
 
-class CustomDeviceAllocator(ccx.DeviceMemoryResource):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class CustomDeviceAllocator(ccx.MemoryResource):
+    def __init__(self, device: ccx.Device):
+        self.device = device
+        self._mr = device.memory_resource
         self._recorded = []
 
     def allocate(self, size, stream=None):
         self._recorded.append((size, stream))
-        return super().allocate(size, stream)
+        return self._mr.allocate(size, stream)
+
+    def deallocate(self, ptr, size, stream=None):
+        self._mr.deallocate(ptr, size, stream)
+
+    @property
+    def is_device_accessible(self) -> bool:
+        return True
+
+    @property
+    def is_host_accessible(self) -> bool:
+        return False
+
+    @property
+    def device_id(self) -> int:
+        return self.device.device_id
 
 
 class CustomHostAllocator(ccx.LegacyPinnedMemoryResource):
