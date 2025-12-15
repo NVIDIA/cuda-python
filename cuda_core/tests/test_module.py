@@ -7,7 +7,7 @@ import warnings
 
 import cuda.core.experimental
 import pytest
-from cuda.core.experimental import Device, ObjectCode, Program, ProgramOptions, system
+from cuda.core.experimental import Device, ObjectCode, Program, ProgramOptions
 from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 
 try:
@@ -135,7 +135,7 @@ def test_read_only_kernel_attributes(get_saxpy_kernel_cubin, attr, expected_type
     assert value is not None
 
     # get the value for each device on the system, using either the device object or ordinal
-    for device in system.devices:
+    for device in Device.get_all_devices():
         value = method(device)
         value = method(device.device_id)
     assert isinstance(value, expected_type), f"Expected {attr} to be of type {expected_type}, but got {type(value)}"
