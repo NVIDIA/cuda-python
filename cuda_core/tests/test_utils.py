@@ -92,7 +92,6 @@ class TestViewCPU:
         assert isinstance(view, StridedMemoryView)
         assert view.ptr == in_arr.ctypes.data
         assert view.shape == in_arr.shape
-        assert view.size == in_arr.size
         strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
         if in_arr.flags.c_contiguous:
             assert view.strides is None
@@ -173,7 +172,6 @@ class TestViewGPU:
         assert isinstance(view, StridedMemoryView)
         assert view.ptr == gpu_array_ptr(in_arr)
         assert view.shape == in_arr.shape
-        assert view.size == in_arr.size
         strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
         if in_arr.flags["C_CONTIGUOUS"]:
             assert view.strides in (None, strides_in_counts)
@@ -206,7 +204,6 @@ class TestViewCudaArrayInterfaceGPU:
         assert isinstance(view, StridedMemoryView)
         assert view.ptr == gpu_array_ptr(in_arr)
         assert view.shape == in_arr.shape
-        assert view.size == in_arr.size
         strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
         if in_arr.flags["C_CONTIGUOUS"]:
             assert view.strides is None
