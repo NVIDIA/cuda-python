@@ -232,13 +232,6 @@ def ptx_code_object():
         # ProgramOptions(pre_include="cuda_runtime.h"),
         ProgramOptions(no_cache=True),
         pytest.param(
-            ProgramOptions(fdevice_time_trace="trace.json"),
-            marks=pytest.mark.skipif(
-                (_get_nvrtc_version_for_tests() or 0) < 13000,
-                reason="buggy with NVRTC < 13.0 (File 'trace.json.json' could not be opened)",
-            ),
-        ),
-        pytest.param(
             ProgramOptions(arch="sm_100", device_float128=True),
             marks=pytest.mark.skipif(
                 Device().compute_capability < (100, 0),
@@ -249,20 +242,6 @@ def ptx_code_object():
         ProgramOptions(ofast_compile="min"),
         pytest.param(
             ProgramOptions(pch=True),
-            marks=pytest.mark.skipif(
-                (_get_nvrtc_version_for_tests() or 0) < 12800,
-                reason="PCH requires NVRTC >= 12.8",
-            ),
-        ),
-        pytest.param(
-            ProgramOptions(create_pch="test.pch"),
-            marks=pytest.mark.skipif(
-                (_get_nvrtc_version_for_tests() or 0) < 12800,
-                reason="PCH requires NVRTC >= 12.8",
-            ),
-        ),
-        pytest.param(
-            ProgramOptions(use_pch="test.pch"),
             marks=pytest.mark.skipif(
                 (_get_nvrtc_version_for_tests() or 0) < 12800,
                 reason="PCH requires NVRTC >= 12.8",
@@ -306,6 +285,36 @@ def test_cpp_program_with_various_options(init_cuda, options):
     program.compile("ptx")
     program.close()
     assert program.handle is None
+
+
+@pytest.mark.skipif(
+    (_get_nvrtc_version_for_tests() or 0) < 13000,
+    reason="buggy with NVRTC < 13.0 (File 'trace.json.json' could not be opened)",
+)
+def test_cpp_program_with_trace_option(init_cuda, tmp_path):
+    code = 'extern "C" __global__ void my_kernel() {}'
+    path = tmp_path / "trace"
+    options = ProgramOptions(fdevice_time_trace=path)
+    program = Program(code, "c++", options)
+    assert program.backend == "NVRTC"
+    program.compile("ptx")
+    program.close()
+    assert program.handle is None
+
+
+@pytest.mark.skipif((_get_nvrtc_version_for_tests() or 0) < 12800, reason="PCH requires NVRTC >= 12.8")
+def test_cpp_program_with_pch_options(init_cuda, tmp_path):
+    code = 'extern "C" __global__ void my_kernel() {}'
+
+    path = str(tmp_path / "test.pch")
+
+    for opts in (dict(create_pch=path), dict(use_pch=path)):
+        options = ProgramOptions(**opts)
+        program = Program(code, "c++", options)
+        assert program.backend == "NVRTC"
+        program.compile("ptx")
+        program.close()
+        assert program.handle is None
 
 
 options = [
