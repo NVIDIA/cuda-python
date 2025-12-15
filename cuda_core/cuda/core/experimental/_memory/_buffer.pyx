@@ -4,8 +4,7 @@
 
 from __future__ import annotations
 
-cimport cython
-from libc.stdint cimport uintptr_t, int64_t, uint64_t
+from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
@@ -15,11 +14,16 @@ from cuda.core.experimental._stream cimport Stream_accept, Stream
 from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
 
 import abc
+import sys
 from typing import TypeVar, Union
+
+if sys.version_info >= (3, 12):
+    from collections.abc import Buffer as BufferProtocol
+else:
+    BufferProtocol = object
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._utils.cuda_utils import driver
-from cuda.core.experimental._device import Device
 
 __all__ = ['Buffer', 'MemoryResource']
 
@@ -49,8 +53,6 @@ cdef class Buffer:
         self._ipc_data = None
         self._ptr_obj = None
         self._alloc_stream = None
-        self._owner = None
-        self._mem_attrs_inited = False
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError("Buffer objects cannot be instantiated directly. "
@@ -59,19 +61,15 @@ cdef class Buffer:
     @classmethod
     def _init(
         cls, ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
-        stream: Stream | None = None, ipc_descriptor: IPCBufferDescriptor | None = None,
-        owner : object | None = None
+        stream: Stream | None = None, ipc_descriptor: IPCBufferDescriptor | None = None
     ):
         cdef Buffer self = Buffer.__new__(cls)
         self._ptr = <uintptr_t>(int(ptr))
         self._ptr_obj = ptr
         self._size = size
-        if mr is not None and owner is not None:
-            raise ValueError("owner and memory resource cannot be both specified together")
         self._memory_resource = mr
         self._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
         self._alloc_stream = <Stream>(stream) if stream is not None else None
-        self._owner = owner
         return self
 
     def __dealloc__(self):
@@ -83,8 +81,7 @@ cdef class Buffer:
 
     @staticmethod
     def from_handle(
-        ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None,
-        owner: object | None = None,
+        ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None
     ) -> Buffer:
         """Create a new :class:`Buffer` object from a pointer.
 
@@ -96,13 +93,9 @@ cdef class Buffer:
             Memory size of the buffer
         mr : :obj:`~_memory.MemoryResource`, optional
             Memory resource associated with the buffer
-        owner : object, optional
-            An object holding external allocation that the ``ptr`` points to.
-            The reference is kept as long as the buffer is alive.
-            The ``owner`` and ``mr`` cannot be specified together.
         """
         # TODO: It is better to take a stream for latter deallocation
-        return Buffer._init(ptr, size, mr=mr, owner=owner)
+        return Buffer._init(ptr, size, mr=mr)
 
     @classmethod
     def from_ipc_descriptor(
@@ -203,23 +196,26 @@ cdef class Buffer:
                 s
             ))
 
-    def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
-        """Fill this buffer with a value pattern asynchronously on the given stream.
+    def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder):
+        """Fill this buffer with a repeating byte pattern.
 
         Parameters
         ----------
-        value : int
-            Integer value to fill the buffer with
-        width : int
-            Width in bytes for each element (must be 1, 2, or 4)
+        value : int | :obj:`collections.abc.Buffer`
+            - int: Must be in range [0, 256). Converted to 1 byte.
+            - :obj:`collections.abc.Buffer`: Must be 1, 2, or 4 bytes.
         stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
-            Keyword argument specifying the stream for the asynchronous fill
+            Stream for the asynchronous fill operation.
 
         Raises
         ------
+        TypeError
+            If value is not an int and does not support the buffer protocol.
         ValueError
-            If width is not 1, 2, or 4, if value is out of range for the width,
-            or if buffer size is not divisible by width
+            If value byte length is not 1, 2, or 4.
+            If buffer size is not divisible by value byte length.
+        OverflowError
+            If int value is outside [0, 256).
 
         """
         cdef Stream s_stream = Stream_accept(stream)
@@ -227,34 +223,58 @@ cdef class Buffer:
         cdef unsigned short c_value16
         cdef unsigned int c_value32
         cdef size_t N
+        cdef size_t width
+        cdef unsigned int int_value
 
-        # Validate width
-        if width not in (1, 2, 4):
-            raise ValueError(f"width must be 1, 2, or 4, got {width}")
+        # Get fill pattern from value
+        if isinstance(value, int):
+            # We define the int input to mean a 1-byte pattern.
+            # Match int.to_bytes(1, "little") behavior: raise OverflowError if not in [0, 256).
+            if value < 0 or value >= 256:
+                raise OverflowError("int value must be in range [0, 256)")
+            width = 1
+            int_value = <unsigned int>value
+        else:
+            try:
+                mv = memoryview(value)
+            except TypeError:
+                raise TypeError(
+                    f"value must be an int or support the buffer protocol, got {type(value).__name__}"
+                ) from None
+            width = mv.nbytes
+
+            # Validate width early to avoid copying/processing large invalid inputs.
+            if width not in (1, 2, 4):
+                raise ValueError(f"value must be 1, 2, or 4 bytes, got {width}")
+
+            # Convert to a 1-D view of bytes.
+            #
+            # Note: NumPy scalar memoryviews are 0-D, and int.from_bytes(mv, ...) errors with
+            # "0-dim memory has no length". Casting to 'B' gives us a byte-addressable view.
+            try:
+                int_value = int.from_bytes(mv.cast("B"), "little")
+            except TypeError:
+                int_value = int.from_bytes(mv.tobytes(), "little")
 
         # Validate buffer size modulus.
         cdef size_t buffer_size = self._size
         if buffer_size % width != 0:
-            raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
+            raise ValueError(f"buffer size ({buffer_size}) must be divisible by {width}")
 
-        # Map width (bytes) to bitwidth and validate value
-        cdef int bitwidth = width * 8
-        _validate_value_against_bitwidth(bitwidth, value, is_signed=False)
-
-        # Validate value fits in width and perform fill
+        # Perform fill based on width
         cdef cydriver.CUstream s = s_stream._handle
         if width == 1:
-            c_value8 = <unsigned char>value
+            c_value8 = <unsigned char>int_value
             N = buffer_size
             with nogil:
                 HANDLE_RETURN(cydriver.cuMemsetD8Async(<cydriver.CUdeviceptr>self._ptr, c_value8, N, s))
         elif width == 2:
-            c_value16 = <unsigned short>value
+            c_value16 = <unsigned short>int_value
             N = buffer_size // 2
             with nogil:
                 HANDLE_RETURN(cydriver.cuMemsetD16Async(<cydriver.CUdeviceptr>self._ptr, c_value16, N, s))
         else:  # width == 4
-            c_value32 = <unsigned int>value
+            c_value32 = <unsigned int>int_value
             N = buffer_size // 4
             with nogil:
                 HANDLE_RETURN(cydriver.cuMemsetD32Async(<cydriver.CUdeviceptr>self._ptr, c_value32, N, s))
@@ -310,9 +330,7 @@ cdef class Buffer:
         """Return the device ordinal of this buffer."""
         if self._memory_resource is not None:
             return self._memory_resource.device_id
-        else:
-            Buffer_init_mem_attrs(self)
-            return self._mem_attrs.device_id
+        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     @property
     def handle(self) -> DevicePointerT:
@@ -336,18 +354,14 @@ cdef class Buffer:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
         if self._memory_resource is not None:
             return self._memory_resource.is_device_accessible
-        else:
-            Buffer_init_mem_attrs(self)
-            return self._mem_attrs.is_device_accessible
+        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     @property
     def is_host_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
         if self._memory_resource is not None:
             return self._memory_resource.is_host_accessible
-        else:
-            Buffer_init_mem_attrs(self)
-            return self._mem_attrs.is_host_accessible
+        raise NotImplementedError("WIP: Currently this property only supports buffers with associated MemoryResource")
 
     @property
     def is_mapped(self) -> bool:
@@ -365,90 +379,18 @@ cdef class Buffer:
         """Return the memory size of this buffer."""
         return self._size
 
-    @property
-    def owner(self) -> object:
-        """Return the object holding external allocation."""
-        return self._owner
-
 
 # Buffer Implementation
 # ---------------------
 cdef inline void Buffer_close(Buffer self, stream):
     cdef Stream s
-    if self._ptr:
-        if self._memory_resource is not None:
-            s = Stream_accept(stream) if stream is not None else self._alloc_stream
-            self._memory_resource.deallocate(self._ptr, self._size, s)
+    if self._ptr and self._memory_resource is not None:
+        s = Stream_accept(stream) if stream is not None else self._alloc_stream
+        self._memory_resource.deallocate(self._ptr, self._size, s)
         self._ptr = 0
         self._memory_resource = None
-        self._owner = None
         self._ptr_obj = None
         self._alloc_stream = None
-
-
-cdef Buffer_init_mem_attrs(Buffer self):
-    if not self._mem_attrs_inited:
-        query_memory_attrs(self._mem_attrs, self._ptr)
-        self._mem_attrs_inited = True
-
-
-cdef int query_memory_attrs(_MemAttrs &out, uintptr_t ptr) except -1 nogil:
-    cdef unsigned int memory_type = 0
-    cdef int is_managed = 0
-    cdef int device_id = 0
-    _query_memory_attrs(memory_type, is_managed, device_id, <cydriver.CUdeviceptr>ptr)
-
-    if memory_type == 0:
-        # unregistered host pointer
-        out.is_host_accessible = True
-        out.is_device_accessible = False
-        out.device_id = -1
-    # for managed memory, the memory type can be CU_MEMORYTYPE_DEVICE,
-    # so we need to check it first not to falsely claim it is not
-    # host accessible.
-    elif (
-        is_managed
-        or memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_HOST
-    ):
-        # For pinned memory allocated with cudaMallocHost or paged-locked
-        # with cudaHostRegister, the memory_type is
-        # cydriver.CUmemorytype.CU_MEMORYTYPE_HOST.
-        # TODO(ktokarski): In some cases, the registered memory requires
-        # using different ptr for device and host, we could check
-        # cuMemHostGetDevicePointer and
-        # CU_DEVICE_ATTRIBUTE_CAN_USE_HOST_POINTER_FOR_REGISTERED_MEM
-        # to double check the device accessibility.
-        out.is_host_accessible = True
-        out.is_device_accessible = True
-        out.device_id = device_id
-    elif memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_DEVICE:
-        out.is_host_accessible = False
-        out.is_device_accessible = True
-        out.device_id = device_id
-    else:
-        raise ValueError(f"Unsupported memory type: {memory_type}")
-    return 0
-
-
-cdef inline int _query_memory_attrs(unsigned int& memory_type, int & is_managed, int& device_id, cydriver.CUdeviceptr ptr) except -1 nogil:
-    cdef cydriver.CUpointer_attribute attrs[3]
-    cdef uintptr_t vals[3]
-    attrs[0] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_TYPE
-    attrs[1] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_MANAGED
-    attrs[2] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL
-    vals[0] = <uintptr_t><void*>&memory_type
-    vals[1] = <uintptr_t><void*>&is_managed
-    vals[2] = <uintptr_t><void*>&device_id
-
-    cdef cydriver.CUresult ret
-    ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
-    if ret == cydriver.CUresult.CUDA_ERROR_NOT_INITIALIZED:
-        with cython.gil:
-            # Device class handles the cuInit call internally
-            Device()
-        ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
-    HANDLE_RETURN(ret)
-    return 0
 
 
 cdef class MemoryResource:
@@ -500,43 +442,3 @@ cdef class MemoryResource:
             and document the behavior.
         """
         ...
-
-
-# Helper Functions
-# ----------------
-cdef void _validate_value_against_bitwidth(int bitwidth, int64_t value, bint is_signed=False) except *:
-    """Validate that a value fits within the representable range for a given bitwidth.
-
-    Parameters
-    ----------
-    bitwidth : int
-        Number of bits (e.g., 8, 16, 32)
-    value : int64_t
-        Value to validate
-    is_signed : bool, optional
-        Whether the value is signed (default: False)
-
-    Raises
-    ------
-    ValueError
-        If value is outside the representable range for the bitwidth
-    """
-    cdef int max_bits = bitwidth
-    assert max_bits < 64, f"bitwidth ({max_bits}) must be less than 64"
-
-    cdef int64_t min_value
-    cdef uint64_t max_value_unsigned
-    cdef int64_t max_value
-
-    if is_signed:
-        min_value = -(<int64_t>1 << (max_bits - 1))
-        max_value = (<int64_t>1 << (max_bits - 1)) - 1
-    else:
-        min_value = 0
-        max_value_unsigned = (<uint64_t>1 << max_bits) - 1
-        max_value = <int64_t>max_value_unsigned
-
-    if not min_value <= value <= max_value:
-        raise ValueError(
-            f"value must be in range [{min_value}, {max_value}]"
-        )

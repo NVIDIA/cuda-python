@@ -8,7 +8,6 @@ try:
     from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-
 try:
     import numpy as np
 except ImportError:
@@ -26,9 +25,6 @@ from cuda.core.experimental import (
     MemoryResource,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
-)
-from cuda.core.experimental import (
-    system as ccx_system,
 )
 from cuda.core.experimental._dlpack import DLDeviceType
 from cuda.core.experimental._memory import IPCBufferDescriptor
@@ -223,86 +219,105 @@ def test_buffer_copy_from():
     buffer_copy_from(DummyPinnedMemoryResource(device), device, check=True)
 
 
-def buffer_fill(dummy_mr: MemoryResource, device: Device, check=False):
-    stream = device.create_stream()
-
-    # Test width=1 (byte fill)
-    buffer1 = dummy_mr.allocate(size=1024)
-    buffer1.fill(0x42, width=1, stream=stream)
-    device.sync()
-
-    if check:
-        ptr = ctypes.cast(buffer1.handle, ctypes.POINTER(ctypes.c_byte))
-        for i in range(10):
-            assert ptr[i] == 0x42
-
-    # Test error: invalid width
-    for bad_width in [w for w in range(-10, 10) if w not in (1, 2, 4)]:
-        with pytest.raises(ValueError, match="width must be 1, 2, or 4"):
-            buffer1.fill(0x42, width=bad_width, stream=stream)
-
-    # Test error: value out of range for width=1
-    for bad_value in [-42, -1, 256]:
-        with pytest.raises(ValueError, match="value must be in range \\[0, 255\\]"):
-            buffer1.fill(bad_value, width=1, stream=stream)
-
-    # Test error: buffer size not divisible by width
-    for bad_size in [1025, 1027, 1029, 1031]:  # Not divisible by 2
-        buffer_err = dummy_mr.allocate(size=1025)
-        with pytest.raises(ValueError, match="must be divisible"):
-            buffer_err.fill(0x1234, width=2, stream=stream)
-        buffer_err.close()
-
-    buffer1.close()
-
-    # Test width=2 (16-bit fill)
-    buffer2 = dummy_mr.allocate(size=1024)  # Divisible by 2
-    buffer2.fill(0x1234, width=2, stream=stream)
-    device.sync()
-
-    if check:
-        ptr = ctypes.cast(buffer2.handle, ctypes.POINTER(ctypes.c_uint16))
-        for i in range(5):
-            assert ptr[i] == 0x1234
-
-    # Test error: value out of range for width=2
-    for bad_value in [-42, -1, 65536, 65537, 100000]:
-        with pytest.raises(ValueError, match="value must be in range \\[0, 65535\\]"):
-            buffer2.fill(bad_value, width=2, stream=stream)
-
-    buffer2.close()
-
-    # Test width=4 (32-bit fill)
-    buffer4 = dummy_mr.allocate(size=1024)  # Divisible by 4
-    buffer4.fill(0xDEADBEEF, width=4, stream=stream)
-    device.sync()
-
-    if check:
-        ptr = ctypes.cast(buffer4.handle, ctypes.POINTER(ctypes.c_uint32))
-        for i in range(5):
-            assert ptr[i] == 0xDEADBEEF
-
-    # Test error: value out of range for width=4
-    for bad_value in [-42, -1, 4294967296, 4294967297, 5000000000]:
-        with pytest.raises(ValueError, match="value must be in range \\[0, 4294967295\\]"):
-            buffer4.fill(bad_value, width=4, stream=stream)
-
-    # Test error: buffer size not divisible by width
-    for bad_size in [1025, 1026, 1027, 1029, 1030, 1031]:  # Not divisible by 4
-        buffer_err2 = dummy_mr.allocate(size=bad_size)
-        with pytest.raises(ValueError, match="must be divisible"):
-            buffer_err2.fill(0xDEADBEEF, width=4, stream=stream)
-        buffer_err2.close()
-
-    buffer4.close()
+def _bytes_repeat(pattern: bytes, size: int) -> bytes:
+    assert len(pattern) > 0
+    assert size % len(pattern) == 0
+    return pattern * (size // len(pattern))
 
 
-def test_buffer_fill():
+def _pattern_bytes(value) -> bytes:
+    if isinstance(value, int):
+        return bytes([value])
+    return bytes(memoryview(value).cast("B"))
+
+
+@pytest.fixture(params=["device", "unified", "pinned"])
+def fill_env(request):
     device = Device()
     device.set_current()
-    buffer_fill(DummyDeviceMemoryResource(device), device)
-    buffer_fill(DummyUnifiedMemoryResource(device), device)
-    buffer_fill(DummyPinnedMemoryResource(device), device, check=True)
+    if request.param == "device":
+        mr = DummyDeviceMemoryResource(device)
+    elif request.param == "unified":
+        mr = DummyUnifiedMemoryResource(device)
+    else:
+        mr = DummyPinnedMemoryResource(device)
+    return device, mr
+
+
+_FILL_SIZE = 64  # Keep small; divisible by 1/2/4.
+
+_FILL_CASES = [
+    # int -> 1-byte pattern
+    pytest.param(0x42, _FILL_SIZE, None, id="int-0x42"),
+    pytest.param(-1, _FILL_SIZE, OverflowError, id="int-neg"),
+    pytest.param(256, _FILL_SIZE, OverflowError, id="int-256"),
+    pytest.param(1000, _FILL_SIZE, OverflowError, id="int-1000"),
+    # bad type
+    pytest.param("invalid", _FILL_SIZE, TypeError, id="bad-type-str"),
+    # bytes-like patterns
+    pytest.param(b"\x7f", _FILL_SIZE, None, id="bytes-1"),
+    pytest.param(b"\x34\x12", _FILL_SIZE, None, id="bytes-2"),
+    pytest.param(b"\xef\xbe\xad\xde", _FILL_SIZE, None, id="bytes-4"),
+    pytest.param(b"\x34\x12", _FILL_SIZE + 1, ValueError, id="bytes-2-bad-size"),
+    pytest.param(b"\xef\xbe\xad\xde", _FILL_SIZE + 2, ValueError, id="bytes-4-bad-size"),
+    pytest.param(b"", _FILL_SIZE, ValueError, id="bytes-0"),
+    pytest.param(b"\x01\x02\x03", _FILL_SIZE, ValueError, id="bytes-3"),
+]
+
+if np is not None:
+    _FILL_CASES.extend(
+        [
+            # 8-bit patterns
+            pytest.param(np.uint8(0), _FILL_SIZE, None, id="np-uint8-0"),
+            pytest.param(np.uint8(255), _FILL_SIZE, None, id="np-uint8-255"),
+            pytest.param(np.int8(-1), _FILL_SIZE, None, id="np-int8--1"),
+            pytest.param(np.int8(127), _FILL_SIZE, None, id="np-int8-127"),
+            pytest.param(np.int8(-128), _FILL_SIZE, None, id="np-int8--128"),
+            # 16-bit patterns
+            pytest.param(np.uint16(0x1234), _FILL_SIZE, None, id="np-uint16-0x1234"),
+            pytest.param(np.uint16(0xFFFF), _FILL_SIZE, None, id="np-uint16-0xFFFF"),
+            pytest.param(np.int16(-1), _FILL_SIZE, None, id="np-int16--1"),
+            pytest.param(np.int16(32767), _FILL_SIZE, None, id="np-int16-max"),
+            pytest.param(np.int16(-32768), _FILL_SIZE, None, id="np-int16-min"),
+            pytest.param(np.uint16(0x1234), _FILL_SIZE + 1, ValueError, id="np-uint16-bad-size"),
+            # 32-bit patterns
+            pytest.param(np.uint32(0xDEADBEEF), _FILL_SIZE, None, id="np-uint32-0xDEADBEEF"),
+            pytest.param(np.uint32(0xFFFFFFFF), _FILL_SIZE, None, id="np-uint32-0xFFFFFFFF"),
+            pytest.param(np.int32(-1), _FILL_SIZE, None, id="np-int32--1"),
+            pytest.param(np.int32(2147483647), _FILL_SIZE, None, id="np-int32-max"),
+            pytest.param(np.int32(-2147483648), _FILL_SIZE, None, id="np-int32-min"),
+            pytest.param(np.uint32(0xDEADBEEF), _FILL_SIZE + 2, ValueError, id="np-uint32-bad-size"),
+            # float32 (bit-pattern fill)
+            pytest.param(np.float32(1.0), _FILL_SIZE, None, id="np-float32-1.0"),
+            # 64-bit patterns should error (8-byte pattern)
+            pytest.param(np.uint64(0), _FILL_SIZE, ValueError, id="np-uint64-err"),
+            pytest.param(np.int64(0), _FILL_SIZE, ValueError, id="np-int64-err"),
+            pytest.param(np.float64(0), _FILL_SIZE, ValueError, id="np-float64-err"),
+        ]
+    )
+
+
+@pytest.mark.parametrize("value,size,exc", _FILL_CASES)
+def test_buffer_fill(fill_env, value, size, exc):
+    device, mr = fill_env
+    stream = device.create_stream()
+    buffer = mr.allocate(size=size)
+    try:
+        if exc is not None:
+            with pytest.raises(exc):
+                buffer.fill(value, stream=stream)
+            return
+
+        buffer.fill(value, stream=stream)
+        device.sync()
+
+        # Verify contents only for host-accessible buffers.
+        if buffer.is_host_accessible:
+            pat = _pattern_bytes(value)
+            got = ctypes.string_at(int(buffer.handle), size)
+            assert got == _bytes_repeat(pat, size)
+    finally:
+        buffer.close()
 
 
 def buffer_close(dummy_mr: MemoryResource):
@@ -319,141 +334,6 @@ def test_buffer_close():
     buffer_close(DummyHostMemoryResource())
     buffer_close(DummyUnifiedMemoryResource(device))
     buffer_close(DummyPinnedMemoryResource(device))
-
-
-def test_buffer_external_host():
-    a = (ctypes.c_byte * 20)()
-    ptr = ctypes.addressof(a)
-    buffer = Buffer.from_handle(ptr, 20, owner=a)
-    assert not buffer.is_device_accessible
-    assert buffer.is_host_accessible
-    assert buffer.device_id == -1
-    buffer.close()
-
-
-@pytest.mark.parametrize("change_device", [True, False])
-def test_buffer_external_device(change_device):
-    n = ccx_system.get_num_devices()
-    if n < 1:
-        pytest.skip("No devices found")
-    dev_id = n - 1
-    d = Device(dev_id)
-    d.set_current()
-    buffer_ = d.allocate(size=32)
-
-    if change_device:
-        # let's switch to a different device if possibe
-        # to make sure we get the original device id
-        d = Device(0)
-        d.set_current()
-
-    buffer = Buffer.from_handle(int(buffer_.handle), 32)
-    assert buffer.is_device_accessible
-    assert not buffer.is_host_accessible
-    assert buffer.device_id == dev_id
-    buffer.close()
-    buffer_.close()
-
-
-@pytest.mark.parametrize("change_device", [True, False])
-def test_buffer_external_pinned_alloc(change_device):
-    n = ccx_system.get_num_devices()
-    if n < 1:
-        pytest.skip("No devices found")
-    dev_id = n - 1
-    d = Device(dev_id)
-    d.set_current()
-    mr = DummyPinnedMemoryResource(d)
-    buffer_ = mr.allocate(size=32)
-
-    if change_device:
-        # let's switch to a different device if possibe
-        # to make sure we get the original device id
-        d = Device(0)
-        d.set_current()
-
-    buffer = Buffer.from_handle(int(buffer_.handle), 32)
-    assert buffer.is_device_accessible
-    assert buffer.is_host_accessible
-    assert buffer.device_id == dev_id
-    buffer.close()
-    buffer_.close()
-
-
-@pytest.mark.parametrize("change_device", [True, False])
-def test_buffer_external_pinned_registered(change_device):
-    n = ccx_system.get_num_devices()
-    if n < 1:
-        pytest.skip("No devices found")
-    dev_id = n - 1
-    d = Device(dev_id)
-    d.set_current()
-    a = (ctypes.c_byte * 20)()
-    ptr = ctypes.addressof(a)
-
-    buffer = Buffer.from_handle(ptr, 20, owner=ptr)
-    assert not buffer.is_device_accessible
-    assert buffer.is_host_accessible
-    assert buffer.device_id == -1
-
-    handle_return(driver.cuMemHostRegister(ptr, 20, 0))
-    try:
-        if change_device:
-            # let's switch to a different device if possibe
-            # to make sure we get the original device id
-            d = Device(0)
-            d.set_current()
-
-        buffer = Buffer.from_handle(ptr, 20, owner=ptr)
-        assert buffer.is_device_accessible
-        assert buffer.is_host_accessible
-        assert buffer.device_id == dev_id
-        buffer.close()
-    finally:
-        handle_return(driver.cuMemHostUnregister(ptr))
-
-
-@pytest.mark.parametrize("change_device", [True, False])
-def test_buffer_external_managed(change_device):
-    n = ccx_system.get_num_devices()
-    if n < 1:
-        pytest.skip("No devices found")
-    dev_id = n - 1
-    d = Device(dev_id)
-    d.set_current()
-    ptr = None
-    try:
-        ptr = handle_return(driver.cuMemAllocManaged(32, driver.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
-        if change_device:
-            # let's switch to a different device if possibe
-            # to make sure we get the original device id
-            d = Device(0)
-            d.set_current()
-        buffer = Buffer.from_handle(ptr, 32)
-        assert buffer.is_device_accessible
-        assert buffer.is_host_accessible
-        assert buffer.device_id == dev_id
-    finally:
-        if ptr is not None:
-            handle_return(driver.cuMemFree(ptr))
-
-
-def test_memory_resource_and_owner_disallowed():
-    with pytest.raises(ValueError, match="cannot be both specified together"):
-        a = (ctypes.c_byte * 20)()
-        ptr = ctypes.addressof(a)
-        Buffer.from_handle(ptr, 20, mr=DummyDeviceMemoryResource(Device()), owner=a)
-
-
-def test_owner_close():
-    a = (ctypes.c_byte * 20)()
-    ptr = ctypes.addressof(a)
-    before = sys.getrefcount(a)
-    buffer = Buffer.from_handle(ptr, 20, owner=a)
-    assert sys.getrefcount(a) != before
-    buffer.close()
-    after = sys.getrefcount(a)
-    assert after == before
 
 
 def test_buffer_dunder_dlpack():
