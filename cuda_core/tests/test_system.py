@@ -18,20 +18,20 @@ def test_system_singleton():
 
 
 def test_driver_version():
-    driver_version = system.driver_version
+    driver_version = system.get_driver_version()
     version = handle_return(driver.cuDriverGetVersion())
     expected_driver_version = (version // 1000, (version % 1000) // 10)
     assert driver_version == expected_driver_version, "Driver version does not match expected value"
 
 
 def test_num_devices():
-    num_devices = system.num_devices
+    num_devices = system.get_num_devices()
     expected_num_devices = handle_return(runtime.cudaGetDeviceCount())
     assert num_devices == expected_num_devices, "Number of devices does not match expected value"
 
 
 def test_devices():
-    devices = system.devices
+    devices = Device.get_all_devices()
     expected_num_devices = handle_return(runtime.cudaGetDeviceCount())
     expected_devices = tuple(Device(device_id) for device_id in range(expected_num_devices))
     assert len(devices) == len(expected_devices), "Number of devices does not match expected value"

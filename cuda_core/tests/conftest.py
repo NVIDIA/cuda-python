@@ -124,7 +124,7 @@ def mempool_device():
 
 
 def _mempool_device_impl(num):
-    num_devices = len(cuda.core.experimental.system.devices)
+    num_devices = len(cuda.core.experimental.Device.get_all_devices())
     if num_devices < num:
         pytest.skip(f"Test requires at least {num} GPUs")
 

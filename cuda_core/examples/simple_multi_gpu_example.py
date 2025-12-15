@@ -14,7 +14,7 @@ import sys
 import cupy as cp
 from cuda.core.experimental import Device, LaunchConfig, Program, launch, system
 
-if system.num_devices < 2:
+if system.get_num_devices() < 2:
     print("this example requires at least 2 GPUs", file=sys.stderr)
     sys.exit(0)
 
