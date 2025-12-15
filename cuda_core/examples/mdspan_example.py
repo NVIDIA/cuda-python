@@ -19,8 +19,23 @@
 #
 # ################################################################################
 
+import os, sys
 import cupy as cp
 from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
+
+
+# prepare include
+cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
+if cuda_path is None:
+    print("this demo requires a valid CUDA_PATH environment variable set", file=sys.stderr)
+    sys.exit(0)
+cuda_include = os.path.join(cuda_path, "include")
+assert os.path.isdir(cuda_include)
+include_path = [cuda_include]
+cccl_include = os.path.join(cuda_include, "cccl")
+if os.path.isdir(cccl_include):
+    include_path.insert(0, cccl_include)
+
 
 # ################################################################################
 # C++ Kernel Code with cuda::std::mdspan
@@ -196,8 +211,7 @@ def example_c_order():
     program_options = ProgramOptions(
         std="c++17",  # mdspan requires C++17 or later
         arch=f"sm_{dev.arch}",
-        # TODO: May need to add include path for cuda::std headers
-        # include_path=["/path/to/libcudacxx/include"]
+        include_path=include_path,
     )
     prog = Program(code, code_type="c++", options=program_options)
     
@@ -213,8 +227,8 @@ def example_c_order():
     rng = cp.random.default_rng()
     
     # Create C-order arrays explicitly
-    input1 = rng.random(shape, dtype=dtype, order='C')
-    input2 = rng.random(shape, dtype=dtype, order='C')
+    input1 = rng.random(shape, dtype=dtype)
+    input2 = rng.random(shape, dtype=dtype)
     output = cp.empty(shape, dtype=dtype, order='C')
     
     # Verify arrays are in C-order
@@ -277,6 +291,7 @@ def example_f_order():
     program_options = ProgramOptions(
         std="c++17",
         arch=f"sm_{dev.arch}",
+        include_path=include_path,
     )
     prog = Program(code, code_type="c++", options=program_options)
     
@@ -291,8 +306,8 @@ def example_f_order():
     rng = cp.random.default_rng()
     
     # Create F-order arrays explicitly
-    input1 = rng.random(shape, dtype=dtype, order='F')
-    input2 = rng.random(shape, dtype=dtype, order='F')
+    input1 = cp.asfortranarray(rng.random(shape, dtype=dtype))
+    input2 = cp.asfortranarray(rng.random(shape, dtype=dtype))
     output = cp.empty(shape, dtype=dtype, order='F')
     
     # Verify arrays are in F-order
@@ -348,6 +363,7 @@ def example_strided():
     program_options = ProgramOptions(
         std="c++17",
         arch=f"sm_{dev.arch}",
+        include_path=include_path,
     )
     prog = Program(code, code_type="c++", options=program_options)
     
@@ -362,8 +378,8 @@ def example_strided():
     rng = cp.random.default_rng()
     
     # Create base arrays in C-order
-    base_input1 = rng.random(base_shape, dtype=dtype, order='C')
-    base_input2 = rng.random(base_shape, dtype=dtype, order='C')
+    base_input1 = rng.random(base_shape, dtype=dtype)
+    base_input2 = rng.random(base_shape, dtype=dtype)
     base_output = cp.empty(base_shape, dtype=dtype, order='C')
     
     # Create strided views: skip every other element in second axis
