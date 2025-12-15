@@ -656,12 +656,12 @@ moved out of the <code class="docutils literal notranslate"><span class="pre">ex
 </section>
 <section id="cuda-system-information">
 <h2>CUDA system information<a class="headerlink" href="#cuda-system-information" title="Link to this heading">#</a></h2>
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental._system.System.driver_version">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">System.</span></span><span class="sig-name descname"><span class="pre">driver_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#cuda.core.experimental._system.System.driver_version" title="Link to this definition">#</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental._system.System.get_driver_version">
+<span class="sig-prename descclassname"><span class="pre">System.</span></span><span class="sig-name descname"><span class="pre">get_driver_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.experimental._system.System.get_driver_version" title="Link to this definition">#</a></dt>
 <dd><dl class="py data">
-<dt class="sig sig-object py" id="cuda.core.experimental._system.System.cuda.core.experimental.system.driver_version">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.system.</span></span><span class="sig-name descname"><span class="pre">driver_version</span></span><a class="headerlink" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.driver_version" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental._system.System.cuda.core.experimental.system.get_driver_version">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.system.</span></span><span class="sig-name descname"><span class="pre">get_driver_version</span></span><a class="headerlink" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.get_driver_version" title="Link to this definition">#</a></dt>
 <dd><p>Query the CUDA driver version.</p>
 <p class="rubric">Returns</p>
 <dl class="simple">
@@ -672,32 +672,16 @@ moved out of the <code class="docutils literal notranslate"><span class="pre">ex
 
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental._system.System.num_devices">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">System.</span></span><span class="sig-name descname"><span class="pre">num_devices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.experimental._system.System.num_devices" title="Link to this definition">#</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental._system.System.get_num_devices">
+<span class="sig-prename descclassname"><span class="pre">System.</span></span><span class="sig-name descname"><span class="pre">get_num_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.experimental._system.System.get_num_devices" title="Link to this definition">#</a></dt>
 <dd><dl class="py data">
-<dt class="sig sig-object py" id="cuda.core.experimental._system.System.cuda.core.experimental.system.num_devices">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.system.</span></span><span class="sig-name descname"><span class="pre">num_devices</span></span><a class="headerlink" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.num_devices" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental._system.System.cuda.core.experimental.system.get_num_devices">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.system.</span></span><span class="sig-name descname"><span class="pre">get_num_devices</span></span><a class="headerlink" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.get_num_devices" title="Link to this definition">#</a></dt>
 <dd><p>Query the number of available GPUs.</p>
 <p class="rubric">Returns</p>
 <dl class="simple">
 <dt>int</dt><dd><p>The number of available GPU devices.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental._system.System.devices">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">System.</span></span><span class="sig-name descname"><span class="pre">devices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></em><a class="headerlink" href="#cuda.core.experimental._system.System.devices" title="Link to this definition">#</a></dt>
-<dd><dl class="py data">
-<dt class="sig sig-object py" id="cuda.core.experimental._system.System.cuda.core.experimental.system.devices">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.system.</span></span><span class="sig-name descname"><span class="pre">devices</span></span><a class="headerlink" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.devices" title="Link to this definition">#</a></dt>
-<dd><p>Query the available device instances.</p>
-<p class="rubric">Returns</p>
-<dl class="simple">
-<dt>tuple of Device</dt><dd><p>A tuple containing instances of available devices.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -773,16 +757,12 @@ moved out of the <code class="docutils literal notranslate"><span class="pre">ex
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-runtime">CUDA runtime</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-compilation-toolchain">CUDA compilation toolchain</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-system-information">CUDA system information</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._system.System.driver_version"><code class="docutils literal notranslate"><span class="pre">driver_version</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.driver_version"><code class="docutils literal notranslate"><span class="pre">driver_version</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._system.System.get_driver_version"><code class="docutils literal notranslate"><span class="pre">get_driver_version()</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.get_driver_version"><code class="docutils literal notranslate"><span class="pre">get_driver_version</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._system.System.num_devices"><code class="docutils literal notranslate"><span class="pre">num_devices</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.num_devices"><code class="docutils literal notranslate"><span class="pre">num_devices</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._system.System.devices"><code class="docutils literal notranslate"><span class="pre">devices</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.devices"><code class="docutils literal notranslate"><span class="pre">devices</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._system.System.get_num_devices"><code class="docutils literal notranslate"><span class="pre">get_num_devices()</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental._system.System.cuda.core.experimental.system.get_num_devices"><code class="docutils literal notranslate"><span class="pre">get_num_devices</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -567,7 +567,15 @@
 </section>
 <section id="breaking-changes">
 <h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
-<p>None.</p>
+<p>The following APIs have been deprecated and will be removed in 0.6.0:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.driver_version</span></code> has been replaced with
+<code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.get_driver_version()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.num_devices</span></code> has been replaced with
+<code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.get_num_devices()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.devices</span></code> has been replaced with
+<code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.Device.get_all_devices()</span></code>.</p></li>
+</ul>
 </section>
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>

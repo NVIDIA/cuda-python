@@ -747,6 +747,20 @@ such that the lifetime is managed.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.Device.get_all_devices">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_all_devices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Device.get_all_devices" title="Link to this definition">#</a></dt>
+<dd><p>Query the available device instances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A tuple containing instances of available devices.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a> of <a class="reference internal" href="#cuda.core.experimental.Device" title="cuda.core.experimental.Device">Device</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.experimental.Device.set_current">
 <span class="sig-name descname"><span class="pre">set_current</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Context</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Context</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Device.set_current" title="Link to this definition">#</a></dt>
 <dd><p>Set device to be used for GPU executions.</p>
@@ -930,6 +944,7 @@ driver is older than CUDA 11.4.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Device.create_event"><code class="docutils literal notranslate"><span class="pre">create_event()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Device.create_graph_builder"><code class="docutils literal notranslate"><span class="pre">create_graph_builder()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Device.create_stream"><code class="docutils literal notranslate"><span class="pre">create_stream()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Device.get_all_devices"><code class="docutils literal notranslate"><span class="pre">get_all_devices()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Device.set_current"><code class="docutils literal notranslate"><span class="pre">set_current()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Device.sync"><code class="docutils literal notranslate"><span class="pre">sync()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Device.arch"><code class="docutils literal notranslate"><span class="pre">arch</span></code></a></li>
