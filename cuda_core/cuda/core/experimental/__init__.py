@@ -13,39 +13,6 @@ The experimental namespace will be removed in a future release.
 """
 
 import warnings
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    # For type checkers, import from the new location
-    from cuda.core import (
-        Buffer,
-        Device,
-        DeviceMemoryResource,
-        DeviceMemoryResourceOptions,
-        Event,
-        EventOptions,
-        Graph,
-        GraphBuilder,
-        GraphCompleteOptions,
-        GraphDebugPrintOptions,
-        Kernel,
-        LaunchConfig,
-        LegacyPinnedMemoryResource,
-        Linker,
-        LinkerOptions,
-        MemoryResource,
-        ObjectCode,
-        Program,
-        ProgramOptions,
-        Stream,
-        StreamOptions,
-        StridedLayout,
-        VirtualMemoryResource,
-        VirtualMemoryResourceOptions,
-        launch,
-        system,
-        utils,
-    )
 
 
 def _warn_deprecated():
