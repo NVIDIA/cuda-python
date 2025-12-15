@@ -453,7 +453,7 @@ class ObjectCode:
     This class has no default constructor. If you already have a cubin that you would
     like to load, use the :meth:`from_cubin` alternative constructor. Constructing directly
     from all other possible code types should be avoided in favor of compilation through
-    :class:`~cuda.core.experimental.Program`
+    :class:`~cuda.core.Program`
 
     Note
     ----

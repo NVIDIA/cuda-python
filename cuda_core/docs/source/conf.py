@@ -129,8 +129,8 @@ def skip_member(app, what, name, obj, skip, options):
     # are assumed to be properties (because cythonized
     # properties are not recognized as such by autodoc)
     excluded_dirs = [
-        "cuda.core.experimental._layout",
-        "cuda.core.experimental._memoryview",
+        "cuda.core._layout",
+        "cuda.core._memoryview",
     ]
     if what == "attribute" and getattr(obj, "__doc__", None) is None:
         obj_module = getattr(getattr(obj, "__objclass__", None), "__module__", None)

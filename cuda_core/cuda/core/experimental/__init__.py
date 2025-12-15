@@ -39,6 +39,7 @@ if TYPE_CHECKING:
         ProgramOptions,
         Stream,
         StreamOptions,
+        StridedLayout,
         VirtualMemoryResource,
         VirtualMemoryResourceOptions,
         launch,
@@ -84,6 +85,7 @@ from cuda.core._graph import (  # noqa: E402
 )
 from cuda.core._launch_config import LaunchConfig  # noqa: E402
 from cuda.core._launcher import launch  # noqa: E402
+from cuda.core._layout import StridedLayout  # noqa: E402
 from cuda.core._linker import Linker, LinkerOptions  # noqa: E402
 from cuda.core._memory import (  # noqa: E402
     Buffer,
@@ -115,6 +117,7 @@ def __getattr__(name):
         "_graph",
         "_launch_config",
         "_launcher",
+        "_layout",
         "_linker",
         "_memory",
         "_module",

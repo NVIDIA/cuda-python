@@ -16,7 +16,7 @@ import cuda.core
 import numpy as np
 import pytest
 from cuda.core import Device
-from cuda.core.experimental._layout import StridedLayout
+from cuda.core._layout import StridedLayout
 from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory
 
 

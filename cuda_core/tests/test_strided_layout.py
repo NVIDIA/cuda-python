@@ -9,7 +9,7 @@ from enum import Enum
 
 import numpy as np
 import pytest
-from cuda.core.experimental._layout import StridedLayout
+from cuda.core._layout import StridedLayout
 from helpers.layout import (
     DenseOrder,
     LayoutSpec,

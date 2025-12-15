@@ -355,7 +355,7 @@ LinkerHandleT = Union[nvJitLinkHandleT, "cuda.bindings.driver.CUlinkState"]
 
 class Linker:
     """Represent a linking machinery to link one or multiple object codes into
-    :obj:`~cuda.core.experimental._module.ObjectCode` with the specified options.
+    :obj:`~cuda.core._module.ObjectCode` with the specified options.
 
     This object provides a unified interface to multiple underlying
     linker libraries (such as nvJitLink or cuLink* from CUDA driver).

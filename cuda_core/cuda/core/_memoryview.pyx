@@ -4,7 +4,7 @@
 
 from ._dlpack cimport *
 from libc.stdint cimport intptr_t
-from cuda.core.experimental._layout cimport StridedLayout
+from cuda.core._layout cimport StridedLayout
 from cuda.core._stream import Stream
 
 import functools
