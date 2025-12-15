@@ -173,3 +173,36 @@ def test_linker_get_info_log(compile_ptx_functions):
     linker.link("cubin")
     log = linker.get_info_log()
     assert isinstance(log, str)
+
+
+@pytest.mark.skipif(is_culink_backend, reason="as_bytes() only supported for nvjitlink backend")
+def test_linker_options_as_bytes_nvjitlink():
+    """Test LinkerOptions.as_bytes() for nvJitLink backend"""
+    options = LinkerOptions(arch="sm_80", debug=True, ftz=True, max_register_count=32)
+    nvjitlink_options = options.as_bytes("nvjitlink")
+
+    # Should return list of bytes
+    assert isinstance(nvjitlink_options, list)
+    assert all(isinstance(opt, bytes) for opt in nvjitlink_options)
+
+    # Decode to check content
+    options_str = [opt.decode() for opt in nvjitlink_options]
+    assert "-arch=sm_80" in options_str
+    assert "-g" in options_str
+    assert "-ftz=true" in options_str
+    assert "-maxrregcount=32" in options_str
+
+
+def test_linker_options_as_bytes_invalid_backend():
+    """Test LinkerOptions.as_bytes() with invalid backend"""
+    options = LinkerOptions(arch="sm_80")
+    with pytest.raises(ValueError, match="only supports 'nvjitlink' backend"):
+        options.as_bytes("invalid")
+
+
+@pytest.mark.skipif(not is_culink_backend, reason="driver backend test")
+def test_linker_options_as_bytes_driver_not_supported():
+    """Test that as_bytes() is not supported for driver backend"""
+    options = LinkerOptions(arch="sm_80")
+    with pytest.raises(RuntimeError, match="as_bytes\\(\\) only supports 'nvjitlink' backend"):
+        options.as_bytes("driver")
