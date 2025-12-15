@@ -651,25 +651,31 @@ asynchronous copy</p></li>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">value:</span> <span class="pre">int</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">width:</span> <span class="pre">int</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BufferProtocol</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Buffer.fill" title="Link to this definition">#</a></dt>
-<dd><p>Fill this buffer with a value pattern asynchronously on the given stream.</p>
+<dd><p>Fill this buffer with a repeating byte pattern.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Integer value to fill the buffer with</p></li>
-<li><p><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Width in bytes for each element (must be 1, 2, or 4)</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the asynchronous fill</p></li>
+<li><p><strong>value</strong> (int | <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Buffer" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collections.abc.Buffer</span></code></a>) – <ul>
+<li><p>int: Must be in range [0, 256). Converted to 1 byte.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Buffer" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collections.abc.Buffer</span></code></a>: Must be 1, 2, or 4 bytes.</p></li>
+</ul>
+</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Stream for the asynchronous fill operation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If width is not 1, 2, or 4, if value is out of range for the width,
-    or if buffer size is not divisible by width</p>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If value is not an int and does not support the buffer protocol.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If value byte length is not 1, 2, or 4.
+    If buffer size is not divisible by value byte length.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OverflowError" title="(in Python v3.14)"><strong>OverflowError</strong></a> – If int value is outside [0, 256).</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
