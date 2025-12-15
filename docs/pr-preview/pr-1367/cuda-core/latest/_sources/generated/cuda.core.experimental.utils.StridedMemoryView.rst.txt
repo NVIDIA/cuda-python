@@ -14,6 +14,7 @@ cuda.core.experimental.utils.StridedMemoryView
    .. autoattribute:: dtype
    .. autoattribute:: layout
    .. autoattribute:: shape
+   .. autoattribute:: size
    .. autoattribute:: strides
    
    
