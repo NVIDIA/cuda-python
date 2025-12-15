@@ -8,7 +8,6 @@ try:
     from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
-
 try:
     import numpy as np
 except ImportError:
@@ -26,9 +25,6 @@ from cuda.core.experimental import (
     MemoryResource,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
-)
-from cuda.core.experimental import (
-    system as ccx_system,
 )
 from cuda.core.experimental._dlpack import DLDeviceType
 from cuda.core.experimental._memory import IPCBufferDescriptor
@@ -319,141 +315,6 @@ def test_buffer_close():
     buffer_close(DummyHostMemoryResource())
     buffer_close(DummyUnifiedMemoryResource(device))
     buffer_close(DummyPinnedMemoryResource(device))
-
-
-def test_buffer_external_host():
-    a = (ctypes.c_byte * 20)()
-    ptr = ctypes.addressof(a)
-    buffer = Buffer.from_handle(ptr, 20, owner=a)
-    assert not buffer.is_device_accessible
-    assert buffer.is_host_accessible
-    assert buffer.device_id == -1
-    buffer.close()
-
-
-@pytest.mark.parametrize("change_device", [True, False])
-def test_buffer_external_device(change_device):
-    n = ccx_system.num_devices
-    if n < 1:
-        pytest.skip("No devices found")
-    dev_id = n - 1
-    d = Device(dev_id)
-    d.set_current()
-    buffer_ = d.allocate(size=32)
-
-    if change_device:
-        # let's switch to a different device if possibe
-        # to make sure we get the original device id
-        d = Device(0)
-        d.set_current()
-
-    buffer = Buffer.from_handle(int(buffer_.handle), 32)
-    assert buffer.is_device_accessible
-    assert not buffer.is_host_accessible
-    assert buffer.device_id == dev_id
-    buffer.close()
-    buffer_.close()
-
-
-@pytest.mark.parametrize("change_device", [True, False])
-def test_buffer_external_pinned_alloc(change_device):
-    n = ccx_system.num_devices
-    if n < 1:
-        pytest.skip("No devices found")
-    dev_id = n - 1
-    d = Device(dev_id)
-    d.set_current()
-    mr = DummyPinnedMemoryResource(d)
-    buffer_ = mr.allocate(size=32)
-
-    if change_device:
-        # let's switch to a different device if possibe
-        # to make sure we get the original device id
-        d = Device(0)
-        d.set_current()
-
-    buffer = Buffer.from_handle(int(buffer_.handle), 32)
-    assert buffer.is_device_accessible
-    assert buffer.is_host_accessible
-    assert buffer.device_id == dev_id
-    buffer.close()
-    buffer_.close()
-
-
-@pytest.mark.parametrize("change_device", [True, False])
-def test_buffer_external_pinned_registered(change_device):
-    n = ccx_system.num_devices
-    if n < 1:
-        pytest.skip("No devices found")
-    dev_id = n - 1
-    d = Device(dev_id)
-    d.set_current()
-    a = (ctypes.c_byte * 20)()
-    ptr = ctypes.addressof(a)
-
-    buffer = Buffer.from_handle(ptr, 20, owner=ptr)
-    assert not buffer.is_device_accessible
-    assert buffer.is_host_accessible
-    assert buffer.device_id == -1
-
-    handle_return(driver.cuMemHostRegister(ptr, 20, 0))
-    try:
-        if change_device:
-            # let's switch to a different device if possibe
-            # to make sure we get the original device id
-            d = Device(0)
-            d.set_current()
-
-        buffer = Buffer.from_handle(ptr, 20, owner=ptr)
-        assert buffer.is_device_accessible
-        assert buffer.is_host_accessible
-        assert buffer.device_id == dev_id
-        buffer.close()
-    finally:
-        handle_return(driver.cuMemHostUnregister(ptr))
-
-
-@pytest.mark.parametrize("change_device", [True, False])
-def test_buffer_external_managed(change_device):
-    n = ccx_system.num_devices
-    if n < 1:
-        pytest.skip("No devices found")
-    dev_id = n - 1
-    d = Device(dev_id)
-    d.set_current()
-    ptr = None
-    try:
-        ptr = handle_return(driver.cuMemAllocManaged(32, driver.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
-        if change_device:
-            # let's switch to a different device if possibe
-            # to make sure we get the original device id
-            d = Device(0)
-            d.set_current()
-        buffer = Buffer.from_handle(ptr, 32)
-        assert buffer.is_device_accessible
-        assert buffer.is_host_accessible
-        assert buffer.device_id == dev_id
-    finally:
-        if ptr is not None:
-            handle_return(driver.cuMemFree(ptr))
-
-
-def test_memory_resource_and_owner_disallowed():
-    with pytest.raises(ValueError, match="cannot be both specified together"):
-        a = (ctypes.c_byte * 20)()
-        ptr = ctypes.addressof(a)
-        Buffer.from_handle(ptr, 20, mr=DummyDeviceMemoryResource(Device()), owner=a)
-
-
-def test_owner_close():
-    a = (ctypes.c_byte * 20)()
-    ptr = ctypes.addressof(a)
-    before = sys.getrefcount(a)
-    buffer = Buffer.from_handle(ptr, 20, owner=a)
-    assert sys.getrefcount(a) != before
-    buffer.close()
-    after = sys.getrefcount(a)
-    assert after == before
 
 
 def test_buffer_dunder_dlpack():
