@@ -36,7 +36,6 @@ cuda.core.experimental.Buffer
    .. autoproperty:: is_host_accessible
    .. autoproperty:: is_mapped
    .. autoproperty:: memory_resource
-   .. autoproperty:: owner
    .. autoproperty:: size
    
    
