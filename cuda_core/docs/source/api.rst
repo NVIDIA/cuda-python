@@ -78,4 +78,3 @@ Utility functions
    :template: autosummary/cyclass.rst
 
    StridedMemoryView
-   StridedLayout
