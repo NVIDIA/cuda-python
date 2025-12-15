@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 cimport cython
-from libc.stdint cimport uintptr_t, int64_t, uint64_t
+from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
