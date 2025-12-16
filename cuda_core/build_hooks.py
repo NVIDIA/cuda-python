@@ -66,7 +66,7 @@ def _build_cuda_core():
 
     # It seems setuptools' wildcard support has problems for namespace packages,
     # so we explicitly spell out all Extension instances.
-    root_module = "cuda.core.experimental"
+    root_module = "cuda.core"
     root_path = f"{os.path.sep}".join(root_module.split(".")) + os.path.sep
     ext_files = glob.glob(f"{root_path}/**/*.pyx", recursive=True)
 
@@ -84,11 +84,17 @@ def _build_cuda_core():
         print("CUDA paths:", CUDA_PATH)
         return CUDA_PATH
 
+    # Add local include directory for cuda/core/_include
+    # This allows Cython files to use: cdef extern from "_include/layout.hpp"
+    local_include_dirs = ["cuda/core"]
+    cuda_include_dirs = list(os.path.join(root, "include") for root in get_cuda_paths())
+    all_include_dirs = local_include_dirs + cuda_include_dirs
+
     ext_modules = tuple(
         Extension(
-            f"cuda.core.experimental.{mod.replace(os.path.sep, '.')}",
-            sources=[f"cuda/core/experimental/{mod}.pyx"],
-            include_dirs=list(os.path.join(root, "include") for root in get_cuda_paths()),
+            f"cuda.core.{mod.replace(os.path.sep, '.')}",
+            sources=[f"cuda/core/{mod}.pyx"],
+            include_dirs=all_include_dirs,
             language="c++",
         )
         for mod in module_names
