@@ -5,14 +5,14 @@
 from __future__ import annotations
 
 cimport cpython
-from cpython.pycapsule cimport PyCapsule_Import
 from libc.string cimport memcpy
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._context cimport Context
-from cuda.core.experimental._resource_handles_cxx_api cimport ResourceHandlesCxxApiV1
 from cuda.core.experimental._resource_handles cimport (
     ContextHandle,
     EventHandle,
+    create_event_handle,
+    create_event_handle_ipc,
     intptr,
     native,
     py,
@@ -32,23 +32,6 @@ from cuda.core.experimental._utils.cuda_utils import (
 )
 if TYPE_CHECKING:
     import cuda.bindings
-
-
-cdef const char* _CXX_API_NAME = b"cuda.core.experimental._resource_handles._CXX_API"
-cdef const ResourceHandlesCxxApiV1* _handles = NULL
-
-
-cdef inline const ResourceHandlesCxxApiV1* _get_handles() except NULL:
-    global _handles
-    if _handles == NULL:
-        _handles = <const ResourceHandlesCxxApiV1*>PyCapsule_Import(_CXX_API_NAME, 0)
-        if _handles == NULL:
-            raise ImportError("Failed to import cuda.core.experimental._resource_handles._CXX_API capsule")
-        if _handles.abi_version != 1:
-            raise ImportError("Unsupported resource handles C++ API version")
-        if _handles.struct_size < cython.sizeof(ResourceHandlesCxxApiV1):
-            raise ImportError("Resource handles C++ API table is too small")
-    return _handles
 
 
 @dataclass
@@ -133,8 +116,7 @@ cdef class Event:
             if not self._timing_disabled:
                 raise TypeError("IPC-enabled events cannot use timing.")
         # C++ creates the event and returns owning handle with context dependency
-        cdef const ResourceHandlesCxxApiV1* handles = _get_handles()
-        cdef EventHandle h_event = handles.create_event_handle(h_context, flags)
+        cdef EventHandle h_event = create_event_handle(h_context, flags)
         if not h_event:
             raise RuntimeError("Failed to create CUDA event")
         self._h_event = h_event
@@ -217,8 +199,7 @@ cdef class Event:
         memcpy(data.reserved, <const void*><const char*>(ipc_descriptor._reserved), sizeof(data.reserved))
         cdef Event self = Event.__new__(cls)
         # IPC events: the originating process owns the event and its context
-        cdef const ResourceHandlesCxxApiV1* handles = _get_handles()
-        cdef EventHandle h_event = handles.create_event_handle_ipc(data)
+        cdef EventHandle h_event = create_event_handle_ipc(data)
         if not h_event:
             raise RuntimeError("Failed to open IPC event handle")
         self._h_event = h_event

@@ -319,9 +319,7 @@ ContextHandle get_primary_context(int device_id) noexcept {
         new ContextBox{ctx},
         [device_id](const ContextBox* b) {
             GILReleaseGuard gil;
-            if (ensure_driver_loaded()) {
-                p_cuDevicePrimaryCtxRelease(device_id);
-            }
+            p_cuDevicePrimaryCtxRelease(device_id);
             delete b;
         }
     );
@@ -374,9 +372,7 @@ StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int p
         new StreamBox{stream},
         [h_ctx](const StreamBox* b) {
             GILReleaseGuard gil;
-            if (ensure_driver_loaded()) {
-                p_cuStreamDestroy(b->resource);
-            }
+            p_cuStreamDestroy(b->resource);
             delete b;
         }
     );
@@ -436,9 +432,7 @@ EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
         new EventBox{event},
         [h_ctx](const EventBox* b) {
             GILReleaseGuard gil;
-            if (ensure_driver_loaded()) {
-                p_cuEventDestroy(b->resource);
-            }
+            p_cuEventDestroy(b->resource);
             delete b;
         }
     );
@@ -464,9 +458,7 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
         new EventBox{event},
         [](const EventBox* b) {
             GILReleaseGuard gil;
-            if (ensure_driver_loaded()) {
-                p_cuEventDestroy(b->resource);
-            }
+            p_cuEventDestroy(b->resource);
             delete b;
         }
     );
@@ -484,9 +476,6 @@ struct MemoryPoolBox {
 // Helper to clear peer access before destroying a memory pool.
 // Works around nvbug 5698116: recycled pool handles inherit peer access state.
 static void clear_mempool_peer_access(CUmemoryPool pool) {
-    if (!ensure_driver_loaded()) {
-        return;
-    }
     int device_count = 0;
     if (p_cuDeviceGetCount(&device_count) != CUDA_SUCCESS || device_count <= 0) {
         return;
@@ -507,9 +496,7 @@ static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool) {
         [](const MemoryPoolBox* b) {
             GILReleaseGuard gil;
             clear_mempool_peer_access(b->resource);
-            if (ensure_driver_loaded()) {
-                p_cuMemPoolDestroy(b->resource);
-            }
+            p_cuMemPoolDestroy(b->resource);
             delete b;
         }
     );
@@ -600,9 +587,7 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, 
         new DevicePtrBox{ptr, h_stream},
         [h_pool](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            if (ensure_driver_loaded()) {
-                p_cuMemFreeAsync(b->resource, native(b->h_stream));
-            }
+            p_cuMemFreeAsync(b->resource, native(b->h_stream));
             delete b;
         }
     );
@@ -624,9 +609,7 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
         new DevicePtrBox{ptr, h_stream},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            if (ensure_driver_loaded()) {
-                p_cuMemFreeAsync(b->resource, native(b->h_stream));
-            }
+            p_cuMemFreeAsync(b->resource, native(b->h_stream));
             delete b;
         }
     );
@@ -648,9 +631,7 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
         new DevicePtrBox{ptr, StreamHandle{}},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            if (ensure_driver_loaded()) {
-                p_cuMemFree(b->resource);
-            }
+            p_cuMemFree(b->resource);
             delete b;
         }
     );
@@ -672,9 +653,7 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
         new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), StreamHandle{}},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            if (ensure_driver_loaded()) {
-                p_cuMemFreeHost(reinterpret_cast<void*>(b->resource));
-            }
+            p_cuMemFreeHost(reinterpret_cast<void*>(b->resource));
             delete b;
         }
     );
@@ -754,9 +733,7 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
                     ipc_ptr_cache.erase(ptr);
                 }
                 GILReleaseGuard gil;
-                if (ensure_driver_loaded()) {
-                    p_cuMemFreeAsync(b->resource, native(b->h_stream));
-                }
+                p_cuMemFreeAsync(b->resource, native(b->h_stream));
                 delete b;
             }
         );
@@ -769,9 +746,7 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
             new DevicePtrBox{ptr, h_stream},
             [h_pool](DevicePtrBox* b) {
                 GILReleaseGuard gil;
-                if (ensure_driver_loaded()) {
-                    p_cuMemFreeAsync(b->resource, native(b->h_stream));
-                }
+                p_cuMemFreeAsync(b->resource, native(b->h_stream));
                 delete b;
             }
         );

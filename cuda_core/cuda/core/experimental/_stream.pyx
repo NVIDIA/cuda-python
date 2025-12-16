@@ -30,7 +30,7 @@ from cuda.core.experimental._resource_handles cimport (
     EventHandle,
     StreamHandle,
     create_context_handle_ref,
-    create_event_handle,
+    create_event_handle_noctx,
     create_stream_handle,
     create_stream_handle_with_owner,
     get_current_context,
@@ -303,7 +303,7 @@ cdef class Stream:
                 ) from e
 
         # Wait on stream via temporary event
-        h_event = create_event_handle(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+        h_event = create_event_handle_noctx(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
         with nogil:
             HANDLE_RETURN(cydriver.cuEventRecord(native(h_event), native(stream._h_stream)))
             # TODO: support flags other than 0?
@@ -414,7 +414,8 @@ cdef inline int Stream_ensure_ctx(Stream self) except?-1 nogil:
     cdef cydriver.CUcontext ctx
     if not self._h_context:
         HANDLE_RETURN(cydriver.cuStreamGetCtx(native(self._h_stream), &ctx))
-        self._h_context = create_context_handle_ref(ctx)
+        with gil:
+            self._h_context = create_context_handle_ref(ctx)
     return 0
 
 

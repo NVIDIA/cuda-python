@@ -16,7 +16,7 @@ import numpy
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._resource_handles cimport (
     EventHandle,
-    create_event_handle,
+    create_event_handle_noctx,
     native,
 )
 from cuda.core.experimental._utils.cuda_utils import handle_return, driver
@@ -596,7 +596,7 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
             assert producer_s > 0
             # establish stream order
             if producer_s != consumer_s:
-                h_event = create_event_handle(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+                h_event = create_event_handle_noctx(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
                 with nogil:
                     HANDLE_RETURN(cydriver.cuEventRecord(
                         native(h_event), <cydriver.CUstream>producer_s))
