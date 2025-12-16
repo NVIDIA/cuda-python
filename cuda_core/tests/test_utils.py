@@ -110,16 +110,16 @@ def gpu_array_samples():
     samples = []
     if cp is not None:
         samples += [
-            (cp.empty(3, dtype=cp.complex64), False),
-            (cp.empty((6, 6), dtype=cp.float64)[::2, ::2], True),
-            (cp.empty((3, 4), order="F"), True),
+            pytest.param(cp.empty(3, dtype=cp.complex64), False, id="cupy-complex64"),
+            pytest.param(cp.empty((6, 6), dtype=cp.float64)[::2, ::2], True, id="cupy-float64"),
+            pytest.param(cp.empty((3, 4), order="F"), True, id="cupy-fortran"),
         ]
     # Numba's device_array is the only known array container that does not
     # support DLPack (so that we get to test the CAI coverage).
     if numba_cuda is not None:
         samples += [
-            (numba_cuda.device_array((2,), dtype=np.int8), False),
-            (numba_cuda.device_array((4, 2), dtype=np.float32), True),
+            pytest.param(numba_cuda.device_array((2,), dtype=np.int8), False, id="numba-cuda-int8"),
+            pytest.param(numba_cuda.device_array((4, 2), dtype=np.float32), True, id="numba-cuda-float32"),
         ]
     return samples
 
@@ -132,7 +132,7 @@ def gpu_array_ptr(arr):
     raise NotImplementedError(f"{arr=}")
 
 
-@pytest.mark.parametrize("in_arr,use_stream", (*gpu_array_samples(),))
+@pytest.mark.parametrize(("in_arr", "use_stream"), gpu_array_samples())
 class TestViewGPU:
     def test_args_viewable_as_strided_memory_gpu(self, in_arr, use_stream):
         # TODO: use the device fixture?
