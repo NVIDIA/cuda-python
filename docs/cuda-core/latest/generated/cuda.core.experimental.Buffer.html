@@ -472,9 +472,13 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Event.html">cuda.core.experimental.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.PinnedMemoryResource.html">cuda.core.experimental.PinnedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ManagedMemoryResource.html">cuda.core.experimental.ManagedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.VirtualMemoryResource.html">cuda.core.experimental.VirtualMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResourceOptions.html">cuda.core.experimental.DeviceMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.PinnedMemoryResourceOptions.html">cuda.core.experimental.PinnedMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ManagedMemoryResourceOptions.html">cuda.core.experimental.ManagedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
@@ -713,7 +717,7 @@ The <code class="docutils literal notranslate"><span class="pre">owner</span></c
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">DeviceMemoryResource</span> <span class="pre">mr:</span> <span class="pre">DeviceMemoryResource</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">mr:</span> <span class="pre">DeviceMemoryResource</span> <span class="pre">|</span> <span class="pre">PinnedMemoryResource</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">IPCBufferDescriptor</span> <span class="pre">ipc_descriptor:</span> <span class="pre">IPCBufferDescriptor</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>

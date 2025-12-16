@@ -465,9 +465,13 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Event.html">cuda.core.experimental.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.PinnedMemoryResource.html">cuda.core.experimental.PinnedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.ManagedMemoryResource.html">cuda.core.experimental.ManagedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.VirtualMemoryResource.html">cuda.core.experimental.VirtualMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.DeviceMemoryResourceOptions.html">cuda.core.experimental.DeviceMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.PinnedMemoryResourceOptions.html">cuda.core.experimental.PinnedMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.ManagedMemoryResourceOptions.html">cuda.core.experimental.ManagedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
@@ -595,9 +599,13 @@
 </li>
         <li><a href="generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker.__init__">(cuda.core.experimental.Linker method)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.ManagedMemoryResource.html#cuda.core.experimental.ManagedMemoryResource.__init__">(cuda.core.experimental.ManagedMemoryResource method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental.MemoryResource.html#cuda.core.experimental.MemoryResource.__init__">(cuda.core.experimental.MemoryResource method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode.__init__">(cuda.core.experimental.ObjectCode method)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.PinnedMemoryResource.html#cuda.core.experimental.PinnedMemoryResource.__init__">(cuda.core.experimental.PinnedMemoryResource method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program.__init__">(cuda.core.experimental.Program method)</a>
 </li>
@@ -627,7 +635,11 @@
 </li>
         <li><a href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html#cuda.core.experimental.LegacyPinnedMemoryResource.allocate">(cuda.core.experimental.LegacyPinnedMemoryResource method)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.ManagedMemoryResource.html#cuda.core.experimental.ManagedMemoryResource.allocate">(cuda.core.experimental.ManagedMemoryResource method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental.MemoryResource.html#cuda.core.experimental.MemoryResource.allocate">(cuda.core.experimental.MemoryResource method)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.PinnedMemoryResource.html#cuda.core.experimental.PinnedMemoryResource.allocate">(cuda.core.experimental.PinnedMemoryResource method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.VirtualMemoryResource.html#cuda.core.experimental.VirtualMemoryResource.allocate">(cuda.core.experimental.VirtualMemoryResource method)</a>
 </li>
@@ -711,6 +723,10 @@
 </li>
         <li><a href="generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker.close">(cuda.core.experimental.Linker method)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.ManagedMemoryResource.html#cuda.core.experimental.ManagedMemoryResource.close">(cuda.core.experimental.ManagedMemoryResource method)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.PinnedMemoryResource.html#cuda.core.experimental.PinnedMemoryResource.close">(cuda.core.experimental.PinnedMemoryResource method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental.Program.html#cuda.core.experimental.Program.close">(cuda.core.experimental.Program method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream.close">(cuda.core.experimental.Stream method)</a>
@@ -730,10 +746,10 @@
 </li>
       <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.complete">complete() (cuda.core.experimental.GraphBuilder method)</a>
 </li>
-      <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.compute_capability">compute_capability (cuda.core.experimental.Device property)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.compute_capability">compute_capability (cuda.core.experimental.Device property)</a>
+</li>
       <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.conditional_node_params">conditional_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.const_size_bytes">const_size_bytes() (cuda.core.experimental._module.KernelAttributes method)</a>
@@ -797,7 +813,11 @@
       <ul>
         <li><a href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html#cuda.core.experimental.LegacyPinnedMemoryResource.deallocate">(cuda.core.experimental.LegacyPinnedMemoryResource method)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.ManagedMemoryResource.html#cuda.core.experimental.ManagedMemoryResource.deallocate">(cuda.core.experimental.ManagedMemoryResource method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental.MemoryResource.html#cuda.core.experimental.MemoryResource.deallocate">(cuda.core.experimental.MemoryResource method)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.PinnedMemoryResource.html#cuda.core.experimental.PinnedMemoryResource.deallocate">(cuda.core.experimental.PinnedMemoryResource method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.VirtualMemoryResource.html#cuda.core.experimental.VirtualMemoryResource.deallocate">(cuda.core.experimental.VirtualMemoryResource method)</a>
 </li>
@@ -820,10 +840,10 @@
 </li>
       <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.device_code_optimize">device_code_optimize (cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
-      <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.device_float128">device_float128 (cuda.core.experimental.ProgramOptions attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.device_float128">device_float128 (cuda.core.experimental.ProgramOptions attribute)</a>
+</li>
       <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.device_id">device_id (cuda.core.experimental.Device property)</a>
 
       <ul>
@@ -905,7 +925,11 @@
       <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.frandom_seed">frandom_seed (cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource.from_allocation_handle">from_allocation_handle() (cuda.core.experimental.DeviceMemoryResource class method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.experimental.PinnedMemoryResource.html#cuda.core.experimental.PinnedMemoryResource.from_allocation_handle">(cuda.core.experimental.PinnedMemoryResource class method)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView.from_any_interface">from_any_interface() (cuda.core.experimental.utils.StridedMemoryView class method)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView.from_buffer">from_buffer() (cuda.core.experimental.utils.StridedMemoryView class method)</a>
@@ -941,7 +965,11 @@
       <li><a href="generated/cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode.from_ptx">from_ptx() (cuda.core.experimental.ObjectCode static method)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource.from_registry">from_registry() (cuda.core.experimental.DeviceMemoryResource static method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.experimental.PinnedMemoryResource.html#cuda.core.experimental.PinnedMemoryResource.from_registry">(cuda.core.experimental.PinnedMemoryResource static method)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions.ftz">ftz (cuda.core.experimental.LinkerOptions attribute)</a>
 
       <ul>
@@ -959,7 +987,11 @@
       <li><a href="generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.get_all_devices">get_all_devices() (cuda.core.experimental.Device class method)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource.get_allocation_handle">get_allocation_handle() (cuda.core.experimental.DeviceMemoryResource method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.experimental.PinnedMemoryResource.html#cuda.core.experimental.PinnedMemoryResource.get_allocation_handle">(cuda.core.experimental.PinnedMemoryResource method)</a>
 </li>
+      </ul></li>
       <li><a href="api.html#cuda.core.experimental._system.System.get_driver_version">get_driver_version() (cuda.core.experimental._system.System method)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker.get_error_log">get_error_log() (cuda.core.experimental.Linker method)</a>
@@ -1034,6 +1066,8 @@
 
       <ul>
         <li><a href="generated/cuda.core.experimental.EventOptions.html#cuda.core.experimental.EventOptions.ipc_enabled">(cuda.core.experimental.EventOptions attribute)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.PinnedMemoryResourceOptions.html#cuda.core.experimental.PinnedMemoryResourceOptions.ipc_enabled">(cuda.core.experimental.PinnedMemoryResourceOptions attribute)</a>
 </li>
       </ul></li>
       <li><a href="generated/cuda.core.experimental._memory.IPCAllocationHandle.html#cuda.core.experimental._memory.IPCAllocationHandle">IPCAllocationHandle (class in cuda.core.experimental._memory)</a>
@@ -1138,6 +1172,10 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.experimental.ManagedMemoryResource.html#cuda.core.experimental.ManagedMemoryResource">ManagedMemoryResource (class in cuda.core.experimental)</a>
+</li>
+      <li><a href="generated/cuda.core.experimental.ManagedMemoryResourceOptions.html#cuda.core.experimental.ManagedMemoryResourceOptions">ManagedMemoryResourceOptions (class in cuda.core.experimental)</a>
+</li>
       <li><a href="generated/cuda.core.experimental._module.KernelOccupancy.html#cuda.core.experimental._module.KernelOccupancy.max_active_blocks_per_multiprocessor">max_active_blocks_per_multiprocessor() (cuda.core.experimental._module.KernelOccupancy method)</a>
 </li>
       <li><a href="generated/cuda.core.experimental._module.KernelOccupancy.html#cuda.core.experimental._module.KernelOccupancy.max_active_clusters">max_active_clusters() (cuda.core.experimental._module.KernelOccupancy method)</a>
@@ -1155,13 +1193,17 @@
 </li>
       </ul></li>
       <li><a href="generated/cuda.core.experimental.DeviceMemoryResourceOptions.html#cuda.core.experimental.DeviceMemoryResourceOptions.max_size">max_size (cuda.core.experimental.DeviceMemoryResourceOptions attribute)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.experimental.PinnedMemoryResourceOptions.html#cuda.core.experimental.PinnedMemoryResourceOptions.max_size">(cuda.core.experimental.PinnedMemoryResourceOptions attribute)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.max_threads_per_block">max_threads_per_block() (cuda.core.experimental._module.KernelAttributes method)</a>
-</li>
-      <li><a href="generated/cuda.core.experimental._module.MaxPotentialBlockSizeOccupancyResult.html#cuda.core.experimental._module.MaxPotentialBlockSizeOccupancyResult">MaxPotentialBlockSizeOccupancyResult (in module cuda.core.experimental._module)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.experimental._module.MaxPotentialBlockSizeOccupancyResult.html#cuda.core.experimental._module.MaxPotentialBlockSizeOccupancyResult">MaxPotentialBlockSizeOccupancyResult (in module cuda.core.experimental._module)</a>
+</li>
       <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.mem_alloc_node_params">mem_alloc_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions.mem_free_node_params">mem_free_node_params (cuda.core.experimental.GraphDebugPrintOptions attribute)</a>
@@ -1265,6 +1307,10 @@
 </li>
       <li><a href="generated/cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions.peers">peers (cuda.core.experimental.VirtualMemoryResourceOptions attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.experimental.PinnedMemoryResource.html#cuda.core.experimental.PinnedMemoryResource">PinnedMemoryResource (class in cuda.core.experimental)</a>
+</li>
+      <li><a href="generated/cuda.core.experimental.PinnedMemoryResourceOptions.html#cuda.core.experimental.PinnedMemoryResourceOptions">PinnedMemoryResourceOptions (class in cuda.core.experimental)</a>
+</li>
       <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.pre_include">pre_include (cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions.prec_div">prec_div (cuda.core.experimental.LinkerOptions attribute)</a>
@@ -1281,6 +1327,8 @@
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.prec_sqrt">(cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
       </ul></li>
+      <li><a href="generated/cuda.core.experimental.ManagedMemoryResourceOptions.html#cuda.core.experimental.ManagedMemoryResourceOptions.preferred_location">preferred_location (cuda.core.experimental.ManagedMemoryResourceOptions attribute)</a>
+</li>
       <li><a href="generated/cuda.core.experimental._module.KernelAttributes.html#cuda.core.experimental._module.KernelAttributes.preferred_shared_memory_carveout">preferred_shared_memory_carveout() (cuda.core.experimental._module.KernelAttributes method)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.StreamOptions.html#cuda.core.experimental.StreamOptions.priority">priority (cuda.core.experimental.StreamOptions attribute)</a>
@@ -1314,7 +1362,11 @@
       <li><a href="generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream.record">record() (cuda.core.experimental.Stream method)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource.register">register() (cuda.core.experimental.DeviceMemoryResource method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.experimental.PinnedMemoryResource.html#cuda.core.experimental.PinnedMemoryResource.register">(cuda.core.experimental.PinnedMemoryResource method)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.relocatable_device_code">relocatable_device_code (cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
   </ul></td>
