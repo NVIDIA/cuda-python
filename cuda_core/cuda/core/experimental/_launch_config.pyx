@@ -2,34 +2,44 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from cuda.core.experimental._utils.cuda_utils cimport (
+    HANDLE_RETURN,
+)
+
+import threading
+
 from cuda.core.experimental._device import Device
 from cuda.core.experimental._utils.cuda_utils import (
     CUDAError,
     cast_to_3_tuple,
     driver,
     get_binding_version,
-    handle_return,
 )
 
-# TODO: revisit this treatment for py313t builds
+
 cdef bint _inited = False
 cdef bint _use_ex = False
+cdef object _lock = threading.Lock()
 
 
-cdef void _lazy_init() except *:
-    """Initialize module-level globals for driver version checks."""
+cdef int _lazy_init() except?-1:
     global _inited, _use_ex
     if _inited:
-        return
+        return 0
 
     cdef tuple _py_major_minor
     cdef int _driver_ver
+    with _lock:
+        if _inited:
+            return 0
 
-    # binding availability depends on cuda-python version
-    _py_major_minor = get_binding_version()
-    _driver_ver = handle_return(driver.cuDriverGetVersion())
-    _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))
-    _inited = True
+        # binding availability depends on cuda-python version
+        _py_major_minor = get_binding_version()
+        HANDLE_RETURN(cydriver.cuDriverGetVersion(&_driver_ver))
+        _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))
+        _inited = True
+
+    return 0
 
 
 cdef class LaunchConfig:

@@ -14,14 +14,14 @@ from cuda.core.experimental._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
 
+import threading
+
 from cuda.core.experimental._module import Kernel
 from cuda.core.experimental._stream import Stream
 from cuda.core.experimental._utils.cuda_utils import (
     _reduce_3_tuple,
     get_binding_version,
 )
-
-import threading
 
 
 cdef bint _inited = False
