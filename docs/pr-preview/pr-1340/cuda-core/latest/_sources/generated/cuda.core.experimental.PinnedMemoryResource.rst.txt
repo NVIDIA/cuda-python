@@ -1,12 +1,12 @@
 ﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-cuda.core.experimental.Buffer
-=============================
+cuda.core.experimental.PinnedMemoryResource
+===========================================
 
 .. currentmodule:: cuda.core.experimental
 
-.. autoclass:: Buffer
+.. autoclass:: PinnedMemoryResource
 
    
    
@@ -14,13 +14,13 @@ cuda.core.experimental.Buffer
 
    
    .. automethod:: __init__
+   .. automethod:: allocate
    .. automethod:: close
-   .. automethod:: copy_from
-   .. automethod:: copy_to
-   .. automethod:: fill
-   .. automethod:: from_handle
-   .. automethod:: from_ipc_descriptor
-   .. automethod:: get_ipc_descriptor
+   .. automethod:: deallocate
+   .. automethod:: from_allocation_handle
+   .. automethod:: from_registry
+   .. automethod:: get_allocation_handle
+   .. automethod:: register
 
    
    
@@ -30,13 +30,15 @@ cuda.core.experimental.Buffer
    .. rubric:: Attributes
 
    
+   .. autoproperty:: attributes
    .. autoproperty:: device_id
    .. autoproperty:: handle
    .. autoproperty:: is_device_accessible
+   .. autoproperty:: is_handle_owned
    .. autoproperty:: is_host_accessible
+   .. autoproperty:: is_ipc_enabled
    .. autoproperty:: is_mapped
-   .. autoproperty:: memory_resource
-   .. autoproperty:: owner
-   .. autoproperty:: size
+   .. autoproperty:: peer_accessible_by
+   .. autoproperty:: uuid
    
    

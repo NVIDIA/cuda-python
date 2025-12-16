@@ -20,6 +20,7 @@ cuda.core.experimental.Device
    .. automethod:: create_event
    .. automethod:: create_graph_builder
    .. automethod:: create_stream
+   .. automethod:: get_all_devices
    .. automethod:: set_current
    .. automethod:: sync
 

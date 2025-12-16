@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.experimental.Linker &#8212; cuda.core</title>
+    <title>cuda.core.experimental.PinnedMemoryResource &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.experimental.Linker';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.experimental.PinnedMemoryResource';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,13 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.experimental.Linker.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.experimental.PinnedMemoryResource.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.experimental.ObjectCode" href="cuda.core.experimental.ObjectCode.html" />
-    <link rel="prev" title="cuda.core.experimental.Program" href="cuda.core.experimental.Program.html" />
+    <link rel="next" title="cuda.core.experimental.ManagedMemoryResource" href="cuda.core.experimental.ManagedMemoryResource.html" />
+    <link rel="prev" title="cuda.core.experimental.DeviceMemoryResource" href="cuda.core.experimental.DeviceMemoryResource.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -472,7 +472,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Event.html">cuda.core.experimental.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.PinnedMemoryResource.html">cuda.core.experimental.PinnedMemoryResource</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.experimental.PinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ManagedMemoryResource.html">cuda.core.experimental.ManagedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.VirtualMemoryResource.html">cuda.core.experimental.VirtualMemoryResource</a></li>
@@ -486,7 +486,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.VirtualMemoryResourceOptions.html">cuda.core.experimental.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.experimental.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html">cuda.core.experimental.ObjectCode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Kernel.html">cuda.core.experimental.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ProgramOptions.html">cuda.core.experimental.ProgramOptions</a></li>
@@ -551,7 +551,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.experimental.Linker</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.experimental.PinnedMemoryResource</span></li>
   </ul>
 </nav>
 </div>
@@ -568,121 +568,189 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-experimental-linker">
-<h1>cuda.core.experimental.Linker<a class="headerlink" href="#cuda-core-experimental-linker" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-experimental-pinnedmemoryresource">
+<h1>cuda.core.experimental.PinnedMemoryResource<a class="headerlink" href="#cuda-core-experimental-pinnedmemoryresource" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.experimental.Linker">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">Linker</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">object_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><span class="pre">ObjectCode</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions" title="cuda.core.experimental._linker.LinkerOptions"><span class="pre">LinkerOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Linker" title="Link to this definition">#</a></dt>
-<dd><p>Represent a linking machinery to link one or multiple object codes into
-<a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> with the specified options.</p>
-<p>This object provides a unified interface to multiple underlying
-linker libraries (such as nvJitLink or cuLink* from CUDA driver).</p>
+<dt class="sig sig-object py" id="cuda.core.experimental.PinnedMemoryResource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.experimental.</span></span><span class="sig-name descname"><span class="pre">PinnedMemoryResource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.PinnedMemoryResource" title="Link to this definition">#</a></dt>
+<dd><p>A host-pinned memory resource managing a stream-ordered memory pool.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>object_codes</strong> (<a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental.ObjectCode"><em>ObjectCode</em></a>) – One or more ObjectCode objects to be linked.</p></li>
-<li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions" title="cuda.core.experimental.LinkerOptions"><em>LinkerOptions</em></a><em>, </em><em>optional</em>) – Options for the linker. If not provided, default options will be used.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>options</strong> (<a class="reference internal" href="cuda.core.experimental.PinnedMemoryResourceOptions.html#cuda.core.experimental.PinnedMemoryResourceOptions" title="cuda.core.experimental.PinnedMemoryResourceOptions"><em>PinnedMemoryResourceOptions</em></a>) – <p>Memory resource creation options.</p>
+<p>If set to <cite>None</cite>, the memory resource uses the driver’s current
+stream-ordered memory pool. If no memory
+pool is set as current, the driver’s default memory pool
+is used.</p>
+<p>If not set to <cite>None</cite>, a new memory pool is created, which is owned by
+the memory resource.</p>
+<p>When using an existing (current or default) memory pool, the returned
+host-pinned memory resource does not own the pool (<cite>is_handle_owned</cite> is
+<cite>False</cite>), and closing the resource has no effect.</p>
+</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>To create an IPC-Enabled memory resource (MR) that is capable of sharing
+allocations between processes, specify <code class="docutils literal notranslate"><span class="pre">ipc_enabled=True</span></code> in the initializer
+option. When IPC is enabled, the location type is automatically set to
+CU_MEM_LOCATION_TYPE_HOST_NUMA instead of CU_MEM_LOCATION_TYPE_HOST,
+with location ID 0.</p>
+<p>Note: IPC support for pinned memory requires a single NUMA node. A warning
+is issued if multiple NUMA nodes are detected.</p>
+<p>See <a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource" title="cuda.core.experimental.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a> for more details on IPC usage patterns.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.Linker.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">object_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><span class="pre">ObjectCode</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.LinkerOptions.html#cuda.core.experimental.LinkerOptions" title="cuda.core.experimental._linker.LinkerOptions"><span class="pre">LinkerOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Linker.__init__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.experimental.PinnedMemoryResource.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.PinnedMemoryResource.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.Linker.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Linker.close" title="Link to this definition">#</a></dt>
-<dd><p>Destroy this linker.</p>
-</dd></dl>
+<dt class="sig sig-object py" id="cuda.core.experimental.PinnedMemoryResource.allocate">
+<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.Linker.get_error_log">
-<span class="sig-name descname"><span class="pre">get_error_log</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Linker.get_error_log" title="Link to this definition">#</a></dt>
-<dd><p>Get the error log generated by the linker.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The error log.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
-</dd>
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
-</dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.Linker.get_info_log">
-<span class="sig-name descname"><span class="pre">get_info_log</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Linker.get_info_log" title="Link to this definition">#</a></dt>
-<dd><p>Get the info log generated by the linker.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The info log.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.experimental.Linker.link">
-<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental._module.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Linker.link" title="Link to this definition">#</a></dt>
-<dd><p>Links the provided object codes into a single output of the specified target type.</p>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.PinnedMemoryResource.allocate" title="Link to this definition">#</a></dt>
+<dd><p>Allocate a buffer of the requested size.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>target_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The type of the target output. Must be either “cubin” or “ptx”.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to allocate, in bytes.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – The stream on which to perform the allocation asynchronously.
+If None, an internal stream is used.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The linked object code of the specified target type.</p>
+<dd class="field-even"><p>The allocated buffer object, which is accessible on the device that this memory
+resource was created for.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental.ObjectCode.html#cuda.core.experimental.ObjectCode" title="cuda.core.experimental.ObjectCode">ObjectCode</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer">Buffer</a></p>
 </dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>See nvrtc compiler options documnetation to ensure the input object codes are
-correctly compiled for linking.</p>
-</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.PinnedMemoryResource.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.PinnedMemoryResource.close" title="Link to this definition">#</a></dt>
+<dd><p>Close the device memory resource and destroy the associated memory pool
+if owned.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.PinnedMemoryResource.deallocate">
+<span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">ptr:</span> <span class="pre">DevicePointerT</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.PinnedMemoryResource.deallocate" title="Link to this definition">#</a></dt>
+<dd><p>Deallocate a buffer previously allocated by this resource.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ptr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code>) – The pointer or handle to the buffer to deallocate.</p></li>
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to deallocate, in bytes.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – The stream on which to perform the deallocation asynchronously.
+If the buffer is deallocated without an explicit stream, the allocation stream
+is used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.PinnedMemoryResource.from_allocation_handle">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_allocation_handle</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">alloc_handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental._memory.IPCAllocationHandle.html#cuda.core.experimental._memory.IPCAllocationHandle" title="cuda.core.experimental._memory.IPCAllocationHandle"><span class="pre">IPCAllocationHandle</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.experimental.PinnedMemoryResource" title="cuda.core.experimental.PinnedMemoryResource"><span class="pre">PinnedMemoryResource</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.PinnedMemoryResource.from_allocation_handle" title="Link to this definition">#</a></dt>
+<dd><p>Create a host-pinned memory resource from an allocation handle.</p>
+<p>Construct a new <cite>PinnedMemoryResource</cite> instance that imports a memory
+pool from a shareable handle. The memory pool is marked as owned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>alloc_handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference internal" href="cuda.core.experimental._memory.IPCAllocationHandle.html#cuda.core.experimental._memory.IPCAllocationHandle" title="cuda.core.experimental._memory.IPCAllocationHandle"><em>IPCAllocationHandle</em></a>) – The shareable handle of the host-pinned memory resource to import. If an
+integer is supplied, it must represent a valid platform-specific
+handle. It is the caller’s responsibility to close that handle.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new host-pinned memory resource instance with the imported handle.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.PinnedMemoryResource.from_registry">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_registry</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/uuid.html#uuid.UUID" title="(in Python v3.14)"><span class="pre">uuid.UUID</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.experimental.PinnedMemoryResource" title="cuda.core.experimental.PinnedMemoryResource"><span class="pre">PinnedMemoryResource</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.PinnedMemoryResource.from_registry" title="Link to this definition">#</a></dt>
+<dd><p>Obtain a registered mapped memory resource.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If no mapped memory resource is found in the registry.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.PinnedMemoryResource.get_allocation_handle">
+<span class="sig-name descname"><span class="pre">get_allocation_handle</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.experimental._memory.IPCAllocationHandle.html#cuda.core.experimental._memory.IPCAllocationHandle" title="cuda.core.experimental._memory.IPCAllocationHandle"><span class="pre">IPCAllocationHandle</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.PinnedMemoryResource.get_allocation_handle" title="Link to this definition">#</a></dt>
+<dd><p>Export the memory pool handle to be shared (requires IPC).</p>
+<p>The handle can be used to share the memory pool with other processes.
+The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The shareable handle for the memory pool.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.experimental.PinnedMemoryResource.register">
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/uuid.html#uuid.UUID" title="(in Python v3.14)"><span class="pre">uuid.UUID</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.experimental.PinnedMemoryResource" title="cuda.core.experimental.PinnedMemoryResource"><span class="pre">PinnedMemoryResource</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.PinnedMemoryResource.register" title="Link to this definition">#</a></dt>
+<dd><p>Register a mapped memory resource.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>The registered mapped memory resource. If one was previously registered</em></p></li>
+<li><p><em>with the given key, it is returned.</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 <p class="rubric">Attributes</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.Linker.backend">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#cuda.core.experimental.Linker.backend" title="Link to this definition">#</a></dt>
-<dd><p>Return this Linker instance’s underlying backend.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.experimental.Linker.handle">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LinkerHandleT</span></em><a class="headerlink" href="#cuda.core.experimental.Linker.handle" title="Link to this definition">#</a></dt>
-<dd><p>Return the underlying handle object.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The type of the returned object depends on the backend.</p>
-</div>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
-<p>This handle is a Python object. To get the memory address of the underlying C
-handle, call <code class="docutils literal notranslate"><span class="pre">int(Linker.handle)</span></code>.</p>
-</div>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -698,20 +766,20 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Li
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.experimental.Program.html"
+       href="cuda.core.experimental.DeviceMemoryResource.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.experimental.Program</p>
+        <p class="prev-next-title">cuda.core.experimental.DeviceMemoryResource</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.experimental.ObjectCode.html"
+       href="cuda.core.experimental.ManagedMemoryResource.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.experimental.ObjectCode</p>
+        <p class="prev-next-title">cuda.core.experimental.ManagedMemoryResource</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -736,14 +804,15 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Li
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Linker"><code class="docutils literal notranslate"><span class="pre">Linker</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Linker.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Linker.close"><code class="docutils literal notranslate"><span class="pre">close()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Linker.get_error_log"><code class="docutils literal notranslate"><span class="pre">get_error_log()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Linker.get_info_log"><code class="docutils literal notranslate"><span class="pre">get_info_log()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Linker.link"><code class="docutils literal notranslate"><span class="pre">link()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Linker.backend"><code class="docutils literal notranslate"><span class="pre">backend</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.Linker.handle"><code class="docutils literal notranslate"><span class="pre">handle</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.PinnedMemoryResource"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.PinnedMemoryResource.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.PinnedMemoryResource.allocate"><code class="docutils literal notranslate"><span class="pre">allocate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.PinnedMemoryResource.close"><code class="docutils literal notranslate"><span class="pre">close()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.PinnedMemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">deallocate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.PinnedMemoryResource.from_allocation_handle"><code class="docutils literal notranslate"><span class="pre">from_allocation_handle()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.PinnedMemoryResource.from_registry"><code class="docutils literal notranslate"><span class="pre">from_registry()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.PinnedMemoryResource.get_allocation_handle"><code class="docutils literal notranslate"><span class="pre">get_allocation_handle()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.experimental.PinnedMemoryResource.register"><code class="docutils literal notranslate"><span class="pre">register()</span></code></a></li>
 </ul>
 </li>
 </ul>

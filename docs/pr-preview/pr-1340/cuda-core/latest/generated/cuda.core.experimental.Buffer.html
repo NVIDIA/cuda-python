@@ -472,9 +472,13 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.Event.html">cuda.core.experimental.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.PinnedMemoryResource.html">cuda.core.experimental.PinnedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ManagedMemoryResource.html">cuda.core.experimental.ManagedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.VirtualMemoryResource.html">cuda.core.experimental.VirtualMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.DeviceMemoryResourceOptions.html">cuda.core.experimental.DeviceMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.PinnedMemoryResourceOptions.html">cuda.core.experimental.PinnedMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.ManagedMemoryResourceOptions.html">cuda.core.experimental.ManagedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
@@ -651,25 +655,31 @@ asynchronous copy</p></li>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">value:</span> <span class="pre">int</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">width:</span> <span class="pre">int</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BufferProtocol</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.experimental.Buffer.fill" title="Link to this definition">#</a></dt>
-<dd><p>Fill this buffer with a value pattern asynchronously on the given stream.</p>
+<dd><p>Fill this buffer with a repeating byte pattern.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Integer value to fill the buffer with</p></li>
-<li><p><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Width in bytes for each element (must be 1, 2, or 4)</p></li>
-<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Keyword argument specifying the stream for the asynchronous fill</p></li>
+<li><p><strong>value</strong> (int | <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Buffer" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collections.abc.Buffer</span></code></a>) – <ul>
+<li><p>int: Must be in range [0, 256). Converted to 1 byte.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Buffer" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collections.abc.Buffer</span></code></a>: Must be 1, 2, or 4 bytes.</p></li>
+</ul>
+</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder" title="cuda.core.experimental._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – Stream for the asynchronous fill operation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If width is not 1, 2, or 4, if value is out of range for the width,
-    or if buffer size is not divisible by width</p>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If value is not an int and does not support the buffer protocol.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If value byte length is not 1, 2, or 4.
+    If buffer size is not divisible by value byte length.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#OverflowError" title="(in Python v3.14)"><strong>OverflowError</strong></a> – If int value is outside [0, 256).</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -682,6 +692,7 @@ asynchronous copy</p></li>
 <dd><em class="sig-param"><span class="n"><span class="pre">ptr:</span> <span class="pre">DevicePointerT</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">MemoryResource</span> <span class="pre">mr:</span> <span class="pre">MemoryResource</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">owner:</span> <span class="pre">object</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.experimental.Buffer.from_handle" title="Link to this definition">#</a></dt>
@@ -692,6 +703,9 @@ asynchronous copy</p></li>
 <li><p><strong>ptr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code>) – Allocated buffer handle object</p></li>
 <li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Memory size of the buffer</p></li>
 <li><p><strong>mr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code>, optional) – Memory resource associated with the buffer</p></li>
+<li><p><strong>owner</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>, </em><em>optional</em>) – An object holding external allocation that the <code class="docutils literal notranslate"><span class="pre">ptr</span></code> points to.
+The reference is kept as long as the buffer is alive.
+The <code class="docutils literal notranslate"><span class="pre">owner</span></code> and <code class="docutils literal notranslate"><span class="pre">mr</span></code> cannot be specified together.</p></li>
 </ul>
 </dd>
 </dl>
@@ -703,7 +717,7 @@ asynchronous copy</p></li>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">DeviceMemoryResource</span> <span class="pre">mr:</span> <span class="pre">DeviceMemoryResource</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">mr:</span> <span class="pre">DeviceMemoryResource</span> <span class="pre">|</span> <span class="pre">PinnedMemoryResource</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">IPCBufferDescriptor</span> <span class="pre">ipc_descriptor:</span> <span class="pre">IPCBufferDescriptor</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">Stream</span> <span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>

@@ -470,9 +470,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Event.html">cuda.core.experimental.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.PinnedMemoryResource.html">cuda.core.experimental.PinnedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.ManagedMemoryResource.html">cuda.core.experimental.ManagedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.VirtualMemoryResource.html">cuda.core.experimental.VirtualMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.DeviceMemoryResourceOptions.html">cuda.core.experimental.DeviceMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.PinnedMemoryResourceOptions.html">cuda.core.experimental.PinnedMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.ManagedMemoryResourceOptions.html">cuda.core.experimental.ManagedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
@@ -567,11 +571,24 @@
 </section>
 <section id="breaking-changes">
 <h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
-<p>None.</p>
+<p>The following APIs have been deprecated and will be removed in 0.6.0:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.driver_version</span></code> has been replaced with
+<code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.get_driver_version()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.num_devices</span></code> has been replaced with
+<code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.get_num_devices()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.devices</span></code> has been replaced with
+<code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.Device.get_all_devices()</span></code>.</p></li>
+</ul>
 </section>
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
-<p>None.</p>
+<ul class="simple">
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.experimental.PinnedMemoryResource.html#cuda.core.experimental.PinnedMemoryResource" title="cuda.core.experimental.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> and <a class="reference internal" href="../generated/cuda.core.experimental.PinnedMemoryResourceOptions.html#cuda.core.experimental.PinnedMemoryResourceOptions" title="cuda.core.experimental.PinnedMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions</span></code></a> for managing
+host-pinned memory pools with optional IPC support.</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.experimental.ManagedMemoryResource.html#cuda.core.experimental.ManagedMemoryResource" title="cuda.core.experimental.ManagedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a> and <a class="reference internal" href="../generated/cuda.core.experimental.ManagedMemoryResourceOptions.html#cuda.core.experimental.ManagedMemoryResourceOptions" title="cuda.core.experimental.ManagedMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions</span></code></a> for managing
+unified memory pools accessible from both host and device.</p></li>
+</ul>
 </section>
 <section id="new-examples">
 <h2>New examples<a class="headerlink" href="#new-examples" title="Link to this heading">#</a></h2>

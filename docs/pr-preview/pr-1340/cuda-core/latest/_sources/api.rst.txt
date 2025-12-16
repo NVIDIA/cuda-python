@@ -26,12 +26,16 @@ CUDA runtime
    Event
    MemoryResource
    DeviceMemoryResource
+   PinnedMemoryResource
+   ManagedMemoryResource
    LegacyPinnedMemoryResource
    VirtualMemoryResource
 
    :template: dataclass.rst
 
    DeviceMemoryResourceOptions
+   PinnedMemoryResourceOptions
+   ManagedMemoryResourceOptions
    EventOptions
    GraphCompleteOptions
    GraphDebugPrintOptions
@@ -60,9 +64,8 @@ CUDA compilation toolchain
 CUDA system information
 -----------------------
 
-.. autoproperty:: cuda.core.experimental._system.System.driver_version
-.. autoproperty:: cuda.core.experimental._system.System.num_devices
-.. autoproperty:: cuda.core.experimental._system.System.devices
+.. automethod:: cuda.core.experimental._system.System.get_driver_version
+.. automethod:: cuda.core.experimental._system.System.get_num_devices
 
 
 .. module:: cuda.core.experimental.utils
@@ -75,6 +78,6 @@ Utility functions
 
    args_viewable_as_strided_memory
 
-   :template: dataclass.rst
+   :template: autosummary/cyclass.rst
 
    StridedMemoryView
