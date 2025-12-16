@@ -367,7 +367,7 @@ def test_buffer_external_host():
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_device(change_device):
-    n = ccx_system.num_devices
+    n = ccx_system.get_num_devices()
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -391,7 +391,7 @@ def test_buffer_external_device(change_device):
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_pinned_alloc(change_device):
-    n = ccx_system.num_devices
+    n = ccx_system.get_num_devices()
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -416,7 +416,7 @@ def test_buffer_external_pinned_alloc(change_device):
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_pinned_registered(change_device):
-    n = ccx_system.num_devices
+    n = ccx_system.get_num_devices()
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -449,7 +449,7 @@ def test_buffer_external_pinned_registered(change_device):
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_managed(change_device):
-    n = ccx_system.num_devices
+    n = ccx_system.get_num_devices()
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
