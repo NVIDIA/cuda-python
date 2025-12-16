@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_5ad279a2f7b010f4__context_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-10 01:19 +0000
+            created at 2025-12-16 19:04 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -126,18 +126,22 @@
     <p class="run run2"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">    <span class="nam">DeviceMemoryResourceOptions</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">    <span class="nam">GraphMemoryResource</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">    <span class="nam">LegacyPinnedMemoryResource</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">    <span class="nam">MemoryResource</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">    <span class="nam">VirtualMemoryResource</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">    <span class="nam">VirtualMemoryResourceOptions</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run run2"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">experimental</span><span class="op">.</span><span class="nam">_module</span> <span class="key">import</span> <span class="nam">Kernel</span><span class="op">,</span> <span class="nam">ObjectCode</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">experimental</span><span class="op">.</span><span class="nam">_program</span> <span class="key">import</span> <span class="nam">Program</span><span class="op">,</span> <span class="nam">ProgramOptions</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">experimental</span><span class="op">.</span><span class="nam">_stream</span> <span class="key">import</span> <span class="nam">Stream</span><span class="op">,</span> <span class="nam">StreamOptions</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">experimental</span><span class="op">.</span><span class="nam">_system</span> <span class="key">import</span> <span class="nam">System</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="nam">system</span> <span class="op">=</span> <span class="nam">System</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="nam">__import__</span><span class="op">(</span><span class="str">"sys"</span><span class="op">)</span><span class="op">.</span><span class="nam">modules</span><span class="op">[</span><span class="nam">__spec__</span><span class="op">.</span><span class="nam">name</span> <span class="op">+</span> <span class="str">".system"</span><span class="op">]</span> <span class="op">=</span> <span class="nam">system</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="key">del</span> <span class="nam">System</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">    <span class="nam">ManagedMemoryResource</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">    <span class="nam">ManagedMemoryResourceOptions</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">    <span class="nam">MemoryResource</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">    <span class="nam">PinnedMemoryResource</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">    <span class="nam">PinnedMemoryResourceOptions</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">    <span class="nam">VirtualMemoryResource</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">    <span class="nam">VirtualMemoryResourceOptions</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t"><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">experimental</span><span class="op">.</span><span class="nam">_module</span> <span class="key">import</span> <span class="nam">Kernel</span><span class="op">,</span> <span class="nam">ObjectCode</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">experimental</span><span class="op">.</span><span class="nam">_program</span> <span class="key">import</span> <span class="nam">Program</span><span class="op">,</span> <span class="nam">ProgramOptions</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">experimental</span><span class="op">.</span><span class="nam">_stream</span> <span class="key">import</span> <span class="nam">Stream</span><span class="op">,</span> <span class="nam">StreamOptions</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t"><span class="key">from</span> <span class="nam">cuda</span><span class="op">.</span><span class="nam">core</span><span class="op">.</span><span class="nam">experimental</span><span class="op">.</span><span class="nam">_system</span> <span class="key">import</span> <span class="nam">System</span>  <span class="com"># noqa: E402</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t"><span class="nam">system</span> <span class="op">=</span> <span class="nam">System</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t"><span class="nam">__import__</span><span class="op">(</span><span class="str">"sys"</span><span class="op">)</span><span class="op">.</span><span class="nam">modules</span><span class="op">[</span><span class="nam">__spec__</span><span class="op">.</span><span class="nam">name</span> <span class="op">+</span> <span class="str">".system"</span><span class="op">]</span> <span class="op">=</span> <span class="nam">system</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t"><span class="key">del</span> <span class="nam">System</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -147,7 +151,7 @@
             <a class="nav" href="z_5ad279a2f7b010f4__context_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-10 01:19 +0000
+            created at 2025-12-16 19:04 +0000
         </p>
     </div>
 </footer>

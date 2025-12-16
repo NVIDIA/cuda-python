@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">959 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">605<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">354<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">608<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">351<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_bb8e88d71740c463_cynvjitlink_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-10 01:19 +0000
+            created at 2025-12-16 19:04 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -408,10 +408,10 @@
     <p class="mis show_mis"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t"><span class="txt">    return cydriver._cuIpcCloseMemHandle(dptr)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t"><span class="txt">cdef CUresult cuMemHostRegister(void* p, size_t bytesize, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">    return cydriver._cuMemHostRegister_v2(p, bytesize, Flags)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t"><span class="txt">    return cydriver._cuMemHostRegister_v2(p, bytesize, Flags)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t"><span class="txt">cdef CUresult cuMemHostUnregister(void* p) except ?CUDA_ERROR_NOT_FOUND nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">    return cydriver._cuMemHostUnregister(p)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t"><span class="txt">    return cydriver._cuMemHostUnregister(p)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t334" href="#t334">334</a></span><span class="t"><span class="txt">cdef CUresult cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount) except ?CUDA_ERROR_NOT_FOUND nogil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t335" href="#t335">335</a></span><span class="t"><span class="txt">    return cydriver._cuMemcpy(dst, src, ByteCount)</span>&nbsp;</span><span class="r"></span></p>
@@ -645,7 +645,7 @@
     <p class="mis show_mis"><span class="n"><a id="t563" href="#t563">563</a></span><span class="t"><span class="txt">    return cydriver._cuMemGetDefaultMemPool(pool_out, location, typename)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t564" href="#t564">564</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t565" href="#t565">565</a></span><span class="t"><span class="txt">cdef CUresult cuMemGetMemPool(CUmemoryPool* pool, CUmemLocation* location, CUmemAllocationType typename) except ?CUDA_ERROR_NOT_FOUND nogil:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t566" href="#t566">566</a></span><span class="t"><span class="txt">    return cydriver._cuMemGetMemPool(pool, location, typename)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t566" href="#t566">566</a></span><span class="t"><span class="txt">    return cydriver._cuMemGetMemPool(pool, location, typename)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t567" href="#t567">567</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t568" href="#t568">568</a></span><span class="t"><span class="txt">cdef CUresult cuMemSetMemPool(CUmemLocation* location, CUmemAllocationType typename, CUmemoryPool pool) except ?CUDA_ERROR_NOT_FOUND nogil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t569" href="#t569">569</a></span><span class="t"><span class="txt">    return cydriver._cuMemSetMemPool(location, typename, pool)</span>&nbsp;</span><span class="r"></span></p>
@@ -1531,7 +1531,7 @@
             <a class="nav" href="z_bb8e88d71740c463_cynvjitlink_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-10 01:19 +0000
+            created at 2025-12-16 19:04 +0000
         </p>
     </div>
 </footer>

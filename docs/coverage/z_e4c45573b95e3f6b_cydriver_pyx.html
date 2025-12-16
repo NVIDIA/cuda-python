@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">5486 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">2458<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">3028<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">2470<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">3016<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_e4c45573b95e3f6b_cynvrtc_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-10 01:19 +0000
+            created at 2025-12-16 19:04 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -3857,21 +3857,21 @@
     <p class="pln"><span class="n"><a id="t3775" href="#t3775">3775</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3776" href="#t3776">3776</a></span><span class="t"><span class="txt">cdef CUresult _cuMemHostRegister_v2(void* p, size_t bytesize, unsigned int Flags) except ?CUDA_ERROR_NOT_FOUND nogil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3777" href="#t3777">3777</a></span><span class="t"><span class="txt">    global __cuMemHostRegister_v2</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t3778" href="#t3778">3778</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t3779" href="#t3779">3779</a></span><span class="t"><span class="txt">    if __cuMemHostRegister_v2 == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t3778" href="#t3778">3778</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t3779" href="#t3779">3779</a></span><span class="t"><span class="txt">    if __cuMemHostRegister_v2 == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t3780" href="#t3780">3780</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t3781" href="#t3781">3781</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "cuMemHostRegister_v2" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t3782" href="#t3782">3782</a></span><span class="t"><span class="txt">    err = (&lt;CUresult (*)(void*, size_t, unsigned int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMemHostRegister_v2)(p, bytesize, Flags)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t3783" href="#t3783">3783</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t3782" href="#t3782">3782</a></span><span class="t"><span class="txt">    err = (&lt;CUresult (*)(void*, size_t, unsigned int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMemHostRegister_v2)(p, bytesize, Flags)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t3783" href="#t3783">3783</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3784" href="#t3784">3784</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3785" href="#t3785">3785</a></span><span class="t"><span class="txt">cdef CUresult _cuMemHostUnregister(void* p) except ?CUDA_ERROR_NOT_FOUND nogil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3786" href="#t3786">3786</a></span><span class="t"><span class="txt">    global __cuMemHostUnregister</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t3787" href="#t3787">3787</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t3788" href="#t3788">3788</a></span><span class="t"><span class="txt">    if __cuMemHostUnregister == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t3787" href="#t3787">3787</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t3788" href="#t3788">3788</a></span><span class="t"><span class="txt">    if __cuMemHostUnregister == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t3789" href="#t3789">3789</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t3790" href="#t3790">3790</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "cuMemHostUnregister" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t3791" href="#t3791">3791</a></span><span class="t"><span class="txt">    err = (&lt;CUresult (*)(void*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMemHostUnregister)(p)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t3792" href="#t3792">3792</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t3791" href="#t3791">3791</a></span><span class="t"><span class="txt">    err = (&lt;CUresult (*)(void*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMemHostUnregister)(p)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t3792" href="#t3792">3792</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3793" href="#t3793">3793</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t3794" href="#t3794">3794</a></span><span class="t"><span class="txt">cdef CUresult _cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount) except ?CUDA_ERROR_NOT_FOUND nogil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t3795" href="#t3795">3795</a></span><span class="t"><span class="txt">    global __cuMemcpy</span>&nbsp;</span><span class="r"></span></p>
@@ -4568,12 +4568,12 @@
     <p class="pln"><span class="n"><a id="t4486" href="#t4486">4486</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t4487" href="#t4487">4487</a></span><span class="t"><span class="txt">cdef CUresult _cuMemGetMemPool(CUmemoryPool* pool, CUmemLocation* location, CUmemAllocationType typename) except ?CUDA_ERROR_NOT_FOUND nogil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4488" href="#t4488">4488</a></span><span class="t"><span class="txt">    global __cuMemGetMemPool</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t4489" href="#t4489">4489</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t4490" href="#t4490">4490</a></span><span class="t"><span class="txt">    if __cuMemGetMemPool == NULL:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t4489" href="#t4489">4489</a></span><span class="t"><span class="txt">    cuPythonInit()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t4490" href="#t4490">4490</a></span><span class="t"><span class="txt">    if __cuMemGetMemPool == NULL:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t4491" href="#t4491">4491</a></span><span class="t"><span class="txt">        with gil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t4492" href="#t4492">4492</a></span><span class="t"><span class="txt">            raise RuntimeError('Function "cuMemGetMemPool" not found')</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t4493" href="#t4493">4493</a></span><span class="t"><span class="txt">    err = (&lt;CUresult (*)(CUmemoryPool*, CUmemLocation*, CUmemAllocationType) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMemGetMemPool)(pool, location, typename)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t4494" href="#t4494">4494</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t4493" href="#t4493">4493</a></span><span class="t"><span class="txt">    err = (&lt;CUresult (*)(CUmemoryPool*, CUmemLocation*, CUmemAllocationType) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMemGetMemPool)(pool, location, typename)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t4494" href="#t4494">4494</a></span><span class="t"><span class="txt">    return err</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4495" href="#t4495">4495</a></span><span class="t"><span class="txt">&nbsp;</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t4496" href="#t4496">4496</a></span><span class="t"><span class="txt">cdef CUresult _cuMemSetMemPool(CUmemLocation* location, CUmemAllocationType typename, CUmemoryPool pool) except ?CUDA_ERROR_NOT_FOUND nogil:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t4497" href="#t4497">4497</a></span><span class="t"><span class="txt">    global __cuMemSetMemPool</span>&nbsp;</span><span class="r"></span></p>
@@ -8189,7 +8189,7 @@
             <a class="nav" href="z_e4c45573b95e3f6b_cynvrtc_pyx.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.0">coverage.py v7.13.0</a>,
-            created at 2025-12-10 01:19 +0000
+            created at 2025-12-16 19:04 +0000
         </p>
     </div>
 </footer>
