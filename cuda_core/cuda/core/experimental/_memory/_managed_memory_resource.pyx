@@ -104,16 +104,3 @@ cdef class ManagedMemoryResource(_MemPool):
     def is_host_accessible(self) -> bool:
         """Return True. This memory resource provides host-accessible buffers."""
         return True
-
-    @property
-    def is_ipc_enabled(self) -> bool:
-        """Whether this memory resource has IPC enabled."""
-        return self._ipc_data is not None
-
-    @property
-    def is_mapped(self) -> bool:
-        """
-        Whether this is a mapping of an IPC-enabled memory resource from
-        another process.  If True, allocation is not permitted.
-        """
-        return self._ipc_data is not None and self._ipc_data._is_mapped
