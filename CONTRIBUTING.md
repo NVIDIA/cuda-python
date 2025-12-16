@@ -207,6 +207,12 @@ flowchart TD
 - **Parallel execution**: Matrix builds across Python versions and platforms
 - **Component isolation**: Each component (core, bindings, pathfinder, python) can be built/released independently
 
+## Code coverage
+
+Code coverage reports are produced nightly and posted to [GitHub Pages](https://nvidia.github.io/cuda-python/coverage).
+
+Known limitations: Code coverage is only run on Linux x86_64 with an a100 GPU.  We plan to add more platform and GPU coverage in the future.
+
 ---
 
 <a>1</a>: The `cuda-python` meta package shares the same license and the contributing guidelines as those of `cuda-bindings`.
