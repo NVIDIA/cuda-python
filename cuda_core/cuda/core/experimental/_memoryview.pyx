@@ -165,8 +165,8 @@ cdef class StridedMemoryView:
         shape : tuple[int, ...],
         strides : tuple[int, ...] | None = None,
         *,
-        dtype : numpy.dtype,
-        order : str = "C",
+        itemsize : int | None = None,
+        dtype : numpy.dtype | None = None,
         is_readonly : bool = False
     ) -> StridedMemoryView:
         """
@@ -201,18 +201,21 @@ cdef class StridedMemoryView:
             If specified, the dtype's itemsize must match the layout's itemsize.
             To view the buffer with a different itemsize, please use :meth:`_StridedLayout.repacked`
             first to transform the layout to the desired itemsize.
-        order : :obj:`str`, optional
-            The memory ordering of the data. Can be ``"C"`` or ``"F"``.
         is_readonly : bool, optional
             Whether the mark the view as readonly.
         """
         cdef StridedMemoryView view = StridedMemoryView.__new__(cls)
-        cdef int64_t itemsize = dtype.itemsize
+        if itemsize is None and dtype is None:
+            raise ValueError("Either itemsize or dtype must be specified")
+        if itemsize is not None and dtype is not None and itemsize != dtype.itemsize:
+            raise ValueError(
+                f"itemsize ({itemsize}) does not match dtype.itemsize ({dtype.itemsize})"
+            )
+        # (itemsize is None XOR dtype is None) OR they are equal
         view_buffer_strided(
             view,
             buffer,
-            _StridedLayout.dense(shape=shape, itemsize=itemsize, stride_order=order) if strides is None
-            else _StridedLayout(shape=shape, strides=strides, itemsize=itemsize),
+            _StridedLayout(shape=shape, strides=strides, itemsize=getattr(dtype, "itemsize", itemsize)),
             dtype,
             is_readonly,
         )

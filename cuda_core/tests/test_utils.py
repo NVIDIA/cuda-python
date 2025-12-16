@@ -245,7 +245,7 @@ def test_from_buffer(shape, dtype, stride_order, readonly):
     required_size = layout.required_size_in_bytes()
     assert required_size == math.prod(shape) * dtype.itemsize
     buffer = dev.memory_resource.allocate(required_size)
-    view = StridedMemoryView.from_buffer(buffer, shape=shape, dtype=dtype, is_readonly=readonly, order=stride_order)
+    view = StridedMemoryView.from_buffer(buffer, shape=shape, strides=layout.strides, dtype=dtype, is_readonly=readonly)
     assert view.exporting_obj is buffer
     assert view.layout == layout
     assert view.ptr == int(buffer.handle)
