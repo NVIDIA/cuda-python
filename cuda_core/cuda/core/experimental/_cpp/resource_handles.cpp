@@ -7,15 +7,7 @@
 #include "resource_handles.hpp"
 #include "resource_handles_cxx_api.hpp"
 #include <cuda.h>
-#include <mutex>
-
-#if defined(_WIN32)
-#include <windows.h>
-#else
-#include <dlfcn.h>
-#endif
-
-#include <atomic>
+#include <cstdint>
 #include <mutex>
 #include <unordered_map>
 #include <vector>
@@ -23,42 +15,13 @@
 namespace cuda_core {
 
 // ============================================================================
-// CUDA driver dynamic loading (CPU-only import + MVC compatibility)
+// CUDA driver lazy resolution via cuda-bindings (CPU-only import + MVC)
 // ============================================================================
 
 namespace {
 
-#if defined(_WIN32)
-using LibHandle = HMODULE;
-
-static LibHandle open_libcuda() noexcept {
-    // CUDA driver DLL
-    return LoadLibraryA("nvcuda.dll");
-}
-
-static void* get_symbol(LibHandle lib, const char* name) noexcept {
-    return reinterpret_cast<void*>(GetProcAddress(lib, name));
-}
-#else
-using LibHandle = void*;
-
-static LibHandle open_libcuda() noexcept {
-    // Prefer the soname; fall back to the linker name.
-    LibHandle lib = dlopen("libcuda.so.1", RTLD_NOW | RTLD_LOCAL);
-    if (!lib) {
-        lib = dlopen("libcuda.so", RTLD_NOW | RTLD_LOCAL);
-    }
-    return lib;
-}
-
-static void* get_symbol(LibHandle lib, const char* name) noexcept {
-    return dlsym(lib, name);
-}
-#endif
-
 static std::once_flag driver_load_once;
-static std::atomic<bool> driver_loaded{false};
-static LibHandle libcuda = nullptr;
+static bool driver_loaded = false;
 
 #define DECLARE_DRIVER_FN(name) using name##_t = decltype(&name); static name##_t p_##name = nullptr
 
@@ -94,55 +57,136 @@ DECLARE_DRIVER_FN(cuMemPoolImportPointer);
 
 #undef DECLARE_DRIVER_FN
 
-template <typename T>
-static bool load_symbol(const char* sym, T& fn) noexcept {
-    fn = reinterpret_cast<T>(get_symbol(libcuda, sym));
-    return fn != nullptr;
-}
-
 static bool load_driver_api() noexcept {
-    libcuda = open_libcuda();
-    if (!libcuda) {
+    if (!Py_IsInitialized() || _Py_IsFinalizing()) {
         return false;
     }
 
-    bool ok = true;
-    ok &= load_symbol("cuDevicePrimaryCtxRetain", p_cuDevicePrimaryCtxRetain);
-    ok &= load_symbol("cuDevicePrimaryCtxRelease", p_cuDevicePrimaryCtxRelease);
-    ok &= load_symbol("cuCtxGetCurrent", p_cuCtxGetCurrent);
+    struct CudaDriverApiV1 {
+        std::uint32_t abi_version;
+        std::uint32_t struct_size;
 
-    ok &= load_symbol("cuStreamCreateWithPriority", p_cuStreamCreateWithPriority);
-    ok &= load_symbol("cuStreamDestroy", p_cuStreamDestroy);
+        std::uintptr_t cuDevicePrimaryCtxRetain;
+        std::uintptr_t cuDevicePrimaryCtxRelease;
+        std::uintptr_t cuCtxGetCurrent;
 
-    ok &= load_symbol("cuEventCreate", p_cuEventCreate);
-    ok &= load_symbol("cuEventDestroy", p_cuEventDestroy);
-    ok &= load_symbol("cuIpcOpenEventHandle", p_cuIpcOpenEventHandle);
+        std::uintptr_t cuStreamCreateWithPriority;
+        std::uintptr_t cuStreamDestroy;
 
-    ok &= load_symbol("cuDeviceGetCount", p_cuDeviceGetCount);
+        std::uintptr_t cuEventCreate;
+        std::uintptr_t cuEventDestroy;
+        std::uintptr_t cuIpcOpenEventHandle;
 
-    ok &= load_symbol("cuMemPoolSetAccess", p_cuMemPoolSetAccess);
-    ok &= load_symbol("cuMemPoolDestroy", p_cuMemPoolDestroy);
-    ok &= load_symbol("cuMemPoolCreate", p_cuMemPoolCreate);
-    ok &= load_symbol("cuDeviceGetMemPool", p_cuDeviceGetMemPool);
-    ok &= load_symbol("cuMemPoolImportFromShareableHandle", p_cuMemPoolImportFromShareableHandle);
+        std::uintptr_t cuDeviceGetCount;
 
-    ok &= load_symbol("cuMemAllocFromPoolAsync", p_cuMemAllocFromPoolAsync);
-    ok &= load_symbol("cuMemAllocAsync", p_cuMemAllocAsync);
-    ok &= load_symbol("cuMemAlloc", p_cuMemAlloc);
-    ok &= load_symbol("cuMemAllocHost", p_cuMemAllocHost);
+        std::uintptr_t cuMemPoolSetAccess;
+        std::uintptr_t cuMemPoolDestroy;
+        std::uintptr_t cuMemPoolCreate;
+        std::uintptr_t cuDeviceGetMemPool;
+        std::uintptr_t cuMemPoolImportFromShareableHandle;
 
-    ok &= load_symbol("cuMemFreeAsync", p_cuMemFreeAsync);
-    ok &= load_symbol("cuMemFree", p_cuMemFree);
-    ok &= load_symbol("cuMemFreeHost", p_cuMemFreeHost);
+        std::uintptr_t cuMemAllocFromPoolAsync;
+        std::uintptr_t cuMemAllocAsync;
+        std::uintptr_t cuMemAlloc;
+        std::uintptr_t cuMemAllocHost;
 
-    ok &= load_symbol("cuMemPoolImportPointer", p_cuMemPoolImportPointer);
+        std::uintptr_t cuMemFreeAsync;
+        std::uintptr_t cuMemFree;
+        std::uintptr_t cuMemFreeHost;
 
-    return ok;
+        std::uintptr_t cuMemPoolImportPointer;
+    };
+
+    static constexpr const char* capsule_name =
+        "cuda.core.experimental._resource_handles._CUDA_DRIVER_API_V1";
+
+    PyGILState_STATE gstate = PyGILState_Ensure();
+
+    // `_resource_handles` is already loaded (it exports the handle API capsule),
+    // so avoid import machinery and just grab the module object.
+    PyObject* mod = PyImport_AddModule("cuda.core.experimental._resource_handles");  // borrowed
+    if (!mod) {
+        PyErr_Clear();
+        PyGILState_Release(gstate);
+        return false;
+    }
+
+    PyObject* fn = PyObject_GetAttrString(mod, "_get_cuda_driver_api_v1_capsule");  // new ref
+    if (!fn) {
+        PyErr_Clear();
+        PyGILState_Release(gstate);
+        return false;
+    }
+
+    PyObject* cap = PyObject_CallFunctionObjArgs(fn, nullptr);
+    Py_DECREF(fn);
+    if (!cap) {
+        PyErr_Clear();
+        PyGILState_Release(gstate);
+        return false;
+    }
+
+    const auto* api = static_cast<const CudaDriverApiV1*>(PyCapsule_GetPointer(cap, capsule_name));
+    Py_DECREF(cap);
+
+    if (!api) {
+        PyErr_Clear();
+        PyGILState_Release(gstate);
+        return false;
+    }
+    if (api->abi_version != 1 || api->struct_size < sizeof(CudaDriverApiV1)) {
+        PyGILState_Release(gstate);
+        return false;
+    }
+
+#define LOAD_ADDR(name)                                             \
+    do {                                                            \
+        if (api->name == 0) {                                       \
+            PyGILState_Release(gstate);                             \
+            return false;                                           \
+        }                                                           \
+        p_##name = reinterpret_cast<decltype(p_##name)>(api->name); \
+    } while (0)
+
+    LOAD_ADDR(cuDevicePrimaryCtxRetain);
+    LOAD_ADDR(cuDevicePrimaryCtxRelease);
+    LOAD_ADDR(cuCtxGetCurrent);
+
+    LOAD_ADDR(cuStreamCreateWithPriority);
+    LOAD_ADDR(cuStreamDestroy);
+
+    LOAD_ADDR(cuEventCreate);
+    LOAD_ADDR(cuEventDestroy);
+    LOAD_ADDR(cuIpcOpenEventHandle);
+
+    LOAD_ADDR(cuDeviceGetCount);
+
+    LOAD_ADDR(cuMemPoolSetAccess);
+    LOAD_ADDR(cuMemPoolDestroy);
+    LOAD_ADDR(cuMemPoolCreate);
+    LOAD_ADDR(cuDeviceGetMemPool);
+    LOAD_ADDR(cuMemPoolImportFromShareableHandle);
+
+    LOAD_ADDR(cuMemAllocFromPoolAsync);
+    LOAD_ADDR(cuMemAllocAsync);
+    LOAD_ADDR(cuMemAlloc);
+    LOAD_ADDR(cuMemAllocHost);
+
+    LOAD_ADDR(cuMemFreeAsync);
+    LOAD_ADDR(cuMemFree);
+    LOAD_ADDR(cuMemFreeHost);
+
+    LOAD_ADDR(cuMemPoolImportPointer);
+
+#undef LOAD_ADDR
+
+    PyGILState_Release(gstate);
+    return true;
 }
 
 static bool ensure_driver_loaded() noexcept {
-    std::call_once(driver_load_once, []() { driver_loaded.store(load_driver_api()); });
-    return driver_loaded.load();
+    std::call_once(driver_load_once, []() { driver_loaded = load_driver_api(); });
+    return driver_loaded;
 }
 
 }  // namespace

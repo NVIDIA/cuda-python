@@ -12,7 +12,6 @@ import glob
 import os
 import re
 import subprocess
-import sys
 
 from Cython.Build import cythonize
 from setuptools import Extension
@@ -99,14 +98,7 @@ def _build_cuda_core():
     def get_extension_kwargs(mod_name):
         """Return Extension kwargs (libraries, etc.) per module."""
 
-        kwargs = {}
-
-        # _resource_handles.cpp uses dlopen/dlsym on Linux, which requires -ldl on glibc < 2.34.
-        # (On Windows it uses LoadLibrary/GetProcAddress; on macOS dlopen is in libSystem.)
-        if sys.platform.startswith("linux") and mod_name == "_resource_handles":
-            kwargs["libraries"] = ["dl"]
-
-        return kwargs
+        return {}
 
     ext_modules = tuple(
         Extension(
