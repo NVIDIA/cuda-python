@@ -15,7 +15,7 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 
 from dataclasses import dataclass
 import multiprocessing
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 import platform  # no-cython-lint
 import uuid
 

@@ -14,7 +14,6 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 )
 
 from dataclasses import dataclass
-from typing import Optional
 import multiprocessing
 import os
 import platform  # no-cython-lint
