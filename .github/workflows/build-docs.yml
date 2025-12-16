@@ -253,7 +253,7 @@ jobs:
 
       - name: Deploy doc update
         if: ${{ github.ref_name == 'main' || inputs.is-release }}
-        uses: JamesIves/github-pages-deploy-action@9d877eea73427180ae43cf98e8914934fe157a1a  # v4
+        uses: JamesIves/github-pages-deploy-action@9d877eea73427180ae43cf98e8914934fe157a1a  # v4.7.6
         with:
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com
