@@ -77,4 +77,3 @@ struct ResourceHandlesCxxApiV1 {
 const ResourceHandlesCxxApiV1* get_resource_handles_cxx_api_v1() noexcept;
 
 }  // namespace cuda_core
-

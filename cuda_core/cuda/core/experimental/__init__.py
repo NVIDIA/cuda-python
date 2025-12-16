@@ -14,21 +14,11 @@ else:
 import importlib
 import sys
 
-# Load _resource_handles with RTLD_GLOBAL so its C++ symbols are available
-# to other extension modules that depend on them (_context, _device, etc.)
-# This must happen before importing any dependent modules.
-if sys.platform != "win32":
-    import os
-
-    _old_dlopen_flags = sys.getdlopenflags()
-    sys.setdlopenflags(os.RTLD_GLOBAL | os.RTLD_NOW)
-    try:
-        from cuda.core.experimental import _resource_handles  # noqa: F401
-    finally:
-        sys.setdlopenflags(_old_dlopen_flags)
-    del _old_dlopen_flags, os
-else:
-    from cuda.core.experimental import _resource_handles  # noqa: F401
+# Import the resource handles module early.
+#
+# Other extension modules access its functionality via the exported PyCapsule
+# dispatch table, so we don't rely on RTLD_GLOBAL (POSIX-only behavior).
+from cuda.core.experimental import _resource_handles  # noqa: F401
 
 subdir = f"cu{cuda_major}"
 try:

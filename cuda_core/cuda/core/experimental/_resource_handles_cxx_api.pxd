@@ -66,4 +66,3 @@ cdef extern from "_cpp/resource_handles_cxx_api.hpp" namespace "cuda_core":
         void (*set_deallocation_stream)(const DevicePtrHandle& h, StreamHandle h_stream) nogil
 
     const ResourceHandlesCxxApiV1* get_resource_handles_cxx_api_v1() nogil
-
