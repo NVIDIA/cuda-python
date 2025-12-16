@@ -310,7 +310,7 @@ cdef class StridedMemoryView:
         raise NotImplementedError("Sorry, not supported: copy_to")
 
     @property
-    def layout(self) -> _StridedLayout:
+    def _layout(self) -> _StridedLayout:
         """
         The layout of the tensor. For StridedMemoryView created from DLPack or CAI,
         the layout is inferred from the tensor object's metadata.
@@ -346,7 +346,7 @@ cdef class StridedMemoryView:
         return (f"StridedMemoryView(ptr={self.ptr},\n"
               + f"                  shape={self.shape},\n"
               + f"                  strides={self.strides},\n"
-              + f"                  itemsize={self.layout.itemsize},\n"
+              + f"                  itemsize={self._layout.itemsize},\n"
               + f"                  dtype={get_simple_repr(self.dtype)},\n"
               + f"                  device_id={self.device_id},\n"
               + f"                  is_device_accessible={self.is_device_accessible},\n"
