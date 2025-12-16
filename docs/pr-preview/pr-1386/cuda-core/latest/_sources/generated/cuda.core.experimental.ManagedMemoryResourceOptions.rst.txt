@@ -1,0 +1,6 @@
+﻿cuda.core.experimental.ManagedMemoryResourceOptions
+===================================================
+
+.. currentmodule:: cuda.core.experimental
+
+.. autoclass:: ManagedMemoryResourceOptions
