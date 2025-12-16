@@ -297,9 +297,7 @@ cdef class _StridedLayout:
             raise ValueError(
                 f"Allocation size for a layout that maps elements "
                 f"to negative memory offsets is ambiguous. "
-                f"The layout's min_offset is {min_offset}. "
-                f"To create a supported layout with the same shape "
-                f"please use _StridedLayout.to_dense()."
+                f"The layout's min_offset is {min_offset}."
             )
         if max_offset < min_offset:
             return 0

@@ -48,8 +48,8 @@ cdef class _StridedLayout:
 
     def __init__(
         self : _StridedLayout,
-        shape : tuple[int],
-        strides : tuple[int] | None,
+        shape : tuple[int, ...],
+        strides : tuple[int, ...] | None,
         itemsize : int,
         divide_strides : bool = False
     ) -> None:
@@ -455,7 +455,7 @@ cdef class _StridedLayout:
                 a_view = StridedMemoryView(a, -1)
                 # get the original layout of ``a`` and convert it to a dense layout
                 # to avoid overallocating memory (e.g. if the ``a`` was sliced)
-                layout = a_view.layout.to_dense()
+                layout = a_view._layout.to_dense()
                 # get the required size in bytes to fit the tensor
                 required_size = layout.required_size_in_bytes()
                 # allocate the memory on the device
@@ -669,12 +669,12 @@ cdef class _StridedLayout:
             # Viewing (5, 6) float array as (5, 3) complex64 array.
             a = numpy.ones((5, 6), dtype=numpy.float32)
             float_view = StridedMemoryView(a, -1)
-            layout = float_view.layout
+            layout = float_view._layout
             assert layout.shape == (5, 6)
             assert layout.itemsize == 4
             complex_view = float_view.view(layout.repacked(8), numpy.complex64)
-            assert complex_view.layout.shape == (5, 3)
-            assert complex_view.layout.itemsize == 8
+            assert complex_view._layout.shape == (5, 3)
+            assert complex_view._layout.itemsize == 8
             b = numpy.from_dlpack(complex_view)
             assert b.shape == (5, 3)
         """
