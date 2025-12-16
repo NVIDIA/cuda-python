@@ -26,7 +26,7 @@ except ImportError:
     print("cffi is not installed, the CPU example will be skipped", file=sys.stderr)
     FFI = None
 import numpy as np
-from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
+from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory
 
 # ################################################################################
 #
