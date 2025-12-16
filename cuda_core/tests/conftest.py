@@ -13,8 +13,42 @@ except ImportError:
     from cuda import cuda as driver
 
 import cuda.core.experimental
-from cuda.core.experimental import Device, DeviceMemoryResource, DeviceMemoryResourceOptions, _device
+from cuda.core.experimental import (
+    Device,
+    DeviceMemoryResource,
+    DeviceMemoryResourceOptions,
+    ManagedMemoryResource,
+    ManagedMemoryResourceOptions,
+    PinnedMemoryResource,
+    PinnedMemoryResourceOptions,
+    _device,
+)
 from cuda.core.experimental._utils.cuda_utils import handle_return
+
+
+def skip_if_pinned_memory_unsupported(device):
+    try:
+        if not device.properties.host_memory_pools_supported:
+            pytest.skip("Device does not support host mempool operations")
+    except AttributeError:
+        pytest.skip("PinnedMemoryResource requires CUDA 13.0 or later")
+
+
+def skip_if_managed_memory_unsupported(device):
+    try:
+        if not device.properties.memory_pools_supported or not device.properties.concurrent_managed_access:
+            pytest.skip("Device does not support managed memory pool operations")
+    except AttributeError:
+        pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
+
+
+def create_managed_memory_resource_or_skip(*args, **kwargs):
+    try:
+        return ManagedMemoryResource(*args, **kwargs)
+    except RuntimeError as e:
+        if "requires CUDA 13.0" in str(e):
+            pytest.skip("ManagedMemoryResource requires CUDA 13.0 or later")
+        raise
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -102,11 +136,25 @@ def ipc_device():
     return device
 
 
-@pytest.fixture
-def ipc_memory_resource(ipc_device):
+@pytest.fixture(
+    params=[
+        pytest.param("device", id="DeviceMR"),
+        pytest.param("pinned", id="PinnedMR"),
+    ]
+)
+def ipc_memory_resource(request, ipc_device):
+    """Provides IPC-enabled memory resource (either Device or Pinned)."""
     POOL_SIZE = 2097152
-    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
-    mr = DeviceMemoryResource(ipc_device, options=options)
+    mr_type = request.param
+
+    if mr_type == "device":
+        options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        mr = DeviceMemoryResource(ipc_device, options=options)
+    else:  # pinned
+        skip_if_pinned_memory_unsupported(ipc_device)
+        options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+        mr = PinnedMemoryResource(options=options)
+
     assert mr.is_ipc_enabled
     return mr
 
@@ -151,6 +199,32 @@ def mempool_device_x2():
 def mempool_device_x3():
     """Fixture that provides three devices if available, otherwise skips test."""
     return _mempool_device_impl(3)
+
+
+@pytest.fixture(
+    params=[
+        pytest.param((DeviceMemoryResource, DeviceMemoryResourceOptions), id="DeviceMR"),
+        pytest.param((PinnedMemoryResource, PinnedMemoryResourceOptions), id="PinnedMR"),
+        pytest.param((ManagedMemoryResource, ManagedMemoryResourceOptions), id="ManagedMR"),
+    ]
+)
+def memory_resource_factory(request, init_cuda):
+    """Parametrized fixture providing memory resource types.
+
+    Returns a 2-tuple of (MRClass, MROptionClass).
+
+    Usage:
+        def test_something(memory_resource_factory):
+            MRClass, MROptions = memory_resource_factory
+            device = Device()
+            if MRClass is DeviceMemoryResource:
+                mr = MRClass(device)
+            elif MRClass is PinnedMemoryResource:
+                mr = MRClass()
+            elif MRClass is ManagedMemoryResource:
+                mr = MRClass()
+    """
+    return request.param
 
 
 skipif_need_cuda_headers = pytest.mark.skipif(helpers.CUDA_INCLUDE_PATH is None, reason="need CUDA header")

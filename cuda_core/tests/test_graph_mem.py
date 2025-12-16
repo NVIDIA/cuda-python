@@ -275,7 +275,7 @@ def test_dmr_check_capture_state(mempool_device, mode):
     gb = device.create_graph_builder().begin_building(mode=mode)
     with pytest.raises(
         RuntimeError,
-        match=r"DeviceMemoryResource cannot perform memory operations on a capturing "
+        match=r"cannot perform memory operations on a capturing "
         r"stream \(consider using GraphMemoryResource\)\.",
     ):
         dmr.allocate(1, stream=gb)

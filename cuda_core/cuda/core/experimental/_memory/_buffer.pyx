@@ -8,7 +8,8 @@ cimport cython
 from libc.stdint cimport uintptr_t
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
+from cuda.core.experimental._memory._device_memory_resource import DeviceMemoryResource
+from cuda.core.experimental._memory._pinned_memory_resource import PinnedMemoryResource
 from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor, IPCDataForBuffer
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._stream cimport Stream_accept, Stream
@@ -112,7 +113,7 @@ cdef class Buffer:
 
     @classmethod
     def from_ipc_descriptor(
-        cls, mr: DeviceMemoryResource, ipc_descriptor: IPCBufferDescriptor,
+        cls, mr: DeviceMemoryResource | PinnedMemoryResource, ipc_descriptor: IPCBufferDescriptor,
         stream: Stream = None
     ) -> Buffer:
         """Import a buffer that was exported from another process."""
