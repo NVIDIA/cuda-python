@@ -383,14 +383,15 @@ cdef inline void Buffer_close(Buffer self, stream):
         self._alloc_stream = None
 
 
-cdef inline void Buffer_fill_uint8(Buffer self, uint8_t value, cydriver.CUstream s):
+cdef inline int Buffer_fill_uint8(Buffer self, uint8_t value, cydriver.CUstream s) except? -1:
     with nogil:
         HANDLE_RETURN(cydriver.cuMemsetD8Async(<cydriver.CUdeviceptr>self._ptr, value, self._size, s))
+    return 0
 
 
-cdef inline void Buffer_fill_from_ptr(
+cdef inline int Buffer_fill_from_ptr(
     Buffer self, const char* ptr, size_t width, cydriver.CUstream s
-) except *:
+) except? -1:
     cdef size_t buffer_size = self._size
 
     if width == 1:
@@ -411,6 +412,7 @@ cdef inline void Buffer_fill_from_ptr(
                 <cydriver.CUdeviceptr>self._ptr, (<uint32_t*>ptr)[0], buffer_size // 4, s))
     else:
         raise ValueError(f"value must be 1, 2, or 4 bytes, got {width}")
+    return 0
 
 
 cdef Buffer_init_mem_attrs(Buffer self):
