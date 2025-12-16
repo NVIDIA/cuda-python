@@ -21,6 +21,7 @@
 import os, sys
 import cupy as cp
 from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
+from cuda.core.experimental.utils import StridedMemoryView
 
 # prepare include
 cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
@@ -42,7 +43,37 @@ if os.path.isdir(cccl_include):
 code_verify = """
 #include <cuda/std/mdspan>
 
+// typedef struct {
+//     void* ptr;
+//     size_t ext1;
+//     size_t ext2;
+// } mdspan_view_t;
+// 
+// 
+// // Kernel to verify layout_right (C-order) mdspan arguments
+// template<typename T>
+// __global__ void verify_mdspan_layout_right(
+//     mdspan_view_t arr
+// ) {
+//     // Only thread 0 prints to avoid cluttered output
+//     if (threadIdx.x == 0 && threadIdx.y == 0 && blockIdx.x == 0 && blockIdx.y == 0) {
+//         printf("=== layout_right (C-order) mdspan ===\\n");
+//         printf("sizeof(mdspan_view_t): %llu\\n", sizeof(arr));
+//         printf("view - ptr: %p\\n", reinterpret_cast<mdspan_view_t*>(&arr)->ptr);
+//         printf("view2 : %p\\n", *(void**)((char*)(&arr) + 0));
+//         printf("view - ext1: %p\\n", reinterpret_cast<mdspan_view_t*>(&arr)->ext1);
+//         printf("view - ext2: %p\\n", reinterpret_cast<mdspan_view_t*>(&arr)->ext2);
+//     }
+// }
+
 // Kernel to verify layout_right (C-order) mdspan arguments
+
+typedef struct {
+    void* ptr;
+    void* ext1;
+    void* ext2;
+} mdspan_view_t;
+
 template<typename T>
 __global__ void verify_mdspan_layout_right(
     cuda::std::mdspan<T, cuda::std::extents<size_t, cuda::std::dynamic_extent, cuda::std::dynamic_extent>, cuda::std::layout_right> arr
@@ -50,14 +81,28 @@ __global__ void verify_mdspan_layout_right(
     // Only thread 0 prints to avoid cluttered output
     if (threadIdx.x == 0 && threadIdx.y == 0 && blockIdx.x == 0 && blockIdx.y == 0) {
         printf("=== layout_right (C-order) mdspan ===\\n");
+        printf("sizeof(mdspan): %llu\\n", sizeof(arr));
+        printf("view - ptr: %p\\n", reinterpret_cast<mdspan_view_t*>(&arr)->ptr);
+        printf("view2 : %p\\n", (void**)((char*)(&arr) + 0));
+        //printf("view - ext1: %llu\\n", *((size_t*)(reinterpret_cast<mdspan_view_t*>(&arr)->ext1)));
+        //printf("view - ext2: %llu\\n", *((size_t*)(reinterpret_cast<mdspan_view_t*>(&arr)->ext2)));
+        printf("view - ext1: %p\\n", reinterpret_cast<mdspan_view_t*>(&arr)->ext1);
+        printf("view - ext2: %p\\n", reinterpret_cast<mdspan_view_t*>(&arr)->ext2);
+
         printf("Data pointer: %p\\n", arr.data_handle());
-        printf("Extent 0 (rows): %zu\\n", arr.extent(0));
-        printf("Extent 1 (cols): %zu\\n", arr.extent(1));
+        printf("Data pointer (actual): %p\\n", (void*)((char*)(&arr) + 0));
+        printf("Data pointer (actual): %p\\n", addressof(arr));
+        printf("Extent 0 (rows): %llu\\n", arr.extent(0));
+        printf("Extent 1 (cols): %llu\\n", arr.extent(1));
+        printf("Extent 0 (rows) (actual): %llu\\n", (size_t)(*((char*)(&arr) + 8)));
+        printf("Extent 1 (cols) (actual): %llu\\n", (size_t)(*((char*)(&arr) + 16)));
         printf("Size: %zu\\n", arr.size());
         
         // For layout_right, strides are implicit but we can query them
-        printf("Stride 0: %zu\\n", arr.stride(0));
-        printf("Stride 1: %zu\\n", arr.stride(1));
+        printf("Stride 0: %llu\\n", arr.stride(0));
+        printf("Stride 1: %llu\\n", arr.stride(1));
+        printf("Stride 0 (actual): %llu\\n", (size_t)((char*)(&arr) + 24));
+        printf("Stride 1 (actual): %llu\\n", (size_t)((char*)(&arr) + 32));
         
         // Verify memory layout: for layout_right (C-order)
         // stride(0) should equal extent(1), stride(1) should be 1
@@ -162,10 +207,13 @@ def prepare_mdspan_args_layout_right(arr, dtype, shape):
     tuple
         Arguments to pass to the kernel (needs investigation)
     """
-    data_ptr = arr.data.ptr
-    rows, cols = shape
-    # TODO: Determine exact argument structure
-    return (data_ptr, rows, cols)
+    #obj = arr.mdspan
+    #print(f"{hex(obj.ptr)=}, {obj.ptr=}")
+    #return (obj.ptr,)
+
+    obj = StridedMemoryView(arr, stream_ptr=-1).as_mdspan
+    print(f"{hex(obj._ptr)=}, {obj._ptr=}, type={type(obj)}")
+    return (obj,)
 
 
 def prepare_mdspan_args_layout_left(arr, dtype, shape):
@@ -266,7 +314,7 @@ def verify_layout_right():
     
     # Verify array is in C-order
     assert arr.flags['C_CONTIGUOUS']
-    
+    print(f"Array pointer: {hex(arr.data.ptr)}")
     print(f"Array shape: {arr.shape}")
     print(f"Array strides (bytes): {arr.strides}")
     print(f"Array strides (elements): ({arr.strides[0]//arr.itemsize}, {arr.strides[1]//arr.itemsize})")
@@ -282,8 +330,8 @@ def verify_layout_right():
     config = LaunchConfig(grid=1, block=1)
     
     # TODO: Launch kernel with proper mdspan arguments
-    # launch(s, config, ker, *args)
-    # s.sync()
+    launch(s, config, ker, *args)
+    s.sync()
     
     print("Verification kernel prepared (not executed)")
     print()

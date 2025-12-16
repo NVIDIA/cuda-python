@@ -2,7 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from libc.stdint cimport uintptr_t
+
 from ._dlpack cimport *
+from cuda.core.experimental._utils cimport cuda_utils
 
 import functools
 import warnings
@@ -11,10 +14,24 @@ from typing import Optional
 import numpy
 
 from cuda.core.experimental._utils.cuda_utils import handle_return, driver
-from cuda.core.experimental._utils cimport cuda_utils
 
 
 # TODO(leofang): support NumPy structured dtypes
+
+
+cdef class _MDSPAN:
+
+    def __cinit__(self):
+        self._ptr = 0
+
+    def __init__(self, uintptr_t ptr, object obj=None):
+        self._ptr = ptr
+        self._exporting_obj = obj
+
+    def __dealloc__(self):
+        self._ptr = 0
+        self._exporting_obj = None
+
 
 
 cdef class StridedMemoryView:
@@ -98,6 +115,7 @@ cdef class StridedMemoryView:
         # this flag helps prevent unnecessary recompuation of _strides
         bint _strides_init
         object _dtype
+        _MDSPAN _mdspan
 
     def __init__(self, obj: object = None, stream_ptr: int | None = None) -> None:
         cdef str clsname = self.__class__.__name__
@@ -223,6 +241,27 @@ cdef class StridedMemoryView:
                     # TODO: this only works for built-in numeric types
                     self._dtype = numpy.dtype(self.metadata["typestr"])
         return self._dtype
+
+    @property
+    def as_mdspan(self) -> _MDSPAN:
+        """A C++ mdspan view of the tensor.
+
+        Returns
+        -------
+        mdspan : _MDSPAN
+        """
+        if self._mdspan is None:
+            arr = self.exporting_obj
+            module = self.exporting_obj.__class__.__module__.split(".")[0]
+            if module == "cupy":
+                mdspan = arr.mdspan
+                #mdspan = arr.cstruct
+                self._mdspan = _MDSPAN(<uintptr_t>(mdspan.ptr), mdspan)
+            else:
+                raise NotImplementedError(
+                    f"as_mdspan is not implemented for objects from module '{module}'"
+                )
+        return self._mdspan
 
     def __repr__(self):
         return (f"StridedMemoryView(ptr={self.ptr},\n"

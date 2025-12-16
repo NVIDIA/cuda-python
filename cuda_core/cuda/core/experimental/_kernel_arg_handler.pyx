@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
-from libc.stdint cimport (intptr_t,
+from libc.stdint cimport (intptr_t, uintptr_t,
                           int8_t, int16_t, int32_t, int64_t,
                           uint8_t, uint16_t, uint32_t, uint64_t,)
 from libcpp cimport bool as cpp_bool
@@ -11,13 +11,15 @@ from libcpp.complex cimport complex as cpp_complex
 from libcpp cimport nullptr
 from libcpp cimport vector
 
+from cuda.bindings cimport cydriver
+from cuda.core.experimental._memoryview cimport _MDSPAN
+
 import ctypes
 
 import numpy
 
 from cuda.core.experimental._memory import Buffer
 from cuda.core.experimental._utils.cuda_utils import driver
-from cuda.bindings cimport cydriver
 
 
 ctypedef cpp_complex.complex[float] cpp_single_complex
@@ -295,6 +297,12 @@ cdef class ParamHolder:
                 continue
             elif arg_type is complex:
                 prepare_arg[cpp_double_complex](self.data, self.data_addresses, arg, i)
+                continue
+            elif arg_type is _MDSPAN:
+                # The mdspan struct is allocated on the host and owned by the CuPy mdspan object.
+                # We pass a pointer to the struct so the driver can copy it by value to the kernel.
+                # Access _ptr at C level to avoid creating a temporary Python object.
+                self.data_addresses[i] = <void*>((<_MDSPAN>arg)._ptr)
                 continue
 
             not_prepared = prepare_numpy_arg(self.data, self.data_addresses, arg, i)
