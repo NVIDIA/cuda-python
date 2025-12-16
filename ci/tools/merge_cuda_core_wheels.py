@@ -94,38 +94,27 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
         # Use the first wheel as the base and merge binaries from others
         base_wheel = extracted_wheels[0]
 
-        # Copy version-specific binaries from each wheel into versioned subdirectories
-        # Note: Python modules stay in cuda/core/, only binaries go into cu12/cu13/
-        base_dir = Path("cuda") / "core"
-
+        # now copy the version-specific directory from other wheels
+        # into the appropriate place in the base wheel
         for i, wheel_dir in enumerate(extracted_wheels):
             cuda_version = wheels[i].name.split(".cu")[1].split(".")[0]
-            versioned_dir = base_wheel / base_dir / f"cu{cuda_version}"
+            base_dir = Path("cuda") / "core"
+            # Copy from other wheels
+            print(f"  Copying {wheel_dir} to {base_wheel}", file=sys.stderr)
+            shutil.copytree(wheel_dir / base_dir, base_wheel / base_dir / f"cu{cuda_version}")
 
-            # Create versioned directory
-            versioned_dir.mkdir(parents=True, exist_ok=True)
+            # Overwrite the __init__.py in versioned dirs
+            os.truncate(base_wheel / base_dir / f"cu{cuda_version}" / "__init__.py", 0)
 
-            # Copy only version-specific binaries (.so, .pyd, .dll files) from the source wheel
-            # Python modules (.py, .pyx, .pxd) remain in cuda/core/
-            # Exclude versioned directories (cu12/, cu13/) to avoid recursion
-            source_dir = wheel_dir / base_dir
-            for item in source_dir.rglob("*"):
-                if item.is_dir():
-                    continue
-
-                # Skip files in versioned directories to avoid recursion
-                rel_path = item.relative_to(source_dir)
-                if any(part in ("cu12", "cu13") for part in rel_path.parts):
-                    continue
-
-                # Only copy binary files, not Python source files
-                if item.suffix in (".so", ".pyd", ".dll"):
-                    dest_item = versioned_dir / rel_path
-                    dest_item.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(item, dest_item)
-
-            # Create empty __init__.py in versioned dirs
-            (versioned_dir / "__init__.py").touch()
+        # The base dir should only contain __init__.py, the include dir, and the versioned dirs
+        files_to_remove = os.scandir(base_wheel / base_dir)
+        for f in files_to_remove:
+            f_abspath = f.path
+            if f.name not in ("__init__.py", "cu12", "cu13", "include"):
+                if f.is_dir():
+                    shutil.rmtree(f_abspath)
+                else:
+                    os.remove(f_abspath)
 
         # Repack the merged wheel
         output_dir.mkdir(parents=True, exist_ok=True)
