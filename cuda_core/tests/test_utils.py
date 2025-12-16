@@ -16,7 +16,8 @@ import cuda.core.experimental
 import numpy as np
 import pytest
 from cuda.core.experimental import Device
-from cuda.core.experimental.utils import StridedMemoryView, _StridedLayout, args_viewable_as_strided_memory
+from cuda.core.experimental._layout import _StridedLayout
+from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
 
 
 def test_cast_to_3_tuple_success():
