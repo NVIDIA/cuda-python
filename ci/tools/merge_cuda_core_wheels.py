@@ -118,11 +118,11 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
                 if any(part in ("cu12", "cu13") for part in rel_path.parts):
                     continue
 
-                # Only copy binary files, not Python source files
-                if item.suffix in (".so", ".pyd", ".dll"):
-                    dest_item = versioned_dir / rel_path
-                    dest_item.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(item, dest_item)
+                # copy everything, because modules can't be assembled partially
+                # from other modules of the same name
+                dest_item = versioned_dir / rel_path
+                dest_item.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(item, dest_item)
 
             # Create empty __init__.py in versioned dirs
             (versioned_dir / "__init__.py").touch()
