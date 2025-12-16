@@ -107,15 +107,19 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
 
             # Copy only version-specific binaries (.so, .pyd, .dll files) from the source wheel
             # Python modules (.py, .pyx, .pxd) remain in cuda/core/
+            # Exclude versioned directories (cu12/, cu13/) to avoid recursion
             source_dir = wheel_dir / base_dir
             for item in source_dir.rglob("*"):
                 if item.is_dir():
                     continue
 
+                # Skip files in versioned directories to avoid recursion
+                rel_path = item.relative_to(source_dir)
+                if any(part in ("cu12", "cu13") for part in rel_path.parts):
+                    continue
+
                 # Only copy binary files, not Python source files
                 if item.suffix in (".so", ".pyd", ".dll"):
-                    # Preserve directory structure relative to base_dir
-                    rel_path = item.relative_to(source_dir)
                     dest_item = versioned_dir / rel_path
                     dest_item.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(item, dest_item)
