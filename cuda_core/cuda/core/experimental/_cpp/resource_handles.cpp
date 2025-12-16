@@ -5,12 +5,147 @@
 #include <Python.h>
 
 #include "resource_handles.hpp"
+#include "resource_handles_cxx_api.hpp"
 #include <cuda.h>
+#include <mutex>
+
+#if defined(_WIN32)
+#include <windows.h>
+#else
+#include <dlfcn.h>
+#endif
+
+#include <atomic>
 #include <mutex>
 #include <unordered_map>
 #include <vector>
 
 namespace cuda_core {
+
+// ============================================================================
+// CUDA driver dynamic loading (CPU-only import + MVC compatibility)
+// ============================================================================
+
+namespace {
+
+#if defined(_WIN32)
+using LibHandle = HMODULE;
+
+static LibHandle open_libcuda() noexcept {
+    // CUDA driver DLL
+    return LoadLibraryA("nvcuda.dll");
+}
+
+static void* get_symbol(LibHandle lib, const char* name) noexcept {
+    return reinterpret_cast<void*>(GetProcAddress(lib, name));
+}
+#else
+using LibHandle = void*;
+
+static LibHandle open_libcuda() noexcept {
+    // Prefer the soname; fall back to the linker name.
+    LibHandle lib = dlopen("libcuda.so.1", RTLD_NOW | RTLD_LOCAL);
+    if (!lib) {
+        lib = dlopen("libcuda.so", RTLD_NOW | RTLD_LOCAL);
+    }
+    return lib;
+}
+
+static void* get_symbol(LibHandle lib, const char* name) noexcept {
+    return dlsym(lib, name);
+}
+#endif
+
+static std::once_flag driver_load_once;
+static std::atomic<bool> driver_loaded{false};
+static LibHandle libcuda = nullptr;
+
+#define DECLARE_DRIVER_FN(name) using name##_t = decltype(&name); static name##_t p_##name = nullptr
+
+DECLARE_DRIVER_FN(cuDevicePrimaryCtxRetain);
+DECLARE_DRIVER_FN(cuDevicePrimaryCtxRelease);
+DECLARE_DRIVER_FN(cuCtxGetCurrent);
+
+DECLARE_DRIVER_FN(cuStreamCreateWithPriority);
+DECLARE_DRIVER_FN(cuStreamDestroy);
+
+DECLARE_DRIVER_FN(cuEventCreate);
+DECLARE_DRIVER_FN(cuEventDestroy);
+DECLARE_DRIVER_FN(cuIpcOpenEventHandle);
+
+DECLARE_DRIVER_FN(cuDeviceGetCount);
+
+DECLARE_DRIVER_FN(cuMemPoolSetAccess);
+DECLARE_DRIVER_FN(cuMemPoolDestroy);
+DECLARE_DRIVER_FN(cuMemPoolCreate);
+DECLARE_DRIVER_FN(cuDeviceGetMemPool);
+DECLARE_DRIVER_FN(cuMemPoolImportFromShareableHandle);
+
+DECLARE_DRIVER_FN(cuMemAllocFromPoolAsync);
+DECLARE_DRIVER_FN(cuMemAllocAsync);
+DECLARE_DRIVER_FN(cuMemAlloc);
+DECLARE_DRIVER_FN(cuMemAllocHost);
+
+DECLARE_DRIVER_FN(cuMemFreeAsync);
+DECLARE_DRIVER_FN(cuMemFree);
+DECLARE_DRIVER_FN(cuMemFreeHost);
+
+DECLARE_DRIVER_FN(cuMemPoolImportPointer);
+
+#undef DECLARE_DRIVER_FN
+
+template <typename T>
+static bool load_symbol(const char* sym, T& fn) noexcept {
+    fn = reinterpret_cast<T>(get_symbol(libcuda, sym));
+    return fn != nullptr;
+}
+
+static bool load_driver_api() noexcept {
+    libcuda = open_libcuda();
+    if (!libcuda) {
+        return false;
+    }
+
+    bool ok = true;
+    ok &= load_symbol("cuDevicePrimaryCtxRetain", p_cuDevicePrimaryCtxRetain);
+    ok &= load_symbol("cuDevicePrimaryCtxRelease", p_cuDevicePrimaryCtxRelease);
+    ok &= load_symbol("cuCtxGetCurrent", p_cuCtxGetCurrent);
+
+    ok &= load_symbol("cuStreamCreateWithPriority", p_cuStreamCreateWithPriority);
+    ok &= load_symbol("cuStreamDestroy", p_cuStreamDestroy);
+
+    ok &= load_symbol("cuEventCreate", p_cuEventCreate);
+    ok &= load_symbol("cuEventDestroy", p_cuEventDestroy);
+    ok &= load_symbol("cuIpcOpenEventHandle", p_cuIpcOpenEventHandle);
+
+    ok &= load_symbol("cuDeviceGetCount", p_cuDeviceGetCount);
+
+    ok &= load_symbol("cuMemPoolSetAccess", p_cuMemPoolSetAccess);
+    ok &= load_symbol("cuMemPoolDestroy", p_cuMemPoolDestroy);
+    ok &= load_symbol("cuMemPoolCreate", p_cuMemPoolCreate);
+    ok &= load_symbol("cuDeviceGetMemPool", p_cuDeviceGetMemPool);
+    ok &= load_symbol("cuMemPoolImportFromShareableHandle", p_cuMemPoolImportFromShareableHandle);
+
+    ok &= load_symbol("cuMemAllocFromPoolAsync", p_cuMemAllocFromPoolAsync);
+    ok &= load_symbol("cuMemAllocAsync", p_cuMemAllocAsync);
+    ok &= load_symbol("cuMemAlloc", p_cuMemAlloc);
+    ok &= load_symbol("cuMemAllocHost", p_cuMemAllocHost);
+
+    ok &= load_symbol("cuMemFreeAsync", p_cuMemFreeAsync);
+    ok &= load_symbol("cuMemFree", p_cuMemFree);
+    ok &= load_symbol("cuMemFreeHost", p_cuMemFreeHost);
+
+    ok &= load_symbol("cuMemPoolImportPointer", p_cuMemPoolImportPointer);
+
+    return ok;
+}
+
+static bool ensure_driver_loaded() noexcept {
+    std::call_once(driver_load_once, []() { driver_loaded.store(load_driver_api()); });
+    return driver_loaded.load();
+}
+
+}  // namespace
 
 // ============================================================================
 // Thread-local error handling
@@ -118,6 +253,10 @@ ContextHandle create_context_handle_ref(CUcontext ctx) {
 thread_local std::vector<ContextHandle> primary_context_cache;
 
 ContextHandle get_primary_context(int device_id) noexcept {
+    if (!ensure_driver_loaded()) {
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
     // Check thread-local cache
     if (static_cast<size_t>(device_id) < primary_context_cache.size()) {
         if (auto cached = primary_context_cache[device_id]) {
@@ -128,7 +267,7 @@ ContextHandle get_primary_context(int device_id) noexcept {
     // Cache miss - acquire primary context from driver
     GILReleaseGuard gil;
     CUcontext ctx;
-    if (CUDA_SUCCESS != (err = cuDevicePrimaryCtxRetain(&ctx, device_id))) {
+    if (CUDA_SUCCESS != (err = p_cuDevicePrimaryCtxRetain(&ctx, device_id))) {
         return {};
     }
 
@@ -136,7 +275,9 @@ ContextHandle get_primary_context(int device_id) noexcept {
         new ContextBox{ctx},
         [device_id](const ContextBox* b) {
             GILReleaseGuard gil;
-            cuDevicePrimaryCtxRelease(device_id);
+            if (ensure_driver_loaded()) {
+                p_cuDevicePrimaryCtxRelease(device_id);
+            }
             delete b;
         }
     );
@@ -151,9 +292,13 @@ ContextHandle get_primary_context(int device_id) noexcept {
 }
 
 ContextHandle get_current_context() noexcept {
+    if (!ensure_driver_loaded()) {
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
     GILReleaseGuard gil;
     CUcontext ctx = nullptr;
-    if (CUDA_SUCCESS != (err = cuCtxGetCurrent(&ctx))) {
+    if (CUDA_SUCCESS != (err = p_cuCtxGetCurrent(&ctx))) {
         return {};
     }
     if (!ctx) {
@@ -171,9 +316,13 @@ struct StreamBox {
 };
 
 StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) {
+    if (!ensure_driver_loaded()) {
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
     GILReleaseGuard gil;
     CUstream stream;
-    if (CUDA_SUCCESS != (err = cuStreamCreateWithPriority(&stream, flags, priority))) {
+    if (CUDA_SUCCESS != (err = p_cuStreamCreateWithPriority(&stream, flags, priority))) {
         return {};
     }
 
@@ -181,7 +330,9 @@ StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int p
         new StreamBox{stream},
         [h_ctx](const StreamBox* b) {
             GILReleaseGuard gil;
-            cuStreamDestroy(b->resource);
+            if (ensure_driver_loaded()) {
+                p_cuStreamDestroy(b->resource);
+            }
             delete b;
         }
     );
@@ -227,9 +378,13 @@ struct EventBox {
 };
 
 EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
+    if (!ensure_driver_loaded()) {
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
     GILReleaseGuard gil;
     CUevent event;
-    if (CUDA_SUCCESS != (err = cuEventCreate(&event, flags))) {
+    if (CUDA_SUCCESS != (err = p_cuEventCreate(&event, flags))) {
         return {};
     }
 
@@ -237,7 +392,9 @@ EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
         new EventBox{event},
         [h_ctx](const EventBox* b) {
             GILReleaseGuard gil;
-            cuEventDestroy(b->resource);
+            if (ensure_driver_loaded()) {
+                p_cuEventDestroy(b->resource);
+            }
             delete b;
         }
     );
@@ -249,9 +406,13 @@ EventHandle create_event_handle(unsigned int flags) {
 }
 
 EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
+    if (!ensure_driver_loaded()) {
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
     GILReleaseGuard gil;
     CUevent event;
-    if (CUDA_SUCCESS != (err = cuIpcOpenEventHandle(&event, ipc_handle))) {
+    if (CUDA_SUCCESS != (err = p_cuIpcOpenEventHandle(&event, ipc_handle))) {
         return {};
     }
 
@@ -259,7 +420,9 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
         new EventBox{event},
         [](const EventBox* b) {
             GILReleaseGuard gil;
-            cuEventDestroy(b->resource);
+            if (ensure_driver_loaded()) {
+                p_cuEventDestroy(b->resource);
+            }
             delete b;
         }
     );
@@ -277,8 +440,11 @@ struct MemoryPoolBox {
 // Helper to clear peer access before destroying a memory pool.
 // Works around nvbug 5698116: recycled pool handles inherit peer access state.
 static void clear_mempool_peer_access(CUmemoryPool pool) {
+    if (!ensure_driver_loaded()) {
+        return;
+    }
     int device_count = 0;
-    if (cuDeviceGetCount(&device_count) != CUDA_SUCCESS || device_count <= 0) {
+    if (p_cuDeviceGetCount(&device_count) != CUDA_SUCCESS || device_count <= 0) {
         return;
     }
 
@@ -288,7 +454,7 @@ static void clear_mempool_peer_access(CUmemoryPool pool) {
         clear_access[i].location.id = i;
         clear_access[i].flags = CU_MEM_ACCESS_FLAGS_PROT_NONE;
     }
-    cuMemPoolSetAccess(pool, clear_access.data(), device_count);  // Best effort
+    p_cuMemPoolSetAccess(pool, clear_access.data(), device_count);  // Best effort
 }
 
 static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool) {
@@ -297,7 +463,9 @@ static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool) {
         [](const MemoryPoolBox* b) {
             GILReleaseGuard gil;
             clear_mempool_peer_access(b->resource);
-            cuMemPoolDestroy(b->resource);
+            if (ensure_driver_loaded()) {
+                p_cuMemPoolDestroy(b->resource);
+            }
             delete b;
         }
     );
@@ -305,9 +473,13 @@ static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool) {
 }
 
 MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) {
+    if (!ensure_driver_loaded()) {
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
     GILReleaseGuard gil;
     CUmemoryPool pool;
-    if (CUDA_SUCCESS != (err = cuMemPoolCreate(&pool, &props))) {
+    if (CUDA_SUCCESS != (err = p_cuMemPoolCreate(&pool, &props))) {
         return {};
     }
     return wrap_mempool_owned(pool);
@@ -319,19 +491,27 @@ MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) {
 }
 
 MemoryPoolHandle get_device_mempool(int device_id) noexcept {
+    if (!ensure_driver_loaded()) {
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
     GILReleaseGuard gil;
     CUmemoryPool pool;
-    if (CUDA_SUCCESS != (err = cuDeviceGetMemPool(&pool, device_id))) {
+    if (CUDA_SUCCESS != (err = p_cuDeviceGetMemPool(&pool, device_id))) {
         return {};
     }
     return create_mempool_handle_ref(pool);
 }
 
 MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type) {
+    if (!ensure_driver_loaded()) {
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
     GILReleaseGuard gil;
     CUmemoryPool pool;
     auto handle_ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(fd));
-    if (CUDA_SUCCESS != (err = cuMemPoolImportFromShareableHandle(&pool, handle_ptr, handle_type, 0))) {
+    if (CUDA_SUCCESS != (err = p_cuMemPoolImportFromShareableHandle(&pool, handle_ptr, handle_type, 0))) {
         return {};
     }
     return wrap_mempool_owned(pool);
@@ -362,9 +542,13 @@ void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) {
 }
 
 DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) {
+    if (!ensure_driver_loaded()) {
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
-    if (CUDA_SUCCESS != (err = cuMemAllocFromPoolAsync(&ptr, size, *h_pool, native(h_stream)))) {
+    if (CUDA_SUCCESS != (err = p_cuMemAllocFromPoolAsync(&ptr, size, *h_pool, native(h_stream)))) {
         return {};
     }
 
@@ -372,7 +556,9 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, 
         new DevicePtrBox{ptr, h_stream},
         [h_pool](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            cuMemFreeAsync(b->resource, native(b->h_stream));
+            if (ensure_driver_loaded()) {
+                p_cuMemFreeAsync(b->resource, native(b->h_stream));
+            }
             delete b;
         }
     );
@@ -380,9 +566,13 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, 
 }
 
 DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
+    if (!ensure_driver_loaded()) {
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
-    if (CUDA_SUCCESS != (err = cuMemAllocAsync(&ptr, size, native(h_stream)))) {
+    if (CUDA_SUCCESS != (err = p_cuMemAllocAsync(&ptr, size, native(h_stream)))) {
         return {};
     }
 
@@ -390,7 +580,9 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
         new DevicePtrBox{ptr, h_stream},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            cuMemFreeAsync(b->resource, native(b->h_stream));
+            if (ensure_driver_loaded()) {
+                p_cuMemFreeAsync(b->resource, native(b->h_stream));
+            }
             delete b;
         }
     );
@@ -398,9 +590,13 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
 }
 
 DevicePtrHandle deviceptr_alloc(size_t size) {
+    if (!ensure_driver_loaded()) {
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
-    if (CUDA_SUCCESS != (err = cuMemAlloc(&ptr, size))) {
+    if (CUDA_SUCCESS != (err = p_cuMemAlloc(&ptr, size))) {
         return {};
     }
 
@@ -408,7 +604,9 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
         new DevicePtrBox{ptr, StreamHandle{}},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            cuMemFree(b->resource);
+            if (ensure_driver_loaded()) {
+                p_cuMemFree(b->resource);
+            }
             delete b;
         }
     );
@@ -416,9 +614,13 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
 }
 
 DevicePtrHandle deviceptr_alloc_host(size_t size) {
+    if (!ensure_driver_loaded()) {
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
     GILReleaseGuard gil;
     void* ptr;
-    if (CUDA_SUCCESS != (err = cuMemAllocHost(&ptr, size))) {
+    if (CUDA_SUCCESS != (err = p_cuMemAllocHost(&ptr, size))) {
         return {};
     }
 
@@ -426,7 +628,9 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
         new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), StreamHandle{}},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            cuMemFreeHost(reinterpret_cast<void*>(b->resource));
+            if (ensure_driver_loaded()) {
+                p_cuMemFreeHost(reinterpret_cast<void*>(b->resource));
+            }
             delete b;
         }
     );
@@ -473,11 +677,15 @@ static std::mutex ipc_ptr_cache_mutex;
 static std::unordered_map<CUdeviceptr, std::weak_ptr<DevicePtrBox>> ipc_ptr_cache;
 
 DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) {
+    if (!ensure_driver_loaded()) {
+        err = CUDA_ERROR_NOT_INITIALIZED;
+        return {};
+    }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     auto data = const_cast<CUmemPoolPtrExportData*>(
         reinterpret_cast<const CUmemPoolPtrExportData*>(export_data));
-    if (CUDA_SUCCESS != (err = cuMemPoolImportPointer(&ptr, *h_pool, data))) {
+    if (CUDA_SUCCESS != (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {
         return {};
     }
 
@@ -502,7 +710,9 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
                     ipc_ptr_cache.erase(ptr);
                 }
                 GILReleaseGuard gil;
-                cuMemFreeAsync(b->resource, native(b->h_stream));
+                if (ensure_driver_loaded()) {
+                    p_cuMemFreeAsync(b->resource, native(b->h_stream));
+                }
                 delete b;
             }
         );
@@ -515,12 +725,70 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
             new DevicePtrBox{ptr, h_stream},
             [h_pool](DevicePtrBox* b) {
                 GILReleaseGuard gil;
-                cuMemFreeAsync(b->resource, native(b->h_stream));
+                if (ensure_driver_loaded()) {
+                    p_cuMemFreeAsync(b->resource, native(b->h_stream));
+                }
                 delete b;
             }
         );
         return DevicePtrHandle(box, &box->resource);
     }
+}
+
+// ============================================================================
+// Capsule C++ API table
+// ============================================================================
+
+const ResourceHandlesCxxApiV1* get_resource_handles_cxx_api_v1() noexcept {
+    static const ResourceHandlesCxxApiV1 table = []() {
+        ResourceHandlesCxxApiV1 t{};
+        t.abi_version = RESOURCE_HANDLES_CXX_API_VERSION;
+        t.struct_size = static_cast<std::uint32_t>(sizeof(ResourceHandlesCxxApiV1));
+
+        // Error handling
+        t.get_last_error = &get_last_error;
+        t.peek_last_error = &peek_last_error;
+        t.clear_last_error = &clear_last_error;
+
+        // Context
+        t.create_context_handle_ref = &create_context_handle_ref;
+        t.get_primary_context = &get_primary_context;
+        t.get_current_context = &get_current_context;
+
+        // Stream
+        t.create_stream_handle = &create_stream_handle;
+        t.create_stream_handle_ref = &create_stream_handle_ref;
+        t.create_stream_handle_with_owner = &create_stream_handle_with_owner;
+        t.get_legacy_stream = &get_legacy_stream;
+        t.get_per_thread_stream = &get_per_thread_stream;
+
+        // Event (resolve overloads explicitly)
+        t.create_event_handle =
+            static_cast<EventHandle (*)(ContextHandle, unsigned int)>(&create_event_handle);
+        t.create_event_handle_noctx =
+            static_cast<EventHandle (*)(unsigned int)>(&create_event_handle);
+        t.create_event_handle_ipc = &create_event_handle_ipc;
+
+        // Memory pool
+        t.create_mempool_handle = &create_mempool_handle;
+        t.create_mempool_handle_ref = &create_mempool_handle_ref;
+        t.get_device_mempool = &get_device_mempool;
+        t.create_mempool_handle_ipc = &create_mempool_handle_ipc;
+
+        // Device pointer
+        t.deviceptr_alloc_from_pool = &deviceptr_alloc_from_pool;
+        t.deviceptr_alloc_async = &deviceptr_alloc_async;
+        t.deviceptr_alloc = &deviceptr_alloc;
+        t.deviceptr_alloc_host = &deviceptr_alloc_host;
+        t.deviceptr_create_ref = &deviceptr_create_ref;
+        t.deviceptr_create_with_owner = &deviceptr_create_with_owner;
+        t.deviceptr_import_ipc = &deviceptr_import_ipc;
+        t.deallocation_stream = &deallocation_stream;
+        t.set_deallocation_stream = &set_deallocation_stream;
+
+        return t;
+    }();
+    return &table;
 }
 
 }  // namespace cuda_core

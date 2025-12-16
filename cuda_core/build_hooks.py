@@ -12,6 +12,7 @@ import glob
 import os
 import re
 import subprocess
+import sys
 
 from Cython.Build import cythonize
 from setuptools import Extension
@@ -84,18 +85,6 @@ def _build_cuda_core():
         print("CUDA paths:", CUDA_PATH)
         return CUDA_PATH
 
-    @functools.cache
-    def get_cuda_library_dirs():
-        """Return library search paths for CUDA driver runtime."""
-
-        libdirs = []
-        for root in get_cuda_paths():
-            for subdir in ("lib64", "lib"):
-                candidate = os.path.join(root, subdir)
-                if os.path.isdir(candidate):
-                    libdirs.append(candidate)
-        return libdirs
-
     def get_sources(mod_name):
         """Get source files for a module, including any .cpp files."""
         sources = [f"cuda/core/experimental/{mod_name}.pyx"]
@@ -108,16 +97,15 @@ def _build_cuda_core():
         return sources
 
     def get_extension_kwargs(mod_name):
-        """Return Extension kwargs (libraries, library_dirs) per module."""
+        """Return Extension kwargs (libraries, etc.) per module."""
 
-        # Modules that use CUDA driver APIs need to link against libcuda
-        # _resource_handles: contains the C++ implementation that calls CUDA driver
-        # _context, _stream, _event, _device: use resource handles and may call CUDA driver directly
-        cuda_users = {"_resource_handles", "_context", "_stream", "_event", "_device"}
         kwargs = {}
-        if mod_name in cuda_users:
-            kwargs["libraries"] = ["cuda"]
-            kwargs["library_dirs"] = get_cuda_library_dirs()
+
+        # _resource_handles.cpp uses dlopen/dlsym on Linux, which requires -ldl on glibc < 2.34.
+        # (On Windows it uses LoadLibrary/GetProcAddress; on macOS dlopen is in libSystem.)
+        if sys.platform.startswith("linux") and mod_name == "_resource_handles":
+            kwargs["libraries"] = ["dl"]
+
         return kwargs
 
     ext_modules = tuple(
