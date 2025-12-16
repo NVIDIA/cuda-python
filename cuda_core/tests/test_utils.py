@@ -257,6 +257,22 @@ def test_from_buffer(shape, dtype, stride_order, readonly):
     assert view.readonly == readonly
 
 
+@pytest.mark.parametrize(
+    ("dtype", "itemsize", "msg"),
+    [
+        (np.dtype("int16"), 1, "itemsize .+ does not match dtype.itemsize .+"),
+        (None, None, "itemsize or dtype must be specified"),
+    ],
+)
+def test_from_buffer_incompatible_dtype_and_itemsize(dtype, itemsize, msg):
+    layout = _StridedLayout.dense((5,), 2)
+    device = Device()
+    device.set_current()
+    buffer = device.memory_resource.allocate(layout.required_size_in_bytes())
+    with pytest.raises(ValueError, match=msg):
+        StridedMemoryView.from_buffer(buffer, (5,), dtype=dtype, itemsize=itemsize)
+
+
 @pytest.mark.parametrize("stride_order", ["C", "F"])
 def test_from_buffer_sliced(stride_order):
     layout = _StridedLayout.dense((5, 7), 2, stride_order=stride_order)
