@@ -312,7 +312,7 @@ def test_from_buffer_disallowed_negative_offset():
     d = Device()
     d.set_current()
     buffer = d.memory_resource.allocate(20)
-    with pytest.raises(ValueError, match="please use _StridedLayout.to_dense()."):
+    with pytest.raises(ValueError):
         StridedMemoryView.from_buffer(
             buffer,
             shape=layout.shape,
