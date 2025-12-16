@@ -8,6 +8,7 @@ try:
     from cuda.bindings import driver
 except ImportError:
     from cuda import cuda as driver
+
 try:
     import numpy as np
 except ImportError:
@@ -22,9 +23,16 @@ from cuda.core.experimental import (
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
     GraphMemoryResource,
+    ManagedMemoryResource,
+    ManagedMemoryResourceOptions,
     MemoryResource,
+    PinnedMemoryResource,
+    PinnedMemoryResourceOptions,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
+)
+from cuda.core.experimental import (
+    system as ccx_system,
 )
 from cuda.core.experimental._dlpack import DLDeviceType
 from cuda.core.experimental._memory import IPCBufferDescriptor
@@ -33,6 +41,11 @@ from cuda.core.experimental.utils import StridedMemoryView
 from helpers import IS_WINDOWS
 from helpers.buffers import DummyUnifiedMemoryResource
 
+from conftest import (
+    create_managed_memory_resource_or_skip,
+    skip_if_managed_memory_unsupported,
+    skip_if_pinned_memory_unsupported,
+)
 from cuda_python_test_helpers import supports_ipc_mempool
 
 POOL_SIZE = 2097152  # 2MB size
@@ -128,6 +141,10 @@ def test_package_contents():
         "IPCBufferDescriptor",
         "IPCAllocationHandle",
         "LegacyPinnedMemoryResource",
+        "ManagedMemoryResource",
+        "ManagedMemoryResourceOptions",
+        "PinnedMemoryResourceOptions",
+        "PinnedMemoryResource",
         "VirtualMemoryResourceOptions",
         "VirtualMemoryResource",
     ]
@@ -219,6 +236,107 @@ def test_buffer_copy_from():
     buffer_copy_from(DummyPinnedMemoryResource(device), device, check=True)
 
 
+def _bytes_repeat(pattern: bytes, size: int) -> bytes:
+    assert len(pattern) > 0
+    assert size % len(pattern) == 0
+    return pattern * (size // len(pattern))
+
+
+def _pattern_bytes(value) -> bytes:
+    if isinstance(value, int):
+        return bytes([value])
+    return bytes(memoryview(value).cast("B"))
+
+
+@pytest.fixture(params=["device", "unified", "pinned"])
+def fill_env(request):
+    device = Device()
+    device.set_current()
+    if request.param == "device":
+        mr = DummyDeviceMemoryResource(device)
+    elif request.param == "unified":
+        mr = DummyUnifiedMemoryResource(device)
+    else:
+        mr = DummyPinnedMemoryResource(device)
+    return device, mr
+
+
+_FILL_SIZE = 64  # Keep small; divisible by 1/2/4.
+
+_FILL_CASES = [
+    # int -> 1-byte pattern
+    pytest.param(0x42, _FILL_SIZE, None, id="int-0x42"),
+    pytest.param(-1, _FILL_SIZE, OverflowError, id="int-neg"),
+    pytest.param(256, _FILL_SIZE, OverflowError, id="int-256"),
+    pytest.param(1000, _FILL_SIZE, OverflowError, id="int-1000"),
+    # bad type
+    pytest.param("invalid", _FILL_SIZE, TypeError, id="bad-type-str"),
+    # bytes-like patterns
+    pytest.param(b"\x7f", _FILL_SIZE, None, id="bytes-1"),
+    pytest.param(b"\x34\x12", _FILL_SIZE, None, id="bytes-2"),
+    pytest.param(b"\xef\xbe\xad\xde", _FILL_SIZE, None, id="bytes-4"),
+    pytest.param(b"\x34\x12", _FILL_SIZE + 1, ValueError, id="bytes-2-bad-size"),
+    pytest.param(b"\xef\xbe\xad\xde", _FILL_SIZE + 2, ValueError, id="bytes-4-bad-size"),
+    pytest.param(b"", _FILL_SIZE, ValueError, id="bytes-0"),
+    pytest.param(b"\x01\x02\x03", _FILL_SIZE, ValueError, id="bytes-3"),
+]
+
+if np is not None:
+    _FILL_CASES.extend(
+        [
+            # 8-bit patterns
+            pytest.param(np.uint8(0), _FILL_SIZE, None, id="np-uint8-0"),
+            pytest.param(np.uint8(255), _FILL_SIZE, None, id="np-uint8-255"),
+            pytest.param(np.int8(-1), _FILL_SIZE, None, id="np-int8--1"),
+            pytest.param(np.int8(127), _FILL_SIZE, None, id="np-int8-127"),
+            pytest.param(np.int8(-128), _FILL_SIZE, None, id="np-int8--128"),
+            # 16-bit patterns
+            pytest.param(np.uint16(0x1234), _FILL_SIZE, None, id="np-uint16-0x1234"),
+            pytest.param(np.uint16(0xFFFF), _FILL_SIZE, None, id="np-uint16-0xFFFF"),
+            pytest.param(np.int16(-1), _FILL_SIZE, None, id="np-int16--1"),
+            pytest.param(np.int16(32767), _FILL_SIZE, None, id="np-int16-max"),
+            pytest.param(np.int16(-32768), _FILL_SIZE, None, id="np-int16-min"),
+            pytest.param(np.uint16(0x1234), _FILL_SIZE + 1, ValueError, id="np-uint16-bad-size"),
+            # 32-bit patterns
+            pytest.param(np.uint32(0xDEADBEEF), _FILL_SIZE, None, id="np-uint32-0xDEADBEEF"),
+            pytest.param(np.uint32(0xFFFFFFFF), _FILL_SIZE, None, id="np-uint32-0xFFFFFFFF"),
+            pytest.param(np.int32(-1), _FILL_SIZE, None, id="np-int32--1"),
+            pytest.param(np.int32(2147483647), _FILL_SIZE, None, id="np-int32-max"),
+            pytest.param(np.int32(-2147483648), _FILL_SIZE, None, id="np-int32-min"),
+            pytest.param(np.uint32(0xDEADBEEF), _FILL_SIZE + 2, ValueError, id="np-uint32-bad-size"),
+            # float32 (bit-pattern fill)
+            pytest.param(np.float32(1.0), _FILL_SIZE, None, id="np-float32-1.0"),
+            # 64-bit patterns should error (8-byte pattern)
+            pytest.param(np.uint64(0), _FILL_SIZE, ValueError, id="np-uint64-err"),
+            pytest.param(np.int64(0), _FILL_SIZE, ValueError, id="np-int64-err"),
+            pytest.param(np.float64(0), _FILL_SIZE, ValueError, id="np-float64-err"),
+        ]
+    )
+
+
+@pytest.mark.parametrize("value,size,exc", _FILL_CASES)
+def test_buffer_fill(fill_env, value, size, exc):
+    device, mr = fill_env
+    stream = device.create_stream()
+    buffer = mr.allocate(size=size)
+    try:
+        if exc is not None:
+            with pytest.raises(exc):
+                buffer.fill(value, stream=stream)
+            return
+
+        buffer.fill(value, stream=stream)
+        device.sync()
+
+        # Verify contents only for host-accessible buffers.
+        if buffer.is_host_accessible:
+            pat = _pattern_bytes(value)
+            got = ctypes.string_at(int(buffer.handle), size)
+            assert got == _bytes_repeat(pat, size)
+    finally:
+        buffer.close()
+
+
 def buffer_close(dummy_mr: MemoryResource):
     buffer = dummy_mr.allocate(size=1024)
     buffer.close()
@@ -233,6 +351,141 @@ def test_buffer_close():
     buffer_close(DummyHostMemoryResource())
     buffer_close(DummyUnifiedMemoryResource(device))
     buffer_close(DummyPinnedMemoryResource(device))
+
+
+def test_buffer_external_host():
+    a = (ctypes.c_byte * 20)()
+    ptr = ctypes.addressof(a)
+    buffer = Buffer.from_handle(ptr, 20, owner=a)
+    assert not buffer.is_device_accessible
+    assert buffer.is_host_accessible
+    assert buffer.device_id == -1
+    buffer.close()
+
+
+@pytest.mark.parametrize("change_device", [True, False])
+def test_buffer_external_device(change_device):
+    n = ccx_system.num_devices
+    if n < 1:
+        pytest.skip("No devices found")
+    dev_id = n - 1
+    d = Device(dev_id)
+    d.set_current()
+    buffer_ = d.allocate(size=32)
+
+    if change_device:
+        # let's switch to a different device if possibe
+        # to make sure we get the original device id
+        d = Device(0)
+        d.set_current()
+
+    buffer = Buffer.from_handle(int(buffer_.handle), 32)
+    assert buffer.is_device_accessible
+    assert not buffer.is_host_accessible
+    assert buffer.device_id == dev_id
+    buffer.close()
+    buffer_.close()
+
+
+@pytest.mark.parametrize("change_device", [True, False])
+def test_buffer_external_pinned_alloc(change_device):
+    n = ccx_system.num_devices
+    if n < 1:
+        pytest.skip("No devices found")
+    dev_id = n - 1
+    d = Device(dev_id)
+    d.set_current()
+    mr = DummyPinnedMemoryResource(d)
+    buffer_ = mr.allocate(size=32)
+
+    if change_device:
+        # let's switch to a different device if possibe
+        # to make sure we get the original device id
+        d = Device(0)
+        d.set_current()
+
+    buffer = Buffer.from_handle(int(buffer_.handle), 32)
+    assert buffer.is_device_accessible
+    assert buffer.is_host_accessible
+    assert buffer.device_id == dev_id
+    buffer.close()
+    buffer_.close()
+
+
+@pytest.mark.parametrize("change_device", [True, False])
+def test_buffer_external_pinned_registered(change_device):
+    n = ccx_system.num_devices
+    if n < 1:
+        pytest.skip("No devices found")
+    dev_id = n - 1
+    d = Device(dev_id)
+    d.set_current()
+    a = (ctypes.c_byte * 20)()
+    ptr = ctypes.addressof(a)
+
+    buffer = Buffer.from_handle(ptr, 20, owner=ptr)
+    assert not buffer.is_device_accessible
+    assert buffer.is_host_accessible
+    assert buffer.device_id == -1
+
+    handle_return(driver.cuMemHostRegister(ptr, 20, 0))
+    try:
+        if change_device:
+            # let's switch to a different device if possibe
+            # to make sure we get the original device id
+            d = Device(0)
+            d.set_current()
+
+        buffer = Buffer.from_handle(ptr, 20, owner=ptr)
+        assert buffer.is_device_accessible
+        assert buffer.is_host_accessible
+        assert buffer.device_id == dev_id
+        buffer.close()
+    finally:
+        handle_return(driver.cuMemHostUnregister(ptr))
+
+
+@pytest.mark.parametrize("change_device", [True, False])
+def test_buffer_external_managed(change_device):
+    n = ccx_system.num_devices
+    if n < 1:
+        pytest.skip("No devices found")
+    dev_id = n - 1
+    d = Device(dev_id)
+    d.set_current()
+    ptr = None
+    try:
+        ptr = handle_return(driver.cuMemAllocManaged(32, driver.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value))
+        if change_device:
+            # let's switch to a different device if possibe
+            # to make sure we get the original device id
+            d = Device(0)
+            d.set_current()
+        buffer = Buffer.from_handle(ptr, 32)
+        assert buffer.is_device_accessible
+        assert buffer.is_host_accessible
+        assert buffer.device_id == dev_id
+    finally:
+        if ptr is not None:
+            handle_return(driver.cuMemFree(ptr))
+
+
+def test_memory_resource_and_owner_disallowed():
+    with pytest.raises(ValueError, match="cannot be both specified together"):
+        a = (ctypes.c_byte * 20)()
+        ptr = ctypes.addressof(a)
+        Buffer.from_handle(ptr, 20, mr=DummyDeviceMemoryResource(Device()), owner=a)
+
+
+def test_owner_close():
+    a = (ctypes.c_byte * 20)()
+    ptr = ctypes.addressof(a)
+    before = sys.getrefcount(a)
+    buffer = Buffer.from_handle(ptr, 20, owner=a)
+    assert sys.getrefcount(a) != before
+    buffer.close()
+    after = sys.getrefcount(a)
+    assert after == before
 
 
 def test_buffer_dunder_dlpack():
@@ -320,6 +573,45 @@ def test_device_memory_resource_initialization(use_device_object):
     buffer = mr.allocate(1024)
     assert buffer.size == 1024
     assert buffer.device_id == device.device_id
+    buffer.close()
+
+
+def test_pinned_memory_resource_initialization(init_cuda):
+    device = Device()
+    skip_if_pinned_memory_unsupported(device)
+
+    device.set_current()
+
+    mr = PinnedMemoryResource()
+    assert mr.is_device_accessible
+    assert mr.is_host_accessible
+
+    # Test allocation/deallocation works
+    buffer = mr.allocate(1024)
+    assert buffer.size == 1024
+    assert buffer.device_id == -1  # Not bound to any GPU
+    assert buffer.is_host_accessible
+    assert buffer.memory_resource == mr
+    assert buffer.is_device_accessible
+    buffer.close()
+
+
+def test_managed_memory_resource_initialization(init_cuda):
+    device = Device()
+    skip_if_managed_memory_unsupported(device)
+
+    device.set_current()
+
+    mr = create_managed_memory_resource_or_skip()
+    assert mr.is_device_accessible
+    assert mr.is_host_accessible
+
+    # Test allocation/deallocation works
+    buffer = mr.allocate(1024)
+    assert buffer.size == 1024
+    assert buffer.is_host_accessible  # But accessible from host
+    assert buffer.memory_resource == mr
+    assert buffer.is_device_accessible
     buffer.close()
 
 
@@ -524,9 +816,8 @@ def test_vmm_allocator_rdma_unsupported_exception():
         VirtualMemoryResource(device, config=options)
 
 
-def test_device_memory_resource():
+def test_device_memory_resource_with_options(init_cuda):
     device = Device()
-
     if not device.properties.memory_pools_supported:
         pytest.skip("Device does not support mempool operations")
 
@@ -560,7 +851,98 @@ def test_device_memory_resource():
     stream = device.create_stream()
     buffer = mr.allocate(1024, stream=stream)
     assert buffer.handle != 0
-    buffer.close()
+    buffer.close(stream)
+
+    # Test memory copying between buffers from same pool
+    src_buffer = mr.allocate(64)
+    dst_buffer = mr.allocate(64)
+    stream = device.create_stream()
+    src_buffer.copy_to(dst_buffer, stream=stream)
+    device.sync()
+    dst_buffer.close()
+    src_buffer.close()
+
+
+def test_pinned_memory_resource_with_options(init_cuda):
+    device = Device()
+    skip_if_pinned_memory_unsupported(device)
+
+    device.set_current()
+
+    # Test basic pool creation
+    options = PinnedMemoryResourceOptions(max_size=POOL_SIZE)
+    mr = PinnedMemoryResource(options)
+    assert mr.device_id == -1  # Not bound to any GPU
+    assert mr.is_device_accessible
+    assert mr.is_host_accessible
+    assert not mr.is_ipc_enabled
+
+    # Test allocation and deallocation
+    buffer1 = mr.allocate(1024)
+    assert buffer1.handle != 0
+    assert buffer1.size == 1024
+    assert buffer1.memory_resource == mr
+    buffer1.close()
+
+    # Test multiple allocations
+    buffer1 = mr.allocate(1024)
+    buffer2 = mr.allocate(2048)
+    assert buffer1.handle != buffer2.handle
+    assert buffer1.size == 1024
+    assert buffer2.size == 2048
+    buffer1.close()
+    buffer2.close()
+
+    # Test stream-based allocation
+    stream = device.create_stream()
+    buffer = mr.allocate(1024, stream=stream)
+    assert buffer.handle != 0
+    buffer.close(stream)
+
+    # Test memory copying between buffers from same pool
+    src_buffer = mr.allocate(64)
+    dst_buffer = mr.allocate(64)
+    stream = device.create_stream()
+    src_buffer.copy_to(dst_buffer, stream=stream)
+    device.sync()
+    dst_buffer.close()
+    src_buffer.close()
+
+
+def test_managed_memory_resource_with_options(init_cuda):
+    device = Device()
+    skip_if_managed_memory_unsupported(device)
+
+    device.set_current()
+
+    # Test basic pool creation
+    options = ManagedMemoryResourceOptions()
+    mr = create_managed_memory_resource_or_skip(options)
+    assert mr.is_device_accessible
+    assert mr.is_host_accessible
+    assert not mr.is_ipc_enabled
+
+    # Test allocation and deallocation
+    buffer1 = mr.allocate(1024)
+    assert buffer1.handle != 0
+    assert buffer1.size == 1024
+    assert buffer1.memory_resource == mr
+    buffer1.close()
+
+    # Test multiple allocations
+    buffer1 = mr.allocate(1024)
+    buffer2 = mr.allocate(2048)
+    assert buffer1.handle != buffer2.handle
+    assert buffer1.size == 1024
+    assert buffer2.size == 2048
+    buffer1.close()
+    buffer2.close()
+
+    # Test stream-based allocation
+    stream = device.create_stream()
+    buffer = mr.allocate(1024, stream=stream)
+    assert buffer.handle != 0
+    buffer.close(stream)
 
     # Test memory copying between buffers from same pool
     src_buffer = mr.allocate(64)
@@ -593,6 +975,76 @@ def test_mempool_ipc_errors(mempool_device):
     buffer.close()
 
 
+def test_pinned_mempool_ipc_basic():
+    """Test basic IPC functionality for PinnedMemoryResource."""
+    device = Device()
+    device.set_current()
+
+    skip_if_pinned_memory_unsupported(device)
+
+    if platform.system() == "Windows":
+        pytest.skip("IPC not implemented for Windows")
+
+    if not supports_ipc_mempool(device):
+        pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
+
+    # Test IPC-enabled PinnedMemoryResource creation
+    options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=True)
+    mr = PinnedMemoryResource(options)
+    assert mr.is_ipc_enabled
+    assert mr.is_device_accessible
+    assert mr.is_host_accessible
+    assert mr.device_id == 0  # IPC-enabled uses location id 0
+
+    # Test allocation handle export
+    alloc_handle = mr.get_allocation_handle()
+    assert alloc_handle is not None
+
+    # Test buffer allocation
+    buffer = mr.allocate(1024)
+    assert buffer.size == 1024
+    assert buffer.is_device_accessible
+    assert buffer.is_host_accessible
+
+    # Test IPC descriptor
+    ipc_desc = buffer.get_ipc_descriptor()
+    assert ipc_desc is not None
+    assert ipc_desc.size == 1024
+
+    buffer.close()
+    mr.close()
+
+
+def test_pinned_mempool_ipc_errors():
+    """Test error cases when IPC operations are disabled for PinnedMemoryResource."""
+    device = Device()
+    device.set_current()
+
+    skip_if_pinned_memory_unsupported(device)
+
+    # Test with IPC disabled (default)
+    options = PinnedMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=False)
+    mr = PinnedMemoryResource(options)
+    assert not mr.is_ipc_enabled
+    assert mr.device_id == -1  # Non-IPC uses location id -1
+
+    buffer = mr.allocate(64)
+    ipc_error_msg = "Memory resource is not IPC-enabled"
+
+    with pytest.raises(RuntimeError, match=ipc_error_msg):
+        mr.get_allocation_handle()
+
+    with pytest.raises(RuntimeError, match=ipc_error_msg):
+        buffer.get_ipc_descriptor()
+
+    with pytest.raises(RuntimeError, match=ipc_error_msg):
+        handle = IPCBufferDescriptor._init(b"", 0)
+        Buffer.from_ipc_descriptor(mr, handle)
+
+    buffer.close()
+    mr.close()
+
+
 @pytest.mark.parametrize("ipc_enabled", [True, False])
 @pytest.mark.parametrize(
     "property_name,expected_type",
@@ -607,18 +1059,42 @@ def test_mempool_ipc_errors(mempool_device):
         ("used_mem_high", int),
     ],
 )
-def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected_type):
-    """Test all properties of the DeviceMemoryResource class."""
-    device = mempool_device
+def test_mempool_attributes(ipc_enabled, memory_resource_factory, property_name, expected_type):
+    """Test all properties of memory pool attributes for all memory resource types."""
+    MR, MRops = memory_resource_factory
+    device = Device()
+
+    if MR is DeviceMemoryResource and not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+    elif MR is PinnedMemoryResource:
+        skip_if_pinned_memory_unsupported(device)
+    elif MR is ManagedMemoryResource:
+        skip_if_managed_memory_unsupported(device)
+
+    # ManagedMemoryResource does not support IPC
+    if MR is ManagedMemoryResource and ipc_enabled:
+        pytest.skip(f"{MR.__name__} does not support IPC")
+
+    device.set_current()
+
     if platform.system() == "Windows":
         return  # IPC not implemented for Windows
 
     if ipc_enabled and not supports_ipc_mempool(device):
         pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
-    options = DeviceMemoryResourceOptions(max_size=POOL_SIZE, ipc_enabled=ipc_enabled)
-    mr = DeviceMemoryResource(device, options=options)
-    assert mr.is_ipc_enabled == ipc_enabled
+    if MR is DeviceMemoryResource:
+        options = MRops(max_size=POOL_SIZE, ipc_enabled=ipc_enabled)
+        mr = MR(device, options=options)
+        assert mr.is_ipc_enabled == ipc_enabled
+    elif MR is PinnedMemoryResource:
+        options = MRops(max_size=POOL_SIZE, ipc_enabled=ipc_enabled)
+        mr = MR(options)
+        assert mr.is_ipc_enabled == ipc_enabled
+    elif MR is ManagedMemoryResource:
+        options = MRops()
+        mr = create_managed_memory_resource_or_skip(options)
+        assert not mr.is_ipc_enabled
 
     # Get the property value
     value = getattr(mr.attributes, property_name)
@@ -651,15 +1127,32 @@ def test_mempool_attributes(ipc_enabled, mempool_device, property_name, expected
         assert value >= current_value, f"{property_name} should be >= {current_prop}"
 
 
-def test_mempool_attributes_repr(mempool_device):
+def test_mempool_attributes_repr(memory_resource_factory):
+    """Test the repr of memory pool attributes for all memory resource types."""
+    MR, MRops = memory_resource_factory
     device = Device()
+
+    if MR is DeviceMemoryResource and not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+    elif MR is PinnedMemoryResource:
+        skip_if_pinned_memory_unsupported(device)
+    elif MR is ManagedMemoryResource:
+        skip_if_managed_memory_unsupported(device)
+
     device.set_current()
-    mr = DeviceMemoryResource(device, options={"max_size": 2048})
+
+    if MR is DeviceMemoryResource:
+        mr = MR(device, options={"max_size": 2048})
+    elif MR is PinnedMemoryResource:
+        mr = MR(options={"max_size": 2048})
+    elif MR is ManagedMemoryResource:
+        mr = create_managed_memory_resource_or_skip(options={})
+
     buffer1 = mr.allocate(64)
     buffer2 = mr.allocate(64)
     buffer1.close()
     assert re.match(
-        r"DeviceMemoryResourceAttributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
+        r".*Attributes\(release_threshold=\d+, reserved_mem_current=\d+, reserved_mem_high=\d+, "
         r"reuse_allow_internal_dependencies=(True|False), reuse_allow_opportunistic=(True|False), "
         r"reuse_follow_event_dependencies=(True|False), used_mem_current=\d+, used_mem_high=\d+\)",
         str(mr.attributes),
@@ -667,26 +1160,49 @@ def test_mempool_attributes_repr(mempool_device):
     buffer2.close()
 
 
-def test_mempool_attributes_ownership(mempool_device):
-    """Ensure the attributes bundle handles references correctly."""
-    device = mempool_device
-    # Skip if IPC mempool is not supported on this platform/device
-    if not supports_ipc_mempool(device):
+def test_mempool_attributes_ownership(memory_resource_factory):
+    """Ensure the attributes bundle handles references correctly for all memory resource types."""
+    MR, MRops = memory_resource_factory
+    device = Device()
+
+    if MR is DeviceMemoryResource and not device.properties.memory_pools_supported:
+        pytest.skip("Device does not support mempool operations")
+    elif MR is PinnedMemoryResource:
+        skip_if_pinned_memory_unsupported(device)
+    elif MR is ManagedMemoryResource:
+        skip_if_managed_memory_unsupported(device)
+
+    # Skip if IPC mempool is not supported on this platform/device (only relevant for DeviceMemoryResource)
+    if MR is DeviceMemoryResource and not supports_ipc_mempool(device):
         pytest.skip("Driver rejects IPC-enabled mempool creation on this platform")
 
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))
+    device.set_current()
+
+    if MR is DeviceMemoryResource:
+        mr = MR(device, dict(max_size=POOL_SIZE))
+    elif MR is PinnedMemoryResource:
+        mr = MR(dict(max_size=POOL_SIZE))
+    elif MR is ManagedMemoryResource:
+        mr = create_managed_memory_resource_or_skip(dict())
+
     attributes = mr.attributes
     mr.close()
     del mr
 
     # After deleting the memory resource, the attributes suite is disconnected.
-    with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
+    with pytest.raises(RuntimeError, match="is expired"):
         _ = attributes.used_mem_high
 
     # Even when a new object is created (we found a case where the same
     # mempool handle was really reused).
-    mr = DeviceMemoryResource(device, dict(max_size=POOL_SIZE))  # noqa: F841
-    with pytest.raises(RuntimeError, match="DeviceMemoryResource is expired"):
+    if MR is DeviceMemoryResource:
+        mr = MR(device, dict(max_size=POOL_SIZE))  # noqa: F841
+    elif MR is PinnedMemoryResource:
+        mr = MR(dict(max_size=POOL_SIZE))  # noqa: F841
+    elif MR is ManagedMemoryResource:
+        mr = create_managed_memory_resource_or_skip(dict())  # noqa: F841
+
+    with pytest.raises(RuntimeError, match="is expired"):
         _ = attributes.used_mem_high
 
 

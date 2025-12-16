@@ -16,6 +16,7 @@ cuda-bindings = { path = "." }
 [feature.test.dependencies]
 pytest = ">=6.2.4"
 pytest-benchmark = ">=3.4.1"
+pytest-randomly = "*"
 pyglet = ">=2.1.9"
 numpy = "*"
 

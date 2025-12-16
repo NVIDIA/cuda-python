@@ -1468,7 +1468,7 @@ def test_set_get_parameter_string(tmp_path):
         try:
             # Currently this line will raise, see below.
             cufile.set_parameter_string(param, int(ctypes.addressof(orig_val_buf)))
-        except:
+        except cufile.cuFileError:
             # This block will always be reached because cuFILE could start with garbage default (empty string)
             # that cannot be restored. In other words, cuFILE does honor the common sense that getter/setter
             # should be round-tripable.

@@ -18,6 +18,7 @@ from cuda.core.experimental._linker import Linker, LinkerHandleT, LinkerOptions
 from cuda.core.experimental._module import ObjectCode
 from cuda.core.experimental._utils.clear_error_support import assert_type
 from cuda.core.experimental._utils.cuda_utils import (
+    CUDAError,
     _handle_boolean_option,
     check_or_create_options,
     driver,
@@ -255,9 +256,45 @@ class ProgramOptions:
     minimal : bool, optional
         Omit certain language features to reduce compile time for small programs.
         Default: False
+    no_cache : bool, optional
+        Disable compiler caching.
+        Default: False
+    fdevice_time_trace : str, optional
+        Generate time trace JSON for profiling compilation (NVRTC only).
+        Default: None
+    device_float128 : bool, optional
+        Allow __float128 type in device code (NVRTC only).
+        Default: False
+    frandom_seed : str, optional
+        Set random seed for randomized optimizations (NVRTC only).
+        Default: None
+    ofast_compile : str, optional
+        Fast compilation mode: "0", "min", "mid", or "max" (NVRTC only).
+        Default: None
+    pch : bool, optional
+        Use default precompiled header (NVRTC only, CUDA 12.8+).
+        Default: False
+    create_pch : str, optional
+        Create precompiled header file (NVRTC only, CUDA 12.8+).
+        Default: None
+    use_pch : str, optional
+        Use specific precompiled header file (NVRTC only, CUDA 12.8+).
+        Default: None
+    pch_dir : str, optional
+        PCH directory location (NVRTC only, CUDA 12.8+).
+        Default: None
+    pch_verbose : bool, optional
+        Verbose PCH output (NVRTC only, CUDA 12.8+).
+        Default: False
+    pch_messages : bool, optional
+        Control PCH diagnostic messages (NVRTC only, CUDA 12.8+).
+        Default: False
+    instantiate_templates_in_pch : bool, optional
+        Control template instantiation in PCH (NVRTC only, CUDA 12.8+).
+        Default: False
     """
 
-    name: str | None = "<default program>"
+    name: str | None = "default_program"
     arch: str | None = None
     relocatable_device_code: bool | None = None
     extensible_whole_program: bool | None = None
@@ -302,137 +339,299 @@ class ProgramOptions:
     extra_sources: (
         Union[List[Tuple[str, Union[str, bytes, bytearray]]], Tuple[Tuple[str, Union[str, bytes, bytearray]]]] | None
     ) = None
+    no_cache: bool | None = None
+    fdevice_time_trace: str | None = None
+    device_float128: bool | None = None
+    frandom_seed: str | None = None
+    ofast_compile: str | None = None
+    pch: bool | None = None
+    create_pch: str | None = None
+    use_pch: str | None = None
+    pch_dir: str | None = None
+    pch_verbose: bool | None = None
+    pch_messages: bool | None = None
+    instantiate_templates_in_pch: bool | None = None
     numba_debug: bool | None = None  # Custom option for Numba debugging
 
     def __post_init__(self):
         self._name = self.name.encode()
-
-        self._formatted_options = []
-        if self.arch is not None:
-            self._formatted_options.append(f"-arch={self.arch}")
-        else:
+        # Set arch to default if not provided
+        if self.arch is None:
             self.arch = f"sm_{Device().arch}"
-            self._formatted_options.append(f"-arch={self.arch}")
+
+    def _prepare_nvrtc_options(self) -> list[bytes]:
+        # Build NVRTC-specific options
+        options = [f"-arch={self.arch}"]
         if self.relocatable_device_code is not None:
-            self._formatted_options.append(
-                f"--relocatable-device-code={_handle_boolean_option(self.relocatable_device_code)}"
-            )
+            options.append(f"--relocatable-device-code={_handle_boolean_option(self.relocatable_device_code)}")
         if self.extensible_whole_program is not None and self.extensible_whole_program:
-            self._formatted_options.append("--extensible-whole-program")
+            options.append("--extensible-whole-program")
         if self.debug is not None and self.debug:
-            self._formatted_options.append("--device-debug")
+            options.append("--device-debug")
         if self.lineinfo is not None and self.lineinfo:
-            self._formatted_options.append("--generate-line-info")
+            options.append("--generate-line-info")
         if self.device_code_optimize is not None and self.device_code_optimize:
-            self._formatted_options.append("--dopt=on")
+            options.append("--dopt=on")
         if self.ptxas_options is not None:
             opt_name = "--ptxas-options"
             if isinstance(self.ptxas_options, str):
-                self._formatted_options.append(f"{opt_name}={self.ptxas_options}")
+                options.append(f"{opt_name}={self.ptxas_options}")
             elif is_sequence(self.ptxas_options):
                 for opt_value in self.ptxas_options:
-                    self._formatted_options.append(f"{opt_name}={opt_value}")
+                    options.append(f"{opt_name}={opt_value}")
         if self.max_register_count is not None:
-            self._formatted_options.append(f"--maxrregcount={self.max_register_count}")
+            options.append(f"--maxrregcount={self.max_register_count}")
         if self.ftz is not None:
-            self._formatted_options.append(f"--ftz={_handle_boolean_option(self.ftz)}")
+            options.append(f"--ftz={_handle_boolean_option(self.ftz)}")
         if self.prec_sqrt is not None:
-            self._formatted_options.append(f"--prec-sqrt={_handle_boolean_option(self.prec_sqrt)}")
+            options.append(f"--prec-sqrt={_handle_boolean_option(self.prec_sqrt)}")
         if self.prec_div is not None:
-            self._formatted_options.append(f"--prec-div={_handle_boolean_option(self.prec_div)}")
+            options.append(f"--prec-div={_handle_boolean_option(self.prec_div)}")
         if self.fma is not None:
-            self._formatted_options.append(f"--fmad={_handle_boolean_option(self.fma)}")
+            options.append(f"--fmad={_handle_boolean_option(self.fma)}")
         if self.use_fast_math is not None and self.use_fast_math:
-            self._formatted_options.append("--use_fast_math")
+            options.append("--use_fast_math")
         if self.extra_device_vectorization is not None and self.extra_device_vectorization:
-            self._formatted_options.append("--extra-device-vectorization")
+            options.append("--extra-device-vectorization")
         if self.link_time_optimization is not None and self.link_time_optimization:
-            self._formatted_options.append("--dlink-time-opt")
+            options.append("--dlink-time-opt")
         if self.gen_opt_lto is not None and self.gen_opt_lto:
-            self._formatted_options.append("--gen-opt-lto")
+            options.append("--gen-opt-lto")
         if self.define_macro is not None:
-            _process_define_macro(self._formatted_options, self.define_macro)
+            _process_define_macro(options, self.define_macro)
         if self.undefine_macro is not None:
             if isinstance(self.undefine_macro, str):
-                self._formatted_options.append(f"--undefine-macro={self.undefine_macro}")
+                options.append(f"--undefine-macro={self.undefine_macro}")
             elif is_sequence(self.undefine_macro):
                 for macro in self.undefine_macro:
-                    self._formatted_options.append(f"--undefine-macro={macro}")
+                    options.append(f"--undefine-macro={macro}")
         if self.include_path is not None:
             if isinstance(self.include_path, str):
-                self._formatted_options.append(f"--include-path={self.include_path}")
+                options.append(f"--include-path={self.include_path}")
             elif is_sequence(self.include_path):
                 for path in self.include_path:
-                    self._formatted_options.append(f"--include-path={path}")
+                    options.append(f"--include-path={path}")
         if self.pre_include is not None:
             if isinstance(self.pre_include, str):
-                self._formatted_options.append(f"--pre-include={self.pre_include}")
+                options.append(f"--pre-include={self.pre_include}")
             elif is_sequence(self.pre_include):
                 for header in self.pre_include:
-                    self._formatted_options.append(f"--pre-include={header}")
-
+                    options.append(f"--pre-include={header}")
         if self.no_source_include is not None and self.no_source_include:
-            self._formatted_options.append("--no-source-include")
+            options.append("--no-source-include")
         if self.std is not None:
-            self._formatted_options.append(f"--std={self.std}")
+            options.append(f"--std={self.std}")
         if self.builtin_move_forward is not None:
-            self._formatted_options.append(
-                f"--builtin-move-forward={_handle_boolean_option(self.builtin_move_forward)}"
-            )
+            options.append(f"--builtin-move-forward={_handle_boolean_option(self.builtin_move_forward)}")
         if self.builtin_initializer_list is not None:
-            self._formatted_options.append(
-                f"--builtin-initializer-list={_handle_boolean_option(self.builtin_initializer_list)}"
-            )
+            options.append(f"--builtin-initializer-list={_handle_boolean_option(self.builtin_initializer_list)}")
         if self.disable_warnings is not None and self.disable_warnings:
-            self._formatted_options.append("--disable-warnings")
+            options.append("--disable-warnings")
         if self.restrict is not None and self.restrict:
-            self._formatted_options.append("--restrict")
+            options.append("--restrict")
         if self.device_as_default_execution_space is not None and self.device_as_default_execution_space:
-            self._formatted_options.append("--device-as-default-execution-space")
+            options.append("--device-as-default-execution-space")
         if self.device_int128 is not None and self.device_int128:
-            self._formatted_options.append("--device-int128")
+            options.append("--device-int128")
+        if self.device_float128 is not None and self.device_float128:
+            options.append("--device-float128")
         if self.optimization_info is not None:
-            self._formatted_options.append(f"--optimization-info={self.optimization_info}")
+            options.append(f"--optimization-info={self.optimization_info}")
         if self.no_display_error_number is not None and self.no_display_error_number:
-            self._formatted_options.append("--no-display-error-number")
+            options.append("--no-display-error-number")
         if self.diag_error is not None:
             if isinstance(self.diag_error, int):
-                self._formatted_options.append(f"--diag-error={self.diag_error}")
+                options.append(f"--diag-error={self.diag_error}")
             elif is_sequence(self.diag_error):
                 for error in self.diag_error:
-                    self._formatted_options.append(f"--diag-error={error}")
+                    options.append(f"--diag-error={error}")
         if self.diag_suppress is not None:
             if isinstance(self.diag_suppress, int):
-                self._formatted_options.append(f"--diag-suppress={self.diag_suppress}")
+                options.append(f"--diag-suppress={self.diag_suppress}")
             elif is_sequence(self.diag_suppress):
                 for suppress in self.diag_suppress:
-                    self._formatted_options.append(f"--diag-suppress={suppress}")
+                    options.append(f"--diag-suppress={suppress}")
         if self.diag_warn is not None:
             if isinstance(self.diag_warn, int):
-                self._formatted_options.append(f"--diag-warn={self.diag_warn}")
+                options.append(f"--diag-warn={self.diag_warn}")
             elif is_sequence(self.diag_warn):
                 for warn in self.diag_warn:
-                    self._formatted_options.append(f"--diag-warn={warn}")
+                    options.append(f"--diag-warn={warn}")
         if self.brief_diagnostics is not None:
-            self._formatted_options.append(f"--brief-diagnostics={_handle_boolean_option(self.brief_diagnostics)}")
+            options.append(f"--brief-diagnostics={_handle_boolean_option(self.brief_diagnostics)}")
         if self.time is not None:
-            self._formatted_options.append(f"--time={self.time}")
+            options.append(f"--time={self.time}")
         if self.split_compile is not None:
-            self._formatted_options.append(f"--split-compile={self.split_compile}")
+            options.append(f"--split-compile={self.split_compile}")
         if self.fdevice_syntax_only is not None and self.fdevice_syntax_only:
-            self._formatted_options.append("--fdevice-syntax-only")
+            options.append("--fdevice-syntax-only")
         if self.minimal is not None and self.minimal:
-            self._formatted_options.append("--minimal")
+            options.append("--minimal")
+        if self.no_cache is not None and self.no_cache:
+            options.append("--no-cache")
+        if self.fdevice_time_trace is not None:
+            options.append(f"--fdevice-time-trace={self.fdevice_time_trace}")
+        if self.frandom_seed is not None:
+            options.append(f"--frandom-seed={self.frandom_seed}")
+        if self.ofast_compile is not None:
+            options.append(f"--Ofast-compile={self.ofast_compile}")
+        # PCH options (CUDA 12.8+)
+        if self.pch is not None and self.pch:
+            options.append("--pch")
+        if self.create_pch is not None:
+            options.append(f"--create-pch={self.create_pch}")
+        if self.use_pch is not None:
+            options.append(f"--use-pch={self.use_pch}")
+        if self.pch_dir is not None:
+            options.append(f"--pch-dir={self.pch_dir}")
+        if self.pch_verbose is not None:
+            options.append(f"--pch-verbose={_handle_boolean_option(self.pch_verbose)}")
+        if self.pch_messages is not None:
+            options.append(f"--pch-messages={_handle_boolean_option(self.pch_messages)}")
+        if self.instantiate_templates_in_pch is not None:
+            options.append(
+                f"--instantiate-templates-in-pch={_handle_boolean_option(self.instantiate_templates_in_pch)}"
+            )
         if self.numba_debug:
-            self._formatted_options.append("--numba-debug")
+            options.append("--numba-debug")
+        return [o.encode() for o in options]
 
-    def _as_bytes(self):
-        # TODO: allow tuples once NVIDIA/cuda-python#72 is resolved
-        return list(o.encode() for o in self._formatted_options)
+    def _prepare_nvvm_options(self, as_bytes: bool = True) -> Union[list[bytes], list[str]]:
+        options = []
+
+        # Options supported by NVVM
+        assert self.arch is not None
+        arch = self.arch
+        if arch.startswith("sm_"):
+            arch = f"compute_{arch[3:]}"
+        options.append(f"-arch={arch}")
+        if self.debug is not None and self.debug:
+            options.append("-g")
+        if self.device_code_optimize is False:
+            options.append("-opt=0")
+        elif self.device_code_optimize is True:
+            options.append("-opt=3")
+        # NVVM uses 0/1 instead of true/false for boolean options
+        if self.ftz is not None:
+            options.append(f"-ftz={'1' if self.ftz else '0'}")
+        if self.prec_sqrt is not None:
+            options.append(f"-prec-sqrt={'1' if self.prec_sqrt else '0'}")
+        if self.prec_div is not None:
+            options.append(f"-prec-div={'1' if self.prec_div else '0'}")
+        if self.fma is not None:
+            options.append(f"-fma={'1' if self.fma else '0'}")
+
+        # Check for unsupported options and raise error if they are set
+        unsupported = []
+        if self.relocatable_device_code is not None:
+            unsupported.append("relocatable_device_code")
+        if self.extensible_whole_program is not None and self.extensible_whole_program:
+            unsupported.append("extensible_whole_program")
+        if self.lineinfo is not None and self.lineinfo:
+            unsupported.append("lineinfo")
+        if self.ptxas_options is not None:
+            unsupported.append("ptxas_options")
+        if self.max_register_count is not None:
+            unsupported.append("max_register_count")
+        if self.use_fast_math is not None and self.use_fast_math:
+            unsupported.append("use_fast_math")
+        if self.extra_device_vectorization is not None and self.extra_device_vectorization:
+            unsupported.append("extra_device_vectorization")
+        if self.gen_opt_lto is not None and self.gen_opt_lto:
+            unsupported.append("gen_opt_lto")
+        if self.define_macro is not None:
+            unsupported.append("define_macro")
+        if self.undefine_macro is not None:
+            unsupported.append("undefine_macro")
+        if self.include_path is not None:
+            unsupported.append("include_path")
+        if self.pre_include is not None:
+            unsupported.append("pre_include")
+        if self.no_source_include is not None and self.no_source_include:
+            unsupported.append("no_source_include")
+        if self.std is not None:
+            unsupported.append("std")
+        if self.builtin_move_forward is not None:
+            unsupported.append("builtin_move_forward")
+        if self.builtin_initializer_list is not None:
+            unsupported.append("builtin_initializer_list")
+        if self.disable_warnings is not None and self.disable_warnings:
+            unsupported.append("disable_warnings")
+        if self.restrict is not None and self.restrict:
+            unsupported.append("restrict")
+        if self.device_as_default_execution_space is not None and self.device_as_default_execution_space:
+            unsupported.append("device_as_default_execution_space")
+        if self.device_int128 is not None and self.device_int128:
+            unsupported.append("device_int128")
+        if self.optimization_info is not None:
+            unsupported.append("optimization_info")
+        if self.no_display_error_number is not None and self.no_display_error_number:
+            unsupported.append("no_display_error_number")
+        if self.diag_error is not None:
+            unsupported.append("diag_error")
+        if self.diag_suppress is not None:
+            unsupported.append("diag_suppress")
+        if self.diag_warn is not None:
+            unsupported.append("diag_warn")
+        if self.brief_diagnostics is not None:
+            unsupported.append("brief_diagnostics")
+        if self.time is not None:
+            unsupported.append("time")
+        if self.split_compile is not None:
+            unsupported.append("split_compile")
+        if self.fdevice_syntax_only is not None and self.fdevice_syntax_only:
+            unsupported.append("fdevice_syntax_only")
+        if self.minimal is not None and self.minimal:
+            unsupported.append("minimal")
+        if self.numba_debug is not None and self.numba_debug:
+            unsupported.append("numba_debug")
+        if unsupported:
+            raise CUDAError(f"The following options are not supported by NVVM backend: {', '.join(unsupported)}")
+
+        if as_bytes:
+            return [o.encode() for o in options]
+        else:
+            return options
+
+    def as_bytes(self, backend: str) -> list[bytes]:
+        """Convert program options to bytes format for the specified backend.
+
+        This method transforms the program options into a format suitable for the
+        specified compiler backend. Different backends may use different option names
+        and formats even for the same conceptual options.
+
+        Parameters
+        ----------
+        backend : str
+            The compiler backend to prepare options for. Must be either "nvrtc" or "nvvm".
+
+        Returns
+        -------
+        list[bytes]
+            List of option strings encoded as bytes.
+
+        Raises
+        ------
+        ValueError
+            If an unknown backend is specified.
+        CUDAError
+            If an option incompatible with the specified backend is set.
+
+        Examples
+        --------
+        >>> options = ProgramOptions(arch="sm_80", debug=True)
+        >>> nvrtc_options = options.as_bytes("nvrtc")
+        """
+        backend = backend.lower()
+        if backend == "nvrtc":
+            return self._prepare_nvrtc_options()
+        elif backend == "nvvm":
+            return self._prepare_nvvm_options(as_bytes=True)
+        else:
+            raise ValueError(f"Unknown backend '{backend}'. Must be one of: 'nvrtc', 'nvvm'")
 
     def __repr__(self):
-        # __TODO__ improve this
-        return str(self._formatted_options)
+        return f"ProgramOptions(name={self.name!r}, arch={self.arch!r})"
 
 
 ProgramHandleT = Union["cuda.bindings.nvrtc.nvrtcProgram", LinkerHandleT]
@@ -564,43 +763,17 @@ class Program:
             arch=options.arch,
             max_register_count=options.max_register_count,
             time=options.time,
+            link_time_optimization=options.link_time_optimization,
             debug=options.debug,
             lineinfo=options.lineinfo,
             ftz=options.ftz,
             prec_div=options.prec_div,
             prec_sqrt=options.prec_sqrt,
             fma=options.fma,
-            link_time_optimization=options.link_time_optimization,
             split_compile=options.split_compile,
             ptxas_options=options.ptxas_options,
+            no_cache=options.no_cache,
         )
-
-    def _translate_program_options_to_nvvm(self, options: ProgramOptions) -> list[str]:
-        """Translate ProgramOptions to NVVM-specific compilation options."""
-        nvvm_options = []
-
-        assert options.arch is not None
-        arch = options.arch
-        if arch.startswith("sm_"):
-            arch = f"compute_{arch[3:]}"
-        nvvm_options.append(f"-arch={arch}")
-        if options.debug:
-            nvvm_options.append("-g")
-        if options.device_code_optimize is False:
-            nvvm_options.append("-opt=0")
-        elif options.device_code_optimize is True:
-            nvvm_options.append("-opt=3")
-        # NVVM is not consistent with NVRTC, it uses 0/1 instead...
-        if options.ftz is not None:
-            nvvm_options.append(f"-ftz={'1' if options.ftz else '0'}")
-        if options.prec_sqrt is not None:
-            nvvm_options.append(f"-prec-sqrt={'1' if options.prec_sqrt else '0'}")
-        if options.prec_div is not None:
-            nvvm_options.append(f"-prec-div={'1' if options.prec_div else '0'}")
-        if options.fma is not None:
-            nvvm_options.append(f"-fma={'1' if options.fma else '0'}")
-
-        return nvvm_options
 
     def close(self):
         """Destroy this program."""
@@ -654,7 +827,7 @@ class Program:
                         nvrtc.nvrtcAddNameExpression(self._mnff.handle, n.encode()),
                         handle=self._mnff.handle,
                     )
-            options = self._options._as_bytes()
+            options = self._options.as_bytes("nvrtc")
             handle_return(
                 nvrtc.nvrtcCompileProgram(self._mnff.handle, len(options), options),
                 handle=self._mnff.handle,
@@ -686,7 +859,8 @@ class Program:
             if target_type not in ("ptx", "ltoir"):
                 raise ValueError(f'NVVM backend only supports target_type="ptx", "ltoir", got "{target_type}"')
 
-            nvvm_options = self._translate_program_options_to_nvvm(self._options)
+            # TODO: flip to True when NVIDIA/cuda-python#1354 is resolved and CUDA 12 is dropped
+            nvvm_options = self._options._prepare_nvvm_options(as_bytes=False)
             if target_type == "ltoir" and "-gen-lto" not in nvvm_options:
                 nvvm_options.append("-gen-lto")
             nvvm = _get_nvvm_module()

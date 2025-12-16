@@ -75,8 +75,14 @@ class GraphMemoryTestManager:
 
 
 @pytest.mark.parametrize("mode", ["no_graph", "global", "thread_local", "relaxed"])
-def test_graph_alloc(mempool_device, mode):
-    """Test basic graph capture with memory allocated and deallocated by GraphMemoryResource."""
+@pytest.mark.parametrize("action", ["incr", "fill"])
+def test_graph_alloc(mempool_device, mode, action):
+    """Test basic graph capture with memory allocated and deallocated by
+    GraphMemoryResource.
+
+    This test verifies graph capture for Buffer operations including copy_from,
+    copy_to, fill, and kernel launch operations.
+    """
     NBYTES = 64
     device = mempool_device
     stream = device.create_stream()
@@ -93,14 +99,22 @@ def test_graph_alloc(mempool_device, mode):
     config = LaunchConfig(grid=1, block=1)
     launch(stream, config, set_zero, out, NBYTES)
 
-    # Increments out by 3
-    def apply_kernels(mr, stream, out):
-        buffer = mr.allocate(NBYTES, stream=stream)
-        buffer.copy_from(out, stream=stream)
-        for kernel in [add_one, add_one, add_one]:
-            launch(stream, config, kernel, buffer, NBYTES)
-        out.copy_from(buffer, stream=stream)
-        buffer.close()
+    if action == "incr":
+        # Increments out by 3
+        def apply_kernels(mr, stream, out):
+            buffer = mr.allocate(NBYTES, stream=stream)
+            buffer.copy_from(out, stream=stream)
+            for kernel in [add_one, add_one, add_one]:
+                launch(stream, config, kernel, buffer, NBYTES)
+            out.copy_from(buffer, stream=stream)
+            buffer.close()
+    elif action == "fill":
+        # Fills out with 3
+        def apply_kernels(mr, stream, out):
+            buffer = mr.allocate(NBYTES, stream=stream)
+            buffer.fill(3, stream=stream)
+            out.copy_from(buffer, stream=stream)
+            buffer.close()
 
     # Apply kernels, with or without graph capture.
     if mode == "no_graph":
@@ -121,10 +135,11 @@ def test_graph_alloc(mempool_device, mode):
         assert compare_buffer_to_constant(out, 3)
 
         # Second launch.
-        graph.upload(stream)
-        graph.launch(stream)
-        stream.sync()
-        assert compare_buffer_to_constant(out, 6)
+        if action == "incr":
+            graph.upload(stream)
+            graph.launch(stream)
+            stream.sync()
+            assert compare_buffer_to_constant(out, 6)
 
 
 @pytest.mark.skipif(IS_WINDOWS or IS_WSL, reason="auto_free_on_launch not supported on Windows")
@@ -260,7 +275,7 @@ def test_dmr_check_capture_state(mempool_device, mode):
     gb = device.create_graph_builder().begin_building(mode=mode)
     with pytest.raises(
         RuntimeError,
-        match=r"DeviceMemoryResource cannot perform memory operations on a capturing "
+        match=r"cannot perform memory operations on a capturing "
         r"stream \(consider using GraphMemoryResource\)\.",
     ):
         dmr.allocate(1, stream=gb)

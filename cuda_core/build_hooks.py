@@ -95,7 +95,7 @@ def _build_cuda_core():
     )
 
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
-    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": _get_proper_cuda_bindings_major_version()}
+    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(_get_proper_cuda_bindings_major_version())}
     _extensions = cythonize(
         ext_modules,
         verbose=True,

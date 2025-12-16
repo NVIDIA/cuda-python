@@ -1412,3 +1412,435 @@ def test_getLocalRuntimeVersion():
         else:
             assertSuccess(err)
             assert version >= 12000  # CUDA 12.0
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphGetId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaGraphGetId():
+    """Test cudaGraphGetId - get graph ID."""
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+
+    err, graph_id = cudart.cudaGraphGetId(graph)
+    assertSuccess(err)
+    assert isinstance(graph_id, int)
+    assert graph_id > 0
+
+    # Create another graph and verify it has a different ID
+    err, graph2 = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+    err, graph_id2 = cudart.cudaGraphGetId(graph2)
+    assertSuccess(err)
+    assert graph_id2 != graph_id
+
+    (err,) = cudart.cudaGraphDestroy(graph)
+    assertSuccess(err)
+    (err,) = cudart.cudaGraphDestroy(graph2)
+    assertSuccess(err)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphExecGetId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaGraphExecGetId():
+    """Test cudaGraphExecGetId - get graph exec ID."""
+    err, stream = cudart.cudaStreamCreate()
+    assertSuccess(err)
+
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+
+    # Add an empty node to make the graph valid
+    err, node = cudart.cudaGraphAddEmptyNode(graph, None, 0)
+    assertSuccess(err)
+
+    err, graphExec = cudart.cudaGraphInstantiate(graph, 0)
+    assertSuccess(err)
+
+    err, graph_exec_id = cudart.cudaGraphExecGetId(graphExec)
+    assertSuccess(err)
+    assert isinstance(graph_exec_id, int)
+    assert graph_exec_id > 0
+
+    # Create another graph exec and verify it has a different ID
+    err, graph2 = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+    err, node2 = cudart.cudaGraphAddEmptyNode(graph2, None, 0)
+    assertSuccess(err)
+    err, graphExec2 = cudart.cudaGraphInstantiate(graph2, 0)
+    assertSuccess(err)
+    err, graph_exec_id2 = cudart.cudaGraphExecGetId(graphExec2)
+    assertSuccess(err)
+    assert graph_exec_id2 != graph_exec_id
+
+    (err,) = cudart.cudaGraphExecDestroy(graphExec)
+    assertSuccess(err)
+    (err,) = cudart.cudaGraphExecDestroy(graphExec2)
+    assertSuccess(err)
+    (err,) = cudart.cudaGraphDestroy(graph)
+    assertSuccess(err)
+    (err,) = cudart.cudaGraphDestroy(graph2)
+    assertSuccess(err)
+    (err,) = cudart.cudaStreamDestroy(stream)
+    assertSuccess(err)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphNodeGetLocalId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaGraphNodeGetLocalId():
+    """Test cudaGraphNodeGetLocalId - get node local ID."""
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+
+    # Add multiple nodes
+    err, node1 = cudart.cudaGraphAddEmptyNode(graph, None, 0)
+    assertSuccess(err)
+
+    err, node2 = cudart.cudaGraphAddEmptyNode(graph, [node1], 1)
+    assertSuccess(err)
+
+    err, node3 = cudart.cudaGraphAddEmptyNode(graph, [node1, node2], 2)
+    assertSuccess(err)
+
+    # Get local IDs for each node
+    err, node_id1 = cudart.cudaGraphNodeGetLocalId(node1)
+    assertSuccess(err)
+    assert isinstance(node_id1, int)
+    assert node_id1 >= 0
+
+    err, node_id2 = cudart.cudaGraphNodeGetLocalId(node2)
+    assertSuccess(err)
+    assert isinstance(node_id2, int)
+    assert node_id2 >= 0
+    assert node_id2 != node_id1
+
+    err, node_id3 = cudart.cudaGraphNodeGetLocalId(node3)
+    assertSuccess(err)
+    assert isinstance(node_id3, int)
+    assert node_id3 >= 0
+    assert node_id3 != node_id1
+    assert node_id3 != node_id2
+
+    (err,) = cudart.cudaGraphDestroy(graph)
+    assertSuccess(err)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphNodeGetToolsId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaGraphNodeGetToolsId():
+    """Test cudaGraphNodeGetToolsId - get node tools ID."""
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+
+    err, node = cudart.cudaGraphAddEmptyNode(graph, None, 0)
+    assertSuccess(err)
+
+    err, tools_node_id = cudart.cudaGraphNodeGetToolsId(node)
+    assertSuccess(err)
+    assert isinstance(tools_node_id, int)
+    # toolsNodeId is unsigned long long, so it can be any non-negative value
+    assert tools_node_id >= 0
+
+    # Add another node and verify it has a different tools ID
+    err, node2 = cudart.cudaGraphAddEmptyNode(graph, [node], 1)
+    assertSuccess(err)
+    err, tools_node_id2 = cudart.cudaGraphNodeGetToolsId(node2)
+    assertSuccess(err)
+    assert tools_node_id2 != tools_node_id
+
+    (err,) = cudart.cudaGraphDestroy(graph)
+    assertSuccess(err)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphNodeGetContainingGraph"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaGraphNodeGetContainingGraph():
+    """Test cudaGraphNodeGetContainingGraph - get graph containing a node."""
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+
+    err, node = cudart.cudaGraphAddEmptyNode(graph, None, 0)
+    assertSuccess(err)
+
+    # Get the containing graph
+    err, containing_graph = cudart.cudaGraphNodeGetContainingGraph(node)
+    assertSuccess(err)
+    # Verify it's the same graph
+    assert int(containing_graph) == int(graph)
+
+    # Test with a child graph node (if supported)
+    # Create a child graph
+    err, child_graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+    err, child_node = cudart.cudaGraphAddEmptyNode(child_graph, None, 0)
+    assertSuccess(err)
+
+    # Add child graph node to parent graph
+    childGraphNodeParams = cudart.cudaGraphNodeParams()
+    childGraphNodeParams.type = cudart.cudaGraphNodeType.cudaGraphNodeTypeGraph
+    childGraphNodeParams.graph.graph = child_graph
+    err, child_graph_node = cudart.cudaGraphAddNode(graph, None, None, 0, childGraphNodeParams)
+    if isSuccess(err):
+        # Get containing graph for the child graph node
+        err, containing_graph_for_child = cudart.cudaGraphNodeGetContainingGraph(child_graph_node)
+        assertSuccess(err)
+        assert int(containing_graph_for_child) == int(graph)
+
+        # Get containing graph for node inside child graph
+        err, containing_graph_for_nested = cudart.cudaGraphNodeGetContainingGraph(child_node)
+        assertSuccess(err)
+        assert int(containing_graph_for_nested) == int(child_graph)
+
+    (err,) = cudart.cudaGraphDestroy(graph)
+    assertSuccess(err)
+    (err,) = cudart.cudaGraphDestroy(child_graph)
+    assertSuccess(err)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaStreamGetDevResource"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaStreamGetDevResource():
+    """Test cudaStreamGetDevResource - get device resource from stream."""
+    err, stream = cudart.cudaStreamCreate()
+    assertSuccess(err)
+
+    # Get SM resource from stream
+    err, resource = cudart.cudaStreamGetDevResource(stream, cudart.cudaDevResourceType.cudaDevResourceTypeSm)
+    assertSuccess(err)
+    # Verify resource is valid (non-None)
+    assert resource is not None
+
+    (err,) = cudart.cudaStreamDestroy(stream)
+    assertSuccess(err)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDeviceGetDevResource"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaDeviceGetDevResource():
+    """Test cudaDeviceGetDevResource - get device resource."""
+    device = 0
+
+    # Get SM resource from device
+    err, resource = cudart.cudaDeviceGetDevResource(device, cudart.cudaDevResourceType.cudaDevResourceTypeSm)
+    assertSuccess(err)
+    # Verify resource is valid (non-None)
+    assert resource is not None
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDeviceGetExecutionCtx"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaExecutionCtxGetDevResource():
+    """Test cudaExecutionCtxGetDevResource - get device resource from execution context."""
+    # Get execution context for device 0 (primary context)
+    err, exec_ctx = cudart.cudaDeviceGetExecutionCtx(0)
+    assertSuccess(err)
+    assert exec_ctx is not None
+
+    # Get SM resource from execution context
+    err, resource = cudart.cudaExecutionCtxGetDevResource(exec_ctx, cudart.cudaDevResourceType.cudaDevResourceTypeSm)
+    assertSuccess(err)
+    # Verify resource is valid (non-None)
+    assert resource is not None
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDeviceGetExecutionCtx"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaExecutionCtxGetDevice():
+    """Test cudaExecutionCtxGetDevice - get device from execution context."""
+    device = 0
+
+    # Get execution context for device
+    err, exec_ctx = cudart.cudaDeviceGetExecutionCtx(device)
+    assertSuccess(err)
+    assert exec_ctx is not None
+
+    # Get device from execution context
+    err, device_from_ctx = cudart.cudaExecutionCtxGetDevice(exec_ctx)
+    assertSuccess(err)
+    # Verify it returns the same device
+    assert device_from_ctx == device
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDeviceGetExecutionCtx"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaExecutionCtxGetId():
+    """Test cudaExecutionCtxGetId - get unique ID from execution context."""
+    # Get execution context for device 0 (primary context)
+    err, exec_ctx = cudart.cudaDeviceGetExecutionCtx(0)
+    assertSuccess(err)
+    assert exec_ctx is not None
+
+    # Get unique ID from execution context
+    err, ctx_id = cudart.cudaExecutionCtxGetId(exec_ctx)
+    assertSuccess(err)
+    assert isinstance(ctx_id, int)
+    assert ctx_id > 0
+
+    # Get another execution context and verify it has a different ID
+    err, exec_ctx2 = cudart.cudaDeviceGetExecutionCtx(0)
+    assertSuccess(err)
+    # Should return the same context for the same device
+    assert int(exec_ctx2) == int(exec_ctx)
+    err, ctx_id2 = cudart.cudaExecutionCtxGetId(exec_ctx2)
+    assertSuccess(err)
+    # Should have the same ID since it's the same context
+    assert ctx_id2 == ctx_id
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDevSmResourceSplit"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaDevSmResourceSplit():
+    """Test cudaDevSmResourceSplit - split SM resource into structured groups."""
+    device = 0
+    err, resource_in = cudart.cudaDeviceGetDevResource(device, cudart.cudaDevResourceType.cudaDevResourceTypeSm)
+    assertSuccess(err)
+
+    # Create group params for splitting into 1 group (simpler test)
+    nb_groups = 1
+    group_params = cudart.cudaDevSmResourceGroupParams()
+    # Set up group: request 4 SMs with coscheduled count of 2
+    group_params.smCount = 4
+    group_params.coscheduledSmCount = 2
+
+    # Split the resource
+    err, res, rem = cudart.cudaDevSmResourceSplit(nb_groups, resource_in, 0, group_params)
+    assertSuccess(err)
+    # Verify we got results
+    assert len(res) == nb_groups
+    # Verify remainder is valid (may be None if no remainder)
+    assert rem is not None or len(res) > 0
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDevSmResourceSplitByCount"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaDevSmResourceSplitByCount():
+    """Test cudaDevSmResourceSplitByCount - split SM resource by count."""
+    device = 0
+    err, resource_in = cudart.cudaDeviceGetDevResource(device, cudart.cudaDevResourceType.cudaDevResourceTypeSm)
+    assertSuccess(err)
+
+    # First call: discovery mode (nbGroups = 0) to get count
+    err, res, count, rem = cudart.cudaDevSmResourceSplitByCount(0, resource_in, 0, 2)
+    assertSuccess(err)
+    assert count > 0
+    assert len(res) == 0  # No results in discovery mode
+
+    # Second call: actual split with the discovered count
+    err, res, count_same, rem = cudart.cudaDevSmResourceSplitByCount(count, resource_in, 0, 2)
+    assertSuccess(err)
+    assert count == count_same
+    assert len(res) == count
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaDevResourceGenerateDesc"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaDevResourceGenerateDesc():
+    """Test cudaDevResourceGenerateDesc - generate resource descriptor."""
+    device = 0
+    err, resource = cudart.cudaDeviceGetDevResource(device, cudart.cudaDevResourceType.cudaDevResourceTypeSm)
+    assertSuccess(err)
+
+    # Generate descriptor from a single resource
+    resources = [resource]
+    err, desc = cudart.cudaDevResourceGenerateDesc(resources, len(resources))
+    assertSuccess(err)
+    assert desc is not None
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGreenCtxCreate"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaGreenCtxCreate():
+    """Test cudaGreenCtxCreate - create green context with resources."""
+    device = 0
+
+    # Set device to ensure primary context is ready
+    (err,) = cudart.cudaSetDevice(device)
+    assertSuccess(err)
+
+    # Get device resource
+    err, resource = cudart.cudaDeviceGetDevResource(device, cudart.cudaDevResourceType.cudaDevResourceTypeSm)
+    assertSuccess(err)
+
+    # Generate descriptor
+    resources = [resource]
+    err, desc = cudart.cudaDevResourceGenerateDesc(resources, len(resources))
+    assertSuccess(err)
+
+    # Create green context
+    err, green_ctx = cudart.cudaGreenCtxCreate(desc, device, 0)
+    assertSuccess(err)
+    assert green_ctx is not None
+
+    # Cleanup: destroy the green context
+    (err,) = cudart.cudaExecutionCtxDestroy(green_ctx)
+    assertSuccess(err)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaExecutionCtxStreamCreate"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaExecutionCtxStreamCreate():
+    """Test cudaExecutionCtxStreamCreate - create stream for execution context."""
+    # Get execution context for device 0 (primary context)
+    err, exec_ctx = cudart.cudaDeviceGetExecutionCtx(0)
+    assertSuccess(err)
+    assert exec_ctx is not None
+
+    # Create stream for the execution context
+    err, stream = cudart.cudaExecutionCtxStreamCreate(exec_ctx, 0, 0)
+    assertSuccess(err)
+    assert stream is not None
+
+    # Cleanup: destroy the stream
+    (err,) = cudart.cudaStreamDestroy(stream)
+    assertSuccess(err)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cudaGraphConditionalHandleCreate_v2"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cudaGraphConditionalHandleCreate_v2():
+    """Test cudaGraphConditionalHandleCreate_v2 - create conditional handle with execution context."""
+    err, graph = cudart.cudaGraphCreate(0)
+    assertSuccess(err)
+
+    # Get execution context (can be None for v2)
+    err, exec_ctx = cudart.cudaDeviceGetExecutionCtx(0)
+    assertSuccess(err)
+
+    # Create conditional handle with execution context
+    err, handle = cudart.cudaGraphConditionalHandleCreate_v2(graph, exec_ctx, 0, 0)
+    assertSuccess(err)
+    assert handle is not None
+
+    (err,) = cudart.cudaGraphDestroy(graph)
+    assertSuccess(err)

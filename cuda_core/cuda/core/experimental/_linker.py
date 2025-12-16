@@ -202,74 +202,78 @@ class LinkerOptions:
     def __post_init__(self):
         _lazy_init()
         self._name = self.name.encode()
-        self.formatted_options = []
-        if _nvjitlink:
-            self._init_nvjitlink()
-        else:
-            self._init_driver()
 
-    def _init_nvjitlink(self):
+    def _prepare_nvjitlink_options(self, as_bytes: bool = False) -> Union[list[bytes], list[str]]:
+        options = []
+
         if self.arch is not None:
-            self.formatted_options.append(f"-arch={self.arch}")
+            options.append(f"-arch={self.arch}")
         else:
-            self.formatted_options.append("-arch=sm_" + "".join(f"{i}" for i in Device().compute_capability))
+            options.append("-arch=sm_" + "".join(f"{i}" for i in Device().compute_capability))
         if self.max_register_count is not None:
-            self.formatted_options.append(f"-maxrregcount={self.max_register_count}")
+            options.append(f"-maxrregcount={self.max_register_count}")
         if self.time is not None:
-            self.formatted_options.append("-time")
+            options.append("-time")
         if self.verbose:
-            self.formatted_options.append("-verbose")
+            options.append("-verbose")
         if self.link_time_optimization:
-            self.formatted_options.append("-lto")
+            options.append("-lto")
         if self.ptx:
-            self.formatted_options.append("-ptx")
+            options.append("-ptx")
         if self.optimization_level is not None:
-            self.formatted_options.append(f"-O{self.optimization_level}")
+            options.append(f"-O{self.optimization_level}")
         if self.debug:
-            self.formatted_options.append("-g")
+            options.append("-g")
         if self.lineinfo:
-            self.formatted_options.append("-lineinfo")
+            options.append("-lineinfo")
         if self.ftz is not None:
-            self.formatted_options.append(f"-ftz={'true' if self.ftz else 'false'}")
+            options.append(f"-ftz={'true' if self.ftz else 'false'}")
         if self.prec_div is not None:
-            self.formatted_options.append(f"-prec-div={'true' if self.prec_div else 'false'}")
+            options.append(f"-prec-div={'true' if self.prec_div else 'false'}")
         if self.prec_sqrt is not None:
-            self.formatted_options.append(f"-prec-sqrt={'true' if self.prec_sqrt else 'false'}")
+            options.append(f"-prec-sqrt={'true' if self.prec_sqrt else 'false'}")
         if self.fma is not None:
-            self.formatted_options.append(f"-fma={'true' if self.fma else 'false'}")
+            options.append(f"-fma={'true' if self.fma else 'false'}")
         if self.kernels_used is not None:
             if isinstance(self.kernels_used, str):
-                self.formatted_options.append(f"-kernels-used={self.kernels_used}")
+                options.append(f"-kernels-used={self.kernels_used}")
             elif isinstance(self.kernels_used, list):
                 for kernel in self.kernels_used:
-                    self.formatted_options.append(f"-kernels-used={kernel}")
+                    options.append(f"-kernels-used={kernel}")
         if self.variables_used is not None:
             if isinstance(self.variables_used, str):
-                self.formatted_options.append(f"-variables-used={self.variables_used}")
+                options.append(f"-variables-used={self.variables_used}")
             elif isinstance(self.variables_used, list):
                 for variable in self.variables_used:
-                    self.formatted_options.append(f"-variables-used={variable}")
+                    options.append(f"-variables-used={variable}")
         if self.optimize_unused_variables is not None:
-            self.formatted_options.append("-optimize-unused-variables")
+            options.append("-optimize-unused-variables")
         if self.ptxas_options is not None:
             if isinstance(self.ptxas_options, str):
-                self.formatted_options.append(f"-Xptxas={self.ptxas_options}")
+                options.append(f"-Xptxas={self.ptxas_options}")
             elif is_sequence(self.ptxas_options):
                 for opt in self.ptxas_options:
-                    self.formatted_options.append(f"-Xptxas={opt}")
+                    options.append(f"-Xptxas={opt}")
         if self.split_compile is not None:
-            self.formatted_options.append(f"-split-compile={self.split_compile}")
+            options.append(f"-split-compile={self.split_compile}")
         if self.split_compile_extended is not None:
-            self.formatted_options.append(f"-split-compile-extended={self.split_compile_extended}")
+            options.append(f"-split-compile-extended={self.split_compile_extended}")
         if self.no_cache is True:
-            self.formatted_options.append("-no-cache")
+            options.append("-no-cache")
 
-    def _init_driver(self):
-        self.option_keys = []
+        if as_bytes:
+            return [o.encode() for o in options]
+        else:
+            return options
+
+    def _prepare_driver_options(self) -> tuple[list, list]:
+        formatted_options = []
+        option_keys = []
+
         # allocate 4 KiB each for info/error logs
         size = 4194304
-        self.formatted_options.extend((bytearray(size), size, bytearray(size), size))
-        self.option_keys.extend(
+        formatted_options.extend((bytearray(size), size, bytearray(size), size))
+        option_keys.extend(
             (
                 _driver.CUjit_option.CU_JIT_INFO_LOG_BUFFER,
                 _driver.CUjit_option.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES,
@@ -280,30 +284,30 @@ class LinkerOptions:
 
         if self.arch is not None:
             arch = self.arch.split("_")[-1].upper()
-            self.formatted_options.append(getattr(_driver.CUjit_target, f"CU_TARGET_COMPUTE_{arch}"))
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_TARGET)
+            formatted_options.append(getattr(_driver.CUjit_target, f"CU_TARGET_COMPUTE_{arch}"))
+            option_keys.append(_driver.CUjit_option.CU_JIT_TARGET)
         if self.max_register_count is not None:
-            self.formatted_options.append(self.max_register_count)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_MAX_REGISTERS)
+            formatted_options.append(self.max_register_count)
+            option_keys.append(_driver.CUjit_option.CU_JIT_MAX_REGISTERS)
         if self.time is not None:
             raise ValueError("time option is not supported by the driver API")
         if self.verbose:
-            self.formatted_options.append(1)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_LOG_VERBOSE)
+            formatted_options.append(1)
+            option_keys.append(_driver.CUjit_option.CU_JIT_LOG_VERBOSE)
         if self.link_time_optimization:
-            self.formatted_options.append(1)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_LTO)
+            formatted_options.append(1)
+            option_keys.append(_driver.CUjit_option.CU_JIT_LTO)
         if self.ptx:
             raise ValueError("ptx option is not supported by the driver API")
         if self.optimization_level is not None:
-            self.formatted_options.append(self.optimization_level)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_OPTIMIZATION_LEVEL)
+            formatted_options.append(self.optimization_level)
+            option_keys.append(_driver.CUjit_option.CU_JIT_OPTIMIZATION_LEVEL)
         if self.debug:
-            self.formatted_options.append(1)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_DEBUG_INFO)
+            formatted_options.append(1)
+            option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_DEBUG_INFO)
         if self.lineinfo:
-            self.formatted_options.append(1)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_LINE_INFO)
+            formatted_options.append(1)
+            option_keys.append(_driver.CUjit_option.CU_JIT_GENERATE_LINE_INFO)
         if self.ftz is not None:
             warn("ftz option is deprecated in the driver API", DeprecationWarning, stacklevel=3)
         if self.prec_div is not None:
@@ -325,8 +329,37 @@ class LinkerOptions:
         if self.split_compile_extended is not None:
             raise ValueError("split_compile_extended option is not supported by the driver API")
         if self.no_cache is True:
-            self.formatted_options.append(_driver.CUjit_cacheMode.CU_JIT_CACHE_OPTION_NONE)
-            self.option_keys.append(_driver.CUjit_option.CU_JIT_CACHE_MODE)
+            formatted_options.append(_driver.CUjit_cacheMode.CU_JIT_CACHE_OPTION_NONE)
+            option_keys.append(_driver.CUjit_option.CU_JIT_CACHE_MODE)
+
+        return formatted_options, option_keys
+
+    def as_bytes(self, backend: str = "nvjitlink") -> list[bytes]:
+        """Convert linker options to bytes format for the nvjitlink backend.
+
+        Parameters
+        ----------
+        backend : str, optional
+            The linker backend. Only "nvjitlink" is supported. Default is "nvjitlink".
+
+        Returns
+        -------
+        list[bytes]
+            List of option strings encoded as bytes.
+
+        Raises
+        ------
+        ValueError
+            If an unsupported backend is specified.
+        RuntimeError
+            If nvJitLink backend is not available.
+        """
+        backend = backend.lower()
+        if backend != "nvjitlink":
+            raise ValueError(f"as_bytes() only supports 'nvjitlink' backend, got '{backend}'")
+        if not _nvjitlink:
+            raise RuntimeError("nvJitLink backend is not available")
+        return self._prepare_nvjitlink_options(as_bytes=True)
 
 
 # This needs to be a free function not a method, as it's disallowed by contextmanager.
@@ -369,7 +402,7 @@ class Linker:
     """
 
     class _MembersNeededForFinalize:
-        __slots__ = ("handle", "use_nvjitlink", "const_char_keep_alive")
+        __slots__ = ("handle", "use_nvjitlink", "const_char_keep_alive", "formatted_options", "option_keys")
 
         def __init__(self, program_obj, handle, use_nvjitlink):
             self.handle = handle
@@ -394,14 +427,17 @@ class Linker:
         self._options = options = check_or_create_options(LinkerOptions, options, "Linker options")
         with _exception_manager(self):
             if _nvjitlink:
-                handle = _nvjitlink.create(len(options.formatted_options), options.formatted_options)
+                formatted_options = options._prepare_nvjitlink_options(as_bytes=False)
+                handle = _nvjitlink.create(len(formatted_options), formatted_options)
                 use_nvjitlink = True
             else:
-                handle = handle_return(
-                    _driver.cuLinkCreate(len(options.formatted_options), options.option_keys, options.formatted_options)
-                )
+                formatted_options, option_keys = options._prepare_driver_options()
+                handle = handle_return(_driver.cuLinkCreate(len(formatted_options), option_keys, formatted_options))
                 use_nvjitlink = False
         self._mnff = Linker._MembersNeededForFinalize(self, handle, use_nvjitlink)
+        self._mnff.formatted_options = formatted_options  # Store for log access
+        if not _nvjitlink:
+            self._mnff.option_keys = option_keys
 
         for code in object_codes:
             assert_type(code, ObjectCode)
@@ -508,7 +544,7 @@ class Linker:
             log = bytearray(log_size)
             _nvjitlink.get_error_log(self._mnff.handle, log)
         else:
-            log = self._options.formatted_options[2]
+            log = self._mnff.formatted_options[2]
         return log.decode("utf-8", errors="backslashreplace")
 
     def get_info_log(self) -> str:
@@ -524,7 +560,7 @@ class Linker:
             log = bytearray(log_size)
             _nvjitlink.get_info_log(self._mnff.handle, log)
         else:
-            log = self._options.formatted_options[0]
+            log = self._mnff.formatted_options[0]
         return log.decode("utf-8", errors="backslashreplace")
 
     def _input_type_from_code_type(self, code_type: str):
