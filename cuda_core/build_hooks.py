@@ -86,11 +86,7 @@ def _build_cuda_core():
         print("CUDA paths:", CUDA_PATH)
         return CUDA_PATH
 
-    # Add local include directory for cuda/core/_include
-    # This allows Cython files to use: cdef extern from "_include/layout.hpp"
-    local_include_dirs = ["cuda/core"]
-    cuda_include_dirs = list(os.path.join(root, "include") for root in get_cuda_paths())
-    all_include_dirs = local_include_dirs + cuda_include_dirs
+    all_include_dirs = list(os.path.join(root, "include") for root in get_cuda_paths())
     extra_compile_args = []
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
