@@ -172,6 +172,8 @@ def test_buffer_initialization():
     buffer_initialization(DummyHostMemoryResource())
     buffer_initialization(DummyUnifiedMemoryResource(device))
     buffer_initialization(DummyPinnedMemoryResource(device))
+    with pytest.raises(TypeError):
+        buffer_initialization(MemoryResource())
 
 
 def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
