@@ -5,12 +5,6 @@
 name: "CI: Coverage"
 
 on:
-  # TODO: Remove this -- this just makes it possible to test during review
-  push:
-    branches:
-      - "main"
-      - "pull-request/[0-9]+"
-  # TODO: Remove above
   schedule:
     - cron: '0 0 * * *' # This runs the workflow every day at 12:00 AM UTC
   workflow_dispatch: {}

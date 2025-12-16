@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.0.1. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -32,7 +32,6 @@ ctypedef nvmlProcessInfo_v2_t ProcessInfo_v2
 ctypedef nvmlNvLinkUtilizationControl_t NvLinkUtilizationControl
 ctypedef nvmlViolationTime_t ViolationTime
 ctypedef nvmlUUIDValue_t UUIDValue
-ctypedef nvmlPlatformInfo_v1_t PlatformInfo_v1
 ctypedef nvmlVgpuPlacementList_v1_t VgpuPlacementList_v1
 ctypedef nvmlNvLinkPowerThres_t NvLinkPowerThres
 ctypedef nvmlSystemEventData_v1_t SystemEventData_v1
@@ -40,11 +39,9 @@ ctypedef nvmlGpuInstanceProfileInfo_t GpuInstanceProfileInfo
 ctypedef nvmlComputeInstanceProfileInfo_t ComputeInstanceProfileInfo
 ctypedef nvmlMask255_t Mask255
 ctypedef nvmlHostname_v1_t Hostname_v1
-ctypedef nvmlNvLinkInfo_v1_t NvLinkInfo_v1
 ctypedef nvmlPowerValue_v2_t PowerValue_v2
 ctypedef nvmlVgpuProcessUtilizationSample_t VgpuProcessUtilizationSample
 ctypedef nvmlGpuFabricInfo_t GpuFabricInfo
-ctypedef nvmlGpuFabricInfo_v2_t GpuFabricInfo_v2
 ctypedef nvmlSystemEventSetCreateRequest_v1_t SystemEventSetCreateRequest_v1
 ctypedef nvmlSystemEventSetFreeRequest_v1_t SystemEventSetFreeRequest_v1
 ctypedef nvmlSystemRegisterEventRequest_v1_t SystemRegisterEventRequest_v1
@@ -55,6 +52,7 @@ ctypedef nvmlGpmMetric_t GpmMetric
 ctypedef nvmlWorkloadPowerProfileInfo_v1_t WorkloadPowerProfileInfo_v1
 ctypedef nvmlWorkloadPowerProfileCurrentProfiles_v1_t WorkloadPowerProfileCurrentProfiles_v1
 ctypedef nvmlWorkloadPowerProfileRequestedProfiles_v1_t WorkloadPowerProfileRequestedProfiles_v1
+ctypedef nvmlWorkloadPowerProfileUpdateProfiles_v1_t WorkloadPowerProfileUpdateProfiles_v1
 ctypedef nvmlPRMTLV_v1_t PRMTLV_v1
 ctypedef nvmlVgpuSchedulerSetState_t VgpuSchedulerSetState
 ctypedef nvmlGpmMetricsGet_t GpmMetricsGet
@@ -123,6 +121,8 @@ ctypedef nvmlVgpuPgpuCompatibilityLimitCode_t _VgpuPgpuCompatibilityLimitCode
 ctypedef nvmlGpmMetricId_t _GpmMetricId
 ctypedef nvmlPowerProfileType_t _PowerProfileType
 ctypedef nvmlDeviceAddressingModeType_t _DeviceAddressingModeType
+ctypedef nvmlPRMCounterId_t _PRMCounterId
+ctypedef nvmlPowerProfileOperation_t _PowerProfileOperation
 
 
 ###############################################################################
@@ -263,7 +263,6 @@ cpdef unsigned int device_get_pcie_link_max_speed(intptr_t device) except? 0
 cpdef unsigned int device_get_pcie_speed(intptr_t device) except? 0
 cpdef unsigned int device_get_adaptive_clock_info_status(intptr_t device) except? 0
 cpdef unsigned int device_get_bus_type(intptr_t device) except? 0
-cpdef object device_get_gpu_fabric_info_v(intptr_t device)
 cpdef object system_get_conf_compute_capabilities()
 cpdef object system_get_conf_compute_state()
 cpdef object device_get_conf_compute_mem_size_info(intptr_t device)
@@ -290,7 +289,6 @@ cpdef object device_get_row_remapper_histogram(intptr_t device)
 cpdef unsigned int device_get_architecture(intptr_t device) except? 0
 cpdef object device_get_clk_mon_status(intptr_t device)
 cpdef object device_get_process_utilization(intptr_t device, unsigned long long last_seen_time_stamp)
-cpdef object device_get_platform_info(intptr_t device)
 cpdef unit_set_led_state(intptr_t unit, int color)
 cpdef device_set_persistence_mode(intptr_t device, int mode)
 cpdef device_set_compute_mode(intptr_t device, int mode)
@@ -442,6 +440,8 @@ cpdef object device_get_repair_status(intptr_t device)
 cpdef object device_get_power_mizer_mode_v1(intptr_t device)
 cpdef device_set_power_mizer_mode_v1(intptr_t device, intptr_t power_mizer_mode)
 cpdef object device_get_pdi(intptr_t device)
-cpdef object device_get_nvlink_info(intptr_t device)
 cpdef device_read_write_prm_v1(intptr_t device, intptr_t buffer)
 cpdef object device_get_gpu_instance_profile_info_by_id_v(intptr_t device, unsigned int profile_id)
+cpdef object device_get_unrepairable_memory_flag_v1(intptr_t device)
+cpdef device_read_prm_counters_v1(intptr_t device, intptr_t counter_list)
+cpdef device_set_rusd_settings_v1(intptr_t device, intptr_t settings)

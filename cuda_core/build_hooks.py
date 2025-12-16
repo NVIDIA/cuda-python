@@ -104,7 +104,7 @@ def _build_cuda_core():
     )
 
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
-    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": _get_proper_cuda_bindings_major_version()}
+    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(_get_proper_cuda_bindings_major_version())}
     compiler_directives = {"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True}
     if COMPILE_FOR_COVERAGE:
         compiler_directives["linetrace"] = True

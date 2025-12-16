@@ -112,7 +112,7 @@ def test_graph_alloc(mempool_device, mode, action):
         # Fills out with 3
         def apply_kernels(mr, stream, out):
             buffer = mr.allocate(NBYTES, stream=stream)
-            buffer.fill(3, width=1, stream=stream)
+            buffer.fill(3, stream=stream)
             out.copy_from(buffer, stream=stream)
             buffer.close()
 
@@ -275,7 +275,7 @@ def test_dmr_check_capture_state(mempool_device, mode):
     gb = device.create_graph_builder().begin_building(mode=mode)
     with pytest.raises(
         RuntimeError,
-        match=r"DeviceMemoryResource cannot perform memory operations on a capturing "
+        match=r"cannot perform memory operations on a capturing "
         r"stream \(consider using GraphMemoryResource\)\.",
     ):
         dmr.allocate(1, stream=gb)
