@@ -234,24 +234,24 @@ def _dense_strides(shape, stride_order):
     return tuple(strides)
 
 
-@pytest.mark.parametrize("shape", [tuple(), (2, 3), (10, 10), (10, 13, 11)])
-@pytest.mark.parametrize("itemsize", [1, 4])
+@pytest.mark.parametrize("shape", [tuple(), (2, 3), (10, 10), (10, 13, 11)], ids=str)
+@pytest.mark.parametrize("dtype", [np.dtype(np.int8), np.dtype(np.uint32)], ids=str)
 @pytest.mark.parametrize("stride_order", ["C", "F"])
 @pytest.mark.parametrize("readonly", [True, False])
-def test_from_buffer(shape, itemsize, stride_order, readonly):
+def test_from_buffer(shape, dtype, stride_order, readonly):
     dev = Device()
     dev.set_current()
-    layout = _StridedLayout.dense(shape=shape, itemsize=itemsize, stride_order=stride_order)
+    layout = _StridedLayout.dense(shape=shape, itemsize=dtype.itemsize, stride_order=stride_order)
     required_size = layout.required_size_in_bytes()
-    assert required_size == math.prod(shape) * itemsize
+    assert required_size == math.prod(shape) * dtype.itemsize
     buffer = dev.memory_resource.allocate(required_size)
-    view = StridedMemoryView.from_buffer(buffer, layout, is_readonly=readonly)
+    view = StridedMemoryView.from_buffer(buffer, shape=shape, dtype=dtype, is_readonly=readonly, order=stride_order)
     assert view.exporting_obj is buffer
-    assert view.layout is layout
+    assert view.layout == layout
     assert view.ptr == int(buffer.handle)
     assert view.shape == shape
     assert view.strides == _dense_strides(shape, stride_order)
-    assert view.dtype is None
+    assert view.dtype == dtype
     assert view.device_id == dev.device_id
     assert view.is_device_accessible
     assert view.readonly == readonly
@@ -263,7 +263,7 @@ def test_from_buffer_sliced(stride_order):
     device = Device()
     device.set_current()
     buffer = device.memory_resource.allocate(layout.required_size_in_bytes())
-    view = StridedMemoryView.from_buffer(buffer, layout)
+    view = StridedMemoryView.from_buffer(buffer, (5, 7), dtype=np.dtype(np.int16))
     assert view.shape == (5, 7)
     assert int(buffer.handle) == view.ptr
 
@@ -282,7 +282,12 @@ def test_from_buffer_too_small():
     d.set_current()
     buffer = d.memory_resource.allocate(20)
     with pytest.raises(ValueError, match="Expected at least 40 bytes, got 20 bytes."):
-        StridedMemoryView.from_buffer(buffer, layout)
+        StridedMemoryView.from_buffer(
+            buffer,
+            shape=layout.shape,
+            strides=layout.strides,
+            dtype=np.dtype("int16"),
+        )
 
 
 def test_from_buffer_disallowed_negative_offset():
@@ -291,7 +296,12 @@ def test_from_buffer_disallowed_negative_offset():
     d.set_current()
     buffer = d.memory_resource.allocate(20)
     with pytest.raises(ValueError, match="please use _StridedLayout.to_dense()."):
-        StridedMemoryView.from_buffer(buffer, layout)
+        StridedMemoryView.from_buffer(
+            buffer,
+            shape=layout.shape,
+            strides=layout.strides,
+            dtype=np.dtype("uint8"),
+        )
 
 
 class _EnforceCAIView:

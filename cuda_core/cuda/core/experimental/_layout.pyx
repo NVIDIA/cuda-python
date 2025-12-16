@@ -48,8 +48,8 @@ cdef class _StridedLayout:
 
     def __init__(
         self : _StridedLayout,
-        shape : tuple[int],
-        strides : tuple[int] | None,
+        shape : tuple[int, ...],
+        strides : tuple[int, ...] | None,
         itemsize : int,
         divide_strides : bool = False
     ) -> None:

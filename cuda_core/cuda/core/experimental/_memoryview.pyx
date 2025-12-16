@@ -160,8 +160,13 @@ cdef class StridedMemoryView:
 
     @classmethod
     def from_buffer(
-        cls, buffer : Buffer, layout : _StridedLayout,
-        dtype : numpy.dtype | None = None,
+        cls,
+        buffer : Buffer,
+        shape : tuple[int, ...],
+        strides : tuple[int, ...] | None = None,
+        *,
+        dtype : numpy.dtype,
+        order : str = "C",
         is_readonly : bool = False
     ) -> StridedMemoryView:
         """
@@ -185,19 +190,32 @@ cdef class StridedMemoryView:
         ----------
         buffer : :obj:`~_memory.Buffer`
             The buffer to create the view from.
-        layout : :obj:`_StridedLayout`
+        shape : :obj:`tuple`
             The layout describing the shape, strides and itemsize of the elements in
             the buffer.
-        dtype : :obj:`numpy.dtype`, optional
+        strides : :obj:`tuple`
+            The layout describing the shape, strides and itemsize of the elements in
+            the buffer.
+        dtype : :obj:`numpy.dtype`
             Optional dtype.
             If specified, the dtype's itemsize must match the layout's itemsize.
             To view the buffer with a different itemsize, please use :meth:`_StridedLayout.repacked`
             first to transform the layout to the desired itemsize.
+        order : :obj:`str`, optional
+            The memory ordering of the data. Can be ``"C"`` or ``"F"``.
         is_readonly : bool, optional
             Whether the mark the view as readonly.
         """
         cdef StridedMemoryView view = StridedMemoryView.__new__(cls)
-        view_buffer_strided(view, buffer, layout, dtype, is_readonly)
+        cdef int64_t itemsize = dtype.itemsize
+        view_buffer_strided(
+            view,
+            buffer,
+            _StridedLayout.dense(shape=shape, itemsize=itemsize, stride_order=order) if strides is None
+            else _StridedLayout(shape=shape, strides=strides, itemsize=itemsize),
+            dtype,
+            is_readonly,
+        )
         return view
 
     def __dealloc__(self):
