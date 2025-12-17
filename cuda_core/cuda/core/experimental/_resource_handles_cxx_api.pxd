@@ -6,7 +6,7 @@ from libc.stdint cimport uint32_t
 from libc.stddef cimport size_t
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._resource_handles cimport (
+from ._resource_handles cimport (
     ContextHandle,
     DevicePtrHandle,
     EventHandle,

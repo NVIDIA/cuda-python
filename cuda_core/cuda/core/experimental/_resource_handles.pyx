@@ -9,7 +9,7 @@
 from cpython.pycapsule cimport PyCapsule_New
 from libc.stdint cimport uint32_t, uint64_t, uintptr_t
 
-from cuda.core.experimental._resource_handles_cxx_api cimport (
+from ._resource_handles_cxx_api cimport (
     ResourceHandlesCxxApiV1,
     get_resource_handles_cxx_api_v1,
 )
