@@ -26,6 +26,7 @@ CUDA runtime
    Event
    MemoryResource
    DeviceMemoryResource
+   GraphMemoryResource
    PinnedMemoryResource
    ManagedMemoryResource
    LegacyPinnedMemoryResource
