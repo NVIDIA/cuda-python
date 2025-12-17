@@ -19,7 +19,7 @@ Highlights
 Breaking Changes
 ----------------
 
-The support for setting :attr:`VirtualMemoryResourceOptions.handle_type` to `"win32"` is removed. Please reach out to us on GitHub if you have a real-life use case.
+The support for setting :attr:`VirtualMemoryResourceOptions.handle_type` to ``"win32"`` is removed. Please reach out to us on GitHub if you have a real-life use case.
 
 The following APIs have been deprecated and will be removed in 0.6.0:
 
