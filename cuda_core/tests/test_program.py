@@ -538,3 +538,46 @@ def test_program_options_as_bytes_nvvm_unsupported_option():
     options = ProgramOptions(arch="sm_80", lineinfo=True)
     with pytest.raises(CUDAError, match="not supported by NVVM backend"):
         options.as_bytes("nvvm")
+
+
+def test_program_from_handle_nvrtc(init_cuda):
+    """Test Program.from_handle() with NVRTC backend"""
+    # Create a regular program to get a handle
+    code = 'extern "C" __global__ void test_kernel() {}'
+    original_program = Program(code, "c++")
+    assert original_program.backend == "NVRTC"
+    
+    # Get the handle
+    handle = int(original_program.handle)
+    
+    # Create a new program from the handle
+    program_from_handle = Program.from_handle(handle, "NVRTC")
+    assert program_from_handle.backend == "NVRTC"
+    # Note: We don't own the handle, so we shouldn't close it in the from_handle instance
+    
+    # Clean up the original program
+    original_program.close()
+
+
+@nvvm_available
+def test_program_from_handle_nvvm(init_cuda, nvvm_ir):
+    """Test Program.from_handle() with NVVM backend"""
+    # Create a regular NVVM program to get a handle
+    original_program = Program(nvvm_ir, "nvvm")
+    assert original_program.backend == "NVVM"
+    
+    # Get the handle
+    handle = int(original_program.handle) if hasattr(original_program.handle, '__int__') else original_program.handle
+    
+    # Create a new program from the handle
+    program_from_handle = Program.from_handle(handle, "NVVM")
+    assert program_from_handle.backend == "NVVM"
+    
+    # Clean up the original program
+    original_program.close()
+
+
+def test_program_from_handle_invalid_backend():
+    """Test Program.from_handle() with invalid backend"""
+    with pytest.raises(ValueError, match="Unsupported backend 'INVALID'"):
+        Program.from_handle(0, "INVALID")

@@ -436,7 +436,51 @@ class Kernel:
             self._occupancy = KernelOccupancy._init(self._handle)
         return self._occupancy
 
-    # TODO: implement from_handle()
+    @staticmethod
+    def from_handle(handle: int, mod: "ObjectCode" = None) -> "Kernel":
+        """Create a new :obj:`Kernel` object from a foreign kernel handle.
+
+        Uses a CUfunction or CUkernel pointer address represented as a Python int
+        to create a new :obj:`Kernel` object.
+
+        Note
+        ----
+        Kernel lifetime is not managed, foreign object must remain
+        alive while this kernel is active.
+
+        Parameters
+        ----------
+        handle : int
+            Kernel handle representing the address of a foreign
+            kernel object (CUfunction or CUkernel).
+        mod : :obj:`ObjectCode`, optional
+            The ObjectCode object associated with this kernel. If not provided,
+            a placeholder ObjectCode will be created. Note that without a proper
+            ObjectCode, certain operations may be limited.
+
+        Returns
+        -------
+        :obj:`Kernel`
+            Newly created kernel object.
+
+        """
+        _lazy_init()
+        # Convert the integer handle to the appropriate driver type
+        if _py_major_ver >= 12 and _driver_ver >= 12000:
+            # Try CUkernel first for newer CUDA versions
+            kernel_obj = driver.CUkernel(handle)
+        else:
+            # Use CUfunction for older versions
+            kernel_obj = driver.CUfunction(handle)
+        
+        # If no module provided, create a placeholder
+        if mod is None:
+            # Create a placeholder ObjectCode that won't try to load anything
+            mod = ObjectCode._init(b"", "cubin")
+            # Set a dummy handle to prevent lazy loading
+            mod._handle = 1  # Non-null placeholder
+        
+        return Kernel._from_obj(kernel_obj, mod)
 
 
 CodeTypeT = Union[bytes, bytearray, str]
@@ -604,6 +648,53 @@ class ObjectCode:
             them (default to no mappings).
         """
         return ObjectCode._init(module, "library", name=name, symbol_mapping=symbol_mapping)
+
+    @staticmethod
+    def from_handle(handle: int, code_type: str = "cubin", *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+        """Create a new :obj:`ObjectCode` object from a foreign module handle.
+
+        Uses a CUmodule or CUlibrary pointer address represented as a Python int
+        to create a new :obj:`ObjectCode` object.
+
+        Note
+        ----
+        Module lifetime is not managed, foreign object must remain
+        alive while this object code is active.
+
+        Parameters
+        ----------
+        handle : int
+            Module handle representing the address of a foreign
+            module object (CUmodule or CUlibrary).
+        code_type : str, optional
+            The type of code object this handle represents. Must be one of
+            "cubin", "ptx", "ltoir", "fatbin", "object", or "library".
+            (Default: "cubin")
+        name : str, optional
+            A human-readable identifier representing this code object.
+        symbol_mapping : dict, optional
+            A dictionary specifying how the unmangled symbol names (as keys)
+            should be mapped to the mangled names before trying to retrieve
+            them (default to no mappings).
+
+        Returns
+        -------
+        :obj:`ObjectCode`
+            Newly created object code.
+
+        """
+        _lazy_init()
+        # Create an ObjectCode instance with a placeholder module
+        # The handle will be set directly, bypassing the lazy loading
+        obj = ObjectCode._init(b"", code_type, name=name, symbol_mapping=symbol_mapping)
+        
+        # Set the handle directly from the foreign handle
+        if obj._backend_version == "new":
+            obj._handle = driver.CUlibrary(handle)
+        else:
+            obj._handle = driver.CUmodule(handle)
+        
+        return obj
 
     # TODO: do we want to unload in a finalizer? Probably not..
 

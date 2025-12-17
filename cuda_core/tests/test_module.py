@@ -420,3 +420,72 @@ def test_module_serialization_roundtrip(get_saxpy_kernel_cubin):
     assert objcode.code == result.code
     assert objcode._sym_map == result._sym_map
     assert objcode.code_type == result.code_type
+
+
+def test_object_code_from_handle(get_saxpy_kernel_cubin):
+    """Test ObjectCode.from_handle() with a valid handle"""
+    kernel, original_objcode = get_saxpy_kernel_cubin
+    
+    # Get the handle from the original object code
+    handle = int(original_objcode.handle)
+    
+    # Create a new ObjectCode from the handle
+    objcode_from_handle = ObjectCode.from_handle(handle, "cubin", symbol_mapping=original_objcode._sym_map)
+    assert isinstance(objcode_from_handle, ObjectCode)
+    assert objcode_from_handle.code_type == "cubin"
+    
+    # Try to get a kernel from the new object code
+    # Note: This should work since we're reusing the handle
+    kernel_from_handle = objcode_from_handle.get_kernel("saxpy<float>")
+    assert isinstance(kernel_from_handle, cuda.core.experimental._module.Kernel)
+
+
+def test_object_code_from_handle_with_different_code_types(get_saxpy_kernel_ptx):
+    """Test ObjectCode.from_handle() with PTX code type"""
+    ptx, original_objcode = get_saxpy_kernel_ptx
+    
+    if not Program._can_load_generated_ptx():
+        pytest.skip("PTX version too new for current driver")
+    
+    # Force loading to get a handle
+    _ = original_objcode.get_kernel("saxpy<float>")
+    handle = int(original_objcode.handle)
+    
+    # Create a new ObjectCode from the handle with PTX code type
+    objcode_from_handle = ObjectCode.from_handle(handle, "ptx", symbol_mapping=original_objcode._sym_map)
+    assert isinstance(objcode_from_handle, ObjectCode)
+    assert objcode_from_handle.code_type == "ptx"
+
+
+def test_kernel_from_handle(get_saxpy_kernel_cubin):
+    """Test Kernel.from_handle() with a valid handle"""
+    original_kernel, objcode = get_saxpy_kernel_cubin
+    
+    # Get the handle from the original kernel
+    handle = int(original_kernel._handle)
+    
+    # Create a new Kernel from the handle
+    kernel_from_handle = cuda.core.experimental._module.Kernel.from_handle(handle, objcode)
+    assert isinstance(kernel_from_handle, cuda.core.experimental._module.Kernel)
+    
+    # Verify we can access kernel attributes
+    max_threads = kernel_from_handle.attributes.max_threads_per_block()
+    assert isinstance(max_threads, int)
+    assert max_threads > 0
+
+
+def test_kernel_from_handle_no_module(get_saxpy_kernel_cubin):
+    """Test Kernel.from_handle() without providing a module"""
+    original_kernel, _ = get_saxpy_kernel_cubin
+    
+    # Get the handle from the original kernel
+    handle = int(original_kernel._handle)
+    
+    # Create a new Kernel from the handle without a module
+    kernel_from_handle = cuda.core.experimental._module.Kernel.from_handle(handle)
+    assert isinstance(kernel_from_handle, cuda.core.experimental._module.Kernel)
+    
+    # Verify we can still access kernel attributes
+    max_threads = kernel_from_handle.attributes.max_threads_per_block()
+    assert isinstance(max_threads, int)
+    assert max_threads > 0
