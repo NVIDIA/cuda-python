@@ -13,6 +13,8 @@ except ImportError:
     from cuda import cuda as driver
 
 import cuda.core.experimental
+from cuda.core import _device
+from cuda.core._utils.cuda_utils import handle_return
 from cuda.core.experimental import (
     Device,
     DeviceMemoryResource,
@@ -21,9 +23,7 @@ from cuda.core.experimental import (
     ManagedMemoryResourceOptions,
     PinnedMemoryResource,
     PinnedMemoryResourceOptions,
-    _device,
 )
-from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
 def skip_if_pinned_memory_unsupported(device):

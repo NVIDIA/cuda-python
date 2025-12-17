@@ -12,6 +12,8 @@ except ImportError:
     cp = None
 import numpy as np
 import pytest
+from cuda.core._memory import _SynchronousMemoryResource
+from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.experimental import (
     Device,
     DeviceMemoryResource,
@@ -21,8 +23,6 @@ from cuda.core.experimental import (
     ProgramOptions,
     launch,
 )
-from cuda.core.experimental._memory import _SynchronousMemoryResource
-from cuda.core.experimental._utils.cuda_utils import CUDAError
 
 from conftest import skipif_need_cuda_headers
 
@@ -95,7 +95,7 @@ def test_launch_config_cluster_grid_conversion(init_cuda):
 
 def test_launch_config_native_conversion(init_cuda):
     """Test that _to_native_launch_config correctly converts grid from cluster units to block units."""
-    from cuda.core.experimental._launch_config import _to_native_launch_config
+    from cuda.core._launch_config import _to_native_launch_config
 
     try:
         # Test case 1: 1D - Issue #867 example
@@ -264,7 +264,7 @@ def test_cooperative_launch():
     # # Commented out as this seems to be a sticky error...
     # config = LaunchConfig(grid=1, block=1)
     # launch(s, config, ker)
-    # from cuda.core.experimental._utils.cuda_utils import CUDAError
+    # from cuda.core._utils.cuda_utils import CUDAError
     # with pytest.raises(CUDAError) as e:
     #     s.sync()
     # assert "CUDA_ERROR_LAUNCH_FAILED" in str(e)

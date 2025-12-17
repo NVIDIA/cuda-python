@@ -3,8 +3,8 @@
 
 import cuda.core.experimental
 import pytest
+from cuda.core._utils.cuda_utils import CUDAError
 from cuda.core.experimental import DeviceMemoryResource
-from cuda.core.experimental._utils.cuda_utils import CUDAError
 from helpers.buffers import PatternGen, compare_buffer_to_constant, make_scratch_buffer
 
 NBYTES = 1024

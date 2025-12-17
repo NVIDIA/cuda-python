@@ -7,8 +7,8 @@ import warnings
 
 import cuda.core.experimental
 import pytest
+from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 from cuda.core.experimental import Device, ObjectCode, Program, ProgramOptions
-from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 
 try:
     import numba
@@ -41,17 +41,17 @@ def cuda12_4_prerequisite_check():
 
 def test_kernel_attributes_init_disabled():
     with pytest.raises(RuntimeError, match=r"^KernelAttributes cannot be instantiated directly\."):
-        cuda.core.experimental._module.KernelAttributes()  # Ensure back door is locked.
+        cuda.core._module.KernelAttributes()  # Ensure back door is locked.
 
 
 def test_kernel_occupancy_init_disabled():
     with pytest.raises(RuntimeError, match=r"^KernelOccupancy cannot be instantiated directly\."):
-        cuda.core.experimental._module.KernelOccupancy()  # Ensure back door is locked.
+        cuda.core._module.KernelOccupancy()  # Ensure back door is locked.
 
 
 def test_kernel_init_disabled():
     with pytest.raises(RuntimeError, match=r"^Kernel objects cannot be instantiated directly\."):
-        cuda.core.experimental._module.Kernel()  # Ensure back door is locked.
+        cuda.core._module.Kernel()  # Ensure back door is locked.
 
 
 def test_object_code_init_disabled():
