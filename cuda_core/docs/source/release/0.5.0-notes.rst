@@ -3,8 +3,8 @@
 
 .. currentmodule:: cuda.core.experimental
 
-``cuda.core`` 0.5.x Release Notes
-=================================
+``cuda.core`` 0.5.0 Release Notes
+==================================
 
 
 Highlights
