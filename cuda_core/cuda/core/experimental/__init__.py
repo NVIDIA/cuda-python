@@ -40,7 +40,6 @@ _warn_deprecated()
 del warnings
 
 from cuda.core import utils  # noqa: E402
-
 from cuda.core._device import Device  # noqa: E402
 from cuda.core._event import Event, EventOptions  # noqa: E402
 from cuda.core._graph import (  # noqa: E402
