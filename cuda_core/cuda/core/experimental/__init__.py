@@ -22,6 +22,7 @@ def _warn_deprecated():
     additional warnings since they are already set in the module namespace.
     """
     import warnings
+
     warnings.warn(
         "The cuda.core.experimental namespace is deprecated. "
         "Please import directly from cuda.core instead. "
