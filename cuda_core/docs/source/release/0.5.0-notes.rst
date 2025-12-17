@@ -19,7 +19,7 @@ Highlights
 Breaking Changes
 ----------------
 
-The support for setting :attr:`VirtualMemoryResourceOptions.handle_type` to ``"win32"`` is removed. Please reach out to us on GitHub if you have a real-life use case.
+The support for setting :attr:`VirtualMemoryResourceOptions.handle_type` to ``"win32"`` is removed. Please reach out to us on GitHub if you have a use case.
 
 The following APIs have been deprecated and will be removed in 0.6.0:
 
@@ -42,7 +42,7 @@ New features
 - Added :class:`GraphMemoryResource` for allocating and deallocating memory when building a CUDA graph.
 - Added :class:`PinnedMemoryResource` and :class:`PinnedMemoryResourceOptions` for managing host-pinned memory pools with optional IPC support.
 - Added :class:`ManagedMemoryResource` and :class:`ManagedMemoryResourceOptions` for managing unified memory pools accessible from both host and device.
-- Added :meth:`Buffer.fill` method for efficient memory initialization, supporting ``int``, ``bytes``,  general buffer protocol objects, and CUDA graphs.
+- Added :meth:`Buffer.fill` method for efficient memory initialization, supporting ``int``, ``bytes``,  and general buffer protocol objects.
 - :class:`Buffer` can now wrap external memory allocations with an owner object.
 - Added alternative constructors :meth:`~utils.StridedMemoryView.from_buffer`, :meth:`~utils.StridedMemoryView.from_dlpack`, and :meth:`~utils.StridedMemoryView.from_cuda_array_interface`
   and a new property :attr:`~utils.StridedMemoryView.size` for :class:`~utils.StridedMemoryView`.
