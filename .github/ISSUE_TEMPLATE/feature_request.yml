@@ -36,7 +36,7 @@ body:
     attributes:
       label: Is your feature request related to a problem? Please describe.
       description: A clear and concise description of what the problem is, e.g., "I would like to be able to..."
-      placeholder: I would like to be able to use the equivalent of `cuda.core.experimental.Program.compile(...)` to compile my code to PTX.
+      placeholder: I would like to be able to use the equivalent of `cuda.core.Program.compile(...)` to compile my code to PTX.
     validations:
       required: true
 
@@ -46,7 +46,7 @@ body:
       label: Describe the solution you'd like
       description: A clear and concise description of what you want to happen.
       placeholder: |
-        Support a `ptx` target_type in the `cuda.core.experimental.Program.compile(...)` function.
+        Support a `ptx` target_type in the `cuda.core.Program.compile(...)` function.
     validations:
       required: true
 
@@ -57,7 +57,7 @@ body:
       description:
         If applicable, please add a clear and concise description of any alternative solutions or features you've
         considered.
-      placeholder: The alternatives to using `cuda.core.experimental.Program.compile(...)` are unappealing. They usually involve using lower level bindings to something like nvRTC or invoking the nvcc executable.
+      placeholder: The alternatives to using `cuda.core.Program.compile(...)` are unappealing. They usually involve using lower level bindings to something like nvRTC or invoking the nvcc executable.
     validations:
       required: false
 

@@ -1,0 +1,64 @@
+# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+from cuda.bindings cimport cydriver
+from cuda.core._memory._buffer cimport Buffer
+from cuda.core._memory._memory_pool cimport _MemPool
+
+
+# Holds _MemPool objects imported by this process.  This enables
+# buffer serialization, as buffers can reduce to a pair comprising the memory
+# resource UUID (the key into this registry) and the serialized buffer
+# descriptor.
+cdef object registry
+
+
+# The IPC handle type for this platform.  IPC is currently only supported on
+# Linux. On other platforms, the IPC handle type is set equal to the no-IPC
+# handle type.
+cdef cydriver.CUmemAllocationHandleType IPC_HANDLE_TYPE
+
+
+# Whether IPC is supported on this platform.
+cdef is_supported()
+
+
+cdef class IPCDataForBuffer:
+    cdef:
+        IPCBufferDescriptor _ipc_descriptor
+        bint                _is_mapped
+
+
+cdef class IPCDataForMR:
+    cdef:
+        IPCAllocationHandle _alloc_handle
+        bint                _is_mapped
+
+
+cdef class IPCBufferDescriptor:
+    cdef:
+        bytes  _payload
+        size_t _size
+
+
+cdef class IPCAllocationHandle:
+    cdef:
+        int    _handle
+        object _uuid
+
+    cpdef close(self)
+
+
+# Buffer IPC Implementation
+# -------------------------
+cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer)
+cdef Buffer Buffer_from_ipc_descriptor(cls, _MemPool, IPCBufferDescriptor, stream)
+
+
+# _MemPool IPC Implementation
+# ---------------------------
+cdef _MemPool MP_from_allocation_handle(cls, alloc_handle)
+cdef _MemPool MP_from_registry(uuid)
+cdef _MemPool MP_register(_MemPool, uuid)
+cdef IPCAllocationHandle MP_export_mempool(_MemPool)

@@ -69,7 +69,7 @@ issues = "https://github.com/NVIDIA/cuda-python/issues/"
 include = ["cuda.core*"]
 
 [tool.setuptools.package-data]
-"cuda.core.experimental.include" = ["*.h", "*.hpp", "*.cuh"]
+"cuda.core._include" = ["*.h", "*.hpp", "*.cuh"]
 
 [tool.setuptools.dynamic]
 version = { attr = "cuda.core._version.__version__" }
