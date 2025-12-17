@@ -29,17 +29,18 @@ cu13 = { features = ["cu13"], solve-group = "cu13" }
 # Order: pathfinder -> bindings -> core (matching scripts/run_tests.sh)
 # Each sub-package has its own pixi.toml and environment
 # Usage: pixi run test (default) or pixi run -e cu12 test or pixi run -e cu13 test
+# The environment specified with -e is automatically passed down via PIXI_ENVIRONMENT_NAME
 [target.linux.tasks.test-pathfinder]
-cmd = ["bash", "-c", "ENV=\"\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu12\"* ]] && ENV=\"cu12\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu13\"* ]] && ENV=\"cu13\"; cd cuda_pathfinder && if [ -n \"$ENV\" ]; then pixi run --environment \"$ENV\" test; else pixi run test; fi"]
+cmd = ["bash", "-c", "cd cuda_pathfinder && if [ -n \"${PIXI_ENVIRONMENT_NAME:-}\" ]; then pixi run --environment \"$PIXI_ENVIRONMENT_NAME\" test; else pixi run test; fi"]
 
 [target.linux.tasks.test-bindings]
-cmd = ["bash", "-c", "ENV=\"\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu12\"* ]] && ENV=\"cu12\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu13\"* ]] && ENV=\"cu13\"; cd cuda_bindings && if [ -n \"$ENV\" ]; then pixi run --environment \"$ENV\" test; else pixi run test; fi"]
+cmd = ["bash", "-c", "cd cuda_bindings && if [ -n \"${PIXI_ENVIRONMENT_NAME:-}\" ]; then pixi run --environment \"$PIXI_ENVIRONMENT_NAME\" test; else pixi run test; fi"]
 
 [target.linux.tasks.test-core]
-cmd = ["bash", "-c", "ENV=\"\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu12\"* ]] && ENV=\"cu12\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu13\"* ]] && ENV=\"cu13\"; cd cuda_core && if [ -n \"$ENV\" ]; then pixi run --environment \"$ENV\" test; else pixi run test; fi"]
+cmd = ["bash", "-c", "cd cuda_core && if [ -n \"${PIXI_ENVIRONMENT_NAME:-}\" ]; then pixi run --environment \"$PIXI_ENVIRONMENT_NAME\" test; else pixi run test; fi"]
 
 [target.linux.tasks.test]
 cmd = [
     "bash", "-c",
-    "set -e; ENV=\"\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu12\"* ]] && ENV=\"cu12\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu13\"* ]] && ENV=\"cu13\"; cd cuda_pathfinder && (if [ -n \"$ENV\" ]; then pixi run --environment \"$ENV\" test; else pixi run test; fi) && cd ../cuda_bindings && (if [ -n \"$ENV\" ]; then pixi run --environment \"$ENV\" test; else pixi run test; fi) && cd ../cuda_core && (if [ -n \"$ENV\" ]; then pixi run --environment \"$ENV\" test; else pixi run test; fi)"
+    "set -e; cd cuda_pathfinder && (if [ -n \"${PIXI_ENVIRONMENT_NAME:-}\" ]; then pixi run --environment \"$PIXI_ENVIRONMENT_NAME\" test; else pixi run test; fi) && cd ../cuda_bindings && (if [ -n \"${PIXI_ENVIRONMENT_NAME:-}\" ]; then pixi run --environment \"$PIXI_ENVIRONMENT_NAME\" test; else pixi run test; fi) && cd ../cuda_core && (if [ -n \"${PIXI_ENVIRONMENT_NAME:-}\" ]; then pixi run --environment \"$PIXI_ENVIRONMENT_NAME\" test; else pixi run test; fi)"
 ]
