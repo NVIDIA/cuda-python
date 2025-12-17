@@ -27,7 +27,6 @@ from cuda.core.experimental._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
 
-import abc
 import sys
 from typing import TypeVar, Union
 
@@ -434,7 +433,6 @@ cdef class MemoryResource:
     resource's respective property.)
     """
 
-    @abc.abstractmethod
     def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """Allocate a buffer of the requested size.
 
@@ -453,9 +451,8 @@ cdef class MemoryResource:
             The allocated buffer object, which can be used for device or host operations
             depending on the resource's properties.
         """
-        ...
+        raise TypeError("MemoryResource.allocate must be implemented by subclasses.")
 
-    @abc.abstractmethod
     def deallocate(self, ptr: DevicePointerT, size_t size, stream: Stream | GraphBuilder | None = None):
         """Deallocate a buffer previously allocated by this resource.
 
@@ -470,7 +467,23 @@ cdef class MemoryResource:
             If None, it is up to each memory resource implementation to decide
             and document the behavior.
         """
-        ...
+        raise TypeError("MemoryResource.deallocate must be implemented by subclasses.")
+
+    @property
+    def is_device_accessible(self) -> bool:
+        """Whether buffers allocated by this resource are device-accessible."""
+        raise TypeError("MemoryResource.is_device_accessible must be implemented by subclasses.")
+
+    @property
+    def is_host_accessible(self) -> bool:
+        """Whether buffers allocated by this resource are host-accessible."""
+        raise TypeError("MemoryResource.is_host_accessible must be implemented by subclasses.")
+
+    @property
+    def device_id(self) -> int:
+        """Device ID associated with this memory resource, or -1 if not applicable."""
+        raise TypeError("MemoryResource.device_id must be implemented by subclasses.")
+
 
 # Buffer Implementation Helpers
 # -----------------------------
