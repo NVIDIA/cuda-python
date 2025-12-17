@@ -10,7 +10,10 @@
 Highlights
 ----------
 
-None.
+- Added :class:`GraphMemoryResource` for memory allocation in CUDA graphs.
+- Added :meth:`Buffer.fill` method for efficient memory initialization using ``cuMemsetAsync``.
+- Enhanced :class:`StridedMemoryView` with new constructors and better external allocation support.
+- Significant performance improvements through Cythonization of core components.
 
 
 Breaking Changes
@@ -28,10 +31,50 @@ The following APIs have been deprecated and will be removed in 0.6.0:
 New features
 ------------
 
+Memory Resources
+~~~~~~~~~~~~~~~~
+
 - Added :class:`PinnedMemoryResource` and :class:`PinnedMemoryResourceOptions` for managing
   host-pinned memory pools with optional IPC support.
 - Added :class:`ManagedMemoryResource` and :class:`ManagedMemoryResourceOptions` for managing
   unified memory pools accessible from both host and device.
+- Added :class:`GraphMemoryResource` and :class:`GraphMemoryResourceAttributes` for memory
+  allocation within CUDA graph capture, supporting both pooling and non-pooling modes.
+- Added peer access control to :class:`DeviceMemoryResource` for multi-GPU IPC scenarios.
+
+Buffer and Memory Operations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Added :meth:`Buffer.fill` method for efficient memory initialization using ``cuMemsetAsync``,
+  supporting ``int``, ``bytes``, and general buffer protocol objects.
+- :class:`Buffer` can now wrap external memory allocations with an owner object, enabling
+  integration with external memory management systems.
+- IPC-imported buffers can now be re-exported to other processes.
+
+StridedMemoryView Enhancements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Added :meth:`StridedMemoryView.from_buffer` classmethod for creating views from buffers
+  with explicit shape, strides, and dtype parameters.
+- Added :meth:`StridedMemoryView.from_dlpack` and :meth:`StridedMemoryView.from_cuda_array_interface`
+  classmethods for explicit protocol selection (the ``__init__`` constructor is now deprecated).
+- Added :attr:`StridedMemoryView.size` property to get total number of elements.
+- Added :meth:`StridedMemoryView.view` method for creating sliced views with custom layouts.
+
+Program and Linker Options
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Added :meth:`ProgramOptions.as_bytes` and :meth:`LinkerOptions.as_bytes` public APIs for
+  converting options to backend-specific byte representations.
+- Added ``numba_debug`` flag to :class:`ProgramOptions` for enabling Numba CUDA debug support.
+
+Device API
+~~~~~~~~~~
+
+- Updated :class:`Device` constructor to accept either a :class:`Device` instance or a device
+  ordinal (``int``). Public APIs that previously only accepted ``int`` now accept either.
+- Added :meth:`Device.get_all_devices` classmethod as replacement for deprecated
+  ``cuda.core.experimental.system.devices``.
 
 
 New examples
@@ -43,7 +86,55 @@ None.
 Fixes and enhancements
 ----------------------
 
-- Cythonized :func:`launch` and :class:`LaunchConfig` for improved performance.
+Performance Improvements
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Cythonized :func:`launch` and :class:`LaunchConfig` for improved kernel launch performance.
+- Cythonized :class:`DeviceMemoryResource` attributes for faster property access.
+- Optimized :meth:`Buffer.fill` to avoid intermediate object creation by using Cython typed
+  parameters and C buffer API.
+
+API Improvements
+~~~~~~~~~~~~~~~~
+
 - Python ``bool`` objects are now converted to C++ ``bool`` type when passed as kernel
-  arguments.  Previously, they were converted to ``int``.  This brings them inline
+  arguments. Previously, they were converted to ``int``. This brings them inline
   with ``ctypes.c_bool`` and ``numpy.bool_``.
+- :class:`Stream` and :class:`GraphBuilder` methods now accept stream-like objects (anything
+  with a ``.handle`` attribute) via the ``IsStreamT`` protocol.
+- Restored v0.3.x :class:`MemoryResource` behaviors and added missing memory pool attributes
+  to maintain backward compatibility.
+- Simplified and standardized memory resource APIs across different resource types.
+- Added warning when multiprocessing start method is set to ``'fork'``, which can cause issues
+  with CUDA contexts.
+
+Bug Fixes
+~~~~~~~~~
+
+- Fixed exception clauses in :meth:`Buffer.fill` helper functions to properly handle errors.
+- Fixed potential memory leaks when DLPack capsule creation is interrupted.
+- Fixed virtual memory management (VMM) allocator on Windows platforms.
+- Fixed NVRTC program name handling on Windows to avoid filesystem issues.
+- Fixed NVRTC trace.json generation issue with NVRTC 12.9.
+- Fixed test infrastructure to avoid leaving temporary files during program options testing.
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+
+- ``StridedLayout`` has been privatized as ``_StridedLayout`` and is no longer part of the
+  public API. Use :meth:`StridedMemoryView.from_buffer` instead of creating layouts directly.
+- Replaced some ``isinstance(obj, T)`` checks with ``type(obj) is T`` for performance, with
+  fallback to ``isinstance`` to maintain backward compatibility for subclasses.
+- Standardized deallocation behavior: :class:`Buffer` objects now deallocate on the stream
+  that was used to allocate them, instead of on the default stream. Users can override the
+  deallocation stream explicitly through :meth:`Buffer.close`.
+
+Test and Development Infrastructure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Added ``--showlocals`` flag to pytest configurations for better debugging output.
+- Added ``pytest-randomly`` to randomize test execution order and catch ordering dependencies.
+- Added test IDs for GPU array tests to facilitate easier debugging.
+- Improved test determinism by replacing OS sleep with GPU nanosleep kernel in event timing tests.
+- Added coverage automation for tracking code coverage metrics.
+- Expanded Windows test matrix to cover different driver modes (WDDM/MCDM) and GPU types.
