@@ -11,8 +11,6 @@ directly from cuda.core instead of cuda.core.experimental.
 
 The experimental namespace will be removed in v1.0.0.
 
-Note: Underscored modules (e.g., _device, _memory) are not public APIs
-and are intentionally not made accessible here.
 """
 
 import warnings
@@ -39,10 +37,10 @@ def _warn_deprecated():
 # Import from new locations and re-export
 _warn_deprecated()
 
+del warnings
+
 from cuda.core import utils  # noqa: E402
 
-# Make utils accessible as a submodule for backward compatibility
-__import__("sys").modules[__spec__.name + ".utils"] = utils
 from cuda.core._device import Device  # noqa: E402
 from cuda.core._event import Event, EventOptions  # noqa: E402
 from cuda.core._graph import (  # noqa: E402
