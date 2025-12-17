@@ -58,7 +58,7 @@ DECLARE_DRIVER_FN(cuMemPoolImportPointer);
 #undef DECLARE_DRIVER_FN
 
 static bool load_driver_api() noexcept {
-    if (!Py_IsInitialized() || _Py_IsFinalizing()) {
+    if (!Py_IsInitialized() || Py_IsFinalizing()) {
         return false;
     }
 
@@ -225,7 +225,7 @@ class GILReleaseGuard {
 public:
     GILReleaseGuard() : tstate_(nullptr), released_(false) {
         // Don't try to manipulate GIL if Python is finalizing
-        if (!Py_IsInitialized() || _Py_IsFinalizing()) {
+        if (!Py_IsInitialized() || Py_IsFinalizing()) {
             return;
         }
         // PyGILState_Check() returns 1 if the GIL is held by this thread.
@@ -256,7 +256,7 @@ class GILAcquireGuard {
 public:
     GILAcquireGuard() : acquired_(false) {
         // Don't try to acquire GIL if Python is finalizing
-        if (!Py_IsInitialized() || _Py_IsFinalizing()) {
+        if (!Py_IsInitialized() || Py_IsFinalizing()) {
             return;
         }
         gstate_ = PyGILState_Ensure();
