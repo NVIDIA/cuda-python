@@ -3,10 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from cuda.core.experimental._memory._memory_pool cimport _MemPool
+from cuda.core.experimental._memory._ipc cimport IPCDataForMR
 
 
-cdef class DeviceMemoryResource(_MemPool):
+cdef class PinnedMemoryResource(_MemPool):
     pass
-
-
-cpdef DMR_mempool_get_access(DeviceMemoryResource, int)

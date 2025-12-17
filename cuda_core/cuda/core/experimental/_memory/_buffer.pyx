@@ -5,14 +5,17 @@
 from __future__ import annotations
 
 cimport cython
-from libc.stdint cimport uintptr_t
+from libc.stdint cimport uint8_t, uint16_t, uint32_t, uintptr_t
+from cpython.buffer cimport PyObject_GetBuffer, PyBuffer_Release, Py_buffer, PyBUF_SIMPLE
 
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
+from cuda.core.experimental._memory._device_memory_resource import DeviceMemoryResource
+from cuda.core.experimental._memory._pinned_memory_resource import PinnedMemoryResource
 from cuda.core.experimental._memory._ipc cimport IPCBufferDescriptor, IPCDataForBuffer
 from cuda.core.experimental._memory cimport _ipc
 from cuda.core.experimental._resource_handles cimport (
     DevicePtrHandle,
+    StreamHandle,
     deviceptr_create_with_owner,
     intptr,
     native,
@@ -25,7 +28,13 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 )
 
 import abc
+import sys
 from typing import TypeVar, Union
+
+if sys.version_info >= (3, 12):
+    from collections.abc import Buffer as BufferProtocol
+else:
+    BufferProtocol = object
 
 from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
 from cuda.core.experimental._utils.cuda_utils import driver
@@ -121,7 +130,7 @@ cdef class Buffer:
 
     @classmethod
     def from_ipc_descriptor(
-        cls, mr: DeviceMemoryResource, ipc_descriptor: IPCBufferDescriptor,
+        cls, mr: DeviceMemoryResource | PinnedMemoryResource, ipc_descriptor: IPCBufferDescriptor,
         stream: Stream = None
     ) -> Buffer:
         """Import a buffer that was exported from another process."""
@@ -204,52 +213,50 @@ cdef class Buffer:
         err, = driver.cuMemcpyAsync(native(self._h_ptr), native(src._h_ptr), dst_size, stream.handle)
         raise_if_driver_error(err)
 
-    def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
-        """Fill this buffer with a value pattern asynchronously on the given stream.
+    def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder):
+        """Fill this buffer with a repeating byte pattern.
 
         Parameters
         ----------
-        value : int
-            Integer value to fill the buffer with
-        width : int
-            Width in bytes for each element (must be 1, 2, or 4)
+        value : int | :obj:`collections.abc.Buffer`
+            - int: Must be in range [0, 256). Converted to 1 byte.
+            - :obj:`collections.abc.Buffer`: Must be 1, 2, or 4 bytes.
         stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`
-            Keyword argument specifying the stream for the asynchronous fill
+            Stream for the asynchronous fill operation.
 
         Raises
         ------
+        TypeError
+            If value is not an int and does not support the buffer protocol.
         ValueError
-            If width is not 1, 2, or 4, if value is out of range for the width,
-            or if buffer size is not divisible by width
+            If value byte length is not 1, 2, or 4.
+            If buffer size is not divisible by value byte length.
+        OverflowError
+            If int value is outside [0, 256).
 
         """
-        stream = Stream_accept(stream)
+        cdef Stream s_stream = Stream_accept(stream)
 
-        # Validate width
-        if width not in (1, 2, 4):
-            raise ValueError(f"width must be 1, 2, or 4, got {width}")
+        # Handle int case: 1-byte fill with automatic overflow checking.
+        if isinstance(value, int):
+            Buffer_fill_uint8(self, value, s_stream._h_stream)
+            return
 
-        # Validate buffer size modulus.
-        buffer_size = self._size
-        if buffer_size % width != 0:
-            raise ValueError(f"buffer size ({buffer_size}) must be divisible by width ({width})")
+        # Handle bytes case: direct pointer access without intermediate objects.
+        if isinstance(value, bytes):
+            Buffer_fill_from_ptr(self, <const char*><bytes>value, len(value), s_stream._h_stream)
+            return
 
-        # Map width (bytes) to bitwidth and validate value
-        bitwidth = width * 8
-        _validate_value_against_bitwidth(bitwidth, value, is_signed=False)
-
-        # Validate value fits in width and perform fill
-        ptr = native(self._h_ptr)
-        if width == 1:
-            N = buffer_size
-            err, = driver.cuMemsetD8Async(ptr, value, N, stream.handle)
-        elif width == 2:
-            N = buffer_size // 2
-            err, = driver.cuMemsetD16Async(ptr, value, N, stream.handle)
-        else:  # width == 4
-            N = buffer_size // 4
-            err, = driver.cuMemsetD32Async(ptr, value, N, stream.handle)
-        raise_if_driver_error(err)
+        # General buffer protocol path using C buffer API.
+        cdef Py_buffer buf
+        if PyObject_GetBuffer(value, &buf, PyBUF_SIMPLE) != 0:
+            raise TypeError(
+                f"value must be an int or support the buffer protocol, got {type(value).__name__}"
+            )
+        try:
+            Buffer_fill_from_ptr(self, <const char*>buf.buf, buf.len, s_stream._h_stream)
+        finally:
+            PyBuffer_Release(&buf)
 
     def __dlpack__(
         self,
@@ -358,7 +365,7 @@ cdef class Buffer:
 
 # Memory Attribute Query Helpers
 # ------------------------------
-cdef inline _init_mem_attrs(Buffer self):
+cdef inline void _init_mem_attrs(Buffer self):
     """Initialize memory attributes by querying the pointer."""
     if not self._mem_attrs_inited:
         _query_memory_attrs(self._mem_attrs, native(self._h_ptr))
@@ -465,7 +472,6 @@ cdef class MemoryResource:
         """
         ...
 
-
 # Buffer Implementation Helpers
 # -----------------------------
 cdef inline Buffer Buffer_from_deviceptr_handle(
@@ -480,6 +486,8 @@ cdef inline Buffer Buffer_from_deviceptr_handle(
     buf._size = size
     buf._memory_resource = mr
     buf._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
+    buf._owner = None
+    buf._mem_attrs_inited = False
     return buf
 
 
@@ -500,19 +508,34 @@ cdef inline void Buffer_close(Buffer self, object stream):
     self._owner = None
 
 
-def _validate_value_against_bitwidth(bitwidth, value, is_signed=False):
-    """Validate that a value fits within the representable range for a given bitwidth."""
-    max_bits = bitwidth
-    assert max_bits < 64, f"bitwidth ({max_bits}) must be less than 64"
+cdef inline int Buffer_fill_uint8(Buffer self, uint8_t value, StreamHandle h_stream) except? -1:
+    cdef cydriver.CUdeviceptr ptr = native(self._h_ptr)
+    cdef cydriver.CUstream s = native(h_stream)
+    with nogil:
+        HANDLE_RETURN(cydriver.cuMemsetD8Async(ptr, value, self._size, s))
+    return 0
 
-    if is_signed:
-        min_value = -(1 << (max_bits - 1))
-        max_value = (1 << (max_bits - 1)) - 1
+
+cdef inline int Buffer_fill_from_ptr(
+    Buffer self, const char* ptr, size_t width, StreamHandle h_stream
+) except? -1:
+    cdef size_t buffer_size = self._size
+    cdef cydriver.CUdeviceptr dst = native(self._h_ptr)
+    cdef cydriver.CUstream s = native(h_stream)
+
+    if width == 1:
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemsetD8Async(dst, (<uint8_t*>ptr)[0], buffer_size, s))
+    elif width == 2:
+        if buffer_size & 0x1:
+            raise ValueError(f"buffer size ({buffer_size}) must be divisible by 2")
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemsetD16Async(dst, (<uint16_t*>ptr)[0], buffer_size // 2, s))
+    elif width == 4:
+        if buffer_size & 0x3:
+            raise ValueError(f"buffer size ({buffer_size}) must be divisible by 4")
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemsetD32Async(dst, (<uint32_t*>ptr)[0], buffer_size // 4, s))
     else:
-        min_value = 0
-        max_value = (1 << max_bits) - 1
-
-    if not min_value <= value <= max_value:
-        raise ValueError(
-            f"value must be in range [{min_value}, {max_value}]"
-        )
+        raise ValueError(f"value must be 1, 2, or 4 bytes, got {width}")
+    return 0

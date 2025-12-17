@@ -4,7 +4,7 @@
 
 from ._dlpack cimport *
 from libc.stdint cimport intptr_t
-from cuda.core.experimental._layout cimport StridedLayout
+from cuda.core.experimental._layout cimport _StridedLayout
 from cuda.core.experimental._stream import Stream
 
 import functools
@@ -35,7 +35,8 @@ cdef class StridedMemoryView:
 
       1. Using the :obj:`args_viewable_as_strided_memory` decorator (recommended)
       2. Explicit construction relying on DLPack or CUDA Array Interface, see below.
-      3. From :obj:`~_memory.Buffer` and a :obj:`StridedLayout` (see :meth:`from_buffer` classmethod)
+      3. From :obj:`~_memory.Buffer` and shape and size tuples (see
+         :meth:`from_buffer` classmethod)
 
     ``StridedMemoryView(obj, stream_ptr)`` can be used to create a view from
     objects supporting either DLPack (up to v1.0) or CUDA Array Interface
@@ -103,7 +104,7 @@ cdef class StridedMemoryView:
         # Memoized properties
         # Either lazily inferred from dl_tensor/metadata,
         # or explicitly provided if created with from_buffer().
-        StridedLayout _layout
+        _StridedLayout _layout
         # Either exporting_obj if it is a Buffer, otherwise a Buffer instance
         # with owner set to the exporting object.
         object _buffer
@@ -167,21 +168,19 @@ cdef class StridedMemoryView:
 
     @classmethod
     def from_buffer(
-        cls, buffer : Buffer, layout : StridedLayout,
+        cls,
+        buffer : Buffer,
+        shape : tuple[int, ...],
+        strides : tuple[int, ...] | None = None,
+        *,
+        itemsize : int | None = None,
         dtype : numpy.dtype | None = None,
         is_readonly : bool = False
     ) -> StridedMemoryView:
         """
-        Creates a :obj:`StridedMemoryView` instance from a :obj:`~_memory.Buffer` and a :obj:`StridedLayout`.
+        Creates a :obj:`StridedMemoryView` instance from a :obj:`~_memory.Buffer` and shape and strides tuples.
         The Buffer can be either allocation coming from a :obj:`MemoryResource` or an external allocation
         wrapped in a :obj:`~_memory.Buffer` object with ``Buffer.from_handle(ptr, size, owner=...)``.
-
-        .. hint::
-            When allocating the memory for a given layout, the required allocation size
-            can be obtained with the :meth:`StridedLayout.required_size_in_bytes` method.
-            It is best to use the :meth:`StridedLayout.to_dense` method
-            first to make sure the layout is contiguous, to avoid overallocating memory
-            for layouts with gaps.
 
         .. caution::
             When creating a :obj:`StridedMemoryView` from a :obj:`~_memory.Buffer`,
@@ -192,19 +191,33 @@ cdef class StridedMemoryView:
         ----------
         buffer : :obj:`~_memory.Buffer`
             The buffer to create the view from.
-        layout : :obj:`StridedLayout`
+        shape : :obj:`tuple`
             The layout describing the shape, strides and itemsize of the elements in
             the buffer.
-        dtype : :obj:`numpy.dtype`, optional
+        strides : :obj:`tuple`
+            The layout describing the shape, strides and itemsize of the elements in
+            the buffer.
+        dtype : :obj:`numpy.dtype`
             Optional dtype.
             If specified, the dtype's itemsize must match the layout's itemsize.
-            To view the buffer with a different itemsize, please use :meth:`StridedLayout.repacked`
-            first to transform the layout to the desired itemsize.
         is_readonly : bool, optional
             Whether the mark the view as readonly.
         """
         cdef StridedMemoryView view = StridedMemoryView.__new__(cls)
-        view_buffer_strided(view, buffer, layout, dtype, is_readonly)
+        if itemsize is None and dtype is None:
+            raise ValueError("Either itemsize or dtype must be specified")
+        if itemsize is not None and dtype is not None and itemsize != dtype.itemsize:
+            raise ValueError(
+                f"itemsize ({itemsize}) does not match dtype.itemsize ({dtype.itemsize})"
+            )
+        # (itemsize is None XOR dtype is None) OR they are equal
+        view_buffer_strided(
+            view,
+            buffer,
+            _StridedLayout(shape=shape, strides=strides, itemsize=getattr(dtype, "itemsize", itemsize)),
+            dtype,
+            is_readonly,
+        )
         return view
 
     def __dealloc__(self):
@@ -225,7 +238,7 @@ cdef class StridedMemoryView:
             dlm_tensor.deleter(dlm_tensor)
 
     def view(
-        self, layout : StridedLayout | None = None, dtype : numpy.dtype | None = None
+        self, layout : _StridedLayout | None = None, dtype : numpy.dtype | None = None
     ) -> StridedMemoryView:
         """
         Creates a new view with adjusted layout and dtype.
@@ -252,14 +265,6 @@ cdef class StridedMemoryView:
         The copy can be performed between following memory spaces:
         host-to-device, device-to-host, device-to-device (on the same device).
 
-        The following conditions must be met:
-            * Both views must have compatible shapes, i.e. the shapes must be equal
-              or the source view's shape must be broadcastable to the target view's shape
-              (see :meth:`StridedLayout.broadcast_to`).
-            * Both views must have the same :attr:`dtype` (or :attr:`StridedLayout.itemsize`
-              if :attr:`dtype` is not specified).
-            * The destination's layout must be unique (see :meth:`StridedLayout.is_unique`).
-
         Parameters
         ----------
         other : StridedMemoryView
@@ -267,7 +272,7 @@ cdef class StridedMemoryView:
         stream : Stream | None, optional
             The stream to schedule the copy on.
         allocator : MemoryResource | None, optional
-            If temporary buffers are needed, the specifed memory resources
+            If temporary buffers are needed, the specified memory resources
             will be used to allocate the memory. If not specified, default
             resources will be used.
         blocking : bool | None, optional
@@ -296,12 +301,16 @@ cdef class StridedMemoryView:
         raise NotImplementedError("Sorry, not supported: copy_to")
 
     @property
-    def layout(self) -> StridedLayout:
+    def _layout(self) -> _StridedLayout:
         """
         The layout of the tensor. For StridedMemoryView created from DLPack or CAI,
         the layout is inferred from the tensor object's metadata.
         """
         return self.get_layout()
+
+    @property
+    def size(self) -> int:
+        return self.get_layout().get_volume()
 
     @property
     def shape(self) -> tuple[int, ...]:
@@ -328,14 +337,14 @@ cdef class StridedMemoryView:
         return (f"StridedMemoryView(ptr={self.ptr},\n"
               + f"                  shape={self.shape},\n"
               + f"                  strides={self.strides},\n"
-              + f"                  itemsize={self.layout.itemsize},\n"
+              + f"                  itemsize={self._layout.itemsize},\n"
               + f"                  dtype={get_simple_repr(self.dtype)},\n"
               + f"                  device_id={self.device_id},\n"
               + f"                  is_device_accessible={self.is_device_accessible},\n"
               + f"                  readonly={self.readonly},\n"
               + f"                  exporting_obj={get_simple_repr(self.exporting_obj)})")
 
-    cdef inline StridedLayout get_layout(self):
+    cdef inline _StridedLayout get_layout(self):
         if self._layout is None:
             if self.dl_tensor:
                 self._layout = layout_from_dlpack(self.dl_tensor)
@@ -647,8 +656,8 @@ def args_viewable_as_strided_memory(tuple arg_indices):
     return wrapped_func_with_indices
 
 
-cdef inline StridedLayout layout_from_dlpack(DLTensor* dl_tensor):
-    cdef StridedLayout layout = StridedLayout.__new__(StridedLayout)
+cdef inline _StridedLayout layout_from_dlpack(DLTensor* dl_tensor):
+    cdef _StridedLayout layout = _StridedLayout.__new__(_StridedLayout)
     cdef int nbits = dl_tensor.dtype.bits * dl_tensor.dtype.lanes
     cdef int itemsize = nbits >> 3
     if (itemsize << 3) != nbits:
@@ -657,8 +666,8 @@ cdef inline StridedLayout layout_from_dlpack(DLTensor* dl_tensor):
     return layout
 
 
-cdef StridedLayout layout_from_cai(object metadata):
-    cdef StridedLayout layout = StridedLayout.__new__(StridedLayout)
+cdef _StridedLayout layout_from_cai(object metadata):
+    cdef _StridedLayout layout = _StridedLayout.__new__(_StridedLayout)
     cdef object shape = metadata["shape"]
     cdef object strides = metadata.get("strides")
     cdef int itemsize = _typestr2itemsize[metadata["typestr"]]
@@ -666,14 +675,14 @@ cdef StridedLayout layout_from_cai(object metadata):
     return layout
 
 
-cdef inline intptr_t get_data_ptr(object buffer, StridedLayout layout) except? 0:
+cdef inline intptr_t get_data_ptr(object buffer, _StridedLayout layout) except? 0:
     return <intptr_t>(int(buffer.handle)) + layout.get_slice_offset_in_bytes()
 
 
 cdef inline int view_buffer_strided(
     StridedMemoryView view,
     object buffer,
-    StridedLayout layout,
+    _StridedLayout layout,
     object dtype,
     bint is_readonly,
 ) except -1:
@@ -682,8 +691,7 @@ cdef inline int view_buffer_strided(
         if dtype.itemsize != layout.itemsize:
             raise ValueError(
                 f"The dtype's itemsize ({dtype.itemsize}) does not match the layout's "
-                f"itemsize ({layout.itemsize}). Please use :meth:`StridedLayout.repacked` "
-                f"to transform the layout to the desired itemsize."
+                f"itemsize ({layout.itemsize})."
             )
     # Check the layout's offset range [min_offset, max_offset] fits
     # within the [0, buffer.size - 1] range.

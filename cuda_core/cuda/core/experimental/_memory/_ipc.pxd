@@ -4,10 +4,10 @@
 
 from cuda.bindings cimport cydriver
 from cuda.core.experimental._memory._buffer cimport Buffer
-from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
+from cuda.core.experimental._memory._memory_pool cimport _MemPool
 
 
-# Holds DeviceMemoryResource objects imported by this process.  This enables
+# Holds _MemPool objects imported by this process.  This enables
 # buffer serialization, as buffers can reduce to a pair comprising the memory
 # resource UUID (the key into this registry) and the serialized buffer
 # descriptor.
@@ -55,12 +55,12 @@ cdef class IPCAllocationHandle:
 # Buffer IPC Implementation
 # -------------------------
 cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer)
-cdef Buffer Buffer_from_ipc_descriptor(cls, DeviceMemoryResource, IPCBufferDescriptor, stream)
+cdef Buffer Buffer_from_ipc_descriptor(cls, _MemPool, IPCBufferDescriptor, stream)
 
 
-# DeviceMemoryResource IPC Implementation
-# ---------------------------------------
-cdef DeviceMemoryResource DMR_from_allocation_handle(cls, device_id, alloc_handle)
-cdef DeviceMemoryResource DMR_from_registry(uuid)
-cdef DeviceMemoryResource DMR_register(DeviceMemoryResource, uuid)
-cdef IPCAllocationHandle DMR_export_mempool(DeviceMemoryResource)
+# _MemPool IPC Implementation
+# ---------------------------
+cdef _MemPool MP_from_allocation_handle(cls, alloc_handle)
+cdef _MemPool MP_from_registry(uuid)
+cdef _MemPool MP_register(_MemPool, uuid)
+cdef IPCAllocationHandle MP_export_mempool(_MemPool)

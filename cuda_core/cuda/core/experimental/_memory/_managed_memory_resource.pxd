@@ -5,8 +5,5 @@
 from cuda.core.experimental._memory._memory_pool cimport _MemPool
 
 
-cdef class DeviceMemoryResource(_MemPool):
+cdef class ManagedMemoryResource(_MemPool):
     pass
-
-
-cpdef DMR_mempool_get_access(DeviceMemoryResource, int)

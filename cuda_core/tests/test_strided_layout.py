@@ -9,7 +9,7 @@ from enum import Enum
 
 import numpy as np
 import pytest
-from cuda.core.experimental._layout import StridedLayout
+from cuda.core.experimental._layout import _StridedLayout
 from helpers.layout import (
     DenseOrder,
     LayoutSpec,
@@ -35,20 +35,20 @@ def _setup_layout_and_np_ref(spec: LayoutSpec):
     if isinstance(spec.stride_order, DenseOrder):
         np_ref = np_ref.reshape(spec.shape, order=spec.np_order())
         if spec.stride_order == DenseOrder.IMPLICIT_C:
-            layout = StridedLayout(spec.shape, None, spec.itemsize)
+            layout = _StridedLayout(spec.shape, None, spec.itemsize)
         else:
-            layout = StridedLayout.dense(spec.shape, spec.itemsize, spec.stride_order.value)
+            layout = _StridedLayout.dense(spec.shape, spec.itemsize, spec.stride_order.value)
     else:
         assert isinstance(spec.stride_order, tuple)
         assert len(spec.stride_order) == len(spec.shape)
         # numpy does not allow specyfing the tuple order (only C/F)
         np_ref = np_ref.reshape(permuted(spec.shape, spec.stride_order))
         np_ref = np_ref.transpose(inv_permutation(spec.stride_order))
-        layout = StridedLayout.dense(spec.shape, spec.itemsize, spec.stride_order)
+        layout = _StridedLayout.dense(spec.shape, spec.itemsize, spec.stride_order)
     return layout, np_ref
 
 
-def _transform(layout: StridedLayout, np_ref: np.ndarray, spec: LayoutSpec):
+def _transform(layout: _StridedLayout, np_ref: np.ndarray, spec: LayoutSpec):
     if spec.perm is not None:
         np_ref = np_ref.transpose(spec.perm)
         layout = layout.permuted(spec.perm)
@@ -59,9 +59,9 @@ def _transform(layout: StridedLayout, np_ref: np.ndarray, spec: LayoutSpec):
     return layout, np_ref
 
 
-def _cmp_layout_and_array(layout: StridedLayout, arr: np.ndarray, expect_strides_none: bool):
+def _cmp_layout_and_array(layout: _StridedLayout, arr: np.ndarray, expect_strides_none: bool):
     """
-    Compare StridedLayout and numpy.ndarray.
+    Compare _StridedLayout and numpy.ndarray.
     Compares shape, strides, itemsize and contiguity flags.
     """
     ndim = len(arr.shape)
@@ -90,13 +90,13 @@ def _cmp_layout_and_array(layout: StridedLayout, arr: np.ndarray, expect_strides
         assert layout.strides_in_bytes == arr.strides
 
 
-def _cmp_layout_from_dense_vs_from_np(layout: StridedLayout, np_ref: np.ndarray, has_no_strides: bool):
+def _cmp_layout_from_dense_vs_from_np(layout: _StridedLayout, np_ref: np.ndarray, has_no_strides: bool):
     """
     Compare the layout created through series of transformations vs
     the layout created from numpy.ndarray transformed accordingly.
     """
 
-    layout_from_np = StridedLayout(np_ref.shape, np_ref.strides, np_ref.itemsize, divide_strides=True)
+    layout_from_np = _StridedLayout(np_ref.shape, np_ref.strides, np_ref.itemsize, divide_strides=True)
     assert layout_from_np.shape == layout.shape
     assert layout_from_np.itemsize == layout.itemsize
     assert layout_from_np.is_contiguous_c == layout.is_contiguous_c
@@ -112,7 +112,7 @@ def _cmp_layout_from_dense_vs_from_np(layout: StridedLayout, np_ref: np.ndarray,
         if has_no_strides:
             assert layout_from_np.is_contiguous_c
             assert layout_from_np.is_contiguous_any
-            dense_layout = StridedLayout.dense(np_ref.shape, np_ref.itemsize)
+            dense_layout = _StridedLayout.dense(np_ref.shape, np_ref.itemsize)
             assert layout_from_np.strides == dense_layout.strides
             assert layout_from_np.strides_in_bytes == dense_layout.strides_in_bytes
         else:
@@ -120,7 +120,7 @@ def _cmp_layout_from_dense_vs_from_np(layout: StridedLayout, np_ref: np.ndarray,
             assert layout_from_np.strides_in_bytes == layout.strides_in_bytes
 
 
-def _check_envelope(layout: StridedLayout, layout_spec: LayoutSpec):
+def _check_envelope(layout: _StridedLayout, layout_spec: LayoutSpec):
     orignal_vol = math.prod(layout_spec.shape)
     min_offset, max_offset = layout.offset_bounds
     if layout.volume == 0:
@@ -145,8 +145,8 @@ def _check_envelope(layout: StridedLayout, layout_spec: LayoutSpec):
 
 
 def _cmp_slice_offset(
-    layout_0: StridedLayout,
-    layout_1: StridedLayout,
+    layout_0: _StridedLayout,
+    layout_1: _StridedLayout,
     np_ref_0: np.ndarray,
     np_ref_1: np.ndarray,
 ):
@@ -168,7 +168,7 @@ def _cmp_slice_offset(
 )
 def test_dense_with_permutation_as_stride_order(layout_spec):
     """
-    Test creating StridedLayout with stride_order=tuple(...).
+    Test creating _StridedLayout with stride_order=tuple(...).
     """
     layout, np_ref = _setup_layout_and_np_ref(layout_spec)
     _cmp_layout_and_array(layout, np_ref, False)
@@ -197,8 +197,8 @@ def test_dense_with_permutation_as_stride_order(layout_spec):
 )
 def test_permuted(layout_spec):
     """
-    Test creating StridedLayout with dense(C/F) order or implict C order
-    StridedLayout(strides=None) and calling permuted(perm) on it.
+    Test creating _StridedLayout with dense(C/F) order or implict C order
+    _StridedLayout(strides=None) and calling permuted(perm) on it.
     Tests against numpy transpose and checks stride_order attribute.
     """
     layout, np_ref = _setup_layout_and_np_ref(layout_spec)

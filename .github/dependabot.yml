@@ -18,4 +18,4 @@ updates:
       actions-monthly:
         applies-to: version-updates
         patterns: ["*"]
-        update-types: ["minor", "patch"]
+        update-types: ["major", "minor", "patch"]

@@ -16,12 +16,22 @@ None.
 Breaking Changes
 ----------------
 
-None.
+The following APIs have been deprecated and will be removed in 0.6.0:
+
+- ``cuda.core.experimental.system.driver_version`` has been replaced with
+  ``cuda.core.experimental.system.get_driver_version()``.
+- ``cuda.core.experimental.system.num_devices`` has been replaced with
+  ``cuda.core.experimental.system.get_num_devices()``.
+- ``cuda.core.experimental.system.devices`` has been replaced with
+  ``cuda.core.experimental.Device.get_all_devices()``.
 
 New features
 ------------
 
-None.
+- Added :class:`PinnedMemoryResource` and :class:`PinnedMemoryResourceOptions` for managing
+  host-pinned memory pools with optional IPC support.
+- Added :class:`ManagedMemoryResource` and :class:`ManagedMemoryResourceOptions` for managing
+  unified memory pools accessible from both host and device.
 
 
 New examples

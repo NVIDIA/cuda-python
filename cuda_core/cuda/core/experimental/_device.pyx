@@ -1005,6 +1005,20 @@ class Device:
             )
 
 
+    @classmethod
+    def get_all_devices(cls):
+        """
+        Query the available device instances.
+
+        Returns
+        -------
+        tuple of Device
+            A tuple containing instances of available devices.
+        """
+        from cuda.core.experimental import system
+        total = system.get_num_devices()
+        return tuple(cls(device_id) for device_id in range(total))
+
     @property
     def device_id(self) -> int:
         """Return device ordinal."""
@@ -1061,7 +1075,7 @@ class Device:
         if self._uuid is None:
             dev = self._device_id
             with nogil:
-                IF CUDA_CORE_BUILD_MAJOR == "12":
+                IF CUDA_CORE_BUILD_MAJOR == 12:
                     HANDLE_RETURN(cydriver.cuDeviceGetUuid_v2(&uuid, dev))
                 ELSE:  # 13.0+
                     HANDLE_RETURN(cydriver.cuDeviceGetUuid(&uuid, dev))

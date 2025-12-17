@@ -22,6 +22,8 @@ prepare_metadata_for_build_wheel = _build_meta.prepare_metadata_for_build_wheel
 build_sdist = _build_meta.build_sdist
 get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 
+COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
+
 
 @functools.cache
 def _get_proper_cuda_bindings_major_version() -> str:
@@ -97,8 +99,13 @@ def _build_cuda_core():
 
     def get_extension_kwargs(mod_name):
         """Return Extension kwargs (libraries, etc.) per module."""
+        return {"extra_compile_args": extra_compile_args}
 
-        return {}
+    extra_compile_args = []
+    if COMPILE_FOR_COVERAGE:
+        # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
+        # related to free-threading builds.
+        extra_compile_args += ["-DCYTHON_TRACE_NOGIL=1", "-DCYTHON_USE_SYS_MONITORING=0"]
 
     ext_modules = tuple(
         Extension(
@@ -116,13 +123,16 @@ def _build_cuda_core():
     )
 
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
-    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": _get_proper_cuda_bindings_major_version()}
+    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(_get_proper_cuda_bindings_major_version())}
+    compiler_directives = {"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True}
+    if COMPILE_FOR_COVERAGE:
+        compiler_directives["linetrace"] = True
     _extensions = cythonize(
         ext_modules,
         verbose=True,
         language_level=3,
         nthreads=nthreads,
-        compiler_directives={"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True},
+        compiler_directives=compiler_directives,
         compile_time_env=compile_time_env,
     )
 

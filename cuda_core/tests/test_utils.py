@@ -16,7 +16,8 @@ import cuda.core.experimental
 import numpy as np
 import pytest
 from cuda.core.experimental import Device
-from cuda.core.experimental.utils import StridedLayout, StridedMemoryView, args_viewable_as_strided_memory
+from cuda.core.experimental._layout import _StridedLayout
+from cuda.core.experimental.utils import StridedMemoryView, args_viewable_as_strided_memory
 
 
 def test_cast_to_3_tuple_success():
@@ -92,6 +93,7 @@ class TestViewCPU:
         assert isinstance(view, StridedMemoryView)
         assert view.ptr == in_arr.ctypes.data
         assert view.shape == in_arr.shape
+        assert view.size == in_arr.size
         strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
         if in_arr.flags.c_contiguous:
             assert view.strides is None
@@ -109,16 +111,16 @@ def gpu_array_samples():
     samples = []
     if cp is not None:
         samples += [
-            (cp.empty(3, dtype=cp.complex64), False),
-            (cp.empty((6, 6), dtype=cp.float64)[::2, ::2], True),
-            (cp.empty((3, 4), order="F"), True),
+            pytest.param(cp.empty(3, dtype=cp.complex64), False, id="cupy-complex64"),
+            pytest.param(cp.empty((6, 6), dtype=cp.float64)[::2, ::2], True, id="cupy-float64"),
+            pytest.param(cp.empty((3, 4), order="F"), True, id="cupy-fortran"),
         ]
     # Numba's device_array is the only known array container that does not
     # support DLPack (so that we get to test the CAI coverage).
     if numba_cuda is not None:
         samples += [
-            (numba_cuda.device_array((2,), dtype=np.int8), False),
-            (numba_cuda.device_array((4, 2), dtype=np.float32), True),
+            pytest.param(numba_cuda.device_array((2,), dtype=np.int8), False, id="numba-cuda-int8"),
+            pytest.param(numba_cuda.device_array((4, 2), dtype=np.float32), True, id="numba-cuda-float32"),
         ]
     return samples
 
@@ -131,7 +133,7 @@ def gpu_array_ptr(arr):
     raise NotImplementedError(f"{arr=}")
 
 
-@pytest.mark.parametrize("in_arr,use_stream", (*gpu_array_samples(),))
+@pytest.mark.parametrize(("in_arr", "use_stream"), gpu_array_samples())
 class TestViewGPU:
     def test_args_viewable_as_strided_memory_gpu(self, in_arr, use_stream):
         # TODO: use the device fixture?
@@ -172,6 +174,7 @@ class TestViewGPU:
         assert isinstance(view, StridedMemoryView)
         assert view.ptr == gpu_array_ptr(in_arr)
         assert view.shape == in_arr.shape
+        assert view.size == in_arr.size
         strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
         if in_arr.flags["C_CONTIGUOUS"]:
             assert view.strides in (None, strides_in_counts)
@@ -204,6 +207,7 @@ class TestViewCudaArrayInterfaceGPU:
         assert isinstance(view, StridedMemoryView)
         assert view.ptr == gpu_array_ptr(in_arr)
         assert view.shape == in_arr.shape
+        assert view.size == in_arr.size
         strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
         if in_arr.flags["C_CONTIGUOUS"]:
             assert view.strides is None
@@ -231,64 +235,90 @@ def _dense_strides(shape, stride_order):
     return tuple(strides)
 
 
-@pytest.mark.parametrize("shape", [tuple(), (2, 3), (10, 10), (10, 13, 11)])
-@pytest.mark.parametrize("itemsize", [1, 4])
+@pytest.mark.parametrize("shape", [tuple(), (2, 3), (10, 10), (10, 13, 11)], ids=str)
+@pytest.mark.parametrize("dtype", [np.dtype(np.int8), np.dtype(np.uint32)], ids=str)
 @pytest.mark.parametrize("stride_order", ["C", "F"])
 @pytest.mark.parametrize("readonly", [True, False])
-def test_from_buffer(shape, itemsize, stride_order, readonly):
+def test_from_buffer(shape, dtype, stride_order, readonly):
     dev = Device()
     dev.set_current()
-    layout = StridedLayout.dense(shape=shape, itemsize=itemsize, stride_order=stride_order)
+    layout = _StridedLayout.dense(shape=shape, itemsize=dtype.itemsize, stride_order=stride_order)
     required_size = layout.required_size_in_bytes()
-    assert required_size == math.prod(shape) * itemsize
+    assert required_size == math.prod(shape) * dtype.itemsize
     buffer = dev.memory_resource.allocate(required_size)
-    view = StridedMemoryView.from_buffer(buffer, layout, is_readonly=readonly)
+    view = StridedMemoryView.from_buffer(buffer, shape=shape, strides=layout.strides, dtype=dtype, is_readonly=readonly)
     assert view.exporting_obj is buffer
-    assert view.layout is layout
+    assert view._layout == layout
     assert view.ptr == int(buffer.handle)
     assert view.shape == shape
     assert view.strides == _dense_strides(shape, stride_order)
-    assert view.dtype is None
+    assert view.dtype == dtype
     assert view.device_id == dev.device_id
     assert view.is_device_accessible
     assert view.readonly == readonly
 
 
-@pytest.mark.parametrize("stride_order", ["C", "F"])
-def test_from_buffer_sliced(stride_order):
-    layout = StridedLayout.dense((5, 7), 2, stride_order=stride_order)
+@pytest.mark.parametrize(
+    ("dtype", "itemsize", "msg"),
+    [
+        (np.dtype("int16"), 1, "itemsize .+ does not match dtype.itemsize .+"),
+        (None, None, "itemsize or dtype must be specified"),
+    ],
+)
+def test_from_buffer_incompatible_dtype_and_itemsize(dtype, itemsize, msg):
+    layout = _StridedLayout.dense((5,), 2)
     device = Device()
     device.set_current()
     buffer = device.memory_resource.allocate(layout.required_size_in_bytes())
-    view = StridedMemoryView.from_buffer(buffer, layout)
+    with pytest.raises(ValueError, match=msg):
+        StridedMemoryView.from_buffer(buffer, (5,), dtype=dtype, itemsize=itemsize)
+
+
+@pytest.mark.parametrize("stride_order", ["C", "F"])
+def test_from_buffer_sliced(stride_order):
+    layout = _StridedLayout.dense((5, 7), 2, stride_order=stride_order)
+    device = Device()
+    device.set_current()
+    buffer = device.memory_resource.allocate(layout.required_size_in_bytes())
+    view = StridedMemoryView.from_buffer(buffer, (5, 7), dtype=np.dtype(np.int16))
     assert view.shape == (5, 7)
     assert int(buffer.handle) == view.ptr
 
     sliced_view = view.view(layout[:-2, 3:])
     assert sliced_view.shape == (3, 4)
     expected_offset = 3 if stride_order == "C" else 3 * 5
-    assert sliced_view.layout.slice_offset == expected_offset
-    assert sliced_view.layout.slice_offset_in_bytes == expected_offset * 2
+    assert sliced_view._layout.slice_offset == expected_offset
+    assert sliced_view._layout.slice_offset_in_bytes == expected_offset * 2
     assert sliced_view.ptr == view.ptr + expected_offset * 2
     assert int(buffer.handle) + expected_offset * 2 == sliced_view.ptr
 
 
 def test_from_buffer_too_small():
-    layout = StridedLayout.dense((5, 4), 2)
+    layout = _StridedLayout.dense((5, 4), 2)
     d = Device()
     d.set_current()
     buffer = d.memory_resource.allocate(20)
     with pytest.raises(ValueError, match="Expected at least 40 bytes, got 20 bytes."):
-        StridedMemoryView.from_buffer(buffer, layout)
+        StridedMemoryView.from_buffer(
+            buffer,
+            shape=layout.shape,
+            strides=layout.strides,
+            dtype=np.dtype("int16"),
+        )
 
 
 def test_from_buffer_disallowed_negative_offset():
-    layout = StridedLayout((5, 4), (-4, 1), 1)
+    layout = _StridedLayout((5, 4), (-4, 1), 1)
     d = Device()
     d.set_current()
     buffer = d.memory_resource.allocate(20)
-    with pytest.raises(ValueError, match="please use StridedLayout.to_dense()."):
-        StridedMemoryView.from_buffer(buffer, layout)
+    with pytest.raises(ValueError):
+        StridedMemoryView.from_buffer(
+            buffer,
+            shape=layout.shape,
+            strides=layout.strides,
+            dtype=np.dtype("uint8"),
+        )
 
 
 class _EnforceCAIView:
@@ -328,7 +358,7 @@ def test_view_sliced_external(shape, slices, stride_order, view_as):
             pytest.skip("CuPy is not installed")
         a = cp.arange(math.prod(shape), dtype=cp.int32).reshape(shape, order=stride_order)
         view = StridedMemoryView.from_cuda_array_interface(_EnforceCAIView(a), -1)
-    layout = view.layout
+    layout = view._layout
     assert layout.is_dense
     assert layout.required_size_in_bytes() == a.nbytes
     assert view.ptr == _get_ptr(a)
@@ -341,11 +371,11 @@ def test_view_sliced_external(shape, slices, stride_order, view_as):
 
     assert 0 <= sliced_layout.required_size_in_bytes() <= a.nbytes
     assert not sliced_layout.is_dense
-    assert sliced_view.layout is sliced_layout
+    assert sliced_view._layout is sliced_layout
     assert view.dtype == sliced_view.dtype
-    assert sliced_view.layout.itemsize == a_sliced.itemsize == layout.itemsize
+    assert sliced_view._layout.itemsize == a_sliced.itemsize == layout.itemsize
     assert sliced_view.shape == a_sliced.shape
-    assert sliced_view.layout.strides_in_bytes == a_sliced.strides
+    assert sliced_view._layout.strides_in_bytes == a_sliced.strides
 
 
 @pytest.mark.parametrize(
@@ -366,7 +396,7 @@ def test_view_sliced_external_negative_offset(stride_order, view_as):
         a = cp.arange(math.prod(shape), dtype=cp.int32).reshape(shape, order=stride_order)
         a = a[::-1]
         view = StridedMemoryView.from_cuda_array_interface(_EnforceCAIView(a), -1)
-    layout = view.layout
+    layout = view._layout
     assert not layout.is_dense
     assert layout.strides == (-1,)
     assert view.ptr == _get_ptr(a)
@@ -378,8 +408,8 @@ def test_view_sliced_external_negative_offset(stride_order, view_as):
     assert sliced_view.ptr == view.ptr - 3 * a.itemsize
 
     assert not sliced_layout.is_dense
-    assert sliced_view.layout is sliced_layout
+    assert sliced_view._layout is sliced_layout
     assert view.dtype == sliced_view.dtype
-    assert sliced_view.layout.itemsize == a_sliced.itemsize == layout.itemsize
+    assert sliced_view._layout.itemsize == a_sliced.itemsize == layout.itemsize
     assert sliced_view.shape == a_sliced.shape
-    assert sliced_view.layout.strides_in_bytes == a_sliced.strides
+    assert sliced_view._layout.strides_in_bytes == a_sliced.strides
