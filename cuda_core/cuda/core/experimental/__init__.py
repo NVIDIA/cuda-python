@@ -10,6 +10,9 @@ locations and emit deprecation warnings. Users should migrate to importing
 directly from cuda.core instead of cuda.core.experimental.
 
 The experimental namespace will be removed in a future release.
+
+Note: Underscored modules (e.g., _device, _memory) are not public APIs
+and are intentionally not made accessible here.
 """
 
 import warnings
@@ -21,8 +24,6 @@ def _warn_deprecated():
     Note: This warning is only when the experimental module is first imported.
     Subsequent accesses to attributes (like utils, Device, etc.) do not trigger
     additional warnings since they are already set in the module namespace.
-    Only accessing submodules via __getattr__ (e.g., _device, _utils) will trigger
-    additional warnings.
     """
     warnings.warn(
         "The cuda.core.experimental namespace is deprecated. "
@@ -80,39 +81,3 @@ from cuda.core._system import System  # noqa: E402
 system = System()
 __import__("sys").modules[__spec__.name + ".system"] = system
 del System
-
-
-# Also create forwarding stubs for submodules
-# These will be imported lazily when accessed
-def __getattr__(name):
-    """Forward attribute access to the new location with deprecation warning."""
-    if name in (
-        "_context",
-        "_device",
-        "_dlpack",
-        "_event",
-        "_graph",
-        "_kernel_arg_handler",
-        "_launch_config",
-        "_launcher",
-        "_layout",
-        "_linker",
-        "_memory",
-        "_memoryview",
-        "_module",
-        "_program",
-        "_stream",
-        "_system",
-        "_utils",
-    ):
-        _warn_deprecated()
-        # Import the submodule from the new location
-        import importlib
-
-        new_name = name.lstrip("_")
-        try:
-            return importlib.import_module(f"cuda.core.{new_name}")
-        except ImportError:
-            # Fallback to underscore-prefixed name
-            return importlib.import_module(f"cuda.core.{name}")
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
