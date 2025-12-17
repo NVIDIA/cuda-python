@@ -10,7 +10,7 @@
 Highlights
 ----------
 
-- Added memory mangment support (allocation, deallocation, copy, and fill) for CUDA graphs.
+- Added memory management support (allocation, deallocation, copy, and fill) for CUDA graphs.
 - Added :class:`PinnedMemoryResource` and :class:`ManagedMemoryResource` for advanced memory management.
 - Added peer access control to :class:`DeviceMemoryResource`.
 - Reduced Python overhead and improved performance for calling :func:`launch`, constructing :class:`LaunchConfig`, and accessing :class:`DeviceMemoryResource` attributes.
@@ -32,7 +32,7 @@ The following APIs have been deprecated and will be removed in 0.6.0:
 
 Other changes:
 
-- :class:`StridedMemoryView` ``__init__`` constructor is deprecated in favor of ``from_*`` classmethods, see below.
+- The :meth:`utils.StridedMemoryView.__init__` constructor is deprecated in favor of the new ``from_*`` classmethods, see below.
 - Support for Python 3.9 and 3.13t is dropped.
 
 
