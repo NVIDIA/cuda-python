@@ -25,6 +25,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
 from pathlib import Path
 from typing import List
 
@@ -53,6 +54,31 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
 
     if len(wheels) == 1:
         raise RuntimeError("only one wheel is provided, nothing to merge")
+
+    # Debug: Show directory structure of input wheels
+    print("\n=== Input wheel directory structures ===", file=sys.stderr)
+    for i, wheel in enumerate(wheels):
+        print(f"\n--- Input wheel {i + 1}: {wheel.name} ---", file=sys.stderr)
+        try:
+            with zipfile.ZipFile(wheel, "r") as zf:
+                print(f"{'Length':>10}  {'Date':>12}  {'Time':>8}  Name", file=sys.stderr)
+                print("-" * 80, file=sys.stderr)
+                total_size = 0
+                file_count = 0
+                for name in sorted(zf.namelist()):
+                    if "cuda/core/" in name:
+                        info = zf.getinfo(name)
+                        total_size += info.file_size
+                        file_count += 1
+                        # Format similar to unzip -l output
+                        date_time = info.date_time
+                        date_str = f"{date_time[0]:04d}-{date_time[1]:02d}-{date_time[2]:02d}"
+                        time_str = f"{date_time[3]:02d}:{date_time[4]:02d}:{date_time[5]:02d}"
+                        print(f"{info.file_size:10d}  {date_str}  {time_str}  {name}", file=sys.stderr)
+                print("-" * 80, file=sys.stderr)
+                print(f"{total_size:10d}                    {file_count} files", file=sys.stderr)
+        except Exception as e:
+            print(f"Warning: Could not list wheel contents: {e}", file=sys.stderr)
 
     # Extract all wheels to temporary directories
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -157,6 +183,30 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
 
         merged_wheel = output_wheels[0]
         print(f"Successfully merged wheel: {merged_wheel}", file=sys.stderr)
+
+        # Debug: Show directory structure of output wheel
+        print("\n=== Output wheel directory structure ===", file=sys.stderr)
+        try:
+            with zipfile.ZipFile(merged_wheel, "r") as zf:
+                print(f"{'Length':>10}  {'Date':>12}  {'Time':>8}  Name", file=sys.stderr)
+                print("-" * 80, file=sys.stderr)
+                total_size = 0
+                file_count = 0
+                for name in sorted(zf.namelist()):
+                    if "cuda/core/" in name:
+                        info = zf.getinfo(name)
+                        total_size += info.file_size
+                        file_count += 1
+                        # Format similar to unzip -l output
+                        date_time = info.date_time
+                        date_str = f"{date_time[0]:04d}-{date_time[1]:02d}-{date_time[2]:02d}"
+                        time_str = f"{date_time[3]:02d}:{date_time[4]:02d}:{date_time[5]:02d}"
+                        print(f"{info.file_size:10d}  {date_str}  {time_str}  {name}", file=sys.stderr)
+                print("-" * 80, file=sys.stderr)
+                print(f"{total_size:10d}                    {file_count} files", file=sys.stderr)
+        except Exception as e:
+            print(f"Warning: Could not list wheel contents: {e}", file=sys.stderr)
+
         return merged_wheel
 
 
