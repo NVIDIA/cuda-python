@@ -61,7 +61,7 @@ None.
 Fixes and enhancements
 ----------------------
 
-- Zero-size arrays are now supported as inputs to ``StridedMemoryView.from_cuda_array_interface``.
+- Zero-size arrays are now supported as inputs when constructing ``StridedMemoryView``.
 - Most CUDA resources can be hashed now.
 - Python ``bool`` objects are now converted to C++ ``bool`` type when passed as kernel arguments (previously converted to ``int``).
 - Restored v0.3.x :class:`MemoryResource` behaviors and missing MR attributes for backward compatibility.
