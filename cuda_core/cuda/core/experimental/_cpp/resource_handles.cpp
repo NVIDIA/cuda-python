@@ -23,6 +23,20 @@ namespace {
 static std::once_flag driver_load_once;
 static bool driver_loaded = false;
 
+#if PY_VERSION_HEX < 0x030D0000
+extern "C" int _Py_IsFinalizing(void);
+#endif
+
+static inline bool py_is_finalizing() noexcept {
+#if PY_VERSION_HEX >= 0x030D0000
+    return Py_IsFinalizing();
+#else
+    // Python < 3.13 does not expose Py_IsFinalizing() publicly. Use the private
+    // API that exists in those versions.
+    return _Py_IsFinalizing() != 0;
+#endif
+}
+
 #define DECLARE_DRIVER_FN(name) using name##_t = decltype(&name); static name##_t p_##name = nullptr
 
 DECLARE_DRIVER_FN(cuDevicePrimaryCtxRetain);
@@ -58,7 +72,7 @@ DECLARE_DRIVER_FN(cuMemPoolImportPointer);
 #undef DECLARE_DRIVER_FN
 
 static bool load_driver_api() noexcept {
-    if (!Py_IsInitialized() || Py_IsFinalizing()) {
+    if (!Py_IsInitialized() || py_is_finalizing()) {
         return false;
     }
 
@@ -225,7 +239,7 @@ class GILReleaseGuard {
 public:
     GILReleaseGuard() : tstate_(nullptr), released_(false) {
         // Don't try to manipulate GIL if Python is finalizing
-        if (!Py_IsInitialized() || Py_IsFinalizing()) {
+        if (!Py_IsInitialized() || py_is_finalizing()) {
             return;
         }
         // PyGILState_Check() returns 1 if the GIL is held by this thread.
@@ -256,7 +270,7 @@ class GILAcquireGuard {
 public:
     GILAcquireGuard() : acquired_(false) {
         // Don't try to acquire GIL if Python is finalizing
-        if (!Py_IsInitialized() || Py_IsFinalizing()) {
+        if (!Py_IsInitialized() || py_is_finalizing()) {
             return;
         }
         gstate_ = PyGILState_Ensure();
