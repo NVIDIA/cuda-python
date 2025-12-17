@@ -278,6 +278,27 @@ cdef class _MemPool(MemoryResource):
 
             self._peer_accessible_by = tuple(target_ids)
 
+    @property
+    def is_ipc_enabled(self) -> bool:
+        """Whether this memory resource has IPC enabled."""
+        return self._ipc_data is not None
+
+    @property
+    def is_mapped(self) -> bool:
+        """
+        Whether this is a mapping of an IPC-enabled memory resource from
+        another process.  If True, allocation is not permitted.
+        """
+        return self._ipc_data is not None and self._ipc_data._is_mapped
+
+    @property
+    def uuid(self) -> Optional[uuid.UUID]:
+        """
+        A universally unique identifier for this memory resource. Meaningful
+        only for IPC-enabled memory resources.
+        """
+        return getattr(self._ipc_data, 'uuid', None)
+
 
 # _MemPool Implementation
 # -----------------------
@@ -406,7 +427,7 @@ cdef inline Buffer _MP_allocate(_MemPool self, size_t size, Stream stream):
 
 cdef inline void _MP_deallocate(
     _MemPool self, uintptr_t ptr, size_t size, Stream stream
-) noexcept:
+) noexcept nogil:
     cdef cydriver.CUstream s = stream._handle
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     cdef cydriver.CUresult r

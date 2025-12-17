@@ -1,38 +1,51 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
-from cuda.core._launch_config cimport LaunchConfig, _to_native_launch_config
-from cuda.core._stream cimport Stream_accept
 
+from libc.stdint cimport uintptr_t
 
-from cuda.core._kernel_arg_handler import ParamHolder
-from cuda.core._module import Kernel
-from cuda.core._stream import Stream
-from cuda.core._utils.clear_error_support import assert_type
-from cuda.core._utils.cuda_utils import (
-    _reduce_3_tuple,
+from cuda.bindings cimport cydriver
+
+from cuda.core._launch_config cimport LaunchConfig
+from cuda.core._kernel_arg_handler cimport ParamHolder
+from cuda.core._stream cimport Stream_accept, Stream
+from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
-    driver,
-    get_binding_version,
-    handle_return,
+    HANDLE_RETURN,
 )
 
-# TODO: revisit this treatment for py313t builds
-_inited = False
-_use_ex = None
+import threading
+
+from cuda.core._module import Kernel
+from cuda.core._stream import Stream
+from cuda.core._utils.cuda_utils import (
+    _reduce_3_tuple,
+    get_binding_version,
+)
 
 
-def _lazy_init():
-    global _inited
+cdef bint _inited = False
+cdef bint _use_ex = False
+cdef object _lock = threading.Lock()
+
+
+cdef int _lazy_init() except?-1:
+    global _inited, _use_ex
     if _inited:
-        return
+        return 0
 
-    global _use_ex
-    # binding availability depends on cuda-python version
-    _py_major_minor = get_binding_version()
-    _driver_ver = handle_return(driver.cuDriverGetVersion())
-    _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))
-    _inited = True
+    cdef int _driver_ver
+    with _lock:
+        if _inited:
+            return 0
+
+        # binding availability depends on cuda-python version
+        _py_major_minor = get_binding_version()
+        HANDLE_RETURN(cydriver.cuDriverGetVersion(&_driver_ver))
+        _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))
+        _inited = True
+
+    return 0
 
 
 def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kernel: Kernel, *kernel_args):
@@ -54,15 +67,18 @@ def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kern
         launching kernel.
 
     """
-    stream = Stream_accept(stream, allow_stream_protocol=True)
-    assert_type(kernel, Kernel)
+    cdef Stream s = Stream_accept(stream, allow_stream_protocol=True)
     _lazy_init()
-    config = check_or_create_options(LaunchConfig, config, "launch config")
+    cdef LaunchConfig conf = check_or_create_options(LaunchConfig, config, "launch config")
 
     # TODO: can we ensure kernel_args is valid/safe to use here?
     # TODO: merge with HelperKernelParams?
-    kernel_args = ParamHolder(kernel_args)
-    args_ptr = kernel_args.ptr
+    cdef ParamHolder ker_args = ParamHolder(kernel_args)
+    cdef void** args_ptr = <void**><uintptr_t>(ker_args.ptr)
+
+    # TODO: cythonize Module/Kernel/...
+    # Note: CUfunction and CUkernel are interchangeable
+    cdef cydriver.CUfunction func_handle = <cydriver.CUfunction>(<uintptr_t>(kernel._handle))
 
     # Note: CUkernel can still be launched via the old cuLaunchKernel and we do not care
     # about the CUfunction/CUkernel difference (which depends on whether the "old" or
@@ -70,16 +86,20 @@ def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kern
     # mainly to see if the "Ex" API is available and if so we use it, as it's more feature
     # rich.
     if _use_ex:
-        drv_cfg = _to_native_launch_config(config)
-        drv_cfg.hStream = stream.handle
-        if config.cooperative_launch:
-            _check_cooperative_launch(kernel, config, stream)
-        handle_return(driver.cuLaunchKernelEx(drv_cfg, int(kernel._handle), args_ptr, 0))
+        drv_cfg = conf._to_native_launch_config()
+        drv_cfg.hStream = s._handle
+        if conf.cooperative_launch:
+            _check_cooperative_launch(kernel, conf, s)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuLaunchKernelEx(&drv_cfg, func_handle, args_ptr, NULL))
     else:
         # TODO: check if config has any unsupported attrs
-        handle_return(
-            driver.cuLaunchKernel(
-                int(kernel._handle), *config.grid, *config.block, config.shmem_size, stream.handle, args_ptr, 0
+        HANDLE_RETURN(
+            cydriver.cuLaunchKernel(
+                func_handle,
+                conf.grid[0], conf.grid[1], conf.grid[2],
+                conf.block[0], conf.block[1], conf.block[2],
+                conf.shmem_size, s._handle, args_ptr, NULL
             )
         )
 

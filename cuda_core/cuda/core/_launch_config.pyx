@@ -2,34 +2,44 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from cuda.core._utils.cuda_utils cimport (
+    HANDLE_RETURN,
+)
+
+import threading
+
 from cuda.core._device import Device
 from cuda.core._utils.cuda_utils import (
     CUDAError,
     cast_to_3_tuple,
     driver,
     get_binding_version,
-    handle_return,
 )
 
-# TODO: revisit this treatment for py313t builds
+
 cdef bint _inited = False
 cdef bint _use_ex = False
+cdef object _lock = threading.Lock()
 
 
-cdef void _lazy_init() except *:
-    """Initialize module-level globals for driver version checks."""
+cdef int _lazy_init() except?-1:
     global _inited, _use_ex
     if _inited:
-        return
+        return 0
 
     cdef tuple _py_major_minor
     cdef int _driver_ver
+    with _lock:
+        if _inited:
+            return 0
 
-    # binding availability depends on cuda-python version
-    _py_major_minor = get_binding_version()
-    _driver_ver = handle_return(driver.cuDriverGetVersion())
-    _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))
-    _inited = True
+        # binding availability depends on cuda-python version
+        _py_major_minor = get_binding_version()
+        HANDLE_RETURN(cydriver.cuDriverGetVersion(&_driver_ver))
+        _use_ex = (_driver_ver >= 11080) and (_py_major_minor >= (11, 8))
+        _inited = True
+
+    return 0
 
 
 cdef class LaunchConfig:
@@ -127,7 +137,42 @@ cdef class LaunchConfig:
                 f"block={self.block}, shmem_size={self.shmem_size}, "
                 f"cooperative_launch={self.cooperative_launch})")
 
+    cdef cydriver.CUlaunchConfig _to_native_launch_config(self):
+        _lazy_init()
+        # TODO: memset to zero?
+        cdef cydriver.CUlaunchConfig drv_cfg
+        cdef cydriver.CUlaunchAttribute attr
+        self._attrs.resize(0)
 
+        # Handle grid dimensions and cluster configuration
+        if self.cluster is not None:
+            # Convert grid from cluster units to block units
+            drv_cfg.gridDimX = self.grid[0] * self.cluster[0]
+            drv_cfg.gridDimY = self.grid[1] * self.cluster[1]
+            drv_cfg.gridDimZ = self.grid[2] * self.cluster[2]
+
+            # Set up cluster attribute
+            attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION
+            attr.value.clusterDim.x, attr.value.clusterDim.y, attr.value.clusterDim.z = self.cluster
+            self._attrs.push_back(attr)
+        else:
+            drv_cfg.gridDimX, drv_cfg.gridDimY, drv_cfg.gridDimZ = self.grid
+
+        drv_cfg.blockDimX, drv_cfg.blockDimY, drv_cfg.blockDimZ = self.block
+        drv_cfg.sharedMemBytes = self.shmem_size
+
+        if self.cooperative_launch:
+            attr.id = cydriver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_COOPERATIVE
+            attr.value.cooperative = 1
+            self._attrs.push_back(attr)
+
+        drv_cfg.numAttrs = self._attrs.size()
+        drv_cfg.attrs = self._attrs.data()
+
+        return drv_cfg
+
+
+# TODO: once all modules are cythonized, this function can be dropped in favor of the cdef method above
 cpdef object _to_native_launch_config(LaunchConfig config):
     """Convert LaunchConfig to native driver CUlaunchConfig.
 

@@ -250,12 +250,6 @@ cdef inline int prepare_numpy_arg(
 
 cdef class ParamHolder:
 
-    cdef:
-        vector.vector[void*] data
-        vector.vector[void*] data_addresses
-        object kernel_args
-        readonly intptr_t ptr
-
     def __init__(self, kernel_args):
         if len(kernel_args) == 0:
             self.ptr = 0

@@ -2,18 +2,23 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from libcpp.vector cimport vector
 
-cdef bint _inited
-cdef bint _use_ex
+from cuda.bindings cimport cydriver
 
-cdef void _lazy_init() except *
 
 cdef class LaunchConfig:
     """Customizable launch options."""
-    cdef public tuple grid
-    cdef public tuple cluster
-    cdef public tuple block
-    cdef public int shmem_size
-    cdef public bint cooperative_launch
+    cdef:
+        public tuple grid
+        public tuple cluster
+        public tuple block
+        public int shmem_size
+        public bint cooperative_launch
+
+        vector[cydriver.CUlaunchAttribute] _attrs
+
+    cdef cydriver.CUlaunchConfig _to_native_launch_config(self)
+
 
 cpdef object _to_native_launch_config(LaunchConfig config)
