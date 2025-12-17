@@ -148,7 +148,6 @@ def merge_wheels(wheels: List[Path], output_dir: Path, show_wheel_contents: bool
         print("\n=== Removing files from cuda/core/ directory ===", file=sys.stderr)
         items_to_keep = (
             "__init__.py",
-            "__init__.pxd",
             "_version.py",
             "_include",
             "cu12",
