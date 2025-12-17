@@ -21,6 +21,8 @@ Breaking Changes
 
 The support for setting :attr:`VirtualMemoryResourceOptions.handle_type` to ``"win32"`` is removed. Please reach out to us on GitHub if you have a use case.
 
+All public APIs accessible under the ``cuda.core.experimental`` namespace are now moved to the top-level ``cuda.core`` namespace. For example, ``cuda.core.experimental.Buffer`` is now accessible as :class:`cuda.core.Device`. The ``cuda.core.experimental`` namespace is still retained for backward compatibility, but is considered deprecated and will be removed by ``cuda.core`` v1.0.0.
+
 The following APIs have been deprecated and will be removed in 0.6.0:
 
 - ``cuda.core.experimental.system.driver_version`` has been replaced with
