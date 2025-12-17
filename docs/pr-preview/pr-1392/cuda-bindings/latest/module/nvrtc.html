@@ -1,0 +1,2086 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>nvrtc &#8212; cuda.bindings</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+
+    <script src="../_static/documentation_options.js?v=3a15012f"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=35a8b989"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'module/nvrtc';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.1';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+
+    <link rel="canonical" href="docs/module/nvrtc.html" />
+    <link rel="icon" href="../_static/favicon.png"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="nvjitlink" href="nvjitlink.html" />
+    <link rel="prev" title="runtime" href="runtime.html" />
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/1392">PR 1392</a>!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="cuda.bindings - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="cuda.bindings - Home"/>
+  
+  
+    <p class="title logo__title">cuda.bindings</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../install.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../overview.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../motivation.html">
+    Motivation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="../api.html">
+    CUDA Python API Reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../tips_and_tricks.html">
+    Tips and Tricks
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../support.html">
+    cuda.bindings Support Policy
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contribute.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../conduct.html">
+    Code of Conduct
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../license.html">
+    Software License Agreement
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="cuda.bindings - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="cuda.bindings - Home"/>
+  
+  
+    <p class="title logo__title">cuda.bindings</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../release.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../install.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../overview.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../motivation.html">
+    Motivation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    CUDA Python API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tips_and_tricks.html">
+    Tips and Tricks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    cuda.bindings Support Policy
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contribute.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../conduct.html">
+    Code of Conduct
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../license.html">
+    Software License Agreement
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.1.1-notes.html">13.1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.1.0-notes.html">13.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.0.3-notes.html">13.0.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.0.2-notes.html">13.0.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.0.1-notes.html">13.0.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.5-notes.html">12.9.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.4-notes.html">12.9.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.3-notes.html">12.9.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.2-notes.html">12.9.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.1-notes.html">12.9.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.9.0-notes.html">12.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.8.0-notes.html">12.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.6.2-notes.html">12.6.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.6.1-notes.html">12.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.6.0-notes.html">12.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.5.0-notes.html">12.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.4.0-notes.html">12.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.3.0-notes.html">12.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.2.1-notes.html">12.2.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.2.0-notes.html">12.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.1.0-notes.html">12.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/12.0.0-notes.html">12.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.7-notes.html">11.8.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.6-notes.html">11.8.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.5-notes.html">11.8.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.4-notes.html">11.8.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.3-notes.html">11.8.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.2-notes.html">11.8.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.1-notes.html">11.8.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.8.0-notes.html">11.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.7.1-notes.html">11.7.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.7.0-notes.html">11.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.6.1-notes.html">11.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.6.0-notes.html">11.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.5.0-notes.html">11.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release/11.4.0-notes.html">11.4.0</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../motivation.html">Motivation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environment_variables.html">Environment Variables</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">CUDA Python API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="driver.html">driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime.html">runtime</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">nvrtc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nvjitlink.html">nvjitlink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nvvm.html">nvvm</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="cufile.html">cufile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.buf_register.html">cuda.bindings.cufile.buf_register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.buf_deregister.html">cuda.bindings.cufile.buf_deregister</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.read.html">cuda.bindings.cufile.read</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.write.html">cuda.bindings.cufile.write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.driver_open.html">cuda.bindings.cufile.driver_open</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.use_count.html">cuda.bindings.cufile.use_count</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.driver_get_properties.html">cuda.bindings.cufile.driver_get_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.driver_set_poll_mode.html">cuda.bindings.cufile.driver_set_poll_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.driver_set_max_direct_io_size.html">cuda.bindings.cufile.driver_set_max_direct_io_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.driver_set_max_cache_size.html">cuda.bindings.cufile.driver_set_max_cache_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.driver_set_max_pinned_mem_size.html">cuda.bindings.cufile.driver_set_max_pinned_mem_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.batch_io_set_up.html">cuda.bindings.cufile.batch_io_set_up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.batch_io_submit.html">cuda.bindings.cufile.batch_io_submit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.batch_io_get_status.html">cuda.bindings.cufile.batch_io_get_status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.batch_io_cancel.html">cuda.bindings.cufile.batch_io_cancel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.batch_io_destroy.html">cuda.bindings.cufile.batch_io_destroy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.read_async.html">cuda.bindings.cufile.read_async</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.write_async.html">cuda.bindings.cufile.write_async</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.stream_register.html">cuda.bindings.cufile.stream_register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.stream_deregister.html">cuda.bindings.cufile.stream_deregister</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.get_version.html">cuda.bindings.cufile.get_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.get_parameter_size_t.html">cuda.bindings.cufile.get_parameter_size_t</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.get_parameter_bool.html">cuda.bindings.cufile.get_parameter_bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.get_parameter_string.html">cuda.bindings.cufile.get_parameter_string</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.set_parameter_size_t.html">cuda.bindings.cufile.set_parameter_size_t</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.set_parameter_bool.html">cuda.bindings.cufile.set_parameter_bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.set_parameter_string.html">cuda.bindings.cufile.set_parameter_string</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.op_status_error.html">cuda.bindings.cufile.op_status_error</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.driver_close.html">cuda.bindings.cufile.driver_close</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.IOEvents.html">cuda.bindings.cufile.IOEvents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.Descr.html">cuda.bindings.cufile.Descr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.IOParams.html">cuda.bindings.cufile.IOParams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.OpError.html">cuda.bindings.cufile.OpError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.DriverStatusFlags.html">cuda.bindings.cufile.DriverStatusFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.DriverControlFlags.html">cuda.bindings.cufile.DriverControlFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.FeatureFlags.html">cuda.bindings.cufile.FeatureFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.FileHandleType.html">cuda.bindings.cufile.FileHandleType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.Opcode.html">cuda.bindings.cufile.Opcode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.Status.html">cuda.bindings.cufile.Status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.BatchMode.html">cuda.bindings.cufile.BatchMode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.SizeTConfigParameter.html">cuda.bindings.cufile.SizeTConfigParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.BoolConfigParameter.html">cuda.bindings.cufile.BoolConfigParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.StringConfigParameter.html">cuda.bindings.cufile.StringConfigParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.cufile.cuFileError.html">cuda.bindings.cufile.cuFileError</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.utils.get_cuda_native_handle.html">cuda.bindings.utils.get_cuda_native_handle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver.html">cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cuda.bindings.utils.get_ptx_ver.html">cuda.bindings.utils.get_ptx_ver</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../tips_and_tricks.html">Tips and Tricks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../support.html"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Software License Agreement</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">CUDA Python API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">nvrtc</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="nvrtc">
+<h1>nvrtc<a class="headerlink" href="#nvrtc" title="Link to this heading">#</a></h1>
+<section id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">#</a></h2>
+<p>NVRTC defines the following enumeration type and function for API call error handling.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcResult</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult" title="Link to this definition">#</a></dt>
+<dd><p>The enumerated type nvrtcResult defines API call result codes.
+NVRTC API functions return nvrtcResult to indicate the call result.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS">
+<span class="sig-name descname"><span class="pre">NVRTC_SUCCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_OUT_OF_MEMORY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_PROGRAM_CREATION_FAILURE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_INVALID_OPTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_COMPILATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_BUILTIN_OPERATION_FAILURE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_INTERNAL_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_TIME_FILE_WRITE_FAILED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">13</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">14</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_PCH_CREATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">15</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_CANCELLED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">16</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED">
+<span class="sig-name descname"><span class="pre">NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">17</span></em><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetErrorString">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetErrorString</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><span class="pre">nvrtcResult</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetErrorString" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetErrorString is a helper function that returns a string describing the given nvrtcResult code, e.g., NVRTC_SUCCESS to <cite>“NVRTC_SUCCESS”</cite>. For unrecognized enumeration values, it returns <cite>“NVRTC_ERROR unknown”</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>result</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a>) – CUDA Runtime Compilation API result code.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>nvrtcResult.NVRTC_SUCCESS</em> – nvrtcResult.NVRTC_SUCCESS</p></li>
+<li><p><em>bytes</em> – Message string for the given <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a> code.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="general-information-query">
+<h2>General Information Query<a class="headerlink" href="#general-information-query" title="Link to this heading">#</a></h2>
+<p>NVRTC defines the following function for general information query.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcVersion">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcVersion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcVersion" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcVersion sets the output parameters <cite>major</cite> and <cite>minor</cite> with the CUDA Runtime Compilation version number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> –</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+</ul>
+</li>
+<li><p><strong>major</strong> (<em>int</em>) – CUDA Runtime Compilation major version number.</p></li>
+<li><p><strong>minor</strong> (<em>int</em>) – CUDA Runtime Compilation minor version number.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetNumSupportedArchs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetNumSupportedArchs sets the output parameter <cite>numArchs</cite> with the number of architectures supported by NVRTC. This can then be used to pass an array to <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetSupportedArchs" title="cuda.bindings.nvrtc.nvrtcGetSupportedArchs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetSupportedArchs</span></code></a> to get the supported architectures.</p>
+<p>see <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetSupportedArchs" title="cuda.bindings.nvrtc.nvrtcGetSupportedArchs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetSupportedArchs</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> –</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+</ul>
+</li>
+<li><p><strong>numArchs</strong> (<em>int</em>) – number of supported architectures.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetSupportedArchs">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetSupportedArchs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetSupportedArchs" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetSupportedArchs populates the array passed via the output parameter <cite>supportedArchs</cite> with the architectures supported by NVRTC. The array is sorted in the ascending order. The size of the array to be passed can be determined using <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs" title="cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetNumSupportedArchs</span></code></a>.</p>
+<p>see <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs" title="cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetNumSupportedArchs</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> –</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+</ul>
+</li>
+<li><p><strong>supportedArchs</strong> (<em>list[int]</em>) – sorted array of supported architectures.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="compilation">
+<h2>Compilation<a class="headerlink" href="#compilation" title="Link to this heading">#</a></h2>
+<p>NVRTC defines the following type and functions for actual compilation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcProgram">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcProgram" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcProgram is the unit of compilation, and an opaque handle for a program.</p>
+<p>To compile a CUDA program string, an instance of nvrtcProgram must be created first with nvrtcCreateProgram, then compiled with nvrtcCompileProgram.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcProgram.getPtr">
+<span class="sig-name descname"><span class="pre">getPtr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcProgram.getPtr" title="Link to this definition">#</a></dt>
+<dd><p>Get memory address of class instance</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcCreateProgram">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCreateProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">char</span> <span class="pre">*src,</span> <span class="pre">char</span> <span class="pre">*name,</span> <span class="pre">int</span> <span class="pre">numHeaders,</span> <span class="pre">headers:</span> <span class="pre">Optional[tuple[bytes]</span> <span class="pre">|</span> <span class="pre">list[bytes]],</span> <span class="pre">includeNames:</span> <span class="pre">Optional[tuple[bytes]</span> <span class="pre">|</span> <span class="pre">list[bytes]]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcCreateProgram" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcCreateProgram creates an instance of nvrtcProgram with the given input parameters, and sets the output parameter <cite>prog</cite> with it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – CUDA program source.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – CUDA program name.  <cite>name</cite> can be <cite>NULL</cite>; <cite>“default_program”</cite> is
+used when <cite>name</cite> is <cite>NULL</cite> or “”.</p></li>
+<li><p><strong>numHeaders</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of headers used.  <cite>numHeaders</cite> must be greater than or equal
+to 0.</p></li>
+<li><p><strong>headers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>]</em>) – Sources of the headers.  <cite>headers</cite> can be <cite>NULL</cite> when <cite>numHeaders</cite>
+is 0.</p></li>
+<li><p><strong>includeNames</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>]</em>) – Name of each header by which they can be included in the CUDA
+program source.  <cite>includeNames</cite> can be <cite>NULL</cite> when <cite>numHeaders</cite> is
+0. These headers must be included with the exact names specified
+here.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> –</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_OUT_OF_MEMORY</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_PROGRAM_CREATION_FAILURE</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</li>
+<li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcDestroyProgram" title="cuda.bindings.nvrtc.nvrtcDestroyProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcDestroyProgram</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcDestroyProgram">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcDestroyProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcDestroyProgram" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcDestroyProgram destroys the given program.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCreateProgram" title="cuda.bindings.nvrtc.nvrtcCreateProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcCreateProgram</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcCompileProgram">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcCompileProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">prog,</span> <span class="pre">int</span> <span class="pre">numOptions,</span> <span class="pre">options:</span> <span class="pre">Optional[tuple[bytes]</span> <span class="pre">|</span> <span class="pre">list[bytes]]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcCompileProgram compiles the given program.</p>
+<p>It supports compile options listed in <code class="xref py py-obj docutils literal notranslate"><span class="pre">Supported</span> <span class="pre">Compile</span>
+<span class="pre">Options</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
+<li><p><strong>numOptions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of compiler options passed.</p></li>
+<li><p><strong>options</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a><em>]</em>) – Compiler options in the form of C string array.  <cite>options</cite> can be
+<cite>NULL</cite> when <cite>numOptions</cite> is 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_OUT_OF_MEMORY</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_OPTION</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_COMPILATION</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_BUILTIN_OPERATION_FAILURE</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_TIME_FILE_WRITE_FAILED</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_CANCELLED</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetPTXSize">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPTXSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetPTXSize" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetPTXSize sets the value of <cite>ptxSizeRet</cite> with the size of the PTX generated by the previous compilation of <cite>prog</cite> (including the trailing <cite>NULL</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> –</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</li>
+<li><p><strong>ptxSizeRet</strong> (<em>int</em>) – Size of the generated PTX (including the trailing <cite>NULL</cite>).</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPTX" title="cuda.bindings.nvrtc.nvrtcGetPTX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetPTX</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetPTX">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPTX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*ptx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetPTX" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetPTX stores the PTX generated by the previous compilation of <cite>prog</cite> in the memory pointed by <cite>ptx</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
+<li><p><strong>ptx</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compiled result.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPTXSize" title="cuda.bindings.nvrtc.nvrtcGetPTXSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetPTXSize</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetCUBINSize">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetCUBINSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetCUBINSize" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetCUBINSize sets the value of <cite>cubinSizeRet</cite> with the size of the cubin generated by the previous compilation of <cite>prog</cite>. The value of cubinSizeRet is set to 0 if the value specified to <cite>-arch</cite> is a virtual architecture instead of an actual architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> –</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</li>
+<li><p><strong>cubinSizeRet</strong> (<em>int</em>) – Size of the generated cubin.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetCUBIN" title="cuda.bindings.nvrtc.nvrtcGetCUBIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetCUBIN</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetCUBIN">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetCUBIN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*cubin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetCUBIN" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetCUBIN stores the cubin generated by the previous compilation of <cite>prog</cite> in the memory pointed by <cite>cubin</cite>. No cubin is available if the value specified to <cite>-arch</cite> is a virtual architecture instead of an actual architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
+<li><p><strong>cubin</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compiled and assembled result.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetCUBINSize" title="cuda.bindings.nvrtc.nvrtcGetCUBINSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetCUBINSize</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetLTOIRSize">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetLTOIRSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetLTOIRSize" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetLTOIRSize sets the value of <cite>LTOIRSizeRet</cite> with the size of the LTO IR generated by the previous compilation of <cite>prog</cite>. The value of LTOIRSizeRet is set to 0 if the program was not compiled with <cite>-dlto</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> –</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</li>
+<li><p><strong>LTOIRSizeRet</strong> (<em>int</em>) – Size of the generated LTO IR.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetLTOIR" title="cuda.bindings.nvrtc.nvrtcGetLTOIR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetLTOIR</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetLTOIR">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetLTOIR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*LTOIR</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetLTOIR" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetLTOIR stores the LTO IR generated by the previous compilation of <cite>prog</cite> in the memory pointed by <cite>LTOIR</cite>. No LTO IR is available if the program was compiled without <cite>-dlto</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
+<li><p><strong>LTOIR</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compiled result.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetLTOIRSize" title="cuda.bindings.nvrtc.nvrtcGetLTOIRSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetLTOIRSize</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetOptiXIRSize">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetOptiXIRSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetOptiXIRSize" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetOptiXIRSize sets the value of <cite>optixirSizeRet</cite> with the size of the OptiX IR generated by the previous compilation of <cite>prog</cite>. The value of nvrtcGetOptiXIRSize is set to 0 if the program was compiled with options incompatible with OptiX IR generation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> –</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</li>
+<li><p><strong>optixirSizeRet</strong> (<em>int</em>) – Size of the generated LTO IR.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetOptiXIR" title="cuda.bindings.nvrtc.nvrtcGetOptiXIR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetOptiXIR</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetOptiXIR">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetOptiXIR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*optixir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetOptiXIR" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetOptiXIR stores the OptiX IR generated by the previous compilation of <cite>prog</cite> in the memory pointed by <cite>optixir</cite>. No OptiX IR is available if the program was compiled with options incompatible with OptiX IR generation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
+<li><p><strong>optixir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Optix IR Compiled result.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetOptiXIRSize" title="cuda.bindings.nvrtc.nvrtcGetOptiXIRSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetOptiXIRSize</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetProgramLogSize">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetProgramLogSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetProgramLogSize" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetProgramLogSize sets <cite>logSizeRet</cite> with the size of the log generated by the previous compilation of <cite>prog</cite> (including the trailing <cite>NULL</cite>).</p>
+<p>Note that compilation log may be generated with warnings and
+informative messages, even when the compilation of <cite>prog</cite> succeeds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> –</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</li>
+<li><p><strong>logSizeRet</strong> (<em>int</em>) – Size of the compilation log (including the trailing <cite>NULL</cite>).</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetProgramLog" title="cuda.bindings.nvrtc.nvrtcGetProgramLog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetProgramLog</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetProgramLog">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetProgramLog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*log</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetProgramLog" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetProgramLog stores the log generated by the previous compilation of <cite>prog</cite> in the memory pointed by <cite>log</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
+<li><p><strong>log</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – Compilation log.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetProgramLogSize" title="cuda.bindings.nvrtc.nvrtcGetProgramLogSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetProgramLogSize</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcAddNameExpression">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcAddNameExpression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*name_expression</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcAddNameExpression" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcAddNameExpression notes the given name expression denoting the address of a global function or device/__constant__ variable.</p>
+<p>The identical name expression string must be provided on a subsequent
+call to nvrtcGetLoweredName to extract the lowered name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
+<li><p><strong>name_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – constant expression denoting the address of a global function or
+device/__constant__ variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetLoweredName" title="cuda.bindings.nvrtc.nvrtcGetLoweredName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetLoweredName</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetLoweredName">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetLoweredName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char</span> <span class="pre">*name_expression</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetLoweredName" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcGetLoweredName extracts the lowered (mangled) name for a global function or device/__constant__ variable, and updates lowered_name to point to it. The memory containing the name is released when the NVRTC program is destroyed by nvrtcDestroyProgram. The identical name expression must have been previously provided to nvrtcAddNameExpression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><em>nvrtcProgram</em></a>) – CUDA Runtime Compilation program.</p></li>
+<li><p><strong>name_expression</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><em>bytes</em></a>) – constant expression denoting the address of a global function or
+device/__constant__ variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> – NVRTC_SUCCESS
+NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION
+NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID</p></li>
+<li><p><strong>lowered_name</strong> (<em>bytes</em>) – initialized by the function to point to a C string containing the
+lowered (mangled) name corresponding to the provided name
+expression.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcAddNameExpression" title="cuda.bindings.nvrtc.nvrtcAddNameExpression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcAddNameExpression</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcSetFlowCallback">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcSetFlowCallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcSetFlowCallback" title="Link to this definition">#</a></dt>
+<dd><p>nvrtcSetFlowCallback registers a callback function that the compiler will invoke at different points during a call to nvrtcCompileProgram, and the callback function can decide whether to cancel compilation by returning specific values.</p>
+<p>The callback function must satisfy the following constraints:</p>
+<ol class="arabic simple">
+<li><p>Its signature should be:</p></li>
+</ol>
+<p><strong>View CUDA Toolkit Documentation for a C++ code example</strong></p>
+<p>When invoking the callback, the compiler will always pass <cite>payload</cite> to
+param1 so that the callback may make decisions based on <cite>payload</cite> .
+It’ll always pass NULL to param2 for now which is reserved for future
+extensions.</p>
+<p>(2) It must return 1 to cancel compilation or 0 to continue. Other
+return values are reserved for future use.</p>
+<p>(3) It must return consistent values. Once it returns 1 at one point,
+it must return 1 in all following invocations during the current
+nvrtcCompileProgram call in progress.</p>
+<ol class="arabic simple" start="4">
+<li><p>It must be thread-safe.</p></li>
+<li><p>It must not invoke any nvrtc/libnvvm/ptx APIs.</p></li>
+</ol>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p></li>
+<li><p><strong>callback</strong> (<em>Any</em>) – the callback that issues cancellation signal.</p></li>
+<li><p><strong>payload</strong> (<em>Any</em>) – to be passed as a parameter when invoking the callback.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="precompiled-header-pch-cuda-12-8">
+<h2>Precompiled header (PCH) (CUDA 12.8+)<a class="headerlink" href="#precompiled-header-pch-cuda-12-8" title="Link to this heading">#</a></h2>
+<p>NVRTC defines the following function related to PCH. Also see PCH related flags passed to nvrtcCompileProgram.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetPCHHeapSize">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPCHHeapSize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetPCHHeapSize" title="Link to this definition">#</a></dt>
+<dd><p>retrieve the current size of the PCH Heap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> –</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></p></li>
+</ul>
+</li>
+<li><p><strong>ret</strong> (<em>int</em>) – pointer to location where the size of the PCH Heap will be stored</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcSetPCHHeapSize">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcSetPCHHeapSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcSetPCHHeapSize" title="Link to this definition">#</a></dt>
+<dd><p>set the size of the PCH Heap.</p>
+<p>The requested size may be rounded up to a platform dependent alignment
+(e.g. page size). If the PCH Heap has already been allocated, the heap
+memory will be freed and a new PCH Heap will be allocated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>size</strong> (<em>size_t</em>) – requested size of the PCH Heap, in bytes</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPCHCreateStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus" title="Link to this definition">#</a></dt>
+<dd><p>returns the PCH creation status.</p>
+<p>NVRTC_SUCCESS indicates that the PCH was successfully created.
+NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED indicates that no PCH creation was
+attempted, either because PCH functionality was not requested during
+the preceding nvrtcCompileProgram call, or automatic PCH processing was
+requested, and compiler chose not to create a PCH file.
+NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED indicates that a PCH file could
+potentially have been created, but the compiler ran out space in the
+PCH heap. In this scenario, the
+<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired" title="cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetPCHHeapSizeRequired()</span></code></a> can be used to query the
+required heap size, the heap can be reallocated for this size with
+<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcSetPCHHeapSize" title="cuda.bindings.nvrtc.nvrtcSetPCHHeapSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcSetPCHHeapSize()</span></code></a> and PCH creation may be reattempted
+again invoking <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcCompileProgram" title="cuda.bindings.nvrtc.nvrtcCompileProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcCompileProgram()</span></code></a> with a new NVRTC
+program instance. NVRTC_ERROR_PCH_CREATE indicates that an error
+condition prevented the PCH file from being created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_PCH_CREATE</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult" title="cuda.bindings.nvrtc.nvrtcResult">nvrtcResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired">
+<span class="sig-prename descclassname"><span class="pre">cuda.bindings.nvrtc.</span></span><span class="sig-name descname"><span class="pre">nvrtcGetPCHHeapSizeRequired</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired" title="Link to this definition">#</a></dt>
+<dd><p>retrieve the required size of the PCH heap required to compile the given program.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prog</strong> (<a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcProgram" title="cuda.bindings.nvrtc.nvrtcProgram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a>) – CUDA Runtime Compilation program.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>nvrtcResult</em> –</p>
+<ul>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></p></li>
+<li><p><a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT" title="cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a> The size retrieved using this function is only valid if <a class="reference internal" href="#cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus" title="cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nvrtcGetPCHCreateStatus()</span></code></a> returned NVRTC_SUCCESS or NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</p></li>
+</ul>
+</li>
+<li><p><strong>size</strong> (<em>int</em>) – pointer to location where the required size of the PCH Heap will be
+stored</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="supported-compile-options">
+<h2>Supported Compile Options<a class="headerlink" href="#supported-compile-options" title="Link to this heading">#</a></h2>
+<p>NVRTC supports the compile options below. Option names with two preceding dashs (<code class="docutils literal notranslate"><span class="pre">--</span></code>) are long option names and option names with one preceding dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>) are short option names. Short option names can be used instead of long option names. When a compile option takes an argument, an assignment operator (<code class="docutils literal notranslate"><span class="pre">=</span></code>) is used to separate the compile option argument from the compile option name, e.g., <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture=compute_100&quot;</span></code>. Alternatively, the compile option name and the argument can be specified in separate strings without an assignment operator, .e.g, <code class="docutils literal notranslate"><span class="pre">&quot;--gpu-architecture&quot;</span></code> <code class="docutils literal notranslate"><span class="pre">&quot;compute_100&quot;</span></code>. Single-character short option names, such as <code class="docutils literal notranslate"><span class="pre">-D</span></code>, <code class="docutils literal notranslate"><span class="pre">-U</span></code>, and <code class="docutils literal notranslate"><span class="pre">-I</span></code>, do not require an assignment operator, and the compile option name and the argument can be present in the same string with or without spaces between them. For instance, <code class="docutils literal notranslate"><span class="pre">&quot;-D=&lt;def&gt;&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;-D&lt;def&gt;&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;-D</span> <span class="pre">&lt;def&gt;&quot;</span></code> are all supported.</p>
+<p>The valid compiler options are:</p>
+<ul class="simple">
+<li><p>Compilation targets</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--gpu-architecture=&lt;arch&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-arch</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Specify the name of the class of GPU architectures for which the input must be compiled.</p>
+<ul class="simple">
+<li><p>Separate compilation / whole-program compilation</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-c</span></code> (<code class="docutils literal notranslate"><span class="pre">-dc</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Generate relocatable code that can be linked with other relocatable device code. It is equivalent to <code class="docutils literal notranslate"><span class="pre">--relocatable-device-code=true</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-w</span></code> (<code class="docutils literal notranslate"><span class="pre">-dw</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate non-relocatable code. It is equivalent to <code class="docutils literal notranslate"><span class="pre">--relocatable-device-code=false</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--relocatable-device-code={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-rdc</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enable (disable) the generation of relocatable device code.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--extensible-whole-program</span></code> (<code class="docutils literal notranslate"><span class="pre">-ewp</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Do extensible whole program compilation of device code.</p>
+<ul class="simple">
+<li><p>Debugging support</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-debug</span></code> (<code class="docutils literal notranslate"><span class="pre">-G</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Generate debug information. If <code class="docutils literal notranslate"><span class="pre">--dopt</span></code> is not specified, then turns off all optimizations.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--generate-line-info</span></code> (<code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate line-number information.</p>
+<ul class="simple">
+<li><p>Code generation</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--dopt</span></code> <code class="docutils literal notranslate"><span class="pre">on</span></code> (<code class="docutils literal notranslate"><span class="pre">-dopt</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--dopt=on</span></code></p></li>
+</ul>
+</li>
+</ul>
+<p>Enable device code optimization. When specified along with <code class="docutils literal notranslate"><span class="pre">-G</span></code>, enables limited debug information generation for optimized device code (currently, only line number information). When <code class="docutils literal notranslate"><span class="pre">-G</span></code> is not specified, <code class="docutils literal notranslate"><span class="pre">-dopt=on</span></code> is implicit.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--Ofast-compile={0|min|mid|max}</span></code> (<code class="docutils literal notranslate"><span class="pre">-Ofc</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Specify the fast-compile level for device code, which controls the tradeoff between compilation speed and runtime performance by disabling certain optimizations at varying levels.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options</span></code> &lt;options&gt; (<code class="docutils literal notranslate"><span class="pre">-Xptxas</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--ptxas-options=&lt;options&gt;</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>Specify options directly to ptxas, the PTX optimizing assembler.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--maxrregcount=&lt;N&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-maxrregcount</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Specify the maximum amount of registers that GPU functions can use. Until a function-specific limit, a higher value will generally increase the performance of individual GPU threads that execute this function. However, because thread registers are allocated from a global register pool on each GPU, a higher value of this option will also reduce the maximum thread block size, thereby reducing the amount of thread parallelism. Hence, a good maxrregcount value is the result of a trade-off. If this option is not specified, then no maximum is assumed. Value less than the minimum registers required by ABI will be bumped up by the compiler to ABI minimum limit.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--ftz={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-ftz</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>When performing single-precision floating-point operations, flush denormal values to zero or preserve denormal values.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--ftz=true</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--prec-sqrt={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-prec-sqrt</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>For single-precision floating-point square root, use IEEE round-to-nearest mode or use a faster approximation. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--prec-sqrt=false</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--prec-div={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-prec-div</span></code>) For single-precision floating-point division and reciprocals, use IEEE round-to-nearest mode or use a faster approximation. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--prec-div=false</span></code>.</p>
+<ul>
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--fmad={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-fmad</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enables (disables) the contraction of floating-point multiplies and adds/subtracts into floating-point multiply-add operations (FMAD, FFMA, or DFMA). <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--fmad=true</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> (<code class="docutils literal notranslate"><span class="pre">-use_fast_math</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Make use of fast math operations. <code class="docutils literal notranslate"><span class="pre">--use_fast_math</span></code> implies <code class="docutils literal notranslate"><span class="pre">--ftz=true</span></code> <code class="docutils literal notranslate"><span class="pre">--prec-div=false</span></code> <code class="docutils literal notranslate"><span class="pre">--prec-sqrt=false</span></code> <code class="docutils literal notranslate"><span class="pre">--fmad=true</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--extra-device-vectorization</span></code> (<code class="docutils literal notranslate"><span class="pre">-extra-device-vectorization</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enables more aggressive device code vectorization in the NVVM optimizer.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--modify-stack-limit={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-modify-stack-limit</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>On Linux, during compilation, use <code class="docutils literal notranslate"><span class="pre">setrlimit()</span></code> to increase stack size to maximum allowed. The limit is reset to the previous value at the end of compilation. Note: <code class="docutils literal notranslate"><span class="pre">setrlimit()</span></code> changes the value for the entire process.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--dlink-time-opt</span></code> (<code class="docutils literal notranslate"><span class="pre">-dlto</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate intermediate code for later link-time optimization. It implies <code class="docutils literal notranslate"><span class="pre">-rdc=true</span></code>. Note: when this option is used the <code class="docutils literal notranslate"><span class="pre">nvrtcGetLTOIR</span></code> API should be used, as PTX or Cubin will not be generated.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--gen-opt-lto</span></code> (<code class="docutils literal notranslate"><span class="pre">-gen-opt-lto</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Run the optimizer passes before generating the LTO IR.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--optix-ir</span></code> (<code class="docutils literal notranslate"><span class="pre">-optix-ir</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate OptiX IR. The Optix IR is only intended for consumption by OptiX through appropriate APIs. This feature is not supported with link-time-optimization (<code class="docutils literal notranslate"><span class="pre">-dlto</span></code>).</p>
+<p>Note: when this option is used the nvrtcGetOptiX API should be used, as PTX or Cubin will not be generated.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--jump-table-density=</span></code>[0-101] (<code class="docutils literal notranslate"><span class="pre">-jtd</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Specify the case density percentage in switch statements, and use it as a minimal threshold to determine whether jump table(brx.idx instruction) will be used to implement a switch statement. Default value is 101. The percentage ranges from 0 to 101 inclusively.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-stack-protector={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-stack-protector</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enable (disable) the generation of stack canaries in device code.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-cache</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-cache</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Disable the use of cache for both ptx and cubin code generation.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--frandom-seed</span></code> (<code class="docutils literal notranslate"><span class="pre">-frandom-seed</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>The user specified random seed will be used to replace random numbers used in generating symbol names and variable names. The option can be used to generate deterministically identical ptx and object files. If the input value is a valid number (decimal, octal, or hex), it will be used directly as the random seed. Otherwise, the CRC value of the passed string will be used instead.</p>
+<ul class="simple">
+<li><p>Preprocessing</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--define-macro=&lt;def&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-D</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;def&gt;</span></code> can be either <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;name=definitions&gt;</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--undefine-macro=&lt;def&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-U</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Cancel any previous definition of <code class="docutils literal notranslate"><span class="pre">&lt;def&gt;</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--include-path=&lt;dir&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-I</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Add the directory <code class="docutils literal notranslate"><span class="pre">&lt;dir&gt;</span></code> to the list of directories to be searched for headers. These paths are searched after the list of headers given to nvrtcCreateProgram.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--pre-include=&lt;header&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-include</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Preinclude <code class="docutils literal notranslate"><span class="pre">&lt;header&gt;</span></code> during preprocessing.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-source-include</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-source-include</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>The preprocessor by default adds the directory of each input sources to the include path. This option disables this feature and only considers the path specified explicitly.</p>
+<ul class="simple">
+<li><p>Language Dialect</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--std={c++03|c++11|c++14|c++17|c++20}</span></code> (<code class="docutils literal notranslate"><span class="pre">-std</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Set language dialect to C++03, C++11, C++14, C++17 or C++20</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--builtin-move-forward={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-move-forward</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Provide builtin definitions of <code class="docutils literal notranslate"><span class="pre">std::move</span></code> and <code class="docutils literal notranslate"><span class="pre">std::forward</span></code>, when C++11 or later language dialect is selected.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--builtin-initializer-list={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-builtin-initializer-list</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Provide builtin definitions of <code class="docutils literal notranslate"><span class="pre">std::initializer_list</span></code> class and member functions when C++11 or later language dialect is selected.</p>
+<ul class="simple">
+<li><p>Precompiled header support (CUDA 12.8+)</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--pch</span></code> (<code class="docutils literal notranslate"><span class="pre">-pch</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Enable automatic PCH processing.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--create-pch=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-create-pch</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Create a PCH file.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--use-pch=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-use-pch</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Use the specified PCH file.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--pch-dir=&lt;directory-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-pch-dir</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>When using automatic PCH (<code class="docutils literal notranslate"><span class="pre">-pch</span></code>), look for and create PCH files in the specified directory. When using explicit PCH (<code class="docutils literal notranslate"><span class="pre">-create-pch</span></code> or <code class="docutils literal notranslate"><span class="pre">-use-pch</span></code>), the directory name is prefixed before the specified file name, unless the file name is an absolute path name.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--pch-verbose={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-pch-verbose</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>In automatic PCH mode, for each PCH file that could not be used in current compilation, print the reason in the compilation log.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--pch-messages={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-pch-messages</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Print a message in the compilation log, if a PCH file was created or used in the current compilation.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--instantiate-templates-in-pch={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-instantiate-templates-in-pch</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enable or disable instantiatiation of templates before PCH creation. Instantiating templates may increase the size of the PCH file, while reducing the compilation cost when using the PCH file (since some template instantiations can be skipped).</p>
+<ul class="simple">
+<li><p>Misc.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">--disable-warnings</span></code> (<code class="docutils literal notranslate"><span class="pre">-w</span></code>)</p></li>
+</ul>
+</li>
+</ul>
+<p>Inhibit all warning messages.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--Wreorder</span></code> (<code class="docutils literal notranslate"><span class="pre">-Wreorder</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate warnings when member initializers are reordered.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--warning-as-error=</span></code> &lt;kind&gt;,… (<code class="docutils literal notranslate"><span class="pre">-Werror</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Make warnings of the specified kinds into errors. The following is the list of warning kinds accepted by this option:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--restrict</span></code> (<code class="docutils literal notranslate"><span class="pre">-restrict</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Programmer assertion that all kernel pointer parameters are restrict pointers.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-as-default-execution-space</span></code> (<code class="docutils literal notranslate"><span class="pre">-default-device</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Treat entities with no execution space annotation as <code class="docutils literal notranslate"><span class="pre">device</span></code> entities.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-int128</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-int128</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Allow the <code class="docutils literal notranslate"><span class="pre">__int128</span></code> type in device code. Also causes the macro <code class="docutils literal notranslate"><span class="pre">CUDACC_RTC_INT128</span></code> to be defined.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-float128</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-float128</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Allow the <code class="docutils literal notranslate"><span class="pre">__float128</span></code> and <code class="docutils literal notranslate"><span class="pre">_Float128</span></code> types in device code. Also causes the macro <code class="docutils literal notranslate"><span class="pre">D__CUDACC_RTC_FLOAT128__</span></code> to be defined.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--optimization-info=&lt;kind&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-opt-info</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Provide optimization reports for the specified kind of optimization. The following kind tags are supported:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--display-error-number</span></code> (<code class="docutils literal notranslate"><span class="pre">-err-no</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Display diagnostic number for warning messages. (Default)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-display-error-number</span></code> (<code class="docutils literal notranslate"><span class="pre">-no-err-no</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Disables the display of a diagnostic number for warning messages.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--diag-error=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-error</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Emit error for specified diagnostic message number(s). Message numbers can be separated by comma.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--diag-suppress=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-suppress</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Suppress specified diagnostic message number(s). Message numbers can be separated by comma.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--diag-warn=&lt;error-number&gt;</span></code>,… (<code class="docutils literal notranslate"><span class="pre">-diag-warn</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Emit warning for specified diagnostic message number(s). Message numbers can be separated by comma.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--brief-diagnostics={true|false}</span></code> (<code class="docutils literal notranslate"><span class="pre">-brief-diag</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>This option disables or enables showing source line and column info in a diagnostic. The <code class="docutils literal notranslate"><span class="pre">--brief-diagnostics=true</span></code> will not show the source line and column info.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--time=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-time</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Generate a comma separated value table with the time taken by each compilation phase, and append it at the end of the file given as the option argument. If the file does not exist, the column headings are generated in the first row of the table. If the file name is ‘-’, the timing data is written to the compilation log.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--split-compile=&lt;number-of-threads&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-split-compile=&lt;number-of-threads&gt;</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Perform compiler optimizations in parallel. Split compilation attempts to reduce compile time by enabling the compiler to run certain optimization passes concurrently. This option accepts a numerical value that specifies the maximum number of threads the compiler can use. One can also allow the compiler to use the maximum threads available on the system by setting <code class="docutils literal notranslate"><span class="pre">--split-compile=0</span></code>. Setting <code class="docutils literal notranslate"><span class="pre">--split-compile=1</span></code> will cause this option to be ignored.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--fdevice-syntax-only</span></code> (<code class="docutils literal notranslate"><span class="pre">-fdevice-syntax-only</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Ends device compilation after front-end syntax checking. This option does not generate valid device code.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--minimal</span></code> (<code class="docutils literal notranslate"><span class="pre">-minimal</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Omit certain language features to reduce compile time for small programs. In particular, the following are omitted:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--device-stack-protector</span></code> (<code class="docutils literal notranslate"><span class="pre">-device-stack-protector</span></code>)</p></li>
+</ul>
+</div></blockquote>
+<p>Enable stack canaries in device code. Stack canaries make it more difficult to exploit certain types of memory safety bugs involving stack-local variables. The compiler uses heuristics to assess the risk of such a bug in each function. Only those functions which are deemed high-risk make use of a stack canary.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--fdevice-time-trace=&lt;file-name&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">-fdevice-time-trace=&lt;file-name&gt;</span></code>) Enables the time profiler, outputting a JSON file based on given &lt;file-name&gt;. Results can be analyzed on chrome://tracing for a flamegraph visualization.</p></li>
+</ul>
+</div></blockquote>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="runtime.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">runtime</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="nvjitlink.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">nvjitlink</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#error-handling">Error Handling</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult"><code class="docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_OUT_OF_MEMORY</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_PROGRAM_CREATION_FAILURE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_OPTION</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_COMPILATION</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_BUILTIN_OPERATION_FAILURE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_INTERNAL_ERROR</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_TIME_FILE_WRITE_FAILED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_PCH_CREATE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_CANCELLED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetErrorString"><code class="docutils literal notranslate"><span class="pre">nvrtcGetErrorString()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-information-query">General Information Query</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcVersion"><code class="docutils literal notranslate"><span class="pre">nvrtcVersion()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs"><code class="docutils literal notranslate"><span class="pre">nvrtcGetNumSupportedArchs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetSupportedArchs"><code class="docutils literal notranslate"><span class="pre">nvrtcGetSupportedArchs()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compilation">Compilation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcProgram.getPtr"><code class="docutils literal notranslate"><span class="pre">getPtr()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcCreateProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcCreateProgram()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcDestroyProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcDestroyProgram()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcCompileProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcCompileProgram()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetPTXSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPTXSize()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetPTX"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPTX()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetCUBINSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetCUBINSize()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetCUBIN"><code class="docutils literal notranslate"><span class="pre">nvrtcGetCUBIN()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetLTOIRSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetLTOIRSize()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetLTOIR"><code class="docutils literal notranslate"><span class="pre">nvrtcGetLTOIR()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetOptiXIRSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetOptiXIRSize()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetOptiXIR"><code class="docutils literal notranslate"><span class="pre">nvrtcGetOptiXIR()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetProgramLogSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetProgramLogSize()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetProgramLog"><code class="docutils literal notranslate"><span class="pre">nvrtcGetProgramLog()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcAddNameExpression"><code class="docutils literal notranslate"><span class="pre">nvrtcAddNameExpression()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetLoweredName"><code class="docutils literal notranslate"><span class="pre">nvrtcGetLoweredName()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcSetFlowCallback"><code class="docutils literal notranslate"><span class="pre">nvrtcSetFlowCallback()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#precompiled-header-pch-cuda-12-8">Precompiled header (PCH) (CUDA 12.8+)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetPCHHeapSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPCHHeapSize()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcSetPCHHeapSize"><code class="docutils literal notranslate"><span class="pre">nvrtcSetPCHHeapSize()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPCHCreateStatus()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetPCHHeapSizeRequired"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPCHHeapSizeRequired()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-compile-options">Supported Compile Options</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2021-2025, NVIDIA.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
