@@ -31,13 +31,13 @@ cu13 = { features = ["cu13"], solve-group = "cu13" }
 # Usage: pixi run test (default) or pixi run -e cu12 test or pixi run -e cu13 test
 # The environment specified with -e is automatically passed down via PIXI_ENVIRONMENT_NAME
 [target.linux.tasks.test-pathfinder]
-cmd = ["bash", "-c", "cd cuda_pathfinder && if [ -n \"${PIXI_ENVIRONMENT_NAME:-}\" ]; then pixi run --environment \"$PIXI_ENVIRONMENT_NAME\" test; else pixi run test; fi"]
+cmd = ["bash", "-c", "cd cuda_pathfinder && pixi run ${PIXI_ENVIRONMENT_NAME:+--environment \"$PIXI_ENVIRONMENT_NAME\"} test"]
 
 [target.linux.tasks.test-bindings]
-cmd = ["bash", "-c", "cd cuda_bindings && if [ -n \"${PIXI_ENVIRONMENT_NAME:-}\" ]; then pixi run --environment \"$PIXI_ENVIRONMENT_NAME\" test; else pixi run test; fi"]
+cmd = ["bash", "-c", "cd cuda_bindings && pixi run ${PIXI_ENVIRONMENT_NAME:+--environment \"$PIXI_ENVIRONMENT_NAME\"} test"]
 
 [target.linux.tasks.test-core]
-cmd = ["bash", "-c", "cd cuda_core && if [ -n \"${PIXI_ENVIRONMENT_NAME:-}\" ]; then pixi run --environment \"$PIXI_ENVIRONMENT_NAME\" test; else pixi run test; fi"]
+cmd = ["bash", "-c", "cd cuda_core && pixi run ${PIXI_ENVIRONMENT_NAME:+--environment \"$PIXI_ENVIRONMENT_NAME\"} test"]
 
 [target.linux.tasks.test]
 depends-on = [
