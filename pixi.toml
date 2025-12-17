@@ -43,6 +43,3 @@ cmd = [
     "bash", "-c",
     "set -e; ENV=\"\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu12\"* ]] && ENV=\"cu12\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu13\"* ]] && ENV=\"cu13\"; cd cuda_pathfinder && (if [ -n \"$ENV\" ]; then pixi run --environment \"$ENV\" test; else pixi run test; fi) && cd ../cuda_bindings && (if [ -n \"$ENV\" ]; then pixi run --environment \"$ENV\" test; else pixi run test; fi) && cd ../cuda_core && (if [ -n \"$ENV\" ]; then pixi run --environment \"$ENV\" test; else pixi run test; fi)"
 ]
-
-
-
