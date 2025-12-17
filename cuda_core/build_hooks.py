@@ -68,7 +68,7 @@ def _build_cuda_core():
 
     # It seems setuptools' wildcard support has problems for namespace packages,
     # so we explicitly spell out all Extension instances.
-    root_module = "cuda.core.experimental"
+    root_module = "cuda.core"
     root_path = f"{os.path.sep}".join(root_module.split(".")) + os.path.sep
     ext_files = glob.glob(f"{root_path}/**/*.pyx", recursive=True)
 
@@ -86,6 +86,7 @@ def _build_cuda_core():
         print("CUDA paths:", CUDA_PATH)
         return CUDA_PATH
 
+    all_include_dirs = list(os.path.join(root, "include") for root in get_cuda_paths())
     extra_compile_args = []
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
@@ -94,9 +95,9 @@ def _build_cuda_core():
 
     ext_modules = tuple(
         Extension(
-            f"cuda.core.experimental.{mod.replace(os.path.sep, '.')}",
-            sources=[f"cuda/core/experimental/{mod}.pyx"],
-            include_dirs=list(os.path.join(root, "include") for root in get_cuda_paths()),
+            f"cuda.core.{mod.replace(os.path.sep, '.')}",
+            sources=[f"cuda/core/{mod}.pyx"],
+            include_dirs=all_include_dirs,
             language="c++",
             extra_compile_args=extra_compile_args,
         )

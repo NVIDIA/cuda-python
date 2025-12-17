@@ -4,7 +4,7 @@
 import ctypes
 
 import pytest
-from cuda.core.experimental import (
+from cuda.core import (
     LaunchConfig,
     LegacyPinnedMemoryResource,
     Program,

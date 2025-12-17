@@ -99,14 +99,14 @@ section_titles = ["Returns"]
 
 
 def autodoc_process_docstring(app, what, name, obj, options, lines):
-    if name.startswith("cuda.core.experimental._system.System"):
+    if name.startswith("cuda.core._system.System"):
         name = name.replace("._system.System", ".system")
         # patch the docstring (in lines) *in-place*. Should docstrings include section titles other than "Returns",
         # this will need to be modified to handle them.
         while lines:
             lines.pop()
         attr = name.split(".")[-1]
-        from cuda.core.experimental._system import System
+        from cuda.core._system import System
 
         original_lines = getattr(System, attr).__doc__.split("\n")
         new_lines = []
@@ -129,8 +129,8 @@ def skip_member(app, what, name, obj, skip, options):
     # are assumed to be properties (because cythonized
     # properties are not recognized as such by autodoc)
     excluded_dirs = [
-        "cuda.core.experimental._layout",
-        "cuda.core.experimental._memoryview",
+        "cuda.core._layout",
+        "cuda.core._memoryview",
     ]
     if what == "attribute" and getattr(obj, "__doc__", None) is None:
         obj_module = getattr(getattr(obj, "__objclass__", None), "__module__", None)

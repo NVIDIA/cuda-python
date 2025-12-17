@@ -8,7 +8,7 @@
    via returned values from public APIs. These classes must be referred in
    public APIs returning their instances.
 
-.. currentmodule:: cuda.core.experimental
+.. currentmodule:: cuda.core
 
 CUDA runtime
 ------------
