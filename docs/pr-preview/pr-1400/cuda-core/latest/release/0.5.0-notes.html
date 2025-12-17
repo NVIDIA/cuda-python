@@ -583,6 +583,7 @@
 <section id="breaking-changes">
 <h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
 <p>The support for setting <code class="xref py py-attr docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions.handle_type</span></code> to <code class="docutils literal notranslate"><span class="pre">&quot;win32&quot;</span></code> is removed. Please reach out to us on GitHub if you have a use case.</p>
+<p>All public APIs accessible under the <code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> namespace are now moved to the top-level <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> namespace. For example, <code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.Device</span></code> is now accessible as <a class="reference internal" href="../generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.Device</span></code></a>. The <code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> namespace is still retained for backward compatibility, but is considered deprecated and will be removed by <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> v1.0.0.</p>
 <p>The following APIs have been deprecated and will be removed in 0.6.0:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.driver_version</span></code> has been replaced with
@@ -621,6 +622,7 @@ and a new property <code class="xref py py-attr docutils literal notranslate"><s
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Zero-size arrays are now supported as inputs when constructing <code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code>.</p></li>
 <li><p>Most CUDA resources can be hashed now.</p></li>
 <li><p>Python <code class="docutils literal notranslate"><span class="pre">bool</span></code> objects are now converted to C++ <code class="docutils literal notranslate"><span class="pre">bool</span></code> type when passed as kernel arguments (previously converted to <code class="docutils literal notranslate"><span class="pre">int</span></code>).</p></li>
 <li><p>Restored v0.3.x <code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryResource</span></code> behaviors and missing MR attributes for backward compatibility.</p></li>

@@ -675,7 +675,7 @@ is used.</p></li>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">alloc_handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core._memory.IPCAllocationHandle.html#cuda.core._memory.IPCAllocationHandle" title="cuda.core._memory.IPCAllocationHandle"><span class="pre">IPCAllocationHandle</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">alloc_handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><span class="pre">IPCAllocationHandle</span></a></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><span class="pre">PinnedMemoryResource</span></a></span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.from_allocation_handle" title="Link to this definition">#</a></dt>
@@ -684,7 +684,7 @@ is used.</p></li>
 pool from a shareable handle. The memory pool is marked as owned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>alloc_handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference internal" href="cuda.core._memory.IPCAllocationHandle.html#cuda.core._memory.IPCAllocationHandle" title="cuda.core._memory.IPCAllocationHandle"><em>IPCAllocationHandle</em></a>) – The shareable handle of the host-pinned memory resource to import. If an
+<dd class="field-odd"><p><strong>alloc_handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><em>IPCAllocationHandle</em></a>) – The shareable handle of the host-pinned memory resource to import. If an
 integer is supplied, it must represent a valid platform-specific
 handle. It is the caller’s responsibility to close that handle.</p>
 </dd>
@@ -719,7 +719,7 @@ handle. It is the caller’s responsibility to close that handle.</p>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core._memory.IPCAllocationHandle.html#cuda.core._memory.IPCAllocationHandle" title="cuda.core._memory.IPCAllocationHandle"><span class="pre">IPCAllocationHandle</span></a></span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.get_allocation_handle" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><span class="pre">IPCAllocationHandle</span></a></span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.get_allocation_handle" title="Link to this definition">#</a></dt>
 <dd><p>Export the memory pool handle to be shared (requires IPC).</p>
 <p>The handle can be used to share the memory pool with other processes.
 The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
