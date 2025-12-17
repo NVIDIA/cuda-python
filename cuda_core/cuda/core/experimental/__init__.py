@@ -39,6 +39,11 @@ _warn_deprecated()
 
 
 from cuda.core import utils  # noqa: E402
+
+# Make utils accessible as a submodule for backward compatibility
+__import__("sys").modules[__spec__.name + ".utils"] = utils
+
+
 from cuda.core._device import Device  # noqa: E402
 from cuda.core._event import Event, EventOptions  # noqa: E402
 from cuda.core._graph import (  # noqa: E402
