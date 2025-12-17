@@ -184,6 +184,13 @@ def ptx_code_object():
     [
         ProgramOptions(name="abc"),
         ProgramOptions(device_code_optimize=True, debug=True),
+        pytest.param(
+            ProgramOptions(debug=True, numba_debug=True),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 13200,
+                reason="numba_debug requires NVRTC >= 13.2",
+            ),
+        ),
         ProgramOptions(relocatable_device_code=True, max_register_count=32),
         ProgramOptions(ftz=True, prec_sqrt=False, prec_div=False),
         ProgramOptions(fma=False, use_fast_math=True),
