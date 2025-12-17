@@ -14,15 +14,14 @@ else:
 import importlib
 import sys
 
-# Import the resource handles module early.
+# The _resource_handles module exports a PyCapsule dispatch table that other
+# extension modules access via PyCapsule_Import. We import it here to ensure
+# it's loaded before other modules try to use it.
 #
-# Other extension modules access its functionality via the exported PyCapsule
-# dispatch table, so we don't rely on RTLD_GLOBAL (POSIX-only behavior).
-#
-# Use a relative import to avoid circular-import issues when `cuda.core.experimental`
-# is still being initialized (e.g. when importing submodules like
-# `cuda.core.experimental._utils.cuda_utils`).
-from . import _resource_handles  # noqa: F401
+# We use importlib.import_module with the full path to avoid triggering
+# circular import issues that can occur with relative imports during
+# package initialization.
+_resource_handles = importlib.import_module("cuda.core.experimental._resource_handles")
 
 subdir = f"cu{cuda_major}"
 try:
