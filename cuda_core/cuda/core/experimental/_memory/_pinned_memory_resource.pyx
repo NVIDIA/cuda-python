@@ -14,10 +14,11 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 )
 
 from dataclasses import dataclass
-from typing import Optional
 import multiprocessing
+import os
 import platform  # no-cython-lint
 import subprocess
+import threading
 import uuid
 import warnings
 
@@ -26,6 +27,7 @@ from cuda.core.experimental._utils.cuda_utils import check_multiprocessing_start
 
 # Cache to ensure NUMA warning is only raised once per process
 cdef bint _numa_warning_shown = False
+cdef object _lock = threading.Lock()
 
 
 def _check_numa_nodes():
@@ -34,49 +36,53 @@ def _check_numa_nodes():
     if _numa_warning_shown:
         return
 
-    if platform.system() != "Linux":
-        return
+    with _lock:
+        if _numa_warning_shown:
+            return
 
-    numa_count = None
+        if platform.system() != "Linux":
+            _numa_warning_shown = True
+            return
 
-    # Try /sys filesystem first (most reliable and doesn't require external tools)
-    try:
-        import os
-        node_path = "/sys/devices/system/node"
-        if os.path.exists(node_path):
-            # Count directories named "node[0-9]+"
-            nodes = [d for d in os.listdir(node_path) if d.startswith("node") and d[4:].isdigit()]
-            numa_count = len(nodes)
-    except (OSError, PermissionError):
-        pass
+        numa_count = None
 
-    # Fallback to lscpu if /sys check didn't work
-    if numa_count is None:
+        # Try /sys filesystem first (most reliable and doesn't require external tools)
         try:
-            result = subprocess.run(
-                ["lscpu"],
-                capture_output=True,
-                text=True,
-                timeout=1
-            )
-            for line in result.stdout.splitlines():
-                if line.startswith("NUMA node(s):"):
-                    numa_count = int(line.split(":")[1].strip())
-                    break
-        except (subprocess.SubprocessError, ValueError, FileNotFoundError):
+            node_path = "/sys/devices/system/node"
+            if os.path.exists(node_path):
+                # Count directories named "node[0-9]+"
+                nodes = [d for d in os.listdir(node_path) if d.startswith("node") and d[4:].isdigit()]
+                numa_count = len(nodes)
+        except (OSError, PermissionError):
             pass
 
-    # Warn if multiple NUMA nodes detected
-    if numa_count is not None and numa_count > 1:
-        warnings.warn(
-            f"System has {numa_count} NUMA nodes. IPC-enabled pinned memory "
-            f"uses location ID 0, which may not work correctly with multiple "
-            f"NUMA nodes.",
-            UserWarning,
-            stacklevel=3
-        )
+        # Fallback to lscpu if /sys check didn't work
+        if numa_count is None:
+            try:
+                result = subprocess.run(
+                    ["lscpu"],
+                    capture_output=True,
+                    text=True,
+                    timeout=1
+                )
+                for line in result.stdout.splitlines():
+                    if line.startswith("NUMA node(s):"):
+                        numa_count = int(line.split(":")[1].strip())
+                        break
+            except (subprocess.SubprocessError, ValueError, FileNotFoundError):
+                pass
 
-    _numa_warning_shown = True
+        # Warn if multiple NUMA nodes detected
+        if numa_count is not None and numa_count > 1:
+            warnings.warn(
+                f"System has {numa_count} NUMA nodes. IPC-enabled pinned memory "
+                f"uses location ID 0, which may not work correctly with multiple "
+                f"NUMA nodes.",
+                UserWarning,
+                stacklevel=3
+            )
+
+        _numa_warning_shown = True
 
 
 __all__ = ['PinnedMemoryResource', 'PinnedMemoryResourceOptions']
@@ -242,27 +248,6 @@ cdef class PinnedMemoryResource(_MemPool):
     def is_host_accessible(self) -> bool:
         """Return True. This memory resource provides host-accessible buffers."""
         return True
-
-    @property
-    def is_ipc_enabled(self) -> bool:
-        """Whether this memory resource has IPC enabled."""
-        return self._ipc_data is not None
-
-    @property
-    def is_mapped(self) -> bool:
-        """
-        Whether this is a mapping of an IPC-enabled memory resource from
-        another process.  If True, allocation is not permitted.
-        """
-        return self._ipc_data is not None and self._ipc_data._is_mapped
-
-    @property
-    def uuid(self) -> Optional[uuid.UUID]:
-        """
-        A universally unique identifier for this memory resource. Meaningful
-        only for IPC-enabled memory resources.
-        """
-        return getattr(self._ipc_data, 'uuid', None)
 
 
 def _deep_reduce_pinned_memory_resource(mr):
