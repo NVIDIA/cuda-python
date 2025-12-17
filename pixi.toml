@@ -25,11 +25,11 @@ cu12 = { features = ["cu12"], solve-group = "cu12" }
 cu13 = { features = ["cu13"], solve-group = "cu13" }
 
 
-# Test tasks: Run tests (assumes environments are already installed)
-# Order: pathfinder -> bindings -> core (matching scripts/run_tests.sh)
-# Each sub-package has its own pixi.toml and environment
-# Usage: pixi run test (default) or pixi run -e cu12 test or pixi run -e cu13 test
-# The environment specified with -e is automatically passed down via PIXI_ENVIRONMENT_NAME
+# Test Tasks
+# Runs tests across all sub-packages: pathfinder → bindings → core (dependency order)
+# Each sub-package has its own pixi.toml; the -e environment propagates via PIXI_ENVIRONMENT_NAME
+#
+# Usage: pixi run test | pixi run -e cu12 test | pixi run -e cu13 test
 [target.linux.tasks.test-pathfinder]
 cmd = ["bash", "-c", "cd cuda_pathfinder && pixi run ${PIXI_ENVIRONMENT_NAME:+--environment \"$PIXI_ENVIRONMENT_NAME\"} test"]
 
