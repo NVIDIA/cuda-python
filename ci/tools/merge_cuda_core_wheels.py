@@ -47,6 +47,37 @@ def run_command(cmd: List[str], cwd: Path = None, env: dict = os.environ) -> sub
     return result
 
 
+def print_wheel_directory_structure(wheel_path: Path, filter_prefix: str = "cuda/core/", label: str = None):
+    """Print the directory structure of a wheel file, similar to unzip -l output.
+
+    Args:
+        wheel_path: Path to the wheel file to inspect
+        filter_prefix: Only show files matching this prefix (default: "cuda/core/")
+        label: Optional label to print before the structure (e.g., "Input wheel 1: name.whl")
+    """
+    if label:
+        print(f"\n--- {label} ---", file=sys.stderr)
+    try:
+        with zipfile.ZipFile(wheel_path, "r") as zf:
+            print(f"{'Length':>10}  {'Date':>12}  {'Time':>8}  Name", file=sys.stderr)
+            print("-" * 80, file=sys.stderr)
+            total_size = 0
+            file_count = 0
+            for name in sorted(zf.namelist()):
+                if filter_prefix in name:
+                    info = zf.getinfo(name)
+                    total_size += info.file_size
+                    file_count += 1
+                    date_time = info.date_time
+                    date_str = f"{date_time[0]:04d}-{date_time[1]:02d}-{date_time[2]:02d}"
+                    time_str = f"{date_time[3]:02d}:{date_time[4]:02d}:{date_time[5]:02d}"
+                    print(f"{info.file_size:10d}  {date_str}  {time_str}  {name}", file=sys.stderr)
+            print("-" * 80, file=sys.stderr)
+            print(f"{total_size:10d}                    {file_count} files", file=sys.stderr)
+    except Exception as e:
+        print(f"Warning: Could not list wheel contents: {e}", file=sys.stderr)
+
+
 def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
     """Merge multiple wheels into a single wheel with version-specific binaries."""
     print("\n=== Merging wheels ===", file=sys.stderr)
@@ -54,31 +85,6 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
 
     if len(wheels) == 1:
         raise RuntimeError("only one wheel is provided, nothing to merge")
-
-    # Debug: Show directory structure of input wheels
-    print("\n=== Input wheel directory structures ===", file=sys.stderr)
-    for i, wheel in enumerate(wheels):
-        print(f"\n--- Input wheel {i + 1}: {wheel.name} ---", file=sys.stderr)
-        try:
-            with zipfile.ZipFile(wheel, "r") as zf:
-                print(f"{'Length':>10}  {'Date':>12}  {'Time':>8}  Name", file=sys.stderr)
-                print("-" * 80, file=sys.stderr)
-                total_size = 0
-                file_count = 0
-                for name in sorted(zf.namelist()):
-                    if "cuda/core/" in name:
-                        info = zf.getinfo(name)
-                        total_size += info.file_size
-                        file_count += 1
-                        # Format similar to unzip -l output
-                        date_time = info.date_time
-                        date_str = f"{date_time[0]:04d}-{date_time[1]:02d}-{date_time[2]:02d}"
-                        time_str = f"{date_time[3]:02d}:{date_time[4]:02d}:{date_time[5]:02d}"
-                        print(f"{info.file_size:10d}  {date_str}  {time_str}  {name}", file=sys.stderr)
-                print("-" * 80, file=sys.stderr)
-                print(f"{total_size:10d}                    {file_count} files", file=sys.stderr)
-        except Exception as e:
-            print(f"Warning: Could not list wheel contents: {e}", file=sys.stderr)
 
     # Extract all wheels to temporary directories
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -117,45 +123,48 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
 
             extracted_wheels.append(extract_dir)
 
+        # Debug: Show directory structure of input wheels
+        print("\n=== Input wheel directory structures ===", file=sys.stderr)
+        for i, wheel in enumerate(wheels):
+            print_wheel_directory_structure(wheel, label=f"Input wheel {i + 1}: {wheel.name}")
+
         # Use the first wheel as the base and merge binaries from others
         base_wheel = extracted_wheels[0]
 
-        # Copy version-specific binaries from each wheel into versioned subdirectories
-        # Note: Python modules stay in cuda/core/, only binaries go into cu12/cu13/
+        # Copy version-specific directories from each wheel into versioned subdirectories
+        # This matches the approach used on main branch: copy entire directory trees
         base_dir = Path("cuda") / "core"
 
         for i, wheel_dir in enumerate(extracted_wheels):
             cuda_version = wheels[i].name.split(".cu")[1].split(".")[0]
             versioned_dir = base_wheel / base_dir / f"cu{cuda_version}"
 
-            # Create versioned directory
-            versioned_dir.mkdir(parents=True, exist_ok=True)
+            # Copy entire directory tree from source wheel to versioned directory
+            # This includes all files: .so, .pyx, .pxd, .py, .cpp, etc.
+            print(f"  Copying {wheel_dir / base_dir} to {versioned_dir}", file=sys.stderr)
+            shutil.copytree(wheel_dir / base_dir, versioned_dir, dirs_exist_ok=True)
 
-            # Copy only version-specific binaries (.so, .pyd, .dll files) from the source wheel
-            # Python modules (.py, .pyx, .pxd) remain in cuda/core/
-            # Exclude versioned directories (cu12/, cu13/) to avoid recursion
-            source_dir = wheel_dir / base_dir
-            for item in source_dir.rglob("*"):
-                if item.is_dir():
-                    continue
-
-                # Skip files in versioned directories to avoid recursion
-                rel_path = item.relative_to(source_dir)
-                if any(part in ("cu12", "cu13") for part in rel_path.parts):
-                    continue
-
-                # Copy binaries and Python source files, but NOT Cython source files
-                # Binaries (.so, .pyd, .dll) are version-specific and must be in versioned dirs
-                # Python files (.py) like utils.py may be needed in versioned dirs for imports
-                # Cython files (.pyx, .pxd) should NOT be copied as they reference
-                # version-specific C functions and would cause import errors
-                if item.suffix in (".so", ".pyd", ".dll", ".py"):
-                    dest_item = versioned_dir / rel_path
-                    dest_item.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(item, dest_item)
-
-            # Create empty __init__.py in versioned dirs
+            # Overwrite the __init__.py in versioned dirs to be empty
             (versioned_dir / "__init__.py").touch()
+
+        # The base dir should only contain __init__.py, the _include dir, and the versioned dirs
+        # Remove all other files and directories to ensure Python imports from versioned dirs
+        print("\n=== Removing files from main directory ===", file=sys.stderr)
+        files_to_remove = os.scandir(base_wheel / base_dir)
+        removed_count = 0
+        for f in files_to_remove:
+            f_abspath = f.path
+            # Keep: __init__.py, _include directory, and versioned subdirectories (cu12, cu13)
+            if f.name not in ("__init__.py", "_include", "cu12", "cu13"):
+                if f.is_dir():
+                    print(f"  Removing directory: {f.name}", file=sys.stderr)
+                    shutil.rmtree(f_abspath)
+                    removed_count += 1
+                else:
+                    print(f"  Removing file: {f.name}", file=sys.stderr)
+                    os.remove(f_abspath)
+                    removed_count += 1
+        print(f"Removed {removed_count} items from main directory", file=sys.stderr)
 
         # Repack the merged wheel
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -186,26 +195,7 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
 
         # Debug: Show directory structure of output wheel
         print("\n=== Output wheel directory structure ===", file=sys.stderr)
-        try:
-            with zipfile.ZipFile(merged_wheel, "r") as zf:
-                print(f"{'Length':>10}  {'Date':>12}  {'Time':>8}  Name", file=sys.stderr)
-                print("-" * 80, file=sys.stderr)
-                total_size = 0
-                file_count = 0
-                for name in sorted(zf.namelist()):
-                    if "cuda/core/" in name:
-                        info = zf.getinfo(name)
-                        total_size += info.file_size
-                        file_count += 1
-                        # Format similar to unzip -l output
-                        date_time = info.date_time
-                        date_str = f"{date_time[0]:04d}-{date_time[1]:02d}-{date_time[2]:02d}"
-                        time_str = f"{date_time[3]:02d}:{date_time[4]:02d}:{date_time[5]:02d}"
-                        print(f"{info.file_size:10d}  {date_str}  {time_str}  {name}", file=sys.stderr)
-                print("-" * 80, file=sys.stderr)
-                print(f"{total_size:10d}                    {file_count} files", file=sys.stderr)
-        except Exception as e:
-            print(f"Warning: Could not list wheel contents: {e}", file=sys.stderr)
+        print_wheel_directory_structure(merged_wheel)
 
         return merged_wheel
 
