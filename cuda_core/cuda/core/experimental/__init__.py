@@ -18,7 +18,11 @@ import sys
 #
 # Other extension modules access its functionality via the exported PyCapsule
 # dispatch table, so we don't rely on RTLD_GLOBAL (POSIX-only behavior).
-from cuda.core.experimental import _resource_handles  # noqa: F401
+#
+# Use a relative import to avoid circular-import issues when `cuda.core.experimental`
+# is still being initialized (e.g. when importing submodules like
+# `cuda.core.experimental._utils.cuda_utils`).
+from . import _resource_handles  # noqa: F401
 
 subdir = f"cu{cuda_major}"
 try:
