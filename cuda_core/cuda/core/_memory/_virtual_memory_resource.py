@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 __all__ = ["VirtualMemoryResourceOptions", "VirtualMemoryResource"]
 
-VirtualMemoryHandleTypeT = Union[Literal["posix_fd", "generic", "win32", "win32_kmt", "fabric"], None]
+VirtualMemoryHandleTypeT = Union[Literal["posix_fd", "generic", "win32_kmt", "fabric"], None]
 VirtualMemoryLocationTypeT = Literal["device", "host", "host_numa", "host_numa_current"]
 VirtualMemoryGranularityT = Literal["minimum", "recommended"]
 VirtualMemoryAccessTypeT = Union[Literal["rw", "r"], None]
@@ -81,7 +81,6 @@ class VirtualMemoryResourceOptions:
     _handle_types = {
         None: _h.CU_MEM_HANDLE_TYPE_NONE,
         "posix_fd": _h.CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR,
-        "win32": _h.CU_MEM_HANDLE_TYPE_WIN32,
         "win32_kmt": _h.CU_MEM_HANDLE_TYPE_WIN32_KMT,
         "fabric": _h.CU_MEM_HANDLE_TYPE_FABRIC,
     }
