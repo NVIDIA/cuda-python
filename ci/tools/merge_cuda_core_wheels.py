@@ -143,7 +143,7 @@ def merge_wheels(wheels: List[Path], output_dir: Path, show_wheel_contents: bool
             shutil.copytree(wheel_dir / base_dir, versioned_dir, dirs_exist_ok=True)
 
             # Overwrite the __init__.py in versioned dirs to be empty
-            (versioned_dir / "__init__.py").touch()
+            os.truncate(versioned_dir / "__init__.py", 0)
 
         print("\n=== Removing files from cuda/core/ directory ===", file=sys.stderr)
         items_to_keep = (
