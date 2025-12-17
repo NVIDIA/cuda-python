@@ -5,7 +5,6 @@
 [workspace]
 channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64", "win-64"]
-preview = ["pixi-build"]
 
 [dependencies]
 
@@ -24,24 +23,6 @@ cuda-version = ">=13.1,<14"
 [environments]
 cu12 = { features = ["cu12"], solve-group = "cu12" }
 cu13 = { features = ["cu13"], solve-group = "cu13" }
-
-# Install tasks: Set up all sub-package environments
-# Usage: pixi run install (default) or pixi run -e cu12 install or pixi run -e cu13 install
-# Detects environment from CONDA_DEFAULT_ENV (set by pixi when using -e flag)
-[target.linux.tasks.install-pathfinder]
-cmd = ["bash", "-c", "ENV=\"\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu12\"* ]] && ENV=\"cu12\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu13\"* ]] && ENV=\"cu13\"; cd cuda_pathfinder && pixi ${ENV:+--environment $ENV} install"]
-
-[target.linux.tasks.install-bindings]
-cmd = ["bash", "-c", "ENV=\"\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu12\"* ]] && ENV=\"cu12\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu13\"* ]] && ENV=\"cu13\"; cd cuda_bindings && pixi ${ENV:+--environment $ENV} install"]
-
-[target.linux.tasks.install-core]
-cmd = ["bash", "-c", "ENV=\"\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu12\"* ]] && ENV=\"cu12\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu13\"* ]] && ENV=\"cu13\"; cd cuda_core && pixi ${ENV:+--environment $ENV} install"]
-
-[target.linux.tasks.install]
-cmd = [
-    "bash", "-c",
-    "set -e; ENV=\"\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu12\"* ]] && ENV=\"cu12\"; [[ \"${CONDA_DEFAULT_ENV:-}\" == *\"cu13\"* ]] && ENV=\"cu13\"; cd cuda_pathfinder && pixi ${ENV:+--environment $ENV} install && cd ../cuda_bindings && pixi ${ENV:+--environment $ENV} install && cd ../cuda_core && pixi ${ENV:+--environment $ENV} install"
-]
 
 
 # Test tasks: Run tests (assumes environments are already installed)
@@ -64,32 +45,4 @@ cmd = [
 ]
 
 
-[target.win-64.tasks.install-pathfinder]
-cmd = ["cmd", "/c", "set ENV= && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu12\" >nul && set ENV=cu12 && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu13\" >nul && set ENV=cu13 && cd cuda_pathfinder && (if defined ENV (pixi --environment %ENV% install) else (pixi install))"]
 
-[target.win-64.tasks.install-bindings]
-cmd = ["cmd", "/c", "set ENV= && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu12\" >nul && set ENV=cu12 && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu13\" >nul && set ENV=cu13 && cd cuda_bindings && (if defined ENV (pixi --environment %ENV% install) else (pixi install))"]
-
-[target.win-64.tasks.install-core]
-cmd = ["cmd", "/c", "set ENV= && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu12\" >nul && set ENV=cu12 && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu13\" >nul && set ENV=cu13 && cd cuda_core && (if defined ENV (pixi --environment %ENV% install) else (pixi install))"]
-
-[target.win-64.tasks.install]
-cmd = [
-    "cmd", "/c",
-    "set ENV= && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu12\" >nul && set ENV=cu12 && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu13\" >nul && set ENV=cu13 && cd cuda_pathfinder && (if defined ENV (pixi --environment %ENV% install) else (pixi install)) && cd ..\\cuda_bindings && (if defined ENV (pixi --environment %ENV% install) else (pixi install)) && cd ..\\cuda_core && (if defined ENV (pixi --environment %ENV% install) else (pixi install))"
-]
-
-[target.win-64.tasks.test-pathfinder]
-cmd = ["cmd", "/c", "set ENV= && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu12\" >nul && set ENV=cu12 && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu13\" >nul && set ENV=cu13 && cd cuda_pathfinder && (if defined ENV (pixi run --environment %ENV% test) else (pixi run test))"]
-
-[target.win-64.tasks.test-bindings]
-cmd = ["cmd", "/c", "set ENV= && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu12\" >nul && set ENV=cu12 && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu13\" >nul && set ENV=cu13 && cd cuda_bindings && (if defined ENV (pixi run --environment %ENV% test) else (pixi run test))"]
-
-[target.win-64.tasks.test-core]
-cmd = ["cmd", "/c", "set ENV= && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu12\" >nul && set ENV=cu12 && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu13\" >nul && set ENV=cu13 && cd cuda_core && (if defined ENV (pixi run --environment %ENV% test) else (pixi run test))"]
-
-[target.win-64.tasks.test]
-cmd = [
-    "cmd", "/c",
-    "set ENV= && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu12\" >nul && set ENV=cu12 && echo %CONDA_DEFAULT_ENV% | findstr /C:\"cu13\" >nul && set ENV=cu13 && cd cuda_pathfinder && (if defined ENV (pixi run --environment %ENV% test) else (pixi run test)) && cd ..\\cuda_bindings && (if defined ENV (pixi run --environment %ENV% test) else (pixi run test)) && cd ..\\cuda_core && (if defined ENV (pixi run --environment %ENV% test) else (pixi run test))"
-]
