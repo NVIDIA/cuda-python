@@ -68,7 +68,7 @@ def _build_cuda_core():
 
     # It seems setuptools' wildcard support has problems for namespace packages,
     # so we explicitly spell out all Extension instances.
-    root_module = "cuda.core.experimental"
+    root_module = "cuda.core"
     root_path = f"{os.path.sep}".join(root_module.split(".")) + os.path.sep
     ext_files = glob.glob(f"{root_path}/**/*.pyx", recursive=True)
 
@@ -88,10 +88,10 @@ def _build_cuda_core():
 
     def get_sources(mod_name):
         """Get source files for a module, including any .cpp files."""
-        sources = [f"cuda/core/experimental/{mod_name}.pyx"]
+        sources = [f"cuda/core/{mod_name}.pyx"]
 
         # Add module-specific .cpp file from _cpp/ directory if it exists
-        cpp_file = f"cuda/core/experimental/_cpp/{mod_name.lstrip('_')}.cpp"
+        cpp_file = f"cuda/core/_cpp/{mod_name.lstrip('_')}.cpp"
         if os.path.exists(cpp_file):
             sources.append(cpp_file)
 
@@ -109,11 +109,11 @@ def _build_cuda_core():
 
     ext_modules = tuple(
         Extension(
-            f"cuda.core.experimental.{mod.replace(os.path.sep, '.')}",
+            f"cuda.core.{mod.replace(os.path.sep, '.')}",
             sources=get_sources(mod),
             include_dirs=[
-                "cuda/core/experimental/include",
-                "cuda/core/experimental/_cpp",
+                "cuda/core/_include",
+                "cuda/core/_cpp",
             ]
             + list(os.path.join(root, "include") for root in get_cuda_paths()),
             language="c++",

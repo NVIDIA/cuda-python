@@ -8,8 +8,8 @@ These tests verify multi-type equality behavior and subclassing equality behavio
 across Device, Stream, Event, and Context objects.
 """
 
-from cuda.core.experimental import Device, Stream
-from cuda.core.experimental._stream import StreamOptions
+from cuda.core import Device, Stream
+from cuda.core._stream import StreamOptions
 
 # ============================================================================
 # Equality Contract Tests
