@@ -13,8 +13,6 @@ The experimental namespace will be removed in v1.0.0.
 
 """
 
-import warnings
-
 
 def _warn_deprecated():
     """Emit a deprecation warning for using the experimental namespace.
@@ -23,6 +21,7 @@ def _warn_deprecated():
     Subsequent accesses to attributes (like utils, Device, etc.) do not trigger
     additional warnings since they are already set in the module namespace.
     """
+    import warnings
     warnings.warn(
         "The cuda.core.experimental namespace is deprecated. "
         "Please import directly from cuda.core instead. "
@@ -37,7 +36,6 @@ def _warn_deprecated():
 # Import from new locations and re-export
 _warn_deprecated()
 
-del warnings
 
 from cuda.core import utils  # noqa: E402
 from cuda.core._device import Device  # noqa: E402
