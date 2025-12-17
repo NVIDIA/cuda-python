@@ -118,11 +118,15 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
                 if any(part in ("cu12", "cu13") for part in rel_path.parts):
                     continue
 
-                # copy everything, because modules can't be assembled partially
-                # from other modules of the same name
-                dest_item = versioned_dir / rel_path
-                dest_item.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(item, dest_item)
+                # Copy binaries and Python source files, but NOT Cython source files
+                # Binaries (.so, .pyd, .dll) are version-specific and must be in versioned dirs
+                # Python files (.py) like utils.py may be needed in versioned dirs for imports
+                # Cython files (.pyx, .pxd) should NOT be copied as they reference
+                # version-specific C functions and would cause import errors
+                if item.suffix in (".so", ".pyd", ".dll", ".py"):
+                    dest_item = versioned_dir / rel_path
+                    dest_item.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(item, dest_item)
 
             # Create empty __init__.py in versioned dirs
             (versioned_dir / "__init__.py").touch()
