@@ -9,7 +9,7 @@ This module provides forwarding stubs that import from the new cuda.core.*
 locations and emit deprecation warnings. Users should migrate to importing
 directly from cuda.core instead of cuda.core.experimental.
 
-The experimental namespace will be removed in a future release.
+The experimental namespace will be removed in v1.0.0.
 
 Note: Underscored modules (e.g., _device, _memory) are not public APIs
 and are intentionally not made accessible here.
@@ -30,7 +30,7 @@ def _warn_deprecated():
         "Please import directly from cuda.core instead. "
         "For example, use 'from cuda.core import Device' instead of "
         "'from cuda.core.experimental import Device'. "
-        "The experimental namespace will be removed in a future release.",
+        "The experimental namespace will be removed in v1.0.0.",
         DeprecationWarning,
         stacklevel=3,
     )
