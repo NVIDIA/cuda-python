@@ -45,6 +45,21 @@ try:
 except Exception:
     _cuda_driver_version = 0
 
+
+def _get_nvrtc_version_for_tests():
+    """
+    Get NVRTC version.
+    Returns:
+        int: Version in format major * 1000 + minor * 100 (e.g., 13200 for CUDA 13.2)
+        None: If NVRTC is not available
+    """
+    try:
+        nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
+        version = nvrtc_major * 1000 + nvrtc_minor * 100
+        return version
+    except Exception:
+        return None
+
 _libnvvm_version = None
 _libnvvm_version_attempted = False
 
