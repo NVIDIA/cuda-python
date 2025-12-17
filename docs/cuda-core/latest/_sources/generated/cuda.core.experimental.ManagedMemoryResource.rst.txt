@@ -35,5 +35,6 @@ cuda.core.experimental.ManagedMemoryResource
    .. autoproperty:: is_ipc_enabled
    .. autoproperty:: is_mapped
    .. autoproperty:: peer_accessible_by
+   .. autoproperty:: uuid
    
    

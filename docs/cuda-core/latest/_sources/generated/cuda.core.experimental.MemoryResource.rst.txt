@@ -22,4 +22,11 @@ cuda.core.experimental.MemoryResource
 
    
    
+   .. rubric:: Attributes
+
+   
+   .. autoproperty:: device_id
+   .. autoproperty:: is_device_accessible
+   .. autoproperty:: is_host_accessible
+   
    
