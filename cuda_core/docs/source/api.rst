@@ -6,7 +6,11 @@
 ``cuda.core`` API Reference
 ===========================
 
-This is the main API reference for ``cuda.core``. All APIs are stable and ready for production use.
+This is the main API reference for ``cuda.core``. The package has not yet
+reached version 1.0.0, and APIs may change between minor versions, possibly
+without deprecation warnings. Once version 1.0.0 is released, APIs will
+be considered stable and will follow semantic versioning with appropriate
+deprecation periods for breaking changes.
 
 
 CUDA runtime
