@@ -6,11 +6,11 @@ import re
 import warnings
 
 import pytest
-from cuda.core import _linker
-from cuda.core._device import Device
-from cuda.core._module import Kernel, ObjectCode
-from cuda.core._program import Program, ProgramOptions
-from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
+from cuda.core.experimental import _linker
+from cuda.core.experimental._device import Device
+from cuda.core.experimental._module import Kernel, ObjectCode
+from cuda.core.experimental._program import Program, ProgramOptions
+from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, handle_return
 
 cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
@@ -19,7 +19,7 @@ is_culink_backend = _linker._decide_nvjitlink_or_driver()
 def _is_nvvm_available():
     """Check if NVVM is available."""
     try:
-        from cuda.core._program import _get_nvvm_module
+        from cuda.core.experimental._program import _get_nvvm_module
 
         _get_nvvm_module()
         return True
@@ -32,7 +32,7 @@ nvvm_available = pytest.mark.skipif(
 )
 
 try:
-    from cuda.core._utils.cuda_utils import driver, handle_return, nvrtc
+    from cuda.core.experimental._utils.cuda_utils import driver, handle_return, nvrtc
 
     _cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 except Exception:
@@ -92,7 +92,7 @@ def _get_libnvvm_version_for_tests():
     _libnvvm_version_attempted = True
 
     try:
-        from cuda.core._program import _get_nvvm_module
+        from cuda.core.experimental._program import _get_nvvm_module
 
         nvvm = _get_nvvm_module()
 
@@ -140,7 +140,7 @@ def nvvm_ir():
     fallback assumes no version metadata will be present in
     the input nvvm ir
     """
-    from cuda.core._program import _get_nvvm_module
+    from cuda.core.experimental._program import _get_nvvm_module
 
     nvvm = _get_nvvm_module()
     major, minor, debug_major, debug_minor = nvvm.ir_version()
@@ -415,7 +415,7 @@ def test_program_close():
 @nvvm_available
 def test_nvvm_deferred_import():
     """Test that our deferred NVVM import works correctly"""
-    from cuda.core._program import _get_nvvm_module
+    from cuda.core.experimental._program import _get_nvvm_module
 
     nvvm = _get_nvvm_module()
     assert nvvm is not None

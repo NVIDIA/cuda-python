@@ -4,9 +4,9 @@
 
 import math
 
-import cuda.core
+import cuda.core.experimental
 import pytest
-from cuda.core import (
+from cuda.core.experimental import (
     Device,
     Event,
     EventOptions,
@@ -17,7 +17,7 @@ from helpers.nanosleep_kernel import NanosleepKernel
 
 def test_event_init_disabled():
     with pytest.raises(RuntimeError, match=r"^Event objects cannot be instantiated directly\."):
-        cuda.core._event.Event()  # Ensure back door is locked.
+        cuda.core.experimental._event.Event()  # Ensure back door is locked.
 
 
 def test_timing_success(init_cuda):

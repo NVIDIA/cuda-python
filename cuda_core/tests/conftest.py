@@ -12,8 +12,8 @@ try:
 except ImportError:
     from cuda import cuda as driver
 
-import cuda.core
-from cuda.core import (
+import cuda.core.experimental
+from cuda.core.experimental import (
     Device,
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
@@ -23,7 +23,7 @@ from cuda.core import (
     PinnedMemoryResourceOptions,
     _device,
 )
-from cuda.core._utils.cuda_utils import handle_return
+from cuda.core.experimental._utils.cuda_utils import handle_return
 
 
 def skip_if_pinned_memory_unsupported(device):
@@ -172,7 +172,7 @@ def mempool_device():
 
 
 def _mempool_device_impl(num):
-    num_devices = len(cuda.core.Device.get_all_devices())
+    num_devices = len(cuda.core.experimental.Device.get_all_devices())
     if num_devices < num:
         pytest.skip(f"Test requires at least {num} GPUs")
 

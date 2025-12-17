@@ -11,7 +11,7 @@ try:
     from cuda.bindings import nvrtc
 except ImportError:
     from cuda import nvrtc
-from cuda.core import (
+from cuda.core.experimental import (
     Device,
     GraphBuilder,
     GraphCompleteOptions,
@@ -22,7 +22,7 @@ from cuda.core import (
     ProgramOptions,
     launch,
 )
-from cuda.core._utils.cuda_utils import NVRTCError, handle_return
+from cuda.core.experimental._utils.cuda_utils import NVRTCError, handle_return
 
 
 def _common_kernels():

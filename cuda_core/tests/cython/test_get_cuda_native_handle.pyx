@@ -13,7 +13,7 @@ from cuda.bindings.nvrtc cimport nvrtcProgram as pynvrtcProgram
 from cuda.bindings.cydriver cimport CUstream, CUevent
 from cuda.bindings.cynvrtc cimport nvrtcProgram
 
-from cuda.core import Device, Program
+from cuda.core.experimental import Device, Program
 
 
 cdef extern from "utility.hpp":

@@ -5,7 +5,7 @@
 import time
 
 import pytest
-from cuda.core import Device
+from cuda.core.experimental import Device
 from helpers import IS_WINDOWS, IS_WSL
 from helpers.buffers import PatternGen, compare_equal_buffers, make_scratch_buffer
 from helpers.latch import LatchKernel

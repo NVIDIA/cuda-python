@@ -6,7 +6,7 @@ import pickle
 from itertools import cycle
 
 import pytest
-from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
+from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
 from helpers.buffers import PatternGen
 
 CHILD_TIMEOUT_SEC = 20

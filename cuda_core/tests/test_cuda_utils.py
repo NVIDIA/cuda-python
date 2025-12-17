@@ -4,7 +4,7 @@
 
 import pytest
 from cuda.bindings import driver, runtime
-from cuda.core._utils import cuda_utils
+from cuda.core.experimental._utils import cuda_utils
 
 
 def test_driver_cu_result_explanations_health():

@@ -5,8 +5,8 @@ import multiprocessing
 import pickle
 import re
 
-from cuda.core import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
-from cuda.core._utils.cuda_utils import CUDAError
+from cuda.core.experimental import Buffer, Device, DeviceMemoryResource, DeviceMemoryResourceOptions
+from cuda.core.experimental._utils.cuda_utils import CUDAError
 
 CHILD_TIMEOUT_SEC = 20
 NBYTES = 64

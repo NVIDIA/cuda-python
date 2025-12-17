@@ -7,7 +7,7 @@ import glob
 import os
 
 import pytest
-from cuda.core import Device
+from cuda.core.experimental import Device
 
 from .utils import run_example
 
