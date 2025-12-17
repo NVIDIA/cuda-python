@@ -43,6 +43,7 @@ None.
 Fixes and enhancements
 ----------------------
 
+- Cythonized :func:`launch` and :class:`LaunchConfig` for improved performance.
 - Python ``bool`` objects are now converted to C++ ``bool`` type when passed as kernel
   arguments.  Previously, they were converted to ``int``.  This brings them inline
   with ``ctypes.c_bool`` and ``numpy.bool_``.
