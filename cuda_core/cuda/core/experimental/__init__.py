@@ -69,10 +69,6 @@ from cuda.core._memory import (  # noqa: E402
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
-from cuda.core._memoryview import (  # noqa: E402
-    StridedMemoryView,  # noqa: E402
-    args_viewable_as_strided_memory,  # noqa: E402
-)
 from cuda.core._module import Kernel, ObjectCode  # noqa: E402
 from cuda.core._program import Program, ProgramOptions  # noqa: E402
 from cuda.core._stream import Stream, StreamOptions  # noqa: E402
