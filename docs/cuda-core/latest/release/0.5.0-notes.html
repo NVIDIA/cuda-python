@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core 0.3.2 Release Notes &#8212; cuda.core</title>
+    <title>cuda.core 0.5.0 Release Notes &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'release/0.3.2-notes';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release/0.5.0-notes';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,13 +58,12 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/release/0.3.2-notes.html" />
+    <link rel="canonical" href="docs/release/0.5.0-notes.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core 0.4.0 Release Notes" href="0.4.0-notes.html" />
-    <link rel="prev" title="cuda.core 0.3.1 Release Notes" href="0.3.1-notes.html" />
+    <link rel="prev" title="cuda.core 0.4.2 Release Notes" href="0.4.2-notes.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -504,11 +503,11 @@
 </ul>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="0.5.0-notes.html">0.5.0</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">0.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.4.2-notes.html">0.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.4.1-notes.html">0.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.4.0-notes.html">0.4.0</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">0.3.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="0.3.2-notes.html">0.3.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.3.1-notes.html">0.3.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.3.0-notes.html">0.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.2.0-notes.html">0.2.0</a></li>
@@ -553,7 +552,7 @@
     
     <li class="breadcrumb-item"><a href="../release.html" class="nav-link">Release Notes</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.2 Release Notes</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.5.0 Release Notes</span></li>
   </ul>
 </nav>
 </div>
@@ -570,24 +569,49 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-0-3-2-release-notes">
-<h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.2 Release Notes<a class="headerlink" href="#cuda-core-0-3-2-release-notes" title="Link to this heading">#</a></h1>
-<p>Released on Aug 7, 2025</p>
+  <section id="cuda-core-0-5-0-release-notes">
+<h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.5.0 Release Notes<a class="headerlink" href="#cuda-core-0-5-0-release-notes" title="Link to this heading">#</a></h1>
 <section id="highlights">
 <h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Support CUDA 13. <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cuda-core[cu13]</span></code> also works now.</p></li>
-<li><p>This is the last release that officially supports CUDA 11.</p></li>
+<li><p>Added memory management support (allocation, deallocation, copy, and fill) for CUDA graphs.</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.experimental.PinnedMemoryResource.html#cuda.core.experimental.PinnedMemoryResource" title="cuda.core.experimental.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> and <a class="reference internal" href="../generated/cuda.core.experimental.ManagedMemoryResource.html#cuda.core.experimental.ManagedMemoryResource" title="cuda.core.experimental.ManagedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a> for advanced memory management.</p></li>
+<li><p>Added peer access control to <a class="reference internal" href="../generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource" title="cuda.core.experimental.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a>.</p></li>
+<li><p>Reduced Python overhead and improved performance for calling <a class="reference internal" href="../generated/cuda.core.experimental.launch.html#cuda.core.experimental.launch" title="cuda.core.experimental.launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code></a>, constructing <a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig" title="cuda.core.experimental.LaunchConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a>, and accessing <a class="reference internal" href="../generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource" title="cuda.core.experimental.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a> attributes.</p></li>
 </ul>
 </section>
 <section id="breaking-changes">
 <h2>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
-<p>None.</p>
+<p>The support for setting <a class="reference internal" href="../generated/cuda.core.experimental.VirtualMemoryResourceOptions.html#cuda.core.experimental.VirtualMemoryResourceOptions.handle_type" title="cuda.core.experimental.VirtualMemoryResourceOptions.handle_type"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VirtualMemoryResourceOptions.handle_type</span></code></a> to <code class="docutils literal notranslate"><span class="pre">&quot;win32&quot;</span></code> is removed. Please reach out to us on GitHub if you have a use case.</p>
+<p>The following APIs have been deprecated and will be removed in 0.6.0:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.driver_version</span></code> has been replaced with
+<code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.get_driver_version()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.num_devices</span></code> has been replaced with
+<code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.get_num_devices()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.system.devices</span></code> has been replaced with
+<code class="docutils literal notranslate"><span class="pre">cuda.core.experimental.Device.get_all_devices()</span></code>.</p></li>
+</ul>
+<p>Other changes:</p>
+<ul class="simple">
+<li><p>The <a class="reference internal" href="../generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView.__init__" title="cuda.core.experimental.utils.StridedMemoryView.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">utils.StridedMemoryView.__init__()</span></code></a> constructor is deprecated in favor of the new <code class="docutils literal notranslate"><span class="pre">from_*</span></code> classmethods, see below.</p></li>
+<li><p>Support for Python 3.9 and 3.13t is dropped.</p></li>
+</ul>
 </section>
 <section id="new-features">
 <h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../generated/cuda.core.experimental.Stream.html#cuda.core.experimental.Stream" title="cuda.core.experimental.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a> and <a class="reference internal" href="../generated/cuda.core.experimental.Event.html#cuda.core.experimental.Event" title="cuda.core.experimental.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> can be subclassed now.</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.experimental.GraphMemoryResource.html#cuda.core.experimental.GraphMemoryResource" title="cuda.core.experimental.GraphMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a> for allocating and deallocating memory when building a CUDA graph.</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.experimental.PinnedMemoryResource.html#cuda.core.experimental.PinnedMemoryResource" title="cuda.core.experimental.PinnedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a> and <a class="reference internal" href="../generated/cuda.core.experimental.PinnedMemoryResourceOptions.html#cuda.core.experimental.PinnedMemoryResourceOptions" title="cuda.core.experimental.PinnedMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions</span></code></a> for managing host-pinned memory pools with optional IPC support.</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.experimental.ManagedMemoryResource.html#cuda.core.experimental.ManagedMemoryResource" title="cuda.core.experimental.ManagedMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a> and <a class="reference internal" href="../generated/cuda.core.experimental.ManagedMemoryResourceOptions.html#cuda.core.experimental.ManagedMemoryResourceOptions" title="cuda.core.experimental.ManagedMemoryResourceOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions</span></code></a> for managing unified memory pools accessible from both host and device.</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer.fill" title="cuda.core.experimental.Buffer.fill"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Buffer.fill()</span></code></a> method for efficient memory initialization, supporting <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">bytes</span></code>,  and general buffer protocol objects.</p></li>
+<li><p><a class="reference internal" href="../generated/cuda.core.experimental.Buffer.html#cuda.core.experimental.Buffer" title="cuda.core.experimental.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> can now wrap external memory allocations with an owner object.</p></li>
+<li><p>Added alternative constructors <a class="reference internal" href="../generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView.from_buffer" title="cuda.core.experimental.utils.StridedMemoryView.from_buffer"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_buffer()</span></code></a>, <a class="reference internal" href="../generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView.from_dlpack" title="cuda.core.experimental.utils.StridedMemoryView.from_dlpack"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_dlpack()</span></code></a>, and <a class="reference internal" href="../generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView.from_cuda_array_interface" title="cuda.core.experimental.utils.StridedMemoryView.from_cuda_array_interface"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_cuda_array_interface()</span></code></a>
+and a new property <a class="reference internal" href="../generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView.size" title="cuda.core.experimental.utils.StridedMemoryView.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">size</span></code></a> for <a class="reference internal" href="../generated/cuda.core.experimental.utils.StridedMemoryView.html#cuda.core.experimental.utils.StridedMemoryView" title="cuda.core.experimental.utils.StridedMemoryView"><code class="xref py py-class docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a>.</p></li>
+<li><p>Added <code class="xref py py-meth docutils literal notranslate"><span class="pre">ProgramOptions.as_bytes()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">LinkerOptions.as_bytes()</span></code> public APIs for converting options to backend-specific byte representations.</p></li>
+<li><p>Updated <a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> constructor to accept either a <a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device" title="cuda.core.experimental.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> instance or a device ordinal (<code class="docutils literal notranslate"><span class="pre">int</span></code>).</p></li>
+<li><p>Added <a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.get_all_devices" title="cuda.core.experimental.Device.get_all_devices"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.get_all_devices()</span></code></a> classmethod.</p></li>
+<li><p>IPC-imported buffers can now be re-exported to other processes.</p></li>
 </ul>
 </section>
 <section id="new-examples">
@@ -597,7 +621,15 @@
 <section id="fixes-and-enhancements">
 <h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../generated/cuda.core.experimental.Device.html#cuda.core.experimental.Device.set_current" title="cuda.core.experimental.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a> is made faster.</p></li>
+<li><p>Most CUDA resources can be hashed now.</p></li>
+<li><p>Python <code class="docutils literal notranslate"><span class="pre">bool</span></code> objects are now converted to C++ <code class="docutils literal notranslate"><span class="pre">bool</span></code> type when passed as kernel arguments (previously converted to <code class="docutils literal notranslate"><span class="pre">int</span></code>).</p></li>
+<li><p>Restored v0.3.x <a class="reference internal" href="../generated/cuda.core.experimental.MemoryResource.html#cuda.core.experimental.MemoryResource" title="cuda.core.experimental.MemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemoryResource</span></code></a> behaviors and missing MR attributes for backward compatibility.</p></li>
+<li><p>Added warning when multiprocessing start method is set to <code class="docutils literal notranslate"><span class="pre">'fork'</span></code>.</p></li>
+<li><p>Fixed potential memory leaks when DLPack capsule creation is interrupted.</p></li>
+<li><p>Fixed <a class="reference internal" href="../generated/cuda.core.experimental.VirtualMemoryResource.html#cuda.core.experimental.VirtualMemoryResource" title="cuda.core.experimental.VirtualMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">VirtualMemoryResource</span></code></a> on Windows platforms.</p></li>
+<li><p>Fixed NVRTC program name handling on Windows to avoid filesystem issues.</p></li>
+<li><p>Improved test determinism by replacing OS sleep with GPU nanosleep kernel in event timing tests.</p></li>
+<li><p>Fixed CUDA graph issues with <code class="docutils literal notranslate"><span class="pre">cuda-python==12.6.*</span></code>.</p></li>
 </ul>
 </section>
 </section>
@@ -613,22 +645,13 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="0.3.1-notes.html"
+       href="0.4.2-notes.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.3.1 Release Notes</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.4.2 Release Notes</p>
       </div>
-    </a>
-    <a class="right-next"
-       href="0.4.0-notes.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.4.0 Release Notes</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>

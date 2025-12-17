@@ -1,0 +1,35 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.experimental.GraphMemoryResource
+==========================================
+
+.. currentmodule:: cuda.core.experimental
+
+.. autoclass:: GraphMemoryResource
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: allocate
+   .. automethod:: close
+   .. automethod:: deallocate
+   .. automethod:: trim
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoproperty:: attributes
+   .. autoproperty:: device_id
+   .. autoproperty:: is_device_accessible
+   .. autoproperty:: is_host_accessible
+   
+   

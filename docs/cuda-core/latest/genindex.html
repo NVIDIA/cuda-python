@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=ff822928"></script>
+    <script src="_static/documentation_options.js?v=1dd76d02"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -465,6 +465,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.Event.html">cuda.core.experimental.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.GraphMemoryResource.html">cuda.core.experimental.GraphMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.PinnedMemoryResource.html">cuda.core.experimental.PinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.ManagedMemoryResource.html">cuda.core.experimental.ManagedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
@@ -496,6 +497,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/0.5.0-notes.html">0.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.4.2-notes.html">0.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.4.1-notes.html">0.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release/0.4.0-notes.html">0.4.0</a></li>
@@ -593,6 +595,8 @@
 </li>
         <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.__init__">(cuda.core.experimental.GraphBuilder method)</a>
 </li>
+        <li><a href="generated/cuda.core.experimental.GraphMemoryResource.html#cuda.core.experimental.GraphMemoryResource.__init__">(cuda.core.experimental.GraphMemoryResource method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental.Kernel.html#cuda.core.experimental.Kernel.__init__">(cuda.core.experimental.Kernel method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html#cuda.core.experimental.LegacyPinnedMemoryResource.__init__">(cuda.core.experimental.LegacyPinnedMemoryResource method)</a>
@@ -632,6 +636,8 @@
 
       <ul>
         <li><a href="generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource.allocate">(cuda.core.experimental.DeviceMemoryResource method)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphMemoryResource.html#cuda.core.experimental.GraphMemoryResource.allocate">(cuda.core.experimental.GraphMemoryResource method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html#cuda.core.experimental.LegacyPinnedMemoryResource.allocate">(cuda.core.experimental.LegacyPinnedMemoryResource method)</a>
 </li>
@@ -720,6 +726,8 @@
         <li><a href="generated/cuda.core.experimental.Graph.html#cuda.core.experimental.Graph.close">(cuda.core.experimental.Graph method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.GraphBuilder.html#cuda.core.experimental.GraphBuilder.close">(cuda.core.experimental.GraphBuilder method)</a>
+</li>
+        <li><a href="generated/cuda.core.experimental.GraphMemoryResource.html#cuda.core.experimental.GraphMemoryResource.close">(cuda.core.experimental.GraphMemoryResource method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.Linker.html#cuda.core.experimental.Linker.close">(cuda.core.experimental.Linker method)</a>
 </li>
@@ -811,6 +819,8 @@
       <li><a href="generated/cuda.core.experimental.DeviceMemoryResource.html#cuda.core.experimental.DeviceMemoryResource.deallocate">deallocate() (cuda.core.experimental.DeviceMemoryResource method)</a>
 
       <ul>
+        <li><a href="generated/cuda.core.experimental.GraphMemoryResource.html#cuda.core.experimental.GraphMemoryResource.deallocate">(cuda.core.experimental.GraphMemoryResource method)</a>
+</li>
         <li><a href="generated/cuda.core.experimental.LegacyPinnedMemoryResource.html#cuda.core.experimental.LegacyPinnedMemoryResource.deallocate">(cuda.core.experimental.LegacyPinnedMemoryResource method)</a>
 </li>
         <li><a href="generated/cuda.core.experimental.ManagedMemoryResource.html#cuda.core.experimental.ManagedMemoryResource.deallocate">(cuda.core.experimental.ManagedMemoryResource method)</a>
@@ -1021,6 +1031,8 @@
       <li><a href="generated/cuda.core.experimental.GraphCompleteOptions.html#cuda.core.experimental.GraphCompleteOptions">GraphCompleteOptions (class in cuda.core.experimental)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.GraphDebugPrintOptions.html#cuda.core.experimental.GraphDebugPrintOptions">GraphDebugPrintOptions (class in cuda.core.experimental)</a>
+</li>
+      <li><a href="generated/cuda.core.experimental.GraphMemoryResource.html#cuda.core.experimental.GraphMemoryResource">GraphMemoryResource (class in cuda.core.experimental)</a>
 </li>
       <li><a href="generated/cuda.core.experimental.LaunchConfig.html#cuda.core.experimental.LaunchConfig.grid">grid (cuda.core.experimental.LaunchConfig attribute)</a>
 </li>
@@ -1447,6 +1459,10 @@
         <li><a href="generated/cuda.core.experimental.ProgramOptions.html#cuda.core.experimental.ProgramOptions.time">(cuda.core.experimental.ProgramOptions attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.experimental.GraphMemoryResource.html#cuda.core.experimental.GraphMemoryResource.trim">trim() (cuda.core.experimental.GraphMemoryResource method)</a>
+</li>
   </ul></td>
 </tr></table>
 
