@@ -7,7 +7,7 @@ from __future__ import annotations
 import weakref
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Tuple, Union
+from typing import TYPE_CHECKING, Union
 from warnings import warn
 
 if TYPE_CHECKING:
