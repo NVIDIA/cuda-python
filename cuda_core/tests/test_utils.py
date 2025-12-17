@@ -413,3 +413,23 @@ def test_view_sliced_external_negative_offset(stride_order, view_as):
     assert sliced_view._layout.itemsize == a_sliced.itemsize == layout.itemsize
     assert sliced_view.shape == a_sliced.shape
     assert sliced_view._layout.strides_in_bytes == a_sliced.strides
+
+
+@pytest.mark.parametrize(
+    "api",
+    [
+        StridedMemoryView.from_dlpack,
+        StridedMemoryView.from_cuda_array_interface,
+    ],
+)
+@pytest.mark.parametrize("shape", [(0,), (0, 0), (0, 0, 0)])
+@pytest.mark.parametrize("dtype", [np.int64, np.uint8, np.float64])
+def test_view_zero_size_array(api, shape, dtype):
+    cp = pytest.importorskip("cupy")
+
+    x = cp.empty(shape, dtype=dtype)
+    smv = api(x, stream_ptr=0)
+
+    assert smv.size == 0
+    assert smv.shape == shape
+    assert smv.dtype == np.dtype(dtype)

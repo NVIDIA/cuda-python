@@ -582,10 +582,13 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
     buf.dl_tensor = NULL
     buf.ptr, buf.readonly = cai_data["data"]
     buf.is_device_accessible = True
-    buf.device_id = handle_return(
-        driver.cuPointerGetAttribute(
-            driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
-            buf.ptr))
+    if buf.ptr != 0:
+        buf.device_id = handle_return(
+            driver.cuPointerGetAttribute(
+                driver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
+                buf.ptr))
+    else:
+        buf.device_id = handle_return(driver.cuCtxGetDevice())
 
     cdef intptr_t producer_s, consumer_s
     stream_ptr = int(stream_ptr)
