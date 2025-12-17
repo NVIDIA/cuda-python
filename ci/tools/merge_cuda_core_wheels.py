@@ -25,6 +25,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
 from pathlib import Path
 from typing import List
 
@@ -44,6 +45,37 @@ def run_command(cmd: List[str], cwd: Path = None, env: dict = os.environ) -> sub
         result.check_returncode()
 
     return result
+
+
+def print_wheel_directory_structure(wheel_path: Path, filter_prefix: str = "cuda/core/", label: str = None):
+    """Print the directory structure of a wheel file, similar to unzip -l output.
+
+    Args:
+        wheel_path: Path to the wheel file to inspect
+        filter_prefix: Only show files matching this prefix (default: "cuda/core/")
+        label: Optional label to print before the structure (e.g., "Input wheel 1: name.whl")
+    """
+    if label:
+        print(f"\n--- {label} ---", file=sys.stderr)
+    try:
+        with zipfile.ZipFile(wheel_path, "r") as zf:
+            print(f"{'Length':>10}  {'Date':>12}  {'Time':>8}  Name", file=sys.stderr)
+            print("-" * 80, file=sys.stderr)
+            total_size = 0
+            file_count = 0
+            for name in sorted(zf.namelist()):
+                if filter_prefix in name:
+                    info = zf.getinfo(name)
+                    total_size += info.file_size
+                    file_count += 1
+                    date_time = info.date_time
+                    date_str = f"{date_time[0]:04d}-{date_time[1]:02d}-{date_time[2]:02d}"
+                    time_str = f"{date_time[3]:02d}:{date_time[4]:02d}:{date_time[5]:02d}"
+                    print(f"{info.file_size:10d}  {date_str}  {time_str}  {name}", file=sys.stderr)
+            print("-" * 80, file=sys.stderr)
+            print(f"{total_size:10d}                    {file_count} files", file=sys.stderr)
+    except Exception as e:
+        print(f"Warning: Could not list wheel contents: {e}", file=sys.stderr)
 
 
 def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
@@ -90,6 +122,11 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
             extract_dir = expected_name
 
             extracted_wheels.append(extract_dir)
+
+        # Debug: Show directory structure of input wheels
+        print("\n=== Input wheel directory structures ===", file=sys.stderr)
+        for i, wheel in enumerate(wheels):
+            print_wheel_directory_structure(wheel, label=f"Input wheel {i + 1}: {wheel.name}")
 
         # Use the first wheel as the base and merge binaries from others
         base_wheel = extracted_wheels[0]
@@ -142,6 +179,11 @@ def merge_wheels(wheels: List[Path], output_dir: Path) -> Path:
 
         merged_wheel = output_wheels[0]
         print(f"Successfully merged wheel: {merged_wheel}", file=sys.stderr)
+
+        # Debug: Show directory structure of output wheel
+        print("\n=== Output wheel directory structure ===", file=sys.stderr)
+        print_wheel_directory_structure(merged_wheel)
+
         return merged_wheel
 
 
