@@ -1,0 +1,36 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.experimental.utils.StridedMemoryView
+==============================================
+
+.. currentmodule:: cuda.core.experimental.utils
+
+.. autoclass:: StridedMemoryView
+
+   
+   
+   
+   .. autoattribute:: dtype
+   .. autoattribute:: shape
+   .. autoattribute:: size
+   .. autoattribute:: strides
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: copy_from
+   .. automethod:: copy_to
+   .. automethod:: from_any_interface
+   .. automethod:: from_buffer
+   .. automethod:: from_cuda_array_interface
+   .. automethod:: from_dlpack
+   .. automethod:: view
+
+   
+   
