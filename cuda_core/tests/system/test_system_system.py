@@ -6,13 +6,13 @@
 
 from .conftest import skip_if_nvml_unsupported
 
-pytestmark = skip_if_nvml_unsupported
-
 import os
 
 import pytest
-from cuda.bindings import _nvml as nvml
 from cuda.core import system
+
+if system.HAS_WORKING_NVML:
+    from cuda.bindings import _nvml as nvml
 
 
 def test_cuda_driver_version():
@@ -26,7 +26,8 @@ def test_cuda_driver_version():
     assert 0 <= ver_patch <= 9
 
 
-def test_driver_version():
+@skip_if_nvml_unsupported
+def test_gpu_driver_version():
     driver_version = system.get_gpu_driver_version()
     assert isinstance(driver_version, tuple)
     assert len(driver_version) in (2, 3)
@@ -38,6 +39,7 @@ def test_driver_version():
         assert 0 <= ver_patch[0] <= 99
 
 
+@skip_if_nvml_unsupported
 def test_nvml_version():
     nvml_version = system.get_nvml_version()
     assert isinstance(nvml_version, tuple)
@@ -51,6 +53,7 @@ def test_nvml_version():
         assert 0 <= ver_patch[0] <= 99
 
 
+@skip_if_nvml_unsupported
 def test_get_process_name():
     try:
         process_name = system.get_process_name(os.getpid())

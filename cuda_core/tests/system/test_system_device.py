@@ -13,12 +13,15 @@ import re
 import sys
 
 import pytest
-from cuda.bindings import _nvml as nvml
 from cuda.core import system
 from cuda.core.system import device as system_device
 
-if system.get_num_devices() == 0:
-    pytest.skip("No GPUs available to run device tests", allow_module_level=True)
+
+if system.HAS_WORKING_NVML:
+    from cuda.bindings import _nvml as nvml
+
+    if system.get_num_devices() == 0:
+        pytest.skip("No GPUs available to run device tests", allow_module_level=True)
 
 
 def test_device_index_handle():
