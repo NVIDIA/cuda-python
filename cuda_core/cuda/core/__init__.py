@@ -62,4 +62,3 @@ from cuda.core._memoryview import (  # noqa: E402
 from cuda.core._module import Kernel, ObjectCode  # noqa: E402
 from cuda.core._program import Program, ProgramOptions  # noqa: E402
 from cuda.core._stream import Stream, StreamOptions  # noqa: E402
-

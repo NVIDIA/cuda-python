@@ -16,7 +16,6 @@ import pytest
 from cuda.core import system
 from cuda.core.system import device as system_device
 
-
 if system.HAS_WORKING_NVML:
     from cuda.bindings import _nvml as nvml
 

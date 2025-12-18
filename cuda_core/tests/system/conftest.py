@@ -4,9 +4,7 @@
 
 
 import pytest
-
 from cuda.core import system
-
 
 skip_if_nvml_unsupported = pytest.mark.skipif(
     not system.HAS_WORKING_NVML, reason="NVML support requires cuda.bindings version 12.9.6+ or 13.1.2+"

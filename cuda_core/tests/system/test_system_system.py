@@ -4,12 +4,12 @@
 
 # ruff: noqa: E402
 
-from .conftest import skip_if_nvml_unsupported
-
 import os
 
 import pytest
 from cuda.core import system
+
+from .conftest import skip_if_nvml_unsupported
 
 if system.HAS_WORKING_NVML:
     from cuda.bindings import _nvml as nvml
