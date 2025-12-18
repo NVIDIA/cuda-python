@@ -32,7 +32,7 @@ if [[ "${test_module}" == "pathfinder" ]]; then
   echo "Running pathfinder tests with " \
       "LD:${CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS} " \
       "FH:${CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS}"
-  pytest -ra -s -v tests/ |& tee /tmp/pathfinder_test_log.txt
+  pytest -ra -s -v --durations=0 tests/ |& tee /tmp/pathfinder_test_log.txt
   # Fail if no "INFO test_" lines are found; capture line count otherwise
   line_count=$(grep '^INFO test_' /tmp/pathfinder_test_log.txt | wc -l)
   echo "Number of \"INFO test_\" lines: $line_count"
@@ -46,9 +46,9 @@ elif [[ "${test_module}" == "bindings" ]]; then
     pip install $(ls "${CUDA_BINDINGS_ARTIFACTS_DIR}"/*.whl)[all] --group test
   fi
   echo "Running bindings tests"
-  ${SANITIZER_CMD} pytest -rxXs -v tests/
+  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 tests/
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v tests/cython
+    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 tests/cython
   fi
   popd
 elif [[ "${test_module}" == "core" ]]; then
@@ -79,11 +79,11 @@ elif [[ "${test_module}" == "core" ]]; then
     pip install $(ls "${CUDA_CORE_ARTIFACTS_DIR}"/*.whl)["cu${TEST_CUDA_MAJOR}"] --group "test-cu${TEST_CUDA_MAJOR}${FREE_THREADING}"
   fi
   echo "Running core tests"
-  ${SANITIZER_CMD} pytest -rxXs -v tests/
+  ${SANITIZER_CMD} pytest -rxXs -v --durations=0 tests/
   # Currently our CI always installs the latest bindings (from either major version).
   # This is not compatible with the test requirements.
   if [[ "${SKIP_CYTHON_TEST}" == 0 ]]; then
-    ${SANITIZER_CMD} pytest -rxXs -v tests/cython
+    ${SANITIZER_CMD} pytest -rxXs -v --durations=0 tests/cython
   fi
   popd
 fi
