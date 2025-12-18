@@ -11,8 +11,6 @@ from typing import Union
 
 from cuda.core._utils.cuda_utils import handle_return
 
-from ._version import __version__
-
 __all__ = [
     "IS_WINDOWS",
     "IS_WSL",
