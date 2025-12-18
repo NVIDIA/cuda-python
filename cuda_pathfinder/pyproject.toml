@@ -75,7 +75,8 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/pathfinder/_version.py"
-tag_regex = "^cuda-pathfinder-(?P<version>v\\d+\\.\\d+\\.\\d+((a|b|rc)\\d+)?)$"
+# We deliberately do not want to include the version suffixes (a/b/rc) in cuda-pathfinder versioning
+tag_regex = "^cuda-pathfinder-(?P<version>v\\d+\\.\\d+\\.\\d+)"
 git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-pathfinder-v*[0-9]*" ]
 
 [tool.pytest.ini_options]

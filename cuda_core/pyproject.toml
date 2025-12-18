@@ -81,7 +81,8 @@ readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 [tool.setuptools_scm]
 root = ".."
 version_file = "cuda/core/_version.py"
-tag_regex = "^cuda-core-(?P<version>v\\d+\\.\\d+\\.\\d+((a|b|rc)\\d+)?)$"
+# We deliberately do not want to include the version suffixes (a/b/rc) in cuda-core versioning
+tag_regex = "^cuda-core-(?P<version>v\\d+\\.\\d+\\.\\d+)"
 git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-core-v*[0-9]*"]
 
 [tool.cibuildwheel]
