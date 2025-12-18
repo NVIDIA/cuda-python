@@ -6,14 +6,15 @@
 channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64", "win-64"]
 
-[dependencies]
-
 [feature.cu12.dependencies]
 [feature.cu13.dependencies]
 
 [environments]
 cu12 = { features = ["cu12"] }
 cu13 = { features = ["cu13"] }
+
+[activation.env]
+PIXI_ENVIRONMENT_NAME = "${PIXI_ENVIRONMENT_NAME/default/cu13}"
 
 # Test Tasks
 # Runs tests across all sub-packages: pathfinder → bindings → core (dependency order)
