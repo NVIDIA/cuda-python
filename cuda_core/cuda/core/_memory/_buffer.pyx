@@ -25,10 +25,7 @@ from cuda.core._resource_handles cimport (
 
 _init_handles_table()
 from cuda.core._stream cimport Stream_accept, Stream
-from cuda.core._utils.cuda_utils cimport (
-    _check_driver_error as raise_if_driver_error,
-    HANDLE_RETURN,
-)
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import sys
 from typing import TypeVar, Union
