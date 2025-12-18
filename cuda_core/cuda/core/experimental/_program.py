@@ -102,6 +102,47 @@ def _get_nvvm_module():
         _nvvm_module = None
         raise e
 
+def _find_libdevice_path():
+    """
+    Find libdevice.10.bc using cuda.bindings.path_finder.
+    
+    Returns:
+        str: Path to libdevice.10.bc, or None if not found
+    """
+    try:
+        from cuda.bindings.path_finder import (
+            get_nvidia_libdevice_ctk,
+            get_libdevice_wheel,
+            get_debian_pkg_libdevice,
+        )
+        
+        for getter in [get_nvidia_libdevice_ctk, get_libdevice_wheel, get_debian_pkg_libdevice]:
+            try:
+                result = getter()
+                if result is not None and result.info is not None:
+                    return result.info
+            except Exception:
+                continue
+        
+        return None
+    except ImportError:
+        import os
+        
+        # CUDA_HOME
+        cuda_home = os.environ.get("CUDA_HOME") or os.environ.get("CUDA_PATH")
+        if cuda_home:
+            libdevice_path = os.path.join(cuda_home, "nvvm", "libdevice", "libdevice.10.bc")
+            if os.path.isfile(libdevice_path):
+                return libdevice_path
+        
+        # Linux paths
+        for base in ["/usr/local/cuda", "/opt/cuda"]:
+            libdevice_path = os.path.join(base, "nvvm", "libdevice", "libdevice.10.bc")
+            if os.path.isfile(libdevice_path):
+                return libdevice_path
+        
+        return None
+
 
 def _process_define_macro_inner(formatted_options, macro):
     if isinstance(macro, str):
@@ -352,6 +393,7 @@ class ProgramOptions:
     pch_messages: bool | None = None
     instantiate_templates_in_pch: bool | None = None
     numba_debug: bool | None = None  # Custom option for Numba debugging
+    use_libdevice: bool | None = None # Use libdevice
 
     def __post_init__(self):
         self._name = self.name.encode()
@@ -748,7 +790,8 @@ class Program:
 
                     nvvm.add_module_to_program(self._mnff.handle, module_source, len(module_source), module_name)
                     self._module_count += 1
-
+                    
+            self._use_libdevice = options.use_libdevice
             self._backend = "NVVM"
             self._linker = None
 
@@ -866,6 +909,19 @@ class Program:
             nvvm = _get_nvvm_module()
             with _nvvm_exception_manager(self):
                 nvvm.verify_program(self._mnff.handle, len(nvvm_options), nvvm_options)
+                # Invoke libdevice
+                if getattr(self, '_use_libdevice', False):
+                    libdevice_path = _find_libdevice_path()
+                    if libdevice_path is None:
+                        raise RuntimeError(
+                            "use_libdevice=True but could not find libdevice.10.bc. "
+                            "Ensure CUDA toolkit is installed."
+                        )
+                    with open(libdevice_path, "rb") as f:
+                        libdevice_bc = f.read()
+                    # Use lazy_add_module for libdevice bitcode only following numba-cuda
+                    nvvm.lazy_add_module_to_program(self._mnff.handle, libdevice_bc, len(libdevice_bc), None)
+                
                 nvvm.compile_program(self._mnff.handle, len(nvvm_options), nvvm_options)
 
             size = nvvm.get_compiled_result_size(self._mnff.handle)
