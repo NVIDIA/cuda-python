@@ -8,6 +8,7 @@
 #include "resource_handles_cxx_api.hpp"
 #include <cuda.h>
 #include <cstdint>
+#include <cstring>
 #include <mutex>
 #include <unordered_map>
 #include <vector>
@@ -704,58 +705,97 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
 // The first cuMemFreeAsync incorrectly unmaps the memory even when the pointer
 // was imported multiple times. We work around this by caching imported pointers
 // and returning the same handle for duplicate imports.
+//
+// The cache key is the export_data bytes (CUmemPoolPtrExportData), not the
+// returned pointer, because we must check the cache BEFORE calling
+// cuMemPoolImportPointer (which fails with CUDA_ERROR_ALREADY_MAPPED if
+// the pointer is already imported).
 
 // TODO: When driver fix is available, add version check here to bypass cache.
 static bool use_ipc_ptr_cache() {
     return true;
 }
 
+// Wrapper for CUmemPoolPtrExportData to use as map key
+struct ExportDataKey {
+    CUmemPoolPtrExportData data;
+
+    bool operator==(const ExportDataKey& other) const {
+        return std::memcmp(&data, &other.data, sizeof(data)) == 0;
+    }
+};
+
+struct ExportDataKeyHash {
+    std::size_t operator()(const ExportDataKey& key) const {
+        // Simple hash of the bytes
+        std::size_t h = 0;
+        const auto* bytes = reinterpret_cast<const unsigned char*>(&key.data);
+        for (std::size_t i = 0; i < sizeof(key.data); ++i) {
+            h = h * 31 + bytes[i];
+        }
+        return h;
+    }
+};
+
 static std::mutex ipc_ptr_cache_mutex;
-static std::unordered_map<CUdeviceptr, std::weak_ptr<DevicePtrBox>> ipc_ptr_cache;
+static std::unordered_map<ExportDataKey, std::weak_ptr<DevicePtrBox>, ExportDataKeyHash> ipc_ptr_cache;
 
 DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) {
     if (!ensure_driver_loaded()) {
         err = CUDA_ERROR_NOT_INITIALIZED;
         return {};
     }
-    GILReleaseGuard gil;
-    CUdeviceptr ptr;
+
     auto data = const_cast<CUmemPoolPtrExportData*>(
         reinterpret_cast<const CUmemPoolPtrExportData*>(export_data));
-    if (CUDA_SUCCESS != (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {
-        return {};
-    }
 
     if (use_ipc_ptr_cache()) {
+        // Check cache BEFORE calling cuMemPoolImportPointer
+        ExportDataKey key;
+        std::memcpy(&key.data, data, sizeof(key.data));
+
         std::lock_guard<std::mutex> lock(ipc_ptr_cache_mutex);
 
-        // Check for existing handle
-        auto it = ipc_ptr_cache.find(ptr);
+        auto it = ipc_ptr_cache.find(key);
         if (it != ipc_ptr_cache.end()) {
             if (auto box = it->second.lock()) {
+                // Cache hit - return existing handle
                 return DevicePtrHandle(box, &box->resource);
             }
             ipc_ptr_cache.erase(it);  // Expired entry
         }
 
+        // Cache miss - import the pointer
+        GILReleaseGuard gil;
+        CUdeviceptr ptr;
+        if (CUDA_SUCCESS != (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {
+            return {};
+        }
+
         // Create new handle with cache-clearing deleter
         auto box = std::shared_ptr<DevicePtrBox>(
             new DevicePtrBox{ptr, h_stream},
-            [h_pool, ptr](DevicePtrBox* b) {
+            [h_pool, key](DevicePtrBox* b) {
                 {
                     std::lock_guard<std::mutex> lock(ipc_ptr_cache_mutex);
-                    ipc_ptr_cache.erase(ptr);
+                    ipc_ptr_cache.erase(key);
                 }
                 GILReleaseGuard gil;
                 p_cuMemFreeAsync(b->resource, native(b->h_stream));
                 delete b;
             }
         );
-        ipc_ptr_cache[ptr] = box;
+        ipc_ptr_cache[key] = box;
         return DevicePtrHandle(box, &box->resource);
 
     } else {
         // No caching - simple handle creation
+        GILReleaseGuard gil;
+        CUdeviceptr ptr;
+        if (CUDA_SUCCESS != (err = p_cuMemPoolImportPointer(&ptr, *h_pool, data))) {
+            return {};
+        }
+
         auto box = std::shared_ptr<DevicePtrBox>(
             new DevicePtrBox{ptr, h_stream},
             [h_pool](DevicePtrBox* b) {
