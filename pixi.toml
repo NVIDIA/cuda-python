@@ -31,17 +31,51 @@ cu13 = { features = ["cu13"], solve-group = "cu13" }
 #
 # Usage: pixi run test | pixi run -e cu12 test | pixi run -e cu13 test
 [target.linux.tasks.test-pathfinder]
-cmd = ["bash", "-c", "cd cuda_pathfinder && pixi run ${PIXI_ENVIRONMENT_NAME:+--environment \"$PIXI_ENVIRONMENT_NAME\"} test"]
+args = [{ arg = "env", default = "cu13" }]
+cmd = [
+    "pixi",
+    "run",
+    "--manifest-path",
+    "$PIXI_PROJECT_ROOT/cuda_pathfinder",
+    "--environment",
+    "{{ env }}",
+    "test",
+]
 
 [target.linux.tasks.test-bindings]
-cmd = ["bash", "-c", "cd cuda_bindings && pixi run ${PIXI_ENVIRONMENT_NAME:+--environment \"$PIXI_ENVIRONMENT_NAME\"} test"]
+args = [{ arg = "env", default = "cu13" }]
+cmd = [
+    "pixi",
+    "run",
+    "--manifest-path",
+    "$PIXI_PROJECT_ROOT/cuda_bindings",
+    "--environment",
+    "{{ env }}",
+    "test",
+]
 
 [target.linux.tasks.test-core]
-cmd = ["bash", "-c", "cd cuda_core && pixi run ${PIXI_ENVIRONMENT_NAME:+--environment \"$PIXI_ENVIRONMENT_NAME\"} test"]
+args = [{ arg = "env", default = "cu13" }]
+cmd = [
+    "pixi",
+    "run",
+    "--manifest-path",
+    "$PIXI_PROJECT_ROOT/cuda_core",
+    "--environment",
+    "{{ env }}",
+    "test",
+]
 
 [target.linux.tasks.test]
+args = [{ arg = "env", default = "cu13" }]
 depends-on = [
-    { task = "test-pathfinder" },
-    { task = "test-bindings" },
-    { task = "test-core" }
+    { task = "test-pathfinder", args = [
+        "{{ env }}",
+    ] },
+    { task = "test-bindings", args = [
+        "{{ env }}",
+    ] },
+    { task = "test-core", args = [
+        "{{ env }}",
+    ] },
 ]
