@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+[workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "win-64"]
+
+[feature.cu12.dependencies]
+[feature.cu13.dependencies]
+
+[environments]
+cu12 = { features = ["cu12"] }
+cu13 = { features = ["cu13"] }
+
+[activation.env]
+PIXI_ENVIRONMENT_NAME = "${PIXI_ENVIRONMENT_NAME/default/cu13}"
+
+# Test Tasks
+# Runs tests across all sub-packages: pathfinder → bindings → core (dependency order)
+# Each sub-package has its own pixi.toml; the -e environment propagates via PIXI_ENVIRONMENT_NAME
+#
+# Usage: pixi run test | pixi run -e cu12 test | pixi run -e cu13 test
+[target.linux.tasks.test-pathfinder]
+cmd = [
+    "pixi",
+    "run",
+    "--manifest-path",
+    "$PIXI_PROJECT_ROOT/cuda_pathfinder",
+    "test",
+]
+
+[target.linux.tasks.test-bindings]
+cmd = [
+    "pixi",
+    "run",
+    "--manifest-path",
+    "$PIXI_PROJECT_ROOT/cuda_bindings",
+    "test",
+]
+
+[target.linux.tasks.test-core]
+cmd = ["pixi", "run", "--manifest-path", "$PIXI_PROJECT_ROOT/cuda_core", "test"]
+
+[target.linux.tasks.test]
+depends-on = [
+    { task = "test-pathfinder" },
+    { task = "test-bindings" },
+    { task = "test-core" },
+]

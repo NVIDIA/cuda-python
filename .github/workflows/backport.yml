@@ -23,7 +23,7 @@ jobs:
          }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
 
       - name: Load branch name
         id: get-branch
@@ -32,7 +32,7 @@ jobs:
           echo "OLD_BRANCH=${OLD_BRANCH}" >> $GITHUB_ENV
 
       - name: Create backport pull requests
-        uses: korthout/backport-action@d07416681cab29bf2661702f925f020aaa962997  # v3.4.1
+        uses: korthout/backport-action@c656f5d5851037b2b38fb5db2691a03fa229e3b2  # v4.0.1
         with:
           copy_assignees: true
           copy_labels_pattern: true
