@@ -23,7 +23,7 @@ cu13 = { features = ["cu13"] }
 [target.linux.tasks.test-pathfinder]
 args = [
     { arg = "flag", default = "--environment" },
-    { arg = "env", default = "cu13" },
+    { arg = "env", default = "$PIXI_ENVIRONMENT_NAME" },
 ]
 cmd = [
     "pixi",
@@ -38,7 +38,7 @@ cmd = [
 [target.linux.tasks.test-bindings]
 args = [
     { arg = "flag", default = "--environment" },
-    { arg = "env", default = "cu13" },
+    { arg = "env", default = "$PIXI_ENVIRONMENT_NAME" },
 ]
 cmd = [
     "pixi",
@@ -53,7 +53,7 @@ cmd = [
 [target.linux.tasks.test-core]
 args = [
     { arg = "flag", default = "--environment" },
-    { arg = "env", default = "cu13" },
+    { arg = "env", default = "$PIXI_ENVIRONMENT_NAME" },
 ]
 cmd = [
     "pixi",
@@ -68,7 +68,7 @@ cmd = [
 [target.linux.tasks.test]
 args = [
     { arg = "flag", default = "--environment" },
-    { arg = "env", default = "cu13" },
+    { arg = "env", default = "$PIXI_ENVIRONMENT_NAME" },
 ]
 depends-on = [
     { task = "test-pathfinder", args = [
