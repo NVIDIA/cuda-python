@@ -11,7 +11,7 @@
 
 import sys
 
-from cuda.core.experimental import Device, system
+from cuda.core import Device, system
 
 
 # Convert boolean to YES or NO string

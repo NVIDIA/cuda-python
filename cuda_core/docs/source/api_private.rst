@@ -8,7 +8,7 @@
    via returned values from public APIs. These classes must be referred in
    public APIs returning their instances.
 
-.. currentmodule:: cuda.core.experimental
+.. currentmodule:: cuda.core
 
 CUDA runtime
 ------------
@@ -16,16 +16,15 @@ CUDA runtime
 .. autosummary::
    :toctree: generated/
 
-   _memory.PyCapsule
-   _memory.DevicePointerT
-   _memory.VirtualMemoryAllocationTypeT
-   _memory.VirtualMemoryLocationTypeT
-   _memory.VirtualMemoryGranularityT
-   _memory.VirtualMemoryAccessTypeT
-   _memory.VirtualMemoryHandleTypeT
+   _memory._buffer.DevicePointerT
+   _memory._virtual_memory_resource.VirtualMemoryAllocationTypeT
+   _memory._virtual_memory_resource.VirtualMemoryLocationTypeT
+   _memory._virtual_memory_resource.VirtualMemoryGranularityT
+   _memory._virtual_memory_resource.VirtualMemoryAccessTypeT
+   _memory._virtual_memory_resource.VirtualMemoryHandleTypeT
    _device.DeviceProperties
-   _memory.IPCAllocationHandle
-   _memory.IPCBufferDescriptor
+   _memory._ipc.IPCAllocationHandle
+   _memory._ipc.IPCBufferDescriptor
    _module.KernelAttributes
    _module.KernelOccupancy
    _module.ParamInfo

@@ -13,7 +13,7 @@ import os
 import sys
 
 import numpy as np
-from cuda.core.experimental import (
+from cuda.core import (
     Device,
     LaunchConfig,
     LegacyPinnedMemoryResource,

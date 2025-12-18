@@ -17,7 +17,7 @@ import platform
 import re
 
 import pytest
-from cuda.core.experimental import (
+from cuda.core import (
     Buffer,
     Device,
     DeviceMemoryResource,
@@ -31,13 +31,13 @@ from cuda.core.experimental import (
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
-from cuda.core.experimental import (
+from cuda.core import (
     system as ccx_system,
 )
-from cuda.core.experimental._dlpack import DLDeviceType
-from cuda.core.experimental._memory import IPCBufferDescriptor
-from cuda.core.experimental._utils.cuda_utils import CUDAError, handle_return
-from cuda.core.experimental.utils import StridedMemoryView
+from cuda.core._dlpack import DLDeviceType
+from cuda.core._memory import IPCBufferDescriptor
+from cuda.core._utils.cuda_utils import CUDAError, handle_return
+from cuda.core.utils import StridedMemoryView
 from helpers import IS_WINDOWS
 from helpers.buffers import DummyUnifiedMemoryResource
 
@@ -149,7 +149,7 @@ def test_package_contents():
         "VirtualMemoryResource",
     ]
     d = {}
-    exec("from cuda.core.experimental._memory import *", d)  # noqa: S102
+    exec("from cuda.core._memory import *", d)  # noqa: S102
     d = {k: v for k, v in d.items() if not k.startswith("__")}
     assert sorted(expected) == sorted(d.keys())
 
@@ -172,6 +172,8 @@ def test_buffer_initialization():
     buffer_initialization(DummyHostMemoryResource())
     buffer_initialization(DummyUnifiedMemoryResource(device))
     buffer_initialization(DummyPinnedMemoryResource(device))
+    with pytest.raises(TypeError):
+        buffer_initialization(MemoryResource())
 
 
 def buffer_copy_to(dummy_mr: MemoryResource, device: Device, check=False):
@@ -365,7 +367,7 @@ def test_buffer_external_host():
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_device(change_device):
-    n = ccx_system.num_devices
+    n = ccx_system.get_num_devices()
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -389,7 +391,7 @@ def test_buffer_external_device(change_device):
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_pinned_alloc(change_device):
-    n = ccx_system.num_devices
+    n = ccx_system.get_num_devices()
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -414,7 +416,7 @@ def test_buffer_external_pinned_alloc(change_device):
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_pinned_registered(change_device):
-    n = ccx_system.num_devices
+    n = ccx_system.get_num_devices()
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
@@ -447,7 +449,7 @@ def test_buffer_external_pinned_registered(change_device):
 
 @pytest.mark.parametrize("change_device", [True, False])
 def test_buffer_external_managed(change_device):
-    n = ccx_system.num_devices
+    n = ccx_system.get_num_devices()
     if n < 1:
         pytest.skip("No devices found")
     dev_id = n - 1
