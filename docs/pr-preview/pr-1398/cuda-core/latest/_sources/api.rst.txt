@@ -1,14 +1,16 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. module:: cuda.core.experimental
+.. module:: cuda.core
 
-``cuda.core.experimental`` API Reference
-========================================
+``cuda.core`` API Reference
+===========================
 
-All of the APIs listed (or cross-referenced from) below are considered *experimental*
-and subject to future changes without deprecation notice. Once stabilized they will be
-moved out of the ``experimental`` namespace.
+This is the main API reference for ``cuda.core``. The package has not yet
+reached version 1.0.0, and APIs may change between minor versions, possibly
+without deprecation warnings. Once version 1.0.0 is released, APIs will
+be considered stable and will follow semantic versioning with appropriate
+deprecation periods for breaking changes.
 
 
 CUDA runtime
@@ -26,6 +28,7 @@ CUDA runtime
    Event
    MemoryResource
    DeviceMemoryResource
+   GraphMemoryResource
    PinnedMemoryResource
    ManagedMemoryResource
    LegacyPinnedMemoryResource
@@ -64,11 +67,11 @@ CUDA compilation toolchain
 CUDA system information
 -----------------------
 
-.. automethod:: cuda.core.experimental._system.System.get_driver_version
-.. automethod:: cuda.core.experimental._system.System.get_num_devices
+.. automethod:: cuda.core._system.System.get_driver_version
+.. automethod:: cuda.core._system.System.get_num_devices
 
 
-.. module:: cuda.core.experimental.utils
+.. module:: cuda.core.utils
 
 Utility functions
 -----------------
