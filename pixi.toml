@@ -22,66 +22,32 @@ PIXI_ENVIRONMENT_NAME = "${PIXI_ENVIRONMENT_NAME/default/cu13}"
 #
 # Usage: pixi run test | pixi run -e cu12 test | pixi run -e cu13 test
 [target.linux.tasks.test-pathfinder]
-args = [
-    { arg = "flag", default = "--environment" },
-    { arg = "env", default = "$PIXI_ENVIRONMENT_NAME" },
-]
+env.PIXI_ENVIRONMENT_NAME = "$PIXI_ENVIRONMENT_NAME"
 cmd = [
     "pixi",
     "run",
     "--manifest-path",
     "$PIXI_PROJECT_ROOT/cuda_pathfinder",
-    "{{ flag }}",
-    "{{ env }}",
     "test",
 ]
 
 [target.linux.tasks.test-bindings]
-args = [
-    { arg = "flag", default = "--environment" },
-    { arg = "env", default = "$PIXI_ENVIRONMENT_NAME" },
-]
+env.PIXI_ENVIRONMENT_NAME = "$PIXI_ENVIRONMENT_NAME"
 cmd = [
     "pixi",
     "run",
     "--manifest-path",
     "$PIXI_PROJECT_ROOT/cuda_bindings",
-    "{{ flag }}",
-    "{{ env }}",
     "test",
 ]
 
 [target.linux.tasks.test-core]
-args = [
-    { arg = "flag", default = "--environment" },
-    { arg = "env", default = "$PIXI_ENVIRONMENT_NAME" },
-]
-cmd = [
-    "pixi",
-    "run",
-    "--manifest-path",
-    "$PIXI_PROJECT_ROOT/cuda_core",
-    "{{ flag }}",
-    "{{ env }}",
-    "test",
-]
+env.PIXI_ENVIRONMENT_NAME = "$PIXI_ENVIRONMENT_NAME"
+cmd = ["pixi", "run", "--manifest-path", "$PIXI_PROJECT_ROOT/cuda_core", "test"]
 
 [target.linux.tasks.test]
-args = [
-    { arg = "flag", default = "--environment" },
-    { arg = "env", default = "$PIXI_ENVIRONMENT_NAME" },
-]
 depends-on = [
-    { task = "test-pathfinder", args = [
-        "{{ flag }}",
-        "{{ env }}",
-    ] },
-    { task = "test-bindings", args = [
-        "{{ flag }}",
-        "{{ env }}",
-    ] },
-    { task = "test-core", args = [
-        "{{ flag }}",
-        "{{ env }}",
-    ] },
+    { task = "test-pathfinder" },
+    { task = "test-bindings" },
+    { task = "test-core" },
 ]
