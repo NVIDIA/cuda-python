@@ -28,7 +28,7 @@ else:
 finally:
     del bindings, importlib, subdir, cuda_major, cuda_minor
 
-from cuda.core import utils  # noqa: E402
+from cuda.core import system, utils  # noqa: E402
 from cuda.core._device import Device  # noqa: E402
 from cuda.core._event import Event, EventOptions  # noqa: E402
 from cuda.core._graph import (  # noqa: E402
@@ -62,8 +62,4 @@ from cuda.core._memoryview import (  # noqa: E402
 from cuda.core._module import Kernel, ObjectCode  # noqa: E402
 from cuda.core._program import Program, ProgramOptions  # noqa: E402
 from cuda.core._stream import Stream, StreamOptions  # noqa: E402
-from cuda.core._system import System  # noqa: E402
 
-system = System()
-__import__("sys").modules[__spec__.name + ".system"] = system
-del System
