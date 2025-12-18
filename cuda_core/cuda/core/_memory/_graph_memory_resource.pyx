@@ -10,9 +10,12 @@ from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
+    _init_handles_table,
     deviceptr_alloc_async,
     native,
 )
+
+_init_handles_table()
 from cuda.core._stream cimport default_stream, Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
@@ -192,9 +195,10 @@ cdef inline int check_capturing(cydriver.CUstream s) except?-1 nogil:
 
 cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream stream):
     cdef cydriver.CUstream s = native(stream._h_stream)
+    cdef DevicePtrHandle h_ptr
     with nogil:
         check_capturing(s)
-    cdef DevicePtrHandle h_ptr = deviceptr_alloc_async(size, stream._h_stream)
+        h_ptr = deviceptr_alloc_async(size, stream._h_stream)
     if not h_ptr:
         raise RuntimeError("Failed to allocate memory asynchronously")
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None)

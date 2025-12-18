@@ -29,6 +29,7 @@ from cuda.core._resource_handles cimport (
     ContextHandle,
     EventHandle,
     StreamHandle,
+    _init_handles_table,
     create_context_handle_ref,
     create_event_handle_noctx,
     create_stream_handle,
@@ -40,6 +41,8 @@ from cuda.core._resource_handles cimport (
     native,
     py,
 )
+
+_init_handles_table()
 from cuda.core._graph import GraphBuilder
 
 
@@ -303,8 +306,8 @@ cdef class Stream:
                 ) from e
 
         # Wait on stream via temporary event
-        h_event = create_event_handle_noctx(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
         with nogil:
+            h_event = create_event_handle_noctx(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
             HANDLE_RETURN(cydriver.cuEventRecord(native(h_event), native(stream._h_stream)))
             # TODO: support flags other than 0?
             HANDLE_RETURN(cydriver.cuStreamWaitEvent(native(self._h_stream), native(h_event), 0))

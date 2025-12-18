@@ -10,11 +10,14 @@ from cuda.core._memory._memory_pool cimport _MemPool
 from cuda.core._stream cimport Stream
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
+    _init_handles_table,
     create_mempool_handle_ipc,
     deviceptr_import_ipc,
     get_last_error,
     native,
 )
+
+_init_handles_table()
 from cuda.core._stream cimport default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method

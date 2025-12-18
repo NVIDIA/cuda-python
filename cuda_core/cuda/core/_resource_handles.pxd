@@ -121,118 +121,126 @@ cdef inline const ResourceHandlesCxxApiV1* _get_handles_table() except NULL nogi
 
 
 # -----------------------------------------------------------------------------
-# Dispatch wrappers (hide capsule init from consumers)
+# Dispatch wrappers
+#
+# These wrappers assume _handles_table has been initialized. Consumers must call
+# _init_handles_table() at module level before using these functions in nogil blocks.
 # -----------------------------------------------------------------------------
 
-cdef inline cydriver.CUresult get_last_error() except * nogil:
-    return _get_handles_table().get_last_error()
+cdef inline void _init_handles_table() except *:
+    """Initialize the handles table. Call at module level before using wrappers."""
+    _get_handles_table()
 
 
-cdef inline cydriver.CUresult peek_last_error() except * nogil:
-    return _get_handles_table().peek_last_error()
+cdef inline cydriver.CUresult get_last_error() noexcept nogil:
+    return _handles_table.get_last_error()
 
 
-cdef inline void clear_last_error() except * nogil:
-    _get_handles_table().clear_last_error()
+cdef inline cydriver.CUresult peek_last_error() noexcept nogil:
+    return _handles_table.peek_last_error()
 
 
-cdef inline ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) except * nogil:
-    return _get_handles_table().create_context_handle_ref(ctx)
+cdef inline void clear_last_error() noexcept nogil:
+    _handles_table.clear_last_error()
 
 
-cdef inline ContextHandle get_primary_context(int device_id) except * nogil:
-    return _get_handles_table().get_primary_context(device_id)
+cdef inline ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) noexcept nogil:
+    return _handles_table.create_context_handle_ref(ctx)
 
 
-cdef inline ContextHandle get_current_context() except * nogil:
-    return _get_handles_table().get_current_context()
+cdef inline ContextHandle get_primary_context(int device_id) noexcept nogil:
+    return _handles_table.get_primary_context(device_id)
 
 
-cdef inline StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) except * nogil:
-    return _get_handles_table().create_stream_handle(h_ctx, flags, priority)
+cdef inline ContextHandle get_current_context() noexcept nogil:
+    return _handles_table.get_current_context()
 
 
-cdef inline StreamHandle create_stream_handle_ref(cydriver.CUstream stream) except * nogil:
-    return _get_handles_table().create_stream_handle_ref(stream)
+cdef inline StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) noexcept nogil:
+    return _handles_table.create_stream_handle(h_ctx, flags, priority)
 
 
-cdef inline StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner) except *:
-    return _get_handles_table().create_stream_handle_with_owner(stream, owner)
+cdef inline StreamHandle create_stream_handle_ref(cydriver.CUstream stream) noexcept nogil:
+    return _handles_table.create_stream_handle_ref(stream)
 
 
-cdef inline StreamHandle get_legacy_stream() except * nogil:
-    return _get_handles_table().get_legacy_stream()
+cdef inline StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner):
+    return _handles_table.create_stream_handle_with_owner(stream, owner)
 
 
-cdef inline StreamHandle get_per_thread_stream() except * nogil:
-    return _get_handles_table().get_per_thread_stream()
+cdef inline StreamHandle get_legacy_stream() noexcept nogil:
+    return _handles_table.get_legacy_stream()
 
 
-cdef inline EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) except * nogil:
-    return _get_handles_table().create_event_handle(h_ctx, flags)
+cdef inline StreamHandle get_per_thread_stream() noexcept nogil:
+    return _handles_table.get_per_thread_stream()
 
 
-cdef inline EventHandle create_event_handle_noctx(unsigned int flags) except * nogil:
-    return _get_handles_table().create_event_handle_noctx(flags)
+cdef inline EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) noexcept nogil:
+    return _handles_table.create_event_handle(h_ctx, flags)
 
 
-cdef inline EventHandle create_event_handle_ipc(const cydriver.CUipcEventHandle& ipc_handle) except * nogil:
-    return _get_handles_table().create_event_handle_ipc(ipc_handle)
+cdef inline EventHandle create_event_handle_noctx(unsigned int flags) noexcept nogil:
+    return _handles_table.create_event_handle_noctx(flags)
 
 
-cdef inline MemoryPoolHandle create_mempool_handle(const cydriver.CUmemPoolProps& props) except * nogil:
-    return _get_handles_table().create_mempool_handle(props)
+cdef inline EventHandle create_event_handle_ipc(const cydriver.CUipcEventHandle& ipc_handle) noexcept nogil:
+    return _handles_table.create_event_handle_ipc(ipc_handle)
 
 
-cdef inline MemoryPoolHandle create_mempool_handle_ref(cydriver.CUmemoryPool pool) except * nogil:
-    return _get_handles_table().create_mempool_handle_ref(pool)
+cdef inline MemoryPoolHandle create_mempool_handle(const cydriver.CUmemPoolProps& props) noexcept nogil:
+    return _handles_table.create_mempool_handle(props)
 
 
-cdef inline MemoryPoolHandle get_device_mempool(int device_id) except * nogil:
-    return _get_handles_table().get_device_mempool(device_id)
+cdef inline MemoryPoolHandle create_mempool_handle_ref(cydriver.CUmemoryPool pool) noexcept nogil:
+    return _handles_table.create_mempool_handle_ref(pool)
 
 
-cdef inline MemoryPoolHandle create_mempool_handle_ipc(int fd, cydriver.CUmemAllocationHandleType handle_type) except * nogil:
-    return _get_handles_table().create_mempool_handle_ipc(fd, handle_type)
+cdef inline MemoryPoolHandle get_device_mempool(int device_id) noexcept nogil:
+    return _handles_table.get_device_mempool(device_id)
+
+
+cdef inline MemoryPoolHandle create_mempool_handle_ipc(int fd, cydriver.CUmemAllocationHandleType handle_type) noexcept nogil:
+    return _handles_table.create_mempool_handle_ipc(fd, handle_type)
 
 
 cdef inline DevicePtrHandle deviceptr_alloc_from_pool(
     size_t size,
     MemoryPoolHandle h_pool,
-    StreamHandle h_stream) except * nogil:
-    return _get_handles_table().deviceptr_alloc_from_pool(size, h_pool, h_stream)
+    StreamHandle h_stream) noexcept nogil:
+    return _handles_table.deviceptr_alloc_from_pool(size, h_pool, h_stream)
 
 
-cdef inline DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) except * nogil:
-    return _get_handles_table().deviceptr_alloc_async(size, h_stream)
+cdef inline DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) noexcept nogil:
+    return _handles_table.deviceptr_alloc_async(size, h_stream)
 
 
-cdef inline DevicePtrHandle deviceptr_alloc(size_t size) except * nogil:
-    return _get_handles_table().deviceptr_alloc(size)
+cdef inline DevicePtrHandle deviceptr_alloc(size_t size) noexcept nogil:
+    return _handles_table.deviceptr_alloc(size)
 
 
-cdef inline DevicePtrHandle deviceptr_alloc_host(size_t size) except * nogil:
-    return _get_handles_table().deviceptr_alloc_host(size)
+cdef inline DevicePtrHandle deviceptr_alloc_host(size_t size) noexcept nogil:
+    return _handles_table.deviceptr_alloc_host(size)
 
 
-cdef inline DevicePtrHandle deviceptr_create_ref(cydriver.CUdeviceptr ptr) except * nogil:
-    return _get_handles_table().deviceptr_create_ref(ptr)
+cdef inline DevicePtrHandle deviceptr_create_ref(cydriver.CUdeviceptr ptr) noexcept nogil:
+    return _handles_table.deviceptr_create_ref(ptr)
 
 
-cdef inline DevicePtrHandle deviceptr_create_with_owner(cydriver.CUdeviceptr ptr, object owner) except *:
-    return _get_handles_table().deviceptr_create_with_owner(ptr, owner)
+cdef inline DevicePtrHandle deviceptr_create_with_owner(cydriver.CUdeviceptr ptr, object owner):
+    return _handles_table.deviceptr_create_with_owner(ptr, owner)
 
 
 cdef inline DevicePtrHandle deviceptr_import_ipc(
     MemoryPoolHandle h_pool,
     const void* export_data,
-    StreamHandle h_stream) except * nogil:
-    return _get_handles_table().deviceptr_import_ipc(h_pool, export_data, h_stream)
+    StreamHandle h_stream) noexcept nogil:
+    return _handles_table.deviceptr_import_ipc(h_pool, export_data, h_stream)
 
 
-cdef inline StreamHandle deallocation_stream(const DevicePtrHandle& h) except * nogil:
-    return _get_handles_table().deallocation_stream(h)
+cdef inline StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept nogil:
+    return _handles_table.deallocation_stream(h)
 
 
-cdef inline void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) except * nogil:
-    _get_handles_table().set_deallocation_stream(h, h_stream)
+cdef inline void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) noexcept nogil:
+    _handles_table.set_deallocation_stream(h, h_stream)

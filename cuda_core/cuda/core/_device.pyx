@@ -17,10 +17,13 @@ from cuda.core._event cimport Event as cyEvent
 from cuda.core._event import Event, EventOptions
 from cuda.core._resource_handles cimport (
     ContextHandle,
+    _init_handles_table,
     create_context_handle_ref,
     get_primary_context,
     native,
 )
+
+_init_handles_table()
 from cuda.core._graph import GraphBuilder
 from cuda.core._stream import IsStreamT, Stream, StreamOptions
 from cuda.core._utils.clear_error_support import assert_type

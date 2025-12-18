@@ -16,6 +16,7 @@ from cuda.core._stream cimport default_stream, Stream_accept, Stream
 from cuda.core._resource_handles cimport (
     MemoryPoolHandle,
     DevicePtrHandle,
+    _init_handles_table,
     create_mempool_handle,
     create_mempool_handle_ref,
     get_device_mempool,
@@ -23,6 +24,8 @@ from cuda.core._resource_handles cimport (
     native,
     py,
 )
+
+_init_handles_table()
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
@@ -424,9 +427,10 @@ cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
 
 cdef inline Buffer _MP_allocate(_MemPool self, size_t size, Stream stream):
     cdef cydriver.CUstream s = native(stream._h_stream)
+    cdef DevicePtrHandle h_ptr
     with nogil:
         check_not_capturing(s)
-    cdef DevicePtrHandle h_ptr = deviceptr_alloc_from_pool(size, self._h_pool, stream._h_stream)
+        h_ptr = deviceptr_alloc_from_pool(size, self._h_pool, stream._h_stream)
     if not h_ptr:
         raise RuntimeError("Failed to allocate memory from pool")
     return Buffer_from_deviceptr_handle(h_ptr, size, self, None)

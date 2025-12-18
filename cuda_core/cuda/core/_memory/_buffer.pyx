@@ -16,11 +16,14 @@ from cuda.core._memory cimport _ipc
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
     StreamHandle,
+    _init_handles_table,
     deviceptr_create_with_owner,
     intptr,
     native,
     set_deallocation_stream,
 )
+
+_init_handles_table()
 from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
@@ -61,7 +64,7 @@ cdef class Buffer:
         self._clear()
 
     def _clear(self):
-        # _h_ptr is default-initialized (empty shared_ptr) by C++
+        self._h_ptr.reset()  # Release the handle
         self._size = 0
         self._memory_resource = None
         self._ipc_data = None
@@ -171,22 +174,23 @@ cdef class Buffer:
             asynchronous copy
 
         """
-        stream = Stream_accept(stream)
+        cdef Stream s = Stream_accept(stream)
         cdef size_t src_size = self._size
 
         if dst is None:
             if self._memory_resource is None:
                 raise ValueError("a destination buffer must be provided (this "
                                  "buffer does not have a memory_resource)")
-            dst = self._memory_resource.allocate(src_size, stream)
+            dst = self._memory_resource.allocate(src_size, s)
 
         cdef size_t dst_size = dst._size
         if dst_size != src_size:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        err, = driver.cuMemcpyAsync(native(dst._h_ptr), native(self._h_ptr), src_size, stream.handle)
-        raise_if_driver_error(err)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemcpyAsync(
+                native(dst._h_ptr), native(self._h_ptr), src_size, native(s._h_stream)))
         return dst
 
     def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder):
@@ -201,7 +205,7 @@ cdef class Buffer:
             asynchronous copy
 
         """
-        stream = Stream_accept(stream)
+        cdef Stream s = Stream_accept(stream)
         cdef size_t dst_size = self._size
         cdef size_t src_size = src._size
 
@@ -209,8 +213,9 @@ cdef class Buffer:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        err, = driver.cuMemcpyAsync(native(self._h_ptr), native(src._h_ptr), dst_size, stream.handle)
-        raise_if_driver_error(err)
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemcpyAsync(
+                native(self._h_ptr), native(src._h_ptr), dst_size, native(s._h_stream)))
 
     def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder):
         """Fill this buffer with a repeating byte pattern.
