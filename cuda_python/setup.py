@@ -4,15 +4,20 @@
 
 import ast
 
+from packaging.version import Version
 from setuptools import setup
+from setuptools_scm import get_version
 
-# We want to keep the version in sync with cuda.bindings, but setuptools would not let
-# us to refer to any files outside of the project root, so we have to employ our own
-# run-time lookup using setup()...
-with open("../cuda_bindings/cuda/bindings/_version.py") as f:
-    for line in f:
-        if line.startswith("__version__"):
-            version = ast.parse(line).body[0].value.value
+version = get_version(
+    root="..",
+    relative_to=__file__,
+    tag_regex="^(?P<version>v\\d+\\.\\d+\\.\\d+((a|b|rc)\\d+)?)$",
+    git_describe_command=["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"],
+)
+
+
+version = Version(version).base_version
+
 
 setup(
     version=version,

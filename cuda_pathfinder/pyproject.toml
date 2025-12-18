@@ -62,12 +62,21 @@ Documentation = "https://nvidia.github.io/cuda-python/"
 packages = { find = { include = ["cuda*"] } }
 
 [tool.setuptools.dynamic]
-version = { attr = "cuda.pathfinder._version.__version__" }
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
 [build-system]
-requires = ["setuptools>=64", "wheel"]
+requires = [
+    "setuptools>=80.0.0",
+    "setuptools_scm[simple]>=8",
+    "wheel"
+]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+root = ".."
+version_file = "cuda/pathfinder/_version.py"
+tag_regex = "^cuda-pathfinder-(?P<version>v\\d+\\.\\d+\\.\\d+((a|b|rc)\\d+)?)$"
+git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-pathfinder-v*[0-9]*" ]
 
 [tool.pytest.ini_options]
 addopts = "--showlocals"

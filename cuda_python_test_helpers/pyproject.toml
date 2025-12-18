@@ -2,12 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
-requires = ["setuptools>=77.0.0"]
+requires = ["setuptools>=80.0.0", "setuptools-scm[simple]>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "cuda-python-test-helpers"
-version = "0.1.0"
 description = "Shared test helpers for CUDA Python projects"
 readme = {file = "README.md", content-type = "text/markdown"}
 authors = [{ name = "NVIDIA Corporation" }]
@@ -20,6 +19,12 @@ classifiers = [
 
 [tool.setuptools]
 packages = ["cuda_python_test_helpers"]
+
+[tool.setuptools_scm]
+root = ".."
+version_file = "cuda_python_test_helpers/_version.py"
+tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+((a|b|rc)\\d+)?)$"
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"]
 
 [project.urls]
 repository = "https://github.com/NVIDIA/cuda-python"

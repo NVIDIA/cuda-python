@@ -1,7 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 [build-system]
-requires = ["setuptools>=77.0.0", "cython>=3.2,<3.3", "pyclibrary>=0.1.7"]
+requires = [
+    "setuptools>=80.0.0",
+    "setuptools_scm[simple]>=8",
+    "cython>=3.2,<3.3",
+    "pyclibrary>=0.1.7",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -51,7 +56,6 @@ Documentation = "https://nvidia.github.io/cuda-python/"
 include = ["cuda*"]
 
 [tool.setuptools.dynamic]
-version = { attr = "cuda.bindings._version.__version__" }
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
 [tool.cibuildwheel]
@@ -72,3 +76,9 @@ required_plugins = "pytest-benchmark"
 addopts = "--benchmark-disable --showlocals"
 norecursedirs = ["tests/cython", "examples"]
 xfail_strict = true
+
+[tool.setuptools_scm]
+root = ".."
+version_file = "cuda/bindings/_version.py"
+tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+((a|b|rc)\\d+)?)$"
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"]
