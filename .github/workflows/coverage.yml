@@ -49,7 +49,7 @@ jobs:
           apt-get install -y git
 
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
 
       - name: Install dependencies
         uses: ./.github/actions/install_unix_deps
@@ -75,7 +75,7 @@ jobs:
           echo "CUDA_PYTHON_COVERAGE=1" >> $GITHUB_ENV
 
       - name: Set up Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
         with:
           python-version: ${{ env.PY_VER }}
         env:
@@ -145,13 +145,13 @@ jobs:
           mv htmlcov $REPO_ROOT/docs/coverage
 
       - name: Archive code coverage results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: coverage
           path: docs/coverage/
 
       - name: Deploy to gh-pages
-        uses: JamesIves/github-pages-deploy-action@4a3abc783e1a24aeb44c16e869ad83caf6b4cc23  # v4.7.4
+        uses: JamesIves/github-pages-deploy-action@9d877eea73427180ae43cf98e8914934fe157a1a  # v4.7.6
         with:
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com
