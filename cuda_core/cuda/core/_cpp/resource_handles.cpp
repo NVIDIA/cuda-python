@@ -699,19 +699,31 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
 }
 
 // ============================================================================
-// IPC Pointer Cache (workaround for nvbug 5570902)
+// IPC Pointer Cache
 // ============================================================================
-// IPC-imported pointers are not correctly reference counted by the driver.
-// The first cuMemFreeAsync incorrectly unmaps the memory even when the pointer
-// was imported multiple times. We work around this by caching imported pointers
-// and returning the same handle for duplicate imports.
+// This cache handles duplicate IPC imports, which behave differently depending
+// on the memory type:
+//
+// 1. Memory pool allocations (DeviceMemoryResource):
+//    Multiple imports of the same allocation succeed and return duplicate
+//    pointers. However, the driver has a reference counting bug (nvbug 5570902)
+//    where the first cuMemFreeAsync incorrectly unmaps the memory even when
+//    imported multiple times. A driver fix is expected.
+//
+// 2. Pinned memory allocations (PinnedMemoryResource):
+//    Duplicate imports result in CUDA_ERROR_ALREADY_MAPPED.
+//
+// The cache solves both issues by checking the cache before calling
+// cuMemPoolImportPointer and returning the existing handle for duplicate
+// imports. This provides a consistent user experience where the same IPC
+// descriptor can be imported multiple times regardless of memory type.
 //
 // The cache key is the export_data bytes (CUmemPoolPtrExportData), not the
-// returned pointer, because we must check the cache BEFORE calling
-// cuMemPoolImportPointer (which fails with CUDA_ERROR_ALREADY_MAPPED if
-// the pointer is already imported).
+// returned pointer, because we must check before calling the driver API.
 
-// TODO: When driver fix is available, add version check here to bypass cache.
+// TODO: When driver fix for nvbug 5570902 is available, consider whether
+// the cache is still needed for memory pool allocations (it will still be
+// needed for pinned memory).
 static bool use_ipc_ptr_cache() {
     return true;
 }
@@ -750,7 +762,7 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
         reinterpret_cast<const CUmemPoolPtrExportData*>(export_data));
 
     if (use_ipc_ptr_cache()) {
-        // Check cache BEFORE calling cuMemPoolImportPointer
+        // Check cache before calling cuMemPoolImportPointer
         ExportDataKey key;
         std::memcpy(&key.data, data, sizeof(key.data));
 
@@ -776,11 +788,16 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
         auto box = std::shared_ptr<DevicePtrBox>(
             new DevicePtrBox{ptr, h_stream},
             [h_pool, key](DevicePtrBox* b) {
+                GILReleaseGuard gil;
                 {
                     std::lock_guard<std::mutex> lock(ipc_ptr_cache_mutex);
-                    ipc_ptr_cache.erase(key);
+                    // Only erase if expired - avoids race where another thread
+                    // replaced the entry with a new import before we acquired the lock.
+                    auto it = ipc_ptr_cache.find(key);
+                    if (it != ipc_ptr_cache.end() && it->second.expired()) {
+                        ipc_ptr_cache.erase(it);
+                    }
                 }
-                GILReleaseGuard gil;
                 p_cuMemFreeAsync(b->resource, native(b->h_stream));
                 delete b;
             }
