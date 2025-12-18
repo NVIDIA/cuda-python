@@ -38,6 +38,30 @@ static inline bool py_is_finalizing() noexcept {
 #endif
 }
 
+// Simple RAII guard to acquire the GIL. Used in load_driver_api.
+class GILGuard {
+public:
+    GILGuard() : acquired_(false) {
+        if (!Py_IsInitialized() || py_is_finalizing()) {
+            return;
+        }
+        gstate_ = PyGILState_Ensure();
+        acquired_ = true;
+    }
+    ~GILGuard() {
+        if (acquired_) {
+            PyGILState_Release(gstate_);
+        }
+    }
+    bool acquired() const { return acquired_; }
+    GILGuard(const GILGuard&) = delete;
+    GILGuard& operator=(const GILGuard&) = delete;
+
+private:
+    PyGILState_STATE gstate_;
+    bool acquired_;
+};
+
 #define DECLARE_DRIVER_FN(name) using name##_t = decltype(&name); static name##_t p_##name = nullptr
 
 DECLARE_DRIVER_FN(cuDevicePrimaryCtxRetain);
@@ -73,10 +97,6 @@ DECLARE_DRIVER_FN(cuMemPoolImportPointer);
 #undef DECLARE_DRIVER_FN
 
 static bool load_driver_api() noexcept {
-    if (!Py_IsInitialized() || py_is_finalizing()) {
-        return false;
-    }
-
     struct CudaDriverApiV1 {
         std::uint32_t abi_version;
         std::uint32_t struct_size;
@@ -115,21 +135,22 @@ static bool load_driver_api() noexcept {
     static constexpr const char* capsule_name =
         "cuda.core._resource_handles._CUDA_DRIVER_API_V1";
 
-    PyGILState_STATE gstate = PyGILState_Ensure();
+    GILGuard gil;
+    if (!gil.acquired()) {
+        return false;
+    }
 
     // `_resource_handles` is already loaded (it exports the handle API capsule),
     // so avoid import machinery and just grab the module object.
     PyObject* mod = PyImport_AddModule("cuda.core._resource_handles");  // borrowed
     if (!mod) {
         PyErr_Clear();
-        PyGILState_Release(gstate);
         return false;
     }
 
     PyObject* fn = PyObject_GetAttrString(mod, "_get_cuda_driver_api_v1_capsule");  // new ref
     if (!fn) {
         PyErr_Clear();
-        PyGILState_Release(gstate);
         return false;
     }
 
@@ -137,7 +158,6 @@ static bool load_driver_api() noexcept {
     Py_DECREF(fn);
     if (!cap) {
         PyErr_Clear();
-        PyGILState_Release(gstate);
         return false;
     }
 
@@ -146,18 +166,15 @@ static bool load_driver_api() noexcept {
 
     if (!api) {
         PyErr_Clear();
-        PyGILState_Release(gstate);
         return false;
     }
     if (api->abi_version != 1 || api->struct_size < sizeof(CudaDriverApiV1)) {
-        PyGILState_Release(gstate);
         return false;
     }
 
 #define LOAD_ADDR(name)                                             \
     do {                                                            \
         if (api->name == 0) {                                       \
-            PyGILState_Release(gstate);                             \
             return false;                                           \
         }                                                           \
         p_##name = reinterpret_cast<decltype(p_##name)>(api->name); \
@@ -195,7 +212,6 @@ static bool load_driver_api() noexcept {
 
 #undef LOAD_ADDR
 
-    PyGILState_Release(gstate);
     return true;
 }
 
