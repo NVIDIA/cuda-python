@@ -38,29 +38,74 @@ static inline bool py_is_finalizing() noexcept {
 #endif
 }
 
-// Simple RAII guard to acquire the GIL. Used in load_driver_api.
-class GILGuard {
+// ============================================================================
+// GIL management helpers
+// ============================================================================
+
+// Helper to release the GIL while calling into the CUDA driver.
+// This guard is *conditional*: if the caller already dropped the GIL,
+// we avoid calling PyEval_SaveThread (which requires holding the GIL).
+// It also handles the case where Python is finalizing and GIL operations
+// are no longer safe.
+class GILReleaseGuard {
 public:
-    GILGuard() : acquired_(false) {
+    GILReleaseGuard() : tstate_(nullptr), released_(false) {
+        // Don't try to manipulate GIL if Python is finalizing
+        if (!Py_IsInitialized() || py_is_finalizing()) {
+            return;
+        }
+        // PyGILState_Check() returns 1 if the GIL is held by this thread.
+        if (PyGILState_Check()) {
+            tstate_ = PyEval_SaveThread();
+            released_ = true;
+        }
+    }
+
+    ~GILReleaseGuard() {
+        if (released_) {
+            PyEval_RestoreThread(tstate_);
+        }
+    }
+
+    // Non-copyable, non-movable
+    GILReleaseGuard(const GILReleaseGuard&) = delete;
+    GILReleaseGuard& operator=(const GILReleaseGuard&) = delete;
+
+private:
+    PyThreadState* tstate_;
+    bool released_;
+};
+
+// Helper to acquire the GIL when we might not hold it.
+// Use in C++ destructors that need to manipulate Python objects.
+class GILAcquireGuard {
+public:
+    GILAcquireGuard() : acquired_(false) {
+        // Don't try to acquire GIL if Python is finalizing
         if (!Py_IsInitialized() || py_is_finalizing()) {
             return;
         }
         gstate_ = PyGILState_Ensure();
         acquired_ = true;
     }
-    ~GILGuard() {
+
+    ~GILAcquireGuard() {
         if (acquired_) {
             PyGILState_Release(gstate_);
         }
     }
+
     bool acquired() const { return acquired_; }
-    GILGuard(const GILGuard&) = delete;
-    GILGuard& operator=(const GILGuard&) = delete;
+
+    // Non-copyable, non-movable
+    GILAcquireGuard(const GILAcquireGuard&) = delete;
+    GILAcquireGuard& operator=(const GILAcquireGuard&) = delete;
 
 private:
     PyGILState_STATE gstate_;
     bool acquired_;
 };
+
 
 #define DECLARE_DRIVER_FN(name) using name##_t = decltype(&name); static name##_t p_##name = nullptr
 
@@ -135,7 +180,7 @@ static bool load_driver_api() noexcept {
     static constexpr const char* capsule_name =
         "cuda.core._resource_handles._CUDA_DRIVER_API_V1";
 
-    GILGuard gil;
+    GILAcquireGuard gil;
     if (!gil.acquired()) {
         return false;
     }
@@ -242,74 +287,6 @@ CUresult peek_last_error() noexcept {
 void clear_last_error() noexcept {
     err = CUDA_SUCCESS;
 }
-
-// ============================================================================
-// GIL management helpers
-// ============================================================================
-
-// Helper to release the GIL while calling into the CUDA driver.
-// This guard is *conditional*: if the caller already dropped the GIL,
-// we avoid calling PyEval_SaveThread (which requires holding the GIL).
-// It also handles the case where Python is finalizing and GIL operations
-// are no longer safe.
-class GILReleaseGuard {
-public:
-    GILReleaseGuard() : tstate_(nullptr), released_(false) {
-        // Don't try to manipulate GIL if Python is finalizing
-        if (!Py_IsInitialized() || py_is_finalizing()) {
-            return;
-        }
-        // PyGILState_Check() returns 1 if the GIL is held by this thread.
-        if (PyGILState_Check()) {
-            tstate_ = PyEval_SaveThread();
-            released_ = true;
-        }
-    }
-
-    ~GILReleaseGuard() {
-        if (released_) {
-            PyEval_RestoreThread(tstate_);
-        }
-    }
-
-    // Non-copyable, non-movable
-    GILReleaseGuard(const GILReleaseGuard&) = delete;
-    GILReleaseGuard& operator=(const GILReleaseGuard&) = delete;
-
-private:
-    PyThreadState* tstate_;
-    bool released_;
-};
-
-// Helper to acquire the GIL when we might not hold it.
-// Use in C++ destructors that need to manipulate Python objects.
-class GILAcquireGuard {
-public:
-    GILAcquireGuard() : acquired_(false) {
-        // Don't try to acquire GIL if Python is finalizing
-        if (!Py_IsInitialized() || py_is_finalizing()) {
-            return;
-        }
-        gstate_ = PyGILState_Ensure();
-        acquired_ = true;
-    }
-
-    ~GILAcquireGuard() {
-        if (acquired_) {
-            PyGILState_Release(gstate_);
-        }
-    }
-
-    bool acquired() const { return acquired_; }
-
-    // Non-copyable, non-movable
-    GILAcquireGuard(const GILAcquireGuard&) = delete;
-    GILAcquireGuard& operator=(const GILAcquireGuard&) = delete;
-
-private:
-    PyGILState_STATE gstate_;
-    bool acquired_;
-};
 
 // ============================================================================
 // Context Handles
