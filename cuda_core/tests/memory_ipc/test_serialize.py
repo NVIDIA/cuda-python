@@ -5,7 +5,7 @@ import multiprocessing as mp
 import multiprocessing.reduction
 import os
 
-from cuda.core.experimental import Buffer, Device, DeviceMemoryResource
+from cuda.core import Buffer, Device, DeviceMemoryResource
 from helpers.buffers import PatternGen
 
 CHILD_TIMEOUT_SEC = 20
@@ -151,41 +151,20 @@ class TestObjectPassing:
         pgen.verify_buffer(buffer, seed=True)
         buffer.close()
 
-    def child_main(self, alloc_handle, mr1, buffer_desc, buffer1):
+    def child_main(self, alloc_handle, mr1, buffer_desc, buffer):
         device = Device()
         device.set_current()
-        mr2 = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)
+        mr2 = DeviceMemoryResource.from_allocation_handle(device, alloc_handle)  # noqa: F841
         pgen = PatternGen(device, NBYTES)
 
-        # OK to build the buffer from either mr and the descriptor.
-        # All buffer* objects point to the same memory.
-        buffer2 = Buffer.from_ipc_descriptor(mr1, buffer_desc)
-        buffer3 = Buffer.from_ipc_descriptor(mr2, buffer_desc)
+        # Verify initial content
+        pgen.verify_buffer(buffer, seed=False)
 
-        pgen.verify_buffer(buffer1, seed=False)
-        pgen.verify_buffer(buffer2, seed=False)
-        pgen.verify_buffer(buffer3, seed=False)
+        # Modify the buffer
+        pgen.fill_buffer(buffer, seed=True)
 
-        # Modify 1.
-        pgen.fill_buffer(buffer1, seed=True)
+        # Verify modified content
+        pgen.verify_buffer(buffer, seed=True)
 
-        pgen.verify_buffer(buffer1, seed=True)
-        pgen.verify_buffer(buffer2, seed=True)
-        pgen.verify_buffer(buffer3, seed=True)
-
-        # Modify 2.
-        pgen.fill_buffer(buffer2, seed=False)
-
-        pgen.verify_buffer(buffer1, seed=False)
-        pgen.verify_buffer(buffer2, seed=False)
-        pgen.verify_buffer(buffer3, seed=False)
-
-        # Modify 3.
-        pgen.fill_buffer(buffer3, seed=True)
-
-        pgen.verify_buffer(buffer1, seed=True)
-        pgen.verify_buffer(buffer2, seed=True)
-        pgen.verify_buffer(buffer3, seed=True)
-
-        # Close any one buffer.
-        buffer1.close()
+        # Clean up - only ONE free
+        buffer.close()

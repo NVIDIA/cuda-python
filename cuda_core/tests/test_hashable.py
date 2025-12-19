@@ -12,10 +12,10 @@ These tests verify:
 5. Hash/equality contract compliance (if a == b, then hash(a) must equal hash(b))
 """
 
-from cuda.core.experimental import Device
-from cuda.core.experimental._context import Context
-from cuda.core.experimental._event import Event, EventOptions
-from cuda.core.experimental._stream import Stream, StreamOptions
+from cuda.core import Device
+from cuda.core._context import Context
+from cuda.core._event import Event, EventOptions
+from cuda.core._stream import Stream, StreamOptions
 
 # ============================================================================
 # Integration Tests

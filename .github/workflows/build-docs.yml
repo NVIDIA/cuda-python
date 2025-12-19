@@ -48,7 +48,7 @@ jobs:
         shell: bash -el {0}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
         with:
           fetch-depth: 0
           ref: ${{ inputs.git-tag }}
@@ -103,7 +103,7 @@ jobs:
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
 
       - name: Download cuda-python build artifacts
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: cuda-python-wheel
           path: .
@@ -116,7 +116,7 @@ jobs:
           ls -lahR .
 
       - name: Download cuda-pathfinder build artifacts
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: cuda-pathfinder-wheel
           path: ./cuda_pathfinder
@@ -130,14 +130,14 @@ jobs:
 
       - name: Download cuda.bindings build artifacts
         if: ${{ !inputs.is-release }}
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
 
       - name: Download cuda.bindings build artifacts
         if: ${{ inputs.is-release }}
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           pattern: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           merge-multiple: true
@@ -152,14 +152,14 @@ jobs:
 
       - name: Download cuda.core build artifacts
         if: ${{ !inputs.is-release }}
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}
 
       - name: Download cuda.core build artifacts
         if: ${{ inputs.is-release }}
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131  # v7.0.0
         with:
           pattern: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           merge-multiple: true
@@ -253,7 +253,7 @@ jobs:
 
       - name: Deploy doc update
         if: ${{ github.ref_name == 'main' || inputs.is-release }}
-        uses: JamesIves/github-pages-deploy-action@4a3abc783e1a24aeb44c16e869ad83caf6b4cc23  # v4.7.4
+        uses: JamesIves/github-pages-deploy-action@9d877eea73427180ae43cf98e8914934fe157a1a  # v4.7.6
         with:
           git-config-name: cuda-python-bot
           git-config-email: cuda-python-bot@users.noreply.github.com

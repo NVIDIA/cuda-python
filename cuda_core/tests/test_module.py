@@ -5,10 +5,10 @@ import ctypes
 import pickle
 import warnings
 
-import cuda.core.experimental
+import cuda.core
 import pytest
-from cuda.core.experimental import Device, ObjectCode, Program, ProgramOptions
-from cuda.core.experimental._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
+from cuda.core import Device, ObjectCode, Program, ProgramOptions
+from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 
 try:
     import numba
@@ -41,17 +41,17 @@ def cuda12_4_prerequisite_check():
 
 def test_kernel_attributes_init_disabled():
     with pytest.raises(RuntimeError, match=r"^KernelAttributes cannot be instantiated directly\."):
-        cuda.core.experimental._module.KernelAttributes()  # Ensure back door is locked.
+        cuda.core._module.KernelAttributes()  # Ensure back door is locked.
 
 
 def test_kernel_occupancy_init_disabled():
     with pytest.raises(RuntimeError, match=r"^KernelOccupancy cannot be instantiated directly\."):
-        cuda.core.experimental._module.KernelOccupancy()  # Ensure back door is locked.
+        cuda.core._module.KernelOccupancy()  # Ensure back door is locked.
 
 
 def test_kernel_init_disabled():
     with pytest.raises(RuntimeError, match=r"^Kernel objects cannot be instantiated directly\."):
-        cuda.core.experimental._module.Kernel()  # Ensure back door is locked.
+        cuda.core._module.Kernel()  # Ensure back door is locked.
 
 
 def test_object_code_init_disabled():
@@ -387,7 +387,7 @@ def test_occupancy_max_active_clusters(get_saxpy_kernel_cubin, cluster):
     dev = Device()
     if dev.compute_capability < (9, 0):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
-    launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64, cluster=cluster)
+    launch_config = cuda.core.LaunchConfig(grid=128, block=64, cluster=cluster)
     query_fn = kernel.occupancy.max_active_clusters
     max_active_clusters = query_fn(launch_config)
     assert isinstance(max_active_clusters, int)
@@ -402,7 +402,7 @@ def test_occupancy_max_potential_cluster_size(get_saxpy_kernel_cubin):
     dev = Device()
     if dev.compute_capability < (9, 0):
         pytest.skip("Device with compute capability 90 or higher is required for cluster support")
-    launch_config = cuda.core.experimental.LaunchConfig(grid=128, block=64)
+    launch_config = cuda.core.LaunchConfig(grid=128, block=64)
     query_fn = kernel.occupancy.max_potential_cluster_size
     max_potential_cluster_size = query_fn(launch_config)
     assert isinstance(max_potential_cluster_size, int)
