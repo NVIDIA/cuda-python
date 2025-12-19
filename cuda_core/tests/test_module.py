@@ -492,6 +492,7 @@ def test_kernel_from_handle_no_module(get_saxpy_kernel_cubin):
 
 # Edge case tests for from_handle methods
 
+
 @pytest.mark.parametrize(
     "invalid_code_type,expected_error",
     [
@@ -536,11 +537,7 @@ def test_object_code_from_handle_symbol_mapping_with_valid_handle(get_saxpy_kern
     original_handle = int(original_objcode.handle)
 
     # Create ObjectCode with correct symbol mapping
-    objcode_with_map = ObjectCode.from_handle(
-        original_handle,
-        "cubin",
-        symbol_mapping=original_objcode._sym_map
-    )
+    objcode_with_map = ObjectCode.from_handle(original_handle, "cubin", symbol_mapping=original_objcode._sym_map)
 
     # Should successfully get kernel using unmangled name from symbol_mapping
     kernel = objcode_with_map.get_kernel("saxpy<float>")
@@ -616,7 +613,7 @@ def test_object_code_from_handle_multiple_instances(get_saxpy_kernel_cubin):
         pytest.param({"handle": 123}, id="dict"),
         pytest.param([456], id="list"),
         pytest.param((789,), id="tuple"),
-        pytest.param(3+4j, id="complex"),
+        pytest.param(3 + 4j, id="complex"),
         pytest.param(b"\xde\xad\xbe\xef", id="bytes"),
         pytest.param({999}, id="set"),
         pytest.param(object(), id="object"),

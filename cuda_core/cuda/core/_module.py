@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import sys
 import threading
 import weakref
 from collections import namedtuple
@@ -18,7 +17,6 @@ from cuda.core._utils.clear_error_support import (
     raise_code_path_meant_to_be_unreachable,
 )
 from cuda.core._utils.cuda_utils import driver, get_binding_version, handle_return, precondition
-
 
 # Lazy initialization state and synchronization
 # For Python 3.13t (free-threaded builds), we use a lock to ensure thread-safe initialization.
@@ -37,14 +35,15 @@ _backend = {
     },
 }
 
+
 def _lazy_init():
     """
     Initialize module-level state in a thread-safe manner.
-    
+
     This function is thread-safe and suitable for both:
     - Regular Python builds (with GIL)
     - Python 3.13t free-threaded builds (without GIL)
-    
+
     Uses double-checked locking pattern for performance:
     - Fast path: check without lock if already initialized
     - Slow path: acquire lock and initialize if needed
@@ -76,7 +75,7 @@ def _lazy_init():
         _driver_ver = handle_return(driver.cuDriverGetVersion())
         if _py_major_ver >= 12 and _driver_ver >= 12040:
             _backend["new"]["paraminfo"] = driver.cuKernelGetParamInfo
-        
+
         # Mark as initialized (must be last to ensure all state is set)
         _inited = True
 
@@ -102,7 +101,7 @@ def _get_kernel_ctypes():
 
 def _get_backend_version():
     """Get the backend version ("new" or "old") based on CUDA version.
-    
+
     Returns "new" for CUDA 12.0+ (uses cuLibrary API), "old" otherwise (uses cuModule API).
     """
     return "new" if (_get_py_major_ver() >= 12 and _get_driver_ver() >= 12000) else "old"
@@ -493,7 +492,7 @@ class Kernel:
     def from_handle(handle: int, mod: "ObjectCode" = None) -> "Kernel":
         """Creates a new :obj:`Kernel` object from a foreign kernel handle.
 
-        Uses a CUfunction or CUkernel pointer address to create a new :obj:`Kernel` object. 
+        Uses a CUfunction or CUkernel pointer address to create a new :obj:`Kernel` object.
 
         Parameters
         ----------
@@ -505,11 +504,11 @@ class Kernel:
             a placeholder ObjectCode will be created. Note that without a proper
             ObjectCode, certain operations may be limited.
         """
-        
+
         # Validate that handle is an integer
         if not isinstance(handle, int):
             raise TypeError(f"handle must be an integer, got {type(handle).__name__}")
-        
+
         # Convert the integer handle to the appropriate driver type
         if _get_py_major_ver() >= 12 and _get_driver_ver() >= 12000:
             # Try CUkernel first for newer CUDA versions
@@ -517,14 +516,14 @@ class Kernel:
         else:
             # Use CUfunction for older versions
             kernel_obj = driver.CUfunction(handle)
-        
+
         # If no module provided, create a placeholder
         if mod is None:
             # Create a placeholder ObjectCode that won't try to load anything
             mod = ObjectCode._init(b"", "cubin")
             # Set a dummy handle to prevent lazy loading
             mod._handle = 1  # Non-null placeholder
-        
+
         return Kernel._from_obj(kernel_obj, mod)
 
 
@@ -694,7 +693,9 @@ class ObjectCode:
         return ObjectCode._init(module, "library", name=name, symbol_mapping=symbol_mapping)
 
     @staticmethod
-    def from_handle(handle: int, code_type: str = "cubin", *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
+    def from_handle(
+        handle: int, code_type: str = "cubin", *, name: str = "", symbol_mapping: dict | None = None
+    ) -> "ObjectCode":
         """Create a new :obj:`ObjectCode` object from a foreign module handle.
 
         Uses a CUmodule or CUlibrary pointer address to create a new :obj:`ObjectCode` object.
@@ -718,13 +719,13 @@ class ObjectCode:
         # Create an ObjectCode instance with a placeholder module
         # The handle will be set directly, bypassing the lazy loading
         obj = ObjectCode._init(b"", code_type, name=name, symbol_mapping=symbol_mapping)
-        
+
         # Set the handle directly from the foreign handle
         if obj._backend_version == "new":
             obj._handle = driver.CUlibrary(handle)
         else:
             obj._handle = driver.CUmodule(handle)
-        
+
         return obj
 
     # TODO: do we want to unload in a finalizer? Probably not..

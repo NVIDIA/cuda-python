@@ -902,32 +902,29 @@ class Program:
         backend = backend.upper()
         if backend not in ("NVRTC", "NVVM"):
             raise ValueError(f"Unsupported backend '{backend}'. Must be 'NVRTC' or 'NVVM'")
-        
+
         # Create a new Program instance without going through __init__
         prog = object.__new__(Program)
-        
+
         # Initialize the members needed for finalization
         # Note: We pass None as the program_obj to avoid finalization since
         # we don't own the handle
-        prog._mnff = Program._MembersNeededForFinalize.__new__(
-            Program._MembersNeededForFinalize
-        )
+        prog._mnff = Program._MembersNeededForFinalize.__new__(Program._MembersNeededForFinalize)
         prog._mnff.handle = None  # Don't manage the foreign handle
         prog._mnff.backend = backend
-        
+
         # Store the backend and options
         prog._backend = backend
         prog._options = check_or_create_options(ProgramOptions, options, "Program options")
         prog._linker = None
-        
+
         # Store the handle directly without taking ownership
         # This means the finalizer won't destroy it
         if backend == "NVRTC":
             prog._mnff.handle = nvrtc.nvrtcProgram(handle)
         elif backend == "NVVM":
-            nvvm_module = _get_nvvm_module()
             # For NVVM, we just store the handle as-is
             # The actual NVVM program handle is opaque
             prog._mnff.handle = handle
-        
+
         return prog
