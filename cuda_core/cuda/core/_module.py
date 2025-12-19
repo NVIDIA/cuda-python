@@ -505,6 +505,11 @@ class Kernel:
             a placeholder ObjectCode will be created. Note that without a proper
             ObjectCode, certain operations may be limited.
         """
+        
+        # Validate that handle is an integer
+        if not isinstance(handle, int):
+            raise TypeError(f"handle must be an integer, got {type(handle).__name__}")
+        
         # Convert the integer handle to the appropriate driver type
         if _get_py_major_ver() >= 12 and _get_driver_ver() >= 12000:
             # Try CUkernel first for newer CUDA versions
