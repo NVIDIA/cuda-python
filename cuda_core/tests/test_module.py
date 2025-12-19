@@ -435,7 +435,6 @@ def test_object_code_from_handle(get_saxpy_kernel_cubin):
     assert objcode_from_handle.code_type == "cubin"
 
     # Try to get a kernel from the new object code
-    # Note: This should work since we're reusing the handle
     kernel_from_handle = objcode_from_handle.get_kernel("saxpy<float>")
     assert isinstance(kernel_from_handle, cuda.core._module.Kernel)
 

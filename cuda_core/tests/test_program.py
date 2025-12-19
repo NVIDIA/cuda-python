@@ -555,15 +555,15 @@ def test_program_from_handle_nvrtc(init_cuda):
     code = 'extern "C" __global__ void test_kernel() {}'
     original_program = Program(code, "c++")
     assert original_program.backend == "NVRTC"
-    
+
     # Get the handle
     handle = int(original_program.handle)
-    
+
     # Create a new program from the handle
     program_from_handle = Program.from_handle(handle, "NVRTC")
     assert program_from_handle.backend == "NVRTC"
     # Note: We don't own the handle, so we shouldn't close it in the from_handle instance
-    
+
     # Clean up the original program
     original_program.close()
 
@@ -574,14 +574,14 @@ def test_program_from_handle_nvvm(init_cuda, nvvm_ir):
     # Create a regular NVVM program to get a handle
     original_program = Program(nvvm_ir, "nvvm")
     assert original_program.backend == "NVVM"
-    
+
     # Get the handle
-    handle = int(original_program.handle) if hasattr(original_program.handle, '__int__') else original_program.handle
-    
+    handle = int(original_program.handle)
+
     # Create a new program from the handle
     program_from_handle = Program.from_handle(handle, "NVVM")
     assert program_from_handle.backend == "NVVM"
-    
+
     # Clean up the original program
     original_program.close()
 
