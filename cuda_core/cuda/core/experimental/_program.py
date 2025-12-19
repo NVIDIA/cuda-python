@@ -103,46 +103,9 @@ def _get_nvvm_module():
         raise e
 
 def _find_libdevice_path():
-    """
-    Find libdevice.10.bc using cuda.bindings.path_finder.
-    
-    Returns:
-        str: Path to libdevice.10.bc, or None if not found
-    """
-    try:
-        from cuda.bindings.path_finder import (
-            get_nvidia_libdevice_ctk,
-            get_libdevice_wheel,
-            get_debian_pkg_libdevice,
-        )
-        
-        for getter in [get_nvidia_libdevice_ctk, get_libdevice_wheel, get_debian_pkg_libdevice]:
-            try:
-                result = getter()
-                if result is not None and result.info is not None:
-                    return result.info
-            except Exception:
-                continue
-        
-        return None
-    except ImportError:
-        import os
-        
-        # CUDA_HOME
-        cuda_home = os.environ.get("CUDA_HOME") or os.environ.get("CUDA_PATH")
-        if cuda_home:
-            libdevice_path = os.path.join(cuda_home, "nvvm", "libdevice", "libdevice.10.bc")
-            if os.path.isfile(libdevice_path):
-                return libdevice_path
-        
-        # Linux paths
-        for base in ["/usr/local/cuda", "/opt/cuda"]:
-            libdevice_path = os.path.join(base, "nvvm", "libdevice", "libdevice.10.bc")
-            if os.path.isfile(libdevice_path):
-                return libdevice_path
-        
-        return None
-
+    """Find libdevice.10.bc for NVVM compilation using cuda.pathfinder."""
+    from cuda.pathfinder import get_libdevice_path
+    return get_libdevice_path()
 
 def _process_define_macro_inner(formatted_options, macro):
     if isinstance(macro, str):
