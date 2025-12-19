@@ -19,15 +19,6 @@ from cuda.core._utils.clear_error_support import (
 )
 from cuda.core._utils.cuda_utils import driver, get_binding_version, handle_return, precondition
 
-_backend = {
-    "old": {
-        "file": driver.cuModuleLoad,
-        "data": driver.cuModuleLoadDataEx,
-        "kernel": driver.cuModuleGetFunction,
-        "attribute": driver.cuFuncGetAttribute,
-    },
-}
-
 
 # Lazy initialization state and synchronization
 # For Python 3.13t (free-threaded builds), we use a lock to ensure thread-safe initialization.
@@ -37,7 +28,14 @@ _inited = False
 _py_major_ver = None
 _driver_ver = None
 _kernel_ctypes = None
-
+_backend = {
+    "old": {
+        "file": driver.cuModuleLoad,
+        "data": driver.cuModuleLoadDataEx,
+        "kernel": driver.cuModuleGetFunction,
+        "attribute": driver.cuFuncGetAttribute,
+    },
+}
 
 def _lazy_init():
     """
@@ -102,6 +100,14 @@ def _get_kernel_ctypes():
     return _kernel_ctypes
 
 
+def _get_backend_version():
+    """Get the backend version ("new" or "old") based on CUDA version.
+    
+    Returns "new" for CUDA 12.0+ (uses cuLibrary API), "old" otherwise (uses cuModule API).
+    """
+    return "new" if (_get_py_major_ver() >= 12 and _get_driver_ver() >= 12000) else "old"
+
+
 class KernelAttributes:
     def __new__(self, *args, **kwargs):
         raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
@@ -114,7 +120,7 @@ class KernelAttributes:
         self._kernel = weakref.ref(kernel)
         self._cache = {}
 
-        self._backend_version = "new" if (_get_py_major_ver() >= 12 and _get_driver_ver() >= 12000) else "old"
+        self._backend_version = _get_backend_version()
         self._loader = _backend[self._backend_version]
         return self
 
@@ -241,7 +247,9 @@ MaxPotentialBlockSizeOccupancyResult = namedtuple("MaxPotential", ("min_grid_siz
 
 
 class KernelOccupancy:
-    """ """
+    """This class offers methods to query occupancy metrics that help determine optimal
+    launch parameters such as block size, grid size, and shared memory usage.
+    """
 
     def __new__(self, *args, **kwargs):
         raise RuntimeError("KernelOccupancy cannot be instantiated directly. Please use Kernel APIs.")
@@ -566,7 +574,7 @@ class ObjectCode:
         # handle is assigned during _lazy_load
         self._handle = None
 
-        self._backend_version = "new" if (_get_py_major_ver() >= 12 and _get_driver_ver() >= 12000) else "old"
+        self._backend_version = _get_backend_version()
         self._loader = _backend[self._backend_version]
 
         self._code_type = code_type
