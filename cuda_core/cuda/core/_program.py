@@ -868,12 +868,6 @@ class Program:
         Uses a nvrtcProgram or NVVM program handle represented as a Python int
         to create a new :obj:`Program` object.
 
-        Note
-        ----
-        Program lifetime is not managed, foreign object must remain
-        alive while this program is active. The handle should not be
-        destroyed externally while this Program object is in use.
-
         Parameters
         ----------
         handle : int
@@ -887,17 +881,6 @@ class Program:
         options : :obj:`ProgramOptions`, optional
             Program options that may be used for subsequent operations.
             If not provided, default options will be created.
-
-        Returns
-        -------
-        :obj:`Program`
-            Newly created program object.
-
-        Raises
-        ------
-        ValueError
-            If an unsupported backend is specified.
-
         """
         backend = backend.upper()
         if backend not in ("NVRTC", "NVVM"):
