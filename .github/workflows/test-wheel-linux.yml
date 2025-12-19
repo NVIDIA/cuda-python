@@ -283,6 +283,7 @@ jobs:
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
+          ls -R
           pip install --only-binary=:all: -v . --group "test-cu${TEST_CUDA_MAJOR}"
           pip list
           popd
