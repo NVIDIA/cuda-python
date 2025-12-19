@@ -247,8 +247,6 @@ jobs:
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests bindings
 
-
-
       - name: Ensure cuda-python installable
         run: |
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then

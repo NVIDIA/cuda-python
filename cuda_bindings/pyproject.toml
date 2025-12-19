@@ -2,7 +2,12 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 [build-system]
-requires = ["setuptools>=77.0.0", "cython>=3.2,<3.3", "pyclibrary>=0.1.7"]
+requires = [
+    "setuptools>=80.0.0", 
+    "setuptools-scm[simple]>=8",
+    "cython>=3.2,<3.3", 
+    "pyclibrary>=0.1.7"
+]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -55,7 +60,6 @@ Documentation = "https://nvidia.github.io/cuda-python/"
 include = ["cuda*"]
 
 [tool.setuptools.dynamic]
-version = { attr = "cuda.bindings._version.__version__" }
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
 [tool.ruff]
@@ -113,3 +117,10 @@ exclude = ["cuda/bindings/_version.py"]
   "UP022",
   "E402", # module level import not at top of file
   "F841"] # F841 complains about unused variables, but some assignments have side-effects that could be useful for tests (func calls for example)
+
+[tool.setuptools_scm]
+root = ".."
+version_file = "cuda/bindings/_version.py"
+# We deliberately do not want to include the version suffixes (a/b/rc) in cuda-bindings versioning
+tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+)"
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*"]
