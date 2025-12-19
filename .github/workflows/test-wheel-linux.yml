@@ -268,22 +268,18 @@ jobs:
 
       - name: Ensure cuda-python installable
         run: |
-          echo Showing wheels locally in $PWD
-          ls ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
-          # We need to find the `cuda_bindings` dependency from a local
-          # directory, rather than on PyPI, since the version hasn't been
-          # released yet.
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            pip install cuda_python*.whl --find-links ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+            pip install cuda_python*.whl
           else
-            pip install $(ls cuda_python*.whl)[all] --find-links ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}
+            pip install $(ls cuda_python*.whl)[all]
           fi
 
       - name: Install cuda.pathfinder extra wheels for testing
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
-          ls -R
+          # Install pathfinder from the pre-built wheel, since building from
+          # source won't work in this context (we don't have a git checkout).
           pip install --only-binary=:all: -v ./*.whl --group "test-cu${TEST_CUDA_MAJOR}"
           pip list
           popd
