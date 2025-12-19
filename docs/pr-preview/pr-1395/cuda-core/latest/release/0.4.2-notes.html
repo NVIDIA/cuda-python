@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=ff822928"></script>
+    <script src="../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -63,6 +63,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="cuda.core 0.5.0 Release Notes" href="0.5.0-notes.html" />
     <link rel="prev" title="cuda.core 0.4.1 Release Notes" href="0.4.1-notes.html" />
 
 
@@ -205,7 +206,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../api.html">
-    cuda.core.experimental API Reference
+    cuda.core API Reference
   </a>
 </li>
 
@@ -394,7 +395,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../api.html">
-    cuda.core.experimental API Reference
+    cuda.core API Reference
   </a>
 </li>
 
@@ -461,37 +462,38 @@
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core.experimental</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Device.html">cuda.core.experimental.Device</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Graph.html">cuda.core.experimental.Graph</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.GraphBuilder.html">cuda.core.experimental.GraphBuilder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.launch.html">cuda.core.experimental.launch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Buffer.html">cuda.core.experimental.Buffer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Stream.html">cuda.core.experimental.Stream</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Event.html">cuda.core.experimental.Event</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.MemoryResource.html">cuda.core.experimental.MemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.DeviceMemoryResource.html">cuda.core.experimental.DeviceMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.PinnedMemoryResource.html">cuda.core.experimental.PinnedMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.ManagedMemoryResource.html">cuda.core.experimental.ManagedMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.LegacyPinnedMemoryResource.html">cuda.core.experimental.LegacyPinnedMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.VirtualMemoryResource.html">cuda.core.experimental.VirtualMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.DeviceMemoryResourceOptions.html">cuda.core.experimental.DeviceMemoryResourceOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.PinnedMemoryResourceOptions.html">cuda.core.experimental.PinnedMemoryResourceOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.ManagedMemoryResourceOptions.html">cuda.core.experimental.ManagedMemoryResourceOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.EventOptions.html">cuda.core.experimental.EventOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.GraphCompleteOptions.html">cuda.core.experimental.GraphCompleteOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.GraphDebugPrintOptions.html">cuda.core.experimental.GraphDebugPrintOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.StreamOptions.html">cuda.core.experimental.StreamOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.LaunchConfig.html">cuda.core.experimental.LaunchConfig</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.VirtualMemoryResourceOptions.html">cuda.core.experimental.VirtualMemoryResourceOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Program.html">cuda.core.experimental.Program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Linker.html">cuda.core.experimental.Linker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.ObjectCode.html">cuda.core.experimental.ObjectCode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.Kernel.html">cuda.core.experimental.Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.ProgramOptions.html">cuda.core.experimental.ProgramOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.LinkerOptions.html">cuda.core.experimental.LinkerOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.utils.args_viewable_as_strided_memory.html">cuda.core.experimental.utils.args_viewable_as_strided_memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.experimental.utils.StridedMemoryView.html">cuda.core.experimental.utils.StridedMemoryView</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Device.html">cuda.core.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Graph.html">cuda.core.Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.launch.html">cuda.core.launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.PinnedMemoryResource.html">cuda.core.PinnedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ManagedMemoryResource.html">cuda.core.ManagedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.LegacyPinnedMemoryResource.html">cuda.core.LegacyPinnedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResource.html">cuda.core.VirtualMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.DeviceMemoryResourceOptions.html">cuda.core.DeviceMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.GraphCompleteOptions.html">cuda.core.GraphCompleteOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.GraphDebugPrintOptions.html">cuda.core.GraphDebugPrintOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Program.html">cuda.core.Program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contributing</a></li>
@@ -502,6 +504,7 @@
 </ul>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="0.5.0-notes.html">0.5.0</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">0.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.4.1-notes.html">0.4.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.4.0-notes.html">0.4.0</a></li>
@@ -612,6 +615,15 @@
         <p class="prev-next-subtitle">previous</p>
         <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.4.1 Release Notes</p>
       </div>
+    </a>
+    <a class="right-next"
+       href="0.5.0-notes.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.5.0 Release Notes</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>
