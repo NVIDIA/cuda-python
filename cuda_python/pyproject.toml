@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 [build-system]
-requires = ["setuptools>=77.0.0",]
+requires = ["setuptools>=80.0.0", "setuptools-scm[simple]>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -40,3 +40,7 @@ homepage = "https://nvidia.github.io/cuda-python/"
 documentation = "https://nvidia.github.io/cuda-python/"
 repository = "https://github.com/NVIDIA/cuda-python/"
 issues = "https://github.com/NVIDIA/cuda-python/issues/"
+
+# The [tool.setuptools_scm] section is handled in setup.py since we need to
+# dynamically set the dependency to cuda_bindings based on the dynamically
+# determinded version

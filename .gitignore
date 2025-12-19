@@ -49,6 +49,9 @@ cuda_bindings/cuda/bindings/nvrtc.pxd
 cuda_bindings/cuda/bindings/nvrtc.pyx
 cuda_bindings/cuda/bindings/utils/_get_handle.pyx
 
+# Version files from setuptools_scm
+_version.py
+
 # Distribution / packaging
 .Python
 build/

@@ -278,7 +278,9 @@ jobs:
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
-          pip install --only-binary=:all: -v . --group "test-cu${TEST_CUDA_MAJOR}"
+          # Install pathfinder from the pre-built wheel, since building from
+          # source won't work in this context (we don't have a git checkout).
+          pip install --only-binary=:all: -v ./*.whl --group "test-cu${TEST_CUDA_MAJOR}"
           pip list
           popd
 
