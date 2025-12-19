@@ -491,15 +491,9 @@ class Kernel:
 
     @staticmethod
     def from_handle(handle: int, mod: "ObjectCode" = None) -> "Kernel":
-        """Create a new :obj:`Kernel` object from a foreign kernel handle.
+        """Creates a new :obj:`Kernel` object from a foreign kernel handle.
 
-        Uses a CUfunction or CUkernel pointer address represented as a Python int
-        to create a new :obj:`Kernel` object.
-
-        Note
-        ----
-        Kernel lifetime is not managed, foreign object must remain
-        alive while this kernel is active.
+        Uses a CUfunction or CUkernel pointer address to create a new :obj:`Kernel` object. 
 
         Parameters
         ----------
@@ -510,12 +504,6 @@ class Kernel:
             The ObjectCode object associated with this kernel. If not provided,
             a placeholder ObjectCode will be created. Note that without a proper
             ObjectCode, certain operations may be limited.
-
-        Returns
-        -------
-        :obj:`Kernel`
-            Newly created kernel object.
-
         """
         # Convert the integer handle to the appropriate driver type
         if _get_py_major_ver() >= 12 and _get_driver_ver() >= 12000:
@@ -704,13 +692,7 @@ class ObjectCode:
     def from_handle(handle: int, code_type: str = "cubin", *, name: str = "", symbol_mapping: dict | None = None) -> "ObjectCode":
         """Create a new :obj:`ObjectCode` object from a foreign module handle.
 
-        Uses a CUmodule or CUlibrary pointer address represented as a Python int
-        to create a new :obj:`ObjectCode` object.
-
-        Note
-        ----
-        Module lifetime is not managed, foreign object must remain
-        alive while this object code is active.
+        Uses a CUmodule or CUlibrary pointer address to create a new :obj:`ObjectCode` object.
 
         Parameters
         ----------
@@ -727,12 +709,6 @@ class ObjectCode:
             A dictionary specifying how the unmangled symbol names (as keys)
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
-
-        Returns
-        -------
-        :obj:`ObjectCode`
-            Newly created object code.
-
         """
         # Create an ObjectCode instance with a placeholder module
         # The handle will be set directly, bypassing the lazy loading
