@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
+import threading
 import weakref
 from collections import namedtuple
 from typing import Union
@@ -27,7 +29,10 @@ _backend = {
 }
 
 
-# TODO: revisit this treatment for py313t builds
+# Lazy initialization state and synchronization
+# For Python 3.13t (free-threaded builds), we use a lock to ensure thread-safe initialization.
+# For regular Python builds with GIL, the lock overhead is minimal and the code remains safe.
+_init_lock = threading.Lock()
 _inited = False
 _py_major_ver = None
 _driver_ver = None
@@ -35,27 +40,66 @@ _kernel_ctypes = None
 
 
 def _lazy_init():
+    """
+    Initialize module-level state in a thread-safe manner.
+    
+    This function is thread-safe and suitable for both:
+    - Regular Python builds (with GIL)
+    - Python 3.13t free-threaded builds (without GIL)
+    
+    Uses double-checked locking pattern for performance:
+    - Fast path: check without lock if already initialized
+    - Slow path: acquire lock and initialize if needed
+    """
     global _inited
+    # Fast path: already initialized (no lock needed for read)
     if _inited:
         return
 
-    global _py_major_ver, _driver_ver, _kernel_ctypes
-    # binding availability depends on cuda-python version
-    _py_major_ver, _ = get_binding_version()
-    if _py_major_ver >= 12:
-        _backend["new"] = {
-            "file": driver.cuLibraryLoadFromFile,
-            "data": driver.cuLibraryLoadData,
-            "kernel": driver.cuLibraryGetKernel,
-            "attribute": driver.cuKernelGetAttribute,
-        }
-        _kernel_ctypes = (driver.CUfunction, driver.CUkernel)
-    else:
-        _kernel_ctypes = (driver.CUfunction,)
-    _driver_ver = handle_return(driver.cuDriverGetVersion())
-    if _py_major_ver >= 12 and _driver_ver >= 12040:
-        _backend["new"]["paraminfo"] = driver.cuKernelGetParamInfo
-    _inited = True
+    # Slow path: acquire lock and initialize
+    with _init_lock:
+        # Double-check: another thread might have initialized while we waited
+        if _inited:
+            return
+
+        global _py_major_ver, _driver_ver, _kernel_ctypes
+        # binding availability depends on cuda-python version
+        _py_major_ver, _ = get_binding_version()
+        if _py_major_ver >= 12:
+            _backend["new"] = {
+                "file": driver.cuLibraryLoadFromFile,
+                "data": driver.cuLibraryLoadData,
+                "kernel": driver.cuLibraryGetKernel,
+                "attribute": driver.cuKernelGetAttribute,
+            }
+            _kernel_ctypes = (driver.CUfunction, driver.CUkernel)
+        else:
+            _kernel_ctypes = (driver.CUfunction,)
+        _driver_ver = handle_return(driver.cuDriverGetVersion())
+        if _py_major_ver >= 12 and _driver_ver >= 12040:
+            _backend["new"]["paraminfo"] = driver.cuKernelGetParamInfo
+        
+        # Mark as initialized (must be last to ensure all state is set)
+        _inited = True
+
+
+# Auto-initializing property accessors
+def _get_py_major_ver():
+    """Get the Python binding major version, initializing if needed."""
+    _lazy_init()
+    return _py_major_ver
+
+
+def _get_driver_ver():
+    """Get the CUDA driver version, initializing if needed."""
+    _lazy_init()
+    return _driver_ver
+
+
+def _get_kernel_ctypes():
+    """Get the kernel ctypes tuple, initializing if needed."""
+    _lazy_init()
+    return _kernel_ctypes
 
 
 class KernelAttributes:
@@ -70,7 +114,7 @@ class KernelAttributes:
         self._kernel = weakref.ref(kernel)
         self._cache = {}
 
-        self._backend_version = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
+        self._backend_version = "new" if (_get_py_major_ver() >= 12 and _get_driver_ver() >= 12000) else "old"
         self._loader = _backend[self._backend_version]
         return self
 
@@ -378,7 +422,7 @@ class Kernel:
 
     @classmethod
     def _from_obj(cls, obj, mod):
-        assert_type(obj, _kernel_ctypes)
+        assert_type(obj, _get_kernel_ctypes())
         assert_type(mod, ObjectCode)
         ker = super().__new__(cls)
         ker._handle = obj
@@ -399,9 +443,10 @@ class Kernel:
         if attr_impl._backend_version != "new":
             raise NotImplementedError("New backend is required")
         if "paraminfo" not in attr_impl._loader:
+            driver_ver = _get_driver_ver()
             raise NotImplementedError(
                 "Driver version 12.4 or newer is required for this function. "
-                f"Using driver version {_driver_ver // 1000}.{(_driver_ver % 1000) // 10}"
+                f"Using driver version {driver_ver // 1000}.{(driver_ver % 1000) // 10}"
             )
         arg_pos = 0
         param_info_data = []
@@ -464,9 +509,8 @@ class Kernel:
             Newly created kernel object.
 
         """
-        _lazy_init()
         # Convert the integer handle to the appropriate driver type
-        if _py_major_ver >= 12 and _driver_ver >= 12000:
+        if _get_py_major_ver() >= 12 and _get_driver_ver() >= 12000:
             # Try CUkernel first for newer CUDA versions
             kernel_obj = driver.CUkernel(handle)
         else:
@@ -518,12 +562,11 @@ class ObjectCode:
     def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict | None = None):
         self = super().__new__(cls)
         assert code_type in self._supported_code_type, f"{code_type=} is not supported"
-        _lazy_init()
 
         # handle is assigned during _lazy_load
         self._handle = None
 
-        self._backend_version = "new" if (_py_major_ver >= 12 and _driver_ver >= 12000) else "old"
+        self._backend_version = "new" if (_get_py_major_ver() >= 12 and _get_driver_ver() >= 12000) else "old"
         self._loader = _backend[self._backend_version]
 
         self._code_type = code_type
@@ -683,7 +726,6 @@ class ObjectCode:
             Newly created object code.
 
         """
-        _lazy_init()
         # Create an ObjectCode instance with a placeholder module
         # The handle will be set directly, bypassing the lazy loading
         obj = ObjectCode._init(b"", code_type, name=name, symbol_mapping=symbol_mapping)
