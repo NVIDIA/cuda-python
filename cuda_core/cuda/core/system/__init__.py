@@ -18,11 +18,46 @@ __all__ = [
 from .system import *
 
 if HAS_WORKING_NVML:
-    from cuda.bindings import _nvml
-
     from ._nvml_context import initialize
     from .device import Device, DeviceArchitecture
+    from .exceptions import *
 
     initialize()
 
-    __all__.extend(["Device", "DeviceArchitecture"])
+    __all__.extend(
+        [
+            "Device",
+            "DeviceArchitecture",
+            "UninitializedError",
+            "InvalidArgumentError",
+            "NotSupportedError",
+            "NoPermissionError",
+            "AlreadyInitializedError",
+            "NotFoundError",
+            "InsufficientSizeError",
+            "InsufficientPowerError",
+            "DriverNotLoadedError",
+            "TimeoutError",
+            "IrqIssueError",
+            "LibraryNotFoundError",
+            "FunctionNotFoundError",
+            "CorruptedInforomError",
+            "GpuIsLostError",
+            "ResetRequiredError",
+            "OperatingSystemError",
+            "LibRmVersionMismatchError",
+            "InUseError",
+            "MemoryError",
+            "NoDataError",
+            "VgpuEccNotSupportedError",
+            "InsufficientResourcesError",
+            "FreqNotSupportedError",
+            "ArgumentVersionMismatchError",
+            "DeprecatedError",
+            "NotReadyError",
+            "GpuNotFoundError",
+            "InvalidStateError",
+            "ResetTypeNotSupportedError",
+            "UnknownError",
+        ]
+    )

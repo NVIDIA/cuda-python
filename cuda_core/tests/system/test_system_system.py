@@ -11,9 +11,6 @@ from cuda.core import system
 
 from .conftest import skip_if_nvml_unsupported
 
-if system.HAS_WORKING_NVML:
-    from cuda.bindings import _nvml as nvml
-
 
 def test_cuda_driver_version():
     cuda_driver_version = system.get_driver_version_full()
@@ -57,7 +54,7 @@ def test_nvml_version():
 def test_get_process_name():
     try:
         process_name = system.get_process_name(os.getpid())
-    except nvml.NotFoundError:
+    except system.NotFoundError:
         pytest.skip("Process not found")
 
     assert isinstance(process_name, str)

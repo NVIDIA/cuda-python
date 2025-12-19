@@ -64,7 +64,7 @@ def test_device_cpu_affinity():
     for device in system.Device.get_all_devices():
         try:
             affinity = device.cpu_affinity
-        except nvml.NotSupportedError:
+        except system.NotSupportedError:
             skip_reasons.add(f"CPU affinity not supported on {device}")
         else:
             assert isinstance(affinity, list)
@@ -144,7 +144,7 @@ def test_device_serial():
     for device in system.Device.get_all_devices():
         try:
             serial = device.serial
-        except nvml.NotSupportedError:
+        except system.NotSupportedError:
             skip_reasons.add(f"Device serial not supported by device {device}")
         else:
             assert isinstance(serial, str)

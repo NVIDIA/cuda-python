@@ -7,6 +7,8 @@ import threading
 
 from cuda.bindings import _nvml as nvml
 
+from . import exceptions
+
 
 ctypedef enum _NVMLState:
     UNINITIALIZED = 0
@@ -46,9 +48,9 @@ def initialize() -> None:
             try:
                 nvml.init_v2()
             except (
-                nvml.LibraryNotFoundError,
-                nvml.DriverNotLoadedError,
-                nvml.UnknownError,
+                exceptions.LibraryNotFoundError,
+                exceptions.DriverNotLoadedError,
+                exceptions.UnknownError,
             ):
                 _NVML_STATE = _NVMLState.DISABLED_LIBRARY_NOT_FOUND
                 return
@@ -86,6 +88,6 @@ def validate() -> None:
         If no GPUs are available.
     """
     if _NVML_STATE == _NVMLState.DISABLED_LIBRARY_NOT_FOUND:
-        raise nvml.LibraryNotFoundError("The underlying NVML library was not found")
+        raise exceptions.LibraryNotFoundError("The underlying NVML library was not found")
     elif nvml.device_get_count_v2() == 0:
-        raise nvml.GpuNotFoundError("No GPUs available")
+        raise exceptions.GpuNotFoundError("No GPUs available")
