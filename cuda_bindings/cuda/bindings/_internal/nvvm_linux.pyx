@@ -10,8 +10,6 @@ import threading
 from .utils import FunctionNotFoundError, NotSupportedError
 
 from cuda.pathfinder import load_nvidia_dynamic_lib
-from cuda.bindings import path_finder
-
 
 ###############################################################################
 # Extern
@@ -76,7 +74,7 @@ cdef void* __nvvmGetProgramLog = NULL
 
 
 cdef void* load_library() except* with gil:
-    cdef uintptr_t handle = path_finder.load_nvidia_dynamic_library("nvvm")
+    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvvm")._handle_uint
     return <void*>handle
 
 

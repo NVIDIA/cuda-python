@@ -9,9 +9,7 @@ from libc.stdint cimport intptr_t, uintptr_t
 import threading
 from .utils import FunctionNotFoundError, NotSupportedError
 
-from cuda.bindings import path_finder
-
-
+from cuda.pathfinder import load_nvidia_dynamic_lib
 
 ###############################################################################
 # Extern
@@ -77,7 +75,7 @@ cdef void* __nvJitLinkVersion = NULL
 
 
 cdef void* load_library() except* with gil:
-    cdef uintptr_t handle = path_finder.load_nvidia_dynamic_library("nvJitLink")
+    cdef uintptr_t handle = load_nvidia_dynamic_lib("nvJitLink")._handle_uint
     return <void*>handle
 
 
