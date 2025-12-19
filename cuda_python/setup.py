@@ -15,15 +15,23 @@ version = get_version(
 )
 
 
-version = Version(version).base_version
+base_version = Version(version).base_version
+
+
+if base_version == version:
+    # Tagged release
+    matcher = "~="
+else:
+    # Pre-release version
+    matcher = "=="
 
 
 setup(
     version=version,
     install_requires=[
-        f"cuda-bindings~={version}",
+        f"cuda-bindings{matcher}{version}",
     ],
     extras_require={
-        "all": [f"cuda-bindings[all]~={version}"],
+        "all": [f"cuda-bindings[all]{matcher}{version}"],
     },
 )

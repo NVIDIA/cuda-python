@@ -247,14 +247,10 @@ jobs:
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: run-tests bindings
 
-
-
       - name: Ensure cuda-python installable
         run: |
-          echo Showing wheels locally in $PWD
-          ls *.whl
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            pip install cuda_python*.whl --find-links .
+            pip install cuda_python*.whl
           else
-            pip install $(ls cuda_python*.whl)[all] --find-links .
+            pip install $(ls cuda_python*.whl)[all]
           fi
