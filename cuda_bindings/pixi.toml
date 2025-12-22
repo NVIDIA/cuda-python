@@ -90,7 +90,8 @@ CUDA_HOME = '%PREFIX%\Library'
 
 [package.host-dependencies]
 python = "*"
-setuptools = ">=77"
+setuptools = ">=80"
+setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
 pyclibrary = ">=0.1.7"
 cuda-cudart-static = "*"

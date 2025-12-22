@@ -1067,10 +1067,6 @@ packages:
   - python_abi 3.14.* *_cp314
   - cuda-cudart >=13.1.80,<14.0a0
   license: Apache-2.0
-  input:
-    hash: 1ca5e93f36385c628c555ad7ff2bbacd659238db16f10d477ece67c394b562f5
-    globs:
-    - pyproject.toml
 - conda: .
   name: cuda-core
   version: 0.5.0
@@ -1087,10 +1083,6 @@ packages:
   - vc14_runtime >=14.16.27033
   - python_abi 3.14.* *_cp314
   license: Apache-2.0
-  input:
-    hash: 1ca5e93f36385c628c555ad7ff2bbacd659238db16f10d477ece67c394b562f5
-    globs:
-    - pyproject.toml
 - conda: .
   name: cuda-core
   version: 0.5.0
@@ -1109,10 +1101,6 @@ packages:
   - python_abi 3.14.* *_cp314
   - cuda-cudart >=13.1.80,<14.0a0
   license: Apache-2.0
-  input:
-    hash: 1ca5e93f36385c628c555ad7ff2bbacd659238db16f10d477ece67c394b562f5
-    globs:
-    - pyproject.toml
 - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-crt-dev_linux-64-12.9.86-ha770c72_2.conda
   sha256: e6257534c4b4b6b8a1192f84191c34906ab9968c92680fa09f639e7846a87304
   md5: 79d280de61e18010df5997daea4743df
