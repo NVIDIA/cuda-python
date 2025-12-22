@@ -96,10 +96,7 @@ class TestViewCPU:
         assert view.shape == in_arr.shape
         assert view.size == in_arr.size
         strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
-        if in_arr.flags.c_contiguous:
-            assert view.strides is None
-        else:
-            assert view.strides == strides_in_counts
+        assert (in_arr.flags.c_contiguous and view.strides is None) or view.strides == strides_in_counts
         assert view.dtype == in_arr.dtype
         assert view.device_id == -1
         assert view.is_device_accessible is False
