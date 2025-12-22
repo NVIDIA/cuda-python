@@ -1,6 +1,0 @@
-﻿cuda.bindings.cufile.BatchMode
-==============================
-
-.. currentmodule:: cuda.bindings.cufile
-
-.. autoenum:: BatchMode
