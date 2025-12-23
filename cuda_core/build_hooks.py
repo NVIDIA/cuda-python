@@ -11,7 +11,6 @@ import functools
 import glob
 import os
 import re
-import subprocess
 
 from Cython.Build import cythonize
 from setuptools import Extension
@@ -26,32 +25,48 @@ COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 
 @functools.cache
-def _get_proper_cuda_bindings_major_version() -> str:
-    # for local development (with/without build isolation)
-    try:
-        import cuda.bindings
+def _get_cuda_major_version() -> str:
+    """Determine the CUDA major version for building cuda.core.
 
-        return cuda.bindings.__version__.split(".")[0]
-    except ImportError:
-        pass
+    This version is used for two purposes:
+    1. Determining which cuda-bindings version to install as a build dependency
+    2. Setting CUDA_CORE_BUILD_MAJOR for Cython compile-time conditionals
 
-    # for custom overwrite, e.g. in CI
+    The version is derived from (in order of priority):
+    1. CUDA_CORE_BUILD_MAJOR environment variable (explicit override, e.g. in CI)
+    2. CUDA_VERSION macro in cuda.h from CUDA_PATH or CUDA_HOME
+
+    Since CUDA_PATH or CUDA_HOME is required for the build (to provide include
+    directories), the cuda.h header should always be available.
+    """
+    # Explicit override, e.g. in CI.
     cuda_major = os.environ.get("CUDA_CORE_BUILD_MAJOR")
     if cuda_major is not None:
         return cuda_major
 
-    # also for local development
-    try:
-        out = subprocess.run("nvidia-smi", env=os.environ, capture_output=True, check=True)  # noqa: S603, S607
-        m = re.search(r"CUDA Version:\s*([\d\.]+)", out.stdout.decode())
-        if m:
-            return m.group(1).split(".")[0]
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        # the build machine has no driver installed
-        pass
+    # Derive from the CUDA headers (the authoritative source for what we compile against).
+    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
+    if cuda_path:
+        for root in cuda_path.split(os.pathsep):
+            cuda_h = os.path.join(root, "include", "cuda.h")
+            try:
+                with open(cuda_h, encoding="utf-8") as f:
+                    for line in f:
+                        m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
+                        if m:
+                            v = int(m.group(1))
+                            # CUDA_VERSION is e.g. 12020 for 12.2.
+                            return str(v // 1000)
+            except OSError:
+                continue
 
-    # default fallback
-    return "13"
+    # CUDA_PATH or CUDA_HOME is required for the build, so we should not reach here
+    # in normal circumstances. Raise an error to make the issue clear.
+    raise RuntimeError(
+        "Cannot determine CUDA major version. "
+        "Set CUDA_CORE_BUILD_MAJOR environment variable, or ensure CUDA_PATH or CUDA_HOME "
+        "points to a valid CUDA installation with include/cuda.h."
+    )
 
 
 # used later by setup()
@@ -105,7 +120,7 @@ def _build_cuda_core():
     )
 
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
-    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(_get_proper_cuda_bindings_major_version())}
+    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(_get_cuda_major_version())}
     compiler_directives = {"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True}
     if COMPILE_FOR_COVERAGE:
         compiler_directives["linetrace"] = True
@@ -132,7 +147,7 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
 
 def _get_cuda_bindings_require():
-    cuda_major = _get_proper_cuda_bindings_major_version()
+    cuda_major = _get_cuda_major_version()
     return [f"cuda-bindings=={cuda_major}.*"]
 
 
