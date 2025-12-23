@@ -15,6 +15,15 @@ else:
 
 import importlib
 
+# The _resource_handles module exports a PyCapsule dispatch table that other
+# extension modules access via PyCapsule_Import. We import it here to ensure
+# it's loaded before other modules try to use it.
+#
+# We use importlib.import_module with the full path to avoid triggering
+# circular import issues that can occur with relative imports during
+# package initialization.
+_resource_handles = importlib.import_module("cuda.core._resource_handles")
+
 subdir = f"cu{cuda_major}"
 try:
     versioned_mod = importlib.import_module(f".{subdir}", __package__)

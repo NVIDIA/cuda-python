@@ -2,4 +2,5 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-recursive-include cuda/core *.pyx *.pxd *.cpp *.hpp
+# Backward compatibility stub - use cuda.core._context instead
+from cuda.core._context cimport Context

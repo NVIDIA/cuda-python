@@ -86,7 +86,21 @@ def _build_cuda_core():
         print("CUDA paths:", CUDA_PATH)
         return CUDA_PATH
 
-    all_include_dirs = list(os.path.join(root, "include") for root in get_cuda_paths())
+    def get_sources(mod_name):
+        """Get source files for a module, including any .cpp files."""
+        sources = [f"cuda/core/{mod_name}.pyx"]
+
+        # Add module-specific .cpp file from _cpp/ directory if it exists
+        cpp_file = f"cuda/core/_cpp/{mod_name.lstrip('_')}.cpp"
+        if os.path.exists(cpp_file):
+            sources.append(cpp_file)
+
+        return sources
+
+    def get_extension_kwargs(mod_name):
+        """Return Extension kwargs (libraries, etc.) per module."""
+        return {"extra_compile_args": extra_compile_args}
+
     extra_compile_args = []
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
@@ -96,10 +110,14 @@ def _build_cuda_core():
     ext_modules = tuple(
         Extension(
             f"cuda.core.{mod.replace(os.path.sep, '.')}",
-            sources=[f"cuda/core/{mod}.pyx"],
-            include_dirs=all_include_dirs,
+            sources=get_sources(mod),
+            include_dirs=[
+                "cuda/core/_include",
+                "cuda/core/_cpp",
+            ]
+            + list(os.path.join(root, "include") for root in get_cuda_paths()),
             language="c++",
-            extra_compile_args=extra_compile_args,
+            **get_extension_kwargs(mod),
         )
         for mod in module_names
     )
