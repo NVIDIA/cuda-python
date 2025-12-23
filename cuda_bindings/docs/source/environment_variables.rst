@@ -9,6 +9,8 @@ Runtime Environment Variables
 
 - ``CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM`` : When set to 1, the default stream is the per-thread default stream. When set to 0, the default stream is the legacy default stream. This defaults to 0, for the legacy default stream. See `Stream Synchronization Behavior <https://docs.nvidia.com/cuda/cuda-runtime-api/stream-sync-behavior.html>`_ for an explanation of the legacy and per-thread default streams.
 
+- ``CUDA_PYTHON_DISABLE_VERSION_CHECK`` : When set to 1, suppresses the warning that is issued when ``cuda.core`` detects that ``cuda-bindings`` was compiled against a newer CUDA major version than the installed driver supports. This warning helps identify version mismatches that may cause features to not work correctly.
+
 
 Build-Time Environment Variables
 --------------------------------
