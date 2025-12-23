@@ -38,7 +38,7 @@ def _warn_deprecated():
 _warn_deprecated()
 
 
-from cuda.core import utils  # noqa: E402
+from cuda.core import system, utils  # noqa: E402
 
 # Make utils accessible as a submodule for backward compatibility
 __import__("sys").modules[__spec__.name + ".utils"] = utils
@@ -73,8 +73,3 @@ from cuda.core._memory import (  # noqa: E402
 from cuda.core._module import Kernel, ObjectCode  # noqa: E402
 from cuda.core._program import Program, ProgramOptions  # noqa: E402
 from cuda.core._stream import Stream, StreamOptions  # noqa: E402
-from cuda.core._system import System  # noqa: E402
-
-system = System()
-__import__("sys").modules[__spec__.name + ".system"] = system
-del System
