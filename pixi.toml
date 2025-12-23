@@ -7,20 +7,15 @@ channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64", "win-64"]
 
 [feature.cu12.dependencies]
-[feature.cu13.dependencies]
 
 [environments]
 cu12 = { features = ["cu12"] }
-cu13 = { features = ["cu13"] }
-
-[activation.env]
-PIXI_ENVIRONMENT_NAME = "${PIXI_ENVIRONMENT_NAME/default/cu13}"
 
 # Test Tasks
 # Runs tests across all sub-packages: pathfinder → bindings → core (dependency order)
-# Each sub-package has its own pixi.toml; the -e environment propagates via PIXI_ENVIRONMENT_NAME
+# Each sub-package has its own pixi.toml
 #
-# Usage: pixi run test | pixi run -e cu12 test | pixi run -e cu13 test
+# Usage: pixi run test | pixi run -e cu12 test
 [target.linux.tasks.test-pathfinder]
 cmd = [
     "pixi",
