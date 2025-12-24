@@ -79,6 +79,20 @@ def isSupportedFilesystem():
     return fs_type in ("ext4", "xfs")
 
 
+@cache
+def get_tegra_kind():
+    """Detect Tegra device kind (Orin/Thor) via nvidia-smi, or None if not Tegra."""
+    if not pathlib.Path("/etc/nv_tegra_release").exists():
+        return None
+    out = subprocess.check_output(["nvidia-smi"], text=True, stderr=subprocess.STDOUT)  # noqa: S607
+    tegra_kinds_found = []
+    for kind in ("Orin", "Thor"):
+        if f" {kind} " in out:
+            tegra_kinds_found.append(kind)
+    assert len(tegra_kinds_found) == 1, f"UNEXPECTED nvidia-smi output:\n{out}"
+    return tegra_kinds_found[0]
+
+
 # Global skip condition for all tests if cuFile library is not available
 pytestmark = [
     pytest.mark.skipif(not cufileLibraryAvailable(), reason="cuFile library not available on this system"),
@@ -86,7 +100,11 @@ pytestmark = [
         platform.system() == "Linux" and "microsoft" in pathlib.Path("/proc/version").read_text().lower(),
         reason="skipping cuFile tests on WSL",
     ),
-    pytest.mark.skipif(pathlib.Path("/etc/nv_tegra_release").exists(), reason="skipping cuFile tests on Tegra Linux"),
+    pytest.mark.skipif(get_tegra_kind() == "Orin", reason="skipping cuFile tests on Orin (Tegra Linux)"),
+    pytest.mark.skipif(
+        get_tegra_kind() == "Thor" and cufileVersionLessThan(1160),
+        reason="skipping cuFile tests on Thor (Tegra Linux) with CTK < 13.1",
+    ),
 ]
 
 xfail_handle_register = pytest.mark.xfail(
@@ -1826,7 +1844,9 @@ def test_get_bar_size_in_kb():
 
     # Verify BAR size is a reasonable value
     assert isinstance(bar_size_kb, int), "BAR size should be an integer"
-    assert bar_size_kb > 0, "BAR size should be positive"
+    # Tegra devices may report 0 BAR size, which is acceptable
+    min_bar_size = 0 if get_tegra_kind() else 1
+    assert bar_size_kb >= min_bar_size, f"BAR size should be >= {min_bar_size}"
 
     logging.info(f"GPU BAR size: {bar_size_kb} KB ({bar_size_kb / 1024 / 1024:.2f} GB)")
 
