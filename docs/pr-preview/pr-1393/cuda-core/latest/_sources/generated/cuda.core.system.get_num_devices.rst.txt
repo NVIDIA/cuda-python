@@ -1,6 +1,6 @@
 ﻿cuda.core.system.get\_num\_devices
 ==================================
 
-.. currentmodule:: cuda.core
+.. currentmodule:: cuda.core.system
 
-.. autofunction:: system.get_num_devices
+.. autofunction:: get_num_devices

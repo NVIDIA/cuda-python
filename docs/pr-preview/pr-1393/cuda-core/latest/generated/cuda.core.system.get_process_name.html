@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=39b7ff45"></script>
+    <script src="../_static/documentation_options.js?v=c5c6e5e2"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev22';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev26';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -63,7 +63,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.utils.args_viewable_as_strided_memory" href="cuda.core.utils.args_viewable_as_strided_memory.html" />
+    <link rel="next" title="cuda.core.system.Device" href="cuda.core.system.Device.html" />
     <link rel="prev" title="cuda.core.system.get_nvml_version" href="cuda.core.system.get_nvml_version.html" />
 
 
@@ -291,6 +291,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -495,6 +499,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.get_process_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
@@ -575,6 +580,23 @@
                   
   <section id="cuda-core-system-get-process-name">
 <h1>cuda.core.system.get_process_name<a class="headerlink" href="#cuda-core-system-get-process-name" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="cuda.core.system.get_process_name">
+<span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">get_process_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">pid:</span> <span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#cuda.core.system.get_process_name" title="Link to this definition">#</a></dt>
+<dd><p>The name of process with given PID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pid</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The PID of the process for which to get the name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>name</strong> – The process name.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
@@ -597,11 +619,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.utils.args_viewable_as_strided_memory.html"
+       href="cuda.core.system.Device.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.utils.args_viewable_as_strided_memory</p>
+        <p class="prev-next-title">cuda.core.system.Device</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -612,9 +634,25 @@
             
             
 
-<div class="bd-sidebar-secondary"></div>
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.get_process_name"><code class="docutils literal notranslate"><span class="pre">get_process_name()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
 

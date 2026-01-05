@@ -1,6 +1,6 @@
 ﻿cuda.core.system.get\_process\_name
 ===================================
 
-.. currentmodule:: cuda.core
+.. currentmodule:: cuda.core.system
 
-.. autofunction:: system.get_process_name
+.. autofunction:: get_process_name
