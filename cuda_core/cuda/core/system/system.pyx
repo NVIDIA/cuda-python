@@ -15,7 +15,7 @@ HAS_WORKING_NVML = _BINDINGS_VERSION >= (13, 1, 2) or (_BINDINGS_VERSION[0] == 1
 
 if HAS_WORKING_NVML:
     from cuda.bindings import _nvml as nvml
-    from ._nvml_context import validate
+    from ._nvml_context cimport validate
 else:
     from cuda.core._utils.cuda_utils import driver, handle_return, runtime
 

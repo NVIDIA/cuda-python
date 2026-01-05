@@ -6,20 +6,6 @@ from cpython cimport array
 from libc.stdint cimport uint64_t
 
 
-cpdef str format_bytes(uint64_t x):
-    """Return formatted string in B, KiB, MiB, GiB or TiB"""
-    if x < 1024:
-        return f"{x} B"
-    elif x < 1024**2:
-        return f"{x / 1024:.2f} KiB"
-    elif x < 1024**3:
-        return f"{x / 1024**2:.2f} MiB"
-    elif x < 1024**4:
-        return f"{x / 1024**3:.2f} GiB"
-    else:
-        return f"{x / 1024**4:.2f} TiB"
-
-
 cpdef list[int] unpack_bitmask(x: list[int] | array.array):
     """
     Unpack a list of integers containing bitmasks.

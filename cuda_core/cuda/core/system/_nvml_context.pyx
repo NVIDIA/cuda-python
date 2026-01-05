@@ -28,7 +28,7 @@ _NVML_OWNER_PID = 0
 _lock = threading.Lock()
 
 
-def initialize() -> None:
+cpdef initialize():
     """Idempotent (per-process) initialization of Nvidia Management Library (NVML).
 
     Notes
@@ -62,7 +62,7 @@ def initialize() -> None:
             raise RuntimeError(f"Unhandled initialisation state ({_NVML_STATE=}, {_NVML_OWNER_PID=})")
 
 
-def is_initialized() -> bool:
+cpdef bint is_initialized():
     """
     Check whether the NVML context is initialized on this process.
 
@@ -74,7 +74,7 @@ def is_initialized() -> bool:
     return _NVML_STATE == _NVMLState.INITIALIZED and os.getpid() == _NVML_OWNER_PID
 
 
-def validate() -> None:
+cpdef validate():
     """
     Validate NVML state.
 

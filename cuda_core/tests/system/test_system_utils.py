@@ -3,19 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from cuda.core.system.utils import format_bytes, unpack_bitmask
-
-
-def test_format_bytes():
-    assert format_bytes(0) == "0 B"
-    assert format_bytes(1) == "1 B"
-    assert format_bytes(1023) == "1023 B"
-    assert format_bytes(1024) == "1.00 KiB"
-    assert format_bytes(1024**2) == "1.00 MiB"
-    assert format_bytes(1024**3) == "1.00 GiB"
-    assert format_bytes(1024**4) == "1.00 TiB"
-    assert format_bytes(1024**5) == "1024.00 TiB"
-    assert format_bytes(1024**6) == "1048576.00 TiB"
+from cuda.core.system.utils import unpack_bitmask
 
 
 @pytest.mark.parametrize(

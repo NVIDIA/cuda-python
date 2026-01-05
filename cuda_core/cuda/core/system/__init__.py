@@ -25,6 +25,7 @@ if HAS_WORKING_NVML:
     __all__.extend(
         [
             "initialize",
+            "get_nvml_version",
             "Device",
             "DeviceArchitecture",
             "UninitializedError",
