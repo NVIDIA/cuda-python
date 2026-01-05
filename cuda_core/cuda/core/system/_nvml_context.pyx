@@ -88,8 +88,8 @@ cpdef validate():
         If no GPUs are available.
     """
     if _NVML_STATE == _NVMLState.DISABLED_LIBRARY_NOT_FOUND:
-        raise exceptions.LibraryNotFoundError("The underlying NVML library was not found")
+        raise exceptions.LibraryNotFoundError()
     elif not is_initialized():
-        raise exceptions.UninitializedError("NVML library is not initialized")
+        raise exceptions.UninitializedError()
     elif nvml.device_get_count_v2() == 0:
-        raise exceptions.GpuNotFoundError("No GPUs available")
+        raise exceptions.GpuNotFoundError()
