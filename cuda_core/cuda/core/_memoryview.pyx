@@ -365,8 +365,7 @@ cdef class StridedMemoryView:
             if self.dl_tensor != NULL:
                 self._dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
             elif self.metadata is not None:
-                # TODO: this only works for built-in numeric types
-                self._dtype = _typestr2dtype[self.metadata["typestr"]]
+                self._dtype = _typestr2dtype(self.metadata["typestr"])
         return self._dtype
 
 
@@ -503,8 +502,24 @@ _builtin_numeric_dtypes = [
     numpy.dtype("bool"),
 ]
 # Doing it once to avoid repeated overhead
-_typestr2dtype = {dtype.str: dtype for dtype in _builtin_numeric_dtypes}
-_typestr2itemsize = {dtype.str: dtype.itemsize for dtype in _builtin_numeric_dtypes}
+_TYPESTR_TO_DTYPE = {dtype.str: dtype for dtype in _builtin_numeric_dtypes}
+_TYPESTR_TO_ITEMSIZE = {dtype.str: dtype.itemsize for dtype in _builtin_numeric_dtypes}
+
+cpdef object _typestr2dtype(str typestr):
+    if (dtype := _TYPESTR_TO_DTYPE.get(typestr)) is not None:
+        return dtype
+
+    _TYPESTR_TO_DTYPE[typestr] = dtype = numpy.dtype(typestr)
+    return dtype
+
+
+cdef int _typestr2itemsize(str typestr) except -1:
+    if (itemsize := _TYPESTR_TO_ITEMSIZE.get(typestr)) is not None:
+        return itemsize
+
+    dtype = _typestr2dtype(typestr)
+    _TYPESTR_TO_ITEMSIZE[typestr] = itemsize = dtype.itemsize
+    return itemsize
 
 
 cdef object dtype_dlpack_to_numpy(DLDataType* dtype):
@@ -664,7 +679,7 @@ cdef _StridedLayout layout_from_cai(object metadata):
     cdef _StridedLayout layout = _StridedLayout.__new__(_StridedLayout)
     cdef object shape = metadata["shape"]
     cdef object strides = metadata.get("strides")
-    cdef int itemsize = _typestr2itemsize[metadata["typestr"]]
+    cdef int itemsize = _typestr2itemsize(metadata["typestr"])
     layout.init_from_tuple(shape, strides, itemsize, True)
     return layout
 
