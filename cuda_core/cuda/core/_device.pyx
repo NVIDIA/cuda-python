@@ -69,8 +69,12 @@ cdef class DeviceProperties:
     cdef inline _get_attribute(self, cydriver.CUdevice_attribute attr):
         """Retrieve the attribute value directly from the driver."""
         cdef int val
+        cdef cydriver.CUresult err
         with nogil:
-            HANDLE_RETURN(cydriver.cuDeviceGetAttribute(&val, attr, self._handle))
+            err = cydriver.cuDeviceGetAttribute(&val, attr, self._handle)
+        if err == cydriver.CUresult.CUDA_ERROR_INVALID_VALUE:
+            return 0
+        HANDLE_RETURN(err)
         return val
 
     cdef _get_cached_attribute(self, attr):

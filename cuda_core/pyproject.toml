@@ -3,7 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
-requires = ["setuptools>=77.0.0", "Cython>=3.2,<3.3"]
+requires = [
+    "setuptools>=80",
+    "setuptools-scm[simple]>=8",
+    "Cython>=3.2,<3.3"
+]
 build-backend = "build_hooks"
 backend-path = ["."]
 
@@ -73,8 +77,14 @@ include = ["cuda.core*"]
 "cuda.core._cpp" = ["*.cpp", "*.hpp"]
 
 [tool.setuptools.dynamic]
-version = { attr = "cuda.core._version.__version__" }
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
+
+[tool.setuptools_scm]
+root = ".."
+version_file = "cuda/core/_version.py"
+# We deliberately do not want to include the version suffixes (a/b/rc) in cuda-core versioning
+tag_regex = "^cuda-core-(?P<version>v\\d+\\.\\d+\\.\\d+)"
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-core-v*[0-9]*"]
 
 [tool.cibuildwheel]
 skip = "*-musllinux_*"
