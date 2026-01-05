@@ -1,0 +1,6 @@
+﻿cuda.core.system.get\_driver\_version
+=====================================
+
+.. currentmodule:: cuda.core
+
+.. autofunction:: system.get_driver_version

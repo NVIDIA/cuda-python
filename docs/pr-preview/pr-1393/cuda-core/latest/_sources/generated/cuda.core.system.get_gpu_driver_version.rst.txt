@@ -1,0 +1,6 @@
+﻿cuda.core.system.get\_gpu\_driver\_version
+==========================================
+
+.. currentmodule:: cuda.core
+
+.. autofunction:: system.get_gpu_driver_version

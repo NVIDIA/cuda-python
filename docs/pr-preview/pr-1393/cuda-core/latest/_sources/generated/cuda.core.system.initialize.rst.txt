@@ -1,0 +1,6 @@
+﻿cuda.core.system.initialize
+===========================
+
+.. currentmodule:: cuda.core
+
+.. autofunction:: system.initialize
