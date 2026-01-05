@@ -11,7 +11,7 @@ from typing import Iterable
 from cuda.bindings import _nvml as nvml
 
 from ._nvml_context import validate
-from .utils cimport unpack_bitmask
+from .utils import unpack_bitmask
 
 
 class DeviceArchitecture:
