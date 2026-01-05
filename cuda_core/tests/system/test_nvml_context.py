@@ -25,19 +25,20 @@ def _run_process(target):
     assert not p.exitcode
 
 
-def _test_initialized():
+def _test_uninitialized():
     from cuda.core.system import _nvml_context
 
-    assert _nvml_context._NVML_STATE == INITIALIZED
+    assert _nvml_context._NVML_STATE == UNINITIALIZED
 
 
-def test_initialized():
-    _run_process(_test_initialized)
+def test_uninitialized():
+    _run_process(_test_uninitialized)
 
 
 def _test_is_initialized():
     from cuda.core.system import _nvml_context
 
+    _nvml_context.initialize()
     assert _nvml_context._NVML_STATE == INITIALIZED
     assert _nvml_context.is_initialized() is True
 
@@ -46,19 +47,10 @@ def test_is_initialized():
     _run_process(_test_is_initialized)
 
 
-def _test_uninitialized():
-    from cuda.core.system import _nvml_context
-
-    _nvml_context._NVML_STATE = UNINITIALIZED
-    assert _nvml_context.is_initialized() is False
-
-
-def test_uninitialized():
-    _run_process(_test_uninitialized)
-
-
 def _test_wrong_owner():
     from cuda.core.system import _nvml_context
+
+    _nvml_context.initialize()
 
     _nvml_context._NVML_OWNER_PID = 0
     assert _nvml_context.is_initialized() is False
@@ -80,6 +72,8 @@ def test_wsl():
 
 def _test_validate():
     from cuda.core.system import _nvml_context
+
+    _nvml_context.initialize()
 
     assert _nvml_context.validate() is None
 

@@ -64,11 +64,21 @@ CUDA compilation toolchain
    LinkerOptions
 
 
-CUDA system information
------------------------
+CUDA system information and Nvidia Management Library (NVML)
+------------------------------------------------------------
 
-.. automethod:: cuda.core._system.System.get_driver_version
-.. automethod:: cuda.core._system.System.get_num_devices
+.. autosummary::
+   :toctree: generated/
+
+   system.initialize
+   system.Device
+   system.DeviceArchitecture
+   system.get_driver_version
+   system.get_driver_version_full
+   system.get_gpu_driver_version
+   system.get_num_devices
+   system.get_nvml_version
+   system.get_process_name
 
 
 .. module:: cuda.core.utils

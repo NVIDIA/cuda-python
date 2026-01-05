@@ -22,10 +22,9 @@ if HAS_WORKING_NVML:
     from .device import Device, DeviceArchitecture
     from .exceptions import *
 
-    initialize()
-
     __all__.extend(
         [
+            "initialize",
             "Device",
             "DeviceArchitecture",
             "UninitializedError",

@@ -15,6 +15,7 @@ HAS_WORKING_NVML = _BINDINGS_VERSION >= (13, 1, 2) or (_BINDINGS_VERSION[0] == 1
 
 if HAS_WORKING_NVML:
     from cuda.bindings import _nvml as nvml
+    from ._nvml_context import validate
 else:
     from cuda.core._utils.cuda_utils import driver, handle_return, runtime
 
@@ -36,6 +37,7 @@ def get_driver_version_full() -> tuple[int, int, int]:
     """
     cdef int v
     if HAS_WORKING_NVML:
+        validate()
         v = nvml.system_get_cuda_driver_version()
     else:
         v = handle_return(driver.cuDriverGetVersion())
@@ -48,6 +50,7 @@ def get_gpu_driver_version() -> tuple[int, ...]:
     """
     if not HAS_WORKING_NVML:
         raise RuntimeError("NVML library is not available")
+    validate()
     return tuple(int(v) for v in nvml.system_get_driver_version().split("."))
 
 
@@ -65,6 +68,7 @@ def get_num_devices() -> int:
     Return the number of devices in the system.
     """
     if HAS_WORKING_NVML:
+        validate()
         return nvml.device_get_count_v2()
     else:
         return handle_return(runtime.cudaGetDeviceCount())
@@ -84,6 +88,7 @@ def get_process_name(pid: int) -> str:
     name: str
         The process name.
     """
+    validate()
     return nvml.system_get_process_name(pid)
 
 

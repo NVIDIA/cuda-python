@@ -19,7 +19,10 @@ from cuda.core.system import device as system_device
 if system.HAS_WORKING_NVML:
     from cuda.bindings import _nvml as nvml
 
-    if system.get_num_devices() == 0:
+
+@pytest.fixture(autouse=True, scope="module")
+def check_gpu_available(initialize_nvml):
+    if not system.HAS_WORKING_NVML or system.get_num_devices() == 0:
         pytest.skip("No GPUs available to run device tests", allow_module_level=True)
 
 

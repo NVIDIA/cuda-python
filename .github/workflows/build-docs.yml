@@ -202,10 +202,6 @@ jobs:
       - name: Build all docs
         if: ${{ inputs.component == 'all' }}
         run: |
-          pushd cuda_core/docs/
-          python -c "import cuda.core"
-          popd
-
           pushd cuda_python/docs/
           if [[ "${{ inputs.is-release }}" == "false" ]]; then
             ./build_all_docs.sh latest-only

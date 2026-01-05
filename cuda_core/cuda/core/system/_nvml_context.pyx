@@ -29,7 +29,7 @@ _lock = threading.Lock()
 
 
 def initialize() -> None:
-    """Idempotent (per-process) initialization of NVUtil's NVML
+    """Idempotent (per-process) initialization of Nvidia Management Library (NVML).
 
     Notes
     -----
@@ -89,5 +89,7 @@ def validate() -> None:
     """
     if _NVML_STATE == _NVMLState.DISABLED_LIBRARY_NOT_FOUND:
         raise exceptions.LibraryNotFoundError("The underlying NVML library was not found")
+    elif not is_initialized():
+        raise exceptions.UninitializedError("NVML library is not initialized")
     elif nvml.device_get_count_v2() == 0:
         raise exceptions.GpuNotFoundError("No GPUs available")

@@ -10,6 +10,7 @@ from typing import Iterable
 
 from cuda.bindings import _nvml as nvml
 
+from ._nvml_context import validate
 from .utils import unpack_bitmask
 
 
@@ -189,6 +190,8 @@ cdef class Device:
     cdef intptr_t _handle
 
     def __init__(self, index: int | None = None, uuid: bytes | str | None = None):
+        validate()
+
         if index is not None and uuid is not None:
             raise ValueError("Handle requires only one of either device `index` or `uuid`.")
         if index is None and uuid is None:
