@@ -15,7 +15,7 @@ ci:
 # pre-commit autoupdate --freeze
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 9c89adb347f6b973f4905a4be0051eb2ecf85dea  # frozen: v0.13.3
+    rev: 5ba58aca0bd5bc7c0e1c0fc45af2e88d6a2bde83  # frozen: v0.14.10
     hooks:
       - id: ruff-check
         args: [--fix, --show-fixes]
@@ -68,7 +68,7 @@ repos:
     - id: rst-inline-touching-normal
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 9f70dc58c23dfcca1b97af99eaeee3140a807c7e  # frozen: v1.18.2
+    rev: a66e98df7b4aeeb3724184b332785976d062b92e  # frozen: v1.19.1
     hooks:
       - id: mypy
         name: mypy-pathfinder
@@ -76,14 +76,14 @@ repos:
         args: [--config-file=cuda_pathfinder/pyproject.toml]
 
   - repo: https://github.com/rhysd/actionlint
-    rev: "03d0035246f3e81f36aed592ffb4bebf33a03106"  # frozen: v1.7.7
+    rev: "0933c147c9d6587653d45fdcb4c497c57a65f9af"  # frozen: v1.7.10
     hooks:
       - id: actionlint
         args: ["-shellcheck="]
         exclude: ^\.github/workflows/coverage.yml$
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: "d9ff7ce99ef4f2ae8fba93079ca9d76c4651d4ac"  # frozen: v0.18.0
+    rev: "8e4297a1b56d0c5be6f79be4e28d08e71d6c05b9"  # frozen: v0.18.1
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
