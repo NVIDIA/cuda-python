@@ -8,12 +8,9 @@
 # compatibility.
 
 
-import cuda.bindings
+from cuda.bindings._version import __version_tuple__ as _BINDINGS_VERSION
 
-# TODO: Update after #1411 is merged
-_BINDINGS_VERSION = tuple(int(x) for x in cuda.bindings.__version__.split("."))
-
-HAS_WORKING_NVML = _BINDINGS_VERSION >= (13, 1, 2) or (_BINDINGS_VERSION[0] == 12 and _BINDINGS_VERSION[1:3] >= (9, 6)) or True
+HAS_WORKING_NVML = _BINDINGS_VERSION >= (13, 1, 2) or (_BINDINGS_VERSION[0] == 12 and _BINDINGS_VERSION[1:3] >= (9, 6))
 
 
 if HAS_WORKING_NVML:
