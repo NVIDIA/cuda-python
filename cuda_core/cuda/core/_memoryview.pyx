@@ -485,41 +485,14 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     return buf
 
 
-_builtin_numeric_dtypes = [
-    numpy.dtype("uint8"),
-    numpy.dtype("uint16"),
-    numpy.dtype("uint32"),
-    numpy.dtype("uint64"),
-    numpy.dtype("int8"),
-    numpy.dtype("int16"),
-    numpy.dtype("int32"),
-    numpy.dtype("int64"),
-    numpy.dtype("float16"),
-    numpy.dtype("float32"),
-    numpy.dtype("float64"),
-    numpy.dtype("complex64"),
-    numpy.dtype("complex128"),
-    numpy.dtype("bool"),
-]
-# Doing it once to avoid repeated overhead
-_TYPESTR_TO_DTYPE = {dtype.str: dtype for dtype in _builtin_numeric_dtypes}
-_TYPESTR_TO_ITEMSIZE = {dtype.str: dtype.itemsize for dtype in _builtin_numeric_dtypes}
-
-cpdef object _typestr2dtype(str typestr):
-    if (dtype := _TYPESTR_TO_DTYPE.get(typestr)) is not None:
-        return dtype
-
-    _TYPESTR_TO_DTYPE[typestr] = dtype = numpy.dtype(typestr)
-    return dtype
+@functools.lru_cache
+def _typestr2dtype(str typestr):
+    return numpy.dtype(typestr)
 
 
-cdef int _typestr2itemsize(str typestr) except -1:
-    if (itemsize := _TYPESTR_TO_ITEMSIZE.get(typestr)) is not None:
-        return itemsize
-
-    dtype = _typestr2dtype(typestr)
-    _TYPESTR_TO_ITEMSIZE[typestr] = itemsize = dtype.itemsize
-    return itemsize
+@functools.lru_cache
+def _typestr2itemsize(str typestr):
+    return _typestr2dtype(typestr).itemsize
 
 
 cdef object dtype_dlpack_to_numpy(DLDataType* dtype):
