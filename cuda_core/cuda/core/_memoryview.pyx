@@ -154,6 +154,15 @@ cdef class StridedMemoryView:
         return buf
 
     @classmethod
+    def from_array_interface(cls, obj: object) -> StridedMemoryView:
+        cdef StridedMemoryView buf
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            buf = cls()
+        view_as_array_interface(obj, buf)
+        return buf
+
+    @classmethod
     def from_any_interface(cls, obj: object, stream_ptr: int | None = None) -> StridedMemoryView:
         if check_has_dlpack(obj):
             return cls.from_dlpack(obj, stream_ptr)
@@ -594,6 +603,23 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
                 handle_return(driver.cuStreamWaitEvent(consumer_s, e, 0))
                 handle_return(driver.cuEventDestroy(e))
 
+    return buf
+
+
+cpdef StridedMemoryView view_as_array_interface(obj, view=None):
+    cdef dict data = obj.__array_interface__
+    if data["version"] < 3:
+        raise BufferError("only NumPy Array Interface v3 or above is supported")
+    if data.get("mask") is not None:
+        raise BufferError("mask is not supported")
+
+    cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
+    buf.exporting_obj = obj
+    buf.metadata = data
+    buf.dl_tensor = NULL
+    buf.ptr, buf.readonly = data["data"]
+    buf.is_device_accessible = False
+    buf.device_id = handle_return(driver.cuCtxGetDevice())
     return buf
 
 
