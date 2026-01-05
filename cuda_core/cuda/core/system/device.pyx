@@ -226,11 +226,11 @@ cdef class Device:
     def architecture(self) -> DeviceArchitecture:
         """
         Device architecture. For example, a Tesla V100 will report
-        `DeviceArchitecture.name == "Volta"`, and RTX A6000 will report
-        `DeviceArchitecture.name == "Ampere"`. If the device returns an
-        architecture that is unknown to NVML then `DeviceArchitecture.name ==
-        "Unknown"` is reported, whereas an architecture that is unknown to
-        cuda.core.system is reported as `DeviceArchitecture.name == "Unlisted"`.
+        ``DeviceArchitecture.name == "Volta"``, and RTX A6000 will report
+        ``DeviceArchitecture.name == "Ampere"``. If the device returns an
+        architecture that is unknown to NVML then ``DeviceArchitecture.name ==
+        "Unknown"`` is reported, whereas an architecture that is unknown to
+        cuda.core.system is reported as ``DeviceArchitecture.name == "Unlisted"``.
         """
         return DeviceArchitecture(nvml.device_get_architecture(self._handle))
 

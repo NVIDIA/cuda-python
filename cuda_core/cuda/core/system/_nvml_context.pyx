@@ -29,12 +29,9 @@ _lock = threading.Lock()
 
 
 cpdef initialize():
-    """Idempotent (per-process) initialization of Nvidia Management Library (NVML).
-
-    Notes
-    -----
-
-    Modifies global variables _NVML_STATE and _NVML_OWNER_PID"""
+    """
+    Initializes Nvidia Management Library (NVML), ensuring it only happens once per process.
+    """
     global _NVML_STATE, _NVML_OWNER_PID
 
     with _lock:
@@ -78,10 +75,13 @@ cpdef validate():
     """
     Validate NVML state.
 
-    Validate that NVML is functional and that the system has at least one GPU available.
+    Validate that NVML is initialized, functional and that the system has at
+    least one GPU available.
 
     Raises
     ------
+    nvml.UninitializedError
+        If NVML hasn't been initialized.
     nvml.LibraryNotFoundError
         If the NVML library could not be found.
     nvml.GpuNotFoundError

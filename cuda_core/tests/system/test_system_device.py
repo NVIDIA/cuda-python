@@ -68,7 +68,7 @@ def test_device_cpu_affinity():
         try:
             affinity = device.cpu_affinity
         except system.NotSupportedError:
-            skip_reasons.add(f"CPU affinity not supported on {device}")
+            skip_reasons.add(f"CPU affinity not supported on '{device.name}'")
         else:
             assert isinstance(affinity, list)
             os.sched_setaffinity(0, affinity)
@@ -148,7 +148,7 @@ def test_device_serial():
         try:
             serial = device.serial
         except system.NotSupportedError:
-            skip_reasons.add(f"Device serial not supported by device {device}")
+            skip_reasons.add(f"Device serial not supported by device '{device.name}'")
         else:
             assert isinstance(serial, str)
             assert len(serial) > 0
