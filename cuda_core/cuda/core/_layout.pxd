@@ -111,7 +111,8 @@ cdef class _StridedLayout:
     # ==============================
 
     cdef inline int _init(_StridedLayout self, BaseLayout& base, int itemsize, bint divide_strides=False) except -1 nogil:
-        _validate_itemsize(itemsize)
+        if itemsize <= 0:
+            raise ValueError("itemsize must be positive")
 
         if base.strides != NULL and divide_strides:
             _divide_strides(base, itemsize)
@@ -123,7 +124,8 @@ cdef class _StridedLayout:
         return 0
 
     cdef inline stride_t _init_dense(_StridedLayout self, BaseLayout& base, int itemsize, OrderFlag order_flag, axis_vec_t* stride_order=NULL) except -1 nogil:
-        _validate_itemsize(itemsize)
+        if itemsize <= 0:
+            raise ValueError("itemsize must be positive")
 
         cdef stride_t volume
         if order_flag == ORDER_C:
@@ -641,14 +643,6 @@ cdef inline bint _normalize_axis(integer_t& axis, integer_t extent) except -1 no
     if axis < 0:
         axis += extent
     return True
-
-
-cdef inline int _validate_itemsize(int itemsize) except -1 nogil:
-    if itemsize <= 0:
-        raise ValueError("itemsize must be positive")
-    if itemsize & (itemsize - 1):
-        raise ValueError("itemsize must be a power of two")
-    return 0
 
 
 cdef inline bint _is_unique(BaseLayout& base, axis_vec_t& stride_order) except -1 nogil:
