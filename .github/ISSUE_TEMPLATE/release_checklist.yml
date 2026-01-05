@@ -20,7 +20,6 @@ body:
         - label: File an internal nvbug to communicate test plan & release schedule with QA
         - label: Ensure all pending PRs are reviewed, tested, and merged
         - label: Check (or update if needed) the dependency requirements
-        - label: Bump the version
         - label: Create a public rc tag
         - label: "Point QA to fetch public artifacts (wheels) from the GHA run ID, example: `gh run download 12323257563 -p \"cuda-core*\" -R NVIDIA/cuda-python`"
         - label: Wait for QA reports and fix any issues found

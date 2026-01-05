@@ -40,7 +40,8 @@ backend = { name = "pixi-build-python", version = "*" }
 
 [package.host-dependencies]
 python = "*"
-setuptools = ">=64"
+setuptools = ">=80"
+setuptools-scm = ">=8"
 
 [package.run-dependencies]
 python = ">=3.10"

@@ -1051,7 +1051,7 @@ packages:
   timestamp: 1764878612030
 - conda: .
   name: cuda-core
-  version: 0.4.2
+  version: 0.5.0
   build: py314h59f3c06_0
   subdir: linux-64
   variants:
@@ -1067,13 +1067,9 @@ packages:
   - python_abi 3.14.* *_cp314
   - cuda-cudart >=13.1.80,<14.0a0
   license: Apache-2.0
-  input:
-    hash: cccb645b22f775570680f1a9a62e415a09774e46645523bbd147226681155628
-    globs:
-    - pyproject.toml
 - conda: .
   name: cuda-core
-  version: 0.4.2
+  version: 0.5.0
   build: py314h625260f_0
   subdir: win-64
   variants:
@@ -1087,13 +1083,9 @@ packages:
   - vc14_runtime >=14.16.27033
   - python_abi 3.14.* *_cp314
   license: Apache-2.0
-  input:
-    hash: cccb645b22f775570680f1a9a62e415a09774e46645523bbd147226681155628
-    globs:
-    - pyproject.toml
 - conda: .
   name: cuda-core
-  version: 0.4.2
+  version: 0.5.0
   build: py314ha479ada_0
   subdir: linux-aarch64
   variants:
@@ -1109,10 +1101,6 @@ packages:
   - python_abi 3.14.* *_cp314
   - cuda-cudart >=13.1.80,<14.0a0
   license: Apache-2.0
-  input:
-    hash: cccb645b22f775570680f1a9a62e415a09774e46645523bbd147226681155628
-    globs:
-    - pyproject.toml
 - conda: https://conda.anaconda.org/conda-forge/noarch/cuda-crt-dev_linux-64-12.9.86-ha770c72_2.conda
   sha256: e6257534c4b4b6b8a1192f84191c34906ab9968c92680fa09f639e7846a87304
   md5: 79d280de61e18010df5997daea4743df
