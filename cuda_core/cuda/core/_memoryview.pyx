@@ -139,6 +139,8 @@ cdef class StridedMemoryView:
     def from_dlpack(cls, obj: object, stream_ptr: int | None=None) -> StridedMemoryView:
         cdef StridedMemoryView buf
         with warnings.catch_warnings():
+            # ignore the warning triggered by calling the constructor
+            # inside the library we're allowed to do this
             warnings.simplefilter("ignore", DeprecationWarning)
             buf = cls()
         view_as_dlpack(obj, stream_ptr, buf)
