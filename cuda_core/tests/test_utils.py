@@ -430,3 +430,33 @@ def test_view_zero_size_array(api, shape, dtype):
     assert smv.size == 0
     assert smv.shape == shape
     assert smv.dtype == np.dtype(dtype)
+
+
+def test_from_buffer_with_non_power_of_two_itemsize():
+    dev = Device()
+    dev.set_current()
+    dtype = np.dtype([("a", "int32"), ("b", "int8")])
+    shape = (1,)
+    layout = _StridedLayout(shape=shape, strides=None, itemsize=dtype.itemsize)
+    required_size = layout.required_size_in_bytes()
+    assert required_size == math.prod(shape) * dtype.itemsize
+    buffer = dev.memory_resource.allocate(required_size)
+    view = StridedMemoryView.from_buffer(buffer, shape=shape, strides=layout.strides, dtype=dtype, is_readonly=True)
+    assert view.dtype == dtype
+
+
+def test_struct_array():
+    cp = pytest.importorskip("cupy")
+
+    x = np.array([(1.0, 2), (2.0, 3)], dtype=[("array1", np.float64), ("array2", np.int64)])
+
+    y = cp.empty(2, dtype=x.dtype)
+    y.set(x)
+
+    smv = StridedMemoryView.from_cuda_array_interface(y, stream_ptr=0)
+    assert smv.size * smv.dtype.itemsize == x.nbytes
+    assert smv.size == x.size
+    assert smv.shape == x.shape
+    # full dtype information doesn't seem to be preserved due to use of type strings,
+    # which are lossy, e.g., dtype([("a", "int")]).str == "V8"
+    assert smv.dtype == np.dtype(f"V{x.itemsize}")
