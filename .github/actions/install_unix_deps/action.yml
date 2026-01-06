@@ -9,10 +9,8 @@ description: Install needed dependencies, regardless if using GitHub- or self- h
 inputs:
   dependencies:
     required: true
-    type: string
   dependent_exes:
     required: true
-    type: string
 
 runs:
   using: composite
