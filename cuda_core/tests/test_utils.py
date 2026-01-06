@@ -430,3 +430,16 @@ def test_view_zero_size_array(api, shape, dtype):
     assert smv.size == 0
     assert smv.shape == shape
     assert smv.dtype == np.dtype(dtype)
+
+
+def test_from_buffer_with_non_power_of_two_itemsize():
+    dev = Device()
+    dev.set_current()
+    dtype = np.dtype([("a", "int32"), ("b", "int8")])
+    shape = (1,)
+    layout = _StridedLayout(shape=shape, strides=None, itemsize=dtype.itemsize)
+    required_size = layout.required_size_in_bytes()
+    assert required_size == math.prod(shape) * dtype.itemsize
+    buffer = dev.memory_resource.allocate(required_size)
+    view = StridedMemoryView.from_buffer(buffer, shape=shape, strides=layout.strides, dtype=dtype, is_readonly=True)
+    assert view.dtype == dtype
