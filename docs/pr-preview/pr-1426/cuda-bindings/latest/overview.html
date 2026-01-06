@@ -1,0 +1,1349 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Overview &#8212; cuda.bindings</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+
+    <script src="_static/documentation_options.js?v=0ded8b45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=35a8b989"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'overview';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.2';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+
+    <link rel="canonical" href="docs/overview.html" />
+    <link rel="icon" href="_static/favicon.png"/>
+
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Motivation" href="motivation.html" />
+    <link rel="prev" title="Installation" href="install.html" />
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/1426">PR 1426</a>!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="cuda.bindings - Home"/>
+    <img src="_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="cuda.bindings - Home"/>
+  
+  
+    <p class="title logo__title">cuda.bindings</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="release.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="install.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="motivation.html">
+    Motivation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="api.html">
+    CUDA Python API Reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="tips_and_tricks.html">
+    Tips and Tricks
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="support.html">
+    cuda.bindings Support Policy
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="contribute.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="conduct.html">
+    Code of Conduct
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="license.html">
+    Software License Agreement
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="cuda.bindings - Home"/>
+    <img src="_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="cuda.bindings - Home"/>
+  
+  
+    <p class="title logo__title">cuda.bindings</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="release.html">
+    Release Notes
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="install.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="motivation.html">
+    Motivation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="environment_variables.html">
+    Environment Variables
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api.html">
+    CUDA Python API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tips_and_tricks.html">
+    Tips and Tricks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="support.html">
+    cuda.bindings Support Policy
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contribute.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="conduct.html">
+    Code of Conduct
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="license.html">
+    Software License Agreement
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/13.1.1-notes.html">13.1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/13.1.0-notes.html">13.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/13.0.3-notes.html">13.0.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/13.0.2-notes.html">13.0.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/13.0.1-notes.html">13.0.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/13.0.0-notes.html">13.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.5-notes.html">12.9.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.4-notes.html">12.9.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.3-notes.html">12.9.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.2-notes.html">12.9.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.1-notes.html">12.9.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.9.0-notes.html">12.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.8.0-notes.html">12.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.6.2-notes.html">12.6.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.6.1-notes.html">12.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.6.0-notes.html">12.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.5.0-notes.html">12.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.4.0-notes.html">12.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.3.0-notes.html">12.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.2.1-notes.html">12.2.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.2.0-notes.html">12.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.1.0-notes.html">12.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/12.0.0-notes.html">12.0.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.7-notes.html">11.8.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.6-notes.html">11.8.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.5-notes.html">11.8.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.4-notes.html">11.8.4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.3-notes.html">11.8.3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.2-notes.html">11.8.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.1-notes.html">11.8.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.8.0-notes.html">11.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.7.1-notes.html">11.7.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.7.0-notes.html">11.7.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.6.1-notes.html">11.6.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.6.0-notes.html">11.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.5.0-notes.html">11.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/11.4.0-notes.html">11.4.0</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="motivation.html">Motivation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environment_variables.html">Environment Variables</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">CUDA Python API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="module/driver.html">driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/runtime.html">runtime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/nvrtc.html">nvrtc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/nvjitlink.html">nvjitlink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/nvvm.html">nvvm</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="module/cufile.html">cufile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.buf_register.html">cuda.bindings.cufile.buf_register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.buf_deregister.html">cuda.bindings.cufile.buf_deregister</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.read.html">cuda.bindings.cufile.read</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.write.html">cuda.bindings.cufile.write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_open.html">cuda.bindings.cufile.driver_open</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.use_count.html">cuda.bindings.cufile.use_count</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_get_properties.html">cuda.bindings.cufile.driver_get_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_set_poll_mode.html">cuda.bindings.cufile.driver_set_poll_mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_set_max_direct_io_size.html">cuda.bindings.cufile.driver_set_max_direct_io_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_set_max_cache_size.html">cuda.bindings.cufile.driver_set_max_cache_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_set_max_pinned_mem_size.html">cuda.bindings.cufile.driver_set_max_pinned_mem_size</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.batch_io_set_up.html">cuda.bindings.cufile.batch_io_set_up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.batch_io_submit.html">cuda.bindings.cufile.batch_io_submit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.batch_io_get_status.html">cuda.bindings.cufile.batch_io_get_status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.batch_io_cancel.html">cuda.bindings.cufile.batch_io_cancel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.batch_io_destroy.html">cuda.bindings.cufile.batch_io_destroy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.read_async.html">cuda.bindings.cufile.read_async</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.write_async.html">cuda.bindings.cufile.write_async</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.stream_register.html">cuda.bindings.cufile.stream_register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.stream_deregister.html">cuda.bindings.cufile.stream_deregister</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.get_version.html">cuda.bindings.cufile.get_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.get_parameter_size_t.html">cuda.bindings.cufile.get_parameter_size_t</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.get_parameter_bool.html">cuda.bindings.cufile.get_parameter_bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.get_parameter_string.html">cuda.bindings.cufile.get_parameter_string</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.set_parameter_size_t.html">cuda.bindings.cufile.set_parameter_size_t</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.set_parameter_bool.html">cuda.bindings.cufile.set_parameter_bool</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.set_parameter_string.html">cuda.bindings.cufile.set_parameter_string</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.op_status_error.html">cuda.bindings.cufile.op_status_error</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.driver_close.html">cuda.bindings.cufile.driver_close</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.IOEvents.html">cuda.bindings.cufile.IOEvents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.Descr.html">cuda.bindings.cufile.Descr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.IOParams.html">cuda.bindings.cufile.IOParams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.OpError.html">cuda.bindings.cufile.OpError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.DriverStatusFlags.html">cuda.bindings.cufile.DriverStatusFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.DriverControlFlags.html">cuda.bindings.cufile.DriverControlFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.FeatureFlags.html">cuda.bindings.cufile.FeatureFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.FileHandleType.html">cuda.bindings.cufile.FileHandleType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.Opcode.html">cuda.bindings.cufile.Opcode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.Status.html">cuda.bindings.cufile.Status</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.BatchMode.html">cuda.bindings.cufile.BatchMode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.SizeTConfigParameter.html">cuda.bindings.cufile.SizeTConfigParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.BoolConfigParameter.html">cuda.bindings.cufile.BoolConfigParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.StringConfigParameter.html">cuda.bindings.cufile.StringConfigParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.cuFileError.html">cuda.bindings.cufile.cuFileError</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="module/utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.utils.get_cuda_native_handle.html">cuda.bindings.utils.get_cuda_native_handle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver.html">cuda.bindings.utils.get_minimal_required_cuda_ver_from_ptx_ver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.utils.get_ptx_ver.html">cuda.bindings.utils.get_ptx_ver</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="tips_and_tricks.html">Tips and Tricks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> Support Policy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">Software License Agreement</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Overview</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h1>
+<p>Python plays a key role within the science, engineering, data analytics, and
+deep learning application ecosystem. NVIDIA has long been committed to helping
+the Python ecosystem leverage the accelerated massively parallel performance of
+GPUs to deliver standardized libraries, tools, and applications. Today, we’re
+introducing another step towards simplification of the developer experience with
+improved Python code portability and compatibility.</p>
+<p>Our goal is to help unify the Python CUDA ecosystem with a single standard set
+of low-level interfaces, providing full coverage and access to the CUDA host
+APIs from Python. We want to provide an ecosystem foundation to allow
+interoperability among different accelerated libraries. Most importantly, it
+should be easy for Python developers to use NVIDIA GPUs.</p>
+<section id="cuda-bindings-workflow">
+<h2><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> workflow<a class="headerlink" href="#cuda-bindings-workflow" title="Link to this heading">#</a></h2>
+<p>Because Python is an interpreted language, you need a way to compile the device
+code into
+<a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html">PTX</a> and
+then extract the function to be called at a later point in the application. You
+construct your device code in the form of a string and compile it with
+<a class="reference external" href="http://docs.nvidia.com/cuda/nvrtc/index.html">NVRTC</a>, a runtime compilation
+library for CUDA C++. Using the NVIDIA <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-driver-api/index.html">Driver
+API</a>, manually create a
+CUDA context and all required resources on the GPU, then launch the compiled
+CUDA C++ code and retrieve the results from the GPU. Now that you have an
+overview, jump into a commonly used example for parallel programming:
+<a class="reference external" href="https://developer.nvidia.com/blog/six-ways-saxpy/">SAXPY</a>.</p>
+<p>The first thing to do is import the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/index.html">Driver
+API</a> and
+<a class="reference external" href="https://docs.nvidia.com/cuda/nvrtc/index.html">NVRTC</a> modules from the <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code>
+package. Next, we consider how to store host data and pass it to the device. Different
+approaches can be used to accomplish this and are described in <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/overview.html#preparing-kernel-arguments">Preparing kernel
+arguments</a>.
+In this example, we will use NumPy to store host data and pass it to the device, so let’s
+import this dependency as well.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.bindings</span><span class="w"> </span><span class="kn">import</span> <span class="n">driver</span><span class="p">,</span> <span class="n">nvrtc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</pre></div>
+</div>
+<p>Error checking is a fundamental best practice when working with low-level interfaces.
+The following code snippet lets us validate each API call and raise exceptions in case of error:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_cudaGetErrorEnum</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">driver</span><span class="o">.</span><span class="n">CUresult</span><span class="p">):</span>
+        <span class="n">err</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">cuGetErrorName</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span> <span class="k">if</span> <span class="n">err</span> <span class="o">==</span> <span class="n">driver</span><span class="o">.</span><span class="n">CUresult</span><span class="o">.</span><span class="n">CUDA_SUCCESS</span> <span class="k">else</span> <span class="s2">&quot;&lt;unknown&gt;&quot;</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcResult</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcGetErrorString</span><span class="p">(</span><span class="n">error</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Unknown error type: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">checkCudaErrors</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;CUDA error code=</span><span class="si">{}</span><span class="s2">(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">_cudaGetErrorEnum</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+</pre></div>
+</div>
+<p>It’s common practice to write CUDA kernels near the top of a translation unit,
+so write it next. The entire kernel is wrapped in triple quotes to form a
+string. The string is compiled later using NVRTC. This is the only part of CUDA
+Python that requires some understanding of CUDA C++. For more information, see
+<a class="reference external" href="https://developer.nvidia.com/blog/even-easier-introduction-cuda/">An Even Easier Introduction to
+CUDA</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">saxpy</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">extern &quot;C&quot; __global__</span>
+<span class="s2">void saxpy(float a, float *x, float *y, float *out, size_t n)</span>
+<span class="s2">{</span>
+<span class="s2"> size_t tid = blockIdx.x * blockDim.x + threadIdx.x;</span>
+<span class="s2"> if (tid &lt; n) {</span>
+<span class="s2">   out[tid] = a * x[tid] + y[tid];</span>
+<span class="s2"> }</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>Go ahead and compile the kernel into PTX. Remember that this is executed at runtime using NVRTC. There are three basic steps to NVRTC:</p>
+<ul class="simple">
+<li><p>Create a program from the string.</p></li>
+<li><p>Compile the program.</p></li>
+<li><p>Extract PTX from the compiled program.</p></li>
+</ul>
+<p>In the following code example, the Driver API is initialized so that the NVIDIA driver
+and GPU are accessible. Next, the GPU is queried for their compute capability. Finally,
+the program is compiled to target our local compute capability architecture with FMAD disabled:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize CUDA Driver API</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuInit</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="c1"># Retrieve handle for device 0</span>
+<span class="n">cuDevice</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuDeviceGet</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="c1"># Derive target architecture for device 0</span>
+<span class="n">major</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">CUdevice_attribute</span><span class="o">.</span><span class="n">CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR</span><span class="p">,</span> <span class="n">cuDevice</span><span class="p">))</span>
+<span class="n">minor</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">CUdevice_attribute</span><span class="o">.</span><span class="n">CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR</span><span class="p">,</span> <span class="n">cuDevice</span><span class="p">))</span>
+<span class="n">arch_arg</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--gpu-architecture=compute_</span><span class="si">{</span><span class="n">major</span><span class="si">}{</span><span class="n">minor</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create program</span>
+<span class="n">prog</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcCreateProgram</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">saxpy</span><span class="p">),</span> <span class="sa">b</span><span class="s2">&quot;saxpy.cu&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[]))</span>
+
+<span class="c1"># Compile program</span>
+<span class="n">opts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">b</span><span class="s2">&quot;--fmad=false&quot;</span><span class="p">,</span> <span class="n">arch_arg</span><span class="p">]</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcCompileProgram</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">opts</span><span class="p">))</span>
+
+<span class="c1"># Get PTX from compilation</span>
+<span class="n">ptxSize</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcGetPTXSize</span><span class="p">(</span><span class="n">prog</span><span class="p">))</span>
+<span class="n">ptx</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">ptxSize</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">nvrtc</span><span class="o">.</span><span class="n">nvrtcGetPTX</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="n">ptx</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Before you can use the PTX or do any work on the GPU, you must create a CUDA
+context. CUDA contexts are analogous to host processes for the device. In the
+following code example, a handle for compute device 0 is passed to
+<code class="docutils literal notranslate"><span class="pre">cuCtxCreate</span></code> to designate that GPU for context creation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create context</span>
+<span class="n">context</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuCtxCreate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">cuDevice</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>With a CUDA context created on device 0, load the PTX generated earlier into a
+module. A module is analogous to dynamically loaded libraries for the device.
+After loading into the module, extract a specific kernel with
+<code class="docutils literal notranslate"><span class="pre">cuModuleGetFunction</span></code>. It is not uncommon for multiple kernels to reside in PTX:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load PTX as module data and retrieve function</span>
+<span class="n">ptx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ptx</span><span class="p">)</span>
+<span class="c1"># Note: Incompatible --gpu-architecture would be detected here</span>
+<span class="n">module</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuModuleLoadData</span><span class="p">(</span><span class="n">ptx</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+<span class="n">kernel</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuModuleGetFunction</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;saxpy&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Next, get all your data prepared and transferred to the GPU. For increased
+application performance, you can input data on the device to eliminate data
+transfers. For completeness, this example shows how you would transfer data to
+and from the device:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NUM_THREADS</span> <span class="o">=</span> <span class="mi">512</span>  <span class="c1"># Threads per block</span>
+<span class="n">NUM_BLOCKS</span> <span class="o">=</span> <span class="mi">32768</span>  <span class="c1"># Blocks per grid</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">NUM_THREADS</span> <span class="o">*</span> <span class="n">NUM_BLOCKS</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+<span class="n">bufferSize</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">a</span><span class="o">.</span><span class="n">itemsize</span>
+
+<span class="n">hX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">hY</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">hOut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With the input data <code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code>, and <code class="docutils literal notranslate"><span class="pre">y</span></code> created for the SAXPY transform device,
+resources must be allocated to store the data using <code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code>. To allow for
+more overlap between compute and data movement, use the asynchronous function
+<code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoDAsync</span></code>. It returns control to the CPU immediately following command
+execution.</p>
+<p>Python doesn’t have a natural concept of pointers, yet <code class="docutils literal notranslate"><span class="pre">cuMemcpyHtoDAsync</span></code> expects
+<code class="docutils literal notranslate"><span class="pre">void*</span></code>. This is where we leverage NumPy’s data types to retrieve each host data pointer
+by calling <code class="docutils literal notranslate"><span class="pre">XX.ctypes.data</span></code> for the associated XX:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dXclass</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemAlloc</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">))</span>
+<span class="n">dYclass</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemAlloc</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">))</span>
+<span class="n">dOutclass</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemAlloc</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">))</span>
+
+<span class="n">stream</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuStreamCreate</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemcpyHtoDAsync</span><span class="p">(</span>
+   <span class="n">dXclass</span><span class="p">,</span> <span class="n">hX</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">,</span> <span class="n">stream</span>
+<span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemcpyHtoDAsync</span><span class="p">(</span>
+   <span class="n">dYclass</span><span class="p">,</span> <span class="n">hY</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">,</span> <span class="n">stream</span>
+<span class="p">))</span>
+</pre></div>
+</div>
+<p>With data prep and resources allocation finished, the kernel is ready to be
+launched. To pass the location of the data on the device to the kernel execution
+configuration, you must retrieve the device pointer. In the following code
+example, we call <code class="docutils literal notranslate"><span class="pre">int(XXclass)</span></code> to retrieve the device pointer value for the
+associated XXclass as a Python <code class="docutils literal notranslate"><span class="pre">int</span></code> and wrap it in a <code class="docutils literal notranslate"><span class="pre">np.array</span></code> type:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">dXclass</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+<span class="n">dY</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">dYclass</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+<span class="n">dOut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">dOutclass</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The launch API <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> also expects a pointer input for the argument list
+but this time it’s of type <code class="docutils literal notranslate"><span class="pre">void**</span></code>. What this means is that our argument list needs to
+be a contiguous array of <code class="docutils literal notranslate"><span class="pre">void*</span></code> elements, where each element is the pointer to a kernel
+argument on either host or device. Since we already prepared each of our arguments into a <code class="docutils literal notranslate"><span class="pre">np.array</span></code> type, the
+construction of our final contiguous array is done by retrieving the <code class="docutils literal notranslate"><span class="pre">XX.ctypes.data</span></code>
+of each kernel argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">dX</span><span class="p">,</span> <span class="n">dY</span><span class="p">,</span> <span class="n">dOut</span><span class="p">,</span> <span class="n">n</span><span class="p">]</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">arg</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now the kernel can be launched:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuLaunchKernel</span><span class="p">(</span>
+   <span class="n">kernel</span><span class="p">,</span>
+   <span class="n">NUM_BLOCKS</span><span class="p">,</span>  <span class="c1"># grid x dim</span>
+   <span class="mi">1</span><span class="p">,</span>  <span class="c1"># grid y dim</span>
+   <span class="mi">1</span><span class="p">,</span>  <span class="c1"># grid z dim</span>
+   <span class="n">NUM_THREADS</span><span class="p">,</span>  <span class="c1"># block x dim</span>
+   <span class="mi">1</span><span class="p">,</span>  <span class="c1"># block y dim</span>
+   <span class="mi">1</span><span class="p">,</span>  <span class="c1"># block z dim</span>
+   <span class="mi">0</span><span class="p">,</span>  <span class="c1"># dynamic shared memory</span>
+   <span class="n">stream</span><span class="p">,</span>  <span class="c1"># stream</span>
+   <span class="n">args</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>  <span class="c1"># kernel arguments</span>
+   <span class="mi">0</span><span class="p">,</span>  <span class="c1"># extra (ignore)</span>
+<span class="p">))</span>
+
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemcpyDtoHAsync</span><span class="p">(</span>
+   <span class="n">hOut</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dOutclass</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">,</span> <span class="n">stream</span>
+<span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> function takes the compiled module kernel and execution
+configuration parameters. The device code is launched in the same stream as the
+data transfers. That ensures that the kernel’s compute is performed only after
+the data has finished transfer, as all API calls and kernel launches within a
+stream are serialized. After the call to transfer data back to the host is
+executed, <code class="docutils literal notranslate"><span class="pre">cuStreamSynchronize</span></code> is used to halt CPU execution until all operations
+in the designated stream are finished:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assert values are same after running kernel</span>
+<span class="n">hZ</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">hX</span> <span class="o">+</span> <span class="n">hY</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">hOut</span><span class="p">,</span> <span class="n">hZ</span><span class="p">):</span>
+   <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error outside tolerance for host-device vectors&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Perform verification of the data to ensure correctness and finish the code with
+memory clean up:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuStreamDestroy</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemFree</span><span class="p">(</span><span class="n">dXclass</span><span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemFree</span><span class="p">(</span><span class="n">dYclass</span><span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuMemFree</span><span class="p">(</span><span class="n">dOutclass</span><span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuModuleUnload</span><span class="p">(</span><span class="n">module</span><span class="p">))</span>
+<span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">cuCtxDestroy</span><span class="p">(</span><span class="n">context</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="performance">
+<h2>Performance<a class="headerlink" href="#performance" title="Link to this heading">#</a></h2>
+<p>Performance is a primary driver in targeting GPUs in your application. So, how
+does the above code compare to its C++ version? Table 1 shows that the results
+are nearly identical. <a class="reference external" href="https://developer.nvidia.com/nsight-systems">NVIDIA NSight
+Systems</a> was used to retrieve
+kernel performance and <a class="reference external" href="https://developer.nvidia.com/blog/how-implement-performance-metrics-cuda-cc/">CUDA
+Events</a>
+was used for application performance.</p>
+<p>The following command was used to profile the applications:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>nsys<span class="w"> </span>profile<span class="w"> </span>-s<span class="w"> </span>none<span class="w"> </span>-t<span class="w"> </span>cuda<span class="w"> </span>--stats<span class="o">=</span><span class="nb">true</span><span class="w"> </span>&lt;executable&gt;
+</pre></div>
+</div>
+<div class="pst-scrollable-table-container"><table class="table" id="id5">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Kernel and application performance comparison.</span><a class="headerlink" href="#id5" title="Link to this table">#</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>C++</p></th>
+<th class="head"><p>Python</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Kernel execution</p></td>
+<td><p>352µs</p></td>
+<td><p>352µs</p></td>
+</tr>
+<tr class="row-odd"><td><p>Application execution</p></td>
+<td><p>1076ms</p></td>
+<td><p>1080ms</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> is also compatible with <a class="reference external" href="https://developer.nvidia.com/nsight-compute">NVIDIA Nsight
+Compute</a>, which is an
+interactive kernel profiler for CUDA applications. It allows you to have
+detailed insights into kernel performance. This is useful when you’re trying to
+maximize performance ({numref}``Figure 1``).</p>
+<figure class="align-default" id="figure-1">
+<img alt="_images/Nsight-Compute-CLI-625x473.png" src="_images/Nsight-Compute-CLI-625x473.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 1 </span><span class="caption-text">Screenshot of Nsight Compute CLI output of <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> example.</span><a class="headerlink" href="#figure-1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="id3">
+<h2>Preparing kernel arguments<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> API bindings retain low-level CUDA argument preparation requirements:</p>
+<ul class="simple">
+<li><p>Each kernel argument is a <code class="docutils literal notranslate"><span class="pre">void*</span></code> (i.e. pointer to the argument)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kernelParams</span></code> is a <code class="docutils literal notranslate"><span class="pre">void**</span></code> (i.e. pointer to a list of kernel arguments)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kernelParams</span></code> arguments are in contiguous memory</p></li>
+</ul>
+<p>These requirements can be met with two different approaches, using either NumPy or ctypes.</p>
+<section id="using-numpy">
+<h3>Using NumPy<a class="headerlink" href="#using-numpy" title="Link to this heading">#</a></h3>
+<p>NumPy <a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.html">Array objects</a> can be used to fulfill each of these conditions directly.</p>
+<p>Let’s use the following kernel definition as an example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernel_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">typedef struct {</span>
+<span class="s2">    int value;</span>
+<span class="s2">} testStruct;</span>
+
+<span class="s2">extern &quot;C&quot; __global__</span>
+<span class="s2">void testkernel(int i, int *pi,</span>
+<span class="s2">                float f, float *pf,</span>
+<span class="s2">                testStruct s, testStruct *ps)</span>
+<span class="s2">{</span>
+<span class="s2">    *pi = i;</span>
+<span class="s2">    *pf = f;</span>
+<span class="s2">    ps-&gt;value = s.value;</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>The first step is to create array objects with types corresponding to your kernel arguments. Primitive NumPy types have the following corresponding kernel types:</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id6">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Correspondence between NumPy types and kernel types.</span><a class="headerlink" href="#id6" title="Link to this table">#</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>NumPy type</p></th>
+<th class="head"><p>Corresponding kernel types</p></th>
+<th class="head"><p>itemsize (bytes)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bool</p></td>
+<td><p>bool</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>int8</p></td>
+<td><p>char, signed char, int8_t</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>int16</p></td>
+<td><p>short, signed short, int16_t</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p>int32</p></td>
+<td><p>int, signed int, int32_t</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-even"><td><p>int64</p></td>
+<td><p>long long, signed long long, int64_t</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-odd"><td><p>uint8</p></td>
+<td><p>unsigned char, uint8_t</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>uint16</p></td>
+<td><p>unsigned short, uint16_t</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p>uint32</p></td>
+<td><p>unsigned int, uint32_t</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-even"><td><p>uint64</p></td>
+<td><p>unsigned long long, uint64_t</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-odd"><td><p>float16</p></td>
+<td><p>half</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>float32</p></td>
+<td><p>float</p></td>
+<td><p>4</p></td>
+</tr>
+<tr class="row-odd"><td><p>float64</p></td>
+<td><p>double</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-even"><td><p>complex64</p></td>
+<td><p>float2, cuFloatComplex, complex&amp;lt;float&amp;gt;</p></td>
+<td><p>8</p></td>
+</tr>
+<tr class="row-odd"><td><p>complex128</p></td>
+<td><p>double2, cuDoubleComplex, complex&amp;lt;double&amp;gt;</p></td>
+<td><p>16</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Furthermore, custom NumPy types can be used to support both platform-dependent types and user-defined structures as kernel arguments.</p>
+<p>This example uses the following types:
+* <code class="docutils literal notranslate"><span class="pre">int</span></code> is <code class="docutils literal notranslate"><span class="pre">np.uint32</span></code>
+* <code class="docutils literal notranslate"><span class="pre">float</span></code> is <code class="docutils literal notranslate"><span class="pre">np.float32</span></code>
+* <code class="docutils literal notranslate"><span class="pre">int*</span></code>, <code class="docutils literal notranslate"><span class="pre">float*</span></code> and <code class="docutils literal notranslate"><span class="pre">testStruct*</span></code> are <code class="docutils literal notranslate"><span class="pre">np.intp</span></code>
+* <code class="docutils literal notranslate"><span class="pre">testStruct</span></code> is a custom user type <code class="docutils literal notranslate"><span class="pre">np.dtype([(&quot;value&quot;,</span> <span class="pre">np.int32)],</span> <span class="pre">align=True)</span></code></p>
+<p>Note how all three pointers are <code class="docutils literal notranslate"><span class="pre">np.intp</span></code> since the pointer values are always a representation of an address space.</p>
+<p>Putting it all together:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define a custom type</span>
+<span class="n">testStruct</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)],</span> <span class="n">align</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Allocate device memory</span>
+<span class="n">pInt</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">.</span><span class="n">itemsize</span><span class="p">))</span>
+<span class="n">pFloat</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">itemsize</span><span class="p">))</span>
+<span class="n">pStruct</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">testStruct</span><span class="o">.</span><span class="n">itemsize</span><span class="p">))</span>
+
+<span class="c1"># Collect all input kernel arguments into a single tuple for further processing</span>
+<span class="n">kernelValues</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pInt</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mf">123.456</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pFloat</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">],</span> <span class="n">testStruct</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pStruct</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The final step is to construct a <code class="docutils literal notranslate"><span class="pre">kernelParams</span></code> argument that fulfills all of the launch API conditions. This is made easy because each array object comes
+with a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.ctypes.html#numpy.ndarray.ctypes">ctypes</a> data attribute that returns the underlying <code class="docutils literal notranslate"><span class="pre">void*</span></code> pointer value.</p>
+<p>By having the final array object contain all pointers, we fulfill the contiguous array requirement:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernelParams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">arg</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">kernelValues</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The launch API supports <a class="reference external" href="https://docs.python.org/3/c-api/buffer.html">Buffer Protocol</a> objects, therefore we can pass the array object directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cuda</span><span class="o">.</span><span class="n">cuLaunchKernel</span><span class="p">(</span>
+    <span class="n">kernel</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># grid dim</span>
+    <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># block dim</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span>  <span class="c1"># shared mem and stream</span>
+    <span class="n">kernelParams</span><span class="o">=</span><span class="n">kernelParams</span><span class="p">,</span>
+    <span class="n">extra</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="using-ctypes">
+<h3>Using ctypes<a class="headerlink" href="#using-ctypes" title="Link to this heading">#</a></h3>
+<p>The <a class="reference external" href="https://docs.python.org/3/library/ctypes.html">ctypes</a> approach relaxes the parameter preparation requirement by delegating the contiguous memory requirement to the API launch call.</p>
+<p>Let’s use the same kernel definition as the previous section for the example.</p>
+<p>The ctypes approach treats the <code class="docutils literal notranslate"><span class="pre">kernelParams</span></code> argument as a pair of two tuples: <code class="docutils literal notranslate"><span class="pre">kernel_values</span></code> and <code class="docutils literal notranslate"><span class="pre">kernel_types</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kernel_values</span></code> contain Python values to be used as an input to your kernel</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kernel_types</span></code> contain the data types that your kernel_values should be converted into</p></li>
+</ul>
+<p>The ctypes <a class="reference external" href="https://docs.python.org/3/library/ctypes.html#fundamental-data-types">fundamental data types</a> documentation describes the compatibility between different Python types and C types.
+Furthermore, <a class="reference external" href="https://docs.python.org/3/library/ctypes.html#calling-functions-with-your-own-custom-data-types">custom data types</a> can be used to support kernels with custom types.</p>
+<p>For this example the result becomes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define a custom type</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">testStruct</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">)]</span>
+
+<span class="c1"># Allocate device memory</span>
+<span class="n">pInt</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">)))</span>
+<span class="n">pFloat</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_float</span><span class="p">)))</span>
+<span class="n">pStruct</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">testStruct</span><span class="p">)))</span>
+
+<span class="c1"># Collect all input kernel arguments into a single tuple for further processing</span>
+<span class="n">kernelValues</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="mi">1</span><span class="p">,</span>
+    <span class="n">pInt</span><span class="p">,</span>
+    <span class="mf">123.456</span><span class="p">,</span>
+    <span class="n">pFloat</span><span class="p">,</span>
+    <span class="n">testStruct</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span>
+    <span class="n">pStruct</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">kernelTypes</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">,</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span><span class="p">,</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_float</span><span class="p">,</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span><span class="p">,</span>
+    <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Values that are set to <code class="docutils literal notranslate"><span class="pre">None</span></code> have a special meaning:</p>
+<ol class="arabic simple">
+<li><p>The value supports a callable <code class="docutils literal notranslate"><span class="pre">getPtr</span></code> that returns the pointer address of the underlining C object address (e.g. all CUDA C types that are exposed to Python as Python classes)</p></li>
+<li><p>The value is an instance of <code class="docutils literal notranslate"><span class="pre">ctypes.Structure</span></code></p></li>
+<li><p>The value is an <code class="docutils literal notranslate"><span class="pre">Enum</span></code></p></li>
+</ol>
+<p>In all three cases, the API call will fetch the underlying pointer value and construct a contiguous array with other kernel parameters.</p>
+<p>With the setup complete, the kernel can be launched:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cuda</span><span class="o">.</span><span class="n">cuLaunchKernel</span><span class="p">(</span>
+    <span class="n">kernel</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># grid dim</span>
+    <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># block dim</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span>  <span class="c1"># shared mem and stream</span>
+    <span class="n">kernelParams</span><span class="o">=</span><span class="p">(</span><span class="n">kernelValues</span><span class="p">,</span> <span class="n">kernelTypes</span><span class="p">),</span>
+    <span class="n">extra</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="cuda-objects">
+<h3>CUDA objects<a class="headerlink" href="#cuda-objects" title="Link to this heading">#</a></h3>
+<p>Certain CUDA kernels use native CUDA types as their parameters such as <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code>. These types require special handling since they’re neither a primitive ctype nor a custom user type. Since <code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> exposes each of them as Python classes, they each implement <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code> and <code class="docutils literal notranslate"><span class="pre">__int__()</span></code>. These two callables used to support the NumPy and ctypes approach. The difference between each call is further described under <a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/tips_and_tricks.html#">Tips and Tricks</a>.</p>
+<p>For this example, lets use the <code class="docutils literal notranslate"><span class="pre">transformKernel</span></code> from <a class="reference external" href="https://github.com/NVIDIA/cuda-python/blob/main/cuda_bindings/examples/0_Introduction/simpleCubemapTexture_test.py">examples/0_Introduction/simpleCubemapTexture_test.py</a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simpleCubemapTexture</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">extern &quot;C&quot;</span>
+<span class="s2">__global__ void transformKernel(float *g_odata, int width, cudaTextureObject_t tex)</span>
+<span class="s2">{</span>
+<span class="s2">    ...</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="o">...</span>
+    <span class="n">d_data</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="n">size</span><span class="p">))</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="n">tex</span> <span class="o">=</span> <span class="n">checkCudaErrors</span><span class="p">(</span><span class="n">cudart</span><span class="o">.</span><span class="n">cudaCreateTextureObject</span><span class="p">(</span><span class="n">texRes</span><span class="p">,</span> <span class="n">texDescr</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>For NumPy, we can convert these CUDA types by leveraging the <code class="docutils literal notranslate"><span class="pre">__int__()</span></code> call to fetch the address of the underlying <code class="docutils literal notranslate"><span class="pre">cudaTextureObject_t</span></code> C object and wrapping it in a NumPy object array of type <code class="docutils literal notranslate"><span class="pre">np.intp</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernelValues</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">d_data</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">tex</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">kernelArgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">arg</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">kernelValues</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For ctypes, we leverage the special handling of <code class="docutils literal notranslate"><span class="pre">None</span></code> type since each Python class already implements <code class="docutils literal notranslate"><span class="pre">getPtr()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernelValues</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">d_data</span><span class="p">,</span>
+    <span class="n">width</span><span class="p">,</span>
+    <span class="n">tex</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">kernelTypes</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span><span class="p">,</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">,</span>
+    <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">kernelArgs</span> <span class="o">=</span> <span class="p">(</span><span class="n">kernelValues</span><span class="p">,</span> <span class="n">kernelTypes</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="install.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="motivation.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Motivation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-bindings-workflow"><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> workflow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance">Performance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Preparing kernel arguments</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-numpy">Using NumPy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-ctypes">Using ctypes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-objects">CUDA objects</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2021-2025, NVIDIA.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
