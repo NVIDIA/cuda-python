@@ -514,3 +514,13 @@ def test_from_array_interface(x, init_cuda, expected_dtype):
     # Check strides
     strides_in_counts = convert_strides_to_counts(x.strides, x.dtype.itemsize)
     assert (x.flags.c_contiguous and smv.strides is None) or smv.strides == strides_in_counts
+
+
+def test_from_array_interface_unsupported_strides(init_cuda):
+    # Create an array with strides that aren't a multiple of itemsize
+    x = np.array([(1, 2.0), (3, 4.0)], dtype=[("a", "i4"), ("b", "f8")])
+    b = x["b"]
+    smv = StridedMemoryView.from_array_interface(b)
+    with pytest.raises(ValueError, match="strides must be divisible by itemsize"):
+        # TODO: ideally this would raise on construction
+        smv.strides  # noqa: B018
