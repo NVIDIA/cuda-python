@@ -147,20 +147,20 @@ cdef class StridedMemoryView:
 
     @classmethod
     def from_dlpack(cls, obj: object, stream_ptr: int | None=None) -> StridedMemoryView:
-        cdef StridedMemoryView buf
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            buf = cls()
+        cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
         view_as_dlpack(obj, stream_ptr, buf)
         return buf
 
     @classmethod
     def from_cuda_array_interface(cls, obj: object, stream_ptr: int | None=None) -> StridedMemoryView:
-        cdef StridedMemoryView buf
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            buf = cls()
+        cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
         view_as_cai(obj, stream_ptr, buf)
+        return buf
+
+    @classmethod
+    def from_array_interface(cls, obj: object) -> StridedMemoryView:
+        cdef StridedMemoryView buf = StridedMemoryView.__new__(cls)
+        view_as_array_interface(obj, buf)
         return buf
 
     @classmethod
@@ -375,8 +375,7 @@ cdef class StridedMemoryView:
             if self.dl_tensor != NULL:
                 self._dtype = dtype_dlpack_to_numpy(&self.dl_tensor.dtype)
             elif self.metadata is not None:
-                # TODO: this only works for built-in numeric types
-                self._dtype = _typestr2dtype[self.metadata["typestr"]]
+                self._dtype = _typestr2dtype(self.metadata["typestr"])
         return self._dtype
 
 
@@ -496,25 +495,14 @@ cdef StridedMemoryView view_as_dlpack(obj, stream_ptr, view=None):
     return buf
 
 
-_builtin_numeric_dtypes = [
-    numpy.dtype("uint8"),
-    numpy.dtype("uint16"),
-    numpy.dtype("uint32"),
-    numpy.dtype("uint64"),
-    numpy.dtype("int8"),
-    numpy.dtype("int16"),
-    numpy.dtype("int32"),
-    numpy.dtype("int64"),
-    numpy.dtype("float16"),
-    numpy.dtype("float32"),
-    numpy.dtype("float64"),
-    numpy.dtype("complex64"),
-    numpy.dtype("complex128"),
-    numpy.dtype("bool"),
-]
-# Doing it once to avoid repeated overhead
-_typestr2dtype = {dtype.str: dtype for dtype in _builtin_numeric_dtypes}
-_typestr2itemsize = {dtype.str: dtype.itemsize for dtype in _builtin_numeric_dtypes}
+@functools.lru_cache
+def _typestr2dtype(str typestr):
+    return numpy.dtype(typestr)
+
+
+@functools.lru_cache
+def _typestr2itemsize(str typestr):
+    return _typestr2dtype(typestr).itemsize
 
 
 cdef object dtype_dlpack_to_numpy(DLDataType* dtype):
@@ -621,6 +609,23 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
     return buf
 
 
+cpdef StridedMemoryView view_as_array_interface(obj, view=None):
+    cdef dict data = obj.__array_interface__
+    if data["version"] < 3:
+        raise BufferError("only NumPy Array Interface v3 or above is supported")
+    if data.get("mask") is not None:
+        raise BufferError("mask is not supported")
+
+    cdef StridedMemoryView buf = StridedMemoryView() if view is None else view
+    buf.exporting_obj = obj
+    buf.metadata = data
+    buf.dl_tensor = NULL
+    buf.ptr, buf.readonly = data["data"]
+    buf.is_device_accessible = False
+    buf.device_id = handle_return(driver.cuCtxGetDevice())
+    return buf
+
+
 def args_viewable_as_strided_memory(tuple arg_indices):
     """
     Decorator to create proxy objects to :obj:`StridedMemoryView` for the
@@ -676,7 +681,7 @@ cdef _StridedLayout layout_from_cai(object metadata):
     cdef _StridedLayout layout = _StridedLayout.__new__(_StridedLayout)
     cdef object shape = metadata["shape"]
     cdef object strides = metadata.get("strides")
-    cdef int itemsize = _typestr2itemsize[metadata["typestr"]]
+    cdef int itemsize = _typestr2itemsize(metadata["typestr"])
     layout.init_from_tuple(shape, strides, itemsize, True)
     return layout
 

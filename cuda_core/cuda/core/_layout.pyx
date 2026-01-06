@@ -29,7 +29,7 @@ cdef class _StridedLayout:
         Otherwise, the strides are assumed to be implicitly C-contiguous and the resulting
         layout's :attr:`strides` will be None.
     itemsize : int
-        The number of bytes per single element (dtype size). Must be a power of two.
+        The number of bytes per single element (dtype size).
     divide_strides : bool, optional
         If True, the provided :attr:`strides` will be divided by the :attr:`itemsize`.
 
@@ -40,7 +40,7 @@ cdef class _StridedLayout:
     Attributes
     ----------
     itemsize : int
-        The number of bytes per single element (dtype size). Must be a power of two.
+        The number of bytes per single element (dtype size).
     slice_offset : int
         The offset (as a number of elements, not bytes) of the element at
         index ``(0,) * ndim``. See also :attr:`slice_offset_in_bytes`.
@@ -636,7 +636,6 @@ cdef class _StridedLayout:
         In either case, the ``volume * itemsize`` of the layout remains the same.
 
         The conversion is subject to the following constraints:
-            * The old and new itemsizes must be powers of two.
             * The extent at ``axis`` must be a positive integer.
             * The stride at ``axis`` must be 1.
 
@@ -1214,10 +1213,10 @@ cdef inline int64_t gcd(int64_t a, int64_t b) except? -1 nogil:
 
 cdef inline int pack_extents(BaseLayout& out_layout, stride_t& out_slice_offset, BaseLayout& in_layout, stride_t slice_offset, int itemsize, int new_itemsize, intptr_t data_ptr, bint keep_dim, int axis) except -1 nogil:
     cdef int ndim = in_layout.ndim
-    if new_itemsize <= 0 or new_itemsize & (new_itemsize - 1):
-        raise ValueError(f"new itemsize must be a power of two, got {new_itemsize}.")
-    if itemsize <= 0 or itemsize & (itemsize - 1):
-        raise ValueError(f"itemsize must be a power of two, got {itemsize}.")
+    if new_itemsize <= 0:
+        raise ValueError(f"new itemsize must be greater than zero, got {new_itemsize}.")
+    if itemsize <= 0:
+        raise ValueError(f"itemsize must be greater than zero, got {itemsize}.")
     if new_itemsize <= itemsize:
         if new_itemsize == itemsize:
             return 1
@@ -1270,10 +1269,10 @@ cdef inline int unpack_extents(BaseLayout &out_layout, BaseLayout &in_layout, in
     cdef int ndim = in_layout.ndim
     if not _normalize_axis(axis, ndim):
         raise ValueError(f"Invalid axis: {axis} out of range for {ndim}D tensor")
-    if new_itemsize <= 0 or new_itemsize & (new_itemsize - 1):
-        raise ValueError(f"new itemsize must be a power of two, got {new_itemsize}.")
-    if itemsize <= 0 or itemsize & (itemsize - 1):
-        raise ValueError(f"itemsize must be a power of two, got {itemsize}.")
+    if new_itemsize <= 0:
+        raise ValueError(f"new itemsize must be greater than zero, got {new_itemsize}.")
+    if itemsize <= 0:
+        raise ValueError(f"itemsize must be greater than zero, got {itemsize}.")
     if new_itemsize >= itemsize:
         if new_itemsize == itemsize:
             return 1
@@ -1301,10 +1300,10 @@ cdef inline int unpack_extents(BaseLayout &out_layout, BaseLayout &in_layout, in
 
 cdef inline int max_compatible_itemsize(BaseLayout& layout, stride_t slice_offset, int itemsize, int max_itemsize, intptr_t data_ptr, int axis) except? -1 nogil:
     cdef int ndim = layout.ndim
-    if max_itemsize <= 0 or max_itemsize & (max_itemsize - 1):
-        raise ValueError(f"max_itemsize must be a power of two, got {max_itemsize}.")
-    if itemsize <= 0 or itemsize & (itemsize - 1):
-        raise ValueError(f"itemsize must be a power of two, got {itemsize}.")
+    if max_itemsize <= 0:
+        raise ValueError(f"max_itemsize must be greater than zero, got {max_itemsize}.")
+    if itemsize <= 0:
+        raise ValueError(f"itemsize must be greater than zero, got {itemsize}.")
     if not _normalize_axis(axis, ndim):
         raise ValueError(f"Invalid axis: {axis} out of range for {ndim}D tensor")
     if max_itemsize < itemsize:
