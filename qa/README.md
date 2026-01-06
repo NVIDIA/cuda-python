@@ -30,14 +30,14 @@ This directory **does not exist in the public `main` branch**.
 
 ## What goes into `ctk-next`?
 
-"Kitpicks" are CTK release candidates, sometimes referred to as, e.g., "13.1 RC 027". They are hosted here:
+"Kitpicks" are CTK release candidates, sometimes referred to as, e.g., "13.2 RC 001". They are hosted here:
 
-[**https://cuda-repo.nvidia.com/release-candidates/kitpicks/cuda-r13-1/13.1.0/**](
-    https://cuda-repo.nvidia.com/release-candidates/kitpicks/cuda-r13-1/13.1.0/)
+[**https://cuda-repo.nvidia.com/release-candidates/kitpicks/cuda-r13-2/13.2.0/**](
+    https://cuda-repo.nvidia.com/release-candidates/kitpicks/cuda-r13-2/13.2.0/)
 
-A helper script is available for downloading `linux-64`, `linux-aarch64`, and `win-64` release candidates, e.g.:
+A helper script is available for downloading `linux-64`, `linux-aarch64`, and `win-64` release candidates:
 
-`qa/helpers/download_from_kitpicks.py https://cuda-repo.nvidia.com/release-candidates/kitpicks/cuda-r13-1/13.1.0/027/local_installers/`
+`qa/helpers/download_from_kitpicks.py --help`
 
 <img src="ctk-next.drawio.svg" width="400">
 
@@ -53,7 +53,7 @@ It includes scripts for:
 
 To invoke the top-level script:
 ```
-CUDA_HOME=/usr/local/cuda-13.1 python regenerate.py -o ../ctk-next
+CUDA_HOME=/usr/local/cuda-13.2 python regenerate.py -o ../ctk-next
 ```
 
 ### cybind
@@ -62,7 +62,7 @@ All other library bindings provided by `cuda-bindings` are supported by [`cybind
 After setting up the environment (see cybind documentation), the `cuda-python` bindings can be generated with:
 
 ```
-CUDA_PATH=/usr/local/cuda-13.1 python -m cybind -vvv --generate cufile nvjitlink nvvm --output-dir ../ctk-next/cuda_bindings
+CUDA_PATH=/usr/local/cuda-13.2 python -m cybind -vvv --generate cufile nvjitlink nvml nvvm --output-dir ../ctk-next/cuda_bindings
 ```
 
 ### Manual updates
@@ -117,11 +117,15 @@ When a new CTK release goes live:
 
 2. Shortly after, create a PR in the public `cuda-python` repo that squash-merges all `ctk-next` changes into `main`, excluding the `qa/` directory.
 
-To automate this step, use:
+For reference, the squash-merge PR for the CTK 13.1 release was:
 
-```bash
-toolshed/git_squash-merge_ctk-next.sh
-```
+[**https://github.com/NVIDIA/cuda-python/pull/1315/commits**](
+    https://github.com/NVIDIA/cuda-python/pull/1315/commits)
 
-This script lives in the public `cuda-python` repository and prepares the `merge-ctk-next` branch there,
-performs the squash-merge, removes `qa/`, and commits the result with a standardized message.
+Note the organization into three initial commits (commit messages slightly modernized here):
+
+* `automatic code-gen changes: driver, runtime, nvrtc` (cython-gen)
+* `automatic code-gen changes: cufile, nvjitlink, nvvm, nvml` (cybind)
+* `accumulated changes from the QA testing period`
+
+This was very helpful for keeping the large-scale changes reasonably easy to review.
