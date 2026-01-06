@@ -83,7 +83,7 @@ repos:
         exclude: ^\.github/workflows/coverage.yml$
 
   - repo: https://github.com/MarcoGorelli/cython-lint
-    rev: "8e4297a1b56d0c5be6f79be4e28d08e71d6c05b9"  # frozen: v0.18.1
+    rev: "d9ff7ce99ef4f2ae8fba93079ca9d76c4651d4ac"  # frozen: v0.18.0
     hooks:
       - id: cython-lint
         args: [--no-pycodestyle]
