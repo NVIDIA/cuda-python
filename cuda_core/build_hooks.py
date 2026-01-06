@@ -25,7 +25,17 @@ COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 
 @functools.cache
-def _get_cuda_major_version() -> str:
+def _get_cuda_paths() -> list[str]:
+    CUDA_PATH = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
+    if not CUDA_PATH:
+        raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
+    CUDA_PATH = CUDA_PATH.split(os.pathsep)
+    print("CUDA paths:", CUDA_PATH)
+    return CUDA_PATH
+
+
+@functools.cache
+def _determine_cuda_major_version() -> str:
     """Determine the CUDA major version for building cuda.core.
 
     This version is used for two purposes:
@@ -42,23 +52,25 @@ def _get_cuda_major_version() -> str:
     # Explicit override, e.g. in CI.
     cuda_major = os.environ.get("CUDA_CORE_BUILD_MAJOR")
     if cuda_major is not None:
+        print("CUDA MAJOR VERSION:", cuda_major)
         return cuda_major
 
     # Derive from the CUDA headers (the authoritative source for what we compile against).
-    cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
-    if cuda_path:
-        for root in cuda_path.split(os.pathsep):
-            cuda_h = os.path.join(root, "include", "cuda.h")
-            try:
-                with open(cuda_h, encoding="utf-8") as f:
-                    for line in f:
-                        m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
-                        if m:
-                            v = int(m.group(1))
-                            # CUDA_VERSION is e.g. 12020 for 12.2.
-                            return str(v // 1000)
-            except OSError:
-                continue
+    cuda_path = _get_cuda_paths()
+    for root in cuda_path:
+        cuda_h = os.path.join(root, "include", "cuda.h")
+        try:
+            with open(cuda_h, encoding="utf-8") as f:
+                for line in f:
+                    m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
+                    if m:
+                        v = int(m.group(1))
+                        # CUDA_VERSION is e.g. 12020 for 12.2.
+                        cuda_major = str(v // 1000)
+                        print("CUDA MAJOR VERSION:", cuda_major)
+                        return cuda_major
+        except OSError:
+            continue
 
     # CUDA_PATH or CUDA_HOME is required for the build, so we should not reach here
     # in normal circumstances. Raise an error to make the issue clear.
@@ -83,25 +95,12 @@ def _build_cuda_core():
 
     # It seems setuptools' wildcard support has problems for namespace packages,
     # so we explicitly spell out all Extension instances.
-    root_module = "cuda.core"
-    root_path = f"{os.path.sep}".join(root_module.split(".")) + os.path.sep
-    ext_files = glob.glob(f"{root_path}/**/*.pyx", recursive=True)
+    def module_names():
+        root_path = os.path.sep.join(["cuda", "core", ""])
+        for filename in glob.glob(f"{root_path}/**/*.pyx", recursive=True):
+            yield filename[len(root_path) : -4]
 
-    def strip_prefix_suffix(filename):
-        return filename[len(root_path) : -4]
-
-    module_names = (strip_prefix_suffix(f) for f in ext_files)
-
-    @functools.cache
-    def get_cuda_paths():
-        CUDA_PATH = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
-        if not CUDA_PATH:
-            raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
-        CUDA_PATH = CUDA_PATH.split(os.pathsep)
-        print("CUDA paths:", CUDA_PATH)
-        return CUDA_PATH
-
-    all_include_dirs = list(os.path.join(root, "include") for root in get_cuda_paths())
+    all_include_dirs = list(os.path.join(root, "include") for root in _get_cuda_paths())
     extra_compile_args = []
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
@@ -116,11 +115,11 @@ def _build_cuda_core():
             language="c++",
             extra_compile_args=extra_compile_args,
         )
-        for mod in module_names
+        for mod in module_names()
     )
 
     nthreads = int(os.environ.get("CUDA_PYTHON_PARALLEL_LEVEL", os.cpu_count() // 2))
-    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(_get_cuda_major_version())}
+    compile_time_env = {"CUDA_CORE_BUILD_MAJOR": int(_determine_cuda_major_version())}
     compiler_directives = {"embedsignature": True, "warn.deprecated.IF": False, "freethreading_compatible": True}
     if COMPILE_FOR_COVERAGE:
         compiler_directives["linetrace"] = True
@@ -147,7 +146,7 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
 
 def _get_cuda_bindings_require():
-    cuda_major = _get_cuda_major_version()
+    cuda_major = _determine_cuda_major_version()
     return [f"cuda-bindings=={cuda_major}.*"]
 
 
