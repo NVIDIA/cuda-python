@@ -55,21 +55,21 @@ cdef class DeviceProperties:
         self._cache = {}
         return self
 
-    cdef inline _get_attribute(self, cydriver.CUdevice_attribute attr):
+    cdef inline int _get_attribute(self, cydriver.CUdevice_attribute attr, default=0) except? -2:
         """Retrieve the attribute value directly from the driver."""
         cdef int val
         cdef cydriver.CUresult err
         with nogil:
             err = cydriver.cuDeviceGetAttribute(&val, attr, self._handle)
-        if err == cydriver.CUresult.CUDA_ERROR_INVALID_VALUE:
-            return 0
+        if err == cydriver.CUresult.CUDA_ERROR_INVALID_VALUE and default is not None:
+            return <int>default
         HANDLE_RETURN(err)
         return val
 
-    cdef _get_cached_attribute(self, attr):
+    cdef inline int _get_cached_attribute(self, attr, default=0) except? -2:
         """Retrieve the attribute value, using cache if applicable."""
         if attr not in self._cache:
-            self._cache[attr] = self._get_attribute(attr)
+            self._cache[attr] = self._get_attribute(attr, default)
         return self._cache[attr]
 
     @property
@@ -787,6 +787,8 @@ cdef class DeviceProperties:
         """bool: Device supports buffer sharing with dma_buf mechanism."""
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_DMA_BUF_SUPPORTED))
 
+    # Start of CUDA 12 device attributes
+
     @property
     def ipc_event_supported(self) -> bool:
         """bool: Device supports IPC Events."""
@@ -795,7 +797,7 @@ cdef class DeviceProperties:
     @property
     def mem_sync_domain_count(self) -> int:
         """int: Number of memory domains the device supports."""
-        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_SYNC_DOMAIN_COUNT)
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MEM_SYNC_DOMAIN_COUNT, default=1)
 
     @property
     def tensor_map_access_supported(self) -> bool:
@@ -824,7 +826,7 @@ cdef class DeviceProperties:
     @property
     def host_numa_id(self) -> int:
         """int: NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA."""
-        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID)
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID, default=-1)
 
     @property
     def d3d12_cig_supported(self) -> bool:
@@ -847,14 +849,22 @@ cdef class DeviceProperties:
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VULKAN_CIG_SUPPORTED))
 
     @property
-    def gpu_pci_device_id(self) -> int:
-        """int: The combined 16-bit PCI device ID and 16-bit PCI vendor ID."""
-        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_DEVICE_ID)
+    def gpu_pci_device_id(self) -> int | None:
+        """int | None: The combined 16-bit PCI device ID and 16-bit PCI vendor ID.
+
+        Returns None if the driver does not support this query.
+        """
+        value = self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_DEVICE_ID)
+        return value if value else None
 
     @property
-    def gpu_pci_subsystem_id(self) -> int:
-        """int: The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID."""
-        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_SUBSYSTEM_ID)
+    def gpu_pci_subsystem_id(self) -> int | None:
+        """int | None: The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.
+
+        Returns None if the driver does not support this query.
+        """
+        value = self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_SUBSYSTEM_ID)
+        return value if value else None
 
     @property
     def host_numa_virtual_memory_management_supported(self) -> bool:
@@ -871,6 +881,8 @@ cdef class DeviceProperties:
         return bool(
             self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_HOST_NUMA_MEMORY_POOLS_SUPPORTED)
         )
+
+    # Start of CUDA 13 device attributes
 
     @property
     def host_numa_multinode_ipc_supported(self) -> bool:
