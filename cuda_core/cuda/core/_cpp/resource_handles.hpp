@@ -228,71 +228,45 @@ inline std::intptr_t intptr(const DevicePtrHandle& h) noexcept {
     return h ? static_cast<std::intptr_t>(*h) : 0;
 }
 
-// py() - convert handle to Python driver wrapper object
-// Returns new reference. Caller must hold GIL.
+// py() - convert handle to Python driver wrapper object (returns new reference)
+namespace detail {
+inline PyObject* py_class_for(const char* name) {
+    PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
+    if (!mod) return nullptr;
+    PyObject* cls = PyObject_GetAttrString(mod, name);
+    Py_DECREF(mod);
+    return cls;
+}
+}  // namespace detail
+
 inline PyObject* py(const ContextHandle& h) {
-    static PyObject* cls = nullptr;
-    if (!cls) {
-        PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
-        if (!mod) return nullptr;
-        cls = PyObject_GetAttrString(mod, "CUcontext");
-        Py_DECREF(mod);
-        if (!cls) return nullptr;
-    }
-    std::uintptr_t val = h ? reinterpret_cast<std::uintptr_t>(*h) : 0;
-    return PyObject_CallFunction(cls, "K", val);
+    static PyObject* cls = detail::py_class_for("CUcontext");
+    if (!cls) return nullptr;
+    return PyObject_CallFunction(cls, "L", intptr(h));
 }
 
 inline PyObject* py(const StreamHandle& h) {
-    static PyObject* cls = nullptr;
-    if (!cls) {
-        PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
-        if (!mod) return nullptr;
-        cls = PyObject_GetAttrString(mod, "CUstream");
-        Py_DECREF(mod);
-        if (!cls) return nullptr;
-    }
-    std::uintptr_t val = h ? reinterpret_cast<std::uintptr_t>(*h) : 0;
-    return PyObject_CallFunction(cls, "K", val);
+    static PyObject* cls = detail::py_class_for("CUstream");
+    if (!cls) return nullptr;
+    return PyObject_CallFunction(cls, "L", intptr(h));
 }
 
 inline PyObject* py(const EventHandle& h) {
-    static PyObject* cls = nullptr;
-    if (!cls) {
-        PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
-        if (!mod) return nullptr;
-        cls = PyObject_GetAttrString(mod, "CUevent");
-        Py_DECREF(mod);
-        if (!cls) return nullptr;
-    }
-    std::uintptr_t val = h ? reinterpret_cast<std::uintptr_t>(*h) : 0;
-    return PyObject_CallFunction(cls, "K", val);
+    static PyObject* cls = detail::py_class_for("CUevent");
+    if (!cls) return nullptr;
+    return PyObject_CallFunction(cls, "L", intptr(h));
 }
 
 inline PyObject* py(const MemoryPoolHandle& h) {
-    static PyObject* cls = nullptr;
-    if (!cls) {
-        PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
-        if (!mod) return nullptr;
-        cls = PyObject_GetAttrString(mod, "CUmemoryPool");
-        Py_DECREF(mod);
-        if (!cls) return nullptr;
-    }
-    std::uintptr_t val = h ? reinterpret_cast<std::uintptr_t>(*h) : 0;
-    return PyObject_CallFunction(cls, "K", val);
+    static PyObject* cls = detail::py_class_for("CUmemoryPool");
+    if (!cls) return nullptr;
+    return PyObject_CallFunction(cls, "L", intptr(h));
 }
 
 inline PyObject* py(const DevicePtrHandle& h) {
-    static PyObject* cls = nullptr;
-    if (!cls) {
-        PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
-        if (!mod) return nullptr;
-        cls = PyObject_GetAttrString(mod, "CUdeviceptr");
-        Py_DECREF(mod);
-        if (!cls) return nullptr;
-    }
-    std::uintptr_t val = h ? static_cast<std::uintptr_t>(*h) : 0;
-    return PyObject_CallFunction(cls, "K", val);
+    static PyObject* cls = detail::py_class_for("CUdeviceptr");
+    if (!cls) return nullptr;
+    return PyObject_CallFunction(cls, "L", intptr(h));
 }
 
 }  // namespace cuda_core
