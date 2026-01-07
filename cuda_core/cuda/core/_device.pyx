@@ -23,7 +23,9 @@ from cuda.core._resource_handles cimport (
     cu,
 )
 
+# Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
 _init_handles_table()
+
 from cuda.core._graph import GraphBuilder
 from cuda.core._stream import IsStreamT, Stream, StreamOptions
 from cuda.core._utils.clear_error_support import assert_type

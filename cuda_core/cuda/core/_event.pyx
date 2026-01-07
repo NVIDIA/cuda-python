@@ -19,7 +19,9 @@ from cuda.core._resource_handles cimport (
     py,
 )
 
+# Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
 _init_handles_table()
+
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
     HANDLE_RETURN

@@ -22,14 +22,14 @@ namespace cuda_core {
 
 namespace {
 
-static std::once_flag driver_load_once;
-static std::atomic<bool> driver_loaded{false};
+std::once_flag driver_load_once;
+std::atomic<bool> driver_loaded{false};
 
 #if PY_VERSION_HEX < 0x030D0000
 extern "C" int _Py_IsFinalizing(void);
 #endif
 
-static inline bool py_is_finalizing() noexcept {
+inline bool py_is_finalizing() noexcept {
 #if PY_VERSION_HEX >= 0x030D0000
     return Py_IsFinalizing();
 #else
@@ -60,6 +60,9 @@ public:
             tstate_ = PyEval_SaveThread();
             released_ = true;
         }
+        // Note: If the GIL is not released (finalizing, or not held):
+        // - Reduces parallelism (other Python threads remain blocked)
+        // - No deadlock risk as long as the guarded code doesn't call back into Python
     }
 
     ~GILReleaseGuard() {
@@ -108,7 +111,7 @@ private:
 };
 
 
-#define DECLARE_DRIVER_FN(name) using name##_t = decltype(&name); static name##_t p_##name = nullptr
+#define DECLARE_DRIVER_FN(name) using name##_t = decltype(&name); name##_t p_##name = nullptr
 
 DECLARE_DRIVER_FN(cuDevicePrimaryCtxRetain);
 DECLARE_DRIVER_FN(cuDevicePrimaryCtxRelease);
@@ -142,7 +145,7 @@ DECLARE_DRIVER_FN(cuMemPoolImportPointer);
 
 #undef DECLARE_DRIVER_FN
 
-static bool load_driver_api() noexcept {
+bool load_driver_api() noexcept {
     struct CudaDriverApiV1 {
         std::uint32_t abi_version;
         std::uint32_t struct_size;
@@ -261,7 +264,7 @@ static bool load_driver_api() noexcept {
     return true;
 }
 
-static bool ensure_driver_loaded() noexcept {
+bool ensure_driver_loaded() noexcept {
     // Fast path: already loaded (no locking needed)
     if (driver_loaded.load(std::memory_order_acquire)) {
         return true;
@@ -286,7 +289,7 @@ static bool ensure_driver_loaded() noexcept {
 // ============================================================================
 
 // Thread-local status of the most recent CUDA API call in this module.
-thread_local CUresult err = CUDA_SUCCESS;
+static thread_local CUresult err = CUDA_SUCCESS;
 
 CUresult get_last_error() noexcept {
     CUresult e = err;
@@ -306,9 +309,11 @@ void clear_last_error() noexcept {
 // Context Handles
 // ============================================================================
 
+namespace {
 struct ContextBox {
     CUcontext resource;
 };
+}  // namespace
 
 ContextHandle create_context_handle_ref(CUcontext ctx) {
     auto box = std::make_shared<const ContextBox>(ContextBox{ctx});
@@ -316,7 +321,7 @@ ContextHandle create_context_handle_ref(CUcontext ctx) {
 }
 
 // Thread-local cache of primary contexts indexed by device ID
-thread_local std::vector<ContextHandle> primary_context_cache;
+static thread_local std::vector<ContextHandle> primary_context_cache;
 
 ContextHandle get_primary_context(int device_id) noexcept {
     if (!ensure_driver_loaded()) {
@@ -375,9 +380,11 @@ ContextHandle get_current_context() noexcept {
 // Stream Handles
 // ============================================================================
 
+namespace {
 struct StreamBox {
     CUstream resource;
 };
+}  // namespace
 
 StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) {
     if (!ensure_driver_loaded()) {
@@ -435,9 +442,11 @@ StreamHandle get_per_thread_stream() noexcept {
 // Event Handles
 // ============================================================================
 
+namespace {
 struct EventBox {
     CUevent resource;
 };
+}  // namespace
 
 EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
     if (!ensure_driver_loaded()) {
@@ -491,9 +500,11 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
 // Memory Pool Handles
 // ============================================================================
 
+namespace {
 struct MemoryPoolBox {
     CUmemoryPool resource;
 };
+}  // namespace
 
 // Helper to clear peer access before destroying a memory pool.
 // Works around nvbug 5698116: recycled pool handles inherit peer access state.
@@ -574,11 +585,21 @@ MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType han
 // Device Pointer Handles
 // ============================================================================
 
+namespace {
 struct DevicePtrBox {
     CUdeviceptr resource;
+    // Mutable to allow set_deallocation_stream() to update the stream
+    // through a const DevicePtrHandle. The stream can be changed after
+    // allocation (e.g., to synchronize deallocation with a different stream).
     mutable StreamHandle h_stream;
 };
+}  // namespace
 
+// Recovers the owning DevicePtrBox from the aliased CUdeviceptr pointer.
+// This works because DevicePtrHandle is a shared_ptr alias pointing to
+// &box->resource, so we can compute the containing struct using offsetof.
+// The const_cast is safe because we only use this to access the mutable
+// h_stream member or in the deleter (where the box is being destroyed).
 static DevicePtrBox* get_box(const DevicePtrHandle& h) {
     const CUdeviceptr* p = h.get();
     return reinterpret_cast<DevicePtrBox*>(
@@ -728,6 +749,7 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
 // The cache key is the export_data bytes (CUmemPoolPtrExportData), not the
 // returned pointer, because we must check before calling the driver API.
 
+
 // TODO: When driver fix for nvbug 5570902 is available, consider whether
 // the cache is still needed for memory pool allocations (it will still be
 // needed for pinned memory).
@@ -735,6 +757,7 @@ static bool use_ipc_ptr_cache() {
     return true;
 }
 
+namespace {
 // Wrapper for CUmemPoolPtrExportData to use as map key
 struct ExportDataKey {
     CUmemPoolPtrExportData data;
@@ -755,6 +778,8 @@ struct ExportDataKeyHash {
         return h;
     }
 };
+
+}
 
 static std::mutex ipc_ptr_cache_mutex;
 static std::unordered_map<ExportDataKey, std::weak_ptr<DevicePtrBox>, ExportDataKeyHash> ipc_ptr_cache;

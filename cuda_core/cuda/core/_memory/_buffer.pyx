@@ -23,7 +23,9 @@ from cuda.core._resource_handles cimport (
     set_deallocation_stream,
 )
 
+# Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
 _init_handles_table()
+
 from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
