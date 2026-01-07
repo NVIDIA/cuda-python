@@ -14,7 +14,6 @@
 __all__ = [
     "get_driver_version",
     "get_driver_version_full",
-    "get_gpu_driver_version",
     "get_num_devices",
     "get_process_name",
     "HAS_WORKING_NVML",

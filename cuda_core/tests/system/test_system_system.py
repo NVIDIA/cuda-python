@@ -55,7 +55,7 @@ def test_cuda_driver_version():
 
 @skip_if_nvml_unsupported
 def test_gpu_driver_version():
-    driver_version = system.get_gpu_driver_version()
+    driver_version = system.get_driver_version(kernel_mode=True)
     assert isinstance(driver_version, tuple)
     assert len(driver_version) in (2, 3)
 

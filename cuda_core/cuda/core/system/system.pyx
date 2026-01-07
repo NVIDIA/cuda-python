@@ -20,38 +20,52 @@ else:
     from cuda.core._utils.cuda_utils import driver, handle_return, runtime
 
 
-def get_driver_version() -> tuple[int, int]:
+def get_driver_version(kernel_mode: bool = False) -> tuple[int, int]:
     """
-    The CUDA driver version.
+    Get the driver version.
 
-    Tuple in the format `(CUDA_MAJOR, CUDA_MINOR)`.
+    Parameters
+    ----------
+    kernel_mode: bool
+        When `True`, return the kernel-mode driver version, e.g. 580.65.06.
+        Otherwise, return the user-mode driver version, e.g. 13.0.1.
+
+    Returns
+    -------
+    version: tuple[int, int]
+        Tuple in the format `(MAJOR, MINOR)`.
     """
-    return get_driver_version_full()[:2]
+    return get_driver_version_full(kernel_mode)[:2]
 
 
-def get_driver_version_full() -> tuple[int, int, int]:
+def get_driver_version_full(kernel_mode: bool = False) -> tuple[int, int, int]:
     """
-    The CUDA driver version.
+    Get the full driver version.
 
-    Tuple in the format `(CUDA_MAJOR, CUDA_MINOR, CUDA_PATCH)`.
+    Parameters
+    ----------
+    kernel_mode: bool
+        When `True`, return the kernel-mode driver version, e.g. 580.65.06.
+        Otherwise, return the user-mode driver version, e.g. 13.0.1.
+
+    Returns
+    -------
+    version: tuple[int, int, int]
+        Tuple in the format `(MAJOR, MINOR, PATCH)`.
     """
     cdef int v
-    if HAS_WORKING_NVML:
+    if kernel_mode:
+        if not HAS_WORKING_NVML:
+            raise RuntimeError("NVML library is not available")
         initialize()
-        v = nvml.system_get_cuda_driver_version()
+        return tuple(int(v) for v in nvml.system_get_driver_version().split("."))
     else:
-        v = handle_return(driver.cuDriverGetVersion())
-    return (v // 1000, (v // 10) % 100, v % 10)
-
-
-def get_gpu_driver_version() -> tuple[int, ...]:
-    """
-    The driver version.
-    """
-    if not HAS_WORKING_NVML:
-        raise RuntimeError("NVML library is not available")
-    initialize()
-    return tuple(int(v) for v in nvml.system_get_driver_version().split("."))
+        if HAS_WORKING_NVML:
+            initialize()
+            v = nvml.system_get_cuda_driver_version()
+        else:
+            v = handle_return(driver.cuDriverGetVersion())
+        return (v // 1000, (v // 10) % 100, v % 10)
 
 
 def get_nvml_version() -> tuple[int, ...]:
@@ -95,7 +109,6 @@ def get_process_name(pid: int) -> str:
 __all__ = [
     "get_driver_version",
     "get_driver_version_full",
-    "get_gpu_driver_version",
     "get_nvml_version",
     "get_num_devices",
     "get_process_name",
