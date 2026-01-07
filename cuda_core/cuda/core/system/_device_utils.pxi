@@ -17,7 +17,7 @@ cpdef inline list[int] _unpack_bitmask(uint64_t[:] arr):
 
     Examples
     --------
-    >>> from cuda.core.experimental.system.utils import unpack_bitmask
+    >>> from cuda.core.system.utils import unpack_bitmask
     >>> unpack_bitmask([1 + 2 + 8])
     [0, 1, 3]
     >>> unpack_bitmask([1 + 2 + 16])
