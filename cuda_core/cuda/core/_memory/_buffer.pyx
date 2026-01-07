@@ -19,7 +19,7 @@ from cuda.core._resource_handles cimport (
     _init_handles_table,
     deviceptr_create_with_owner,
     intptr,
-    native,
+    cu,
     set_deallocation_stream,
 )
 
@@ -187,7 +187,7 @@ cdef class Buffer:
             )
         with nogil:
             HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                native(dst._h_ptr), native(self._h_ptr), src_size, native(s._h_stream)))
+                cu(dst._h_ptr), cu(self._h_ptr), src_size, cu(s._h_stream)))
         return dst
 
     def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder):
@@ -212,7 +212,7 @@ cdef class Buffer:
             )
         with nogil:
             HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                native(self._h_ptr), native(src._h_ptr), dst_size, native(s._h_stream)))
+                cu(self._h_ptr), cu(src._h_ptr), dst_size, cu(s._h_stream)))
 
     def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder):
         """Fill this buffer with a repeating byte pattern.
@@ -369,7 +369,7 @@ cdef class Buffer:
 cdef inline void _init_mem_attrs(Buffer self):
     """Initialize memory attributes by querying the pointer."""
     if not self._mem_attrs_inited:
-        _query_memory_attrs(self._mem_attrs, native(self._h_ptr))
+        _query_memory_attrs(self._mem_attrs, cu(self._h_ptr))
         self._mem_attrs_inited = True
 
 
@@ -524,8 +524,8 @@ cdef inline void Buffer_close(Buffer self, object stream):
 
 
 cdef inline int Buffer_fill_uint8(Buffer self, uint8_t value, StreamHandle h_stream) except? -1:
-    cdef cydriver.CUdeviceptr ptr = native(self._h_ptr)
-    cdef cydriver.CUstream s = native(h_stream)
+    cdef cydriver.CUdeviceptr ptr = cu(self._h_ptr)
+    cdef cydriver.CUstream s = cu(h_stream)
     with nogil:
         HANDLE_RETURN(cydriver.cuMemsetD8Async(ptr, value, self._size, s))
     return 0
@@ -535,8 +535,8 @@ cdef inline int Buffer_fill_from_ptr(
     Buffer self, const char* ptr, size_t width, StreamHandle h_stream
 ) except? -1:
     cdef size_t buffer_size = self._size
-    cdef cydriver.CUdeviceptr dst = native(self._h_ptr)
-    cdef cydriver.CUstream s = native(h_stream)
+    cdef cydriver.CUdeviceptr dst = cu(self._h_ptr)
+    cdef cydriver.CUstream s = cu(h_stream)
 
     if width == 1:
         with nogil:

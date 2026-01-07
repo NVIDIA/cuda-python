@@ -14,7 +14,7 @@ from cuda.core._resource_handles cimport (
     create_mempool_handle_ipc,
     deviceptr_import_ipc,
     get_last_error,
-    native,
+    cu,
 )
 
 _init_handles_table()
@@ -164,7 +164,7 @@ cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
     cdef cydriver.CUmemPoolPtrExportData data
     with nogil:
         HANDLE_RETURN(
-            cydriver.cuMemPoolExportPointer(&data, native(self._h_ptr))
+            cydriver.cuMemPoolExportPointer(&data, cu(self._h_ptr))
         )
     cdef bytes data_b = cpython.PyBytes_FromStringAndSize(
         <char*>(data.reserved), sizeof(data.reserved)
@@ -250,7 +250,7 @@ cdef IPCAllocationHandle MP_export_mempool(_MemPool self):
     cdef int fd
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(
-            &fd, native(self._h_pool), IPC_HANDLE_TYPE, 0)
+            &fd, cu(self._h_pool), IPC_HANDLE_TYPE, 0)
         )
     try:
         return IPCAllocationHandle._init(fd, uuid.uuid4())

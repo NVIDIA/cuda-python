@@ -12,7 +12,7 @@ from cuda.core._resource_handles cimport (
     DevicePtrHandle,
     _init_handles_table,
     deviceptr_alloc_async,
-    native,
+    cu,
 )
 
 _init_handles_table()
@@ -194,7 +194,7 @@ cdef inline int check_capturing(cydriver.CUstream s) except?-1 nogil:
 
 
 cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream stream):
-    cdef cydriver.CUstream s = native(stream._h_stream)
+    cdef cydriver.CUstream s = cu(stream._h_stream)
     cdef DevicePtrHandle h_ptr
     with nogil:
         check_capturing(s)
@@ -205,7 +205,7 @@ cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream 
 
 
 cdef inline void GMR_deallocate(intptr_t ptr, size_t size, Stream stream) noexcept:
-    cdef cydriver.CUstream s = native(stream._h_stream)
+    cdef cydriver.CUstream s = cu(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))

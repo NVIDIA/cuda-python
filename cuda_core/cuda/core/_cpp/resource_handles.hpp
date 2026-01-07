@@ -185,47 +185,47 @@ void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream);
 // Overloaded helper functions to extract raw resources from handles
 // ============================================================================
 
-// native() - extract the raw CUDA handle
-inline CUcontext native(const ContextHandle& h) noexcept {
+// cu() - extract the raw CUDA handle
+inline CUcontext cu(const ContextHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
-inline CUstream native(const StreamHandle& h) noexcept {
+inline CUstream cu(const StreamHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
-inline CUevent native(const EventHandle& h) noexcept {
+inline CUevent cu(const EventHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
-inline CUmemoryPool native(const MemoryPoolHandle& h) noexcept {
+inline CUmemoryPool cu(const MemoryPoolHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
-inline CUdeviceptr native(const DevicePtrHandle& h) noexcept {
+inline CUdeviceptr cu(const DevicePtrHandle& h) noexcept {
     return h ? *h : 0;
 }
 
 // intptr() - extract handle as intptr_t for Python interop
 // Using signed intptr_t per C standard convention and issue #1342
 inline std::intptr_t intptr(const ContextHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(h ? *h : nullptr);
+    return reinterpret_cast<std::intptr_t>(cu(h));
 }
 
 inline std::intptr_t intptr(const StreamHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(h ? *h : nullptr);
+    return reinterpret_cast<std::intptr_t>(cu(h));
 }
 
 inline std::intptr_t intptr(const EventHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(h ? *h : nullptr);
+    return reinterpret_cast<std::intptr_t>(cu(h));
 }
 
 inline std::intptr_t intptr(const MemoryPoolHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(h ? *h : nullptr);
+    return reinterpret_cast<std::intptr_t>(cu(h));
 }
 
 inline std::intptr_t intptr(const DevicePtrHandle& h) noexcept {
-    return h ? static_cast<std::intptr_t>(*h) : 0;
+    return static_cast<std::intptr_t>(cu(h));
 }
 
 // py() - convert handle to Python driver wrapper object (returns new reference)

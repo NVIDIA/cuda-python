@@ -73,7 +73,7 @@ Handles can be accessed in three ways via overloaded helper functions:
 
 | Function | Returns | Use Case | Notes
 |----------|---------|----------|-------|
-| `native(h)` | Raw CUDA type (e.g., `CUstream`) | Passing to CUDA APIs | An attribute of `cuda.bindings.cydriver` |
+| `cu(h)` | Raw CUDA type (e.g., `CUstream`) | Passing to CUDA APIs | An attribute of `cuda.bindings.cydriver` |
 | `intptr(h)` | `intptr_t` | Python interop, foreign code | |
 | `py(h)` | Python wrapper object | Returning to Python callers | An attribute of `cure.bindings.driver`
 
@@ -85,7 +85,7 @@ Example usage from Cython:
 
 ```cython
 # Get raw handle for CUDA API calls
-cdef CUstream raw_stream = native(h_stream)  # cuda.bindings.cydriver.CUstream
+cdef CUstream raw_stream = cu(h_stream)  # cuda.bindings.cydriver.CUstream
 
 # Get as integer for other use cases
 return hash(intptr(h_stream))
@@ -250,7 +250,7 @@ Related functions:
 from cuda.core._resource_handles cimport (
     StreamHandle,
     create_stream_handle,
-    native,
+    cu,
     intptr,
     get_last_error,
     _init_handles_table,
@@ -264,7 +264,7 @@ if not h_stream:
     HANDLE_RETURN(get_last_error())
 
 # Use in CUDA API
-cuStreamSynchronize(native(h_stream))
+cuStreamSynchronize(cu(h_stream))
 
 # Return to Python
 return py(h_stream)
@@ -279,7 +279,7 @@ The resource handle design:
 3. **Uses capsules** to solve two distinct problems:
    - Sharing C++ code across Cython modules without duplicate statics.
    - Resolving CUDA driver symbols dynamically through cuda-bindings.
-4. **Provides overloaded accessors** (`native`, `intptr`, `py`) since handles cannot
+4. **Provides overloaded accessors** (`cu`, `intptr`, `py`) since handles cannot
    have attributes without unnecessary Python object wrappers.
 
 This architecture ensures CUDA resources are managed correctly regardless of Python

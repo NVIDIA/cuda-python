@@ -15,7 +15,7 @@ from cuda.core._resource_handles cimport (
     create_event_handle,
     create_event_handle_ipc,
     intptr,
-    native,
+    cu,
     py,
 )
 
@@ -148,7 +148,7 @@ cdef class Event:
         # return self - other (in milliseconds)
         cdef float timing
         with nogil:
-            err = cydriver.cuEventElapsedTime(&timing, native((<Event>other)._h_event), native(self._h_event))
+            err = cydriver.cuEventElapsedTime(&timing, cu((<Event>other)._h_event), cu(self._h_event))
         if err == 0:
             return timing
         else:
@@ -191,7 +191,7 @@ cdef class Event:
             raise RuntimeError("Event is not IPC-enabled")
         cdef cydriver.CUipcEventHandle data
         with nogil:
-            HANDLE_RETURN(cydriver.cuIpcGetEventHandle(&data, native(self._h_event)))
+            HANDLE_RETURN(cydriver.cuIpcGetEventHandle(&data, cu(self._h_event)))
         cdef bytes data_b = cpython.PyBytes_FromStringAndSize(<char*>(data.reserved), sizeof(data.reserved))
         self._ipc_descriptor = IPCEventDescriptor._init(data_b, self._busy_waited)
         return self._ipc_descriptor
@@ -241,13 +241,13 @@ cdef class Event:
 
         """
         with nogil:
-            HANDLE_RETURN(cydriver.cuEventSynchronize(native(self._h_event)))
+            HANDLE_RETURN(cydriver.cuEventSynchronize(cu(self._h_event)))
 
     @property
     def is_done(self) -> bool:
         """Return True if all captured works have been completed, otherwise False."""
         with nogil:
-            result = cydriver.cuEventQuery(native(self._h_event))
+            result = cydriver.cuEventQuery(cu(self._h_event))
         if result == cydriver.CUresult.CUDA_SUCCESS:
             return True
         if result == cydriver.CUresult.CUDA_ERROR_NOT_READY:

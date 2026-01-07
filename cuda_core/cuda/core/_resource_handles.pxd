@@ -18,12 +18,12 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ctypedef shared_ptr[const cydriver.CUmemoryPool] MemoryPoolHandle
     ctypedef shared_ptr[const cydriver.CUdeviceptr] DevicePtrHandle
 
-    # native() - extract the raw CUDA handle (inline C++)
-    cydriver.CUcontext native(ContextHandle h) nogil
-    cydriver.CUstream native(StreamHandle h) nogil
-    cydriver.CUevent native(EventHandle h) nogil
-    cydriver.CUmemoryPool native(MemoryPoolHandle h) nogil
-    cydriver.CUdeviceptr native(DevicePtrHandle h) nogil
+    # cu() - extract the raw CUDA handle (inline C++)
+    cydriver.CUcontext cu(ContextHandle h) nogil
+    cydriver.CUstream cu(StreamHandle h) nogil
+    cydriver.CUevent cu(EventHandle h) nogil
+    cydriver.CUmemoryPool cu(MemoryPoolHandle h) nogil
+    cydriver.CUdeviceptr cu(DevicePtrHandle h) nogil
 
     # intptr() - extract handle as intptr_t for Python interop (inline C++)
     intptr_t intptr(ContextHandle h) nogil

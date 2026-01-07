@@ -38,7 +38,7 @@ from cuda.core._resource_handles cimport (
     get_legacy_stream,
     get_per_thread_stream,
     intptr,
-    native,
+    cu,
     py,
 )
 
@@ -217,7 +217,7 @@ cdef class Stream:
         cdef unsigned int flags
         if self._nonblocking == -1:
             with nogil:
-                HANDLE_RETURN(cydriver.cuStreamGetFlags(native(self._h_stream), &flags))
+                HANDLE_RETURN(cydriver.cuStreamGetFlags(cu(self._h_stream), &flags))
             self._nonblocking = flags & cydriver.CUstream_flags.CU_STREAM_NON_BLOCKING
         return bool(self._nonblocking)
 
@@ -227,14 +227,14 @@ cdef class Stream:
         cdef int prio
         if self._priority == INT32_MIN:
             with nogil:
-                HANDLE_RETURN(cydriver.cuStreamGetPriority(native(self._h_stream), &prio))
+                HANDLE_RETURN(cydriver.cuStreamGetPriority(cu(self._h_stream), &prio))
             self._priority = prio
         return self._priority
 
     def sync(self):
         """Synchronize the stream."""
         with nogil:
-            HANDLE_RETURN(cydriver.cuStreamSynchronize(native(self._h_stream)))
+            HANDLE_RETURN(cydriver.cuStreamSynchronize(cu(self._h_stream)))
 
     def record(self, event: Event = None, options: EventOptions = None) -> Event:
         """Record an event onto the stream.
@@ -267,9 +267,9 @@ cdef class Stream:
                 "new event by supplying options."
             )
 
-        cdef cydriver.CUevent e = native((<cyEvent?>(event))._h_event)
+        cdef cydriver.CUevent e = cu((<cyEvent?>(event))._h_event)
         with nogil:
-            HANDLE_RETURN(cydriver.cuEventRecord(e, native(self._h_stream)))
+            HANDLE_RETURN(cydriver.cuEventRecord(e, cu(self._h_stream)))
         return event
 
     def wait(self, event_or_stream: Union[Event, Stream]):
@@ -290,7 +290,7 @@ cdef class Stream:
             with nogil:
                 # TODO: support flags other than 0?
                 HANDLE_RETURN(cydriver.cuStreamWaitEvent(
-                    native(self._h_stream), native((<cyEvent>event_or_stream)._h_event), 0))
+                    cu(self._h_stream), cu((<cyEvent>event_or_stream)._h_event), 0))
             return
 
         # Convert to Stream if needed
@@ -308,9 +308,9 @@ cdef class Stream:
         # Wait on stream via temporary event
         with nogil:
             h_event = create_event_handle_noctx(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
-            HANDLE_RETURN(cydriver.cuEventRecord(native(h_event), native(stream._h_stream)))
+            HANDLE_RETURN(cydriver.cuEventRecord(cu(h_event), cu(stream._h_stream)))
             # TODO: support flags other than 0?
-            HANDLE_RETURN(cydriver.cuStreamWaitEvent(native(self._h_stream), native(h_event), 0))
+            HANDLE_RETURN(cydriver.cuStreamWaitEvent(cu(self._h_stream), cu(h_event), 0))
 
     @property
     def device(self) -> Device:
@@ -416,7 +416,7 @@ cdef inline int Stream_ensure_ctx(Stream self) except?-1 nogil:
     """Ensure the stream's context handle is populated."""
     cdef cydriver.CUcontext ctx
     if not self._h_context:
-        HANDLE_RETURN(cydriver.cuStreamGetCtx(native(self._h_stream), &ctx))
+        HANDLE_RETURN(cydriver.cuStreamGetCtx(cu(self._h_stream), &ctx))
         with gil:
             self._h_context = create_context_handle_ref(ctx)
     return 0
@@ -434,7 +434,7 @@ cdef inline int Stream_ensure_ctx_device(Stream self) except?-1:
             Stream_ensure_ctx(self)
             switch_context = (get_current_context() != self._h_context)
             if switch_context:
-                HANDLE_RETURN(cydriver.cuCtxPushCurrent(native(self._h_context)))
+                HANDLE_RETURN(cydriver.cuCtxPushCurrent(cu(self._h_context)))
             HANDLE_RETURN(cydriver.cuCtxGetDevice(&target_dev))
             if switch_context:
                 HANDLE_RETURN(cydriver.cuCtxPopCurrent(&ctx))

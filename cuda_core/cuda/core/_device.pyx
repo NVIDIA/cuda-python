@@ -20,7 +20,7 @@ from cuda.core._resource_handles cimport (
     _init_handles_table,
     create_context_handle_ref,
     get_primary_context,
-    native,
+    cu,
 )
 
 _init_handles_table()
@@ -1242,7 +1242,7 @@ class Device:
                     f" id={ctx._device_id}, which is different from the target id={self._device_id}"
                 )
             # prev_ctx is the previous context
-            curr_ctx = native(ctx._h_context)
+            curr_ctx = cu(ctx._h_context)
             prev_ctx = NULL
             with nogil:
                 HANDLE_RETURN(cydriver.cuCtxPopCurrent(&prev_ctx))
@@ -1257,7 +1257,7 @@ class Device:
             if h_context.get() == NULL:
                 raise ValueError("Cannot set NULL context as current")
             with nogil:
-                HANDLE_RETURN(cydriver.cuCtxSetCurrent(native(h_context)))
+                HANDLE_RETURN(cydriver.cuCtxSetCurrent(cu(h_context)))
             self._has_inited = True
             self._context = Context._from_handle(Context, h_context, self._device_id)  # Store owning context
 
