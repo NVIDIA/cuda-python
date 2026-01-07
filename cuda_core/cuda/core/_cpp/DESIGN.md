@@ -221,6 +221,32 @@ Handle destructors may run from any thread. The implementation includes RAII gua
 The handle API functions are safe to call with or without the GIL held. They
 will release the GIL (if necessary) before calling CUDA driver API functions.
 
+### Static Initialization and Deadlock Hazards
+
+When writing C++ code that interacts with Python, a subtle deadlock can occur
+when combining C++ static variable initialization with Python's GIL. This is
+known as the "double locking" or "latent deadlock" problem.
+
+**The hazard**: C++11 guarantees thread-safe static initialization using an
+implicit guard mutex. If a static initializer calls Python C API functions
+(like `PyImport_ImportModule`), and those functions release and reacquire
+the GIL internally, a deadlock can occur:
+
+1. Thread T1 holds GIL, enters static initialization (locks guard mutex)
+2. T1's initializer releases GIL (may occur via any Python API call)
+3. Thread T2 acquires GIL, tries to enter same static initialization
+4. T2 blocks on guard mutex (held by T1)
+5. T1 tries to reacquire GIL (held by T2)
+6. **Deadlock**: T1 waits for GIL, T2 waits for guard mutex
+
+This is documented in detail by the pybind11 project:
+https://github.com/pybind/pybind11/blob/master/docs/advanced/deadlock.md
+
+**General rule**: When holding the GIL, avoid acquiring any C++ lock (including
+implicit ones like static initialization guards) if the critical section may
+call Python C API functions. Many Python API calls can internally release and
+reacquire the GIL, creating the second lock ordering that risks deadlock.
+
 ### Error Handling
 
 Handle API functions do not raise Python exceptions. Instead, they return an empty

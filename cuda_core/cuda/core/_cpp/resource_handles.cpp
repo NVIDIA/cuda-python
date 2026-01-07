@@ -9,6 +9,7 @@
 #include <cuda.h>
 #include <cstdint>
 #include <cstring>
+#include <atomic>
 #include <mutex>
 #include <unordered_map>
 #include <vector>
@@ -22,7 +23,7 @@ namespace cuda_core {
 namespace {
 
 static std::once_flag driver_load_once;
-static bool driver_loaded = false;
+static std::atomic<bool> driver_loaded{false};
 
 #if PY_VERSION_HEX < 0x030D0000
 extern "C" int _Py_IsFinalizing(void);
@@ -261,8 +262,21 @@ static bool load_driver_api() noexcept {
 }
 
 static bool ensure_driver_loaded() noexcept {
-    std::call_once(driver_load_once, []() { driver_loaded = load_driver_api(); });
-    return driver_loaded;
+    // Fast path: already loaded (no locking needed)
+    if (driver_loaded.load(std::memory_order_acquire)) {
+        return true;
+    }
+
+    // Slow path: release GIL before acquiring call_once guard.
+    // This ensures lock order is always: guard mutex -> GIL, preventing deadlock.
+    // See DESIGN.md "Static Initialization and Deadlock Hazards".
+    GILReleaseGuard release_gil;
+    std::call_once(driver_load_once, []() {
+        // Inside call_once, safe to acquire GIL (correct lock order).
+        // load_driver_api() acquires GIL internally via GILAcquireGuard.
+        driver_loaded.store(load_driver_api(), std::memory_order_release);
+    });
+    return driver_loaded.load(std::memory_order_acquire);
 }
 
 }  // namespace

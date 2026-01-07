@@ -230,43 +230,37 @@ inline std::intptr_t intptr(const DevicePtrHandle& h) noexcept {
 
 // py() - convert handle to Python driver wrapper object (returns new reference)
 namespace detail {
-inline PyObject* py_class_for(const char* name) {
+// n.b. class lookup is not cached to avoid deadlock hazard, see DESIGN.md
+inline PyObject* make_py(const char* class_name, std::intptr_t value) {
     PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
     if (!mod) return nullptr;
-    PyObject* cls = PyObject_GetAttrString(mod, name);
+    PyObject* cls = PyObject_GetAttrString(mod, class_name);
     Py_DECREF(mod);
-    return cls;
+    if (!cls) return nullptr;
+    PyObject* result = PyObject_CallFunction(cls, "L", value);
+    Py_DECREF(cls);
+    return result;
 }
 }  // namespace detail
 
 inline PyObject* py(const ContextHandle& h) {
-    static PyObject* cls = detail::py_class_for("CUcontext");
-    if (!cls) return nullptr;
-    return PyObject_CallFunction(cls, "L", intptr(h));
+    return detail::make_py("CUcontext", intptr(h));
 }
 
 inline PyObject* py(const StreamHandle& h) {
-    static PyObject* cls = detail::py_class_for("CUstream");
-    if (!cls) return nullptr;
-    return PyObject_CallFunction(cls, "L", intptr(h));
+    return detail::make_py("CUstream", intptr(h));
 }
 
 inline PyObject* py(const EventHandle& h) {
-    static PyObject* cls = detail::py_class_for("CUevent");
-    if (!cls) return nullptr;
-    return PyObject_CallFunction(cls, "L", intptr(h));
+    return detail::make_py("CUevent", intptr(h));
 }
 
 inline PyObject* py(const MemoryPoolHandle& h) {
-    static PyObject* cls = detail::py_class_for("CUmemoryPool");
-    if (!cls) return nullptr;
-    return PyObject_CallFunction(cls, "L", intptr(h));
+    return detail::make_py("CUmemoryPool", intptr(h));
 }
 
 inline PyObject* py(const DevicePtrHandle& h) {
-    static PyObject* cls = detail::py_class_for("CUdeviceptr");
-    if (!cls) return nullptr;
-    return PyObject_CallFunction(cls, "L", intptr(h));
+    return detail::make_py("CUdeviceptr", intptr(h));
 }
 
 }  // namespace cuda_core
