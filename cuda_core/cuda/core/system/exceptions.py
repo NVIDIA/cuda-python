@@ -5,6 +5,7 @@
 
 from cuda.bindings import _nvml as nvml
 
+NvmlError = nvml.NvmlError
 UninitializedError = nvml.UninitializedError
 InvalidArgumentError = nvml.InvalidArgumentError
 NotSupportedError = nvml.NotSupportedError
@@ -39,6 +40,7 @@ UnknownError = nvml.UnknownError
 
 
 __all__ = [
+    "NvmlError",
     "UninitializedError",
     "InvalidArgumentError",
     "NotSupportedError",

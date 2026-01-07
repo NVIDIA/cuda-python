@@ -6,7 +6,7 @@ from cpython cimport array
 from libc.stdint cimport uint64_t
 
 
-def _unpack_bitmask(x: list[int] | array.array) -> list[int]:
+cpdef inline list[int] _unpack_bitmask(x: array.array):
     """
     Unpack a list of integers containing bitmasks.
 
@@ -29,10 +29,7 @@ def _unpack_bitmask(x: list[int] | array.array) -> list[int]:
     cdef uint64_t i, j, idx
     cdef int mask_bits = 64
 
-    if isinstance(x, list):
-        arr = array.array("Q", x)
-    else:
-        arr = x
+    arr = x
 
     res = []
 

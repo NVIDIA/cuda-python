@@ -28,7 +28,7 @@ def _run_process(target):
 def _test_uninitialized():
     from cuda.core.system import _nvml_context
 
-    assert _nvml_context._NVML_STATE == UNINITIALIZED
+    assert _nvml_context._get_nvml_state() == UNINITIALIZED
 
 
 def test_uninitialized():
@@ -39,25 +39,12 @@ def _test_is_initialized():
     from cuda.core.system import _nvml_context
 
     _nvml_context.initialize()
-    assert _nvml_context._NVML_STATE == INITIALIZED
+    assert _nvml_context._get_nvml_state() == INITIALIZED
     assert _nvml_context.is_initialized() is True
 
 
 def test_is_initialized():
     _run_process(_test_is_initialized)
-
-
-def _test_wrong_owner():
-    from cuda.core.system import _nvml_context
-
-    _nvml_context.initialize()
-
-    _nvml_context._NVML_OWNER_PID = 0
-    assert _nvml_context.is_initialized() is False
-
-
-def test_wrong_owner():
-    _run_process(_test_wrong_owner)
 
 
 @pytest.mark.skipif("microsoft-standard" in uname().release, reason="Probably a WSL system")

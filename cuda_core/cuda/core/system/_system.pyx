@@ -8,12 +8,17 @@
 # compatibility.
 
 
-from cuda.bindings._version import __version_tuple__ as _BINDINGS_VERSION
+CUDA_BINDINGS_NVML_IS_COMPATIBLE: bool
 
-HAS_WORKING_NVML = _BINDINGS_VERSION >= (13, 1, 2) or (_BINDINGS_VERSION[0] == 12 and _BINDINGS_VERSION[1:3] >= (9, 6))
+try:
+    from cuda.bindings._version import __version_tuple__ as _BINDINGS_VERSION
+except ImportError:
+    CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
+else:
+    CUDA_BINDINGS_NVML_IS_COMPATIBLE = _BINDINGS_VERSION >= (13, 1, 2) or (_BINDINGS_VERSION[0] == 12 and _BINDINGS_VERSION[1:3] >= (9, 6))
 
 
-if HAS_WORKING_NVML:
+if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from cuda.bindings import _nvml as nvml
     from ._nvml_context import initialize
 else:
@@ -55,12 +60,12 @@ def get_driver_version_full(kernel_mode: bool = False) -> tuple[int, int, int]:
     """
     cdef int v
     if kernel_mode:
-        if not HAS_WORKING_NVML:
-            raise RuntimeError("NVML library is not available")
+        if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+            raise ValueError("Kernel-mode driver version requires NVML support")
         initialize()
         return tuple(int(v) for v in nvml.system_get_driver_version().split("."))
     else:
-        if HAS_WORKING_NVML:
+        if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
             initialize()
             v = nvml.system_get_cuda_driver_version()
         else:
@@ -72,7 +77,7 @@ def get_nvml_version() -> tuple[int, ...]:
     """
     The version of the NVML library.
     """
-    if not HAS_WORKING_NVML:
+    if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
         raise RuntimeError("NVML library is not available")
     return tuple(int(v) for v in nvml.system_get_nvml_version().split("."))
 
@@ -81,7 +86,7 @@ def get_num_devices() -> int:
     """
     Return the number of devices in the system.
     """
-    if HAS_WORKING_NVML:
+    if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
         initialize()
         return nvml.device_get_count_v2()
     else:
@@ -112,5 +117,5 @@ __all__ = [
     "get_nvml_version",
     "get_num_devices",
     "get_process_name",
-    "HAS_WORKING_NVML",
+    "CUDA_BINDINGS_NVML_IS_COMPATIBLE",
 ]

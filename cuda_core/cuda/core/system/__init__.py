@@ -16,53 +16,23 @@ __all__ = [
     "get_driver_version_full",
     "get_num_devices",
     "get_process_name",
-    "HAS_WORKING_NVML",
+    "CUDA_BINDINGS_NVML_IS_COMPATIBLE",
 ]
 
 
-from .system import *
+from ._system import *
 
-if HAS_WORKING_NVML:
-    from ._nvml_context import initialize
-    from .device import Device, DeviceArchitecture
+if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+    from ._device import Device, DeviceArchitecture
     from .exceptions import *
+    from .exceptions import __all__ as _exceptions_all
 
     __all__.extend(
         [
-            "initialize",
             "get_nvml_version",
             "Device",
             "DeviceArchitecture",
-            "UninitializedError",
-            "InvalidArgumentError",
-            "NotSupportedError",
-            "NoPermissionError",
-            "AlreadyInitializedError",
-            "NotFoundError",
-            "InsufficientSizeError",
-            "InsufficientPowerError",
-            "DriverNotLoadedError",
-            "TimeoutError",
-            "IrqIssueError",
-            "LibraryNotFoundError",
-            "FunctionNotFoundError",
-            "CorruptedInforomError",
-            "GpuIsLostError",
-            "ResetRequiredError",
-            "OperatingSystemError",
-            "LibRmVersionMismatchError",
-            "InUseError",
-            "MemoryError",
-            "NoDataError",
-            "VgpuEccNotSupportedError",
-            "InsufficientResourcesError",
-            "FreqNotSupportedError",
-            "ArgumentVersionMismatchError",
-            "DeprecatedError",
-            "NotReadyError",
-            "GpuNotFoundError",
-            "InvalidStateError",
-            "ResetTypeNotSupportedError",
-            "UnknownError",
         ]
     )
+
+    __all__.extend(_exceptions_all)

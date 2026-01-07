@@ -10,9 +10,9 @@ from typing import Iterable
 
 from cuda.bindings import _nvml as nvml
 
-from ._nvml_context import validate
+from ._nvml_context cimport initialize
 
-include "device_utils.pxi"
+include "_device_utils.pxi"
 
 
 class DeviceArchitecture:
@@ -195,7 +195,7 @@ cdef class Device:
     cdef intptr_t _handle
 
     def __init__(self, index: int | None = None, uuid: bytes | str | None = None):
-        validate()
+        initialize()
 
         if index is not None and uuid is not None:
             raise ValueError("Handle requires only one of either device `index` or `uuid`.")

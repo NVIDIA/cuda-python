@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import threading
 
 from cuda.bindings import _nvml as nvml
@@ -10,37 +9,34 @@ from cuda.bindings import _nvml as nvml
 from . import exceptions
 
 
-ctypedef enum _NVMLState:
-    UNINITIALIZED = 0
-    INITIALIZED = 1
-    DISABLED_LIBRARY_NOT_FOUND = 2
-
-
-# Initialisation must occur per-process, so an initialised state is a
-# (state, pid) pair
 _NVML_STATE = _NVMLState.UNINITIALIZED
-# """Current initialization state"""
+
 
 _NVML_OWNER_PID = 0
-# """PID of process that successfully called pynvml.nvmlInit"""
 
 
 _lock = threading.Lock()
 
 
-cpdef initialize():
+# For testing
+def _get_nvml_state():
+    return _NVML_STATE
+
+
+cpdef _initialize():
     """
     Initializes Nvidia Management Library (NVML), ensuring it only happens once per process.
     """
     global _NVML_STATE, _NVML_OWNER_PID
 
     with _lock:
+        # Double-check to make sure nothing has changed since acquiring the lock
         if _NVML_STATE == _NVMLState.DISABLED_LIBRARY_NOT_FOUND or (
-            _NVML_STATE == _NVMLState.INITIALIZED and os.getpid() == _NVML_OWNER_PID
+            _NVML_STATE == _NVMLState.INITIALIZED and getpid() == _NVML_OWNER_PID
         ):
             return
         elif (
-            _NVML_STATE == _NVMLState.INITIALIZED and os.getpid() != _NVML_OWNER_PID
+            _NVML_STATE == _NVMLState.INITIALIZED and getpid() != _NVML_OWNER_PID
         ) or _NVML_STATE == _NVMLState.UNINITIALIZED:
             try:
                 nvml.init_v2()
@@ -54,21 +50,9 @@ cpdef initialize():
 
             # initialization was successful
             _NVML_STATE = _NVMLState.INITIALIZED
-            _NVML_OWNER_PID = os.getpid()
+            _NVML_OWNER_PID = getpid()
         else:
             raise RuntimeError(f"Unhandled initialisation state ({_NVML_STATE=}, {_NVML_OWNER_PID=})")
-
-
-cpdef bint is_initialized():
-    """
-    Check whether the NVML context is initialized on this process.
-
-    Returns
-    -------
-    result: bool
-        Whether the NVML context is initialized on this process.
-    """
-    return _NVML_STATE == _NVMLState.INITIALIZED and os.getpid() == _NVML_OWNER_PID
 
 
 cpdef validate():

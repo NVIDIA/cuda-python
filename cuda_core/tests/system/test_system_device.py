@@ -8,21 +8,22 @@ from .conftest import skip_if_nvml_unsupported
 
 pytestmark = skip_if_nvml_unsupported
 
+import array
 import os
 import re
 import sys
 
 import pytest
 from cuda.core import system
-from cuda.core.system import device as system_device
+from cuda.core.system import _device as system_device
 
-if system.HAS_WORKING_NVML:
+if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from cuda.bindings import _nvml as nvml
 
 
 @pytest.fixture(autouse=True, scope="module")
-def check_gpu_available(initialize_nvml):
-    if not system.HAS_WORKING_NVML or system.get_num_devices() == 0:
+def check_gpu_available():
+    if not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE or system.get_num_devices() == 0:
         pytest.skip("No GPUs available to run device tests", allow_module_level=True)
 
 
@@ -182,7 +183,7 @@ def test_device_uuid():
     ],
 )
 def test_unpack_bitmask(params):
-    assert system_device._unpack_bitmask(params["input"]) == params["output"]
+    assert system_device._unpack_bitmask(array.array("Q", params["input"])) == params["output"]
 
 
 def test_unpack_bitmask_single_value():
