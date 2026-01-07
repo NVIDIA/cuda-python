@@ -70,7 +70,6 @@ CUDA system information and NVIDIA Management Library (NVML)
 .. autosummary::
    :toctree: generated/
 
-   system.initialize
    system.get_driver_version
    system.get_driver_version_full
    system.get_num_devices
