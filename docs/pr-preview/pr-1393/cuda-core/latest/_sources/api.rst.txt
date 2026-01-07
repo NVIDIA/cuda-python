@@ -64,7 +64,7 @@ CUDA compilation toolchain
    LinkerOptions
 
 
-CUDA system information and Nvidia Management Library (NVML)
+CUDA system information and NVIDIA Management Library (NVML)
 ------------------------------------------------------------
 
 .. autosummary::
