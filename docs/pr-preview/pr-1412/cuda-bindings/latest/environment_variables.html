@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=3a15012f"></script>
+    <script src="_static/documentation_options.js?v=0ded8b45"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -670,7 +670,7 @@
 <h2>Runtime Environment Variables<a class="headerlink" href="#runtime-environment-variables" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_CUDA_PER_THREAD_DEFAULT_STREAM</span></code> : When set to 1, the default stream is the per-thread default stream. When set to 0, the default stream is the legacy default stream. This defaults to 0, for the legacy default stream. See <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/stream-sync-behavior.html">Stream Synchronization Behavior</a> for an explanation of the legacy and per-thread default streams.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_DISABLE_VERSION_CHECK</span></code> : When set to 1, suppresses the warning that is issued when <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> detects that <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> was compiled against a newer CUDA major version than the installed driver supports. This warning helps identify version mismatches that may cause features to not work correctly.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING</span></code> : When set to 1, suppresses warnings about CUDA major version mismatches between <code class="docutils literal notranslate"><span class="pre">cuda-bindings</span></code> and the installed driver.</p></li>
 </ul>
 </section>
 <section id="build-time-environment-variables">
