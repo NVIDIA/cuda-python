@@ -9,7 +9,7 @@ from cuda.bindings cimport cydriver
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import threading
-from typing import Optional, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from cuda.core._context import Context, ContextOptions
 from cuda.core._event import Event, EventOptions
@@ -62,8 +62,12 @@ cdef class DeviceProperties:
     cdef inline _get_attribute(self, cydriver.CUdevice_attribute attr):
         """Retrieve the attribute value directly from the driver."""
         cdef int val
+        cdef cydriver.CUresult err
         with nogil:
-            HANDLE_RETURN(cydriver.cuDeviceGetAttribute(&val, attr, self._handle))
+            err = cydriver.cuDeviceGetAttribute(&val, attr, self._handle)
+        if err == cydriver.CUresult.CUDA_ERROR_INVALID_VALUE:
+            return 0
+        HANDLE_RETURN(err)
         return val
 
     cdef _get_cached_attribute(self, attr):
@@ -1219,7 +1223,7 @@ class Device:
     def __reduce__(self):
         return Device, (self.device_id,)
 
-    def set_current(self, ctx: Context = None) -> Union[Context, None]:
+    def set_current(self, ctx: Context = None) -> Context | None:
         """Set device to be used for GPU executions.
 
         Initializes CUDA and sets the calling thread to a valid CUDA
@@ -1235,7 +1239,7 @@ class Device:
 
         Returns
         -------
-        Union[:obj:`~_context.Context`, None], optional
+        :obj:`~_context.Context`, optional
             Popped context.
 
         Examples

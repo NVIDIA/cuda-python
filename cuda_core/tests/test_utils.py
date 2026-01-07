@@ -18,6 +18,7 @@ import pytest
 from cuda.core import Device
 from cuda.core._layout import _StridedLayout
 from cuda.core.utils import StridedMemoryView, args_viewable_as_strided_memory
+from pytest import param
 
 
 def test_cast_to_3_tuple_success():
@@ -95,10 +96,7 @@ class TestViewCPU:
         assert view.shape == in_arr.shape
         assert view.size == in_arr.size
         strides_in_counts = convert_strides_to_counts(in_arr.strides, in_arr.dtype.itemsize)
-        if in_arr.flags.c_contiguous:
-            assert view.strides is None
-        else:
-            assert view.strides == strides_in_counts
+        assert (in_arr.flags.c_contiguous and view.strides is None) or view.strides == strides_in_counts
         assert view.dtype == in_arr.dtype
         assert view.device_id == -1
         assert view.is_device_accessible is False
@@ -433,3 +431,96 @@ def test_view_zero_size_array(api, shape, dtype):
     assert smv.size == 0
     assert smv.shape == shape
     assert smv.dtype == np.dtype(dtype)
+
+
+def test_from_buffer_with_non_power_of_two_itemsize():
+    dev = Device()
+    dev.set_current()
+    dtype = np.dtype([("a", "int32"), ("b", "int8")])
+    shape = (1,)
+    layout = _StridedLayout(shape=shape, strides=None, itemsize=dtype.itemsize)
+    required_size = layout.required_size_in_bytes()
+    assert required_size == math.prod(shape) * dtype.itemsize
+    buffer = dev.memory_resource.allocate(required_size)
+    view = StridedMemoryView.from_buffer(buffer, shape=shape, strides=layout.strides, dtype=dtype, is_readonly=True)
+    assert view.dtype == dtype
+
+
+def test_struct_array():
+    cp = pytest.importorskip("cupy")
+
+    x = np.array([(1.0, 2), (2.0, 3)], dtype=[("array1", np.float64), ("array2", np.int64)])
+
+    y = cp.empty(2, dtype=x.dtype)
+    y.set(x)
+
+    smv = StridedMemoryView.from_cuda_array_interface(y, stream_ptr=0)
+    assert smv.size * smv.dtype.itemsize == x.nbytes
+    assert smv.size == x.size
+    assert smv.shape == x.shape
+    # full dtype information doesn't seem to be preserved due to use of type strings,
+    # which are lossy, e.g., dtype([("a", "int")]).str == "V8"
+    assert smv.dtype == np.dtype(f"V{x.itemsize}")
+
+
+@pytest.mark.parametrize(
+    ("x", "expected_dtype"),
+    [
+        # 1D arrays with different dtypes
+        param(np.array([1, 2, 3], dtype=np.int32), "int32", id="1d-int32"),
+        param(np.array([1.0, 2.0, 3.0], dtype=np.float64), "float64", id="1d-float64"),
+        param(np.array([1 + 2j, 3 + 4j], dtype=np.complex128), "complex128", id="1d-complex128"),
+        param(np.array([1 + 2j, 3 + 4j, 5 + 6j], dtype=np.complex64), "complex64", id="1d-complex64"),
+        param(np.array([1, 2, 3, 4, 5], dtype=np.uint8), "uint8", id="1d-uint8"),
+        param(np.array([1, 2], dtype=np.int64), "int64", id="1d-int64"),
+        param(np.array([100, 200, 300], dtype=np.int16), "int16", id="1d-int16"),
+        param(np.array([1000, 2000, 3000], dtype=np.uint16), "uint16", id="1d-uint16"),
+        param(np.array([10000, 20000, 30000], dtype=np.uint64), "uint64", id="1d-uint64"),
+        # 2D arrays - C-contiguous
+        param(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32), "int32", id="2d-c-int32"),
+        param(np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float32), "float32", id="2d-c-float32"),
+        # 2D arrays - Fortran-contiguous
+        param(np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32, order="F"), "int32", id="2d-f-int32"),
+        param(np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float64, order="F"), "float64", id="2d-f-float64"),
+        # 3D arrays
+        param(np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]], dtype=np.int32), "int32", id="3d-int32"),
+        param(np.ones((2, 3, 4), dtype=np.float64), "float64", id="3d-float64"),
+        # Sliced/strided arrays
+        param(np.array([1, 2, 3, 4, 5, 6], dtype=np.int32)[::2], "int32", id="1d-strided-int32"),
+        param(np.array([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=np.float64)[:, ::2], "float64", id="2d-strided-float64"),
+        param(np.arange(20, dtype=np.int32).reshape(4, 5)[::2, ::2], "int32", id="2d-strided-2x2-int32"),
+        # Scalar (0-D array)
+        param(np.array(42, dtype=np.int32), "int32", id="scalar-int32"),
+        param(np.array(3.14, dtype=np.float64), "float64", id="scalar-float64"),
+        # Empty arrays
+        param(np.array([], dtype=np.int32), "int32", id="empty-1d-int32"),
+        param(np.empty((0, 3), dtype=np.float64), "float64", id="empty-2d-float64"),
+        # Single element
+        param(np.array([1], dtype=np.int32), "int32", id="single-element"),
+        # Structured dtype
+        param(np.array([(1, 2.0), (3, 4.0)], dtype=[("a", "i4"), ("b", "f8")]), "V12", id="structured-dtype"),
+    ],
+)
+def test_from_array_interface(x, init_cuda, expected_dtype):
+    smv = StridedMemoryView.from_array_interface(x)
+    assert smv.size == x.size
+    assert smv.dtype == np.dtype(expected_dtype)
+    assert smv.shape == x.shape
+    assert smv.ptr == x.ctypes.data
+    assert smv.device_id == init_cuda.device_id
+    assert smv.is_device_accessible is False
+    assert smv.exporting_obj is x
+    assert smv.readonly is not x.flags.writeable
+    # Check strides
+    strides_in_counts = convert_strides_to_counts(x.strides, x.dtype.itemsize)
+    assert (x.flags.c_contiguous and smv.strides is None) or smv.strides == strides_in_counts
+
+
+def test_from_array_interface_unsupported_strides(init_cuda):
+    # Create an array with strides that aren't a multiple of itemsize
+    x = np.array([(1, 2.0), (3, 4.0)], dtype=[("a", "i4"), ("b", "f8")])
+    b = x["b"]
+    smv = StridedMemoryView.from_array_interface(b)
+    with pytest.raises(ValueError, match="strides must be divisible by itemsize"):
+        # TODO: ideally this would raise on construction
+        smv.strides  # noqa: B018

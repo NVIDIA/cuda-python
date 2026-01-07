@@ -10,11 +10,9 @@ description: Preview or clean up docs built from PRs
 inputs:
   source-folder:
     required: true
-    type: string
     description: "Source code directory"
   pr-number:
     required: true
-    type: string
     description: "Pull request number"
 
 runs:

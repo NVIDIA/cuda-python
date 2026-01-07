@@ -26,9 +26,9 @@ cuda = "13"
 cuda-version = ">=13.1,<14"
 
 [environments]
-default = { features = ["test"], solve-group = "default" }
+default = { features = ["cu13", "test"], solve-group = "default" }
+cu13 = { features = ["cu13", "test"], solve-group = "default" }
 cu12 = { features = ["cu12", "test"], solve-group = "cu12" }
-cu13 = { features = ["cu13", "test"], solve-group = "cu13" }
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
@@ -40,7 +40,8 @@ backend = { name = "pixi-build-python", version = "*" }
 
 [package.host-dependencies]
 python = "*"
-setuptools = ">=64"
+setuptools = ">=80"
+setuptools-scm = ">=8"
 
 [package.run-dependencies]
 python = ">=3.10"
