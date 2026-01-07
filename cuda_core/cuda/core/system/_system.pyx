@@ -82,6 +82,13 @@ def get_nvml_version() -> tuple[int, ...]:
     return tuple(int(v) for v in nvml.system_get_nvml_version().split("."))
 
 
+def get_driver_branch() -> str:
+    """
+    Retrieves the driver branch of the NVIDIA driver installed on the system.
+    """
+    return nvml.system_get_driver_branch()
+
+
 def get_num_devices() -> int:
     """
     Return the number of devices in the system.
@@ -112,6 +119,7 @@ def get_process_name(pid: int) -> str:
 
 
 __all__ = [
+    "get_driver_branch",
     "get_driver_version",
     "get_driver_version_full",
     "get_nvml_version",
