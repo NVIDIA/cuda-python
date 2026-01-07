@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=ed6b127d"></script>
+    <script src="../_static/documentation_options.js?v=8f9e92f6"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev38';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev41';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -64,7 +64,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="cuda.core.system.get_driver_version_full" href="cuda.core.system.get_driver_version_full.html" />
-    <link rel="prev" title="cuda.core.system.initialize" href="cuda.core.system.initialize.html" />
+    <link rel="prev" title="cuda.core.LinkerOptions" href="cuda.core.LinkerOptions.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -492,10 +492,8 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.initialize.html">cuda.core.system.initialize</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.get_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_gpu_driver_version.html">cuda.core.system.get_gpu_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
@@ -582,9 +580,20 @@
 <h1>cuda.core.system.get_driver_version<a class="headerlink" href="#cuda-core-system-get-driver-version" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="cuda.core.system.get_driver_version">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">get_driver_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.get_driver_version" title="Link to this definition">#</a></dt>
-<dd><p>The CUDA driver version.</p>
-<p>Tuple in the format <cite>(CUDA_MAJOR, CUDA_MINOR)</cite>.</p>
+<span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">get_driver_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bool</span> <span class="pre">kernel_mode:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.get_driver_version" title="Link to this definition">#</a></dt>
+<dd><p>Get the driver version.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kernel_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – When <cite>True</cite>, return the kernel-mode driver version, e.g. 580.65.06.
+Otherwise, return the user-mode driver version, e.g. 13.0.1.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>version</strong> – Tuple in the format <cite>(MAJOR, MINOR)</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -600,12 +609,12 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.system.initialize.html"
+       href="cuda.core.LinkerOptions.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.system.initialize</p>
+        <p class="prev-next-title">cuda.core.LinkerOptions</p>
       </div>
     </a>
     <a class="right-next"

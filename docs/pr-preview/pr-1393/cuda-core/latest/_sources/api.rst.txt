@@ -73,7 +73,6 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.initialize
    system.get_driver_version
    system.get_driver_version_full
-   system.get_gpu_driver_version
    system.get_num_devices
    system.get_nvml_version
    system.get_process_name
