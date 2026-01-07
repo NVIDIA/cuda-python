@@ -1,0 +1,36 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.system.Device
+=======================
+
+.. currentmodule:: cuda.core.system
+
+.. autoclass:: Device
+
+   
+   
+   
+   .. autoattribute:: architecture
+   .. autoattribute:: bar1_memory_info
+   .. autoattribute:: cpu_affinity
+   .. autoattribute:: cuda_compute_capability
+   .. autoattribute:: handle
+   .. autoattribute:: memory_info
+   .. autoattribute:: name
+   .. autoattribute:: pci_info
+   .. autoattribute:: serial
+   .. autoattribute:: uuid
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: get_all_devices
+
+   
+   
