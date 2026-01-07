@@ -11,7 +11,8 @@ from typing import Iterable
 from cuda.bindings import _nvml as nvml
 
 from ._nvml_context import validate
-from .utils import unpack_bitmask
+
+include "device_utils.pxi"
 
 
 class DeviceArchitecture:
@@ -256,7 +257,7 @@ cdef class Device:
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
          40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
         """
-        return unpack_bitmask(nvml.device_get_cpu_affinity(
+        return _unpack_bitmask(nvml.device_get_cpu_affinity(
             self._handle,
             <unsigned int>ceil(cpu_count() / 64),
         ))

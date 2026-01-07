@@ -164,3 +164,27 @@ def test_device_uuid():
 
         # Expands to GPU-8hex-4hex-4hex-4hex-12hex, where 8hex means 8 consecutive
         # hex characters, e.g.: "GPU-abcdef12-abcd-0123-4567-1234567890ab"
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        {
+            "input": [1152920405096267775, 0],
+            "output": [i for i in range(20)] + [i + 40 for i in range(20)],
+        },
+        {
+            "input": [17293823668613283840, 65535],
+            "output": [i + 20 for i in range(20)] + [i + 60 for i in range(20)],
+        },
+        {"input": [18446744073709551615, 0], "output": [i for i in range(64)]},
+        {"input": [0, 18446744073709551615], "output": [i + 64 for i in range(64)]},
+    ],
+)
+def test_unpack_bitmask(params):
+    assert system_device._unpack_bitmask(params["input"]) == params["output"]
+
+
+def test_unpack_bitmask_single_value():
+    with pytest.raises(TypeError):
+        system_device._unpack_bitmask(1)
