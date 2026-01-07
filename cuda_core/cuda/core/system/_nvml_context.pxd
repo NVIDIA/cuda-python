@@ -3,8 +3,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-cdef extern from "unistd.h":
-    int getpid()
+cdef extern from *:
+    """
+    #if defined(_WIN32) || defined(_WIN64)
+        #include <process.h>
+    #else
+        #include <unistd.h>
+    #endif
+    """
+    int getpid() nogil
 
 
 ctypedef enum _NVMLState:
