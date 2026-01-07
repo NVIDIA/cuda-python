@@ -189,3 +189,42 @@ def test_unpack_bitmask(params):
 def test_unpack_bitmask_single_value():
     with pytest.raises(TypeError):
         system_device._unpack_bitmask(1)
+
+
+def test_field_values():
+    for device in system.Device.get_all_devices():
+        # TODO: Are there any fields that return double's?  It would be good to
+        # test those.
+
+        field_ids = [
+            system_device.FieldId.DEV_TOTAL_ENERGY_CONSUMPTION,
+            system_device.FieldId.DEV_PCIE_COUNT_TX_BYTES,
+        ]
+        field_values = device.get_field_values(field_ids)
+        field_values.validate()
+
+        with pytest.raises(TypeError):
+            field_values["invalid_index"]
+
+        assert isinstance(field_values, system_device.FieldValues)
+        assert len(field_values) == len(field_ids)
+
+        raw_values = field_values.get_all_values()
+        assert [x == y.value for x, y in zip(raw_values, field_values)]
+
+        for field_id, field_value in zip(field_ids, field_values):
+            assert field_value.field_id == field_id
+            assert type(field_value.value) is int
+            assert field_value.latency_usec >= 0
+            assert field_value.timestamp >= 0
+
+        orig_timestamp = field_values[0].timestamp
+        field_values = device.get_field_values(field_ids)
+        assert field_values[0].timestamp >= orig_timestamp
+
+        # Test only one element, because that's weirdly a special case
+        field_ids = [
+            system_device.FieldId.DEV_TOTAL_ENERGY_CONSUMPTION,
+        ]
+        field_values = device.get_field_values(field_ids)
+        field_values.validate()
