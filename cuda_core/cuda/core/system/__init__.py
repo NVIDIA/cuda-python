@@ -5,6 +5,12 @@
 # ruff: noqa: F403, F405
 
 
+# NOTE: We must maintaint that it is always possible to import this module
+# without CUDA being installed, and without CUDA being initialized or any
+# contexts created, so that a user can use NVML to explore things about their
+# system without loading CUDA.
+
+
 __all__ = [
     "get_driver_version",
     "get_driver_version_full",

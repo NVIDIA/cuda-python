@@ -173,7 +173,11 @@ cdef class PciInfo:
 
 cdef class Device:
     """
-    Representation of a CUDA device.
+    Representation of a device.
+
+    ``cuda.core.system.Device`` provides access to various pieces of metadata
+    about devices and their topology, as provided by the NVIDIA Management
+    Library (NVML).  To use CUDA with a device, use :class:`cuda.core.Device`.
 
     Parameters
     ----------
