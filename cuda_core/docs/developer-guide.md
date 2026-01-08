@@ -14,9 +14,8 @@ This guide defines conventions for Python and Cython code in `cuda/core`.
 6. [Type Annotations and Declarations](#type-annotations-and-declarations)
 7. [Docstrings](#docstrings)
 8. [Errors and Warnings](#errors-and-warnings)
-9. [Performance Considerations](#performance-considerations)
-10. [CUDA-Specific Patterns](#cuda-specific-patterns)
-11. [Development Lifecycle](#development-lifecycle)
+9. [CUDA-Specific Patterns](#cuda-specific-patterns)
+10. [Development Lifecycle](#development-lifecycle)
 
 ---
 
@@ -888,90 +887,17 @@ warnings.warn(message, UserWarning, stacklevel=3)
 
 The value depends on call depth—typically `stacklevel=2` for direct calls, `stacklevel=3` when called through a helper.
 
-## Performance Considerations
-
-### Use Cython Types
-
-Declare C types explicitly for performance-critical code:
-
-```python
-cdef:
-    int device_id
-    size_t buffer_size
-    cydriver.CUdeviceptr ptr
-```
-
-### Prefer `cdef` for Internal Functions
-
-Use `cdef` functions for internal operations that don't need to be callable from Python:
-
-```python
-cdef inline void Buffer_close(Buffer self, stream):
-    # Fast C-level function
-```
-
-### Release GIL for CUDA Operations
-
-Always release the GIL when calling CUDA driver APIs. See [CUDA-Specific Patterns](#cuda-specific-patterns) for details.
-
-### Minimize Python Object Creation
-
-Avoid creating Python objects in hot paths:
-
-```python
-# Avoid: Creates Python list
-result = []
-for i in range(n):
-    result.append(i)
-
-# Preferred: Use C array or pre-allocate
-cdef int* c_result = <int*>malloc(n * sizeof(int))
-```
-
-### Use `inline` for Small Functions
-
-Mark small, frequently-called functions as `inline`:
-
-```python
-cdef inline int get_device_id(DeviceMemoryResource mr):
-    return mr._dev_id
-```
-
-### Avoid Unnecessary Type Conversions
-
-Minimize conversions between C and Python types:
-
-```python
-# Avoid: Unnecessary conversion
-cdef int size = int(self._size)
-
-# Preferred: Use C type directly
-cdef size_t size = self._size
-```
-
-### Guidelines
-
-1. **Profile before optimizing**: Don't optimize prematurely. Use profiling to identify actual bottlenecks.
-
-2. **Use C types in hot paths**: Declare C types (`cdef`) for variables used in performance-critical loops.
-
-3. **Release GIL appropriately**: Always release GIL for CUDA operations, but be careful about Python object access.
-
-4. **Minimize Python overhead**: Avoid Python object creation, method calls, and attribute access in hot paths.
-
-5. **Use `inline` judiciously**: Mark small, frequently-called functions as `inline`, but don't overuse (compiler may ignore if function is too large).
-
-6. **Cache expensive lookups**: Cache results of expensive operations (e.g., dictionary lookups, attribute access) when used repeatedly.
-
 ## CUDA-Specific Patterns
 
 ### GIL Management for CUDA Driver API Calls
 
-**Always release the Global Interpreter Lock (GIL) when calling CUDA driver API functions.** This is critical for performance and thread safety.
+For optimized Cython code, release the GIL when calling CUDA driver APIs. This improves performance and allows other Python threads to run during CUDA operations.
+
+During initial development, it's fine to use the Python `driver` module without releasing the GIL (see [Development Lifecycle](#development-lifecycle)). GIL release is a performance optimization that can be applied once the implementation is correct.
 
 #### Using `with nogil:` Blocks
 
-Wrap CUDA driver API calls in `with nogil:` blocks:
+Wrap `cydriver` calls in `with nogil:` blocks (or declare entire functions as `nogil`):
 
 ```python
 cdef cydriver.CUstream s
@@ -980,7 +906,7 @@ with nogil:
 self._handle = s
 ```
 
-For multiple driver calls, group them in a single `with nogil:` block:
+Group multiple driver calls in a single block:
 
 ```python
 cdef int high, low
@@ -989,75 +915,13 @@ with nogil:
     HANDLE_RETURN(cydriver.cuStreamCreateWithPriority(&s, flags, prio))
 ```
 
-#### Function-Level `nogil` Declaration
-
-For functions that primarily call CUDA driver APIs, declare the function `nogil`:
-
-```python
-cdef int get_device_from_ctx(
-        cydriver.CUcontext target_ctx, cydriver.CUcontext curr_ctx) except?cydriver.CU_DEVICE_INVALID nogil:
-    """Get device ID from the given ctx."""
-    cdef bint switch_context = (curr_ctx != target_ctx)
-    cdef cydriver.CUcontext ctx
-    cdef cydriver.CUdevice target_dev
-    with nogil:
-        if switch_context:
-            HANDLE_RETURN(cydriver.cuCtxPopCurrent(&ctx))
-            HANDLE_RETURN(cydriver.cuCtxPushCurrent(target_ctx))
-        HANDLE_RETURN(cydriver.cuCtxGetDevice(&target_dev))
-        if switch_context:
-            HANDLE_RETURN(cydriver.cuCtxPopCurrent(&ctx))
-            HANDLE_RETURN(cydriver.cuCtxPushCurrent(curr_ctx))
-    return target_dev
-```
-
 #### Raising Exceptions from `nogil` Context
 
-When raising exceptions from a `nogil` context, acquire the GIL first using `with gil:`:
+To raise exceptions from a `nogil` context, acquire the GIL first:
 
 ```python
-cpdef inline int _check_driver_error(cydriver.CUresult error) except?-1 nogil:
-    if error == cydriver.CUresult.CUDA_SUCCESS:
-        return 0
-    cdef const char* name
-    name_err = cydriver.cuGetErrorName(error, &name)
-    if name_err != cydriver.CUresult.CUDA_SUCCESS:
-        with gil:
-            raise CUDAError(f"UNEXPECTED ERROR CODE: {error}")
-    with gil:
-        expl = DRIVER_CU_RESULT_EXPLANATIONS.get(int(error))
-        if expl is not None:
-            raise CUDAError(f"{name.decode()}: {expl}")
-    # ... rest of error handling ...
-```
-
-#### Guidelines
-
-1. **Always use `with nogil:` for CUDA driver calls**: Every call to `cydriver.*` functions should be within a `with nogil:` block.
-
-2. **Use `HANDLE_RETURN` within `nogil` blocks**: The `HANDLE_RETURN` macro is designed to work in `nogil` contexts.
-
-3. **Acquire GIL before raising exceptions**: When raising Python exceptions from a `nogil` context, use `with gil:` to acquire the GIL first.
-
-4. **Group related driver calls**: If multiple driver calls are made sequentially, group them in a single `with nogil:` block for efficiency.
-
-5. **Declare functions `nogil` when appropriate**: Functions that primarily call CUDA driver APIs and don't need Python object access should be declared `nogil` at the function level.
-
-### Example
-
-```python
-cdef inline void DMR_close(DeviceMemoryResource self):
-    if self._handle == NULL:
-        return
-
-    try:
-        if self._mempool_owned:
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemPoolDestroy(self._handle))
-    finally:
-        self._dev_id = cydriver.CU_DEVICE_INVALID
-        self._handle = NULL
-        # ... cleanup ...
+with gil:
+    raise CUDAError(f"CUDA operation failed: {error}")
 ```
 
 ## Development Lifecycle
