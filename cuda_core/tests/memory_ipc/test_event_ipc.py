@@ -4,7 +4,7 @@
 import multiprocessing as mp
 
 import pytest
-from cuda.core.experimental import Device, EventOptions
+from cuda.core import Device, EventOptions
 from helpers.buffers import compare_equal_buffers, make_scratch_buffer
 from helpers.latch import LatchKernel
 from helpers.logging import TimestampedLogger
@@ -22,7 +22,12 @@ class TestEventIpc:
         device = ipc_device
         mr = ipc_memory_resource
         stream1 = device.create_stream()
-        latch = LatchKernel(device)
+        # TODO: We pick a timeout here to ensure forward progress (it needs to be
+        # less than CHILD_TIMEOUT_SEC) when a pinned memory resource is in use,
+        # in which case the call to buffer.copy_from(...) below is a synchronous
+        # operation that blocks the host. But calling the latch kernel here does not
+        # make any sense. We should refactor this test.
+        latch = LatchKernel(device, timeout_sec=5)
 
         # Start the child process.
         q_out, q_in = [mp.Queue() for _ in range(2)]

@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import cuda.core.experimental
+import cuda.core
 import pytest
-from cuda.core.experimental import DeviceMemoryResource
-from cuda.core.experimental._utils.cuda_utils import CUDAError
+from cuda.core import DeviceMemoryResource
+from cuda.core._utils.cuda_utils import CUDAError
 from helpers.buffers import PatternGen, compare_buffer_to_constant, make_scratch_buffer
 
 NBYTES = 1024
@@ -72,7 +72,7 @@ def test_peer_access_property_x2(mempool_device_x2):
     with pytest.raises(ValueError, match=r"device_id must be \>\= 0"):
         dmr.peer_accessible_by = [-1]  # device ID out of bounds
 
-    num_devices = len(cuda.core.experimental.system.devices)
+    num_devices = len(cuda.core.Device.get_all_devices())
 
     with pytest.raises(ValueError, match=r"device_id must be within \[0, \d+\)"):
         dmr.peer_accessible_by = [num_devices]  # device ID out of bounds

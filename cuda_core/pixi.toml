@@ -10,17 +10,16 @@ preview = ["pixi-build"]
 [workspace.build-variants]
 python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 
-[dependencies]
-cuda-core = { path = "." }
-
 [feature.test.dependencies]
+cuda-core = { path = "." }
 pytest = "*"
 pytest-benchmark = "*"
+pytest-randomly = "*"
 
 [feature.cython-tests.dependencies]
-cython = ">=3.2,<3.3"     # for tests that exercise APIs from cython
-setuptools = "*" # for distutils
-gxx = "*"        # to compile the generated code
+cython = ">=3.2,<3.3" # for tests that exercise APIs from cython
+setuptools = "*"      # for distutils
+gxx = "*"             # to compile the generated code
 # These are necessary because running the Cython tests requires compiling
 # *after* the package is built, and the Cython tests depend on CUDA headers
 # transitively (through cuda-bindings)
@@ -51,7 +50,7 @@ CUDA_HOME = '%CONDA_PREFIX%\Library'
 cuda = "13"
 
 [feature.cu13.dependencies]
-cuda-version = "13.*"
+cuda-version = "13.1.*"
 
 [feature.cu12.system-requirements]
 cuda = "12"
@@ -61,13 +60,18 @@ cuda-version = "12.*"
 
 # We keep both cu12 and cu13 because cuda.core works with either major version
 [environments]
-cu13 = { features = ["cu13", "test", "cython-tests"], solve-group = "cu13" }
+default = { features = [
+    "cu13",
+    "test",
+    "cython-tests",
+], solve-group = "default" }
+cu13 = { features = ["cu13", "test", "cython-tests"], solve-group = "default" }
 cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
 name = "cuda-core"
-version = "0.4.1"
+version = "0.5.0"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }
@@ -92,7 +96,8 @@ CUDA_HOME = '%PREFIX%\Library'
 
 [package.host-dependencies]
 python = "*"
-setuptools = ">=77"
+setuptools = ">=80"
+setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
 cuda-cudart-dev = "*"
 cuda-profiler-api = "*"

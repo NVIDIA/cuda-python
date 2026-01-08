@@ -5,9 +5,10 @@ LICENSE
 *.png
 .gitattributes
 .gitignore
-.github/BACKPORT_BRANCH
 requirements*.txt
 cuda_bindings/examples/*
 
 # Vendored
-cuda_core/cuda/core/experimental/include/dlpack.h
+cuda_core/cuda/core/_include/dlpack.h
+
+qa/ctk-next.drawio.svg

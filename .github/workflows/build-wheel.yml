@@ -40,7 +40,7 @@ jobs:
                  (inputs.host-platform == 'win-64' && 'windows-2022') }}
     steps:
       - name: Checkout ${{ github.event.repository.name }}
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
         with:
           fetch-depth: 0
 
@@ -51,7 +51,7 @@ jobs:
 
       # xref: https://github.com/orgs/community/discussions/42856#discussioncomment-7678867
       - name: Adding addtional GHA cache-related env vars
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'])
@@ -65,7 +65,7 @@ jobs:
 
       - name: Set up Python
         id: setup-python1
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
         with:
           # WAR: setup-python is not relocatable, and cibuildwheel hard-wires to 3.12...
           # see https://github.com/actions/setup-python/issues/871
@@ -74,6 +74,23 @@ jobs:
       - name: Set up MSVC
         if: ${{ startsWith(inputs.host-platform, 'win') }}
         uses: ilammy/msvc-dev-cmd@v1  # TODO: ask admin to allow pinning commits
+
+      - name: Set up yq
+        # GitHub made an unprofessional decision to not provide it in their Windows VMs,
+        # see https://github.com/actions/runner-images/issues/7443.
+        if: ${{ startsWith(inputs.host-platform, 'win') }}
+        env:
+          # doesn't seem there's an easy way to avoid hard-coding it?
+          YQ_URL: https://github.com/mikefarah/yq/releases/latest/download/yq_windows_amd64.exe
+          YQ_DIR: yq_latest
+        shell: pwsh -command ". '{0}'"
+        run: |
+          mkdir -Force -ErrorAction SilentlyContinue "${env:YQ_DIR}" | Out-Null
+          Invoke-WebRequest -UseBasicParsing -OutFile "${env:YQ_DIR}/yq.exe" -Uri "$env:YQ_URL"
+          ls -l $env:YQ_DIR
+          echo "$((Get-Location).Path)\\$env:YQ_DIR" >> $env:GITHUB_PATH
+          $env:Path += ";$((Get-Location).Path)\\$env:YQ_DIR"
+          yq --version
 
       - name: Set environment variables
         env:
@@ -117,7 +134,7 @@ jobs:
 
       - name: Upload cuda.pathfinder build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: cuda-pathfinder-wheel
           path: cuda_pathfinder/*.whl
@@ -178,7 +195,7 @@ jobs:
           twine check --strict ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.bindings build artifacts
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}
           path: ${{ env.CUDA_BINDINGS_ARTIFACTS_DIR }}/*.whl
@@ -265,7 +282,7 @@ jobs:
 
       - name: Upload cuda-python build artifacts
         if: ${{ strategy.job-index == 0 && inputs.host-platform == 'linux-64' }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: cuda-python-wheel
           path: cuda_python/*.whl
@@ -273,10 +290,9 @@ jobs:
 
       - name: Set up Python
         id: setup-python2
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
         with:
-          # workaround for actions/runner-images#12377 (the cached 3.13.4 is buggy on Windows)
-          python-version: ${{ matrix.python-version == '3.13' && '3.13.5' || matrix.python-version }}
+          python-version: ${{ matrix.python-version }}
 
       - name: verify free-threaded build
         if: endsWith(matrix.python-version, 't')
@@ -304,7 +320,7 @@ jobs:
           popd
 
       - name: Upload cuda.bindings Cython tests
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: ${{ env.CUDA_BINDINGS_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_BINDINGS_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
@@ -318,7 +334,7 @@ jobs:
           popd
 
       - name: Upload cuda.core Cython tests
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}-tests
           path: ${{ env.CUDA_CORE_CYTHON_TESTS_DIR }}/test_*${{ env.PY_EXT_SUFFIX }}
@@ -334,7 +350,6 @@ jobs:
           cuda-path: "./cuda_toolkit_prev"
 
       - name: Download cuda.bindings build artifacts from the prior branch
-        if: startsWith(matrix.python-version, '3.14')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -350,7 +365,7 @@ jobs:
             && apt install gh -y
           fi
 
-          OLD_BRANCH=$(cat .github/BACKPORT_BRANCH)
+          OLD_BRANCH=$(yq '.backport_branch' ci/versions.yml)
           OLD_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-${{ inputs.host-platform }}*"
           LATEST_PRIOR_RUN_ID=$(gh run list -b ${OLD_BRANCH} -L 1 -w "ci.yml" -s completed -R NVIDIA/cuda-python --json databaseId | jq '.[]| .databaseId')
           if [[ "$LATEST_PRIOR_RUN_ID" == "" ]]; then
@@ -438,7 +453,7 @@ jobs:
           twine check --strict ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl
 
       - name: Upload cuda.core build artifacts
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: ${{ env.CUDA_CORE_ARTIFACT_NAME }}
           path: ${{ env.CUDA_CORE_ARTIFACTS_DIR }}/*.whl

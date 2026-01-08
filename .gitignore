@@ -27,6 +27,7 @@ cuda_bindings/cuda/bindings/_bindings/cyruntime_ptds.pxd
 cuda_bindings/cuda/bindings/_bindings/cyruntime_ptds.pyx
 cuda_bindings/cuda/bindings/_bindings/cynvrtc.pxd
 cuda_bindings/cuda/bindings/_bindings/cynvrtc.pyx
+cuda_bindings/cuda/bindings/_internal/_nvml.pyx
 cuda_bindings/cuda/bindings/_internal/cufile.pyx
 cuda_bindings/cuda/bindings/_internal/nvjitlink.pyx
 cuda_bindings/cuda/bindings/_internal/nvvm.pyx
@@ -47,6 +48,9 @@ cuda_bindings/cuda/bindings/runtime.pyx
 cuda_bindings/cuda/bindings/nvrtc.pxd
 cuda_bindings/cuda/bindings/nvrtc.pyx
 cuda_bindings/cuda/bindings/utils/_get_handle.pyx
+
+# Version files from setuptools_scm
+_version.py
 
 # Distribution / packaging
 .Python
