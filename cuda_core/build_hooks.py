@@ -86,6 +86,27 @@ _extensions = None
 
 
 def _build_cuda_core():
+    # Validate setuptools-scm version (fail loudly if git describe failed)
+    _version_file = os.path.join(os.path.dirname(__file__), "cuda", "core", "_version.py")
+    if os.path.exists(_version_file):
+        with open(_version_file, encoding="utf-8") as f:
+            _version_content = f.read()
+            # Check if version starts with "0.1" (setuptools-scm fallback)
+            if '__version__ = version = \'0.1.' in _version_content:
+                raise RuntimeError(
+                    f"setuptools-scm failed to determine version from git tags!\n"
+                    f"Generated version file shows fallback version '0.1.x'.\n"
+                    f"This usually means:\n"
+                    f"  1. Git tags are not fetched (run: git fetch --tags)\n"
+                    f"  2. Git is not available in PATH\n"
+                    f"  3. Running from wrong directory (setuptools_scm root='..')\n"
+                    f"  4. Git describe command failed\n"
+                    f"\n"
+                    f"Version file content:\n{_version_content}\n"
+                    f"\n"
+                    f"To debug, run: git describe --tags --long --match 'cuda-core-v*[0-9]*'"
+                )
+
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
     # now a required build-time dependency that's dynamically installed via the other hook below,
     # is installed. Otherwise, cimport any cuda.bindings modules would fail!

@@ -3,6 +3,28 @@
 
 """cuda.pathfinder public APIs"""
 
+# Validate setuptools-scm version (fail loudly if git describe failed)
+import os
+_version_file = os.path.join(os.path.dirname(__file__), "_version.py")
+if os.path.exists(_version_file):
+    with open(_version_file, encoding="utf-8") as f:
+        _version_content = f.read()
+        # Check if version starts with "0.1" (setuptools-scm fallback)
+        if '__version__ = version = \'0.1.' in _version_content:
+            raise RuntimeError(
+                f"setuptools-scm failed to determine version from git tags!\n"
+                f"Generated version file shows fallback version '0.1.x'.\n"
+                f"This usually means:\n"
+                f"  1. Git tags are not fetched (run: git fetch --tags)\n"
+                f"  2. Git is not available in PATH\n"
+                f"  3. Running from wrong directory (setuptools_scm root='..')\n"
+                f"  4. Git describe command failed\n"
+                f"\n"
+                f"Version file content:\n{_version_content}\n"
+                f"\n"
+                f"To debug, run: git describe --tags --long --match 'cuda-pathfinder-v*[0-9]*'"
+            )
+
 from cuda.pathfinder._version import __version__  # noqa: F401
 
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError as DynamicLibNotFoundError
