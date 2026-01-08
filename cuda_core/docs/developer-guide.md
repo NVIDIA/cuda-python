@@ -900,19 +900,17 @@ During initial development, it's fine to use the Python `driver` module without 
 Wrap `cydriver` calls in `with nogil:` blocks (or declare entire functions as `nogil`):
 
 ```python
-cdef cydriver.CUstream s
+cdef int value
 with nogil:
-    HANDLE_RETURN(cydriver.cuStreamCreateWithPriority(&s, flags, prio))
-self._handle = s
+    HANDLE_RETURN(cydriver.cuDeviceGetAttribute(&value, attr, device_id))
 ```
 
 Group multiple driver calls in a single block:
 
 ```python
-cdef int high, low
+cdef int low, high
 with nogil:
-    HANDLE_RETURN(cydriver.cuCtxGetStreamPriorityRange(&high, &low))
-    HANDLE_RETURN(cydriver.cuStreamCreateWithPriority(&s, flags, prio))
+    HANDLE_RETURN(cydriver.cuCtxGetStreamPriorityRange(&low, &high))
 ```
 
 #### Raising Exceptions from `nogil` Context
@@ -946,37 +944,30 @@ from cuda.core._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
 )
 
-def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
-    stream = Stream_accept(stream)
-    # ... validation ...
-    err, = driver.cuMemsetD8Async(self._ptr, value, size, stream.handle)
+def get_attribute(self, attr: int) -> int:
+    err, value = driver.cuDeviceGetAttribute(attr, self._id)
     raise_if_driver_error(err)
+    return value
 ```
 
 ### Cython Optimization
 
-When ready to optimize, convert to `cydriver`:
+When ready to optimize, switch to `cydriver`:
 
 ```python
 from cuda.bindings cimport cydriver
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
-def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
-    stream = Stream_accept(stream)
-    cdef Stream s_stream = <Stream>stream
-    cdef cydriver.CUstream s = s_stream._handle
-    # ... validation ...
+def get_attribute(self, attr: int) -> int:
+    cdef int value
     with nogil:
-        HANDLE_RETURN(cydriver.cuMemsetD8Async(
-            <cydriver.CUdeviceptr>self._ptr, value, size, s
-        ))
+        HANDLE_RETURN(cydriver.cuDeviceGetAttribute(&value, attr, self._id))
+    return value
 ```
 
 Key changes:
 - Replace `driver` with `cydriver`
-- Extract C-level handles (e.g., `s_stream._handle`)
 - Wrap calls in `with nogil:`
 - Use `HANDLE_RETURN` instead of `raise_if_driver_error`
-- Cast pointers to `cydriver.CUdeviceptr`
 
 Run tests after optimization to verify behavior is unchanged.
