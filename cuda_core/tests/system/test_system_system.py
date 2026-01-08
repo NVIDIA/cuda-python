@@ -97,6 +97,7 @@ def test_device_count():
     assert device_count >= 0
 
 
+@skip_if_nvml_unsupported
 def test_get_driver_branch():
     driver_branch = system.get_driver_branch()
     assert isinstance(driver_branch, str)
