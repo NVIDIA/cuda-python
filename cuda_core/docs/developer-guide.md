@@ -1,8 +1,8 @@
-# CUDA Core Style Guide
+# CUDA Core Developer Guide
 
-This style guide defines conventions for Python and Cython code in `cuda/core/experimental`.
+This guide defines conventions for Python and Cython code in `cuda/core`.
 
-**This project follows [PEP 8](https://peps.python.org/pep-0008/) as the base style guide.** The rules in this document highlight project-specific conventions and extensions beyond PEP 8, particularly for Cython code and the structure of this codebase.
+**This project follows [PEP 8](https://peps.python.org/pep-0008/) as the base style guide.** The conventions in this document extend PEP 8 with project-specific patterns, particularly for Cython code and the structure of this codebase. Standard PEP 8 conventions (naming, whitespace, etc.) are not repeated here.
 
 ## Table of Contents
 
@@ -30,7 +30,7 @@ This style guide defines conventions for Python and Cython code in `cuda/core/ex
 
 ## File Structure
 
-Files in `cuda/core/experimental` should follow a consistent structure. The suggested ordering of elements within a file is as follows. Developers are free to deviate when a different organization makes more sense for a particular file.
+Files in `cuda/core` should follow a consistent structure. The suggested ordering of elements within a file is as follows. Developers are free to deviate when a different organization makes more sense for a particular file.
 
 ### 1. SPDX Copyright Header
 
@@ -96,7 +96,7 @@ Finally, define private functions and implementation details. These include:
 
 # Imports (cimports first, then regular imports)
 from libc.stdint cimport uintptr_t
-from cuda.core.experimental._memory._device_memory_resource cimport DeviceMemoryResource
+from cuda.core._memory._device_memory_resource cimport DeviceMemoryResource
 import abc
 
 __all__ = ['Buffer', 'MemoryResource', 'some_public_function']
@@ -137,7 +137,7 @@ cdef inline void Buffer_close(Buffer self, stream):
 
 ### File Types
 
-The `cuda/core/experimental` package uses three types of files:
+The `cuda/core` package uses three types of files:
 
 1. **`.pyx` files**: Cython implementation files containing the actual code
 2. **`.pxd` files**: Cython declaration files containing type definitions and function signatures for C-level access
@@ -188,7 +188,7 @@ cdef class Buffer:
 
 #### Simple Top-Level Modules
 
-For simple modules at the `cuda/core/experimental` level, define classes and functions directly in the module file with an `__all__` list:
+For simple modules at the `cuda/core` level, define classes and functions directly in the module file with an `__all__` list:
 
 ```python
 # _device.pyx
@@ -298,12 +298,12 @@ from cuda.bindings cimport cydriver
 
 ### 3. cuda-core `cimport` Statements
 
-Cython imports from within the `cuda.core.experimental` package.
+Cython imports from within the `cuda.core` package.
 
 ```python
-from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
-from cuda.core.experimental._stream cimport Stream_accept, Stream
-from cuda.core.experimental._utils.cuda_utils cimport (
+from cuda.core._memory._buffer cimport Buffer, MemoryResource
+from cuda.core._stream cimport Stream_accept, Stream
+from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
     check_or_create_options,
 )
@@ -324,12 +324,12 @@ from dataclasses import dataclass
 
 ### 5. cuda-core `import` Statements
 
-Regular Python imports from within the `cuda.core.experimental` package.
+Regular Python imports from within the `cuda.core` package.
 
 ```python
-from cuda.core.experimental._context import Context, ContextOptions
-from cuda.core.experimental._dlpack import DLDeviceType, make_py_capsule
-from cuda.core.experimental._utils.cuda_utils import (
+from cuda.core._context import Context, ContextOptions
+from cuda.core._dlpack import DLDeviceType, make_py_capsule
+from cuda.core._utils.cuda_utils import (
     CUDAError,
     driver,
     handle_return,
@@ -342,7 +342,7 @@ from cuda.core.experimental._utils.cuda_utils import (
 
 2. **Multi-line Imports**: When importing multiple items from a single module, use parentheses for multi-line formatting:
    ```python
-   from cuda.core.experimental._utils.cuda_utils cimport (
+   from cuda.core._utils.cuda_utils cimport (
        HANDLE_RETURN,
        check_or_create_options,
    )
@@ -369,17 +369,17 @@ from libc.stdlib cimport malloc, free
 from cuda.bindings cimport cydriver
 
 # 3. cuda-core cimports
-from cuda.core.experimental._memory._buffer cimport Buffer, MemoryResource
-from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._memory._buffer cimport Buffer, MemoryResource
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 # 4. External imports
 import abc
 from dataclasses import dataclass
 
 # 5. cuda-core imports
-from cuda.core.experimental._context import Context
-from cuda.core.experimental._device import Device
-from cuda.core.experimental._utils.cuda_utils import driver
+from cuda.core._context import Context
+from cuda.core._device import Device
+from cuda.core._utils.cuda_utils import driver
 ```
 
 ## Class and Function Definitions
@@ -500,62 +500,9 @@ For module-level functions (outside of classes), follow the ordering specified i
 
 ## Naming Conventions
 
-### Class Names
+Follow PEP 8 naming conventions (CamelCase for classes, snake_case for functions/variables, UPPER_SNAKE_CASE for constants, leading underscore for private names).
 
-Use **CamelCase** for class names.
-
-```python
-cdef class Buffer:
-    # ...
-
-cdef class DeviceMemoryResource:
-    # ...
-
-class CUDAError(Exception):
-    # ...
-```
-
-### Function and Method Names
-
-Use **snake_case** for function and method names.
-
-```python
-def allocate(self, size_t size, stream=None) -> Buffer:
-    # ...
-
-def get_ipc_descriptor(self) -> IPCBufferDescriptor:
-    # ...
-
-cdef inline void Buffer_close(Buffer self, stream):
-    # ...
-```
-
-### Variable Names
-
-#### Python Variables
-
-Use **snake_case** for Python variables.
-
-```python
-device_id = 0
-memory_resource = DeviceMemoryResource(device_id)
-buffer_size = 1024
-```
-
-#### Private Attributes
-
-Use **snake_case** with a leading underscore for private instance attributes.
-
-```python
-cdef class Buffer:
-    cdef:
-        uintptr_t _ptr
-        size_t _size
-        MemoryResource _memory_resource
-        object _ipc_data
-```
-
-#### Cython `cdef` Variables
+### Cython `cdef` Variables
 
 Consider prefixing `cdef` variables with `c_` to distinguish them from Python variables. This improves code readability by making it clear which variables are C-level types.
 
@@ -585,33 +532,6 @@ cdef cydriver.CUdevice get_device_from_ctx(
 ```
 
 The `c_` prefix is particularly helpful when mixing Python and Cython variables in the same scope, or when the variable name would otherwise be ambiguous.
-
-### Constants
-
-Use **UPPER_SNAKE_CASE** for module-level constants.
-
-```python
-LEGACY_DEFAULT_STREAM = C_LEGACY_DEFAULT_STREAM
-PER_THREAD_DEFAULT_STREAM = C_PER_THREAD_DEFAULT_STREAM
-
-RUNTIME_CUDA_ERROR_EXPLANATIONS = {
-    # ...
-}
-```
-
-### Private Module-Level Names
-
-Use **snake_case** with a leading underscore for private module-level functions, classes, and variables.
-
-```python
-_fork_warning_checked = False
-
-def _reduce_3_tuple(t: tuple):
-    # ...
-
-cdef inline void _helper_function():
-    # ...
-```
 
 ## Type Annotations and Declarations
 
@@ -663,7 +583,7 @@ def allocate(self, size_t size, stream: Stream | None = None) -> Buffer:
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from cuda.core.experimental._stream import Stream
+    from cuda.core._stream import Stream
 
 def allocate(self, size_t size, stream: Stream | None = None) -> Buffer:
     # ...
@@ -966,7 +886,7 @@ The project defines custom exception types for CUDA-specific errors:
 - **`NVRTCError`**: Exception for NVRTC (compiler) errors, inherits from `CUDAError`
 
 ```python
-from cuda.core.experimental._utils.cuda_utils import CUDAError, NVRTCError
+from cuda.core._utils.cuda_utils import CUDAError, NVRTCError
 
 raise CUDAError("CUDA operation failed")
 raise NVRTCError("NVRTC compilation error")
@@ -1027,7 +947,7 @@ cdef int allocate_buffer(uintptr_t* ptr, size_t size) except?-1 nogil:
 For Python-level CUDA error handling, use `handle_return()`:
 
 ```python
-from cuda.core.experimental._utils.cuda_utils import handle_return
+from cuda.core._utils.cuda_utils import handle_return
 
 err, = driver.cuMemcpyAsync(dst._ptr, self._ptr, src_size, stream.handle)
 handle_return((err,))
@@ -1036,7 +956,7 @@ handle_return((err,))
 Or use `raise_if_driver_error()` for direct error raising:
 
 ```python
-from cuda.core.experimental._utils.cuda_utils cimport (
+from cuda.core._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
 )
 
@@ -1403,15 +1323,11 @@ _access_flags = {
 
 ### Guidelines
 
-1. **Name all constants**: Avoid magic numbers and strings. Use descriptive constant names.
+1. **Avoid magic numbers and strings**: Use descriptive constant names.
 
-2. **Use UPPER_SNAKE_CASE**: Follow Python convention for module-level constants.
+2. **Prefer CUDA bindings**: Use constants from `cuda.bindings` directly when possible rather than redefining them.
 
 3. **Group related constants**: Define related constants together, optionally in a dictionary or class.
-
-4. **Document non-obvious constants**: If a constant's purpose isn't immediately clear, add a comment explaining it.
-
-5. **Prefer CUDA bindings**: Use constants from `cuda.bindings` directly when possible rather than redefining them.
 
 ## Comments and Inline Documentation
 
@@ -1467,13 +1383,7 @@ import platform  # no-cython-lint
 
 2. **Use NOTE for important context**: Add `NOTE` comments to explain non-obvious implementation decisions or workarounds.
 
-3. **Explain complex logic**: Add comments to explain why code is written a certain way, not what it does (the code should be self-explanatory).
-
-4. **Keep comments up-to-date**: Update or remove comments when code changes.
-
-5. **Avoid obvious comments**: Don't comment what the code clearly shows. Focus on the "why" rather than the "what".
-
-6. **Document workarounds**: Always document workarounds for bugs (include bug numbers when available) and explain why they're necessary.
+3. **Document workarounds**: Always document workarounds for bugs (include bug numbers when available) and explain why they're necessary.
 
 ## Code Organization Within Files
 
@@ -1670,13 +1580,7 @@ Design APIs to fail fast with clear error messages:
 
 3. **Use `__all__` explicitly**: List all public symbols in `__all__` to clearly define the module's public API.
 
-4. **Design for extensibility**: Consider future needs when designing APIs, but don't over-engineer.
-
-5. **Follow Python conventions**: Adhere to Python naming and design conventions (PEP 8, PEP 20).
-
-6. **Provide clear error messages**: When APIs fail, provide error messages that help users understand and fix the problem.
-
-7. **Use type hints**: Provide type annotations for all public APIs to improve IDE support and documentation.
+4. **Use type hints**: Provide type annotations for all public APIs to improve IDE support and documentation.
 
 ## CUDA-Specific Patterns
 
@@ -1794,11 +1698,11 @@ When implementing new CUDA functionality, follow a two-phase development approac
 
 ### Phase 1: Initial Python Implementation
 
-Begin with a straightforward Python implementation using the `driver` module from `cuda.core.experimental._utils.cuda_utils`:
+Begin with a straightforward Python implementation using the `driver` module from `cuda.core._utils.cuda_utils`:
 
 ```python
-from cuda.core.experimental._utils.cuda_utils import driver
-from cuda.core.experimental._utils.cuda_utils cimport (
+from cuda.core._utils.cuda_utils import driver
+from cuda.core._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
 )
 
@@ -1834,13 +1738,13 @@ Once tests are passing, optimize the implementation by:
 
 ```python
 # Remove Python driver import
-# from cuda.core.experimental._utils.cuda_utils import driver
+# from cuda.core._utils.cuda_utils import driver
 
 # Add cydriver cimport
 from cuda.bindings cimport cydriver
 
 # Add HANDLE_RETURN
-from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 ```
 
 **Step 2: Cast stream and extract C-level handle**
@@ -1881,8 +1785,8 @@ All device pointers passed to `cydriver` functions must be cast to `cydriver.CUd
 **Before (Python driver implementation):**
 
 ```python
-from cuda.core.experimental._utils.cuda_utils import driver
-from cuda.core.experimental._utils.cuda_utils cimport (
+from cuda.core._utils.cuda_utils import driver
+from cuda.core._utils.cuda_utils cimport (
     _check_driver_error as raise_if_driver_error,
 )
 
@@ -1903,7 +1807,7 @@ def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
 
 ```python
 from cuda.bindings cimport cydriver
-from cuda.core.experimental._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
     stream = Stream_accept(stream)
@@ -1938,4 +1842,4 @@ def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
 
 ## Copyright and Licensing
 
-All source files in `cuda/core/experimental` must include a copyright header at the top of the file using the SPDX format. Follow the pattern used in existing files. The pre-commit hook will add or update these notices automatically when necessary.
+All source files in `cuda/core` must include a copyright header at the top of the file using the SPDX format. Follow the pattern used in existing files. The pre-commit hook will add or update these notices automatically when necessary.
