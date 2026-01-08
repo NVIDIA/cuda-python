@@ -175,7 +175,7 @@ cdef class Device:
     """
     Representation of a device.
 
-    ``cuda.core.system.Device`` provides access to various pieces of metadata
+    :class:`cuda.core.system.Device` provides access to various pieces of metadata
     about devices and their topology, as provided by the NVIDIA Management
     Library (NVML).  To use CUDA with a device, use :class:`cuda.core.Device`.
 
@@ -312,3 +312,12 @@ cdef class Device:
         board serial identifier.
         """
         return nvml.device_get_uuid(self._handle)
+
+
+__all__ = [
+    "BAR1MemoryInfo",
+    "Device",
+    "DeviceArchitecture",
+    "MemoryInfo",
+    "PciInfo",
+]
