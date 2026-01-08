@@ -1,0 +1,1929 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>CUDA Core Developer Guide &#8212; cuda.core</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+
+    <script src="_static/documentation_options.js?v=32893bd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=35a8b989"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'developer-guide';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev34';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+
+    <link rel="canonical" href="docs/developer-guide.html" />
+    <link rel="icon" href="_static/favicon.png"/>
+
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Code of Conduct" href="conduct.html" />
+    <link rel="prev" title="Contributing" href="contribute.html" />
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content"><em>Warning</em>: This documentation is only a preview for <a href="https://github.com/NVIDIA/cuda-python/pull/1316">PR 1316</a>!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="cuda.core - Home"/>
+    <img src="_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="cuda.core - Home"/>
+  
+  
+    <p class="title logo__title">cuda.core</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting-started.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="install.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="interoperability.html">
+    Interoperability
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api.html">
+    cuda.core API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contribute.html">
+    Contributing
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="#">
+    CUDA Core Developer Guide
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="conduct.html">
+    Code of Conduct
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="license.html">
+    Software License Agreement
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="release.html">
+    Release Notes
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="cuda.core - Home"/>
+    <img src="_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="cuda.core - Home"/>
+  
+  
+    <p class="title logo__title">cuda.core</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting-started.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="install.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="interoperability.html">
+    Interoperability
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api.html">
+    cuda.core API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contribute.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    CUDA Core Developer Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="conduct.html">
+    Code of Conduct
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="license.html">
+    Software License Agreement
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="release.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interoperability.html">Interoperability</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Device.html">cuda.core.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Graph.html">cuda.core.Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.launch.html">cuda.core.launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Buffer.html">cuda.core.Buffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Stream.html">cuda.core.Stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Event.html">cuda.core.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.PinnedMemoryResource.html">cuda.core.PinnedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ManagedMemoryResource.html">cuda.core.ManagedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LegacyPinnedMemoryResource.html">cuda.core.LegacyPinnedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryResource.html">cuda.core.VirtualMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.DeviceMemoryResourceOptions.html">cuda.core.DeviceMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphCompleteOptions.html">cuda.core.GraphCompleteOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.GraphDebugPrintOptions.html">cuda.core.GraphDebugPrintOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Program.html">cuda.core.Program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Linker.html">cuda.core.Linker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ObjectCode.html">cuda.core.ObjectCode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.Kernel.html">cuda.core.Kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributing</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">CUDA Core Developer Guide</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="conduct.html">Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">Software License Agreement</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/0.5.0-notes.html">0.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.4.2-notes.html">0.4.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.4.1-notes.html">0.4.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.4.0-notes.html">0.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.3.2-notes.html">0.3.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.3.1-notes.html">0.3.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.3.0-notes.html">0.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.2.0-notes.html">0.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.1-notes.html">0.1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release/0.1.0-notes.html">0.1.0</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">CUDA Core Developer Guide</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="cuda-core-developer-guide">
+<h1>CUDA Core Developer Guide<a class="headerlink" href="#cuda-core-developer-guide" title="Link to this heading">#</a></h1>
+<p>This guide defines conventions for Python and Cython code in
+<code class="docutils literal notranslate"><span class="pre">cuda/core</span></code>.</p>
+<p><strong>This project follows</strong> <a class="reference external" href="https://peps.python.org/pep-0008/">PEP 8</a>
+<strong>as the base style guide and</strong> <a class="reference external" href="https://peps.python.org/pep-0257/">PEP
+257</a> <strong>for docstring
+conventions.</strong> The guidance in this document extends these with
+project-specific patterns, particularly for Cython code and the
+structure of this codebase. Standard conventions are not repeated here.</p>
+<section id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="#file-structure">File Structure</a></p></li>
+<li><p><a class="reference external" href="#package-layout">Package Layout</a></p></li>
+<li><p><a class="reference external" href="#import-statements">Import Statements</a></p></li>
+<li><p><a class="reference external" href="#class-and-function-definitions">Class and Function Definitions</a></p></li>
+<li><p><a class="reference external" href="#naming-conventions">Naming Conventions</a></p></li>
+<li><p><a class="reference external" href="#type-annotations-and-declarations">Type Annotations and
+Declarations</a></p></li>
+<li><p><a class="reference external" href="#docstrings">Docstrings</a></p></li>
+<li><p><a class="reference external" href="#errors-and-warnings">Errors and Warnings</a></p></li>
+<li><p><a class="reference external" href="#cuda-specific-patterns">CUDA-Specific Patterns</a></p></li>
+<li><p><a class="reference external" href="#development-lifecycle">Development Lifecycle</a></p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="file-structure">
+<h2>File Structure<a class="headerlink" href="#file-structure" title="Link to this heading">#</a></h2>
+<p>The goal is <strong>readability and maintainability</strong>. A well-organized file
+lets readers quickly find what they’re looking for and understand how
+the pieces fit together.</p>
+<p>To support this, we suggest organizing content from most important to
+least important: principal classes first, then supporting classes, then
+implementation details. This way, readers can start at the top and
+immediately see what matters most. Unlike C/C++ where definitions must
+precede uses, Python imposes no such constraint—we’re free to optimize
+for the reader.</p>
+<p>These are guidelines, not rules. Place helper functions near their call
+sites if that’s clearer. Group related code together if it aids
+understanding. When in doubt, choose whatever makes the code easiest to
+read and maintain.</p>
+<p>The following is a suggested file organization:</p>
+<section id="spdx-copyright-header">
+<span id="id1"></span><h3>1. SPDX Copyright Header<a class="headerlink" href="#spdx-copyright-header" title="Link to this heading">#</a></h3>
+<p>Every file begins with an SPDX copyright header. The pre-commit hook
+adds or updates these automatically.</p>
+</section>
+<section id="module-docstring-optional">
+<span id="id2"></span><h3>2. Module Docstring (Optional)<a class="headerlink" href="#module-docstring-optional" title="Link to this heading">#</a></h3>
+<p>If present, the module docstring comes immediately after the copyright
+header, before any imports. Per PEP 257, this is the standard location
+for module-level documentation.</p>
+</section>
+<section id="import-statements">
+<span id="id3"></span><h3>3. Import Statements<a class="headerlink" href="#import-statements" title="Link to this heading">#</a></h3>
+<p>Imports come next. See <a class="reference external" href="#import-statements">Import Statements</a> for
+ordering conventions.</p>
+</section>
+<section id="all-declaration-optional">
+<span id="id4"></span><h3>4. <code class="docutils literal notranslate"><span class="pre">__all__</span></code> Declaration (Optional)<a class="headerlink" href="#all-declaration-optional" title="Link to this heading">#</a></h3>
+<p>If present, <code class="docutils literal notranslate"><span class="pre">__all__</span></code> specifies symbols included in star imports.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DeviceMemoryResource&#39;</span><span class="p">,</span> <span class="s1">&#39;DeviceMemoryResourceOptions&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="type-aliases-and-constants-optional">
+<span id="id5"></span><h3>5. Type Aliases and Constants (Optional)<a class="headerlink" href="#type-aliases-and-constants-optional" title="Link to this heading">#</a></h3>
+<p>Type aliases and module-level constants, if any, come next.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DevicePointerT</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">CUdeviceptr</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="sd">&quot;&quot;&quot;Type union for device pointer representations.&quot;&quot;&quot;</span>
+
+<span class="n">LEGACY_DEFAULT_STREAM</span> <span class="o">=</span> <span class="n">C_LEGACY_DEFAULT_STREAM</span>
+</pre></div>
+</div>
+</section>
+<section id="principal-class-or-function">
+<span id="id6"></span><h3>6. Principal Class or Function<a class="headerlink" href="#principal-class-or-function" title="Link to this heading">#</a></h3>
+<p>If the file centers on a single class or function (e.g., <code class="docutils literal notranslate"><span class="pre">_buffer.pyx</span></code>
+defines <code class="docutils literal notranslate"><span class="pre">Buffer</span></code>, <code class="docutils literal notranslate"><span class="pre">_device.pyx</span></code> defines <code class="docutils literal notranslate"><span class="pre">Device</span></code>), that principal
+element comes first among the definitions.</p>
+</section>
+<section id="other-public-classes-and-functions">
+<span id="id7"></span><h3>7. Other Public Classes and Functions<a class="headerlink" href="#other-public-classes-and-functions" title="Link to this heading">#</a></h3>
+<p>Other public classes and functions follow. These might include auxiliary
+classes (e.g., <code class="docutils literal notranslate"><span class="pre">DeviceMemoryResourceOptions</span></code>), abstract base classes,
+or additional exports. Organize them logically—by related functionality
+or typical usage.</p>
+</section>
+<section id="public-module-functions">
+<span id="id8"></span><h3>8. Public Module Functions<a class="headerlink" href="#public-module-functions" title="Link to this heading">#</a></h3>
+<p>Public module-level functions come after classes.</p>
+</section>
+<section id="private-and-implementation-details">
+<span id="id9"></span><h3>9. Private and Implementation Details<a class="headerlink" href="#private-and-implementation-details" title="Link to this heading">#</a></h3>
+<p>Finally, private functions and implementation details: functions
+prefixed with <code class="docutils literal notranslate"><span class="pre">_</span></code>, <code class="docutils literal notranslate"><span class="pre">cdef</span> <span class="pre">inline</span></code> helpers, and any specialized code
+that would distract from the principal content.</p>
+</section>
+<section id="example-structure">
+<h3>Example Structure<a class="headerlink" href="#example-structure" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># &lt;SPDX copyright header&gt;</span>
+<span class="sd">&quot;&quot;&quot;Module for buffer and memory resource management.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">libc.stdint</span> <span class="n">cimport</span> <span class="n">uintptr_t</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._memory._device_memory_resource</span> <span class="n">cimport</span> <span class="n">DeviceMemoryResource</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Buffer&#39;</span><span class="p">,</span> <span class="s1">&#39;MemoryResource&#39;</span><span class="p">,</span> <span class="s1">&#39;some_public_function&#39;</span><span class="p">]</span>
+
+<span class="n">DevicePointerT</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">CUdeviceptr</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="sd">&quot;&quot;&quot;Type union for device pointer representations.&quot;&quot;&quot;</span>
+
+<span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">Buffer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Principal class for this module.&quot;&quot;&quot;</span>
+    <span class="c1"># ...</span>
+
+<span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">MemoryResource</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class.&quot;&quot;&quot;</span>
+    <span class="c1"># ...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">some_public_function</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Public API function.&quot;&quot;&quot;</span>
+    <span class="c1"># ...</span>
+
+<span class="n">cdef</span> <span class="n">inline</span> <span class="n">void</span> <span class="n">Buffer_close</span><span class="p">(</span><span class="n">Buffer</span> <span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Private implementation helper.&quot;&quot;&quot;</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+</section>
+<section id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Not every file will have all sections. For example, a utility module
+may not have a principal class.</p></li>
+<li><p>The distinction between “principal” and “other” classes is based on
+the file’s primary purpose. If a file exists primarily to define one
+class, that class is the principal class.</p></li>
+<li><p>Private implementation functions should be placed at the end of the
+file to keep the public API visible at the top.</p></li>
+<li><p><strong>Within each section</strong>, prefer logical ordering (e.g., by
+functionality or typical usage). Alphabetical ordering is a reasonable
+fallback when no clear logical structure exists.</p></li>
+</ul>
+</section>
+</section>
+<section id="package-layout">
+<h2>Package Layout<a class="headerlink" href="#package-layout" title="Link to this heading">#</a></h2>
+<section id="file-types">
+<h3>File Types<a class="headerlink" href="#file-types" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">cuda/core</span></code> package uses three types of files:</p>
+<ol class="arabic simple">
+<li><p><strong>``.pyx`` files</strong>: Cython implementation files containing the actual
+code</p></li>
+<li><p><strong>``.pxd`` files</strong>: Cython declaration files containing type
+definitions and function signatures for C-level access</p></li>
+<li><p><strong>``.py`` files</strong>: Pure Python files for utilities and high-level
+interfaces</p></li>
+</ol>
+</section>
+<section id="file-naming-conventions">
+<h3>File Naming Conventions<a class="headerlink" href="#file-naming-conventions" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Implementation files</strong>: Use <code class="docutils literal notranslate"><span class="pre">.pyx</span></code> for Cython code, <code class="docutils literal notranslate"><span class="pre">.py</span></code> for
+pure Python code</p></li>
+<li><p><strong>Declaration files</strong>: Use <code class="docutils literal notranslate"><span class="pre">.pxd</span></code> for Cython type declarations</p></li>
+<li><p><strong>Private modules</strong>: Prefix with underscore (e.g., <code class="docutils literal notranslate"><span class="pre">_buffer.pyx</span></code>,
+<code class="docutils literal notranslate"><span class="pre">_device.pyx</span></code>)</p></li>
+<li><p><strong>Public modules</strong>: No underscore prefix (e.g., <code class="docutils literal notranslate"><span class="pre">utils.py</span></code>)</p></li>
+</ul>
+</section>
+<section id="relationship-between-pxd-and-pyx-files">
+<span id="id10"></span><h3>Relationship Between <code class="docutils literal notranslate"><span class="pre">.pxd</span></code> and <code class="docutils literal notranslate"><span class="pre">.pyx</span></code> Files<a class="headerlink" href="#relationship-between-pxd-and-pyx-files" title="Link to this heading">#</a></h3>
+<p>For each <code class="docutils literal notranslate"><span class="pre">.pyx</span></code> file that defines classes or functions used by other
+Cython modules, create a corresponding <code class="docutils literal notranslate"><span class="pre">.pxd</span></code> file:</p>
+<ul class="simple">
+<li><p><strong>``.pxd`` file</strong>: Contains <code class="docutils literal notranslate"><span class="pre">cdef</span></code> class declarations,
+<code class="docutils literal notranslate"><span class="pre">cdef</span></code>/<code class="docutils literal notranslate"><span class="pre">cpdef</span></code> function signatures, and <code class="docutils literal notranslate"><span class="pre">cdef</span></code> attribute
+declarations</p></li>
+<li><p><strong>``.pyx`` file</strong>: Contains the full implementation including Python
+methods, docstrings, and implementation details</p></li>
+</ul>
+<p><strong>Example:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">_buffer.pxd</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">Buffer</span><span class="p">:</span>
+    <span class="n">cdef</span><span class="p">:</span>
+        <span class="n">uintptr_t</span>      <span class="n">_ptr</span>
+        <span class="n">size_t</span>         <span class="n">_size</span>
+        <span class="n">MemoryResource</span> <span class="n">_memory_resource</span>
+        <span class="nb">object</span>         <span class="n">_ipc_data</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">_buffer.pyx</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">Buffer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Full implementation with methods and docstrings.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Implementation here.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+</pre></div>
+</div>
+</section>
+<section id="module-organization">
+<h3>Module Organization<a class="headerlink" href="#module-organization" title="Link to this heading">#</a></h3>
+<section id="simple-top-level-modules">
+<h4>Simple Top-Level Modules<a class="headerlink" href="#simple-top-level-modules" title="Link to this heading">#</a></h4>
+<p>For simple modules at the <code class="docutils literal notranslate"><span class="pre">cuda/core</span></code> level, define classes and
+functions directly in the module file with an <code class="docutils literal notranslate"><span class="pre">__all__</span></code> list:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># _device.pyx</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Device&#39;</span><span class="p">,</span> <span class="s1">&#39;DeviceProperties&#39;</span><span class="p">]</span>
+
+<span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">Device</span><span class="p">:</span>
+    <span class="c1"># ...</span>
+
+<span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">DeviceProperties</span><span class="p">:</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+</section>
+<section id="complex-subpackages">
+<h4>Complex Subpackages<a class="headerlink" href="#complex-subpackages" title="Link to this heading">#</a></h4>
+<p>For complex subpackages that require extra structure (like
+<code class="docutils literal notranslate"><span class="pre">_memory/</span></code>), use the following pattern:</p>
+<ol class="arabic simple">
+<li><p><strong>Private submodules</strong>: Each component is implemented in a private
+submodule (e.g., <code class="docutils literal notranslate"><span class="pre">_buffer.pyx</span></code>, <code class="docutils literal notranslate"><span class="pre">_device_memory_resource.pyx</span></code>)</p></li>
+<li><p><strong>Submodule ``__all__``</strong>: Each submodule defines its own <code class="docutils literal notranslate"><span class="pre">__all__</span></code>
+list</p></li>
+<li><p><strong>Subpackage ``__init__.py``</strong>: The subpackage <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> uses
+<code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">._module</span> <span class="pre">import</span> <span class="pre">*</span></code> to assemble the package</p></li>
+</ol>
+<p><strong>Example structure for ``_memory/`` subpackage:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">_memory/_buffer.pyx</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Buffer&#39;</span><span class="p">,</span> <span class="s1">&#39;MemoryResource&#39;</span><span class="p">]</span>
+
+<span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">Buffer</span><span class="p">:</span>
+    <span class="c1"># ...</span>
+
+<span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">MemoryResource</span><span class="p">:</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">_memory/_device_memory_resource.pyx</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DeviceMemoryResource&#39;</span><span class="p">,</span> <span class="s1">&#39;DeviceMemoryResourceOptions&#39;</span><span class="p">]</span>
+
+<span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">DeviceMemoryResourceOptions</span><span class="p">:</span>
+    <span class="c1"># ...</span>
+
+<span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">DeviceMemoryResource</span><span class="p">:</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">_memory/__init__.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">._buffer</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>  <span class="c1"># noqa: F403</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._device_memory_resource</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>  <span class="c1"># noqa: F403</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._graph_memory_resource</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>  <span class="c1"># noqa: F403</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._ipc</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>  <span class="c1"># noqa: F403</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._legacy</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>  <span class="c1"># noqa: F403</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._virtual_memory_resource</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>  <span class="c1"># noqa: F403</span>
+</pre></div>
+</div>
+<p>This pattern allows:</p>
+<ul class="simple">
+<li><p><strong>Modular organization</strong>: Each component lives in its own file</p></li>
+<li><p><strong>Clear star-import behavior</strong>: Each submodule explicitly defines what
+it exports via <code class="docutils literal notranslate"><span class="pre">__all__</span></code></p></li>
+<li><p><strong>Clean package interface</strong>: The subpackage <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> assembles
+all exports into a single namespace</p></li>
+<li><p><strong>Easier refactoring</strong>: Components can be moved or reorganized without
+changing the public API</p></li>
+</ul>
+<p><strong>Migration guidance</strong>: Simple top-level modules can be migrated to this
+subpackage structure when they become sufficiently complex (e.g., when a
+module grows to multiple related classes or when logical grouping would
+improve maintainability).</p>
+</section>
+</section>
+<section id="guidelines">
+<h3>Guidelines<a class="headerlink" href="#guidelines" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Always create ``.pxd`` files for shared Cython types</strong>: If a class
+or function is <code class="docutils literal notranslate"><span class="pre">cimport</span></code>ed by other modules, provide a <code class="docutils literal notranslate"><span class="pre">.pxd</span></code>
+declaration file.</p></li>
+<li><p><strong>Keep ``.pxd`` files minimal</strong>: Only include declarations needed for
+Cython compilation. Omit implementation details, docstrings, and
+Python-only code.</p></li>
+<li><p><strong>Use ``__all__`` when helpful</strong>: Define <code class="docutils literal notranslate"><span class="pre">__all__</span></code> to control
+exported symbols when it simplifies or clarifies the module
+structure.</p></li>
+<li><p><strong>Use ``from ._module import *`` in subpackage ``__init__.py``</strong>:
+This pattern assembles the subpackage API from its submodules. Use
+<code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">noqa:</span> <span class="pre">F403</span></code> to suppress linting warnings about wildcard imports.</p></li>
+<li><p><strong>Migrate to subpackage structure when complex</strong>: When a top-level
+module becomes complex (multiple related classes, logical grouping
+needed), consider refactoring to the subpackage pattern.</p></li>
+<li><p><strong>Separate concerns</strong>: Use <code class="docutils literal notranslate"><span class="pre">.py</span></code> files for pure Python utilities,
+<code class="docutils literal notranslate"><span class="pre">.pyx</span></code> files for Cython implementations that need C-level
+performance.</p></li>
+</ol>
+</section>
+</section>
+<section id="id11">
+<h2>Import Statements<a class="headerlink" href="#id11" title="Link to this heading">#</a></h2>
+<p>Import statements must be organized into five groups, in the following
+order.</p>
+<p><strong>Note</strong>: Within each group, imports must be sorted alphabetically. This
+is enforced by pre-commit linters (<code class="docutils literal notranslate"><span class="pre">ruff</span></code>).</p>
+<section id="future-imports">
+<span id="id12"></span><h3>1. <code class="docutils literal notranslate"><span class="pre">__future__</span></code> Imports<a class="headerlink" href="#future-imports" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">__future__</span></code> imports must come first, before all other imports.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+</pre></div>
+</div>
+</section>
+<section id="external-cimport-statements">
+<span id="id13"></span><h3>2. External <code class="docutils literal notranslate"><span class="pre">cimport</span></code> Statements<a class="headerlink" href="#external-cimport-statements" title="Link to this heading">#</a></h3>
+<p>External Cython imports from standard libraries and third-party
+packages. This includes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">libc.*</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">libc.stdint</span></code>, <code class="docutils literal notranslate"><span class="pre">libc.stdlib</span></code>, <code class="docutils literal notranslate"><span class="pre">libc.string</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cpython</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cython</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda.bindings</span></code> (CUDA bindings package)</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cimport</span> <span class="n">cpython</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">libc.stdint</span> <span class="n">cimport</span> <span class="n">uintptr_t</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">libc.stdlib</span> <span class="n">cimport</span> <span class="n">malloc</span><span class="p">,</span> <span class="n">free</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.bindings</span> <span class="n">cimport</span> <span class="n">cydriver</span>
+</pre></div>
+</div>
+</section>
+<section id="cuda-core-cimport-statements">
+<span id="id14"></span><h3>3. cuda-core <code class="docutils literal notranslate"><span class="pre">cimport</span></code> Statements<a class="headerlink" href="#cuda-core-cimport-statements" title="Link to this heading">#</a></h3>
+<p>Cython imports from within the <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> package.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._memory._buffer</span> <span class="n">cimport</span> <span class="n">Buffer</span><span class="p">,</span> <span class="n">MemoryResource</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._stream</span> <span class="n">cimport</span> <span class="n">Stream_accept</span><span class="p">,</span> <span class="n">Stream</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._utils.cuda_utils</span> <span class="n">cimport</span> <span class="p">(</span>
+    <span class="n">HANDLE_RETURN</span><span class="p">,</span>
+    <span class="n">check_or_create_options</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="external-import-statements">
+<span id="id15"></span><h3>4. External <code class="docutils literal notranslate"><span class="pre">import</span></code> Statements<a class="headerlink" href="#external-import-statements" title="Link to this heading">#</a></h3>
+<p>Regular Python imports from standard libraries and third-party packages.
+This includes:</p>
+<ul class="simple">
+<li><p>Standard library modules (e.g., <code class="docutils literal notranslate"><span class="pre">abc</span></code>, <code class="docutils literal notranslate"><span class="pre">typing</span></code>, <code class="docutils literal notranslate"><span class="pre">threading</span></code>,
+<code class="docutils literal notranslate"><span class="pre">dataclasses</span></code>)</p></li>
+<li><p>Third-party packages</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+</pre></div>
+</div>
+</section>
+<section id="cuda-core-import-statements">
+<span id="id16"></span><h3>5. cuda-core <code class="docutils literal notranslate"><span class="pre">import</span></code> Statements<a class="headerlink" href="#cuda-core-import-statements" title="Link to this heading">#</a></h3>
+<p>Regular Python imports from within the <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> package.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._context</span><span class="w"> </span><span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">ContextOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._dlpack</span><span class="w"> </span><span class="kn">import</span> <span class="n">DLDeviceType</span><span class="p">,</span> <span class="n">make_py_capsule</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._utils.cuda_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CUDAError</span><span class="p">,</span>
+    <span class="n">driver</span><span class="p">,</span>
+    <span class="n">handle_return</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="additional-rules">
+<h3>Additional Rules<a class="headerlink" href="#additional-rules" title="Link to this heading">#</a></h3>
+<ol class="arabic">
+<li><p><strong>Alphabetical Ordering</strong>: Within each group, imports must be sorted
+alphabetically by module name. This is enforced by pre-commit
+linters.</p></li>
+<li><p><strong>Multi-line Imports</strong>: When importing multiple items from a single
+module, use parentheses for multi-line formatting:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._utils.cuda_utils</span> <span class="n">cimport</span> <span class="p">(</span>
+    <span class="n">HANDLE_RETURN</span><span class="p">,</span>
+    <span class="n">check_or_create_options</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Type-only imports</strong>: With <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">__future__</span> <span class="pre">import</span> <span class="pre">annotations</span></code>,
+types can be imported normally even if only used in annotations.
+Avoid <code class="docutils literal notranslate"><span class="pre">TYPE_CHECKING</span></code> blocks (see <a class="reference external" href="#type-annotations-and-declarations">Type Annotations and
+Declarations</a> for details).</p></li>
+<li><p><strong>Blank Lines</strong>: Use blank lines to separate the five import groups.
+Do not use blank lines within a group unless using multi-line import
+formatting.</p></li>
+<li><p><strong>``try/except`` Blocks</strong>: Import fallbacks (e.g., for optional
+dependencies) should be placed in the appropriate group (external or
+cuda-core) using <code class="docutils literal notranslate"><span class="pre">try/except</span></code> blocks.</p></li>
+</ol>
+</section>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># &lt;SPDX copyright header&gt;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="n">cimport</span> <span class="n">cpython</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">libc.stdint</span> <span class="n">cimport</span> <span class="n">uintptr_t</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">libc.stdlib</span> <span class="n">cimport</span> <span class="n">malloc</span><span class="p">,</span> <span class="n">free</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.bindings</span> <span class="n">cimport</span> <span class="n">cydriver</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._memory._buffer</span> <span class="n">cimport</span> <span class="n">Buffer</span><span class="p">,</span> <span class="n">MemoryResource</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._utils.cuda_utils</span> <span class="n">cimport</span> <span class="n">HANDLE_RETURN</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._context</span><span class="w"> </span><span class="kn">import</span> <span class="n">Context</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._device</span><span class="w"> </span><span class="kn">import</span> <span class="n">Device</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._utils.cuda_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">driver</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="class-and-function-definitions">
+<h2>Class and Function Definitions<a class="headerlink" href="#class-and-function-definitions" title="Link to this heading">#</a></h2>
+<section id="class-definition-order">
+<h3>Class Definition Order<a class="headerlink" href="#class-definition-order" title="Link to this heading">#</a></h3>
+<p>Within a class definition, the suggested organization is:</p>
+<ol class="arabic simple">
+<li><p><strong>Special (dunder) methods</strong>: Methods with names starting and ending
+with double underscores. By convention, <code class="docutils literal notranslate"><span class="pre">__init__</span></code> (or
+<code class="docutils literal notranslate"><span class="pre">__cinit__</span></code> in Cython) should be first among dunder methods, as it
+defines the class interface.</p></li>
+<li><p><strong>Methods</strong>: Regular instance methods, class methods
+(<code class="docutils literal notranslate"><span class="pre">&#64;classmethod</span></code>), and static methods (<code class="docutils literal notranslate"><span class="pre">&#64;staticmethod</span></code>)</p></li>
+<li><p><strong>Properties</strong>: Properties defined with <code class="docutils literal notranslate"><span class="pre">&#64;property</span></code> decorator</p></li>
+</ol>
+<p><strong>Note</strong>: Within each section, prefer logical ordering (e.g., grouping
+related methods). Alphabetical ordering is acceptable when no clear
+logical structure exists. Developers should use their judgment.</p>
+</section>
+<section id="example-1">
+<span id="id17"></span><h3>Example<a class="headerlink" href="#example-1" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">Buffer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Example class demonstrating the ordering.&quot;&quot;&quot;</span>
+
+    <span class="c1"># 1. Special (dunder) methods (__cinit__/__init__ first by convention)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__cinit__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cython initialization.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Python initialization.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__buffer__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">memoryview</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Buffer protocol support.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__dealloc__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cleanup.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__dlpack__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;DLPack protocol support.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pickle support.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+
+    <span class="c1"># 2. Methods</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Close the buffer.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Copy data from source buffer.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Copy data to destination buffer.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_handle</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">mr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create buffer from handle.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ipc_descriptor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get IPC descriptor.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+
+    <span class="c1"># 3. Properties</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">device_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Device ID property.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle property.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Size property.&quot;&quot;&quot;</span>
+        <span class="c1"># ...</span>
+</pre></div>
+</div>
+</section>
+<section id="helper-functions">
+<h3>Helper Functions<a class="headerlink" href="#helper-functions" title="Link to this heading">#</a></h3>
+<p>When a class grows long or a method becomes deeply nested, consider
+extracting implementation details into helper functions. The goal is to
+keep class definitions easy to navigate—readers shouldn’t have to scroll
+through hundreds of lines to understand a class’s interface.</p>
+<p>In Cython files, helpers are typically <code class="docutils literal notranslate"><span class="pre">cdef</span></code> or <code class="docutils literal notranslate"><span class="pre">cdef</span> <span class="pre">inline</span></code>
+functions named with the pattern <code class="docutils literal notranslate"><span class="pre">ClassName_methodname</span></code> (e.g.,
+<code class="docutils literal notranslate"><span class="pre">DMR_close</span></code>, <code class="docutils literal notranslate"><span class="pre">Buffer_close</span></code>). Place them at the end of the file or
+near their call sites, whichever aids readability.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">DeviceMemoryResource</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Close the memory resource.&quot;&quot;&quot;</span>
+        <span class="n">DMR_close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<span class="c1"># Helper function (at end of file or nearby)</span>
+<span class="n">cdef</span> <span class="n">inline</span> <span class="n">DMR_close</span><span class="p">(</span><span class="n">DeviceMemoryResource</span> <span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle</span> <span class="o">==</span> <span class="n">NULL</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="c1"># ... implementation ...</span>
+</pre></div>
+</div>
+</section>
+<section id="function-definitions">
+<h3>Function Definitions<a class="headerlink" href="#function-definitions" title="Link to this heading">#</a></h3>
+<p>For module-level functions (outside of classes), follow the ordering
+specified in <a class="reference external" href="#file-structure">File Structure</a>: principal functions
+first (if applicable), then other public functions, then private
+functions. Within each group, prefer logical ordering; alphabetical
+ordering is a reasonable fallback.</p>
+</section>
+</section>
+<section id="naming-conventions">
+<h2>Naming Conventions<a class="headerlink" href="#naming-conventions" title="Link to this heading">#</a></h2>
+<p>Follow PEP 8 naming conventions (CamelCase for classes, snake_case for
+functions/variables, UPPER_SNAKE_CASE for constants, leading underscore
+for private names).</p>
+<section id="cython-cdef-variables">
+<h3>Cython <code class="docutils literal notranslate"><span class="pre">cdef</span></code> Variables<a class="headerlink" href="#cython-cdef-variables" title="Link to this heading">#</a></h3>
+<p>Consider prefixing <code class="docutils literal notranslate"><span class="pre">cdef</span></code> variables with <code class="docutils literal notranslate"><span class="pre">c_</span></code> to distinguish them
+from Python variables. This improves code readability by making it clear
+which variables are C-level types.</p>
+<p><strong>Preferred:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">copy_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">:</span> <span class="n">Buffer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">Stream</span> <span class="o">|</span> <span class="n">GraphBuilder</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Buffer</span><span class="p">:</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">Stream_accept</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+    <span class="n">cdef</span> <span class="n">size_t</span> <span class="n">c_src_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span>
+
+    <span class="k">if</span> <span class="n">dst</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memory_resource</span><span class="o">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">c_src_size</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+
+    <span class="n">cdef</span> <span class="n">size_t</span> <span class="n">c_dst_size</span> <span class="o">=</span> <span class="n">dst</span><span class="o">.</span><span class="n">_size</span>
+    <span class="k">if</span> <span class="n">c_dst_size</span> <span class="o">!=</span> <span class="n">c_src_size</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;buffer sizes mismatch: src=</span><span class="si">{</span><span class="n">c_src_size</span><span class="si">}</span><span class="s2">, dst=</span><span class="si">{</span><span class="n">c_dst_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+<p><strong>Also acceptable (if context is clear):</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cdef</span> <span class="n">cydriver</span><span class="o">.</span><span class="n">CUdevice</span> <span class="n">get_device_from_ctx</span><span class="p">(</span>
+        <span class="n">cydriver</span><span class="o">.</span><span class="n">CUcontext</span> <span class="n">target_ctx</span><span class="p">,</span> <span class="n">cydriver</span><span class="o">.</span><span class="n">CUcontext</span> <span class="n">curr_ctx</span><span class="p">)</span> <span class="k">except</span><span class="err">?</span><span class="n">cydriver</span><span class="o">.</span><span class="n">CU_DEVICE_INVALID</span> <span class="n">nogil</span><span class="p">:</span>
+    <span class="n">cdef</span> <span class="n">bint</span> <span class="n">switch_context</span> <span class="o">=</span> <span class="p">(</span><span class="n">curr_ctx</span> <span class="o">!=</span> <span class="n">target_ctx</span><span class="p">)</span>
+    <span class="n">cdef</span> <span class="n">cydriver</span><span class="o">.</span><span class="n">CUcontext</span> <span class="n">ctx</span>
+    <span class="n">cdef</span> <span class="n">cydriver</span><span class="o">.</span><span class="n">CUdevice</span> <span class="n">target_dev</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">c_</span></code> prefix is particularly helpful when mixing Python and Cython
+variables in the same scope, or when the variable name would otherwise
+be ambiguous.</p>
+</section>
+</section>
+<section id="type-annotations-and-declarations">
+<h2>Type Annotations and Declarations<a class="headerlink" href="#type-annotations-and-declarations" title="Link to this heading">#</a></h2>
+<section id="python-type-annotations">
+<h3>Python Type Annotations<a class="headerlink" href="#python-type-annotations" title="Link to this heading">#</a></h3>
+<section id="pep-604-union-syntax">
+<h4>PEP 604 Union Syntax<a class="headerlink" href="#pep-604-union-syntax" title="Link to this heading">#</a></h4>
+<p>Use the modern <a class="reference external" href="https://peps.python.org/pep-0604/">PEP 604</a> union
+syntax (<code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">|</span> <span class="pre">Y</span></code>) instead of <code class="docutils literal notranslate"><span class="pre">typing.Union</span></code> or <code class="docutils literal notranslate"><span class="pre">typing.Optional</span></code>.</p>
+<p><strong>Preferred:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">allocate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">Stream</span> <span class="o">|</span> <span class="n">GraphBuilder</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Buffer</span><span class="p">:</span>
+    <span class="c1"># ...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">Stream</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+<p><strong>Avoid:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">allocate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Stream</span><span class="p">,</span> <span class="n">GraphBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Buffer</span><span class="p">:</span>
+    <span class="c1"># ...</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stream</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+</section>
+<section id="forward-references-and-from-future-import-annotations">
+<h4>Forward References and <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">__future__</span> <span class="pre">import</span> <span class="pre">annotations</span></code><a class="headerlink" href="#forward-references-and-from-future-import-annotations" title="Link to this heading">#</a></h4>
+<p>Where needed, files should include
+<code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">__future__</span> <span class="pre">import</span> <span class="pre">annotations</span></code> at the top (after the SPDX
+header). This enables:</p>
+<ol class="arabic simple">
+<li><p><strong>Forward references</strong>: Type annotations can reference types that are
+defined later in the file or in other modules without requiring
+<code class="docutils literal notranslate"><span class="pre">TYPE_CHECKING</span></code> blocks.</p></li>
+<li><p><strong>Cleaner syntax</strong>: Annotations are evaluated as strings, avoiding
+circular import issues.</p></li>
+</ol>
+<p><strong>Preferred:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="c1"># Can reference Stream even if it&#39;s defined later or in another module</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">allocate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">Stream</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Buffer</span><span class="p">:</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+<p><strong>Avoid:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._stream</span><span class="w"> </span><span class="kn">import</span> <span class="n">Stream</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">allocate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">Stream</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Buffer</span><span class="p">:</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+</section>
+<section id="guidelines-1">
+<span id="id18"></span><h4>Guidelines<a class="headerlink" href="#guidelines-1" title="Link to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p><strong>Use ``from __future__ import annotations``</strong>: This should be
+present in all <code class="docutils literal notranslate"><span class="pre">.py</span></code> and <code class="docutils literal notranslate"><span class="pre">.pyx</span></code> files with type annotations.</p></li>
+<li><p><strong>Use ``|`` for unions</strong>: Prefer <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">|</span> <span class="pre">Y</span> <span class="pre">|</span> <span class="pre">None</span></code> over
+<code class="docutils literal notranslate"><span class="pre">Union[X,</span> <span class="pre">Y]</span></code> or <code class="docutils literal notranslate"><span class="pre">Optional[X]</span></code>.</p></li>
+<li><p><strong>Avoid ``TYPE_CHECKING`` blocks</strong>: With
+<code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">__future__</span> <span class="pre">import</span> <span class="pre">annotations</span></code>, forward references work
+without <code class="docutils literal notranslate"><span class="pre">TYPE_CHECKING</span></code> guards.</p></li>
+<li><p><strong>Import types normally</strong>: Even if a type is only used in
+annotations, import it normally (not in a <code class="docutils literal notranslate"><span class="pre">TYPE_CHECKING</span></code> block).</p></li>
+</ol>
+</section>
+</section>
+<section id="cython-type-declarations">
+<h3>Cython Type Declarations<a class="headerlink" href="#cython-type-declarations" title="Link to this heading">#</a></h3>
+<p>Cython uses <code class="docutils literal notranslate"><span class="pre">cdef</span></code> declarations for C-level types. These follow
+different rules:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">Buffer</span><span class="p">:</span>
+    <span class="n">cdef</span><span class="p">:</span>
+        <span class="n">uintptr_t</span> <span class="n">_ptr</span>
+        <span class="n">size_t</span> <span class="n">_size</span>
+        <span class="n">MemoryResource</span> <span class="n">_memory_resource</span>
+</pre></div>
+</div>
+<p>For Cython-specific type declarations, see <a class="reference external" href="#cython-specific-features">Cython-Specific
+Features</a>.</p>
+</section>
+</section>
+<section id="docstrings">
+<h2>Docstrings<a class="headerlink" href="#docstrings" title="Link to this heading">#</a></h2>
+<p>This project uses the <strong>NumPy docstring style</strong> for all documentation.
+This format is well-suited for scientific and technical libraries and
+integrates well with Sphinx documentation generation.</p>
+<section id="format-overview">
+<h3>Format Overview<a class="headerlink" href="#format-overview" title="Link to this heading">#</a></h3>
+<p>Docstrings use triple double-quotes (<code class="docutils literal notranslate"><span class="pre">&quot;&quot;&quot;</span></code>) and follow this general
+structure:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Summary line.</span>
+
+<span class="sd">Extended description (optional).</span>
+
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">param1 : type</span>
+<span class="sd">    Description of param1.</span>
+<span class="sd">param2 : type, optional</span>
+<span class="sd">    Description of param2. Default is value.</span>
+
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">return_type</span>
+<span class="sd">    Description of return value.</span>
+
+<span class="sd">Raises</span>
+<span class="sd">------</span>
+<span class="sd">ExceptionType</span>
+<span class="sd">    Description of when this exception is raised.</span>
+
+<span class="sd">Notes</span>
+<span class="sd">-----</span>
+<span class="sd">Additional notes and implementation details.</span>
+
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+<span class="sd">&gt;&gt;&gt; example_code()</span>
+<span class="sd">result</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="module-docstrings">
+<h3>Module Docstrings<a class="headerlink" href="#module-docstrings" title="Link to this heading">#</a></h3>
+<p>Per PEP 257, module docstrings appear at the top of the file,
+immediately after the copyright header and before any imports. They
+provide a brief overview of the module’s purpose.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># &lt;SPDX copyright header&gt;</span>
+<span class="sd">&quot;&quot;&quot;Module for managing CUDA device memory resources.</span>
+
+<span class="sd">This module provides classes and functions for allocating and managing</span>
+<span class="sd">device memory using CUDA&#39;s stream-ordered memory pool API.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="c1"># ... imports ...</span>
+</pre></div>
+</div>
+<p>For simple utility modules, a single-line docstring may suffice:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Utility functions for CUDA error handling.&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="class-docstrings">
+<h3>Class Docstrings<a class="headerlink" href="#class-docstrings" title="Link to this heading">#</a></h3>
+<p>Class docstrings should include:</p>
+<ol class="arabic simple">
+<li><p><strong>Summary line</strong>: A one-line description of the class</p></li>
+<li><p><strong>Extended description</strong> (optional): Additional context about the
+class</p></li>
+<li><p><strong>Parameters section</strong>: If the class is callable (has <code class="docutils literal notranslate"><span class="pre">__init__</span></code>),
+document constructor parameters</p></li>
+<li><p><strong>Attributes section</strong>: Document public attributes (if any)</p></li>
+<li><p><strong>Notes section</strong>: Important usage notes, implementation details, or
+examples</p></li>
+<li><p><strong>Examples section</strong>: Usage examples (if helpful)</p></li>
+</ol>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">DeviceMemoryResource</span><span class="p">(</span><span class="n">MemoryResource</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A device memory resource managing a stream-ordered memory pool.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    device_id : :class:`Device` | int</span>
+<span class="sd">        Device or device ordinal for which a memory resource is constructed.</span>
+<span class="sd">    options : :class:`DeviceMemoryResourceOptions`, optional</span>
+<span class="sd">        Memory resource creation options. If None, uses the driver&#39;s current</span>
+<span class="sd">        or default memory pool for the specified device.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    device_id : int</span>
+<span class="sd">        The device ID associated with this memory resource.</span>
+<span class="sd">    is_ipc_enabled : bool</span>
+<span class="sd">        Whether this memory resource supports IPC.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    To create an IPC-enabled memory resource, specify ``ipc_enabled=True``</span>
+<span class="sd">    in the options. IPC-enabled resources can share allocations between</span>
+<span class="sd">    processes.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; dmr = DeviceMemoryResource(0)</span>
+<span class="sd">    &gt;&gt;&gt; buffer = dmr.allocate(1024)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>For simple classes, a brief docstring may be sufficient:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="n">cdef</span> <span class="k">class</span><span class="w"> </span><span class="nc">DeviceMemoryResourceOptions</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Customizable DeviceMemoryResource options.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ipc_enabled : bool, optional</span>
+<span class="sd">        Whether to create an IPC-enabled memory pool. Default is False.</span>
+<span class="sd">    max_size : int, optional</span>
+<span class="sd">        Maximum pool size. Default is 0 (system-dependent).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="method-and-function-docstrings">
+<h3>Method and Function Docstrings<a class="headerlink" href="#method-and-function-docstrings" title="Link to this heading">#</a></h3>
+<p>Method and function docstrings should include:</p>
+<ol class="arabic simple">
+<li><p><strong>Summary line</strong>: A one-line description starting with a verb (e.g.,
+“Allocate”, “Return”, “Create”)</p></li>
+<li><p><strong>Extended description</strong> (optional): Additional details about
+behavior</p></li>
+<li><p><strong>Parameters section</strong>: All parameters with types and descriptions</p></li>
+<li><p><strong>Returns section</strong>: Return type and description</p></li>
+<li><p><strong>Raises section</strong>: Exceptions that may be raised (if any)</p></li>
+<li><p><strong>Notes section</strong>: Important implementation details or usage notes
+(if needed)</p></li>
+<li><p><strong>Examples section</strong>: Usage examples (if helpful)</p></li>
+</ol>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">allocate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">Stream</span> <span class="o">|</span> <span class="n">GraphBuilder</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Buffer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Allocate a buffer of the requested size.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    size : int</span>
+<span class="sd">        The size of the buffer to allocate, in bytes.</span>
+<span class="sd">    stream : :class:`Stream` | :class:`GraphBuilder`, optional</span>
+<span class="sd">        The stream on which to perform the allocation asynchronously.</span>
+<span class="sd">        If None, an internal stream is used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :class:`Buffer`</span>
+<span class="sd">        The allocated buffer object, which is accessible on the device</span>
+<span class="sd">        that this memory resource was created for.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If called on a mapped IPC-enabled memory resource.</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If allocation fails.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The allocated buffer is associated with this memory resource and will</span>
+<span class="sd">    be deallocated when the buffer is closed or when this resource is closed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>For simple functions, a brief docstring may suffice:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_ipc_descriptor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IPCBufferDescriptor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Export a :class:`Buffer` for sharing between processes.&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="property-docstrings">
+<h3>Property Docstrings<a class="headerlink" href="#property-docstrings" title="Link to this heading">#</a></h3>
+<p>Property docstrings should be concise and focus on what the property
+represents. For read-write properties, document both getter and setter
+behavior.</p>
+<p><strong>Read-only property:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@property</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">device_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the device ordinal of this buffer.&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p><strong>Read-write property:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@property</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">peer_accessible_by</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get or set the devices that can access allocations from this memory pool.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of int</span>
+<span class="sd">        A tuple of sorted device IDs that currently have peer access to</span>
+<span class="sd">        allocations from this memory pool.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    When setting, accepts a sequence of :class:`Device` objects or device IDs.</span>
+<span class="sd">    Setting to an empty sequence revokes all peer access.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; dmr.peer_accessible_by = [1]  # Grant access to device 1</span>
+<span class="sd">    &gt;&gt;&gt; assert dmr.peer_accessible_by == (1,)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="type-references-in-docstrings">
+<h3>Type References in Docstrings<a class="headerlink" href="#type-references-in-docstrings" title="Link to this heading">#</a></h3>
+<p>Use Sphinx cross-reference roles to link to other documented objects.
+Use the most specific role for each type:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Role</p></th>
+<th class="head"><p>Use for</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">:class:</span></code></p></td>
+<td><p>Classes</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">:class:`Buffer`</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">:func:</span></code></p></td>
+<td><p>Functions</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">:func:`launch`</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">:meth:</span></code></p></td>
+<td><p>Methods</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">:meth:`Device.create_stream`</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">:attr:</span></code></p></td>
+<td><p>Attributes</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">:attr:`device_id`</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">:mod:</span></code></p></td>
+<td><p>Modules</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">:mod:`multiprocessing`</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">:obj:</span></code></p></td>
+<td><p>Type aliases, other
+objects</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">:obj:`DevicePointerT`</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">~</span></code> prefix displays only the final component:
+<code class="docutils literal notranslate"><span class="pre">:class:`~cuda.core.Buffer`</span></code> renders as “Buffer” while still
+linking to the full path.</p>
+<p>For more details, see the <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects">Sphinx Python domain
+documentation</a>.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">from_handle</span><span class="p">(</span>
+    <span class="n">ptr</span><span class="p">:</span> <span class="n">DevicePointerT</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="n">mr</span><span class="p">:</span> <span class="n">MemoryResource</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Buffer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new :class:`Buffer` from a pointer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ptr : :obj:`DevicePointerT`</span>
+<span class="sd">        Allocated buffer handle object.</span>
+<span class="sd">    size : int</span>
+<span class="sd">        Memory size of the buffer.</span>
+<span class="sd">    mr : :class:`MemoryResource`, optional</span>
+<span class="sd">        Memory resource associated with the buffer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="guidelines-2">
+<span id="id19"></span><h3>Guidelines<a class="headerlink" href="#guidelines-2" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Always include docstrings</strong>: All public classes, methods,
+functions, and properties should have docstrings.</p></li>
+<li><p><strong>Start with a verb</strong>: Summary lines for methods and functions should
+start with a verb in imperative mood (e.g., “Allocate”, “Return”,
+“Create”, not “Allocates”, “Returns”, “Creates”).</p></li>
+<li><p><strong>Be concise but complete</strong>: Provide enough information for users to
+understand and use the API, but avoid unnecessary verbosity.</p></li>
+<li><p><strong>Use proper sections</strong>: Include Parameters, Returns, Raises sections
+when applicable. Use Notes and Examples sections when they add value.</p></li>
+<li><p><strong>Document optional parameters</strong>: Clearly indicate optional
+parameters and their default values.</p></li>
+<li><p><strong>Use type hints</strong>: Type information in docstrings should complement
+(not duplicate) type annotations. Use docstrings to provide
+additional context about types.</p></li>
+<li><p><strong>Cross-reference related APIs</strong>: Use Sphinx cross-references to link
+to related classes, methods, and attributes.</p></li>
+<li><p><strong>Keep private methods brief</strong>: Private methods (starting with <code class="docutils literal notranslate"><span class="pre">_</span></code>)
+may have minimal docstrings, but should still document non-obvious
+behavior.</p></li>
+<li><p><strong>Update docstrings with code changes</strong>: Keep docstrings synchronized
+with implementation changes.</p></li>
+</ol>
+</section>
+</section>
+<section id="errors-and-warnings">
+<h2>Errors and Warnings<a class="headerlink" href="#errors-and-warnings" title="Link to this heading">#</a></h2>
+<section id="cuda-exceptions">
+<h3>CUDA Exceptions<a class="headerlink" href="#cuda-exceptions" title="Link to this heading">#</a></h3>
+<p>The project defines custom exceptions for CUDA-specific errors:</p>
+<ul class="simple">
+<li><p><strong>``CUDAError``</strong>: Base exception for CUDA driver errors</p></li>
+<li><p><strong>``NVRTCError``</strong>: Exception for NVRTC compiler errors (inherits from
+<code class="docutils literal notranslate"><span class="pre">CUDAError</span></code>)</p></li>
+</ul>
+<p>Use these instead of generic exceptions when reporting CUDA failures.</p>
+</section>
+<section id="cuda-api-error-handling">
+<h3>CUDA API Error Handling<a class="headerlink" href="#cuda-api-error-handling" title="Link to this heading">#</a></h3>
+<p>In <code class="docutils literal notranslate"><span class="pre">nogil</span></code> contexts, use the <code class="docutils literal notranslate"><span class="pre">HANDLE_RETURN</span></code> macro:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">nogil</span><span class="p">:</span>
+    <span class="n">HANDLE_RETURN</span><span class="p">(</span><span class="n">cydriver</span><span class="o">.</span><span class="n">cuMemAlloc</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>At the Python level, use <code class="docutils literal notranslate"><span class="pre">handle_return()</span></code> or
+<code class="docutils literal notranslate"><span class="pre">raise_if_driver_error()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">err</span><span class="p">,</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">cuMemcpyAsync</span><span class="p">(</span><span class="n">dst</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">src_size</span><span class="p">,</span> <span class="n">stream</span><span class="o">.</span><span class="n">handle</span><span class="p">)</span>
+<span class="n">handle_return</span><span class="p">((</span><span class="n">err</span><span class="p">,))</span>
+</pre></div>
+</div>
+</section>
+<section id="warnings">
+<h3>Warnings<a class="headerlink" href="#warnings" title="Link to this heading">#</a></h3>
+<p>When emitting warnings, always specify <code class="docutils literal notranslate"><span class="pre">stacklevel</span></code> so the warning
+points to the caller:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The value depends on call depth—typically <code class="docutils literal notranslate"><span class="pre">stacklevel=2</span></code> for direct
+calls, <code class="docutils literal notranslate"><span class="pre">stacklevel=3</span></code> when called through a helper.</p>
+</section>
+</section>
+<section id="cuda-specific-patterns">
+<h2>CUDA-Specific Patterns<a class="headerlink" href="#cuda-specific-patterns" title="Link to this heading">#</a></h2>
+<section id="gil-management-for-cuda-driver-api-calls">
+<h3>GIL Management for CUDA Driver API Calls<a class="headerlink" href="#gil-management-for-cuda-driver-api-calls" title="Link to this heading">#</a></h3>
+<p>For optimized Cython code, release the GIL when calling CUDA driver
+APIs. This improves performance and allows other Python threads to run
+during CUDA operations.</p>
+<p>During initial development, it’s fine to use the Python <code class="docutils literal notranslate"><span class="pre">driver</span></code>
+module without releasing the GIL (see <a class="reference external" href="#development-lifecycle">Development
+Lifecycle</a>). GIL release is a performance
+optimization that can be applied once the implementation is correct.</p>
+<section id="using-with-nogil-blocks">
+<h4>Using <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">nogil:</span></code> Blocks<a class="headerlink" href="#using-with-nogil-blocks" title="Link to this heading">#</a></h4>
+<p>Wrap <code class="docutils literal notranslate"><span class="pre">cydriver</span></code> calls in <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">nogil:</span></code> blocks (or declare entire
+functions as <code class="docutils literal notranslate"><span class="pre">nogil</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cdef</span> <span class="nb">int</span> <span class="n">value</span>
+<span class="k">with</span> <span class="n">nogil</span><span class="p">:</span>
+    <span class="n">HANDLE_RETURN</span><span class="p">(</span><span class="n">cydriver</span><span class="o">.</span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">device_id</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Group multiple driver calls in a single block:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cdef</span> <span class="nb">int</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span>
+<span class="k">with</span> <span class="n">nogil</span><span class="p">:</span>
+    <span class="n">HANDLE_RETURN</span><span class="p">(</span><span class="n">cydriver</span><span class="o">.</span><span class="n">cuCtxGetStreamPriorityRange</span><span class="p">(</span><span class="o">&amp;</span><span class="n">low</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">high</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="raising-exceptions-from-nogil-context">
+<h4>Raising Exceptions from <code class="docutils literal notranslate"><span class="pre">nogil</span></code> Context<a class="headerlink" href="#raising-exceptions-from-nogil-context" title="Link to this heading">#</a></h4>
+<p>To raise exceptions from a <code class="docutils literal notranslate"><span class="pre">nogil</span></code> context, acquire the GIL first:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">gil</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">CUDAError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CUDA operation failed: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="development-lifecycle">
+<h2>Development Lifecycle<a class="headerlink" href="#development-lifecycle" title="Link to this heading">#</a></h2>
+<section id="two-phase-development">
+<h3>Two-Phase Development<a class="headerlink" href="#two-phase-development" title="Link to this heading">#</a></h3>
+<p>A common pattern when implementing CUDA functionality is to develop in
+two phases:</p>
+<ol class="arabic simple">
+<li><p><strong>Start with Python</strong>: Use the <code class="docutils literal notranslate"><span class="pre">driver</span></code> module for a
+straightforward implementation. Write tests to verify correctness.
+This allows faster iteration and easier debugging.</p></li>
+<li><p><strong>Optimize with Cython</strong>: Once the implementation is correct, switch
+to <code class="docutils literal notranslate"><span class="pre">cydriver</span></code> with <code class="docutils literal notranslate"><span class="pre">nogil</span></code> blocks and <code class="docutils literal notranslate"><span class="pre">HANDLE_RETURN</span></code> for
+better performance.</p></li>
+</ol>
+<p>This approach separates correctness from optimization. Getting the logic
+right first—with Python’s better error messages and stack traces—often
+saves time overall.</p>
+</section>
+<section id="python-implementation">
+<h3>Python Implementation<a class="headerlink" href="#python-implementation" title="Link to this heading">#</a></h3>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">driver</span></code> module from <code class="docutils literal notranslate"><span class="pre">cuda.core._utils.cuda_utils</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._utils.cuda_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">driver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._utils.cuda_utils</span> <span class="n">cimport</span> <span class="p">(</span>
+    <span class="n">_check_driver_error</span> <span class="k">as</span> <span class="n">raise_if_driver_error</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">err</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span>
+    <span class="n">raise_if_driver_error</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span>
+</pre></div>
+</div>
+</section>
+<section id="cython-optimization">
+<h3>Cython Optimization<a class="headerlink" href="#cython-optimization" title="Link to this heading">#</a></h3>
+<p>When ready to optimize, switch to <code class="docutils literal notranslate"><span class="pre">cydriver</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cuda.bindings</span> <span class="n">cimport</span> <span class="n">cydriver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core._utils.cuda_utils</span> <span class="n">cimport</span> <span class="n">HANDLE_RETURN</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">cdef</span> <span class="nb">int</span> <span class="n">value</span>
+    <span class="k">with</span> <span class="n">nogil</span><span class="p">:</span>
+        <span class="n">HANDLE_RETURN</span><span class="p">(</span><span class="n">cydriver</span><span class="o">.</span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">value</span>
+</pre></div>
+</div>
+<p>Key changes:</p>
+<ul class="simple">
+<li><p>Replace <code class="docutils literal notranslate"><span class="pre">driver</span></code> with <code class="docutils literal notranslate"><span class="pre">cydriver</span></code></p></li>
+<li><p>Wrap calls in <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">nogil:</span></code></p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">HANDLE_RETURN</span></code> instead of <code class="docutils literal notranslate"><span class="pre">raise_if_driver_error</span></code></p></li>
+</ul>
+<p>Run tests after optimization to verify behavior is unchanged.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="contribute.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Contributing</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="conduct.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Code of Conduct</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-structure">File Structure</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#spdx-copyright-header">1. SPDX Copyright Header</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#module-docstring-optional">2. Module Docstring (Optional)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#import-statements">3. Import Statements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#all-declaration-optional">4. <code class="docutils literal notranslate"><span class="pre">__all__</span></code> Declaration (Optional)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#type-aliases-and-constants-optional">5. Type Aliases and Constants (Optional)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#principal-class-or-function">6. Principal Class or Function</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-public-classes-and-functions">7. Other Public Classes and Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#public-module-functions">8. Public Module Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#private-and-implementation-details">9. Private and Implementation Details</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-structure">Example Structure</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notes">Notes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-layout">Package Layout</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#file-types">File Types</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#file-naming-conventions">File Naming Conventions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#relationship-between-pxd-and-pyx-files">Relationship Between <code class="docutils literal notranslate"><span class="pre">.pxd</span></code> and <code class="docutils literal notranslate"><span class="pre">.pyx</span></code> Files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#module-organization">Module Organization</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#simple-top-level-modules">Simple Top-Level Modules</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#complex-subpackages">Complex Subpackages</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#guidelines">Guidelines</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Import Statements</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#future-imports">1. <code class="docutils literal notranslate"><span class="pre">__future__</span></code> Imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#external-cimport-statements">2. External <code class="docutils literal notranslate"><span class="pre">cimport</span></code> Statements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-core-cimport-statements">3. cuda-core <code class="docutils literal notranslate"><span class="pre">cimport</span></code> Statements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#external-import-statements">4. External <code class="docutils literal notranslate"><span class="pre">import</span></code> Statements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-core-import-statements">5. cuda-core <code class="docutils literal notranslate"><span class="pre">import</span></code> Statements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-rules">Additional Rules</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-and-function-definitions">Class and Function Definitions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#class-definition-order">Class Definition Order</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-1">Example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#helper-functions">Helper Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#function-definitions">Function Definitions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#naming-conventions">Naming Conventions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cython-cdef-variables">Cython <code class="docutils literal notranslate"><span class="pre">cdef</span></code> Variables</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#type-annotations-and-declarations">Type Annotations and Declarations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-type-annotations">Python Type Annotations</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pep-604-union-syntax">PEP 604 Union Syntax</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#forward-references-and-from-future-import-annotations">Forward References and <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">__future__</span> <span class="pre">import</span> <span class="pre">annotations</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#guidelines-1">Guidelines</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cython-type-declarations">Cython Type Declarations</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#docstrings">Docstrings</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#format-overview">Format Overview</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#module-docstrings">Module Docstrings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#class-docstrings">Class Docstrings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#method-and-function-docstrings">Method and Function Docstrings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#property-docstrings">Property Docstrings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#type-references-in-docstrings">Type References in Docstrings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#guidelines-2">Guidelines</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">Errors and Warnings</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-exceptions">CUDA Exceptions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-api-error-handling">CUDA API Error Handling</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#warnings">Warnings</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-specific-patterns">CUDA-Specific Patterns</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gil-management-for-cuda-driver-api-calls">GIL Management for CUDA Driver API Calls</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#using-with-nogil-blocks">Using <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">nogil:</span></code> Blocks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#raising-exceptions-from-nogil-context">Raising Exceptions from <code class="docutils literal notranslate"><span class="pre">nogil</span></code> Context</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-lifecycle">Development Lifecycle</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#two-phase-development">Two-Phase Development</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-implementation">Python Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cython-optimization">Cython Optimization</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2024, NVIDIA.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
