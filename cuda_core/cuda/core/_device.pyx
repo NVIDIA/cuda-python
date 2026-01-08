@@ -849,22 +849,20 @@ cdef class DeviceProperties:
         return bool(self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_VULKAN_CIG_SUPPORTED))
 
     @property
-    def gpu_pci_device_id(self) -> int | None:
-        """int | None: The combined 16-bit PCI device ID and 16-bit PCI vendor ID.
+    def gpu_pci_device_id(self) -> int:
+        """int: The combined 16-bit PCI device ID and 16-bit PCI vendor ID.
 
-        Returns None if the driver does not support this query.
+        Returns 0 if the driver does not support this query.
         """
-        value = self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_DEVICE_ID)
-        return value if value else None
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_DEVICE_ID)
 
     @property
-    def gpu_pci_subsystem_id(self) -> int | None:
-        """int | None: The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.
+    def gpu_pci_subsystem_id(self) -> int:
+        """int: The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.
 
-        Returns None if the driver does not support this query.
+        Returns 0 if the driver does not support this query.
         """
-        value = self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_SUBSYSTEM_ID)
-        return value if value else None
+        return self._get_cached_attribute(driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_GPU_PCI_SUBSYSTEM_ID)
 
     @property
     def host_numa_virtual_memory_management_supported(self) -> bool:
