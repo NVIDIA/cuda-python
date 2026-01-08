@@ -30,11 +30,11 @@ This style guide defines conventions for Python and Cython code in `cuda/core/ex
 
 ## File Structure
 
-Files in `cuda/core/experimental` must follow a consistent structure. The ordering of elements within a file is as follows:
+Files in `cuda/core/experimental` should follow a consistent structure. The suggested ordering of elements within a file is as follows. Developers are free to deviate when a different organization makes more sense for a particular file.
 
 ### 1. SPDX Copyright Header
 
-The file must begin with the SPDX copyright header as specified in [Copyright and Licensing](#copyright-and-licensing).
+The file must begin with an SPDX copyright header. Follow the pattern used in existing files. The pre-commit hook will add or update these notices automatically when necessary.
 
 ### 2. Import Statements
 
@@ -63,7 +63,7 @@ LEGACY_DEFAULT_STREAM = C_LEGACY_DEFAULT_STREAM
 
 If the file principally implements a single class or function (e.g., `_buffer.pyx` defines the `Buffer` class, `_device.pyx` defines the `Device` class), that principal class or function should come next, immediately after `__all__` (if present).
 
-**The principal class or function is an exception to alphabetical ordering** and appears first in its section.
+The principal class or function typically appears first in its section.
 
 ### 6. Other Public Classes and Functions
 
@@ -73,9 +73,9 @@ Following the principal class or function, define other public classes and funct
 - **Abstract base classes**: ABCs that define interfaces (e.g., `MemoryResource` in `_buffer.pyx`)
 - **Other public classes**: Additional classes exported by the module
 
-**All classes and functions in this section should be sorted alphabetically by name**, regardless of their relationship to the principal class. The principal class appears first as an exception to this rule.
+Consider organizing classes and functions logically—for example, by grouping related functionality or by order of typical usage. When no clear logical ordering exists, alphabetical ordering can help with discoverability.
 
-**Example:** In `_device_memory_resource.pyx`, `DeviceMemoryResource` is the principal class and appears first. Then `DeviceMemoryResourceOptions` appears after it (alphabetically after the principal class), even though it's an auxiliary/options class.
+**Example:** In `_device_memory_resource.pyx`, `DeviceMemoryResource` is the principal class and appears first, followed by `DeviceMemoryResourceOptions` (its options class).
 
 ### 7. Public Module Functions
 
@@ -92,9 +92,7 @@ Finally, define private functions and implementation details. These include:
 ### Example Structure
 
 ```python
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-#
-# SPDX-License-Identifier: Apache-2.0
+# <SPDX copyright header>
 
 # Imports (cimports first, then regular imports)
 from libc.stdint cimport uintptr_t
@@ -133,7 +131,7 @@ cdef inline void Buffer_close(Buffer self, stream):
 - Not every file will have all sections. For example, a utility module may not have a principal class.
 - The distinction between "principal" and "other" classes is based on the file's primary purpose. If a file exists primarily to define one class, that class is the principal class.
 - Private implementation functions should be placed at the end of the file to keep the public API visible at the top.
-- **Within each section**, classes and functions should be sorted alphabetically by name. The principal class or function is an exception to this rule, as it appears first in its respective section.
+- **Within each section**, prefer logical ordering (e.g., by functionality or typical usage). Alphabetical ordering is a reasonable fallback when no clear logical structure exists.
 
 ## Package Layout
 
@@ -269,8 +267,9 @@ This pattern allows:
 
 ## Import Statements
 
-Import statements must be organized into five groups, in the following order:
-**Note**: Within each section, imports should be sorted alphabetically.
+Import statements must be organized into five groups, in the following order.
+
+**Note**: Within each group, imports must be sorted alphabetically. This is enforced by pre-commit linters (`ruff`).
 
 ### 1. `__future__` Imports
 
@@ -339,7 +338,7 @@ from cuda.core.experimental._utils.cuda_utils import (
 
 ### Additional Rules
 
-1. **Alphabetical Ordering**: Within each group, imports should be sorted alphabetically by module name.
+1. **Alphabetical Ordering**: Within each group, imports must be sorted alphabetically by module name. This is enforced by pre-commit linters.
 
 2. **Multi-line Imports**: When importing multiple items from a single module, use parentheses for multi-line formatting:
    ```python
@@ -358,9 +357,7 @@ from cuda.core.experimental._utils.cuda_utils import (
 ### Example
 
 ```python
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-#
-# SPDX-License-Identifier: Apache-2.0
+# <SPDX copyright header>
 
 # 1. __future__ imports
 from __future__ import annotations
@@ -389,15 +386,15 @@ from cuda.core.experimental._utils.cuda_utils import driver
 
 ### Class Definition Order
 
-Within a class definition, elements must be organized in the following order:
+Within a class definition, the suggested organization is:
 
-1. **Special (dunder) methods**: Methods with names starting and ending with double underscores (e.g., `__init__`, `__cinit__`, `__dealloc__`, `__reduce__`, `__dlpack__`)
+1. **Special (dunder) methods**: Methods with names starting and ending with double underscores. By convention, `__init__` (or `__cinit__` in Cython) should be first among dunder methods, as it defines the class interface.
 
 2. **Methods**: Regular instance methods, class methods (`@classmethod`), and static methods (`@staticmethod`)
 
 3. **Properties**: Properties defined with `@property` decorator
 
-**Note**: Within each section (dunder methods, methods, properties), elements should be sorted alphabetically by name.
+**Note**: Within each section, prefer logical ordering (e.g., grouping related methods). Alphabetical ordering is acceptable when no clear logical structure exists. Developers should use their judgment.
 
 ### Example
 
@@ -405,13 +402,17 @@ Within a class definition, elements must be organized in the following order:
 cdef class Buffer:
     """Example class demonstrating the ordering."""
 
-    # 1. Special (dunder) methods (alphabetically sorted)
-    def __buffer__(self, flags: int, /) -> memoryview:
-        """Buffer protocol support."""
-        # ...
-
+    # 1. Special (dunder) methods (__cinit__/__init__ first by convention)
     def __cinit__(self):
         """Cython initialization."""
+        # ...
+
+    def __init__(self, *args, **kwargs):
+        """Python initialization."""
+        # ...
+
+    def __buffer__(self, flags: int, /) -> memoryview:
+        """Buffer protocol support."""
         # ...
 
     def __dealloc__(self):
@@ -422,15 +423,11 @@ cdef class Buffer:
         """DLPack protocol support."""
         # ...
 
-    def __init__(self, *args, **kwargs):
-        """Python initialization."""
-        # ...
-
     def __reduce__(self):
         """Pickle support."""
         # ...
 
-    # 2. Methods (alphabetically sorted)
+    # 2. Methods
     def close(self, stream=None):
         """Close the buffer."""
         # ...
@@ -452,7 +449,7 @@ cdef class Buffer:
         """Get IPC descriptor."""
         # ...
 
-    # 3. Properties (alphabetically sorted)
+    # 3. Properties
     @property
     def device_id(self) -> int:
         """Device ID property."""
@@ -499,13 +496,13 @@ cdef inline DMR_close(DeviceMemoryResource self):
 
 ### Function Definitions
 
-For module-level functions (outside of classes), follow the ordering specified in [File Structure](#file-structure): principal functions first (if applicable), then other public functions, then private functions. Within each group, sort alphabetically.
+For module-level functions (outside of classes), follow the ordering specified in [File Structure](#file-structure): principal functions first (if applicable), then other public functions, then private functions. Within each group, prefer logical ordering; alphabetical ordering is a reasonable fallback.
 
 ## Naming Conventions
 
 ### Class Names
 
-Use **PascalCase** (also known as CapWords) for class names.
+Use **CamelCase** for class names.
 
 ```python
 cdef class Buffer:
@@ -1497,9 +1494,9 @@ Follow the ordering specified in [File Structure](#file-structure):
 
 Follow the ordering specified in [Class and Function Definitions](#class-and-function-definitions):
 
-1. Special (dunder) methods (alphabetically sorted)
-2. Methods (alphabetically sorted)
-3. Properties (alphabetically sorted)
+1. Special (dunder) methods (`__init__`/`__cinit__` first by convention)
+2. Methods
+3. Properties
 
 ### Helper Functions
 
@@ -1808,9 +1805,9 @@ from cuda.core.experimental._utils.cuda_utils cimport (
 def copy_to(self, dst: Buffer = None, *, stream: Stream | GraphBuilder) -> Buffer:
     stream = Stream_accept(stream)
     cdef size_t src_size = self._size
-    
+
     # ... validation logic ...
-    
+
     err, = driver.cuMemcpyAsync(dst._ptr, self._ptr, src_size, stream.handle)
     raise_if_driver_error(err)
     return dst
@@ -1893,7 +1890,7 @@ def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
     stream = Stream_accept(stream)
     cdef size_t buffer_size = self._size
     cdef unsigned char c_value8
-    
+
     # Validation...
     if width == 1:
         c_value8 = <unsigned char>value
@@ -1914,7 +1911,7 @@ def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
     cdef cydriver.CUstream s = s_stream._handle
     cdef size_t buffer_size = self._size
     cdef unsigned char c_value8
-    
+
     # Validation...
     if width == 1:
         c_value8 = <unsigned char>value
@@ -1941,40 +1938,4 @@ def fill(self, value: int, width: int, *, stream: Stream | GraphBuilder):
 
 ## Copyright and Licensing
 
-All source files in `cuda/core/experimental` must include a copyright header at the top of the file using the SPDX format.
-
-### Required Header Format
-
-Every `.py`, `.pyx`, and `.pxd` file must begin with the following header:
-
-```python
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-#
-# SPDX-License-Identifier: Apache-2.0
-```
-
-### Guidelines
-
-1. **Placement**: The copyright header must be the first lines of the file, before any imports or other code.
-
-2. **Blank Lines**: Include a blank line between the copyright notice and the license identifier, and another blank line after the license identifier before the code begins.
-
-3. **Year Range**:
-   - The beginning year reflects the year the file was first added to the repository.
-   - The end year reflects the most recent year in which the file was modified.
-   - For new files, use a single year (e.g., `2025`) or the current year range if created mid-year.
-   - Update the end year when making modifications to existing files.
-
-4. **Consistency**: All files must use the same copyright text and license identifier (`Apache-2.0`).
-
-5. **SPDX Format**: The header uses the SPDX (Software Package Data Exchange) format, which is a standard way to communicate license and copyright information.
-
-### Example
-
-```python
-# SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-#
-# SPDX-License-Identifier: Apache-2.0
-
-# ... rest of the file ...
-```
+All source files in `cuda/core/experimental` must include a copyright header at the top of the file using the SPDX format. Follow the pattern used in existing files. The pre-commit hook will add or update these notices automatically when necessary.
