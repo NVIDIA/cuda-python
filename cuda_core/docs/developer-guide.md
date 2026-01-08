@@ -2,7 +2,7 @@
 
 This guide defines conventions for Python and Cython code in `cuda/core`.
 
-**This project follows [PEP 8](https://peps.python.org/pep-0008/) as the base style guide.** The conventions in this document extend PEP 8 with project-specific patterns, particularly for Cython code and the structure of this codebase. Standard PEP 8 conventions (naming, whitespace, etc.) are not repeated here.
+**This project follows [PEP 8](https://peps.python.org/pep-0008/) as the base style guide and [PEP 257](https://peps.python.org/pep-0257/) for docstring conventions.** The guidance in this document extends these with project-specific patterns, particularly for Cython code and the structure of this codebase. Standard conventions are not repeated here.
 
 ## Table of Contents
 
@@ -34,11 +34,15 @@ The following is a suggested file organization:
 
 Every file begins with an SPDX copyright header. The pre-commit hook adds or updates these automatically.
 
-### 2. Import Statements
+### 2. Module Docstring (Optional)
+
+If present, the module docstring comes immediately after the copyright header, before any imports. Per PEP 257, this is the standard location for module-level documentation.
+
+### 3. Import Statements
 
 Imports come next. See [Import Statements](#import-statements) for ordering conventions.
 
-### 3. `__all__` Declaration (Optional)
+### 4. `__all__` Declaration (Optional)
 
 If present, `__all__` specifies symbols included in star imports.
 
@@ -46,7 +50,7 @@ If present, `__all__` specifies symbols included in star imports.
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
 ```
 
-### 4. Type Aliases and Constants (Optional)
+### 5. Type Aliases and Constants (Optional)
 
 Type aliases and module-level constants, if any, come next.
 
@@ -57,19 +61,19 @@ DevicePointerT = driver.CUdeviceptr | int | None
 LEGACY_DEFAULT_STREAM = C_LEGACY_DEFAULT_STREAM
 ```
 
-### 5. Principal Class or Function
+### 6. Principal Class or Function
 
 If the file centers on a single class or function (e.g., `_buffer.pyx` defines `Buffer`, `_device.pyx` defines `Device`), that principal element comes first among the definitions.
 
-### 6. Other Public Classes and Functions
+### 7. Other Public Classes and Functions
 
 Other public classes and functions follow. These might include auxiliary classes (e.g., `DeviceMemoryResourceOptions`), abstract base classes, or additional exports. Organize them logically—by related functionality or typical usage.
 
-### 7. Public Module Functions
+### 8. Public Module Functions
 
 Public module-level functions come after classes.
 
-### 8. Private and Implementation Details
+### 9. Private and Implementation Details
 
 Finally, private functions and implementation details: functions prefixed with `_`, `cdef inline` helpers, and any specialized code that would distract from the principal content.
 
@@ -77,34 +81,29 @@ Finally, private functions and implementation details: functions prefixed with `
 
 ```python
 # <SPDX copyright header>
+"""Module for buffer and memory resource management."""
 
-# Imports (cimports first, then regular imports)
 from libc.stdint cimport uintptr_t
 from cuda.core._memory._device_memory_resource cimport DeviceMemoryResource
 import abc
 
 __all__ = ['Buffer', 'MemoryResource', 'some_public_function']
 
-# Type aliases (if any)
 DevicePointerT = driver.CUdeviceptr | int | None
 """Type union for device pointer representations."""
 
-# Principal class
 cdef class Buffer:
     """Principal class for this module."""
     # ...
 
-# Other public classes
 cdef class MemoryResource:
     """Abstract base class."""
     # ...
 
-# Public module functions
 def some_public_function():
     """Public API function."""
     # ...
 
-# Private implementation functions
 cdef inline void Buffer_close(Buffer self, stream):
     """Private implementation helper."""
     # ...
@@ -157,11 +156,6 @@ cdef class Buffer:
 ```python
 cdef class Buffer:
     """Full implementation with methods and docstrings."""
-    cdef:
-        uintptr_t      _ptr
-        size_t         _size
-        MemoryResource _memory_resource
-        object         _ipc_data
 
     def close(self, stream=None):
         """Implementation here."""
@@ -241,7 +235,7 @@ This pattern allows:
 
 2. **Keep `.pxd` files minimal**: Only include declarations needed for Cython compilation. Omit implementation details, docstrings, and Python-only code.
 
-3. **Use `__all__` in submodules**: Each submodule should define `__all__`.
+3. **Use `__all__` when helpful**: Define `__all__` to control exported symbols when it simplifies or clarifies the module structure.
 
 4. **Use `from ._module import *` in subpackage `__init__.py`**: This pattern assembles the subpackage API from its submodules. Use `# noqa: F403` to suppress linting warnings about wildcard imports.
 
@@ -343,24 +337,19 @@ from cuda.core._utils.cuda_utils import (
 ```python
 # <SPDX copyright header>
 
-# 1. __future__ imports
 from __future__ import annotations
 
-# 2. External cimports
 cimport cpython
 from libc.stdint cimport uintptr_t
 from libc.stdlib cimport malloc, free
 from cuda.bindings cimport cydriver
 
-# 3. cuda-core cimports
 from cuda.core._memory._buffer cimport Buffer, MemoryResource
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
-# 4. External imports
 import abc
 from dataclasses import dataclass
 
-# 5. cuda-core imports
 from cuda.core._context import Context
 from cuda.core._device import Device
 from cuda.core._utils.cuda_utils import driver
@@ -452,13 +441,9 @@ cdef class Buffer:
 
 ### Helper Functions
 
-Sometimes, implementation details are moved outside of the class definition to improve readability. Helper functions should be placed at the end of the file (in the private/implementation section) when:
+When a class grows long or a method becomes deeply nested, consider extracting implementation details into helper functions. The goal is to keep class definitions easy to navigate—readers shouldn't have to scroll through hundreds of lines to understand a class's interface.
 
-- The indentation level exceeds 4 levels
-- A method definition is long (>20 lines)
-- The class definition itself is very long
-
-In Cython files, these are often `cdef` or `cdef inline` functions. The helper function name typically follows the pattern `ClassName_methodname` (e.g., `DMR_close`, `Buffer_close`).
+In Cython files, helpers are typically `cdef` or `cdef inline` functions named with the pattern `ClassName_methodname` (e.g., `DMR_close`, `Buffer_close`). Place them at the end of the file or near their call sites, whichever aids readability.
 
 **Example:**
 
@@ -466,13 +451,10 @@ In Cython files, these are often `cdef` or `cdef inline` functions. The helper f
 cdef class DeviceMemoryResource:
     def close(self):
         """Close the memory resource."""
-        DMR_close(self)  # Calls helper function
+        DMR_close(self)
 
-# ... other classes and functions ...
-
-# Helper function at end of file
+# Helper function (at end of file or nearby)
 cdef inline DMR_close(DeviceMemoryResource self):
-    """Implementation moved outside class for readability."""
     if self._handle == NULL:
         return
     # ... implementation ...
@@ -640,14 +622,18 @@ result
 
 ### Module Docstrings
 
-Module docstrings should appear after imports and `__all__` (if present), before any classes or functions. They should provide a brief overview of the module's purpose.
+Per PEP 257, module docstrings appear at the top of the file, immediately after the copyright header and before any imports. They provide a brief overview of the module's purpose.
 
 ```python
+# <SPDX copyright header>
 """Module for managing CUDA device memory resources.
 
 This module provides classes and functions for allocating and managing
 device memory using CUDA's stream-ordered memory pool API.
 """
+
+from __future__ import annotations
+# ... imports ...
 ```
 
 For simple utility modules, a single-line docstring may suffice:
@@ -676,9 +662,9 @@ cdef class DeviceMemoryResource(MemoryResource):
 
     Parameters
     ----------
-    device_id : Device | int
-        Device or Device ordinal for which a memory resource is constructed.
-    options : DeviceMemoryResourceOptions, optional
+    device_id : :class:`Device` | int
+        Device or device ordinal for which a memory resource is constructed.
+    options : :class:`DeviceMemoryResourceOptions`, optional
         Memory resource creation options. If None, uses the driver's current
         or default memory pool for the specified device.
 
@@ -740,13 +726,13 @@ def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> 
     ----------
     size : int
         The size of the buffer to allocate, in bytes.
-    stream : Stream | GraphBuilder, optional
+    stream : :class:`Stream` | :class:`GraphBuilder`, optional
         The stream on which to perform the allocation asynchronously.
         If None, an internal stream is used.
 
     Returns
     -------
-    Buffer
+    :class:`Buffer`
         The allocated buffer object, which is accessible on the device
         that this memory resource was created for.
 
@@ -768,7 +754,7 @@ For simple functions, a brief docstring may suffice:
 
 ```python
 def get_ipc_descriptor(self) -> IPCBufferDescriptor:
-    """Export a buffer allocated for sharing between processes."""
+    """Export a :class:`Buffer` for sharing between processes."""
 ```
 
 ### Property Docstrings
@@ -799,7 +785,7 @@ def peer_accessible_by(self):
 
     Notes
     -----
-    When setting, accepts a sequence of Device objects or device IDs.
+    When setting, accepts a sequence of :class:`Device` objects or device IDs.
     Setting to an empty sequence revokes all peer access.
 
     Examples
@@ -811,13 +797,20 @@ def peer_accessible_by(self):
 
 ### Type References in Docstrings
 
-Use Sphinx-style cross-references for types:
+Use Sphinx cross-reference roles to link to other documented objects. Use the most specific role for each type:
 
-- **Classes**: ``:class:`Buffer` `` or ``:class:`~_memory.Buffer` `` (with `~` to hide module path)
-- **Methods**: ``:meth:`DeviceMemoryResource.allocate` ``
-- **Attributes**: ``:attr:`device_id` ``
-- **Modules**: ``:mod:`multiprocessing` ``
-- **Objects**: ``:obj:`~_memory.DevicePointerT` ``
+| Role | Use for | Example |
+|------|---------|---------|
+| `:class:` | Classes | `:class:`Buffer`` |
+| `:func:` | Functions | `:func:`launch`` |
+| `:meth:` | Methods | `:meth:`Device.create_stream`` |
+| `:attr:` | Attributes | `:attr:`device_id`` |
+| `:mod:` | Modules | `:mod:`multiprocessing`` |
+| `:obj:` | Type aliases, other objects | `:obj:`DevicePointerT`` |
+
+The `~` prefix displays only the final component: `:class:`~cuda.core.Buffer`` renders as "Buffer" while still linking to the full path.
+
+For more details, see the [Sphinx Python domain documentation](https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects).
 
 **Example:**
 
@@ -825,15 +818,15 @@ Use Sphinx-style cross-references for types:
 def from_handle(
     ptr: DevicePointerT, size_t size, mr: MemoryResource | None = None
 ) -> Buffer:
-    """Create a new :class:`Buffer` object from a pointer.
+    """Create a new :class:`Buffer` from a pointer.
 
     Parameters
     ----------
-    ptr : :obj:`~_memory.DevicePointerT`
+    ptr : :obj:`DevicePointerT`
         Allocated buffer handle object.
     size : int
         Memory size of the buffer.
-    mr : :obj:`~_memory.MemoryResource`, optional
+    mr : :class:`MemoryResource`, optional
         Memory resource associated with the buffer.
     """
 ```
@@ -860,179 +853,40 @@ def from_handle(
 
 ## Errors and Warnings
 
-### Exception Types
+### CUDA Exceptions
 
-#### Custom Exceptions
+The project defines custom exceptions for CUDA-specific errors:
 
-The project defines custom exception types for CUDA-specific errors:
+- **`CUDAError`**: Base exception for CUDA driver errors
+- **`NVRTCError`**: Exception for NVRTC compiler errors (inherits from `CUDAError`)
 
-- **`CUDAError`**: Base exception for CUDA-related errors
-- **`NVRTCError`**: Exception for NVRTC (compiler) errors, inherits from `CUDAError`
+Use these instead of generic exceptions when reporting CUDA failures.
 
-```python
-from cuda.core._utils.cuda_utils import CUDAError, NVRTCError
+### CUDA API Error Handling
 
-raise CUDAError("CUDA operation failed")
-raise NVRTCError("NVRTC compilation error")
-```
-
-#### Standard Python Exceptions
-
-Use standard Python exceptions when appropriate:
-
-- **`ValueError`**: Invalid argument values
-- **`TypeError`**: Invalid argument types
-- **`RuntimeError`**: Runtime errors that don't fit other categories
-- **`NotImplementedError`**: Features that are not yet implemented
-- **`BufferError`**: Buffer protocol-related errors
+In `nogil` contexts, use the `HANDLE_RETURN` macro:
 
 ```python
-if size < 0:
-    raise ValueError(f"size must be non-negative, got {size}")
-
-if not isinstance(stream, Stream):
-    raise TypeError(f"stream must be a Stream, got {type(stream)}")
-
-if self.is_mapped:
-    raise RuntimeError("Memory resource is not IPC-enabled")
-```
-
-### Raising Errors
-
-#### Error Messages
-
-Error messages should be clear and include context:
-
-**Preferred:**
-```python
-if dst_size != src_size:
-    raise ValueError(
-        f"buffer sizes mismatch between src and dst "
-        f"(sizes are: src={src_size}, dst={dst_size})"
-    )
-```
-
-**Avoid:**
-```python
-if dst_size != src_size:
-    raise ValueError("sizes don't match")
-```
-
-#### CUDA API Error Handling
-
-For CUDA Driver API calls, use the `HANDLE_RETURN` macro in `nogil` contexts:
-
-```python
-cdef int allocate_buffer(uintptr_t* ptr, size_t size) except?-1 nogil:
+with nogil:
     HANDLE_RETURN(cydriver.cuMemAlloc(ptr, size))
-    return 0
 ```
 
-For Python-level CUDA error handling, use `handle_return()`:
+At the Python level, use `handle_return()` or `raise_if_driver_error()`:
 
 ```python
-from cuda.core._utils.cuda_utils import handle_return
-
 err, = driver.cuMemcpyAsync(dst._ptr, self._ptr, src_size, stream.handle)
 handle_return((err,))
 ```
 
-Or use `raise_if_driver_error()` for direct error raising:
-
-```python
-from cuda.core._utils.cuda_utils cimport (
-    _check_driver_error as raise_if_driver_error,
-)
-
-err, = driver.cuMemcpyAsync(dst._ptr, self._ptr, src_size, stream.handle)
-raise_if_driver_error(err)
-```
-
-#### Error Explanations
-
-CUDA errors include explanations from dictionaries (`DRIVER_CU_RESULT_EXPLANATIONS`, `RUNTIME_CUDA_ERROR_EXPLANATIONS`) when available. The error checking functions (`_check_driver_error()`, `_check_runtime_error()`) automatically include these explanations in the error message.
-
 ### Warnings
 
-#### Warning Categories
-
-Use appropriate warning categories:
-
-- **`UserWarning`**: For user-facing warnings about potentially problematic usage
-- **`DeprecationWarning`**: For deprecated features that will be removed in future versions
-
-```python
-import warnings
-
-warnings.warn(
-    "multiprocessing start method is 'fork', which CUDA does not support. "
-    "Forked subprocesses exhibit undefined behavior. "
-    "Set the start method to 'spawn' before creating processes that use CUDA.",
-    UserWarning,
-    stacklevel=3
-)
-
-warnings.warn(
-    "Implementing __cuda_stream__ as an attribute is deprecated; "
-    "it must be implemented as a method",
-    DeprecationWarning,
-    stacklevel=3
-)
-```
-
-#### Stack Level
-
-Always specify the `stacklevel` parameter to point to the caller, not the warning location:
+When emitting warnings, always specify `stacklevel` so the warning points to the caller:
 
 ```python
 warnings.warn(message, UserWarning, stacklevel=3)
 ```
 
-The `stacklevel` value depends on the call depth. Use `stacklevel=2` for direct function calls, `stacklevel=3` for calls through helper functions.
-
-#### One-Time Warnings
-
-For warnings that should only be emitted once per process, use a module-level flag:
-
-```python
-_fork_warning_checked = False
-
-def check_multiprocessing_start_method():
-    global _fork_warning_checked
-    if _fork_warning_checked:
-        return
-    _fork_warning_checked = True
-
-    # ... check condition and emit warning ...
-    warnings.warn(message, UserWarning, stacklevel=3)
-```
-
-#### Deprecation Warnings
-
-For deprecation warnings, use `warnings.simplefilter("once", DeprecationWarning)` to ensure each deprecation message is shown only once:
-
-```python
-warnings.simplefilter("once", DeprecationWarning)
-warnings.warn(
-    "Feature X is deprecated and will be removed in a future version",
-    DeprecationWarning,
-    stacklevel=3
-)
-```
-
-### Guidelines
-
-1. **Use specific exception types**: Choose the most appropriate exception type for the error condition.
-
-2. **Include context in error messages**: Error messages should include relevant values and context to help users diagnose issues.
-
-3. **Use custom exceptions for CUDA errors**: Use `CUDAError` or `NVRTCError` for CUDA-specific errors rather than generic exceptions.
-
-4. **Specify stacklevel for warnings**: Always include `stacklevel` parameter in `warnings.warn()` calls to point to the actual caller.
-
-5. **Use one-time warnings for repeated operations**: When a warning could be triggered multiple times, use a flag to ensure it's only shown once.
-
-6. **Prefer warnings over errors for recoverable issues**: Use warnings for issues that don't prevent execution but may cause problems.
+The value depends on call depth—typically `stacklevel=2` for direct calls, `stacklevel=3` when called through a helper.
 
 ## Performance Considerations
 
