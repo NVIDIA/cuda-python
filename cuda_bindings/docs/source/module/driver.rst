@@ -38,6 +38,8 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUexecAffinityParam_st
 .. autoclass:: cuda.bindings.driver.CUctxCigParam_st
 .. autoclass:: cuda.bindings.driver.CUctxCreateParams_st
+.. autoclass:: cuda.bindings.driver.CUstreamCigParam_st
+.. autoclass:: cuda.bindings.driver.CUstreamCigCaptureParams_st
 .. autoclass:: cuda.bindings.driver.CUlibraryHostUniversalFunctionAndDataTable_st
 .. autoclass:: cuda.bindings.driver.CUDA_MEMCPY2D_st
 .. autoclass:: cuda.bindings.driver.CUDA_MEMCPY3D_st
@@ -256,6 +258,19 @@ Data types used by CUDA driver
 
 
         Set blocking synchronization as default scheduling
+
+.. autoclass:: cuda.bindings.driver.CUhostTaskSyncMode
+
+    .. autoattribute:: cuda.bindings.driver.CUhostTaskSyncMode.CU_HOST_TASK_BLOCKING
+
+
+        The execution thread will block until new host tasks are ready to run
+
+
+    .. autoattribute:: cuda.bindings.driver.CUhostTaskSyncMode.CU_HOST_TASK_SPINWAIT
+
+
+        The execution thread will spin wait until new host tasks are ready to run
 
 .. autoclass:: cuda.bindings.driver.CUstream_flags
 
@@ -3405,6 +3420,44 @@ Data types used by CUDA driver
 
         Launch kernels in the remote domain
 
+.. autoclass:: cuda.bindings.driver.CUlaunchAttributePortableClusterMode
+
+    .. autoattribute:: cuda.bindings.driver.CUlaunchAttributePortableClusterMode.CU_LAUNCH_PORTABLE_CLUSTER_MODE_DEFAULT
+
+
+        The default to use for allowing non-portable cluster size on launch - uses current function attribute for :py:obj:`~.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED`
+
+
+    .. autoattribute:: cuda.bindings.driver.CUlaunchAttributePortableClusterMode.CU_LAUNCH_PORTABLE_CLUSTER_MODE_REQUIRE_PORTABLE
+
+
+        Specifies that the cluster size requested must be a portable size
+
+
+    .. autoattribute:: cuda.bindings.driver.CUlaunchAttributePortableClusterMode.CU_LAUNCH_PORTABLE_CLUSTER_MODE_ALLOW_NON_PORTABLE
+
+
+        Specifies that the cluster size requested may be a non-portable size
+
+.. autoclass:: cuda.bindings.driver.CUsharedMemoryMode
+
+    .. autoattribute:: cuda.bindings.driver.CUsharedMemoryMode.CU_SHARED_MEMORY_MODE_DEFAULT
+
+
+        The default to use for shared memory on launch - uses current function attribute for :py:obj:`~.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES`
+
+
+    .. autoattribute:: cuda.bindings.driver.CUsharedMemoryMode.CU_SHARED_MEMORY_MODE_REQUIRE_PORTABLE
+
+
+        Specifies that the dynamic shared size bytes requested must be a portable size within the bounds of :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK`
+
+
+    .. autoattribute:: cuda.bindings.driver.CUsharedMemoryMode.CU_SHARED_MEMORY_MODE_ALLOW_NON_PORTABLE
+
+
+        Specifies that the dynamic shared size bytes requested may be a non-portable size but still within the bounds of :py:obj:`~.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK_OPTIN`
+
 .. autoclass:: cuda.bindings.driver.CUlaunchAttributeID
 
     .. autoattribute:: cuda.bindings.driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_IGNORE
@@ -3528,6 +3581,18 @@ Data types used by CUDA driver
 
          Valid values for :py:obj:`~.CUlaunchAttributeValue`::nvlinkUtilCentricScheduling are 0 (disabled) and 1 (enabled).
 
+
+    .. autoattribute:: cuda.bindings.driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_PORTABLE_CLUSTER_SIZE_MODE
+
+
+        Valid for graph nodes, launches. This controls whether the kernel launch is allowed to use a non-portable cluster size. Valid values for :py:obj:`~.CUlaunchAttributeValue.portableClusterSizeMode` are described in :py:obj:`~.CUlaunchAttributePortableClusterMode`. Any other value will return :py:obj:`~.CUDA_ERROR_INVALID_VALUE`
+
+
+    .. autoattribute:: cuda.bindings.driver.CUlaunchAttributeID.CU_LAUNCH_ATTRIBUTE_SHARED_MEMORY_MODE
+
+
+        Valid for graph nodes, launches. This indicates if the kernel is allowed to use a non-portable dynamic shared memory mode.
+
 .. autoclass:: cuda.bindings.driver.CUstreamCaptureStatus
 
     .. autoattribute:: cuda.bindings.driver.CUstreamCaptureStatus.CU_STREAM_CAPTURE_STATUS_NONE
@@ -3610,10 +3675,20 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUcigDataType.CIG_DATA_TYPE_D3D12_COMMAND_QUEUE
 
 
+        D3D12 Command Queue Handle
+
+
     .. autoattribute:: cuda.bindings.driver.CUcigDataType.CIG_DATA_TYPE_NV_BLOB
 
 
-        D3D12 Command Queue Handle
+        Nvidia specific data blob used for Vulkan and other NV clients
+
+.. autoclass:: cuda.bindings.driver.CUstreamCigDataType
+
+    .. autoattribute:: cuda.bindings.driver.CUstreamCigDataType.STREAM_CIG_DATA_TYPE_D3D12_COMMAND_LIST
+
+
+        D3D12 Command List Handle
 
 .. autoclass:: cuda.bindings.driver.CUlibraryOption
 
@@ -4197,7 +4272,7 @@ Data types used by CUDA driver
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_EXTERNAL_DEVICE
 
 
-        This indicates that an async error has occurred in a device outside of CUDA. If CUDA was waiting for an external device's signal before consuming shared data, the external device signaled an error indicating that the data is not valid for consumption. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched.
+        This indicates that an error has occurred in a device outside of GPU. It can be a synchronous error w.r.t. CUDA API or an asynchronous error from the external device. In case of asynchronous error, it means that if cuda was waiting for an external device's signal before consuming shared data, the external device signaled an error indicating that the data is not valid for consumption. This leaves the process in an inconsistent state and any further CUDA work will return the same error. To continue using CUDA, the process must be terminated and relaunched. In case of synchronous error, it means that one or more external devices have encountered an error and cannot complete the operation.
 
 
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_INVALID_CLUSTER_SIZE
@@ -4823,6 +4898,12 @@ Data types used by CUDA driver
         Location is a host NUMA node of the current thread, id is ignored
 
 
+    .. autoattribute:: cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_INVISIBLE
+
+
+        Location is not visible but device is accessible, id is always CU_DEVICE_INVALID
+
+
     .. autoattribute:: cuda.bindings.driver.CUmemLocationType.CU_MEM_LOCATION_TYPE_MAX
 
 .. autoclass:: cuda.bindings.driver.CUmemAllocationType
@@ -5019,6 +5100,42 @@ Data types used by CUDA driver
 
         (value type = cuuint64_t) High watermark of the amount of memory from the pool that was in use by the application since the last time it was reset. High watermark can only be reset to zero.
 
+
+    .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_ALLOCATION_TYPE
+
+
+        (value type = CUmemAllocationType) The allocation type of the mempool
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_EXPORT_HANDLE_TYPES
+
+
+        (value type = CUmemAllocationHandleType) Available export handle types for the mempool. For imported pools this value is always CU_MEM_HANDLE_TYPE_NONE as an imported pool cannot be re-exported
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_ID
+
+
+        (value type = int) The location id for the mempool. If the location type for this pool is CU_MEM_LOCATION_TYPE_INVISIBLE then ID will be CU_DEVICE_INVALID.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_LOCATION_TYPE
+
+
+        (value type = CUmemLocationType) The location type for the mempool. For imported memory pools where the device is not directly visible to the importing process or pools imported via fabric handles across nodes this will be CU_MEM_LOCATION_TYPE_INVISIBLE.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_MAX_POOL_SIZE
+
+
+        (value type = cuuint64_t) Maximum size of the pool in bytes, this value may be higher than what was initially passed to cuMemPoolCreate due to alignment requirements. A value of 0 indicates no maximum size. For CU_MEM_ALLOCATION_TYPE_MANAGED and IPC imported pools this value will be system dependent.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUmemPool_attribute.CU_MEMPOOL_ATTR_HW_DECOMPRESS_ENABLED
+
+
+        (value type = int) Indicates whether the pool has hardware compresssion enabled
+
 .. autoclass:: cuda.bindings.driver.CUmemcpyFlags
 
     .. autoattribute:: cuda.bindings.driver.CUmemcpyFlags.CU_MEMCPY_FLAG_DEFAULT
@@ -5114,6 +5231,12 @@ Data types used by CUDA driver
 
 
         The following restrictions apply to child graphs after they have been moved: Cannot be independently instantiated or destroyed; Cannot be added as a child graph of a separate parent graph; Cannot be used as an argument to cuGraphExecUpdate; Cannot have additional memory allocation or free nodes added.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUgraphChildGraphNodeOwnership.CU_GRAPH_CHILD_GRAPH_OWNERSHIP_INVALID
+
+
+        Invalid ownership flag. Set when params are queried to prevent accidentally reusing the driver-owned graph object
 
 .. autoclass:: cuda.bindings.driver.CUflushGPUDirectRDMAWritesOptions
 
@@ -6153,6 +6276,8 @@ Data types used by CUDA driver
 .. autoclass:: cuda.bindings.driver.CUexecAffinityParam
 .. autoclass:: cuda.bindings.driver.CUctxCigParam
 .. autoclass:: cuda.bindings.driver.CUctxCreateParams
+.. autoclass:: cuda.bindings.driver.CUstreamCigParam
+.. autoclass:: cuda.bindings.driver.CUstreamCigCaptureParams
 .. autoclass:: cuda.bindings.driver.CUlibraryHostUniversalFunctionAndDataTable
 .. autoclass:: cuda.bindings.driver.CUstreamCallback
 .. autoclass:: cuda.bindings.driver.CUoccupancyB2DSize
@@ -6650,6 +6775,7 @@ This section describes the library management functions of the low-level CUDA dr
 .. autofunction:: cuda.bindings.driver.cuKernelSetCacheConfig
 .. autofunction:: cuda.bindings.driver.cuKernelGetName
 .. autofunction:: cuda.bindings.driver.cuKernelGetParamInfo
+.. autofunction:: cuda.bindings.driver.cuKernelGetParamCount
 
 Memory Management
 -----------------
@@ -6731,6 +6857,8 @@ This section describes the memory management functions of the low-level CUDA dri
 .. autofunction:: cuda.bindings.driver.cuMemcpy3DPeerAsync
 .. autofunction:: cuda.bindings.driver.cuMemcpyBatchAsync
 .. autofunction:: cuda.bindings.driver.cuMemcpy3DBatchAsync
+.. autofunction:: cuda.bindings.driver.cuMemcpyWithAttributesAsync
+.. autofunction:: cuda.bindings.driver.cuMemcpy3DWithAttributesAsync
 .. autofunction:: cuda.bindings.driver.cuMemsetD8
 .. autofunction:: cuda.bindings.driver.cuMemsetD16
 .. autofunction:: cuda.bindings.driver.cuMemsetD32
@@ -6951,6 +7079,8 @@ This section describes the stream management functions of the low-level CUDA dri
 
 .. autofunction:: cuda.bindings.driver.cuStreamCreate
 .. autofunction:: cuda.bindings.driver.cuStreamCreateWithPriority
+.. autofunction:: cuda.bindings.driver.cuStreamBeginCaptureToCig
+.. autofunction:: cuda.bindings.driver.cuStreamEndCaptureToCig
 .. autofunction:: cuda.bindings.driver.cuStreamGetPriority
 .. autofunction:: cuda.bindings.driver.cuStreamGetDevice
 .. autofunction:: cuda.bindings.driver.cuStreamGetFlags
@@ -7057,6 +7187,7 @@ This section describes the execution control functions of the low-level CUDA dri
 .. autofunction:: cuda.bindings.driver.cuFuncGetModule
 .. autofunction:: cuda.bindings.driver.cuFuncGetName
 .. autofunction:: cuda.bindings.driver.cuFuncGetParamInfo
+.. autofunction:: cuda.bindings.driver.cuFuncGetParamCount
 .. autofunction:: cuda.bindings.driver.cuFuncIsLoaded
 .. autofunction:: cuda.bindings.driver.cuFuncLoad
 .. autofunction:: cuda.bindings.driver.cuLaunchKernel
@@ -7064,6 +7195,7 @@ This section describes the execution control functions of the low-level CUDA dri
 .. autofunction:: cuda.bindings.driver.cuLaunchCooperativeKernel
 .. autofunction:: cuda.bindings.driver.cuLaunchCooperativeKernelMultiDevice
 .. autofunction:: cuda.bindings.driver.cuLaunchHostFunc
+.. autofunction:: cuda.bindings.driver.cuLaunchHostFunc_v2
 
 Graph Management
 ----------------
@@ -7155,6 +7287,7 @@ This section describes the graph management functions of the low-level CUDA driv
 .. autofunction:: cuda.bindings.driver.cuGraphReleaseUserObject
 .. autofunction:: cuda.bindings.driver.cuGraphAddNode
 .. autofunction:: cuda.bindings.driver.cuGraphNodeSetParams
+.. autofunction:: cuda.bindings.driver.cuGraphNodeGetParams
 .. autofunction:: cuda.bindings.driver.cuGraphExecNodeSetParams
 .. autofunction:: cuda.bindings.driver.cuGraphConditionalHandleCreate
 
@@ -7290,10 +7423,16 @@ This section describes the coredump attribute control functions of the low-level
 
     .. autoattribute:: cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS
 
+.. autoclass:: cuda.bindings.driver.CUcoredumpCallbackHandle
+.. autoclass:: cuda.bindings.driver.CUcoredumpStatusCallback
 .. autofunction:: cuda.bindings.driver.cuCoredumpGetAttribute
 .. autofunction:: cuda.bindings.driver.cuCoredumpGetAttributeGlobal
 .. autofunction:: cuda.bindings.driver.cuCoredumpSetAttribute
 .. autofunction:: cuda.bindings.driver.cuCoredumpSetAttributeGlobal
+.. autofunction:: cuda.bindings.driver.cuCoredumpRegisterStartCallback
+.. autofunction:: cuda.bindings.driver.cuCoredumpRegisterCompleteCallback
+.. autofunction:: cuda.bindings.driver.cuCoredumpDeregisterStartCallback
+.. autofunction:: cuda.bindings.driver.cuCoredumpDeregisterCompleteCallback
 
 Green Contexts
 --------------
