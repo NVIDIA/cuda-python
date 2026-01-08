@@ -86,26 +86,51 @@ _extensions = None
 
 
 def _build_cuda_core():
-    # Validate setuptools-scm version (fail loudly if git describe failed)
-    _version_file = os.path.join(os.path.dirname(__file__), "cuda", "core", "_version.py")
-    if os.path.exists(_version_file):
-        with open(_version_file, encoding="utf-8") as f:
-            _version_content = f.read()
-            # Check if version starts with "0.1" (setuptools-scm fallback)
-            if "__version__ = version = '0.1." in _version_content:
-                raise RuntimeError(
-                    f"setuptools-scm failed to determine version from git tags!\n"
-                    f"Generated version file shows fallback version '0.1.x'.\n"
-                    f"This usually means:\n"
-                    f"  1. Git tags are not fetched (run: git fetch --tags)\n"
-                    f"  2. Git is not available in PATH\n"
-                    f"  3. Running from wrong directory (setuptools_scm root='..')\n"
-                    f"  4. Git describe command failed\n"
-                    f"\n"
-                    f"Version file content:\n{_version_content}\n"
-                    f"\n"
-                    f"To debug, run: git describe --tags --long --match 'cuda-core-v*[0-9]*'"
-                )
+    # Validate git tags are available (fail early before setuptools-scm runs)
+    import subprocess
+
+    # Check if git is available
+    try:
+        subprocess.run(["git", "--version"], capture_output=True, check=True, timeout=5)  # noqa: S607
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+        raise RuntimeError(
+            "Git is not available in PATH. setuptools-scm requires git to determine version from tags.\n"
+            "Please ensure git is installed and available in your PATH."
+        ) from None
+
+    # Find git repository root (setuptools_scm root='..')
+    repo_root = os.path.dirname(os.path.dirname(__file__))
+
+    # Check if git describe works (this is what setuptools-scm uses)
+    try:
+        result = subprocess.run(
+            ["git", "describe", "--tags", "--long", "--match", "cuda-core-v*[0-9]*"],  # noqa: S607
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"git describe failed! This means setuptools-scm will fall back to version '0.1.x'.\n"
+                f"\n"
+                f"Error: {result.stderr.strip()}\n"
+                f"\n"
+                f"This usually means:\n"
+                f"  1. Git tags are not fetched (run: git fetch --tags)\n"
+                f"  2. Running from wrong directory (setuptools_scm root='..')\n"
+                f"  3. No matching tags found\n"
+                f"\n"
+                f"To fix:\n"
+                f"  git fetch --tags\n"
+                f"\n"
+                f"To debug, run: git describe --tags --long --match 'cuda-core-v*[0-9]*'"
+            ) from None
+    except subprocess.TimeoutExpired:
+        raise RuntimeError(
+            "git describe command timed out. This may indicate git repository issues.\n"
+            "Please check your git repository state."
+        ) from None
 
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
     # now a required build-time dependency that's dynamically installed via the other hook below,
