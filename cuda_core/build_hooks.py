@@ -92,7 +92,7 @@ def _build_cuda_core():
         with open(_version_file, encoding="utf-8") as f:
             _version_content = f.read()
             # Check if version starts with "0.1" (setuptools-scm fallback)
-            if '__version__ = version = \'0.1.' in _version_content:
+            if "__version__ = version = '0.1." in _version_content:
                 raise RuntimeError(
                     f"setuptools-scm failed to determine version from git tags!\n"
                     f"Generated version file shows fallback version '0.1.x'.\n"
@@ -167,25 +167,8 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
 
 def _get_cuda_bindings_require():
-    # When building from source, we want to use the local editable installation
-    # of cuda-bindings, not pull from PyPI. Return a local path requirement
-    # pointing to the sibling cuda_bindings directory.
-    # The optional dependencies in pyproject.toml will handle runtime dependencies.
     cuda_major = _determine_cuda_major_version()
-    # Use a local path requirement to ensure we use the editable install
-    # This prevents pip from pulling from PyPI during backend dependency installation
-    # Format: file:///absolute/path (PEP 508: three slashes for absolute paths)
-    cuda_bindings_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cuda_bindings")
-    if os.path.exists(os.path.join(cuda_bindings_path, "pyproject.toml")):
-        # Return local path requirement (pip will install it from local source)
-        abs_path = os.path.abspath(cuda_bindings_path)
-        # Use file:// URL format for absolute paths (PEP 508: file:///path)
-        # abs_path already starts with /, so use file:// + abs_path (not file:///)
-        return [f"file://{abs_path}#egg=cuda-bindings"]
-    else:
-        # Fallback to version requirement if local path doesn't exist
-        # (shouldn't happen in normal builds, but provides safety)
-        return [f"cuda-bindings=={cuda_major}.*"]
+    return [f"cuda-bindings=={cuda_major}.*"]
 
 
 def get_requires_for_build_editable(config_settings=None):
