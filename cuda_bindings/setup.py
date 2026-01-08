@@ -31,7 +31,7 @@ if os.path.exists(_version_file):
     with open(_version_file, encoding="utf-8") as f:
         _version_content = f.read()
         # Check if version starts with "0.1" (setuptools-scm fallback)
-        if '__version__ = version = \'0.1.' in _version_content:
+        if "__version__ = version = '0.1." in _version_content:
             raise RuntimeError(
                 f"setuptools-scm failed to determine version from git tags!\n"
                 f"Generated version file shows fallback version '0.1.x'.\n"
