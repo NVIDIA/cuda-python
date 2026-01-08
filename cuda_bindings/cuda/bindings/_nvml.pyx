@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.9.1 to 13.1.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.9.1 to 13.2.0. Do not modify it directly.
 
 cimport cython  # NOQA
 from cython cimport view
@@ -489,6 +489,7 @@ class DeviceGpuRecoveryAction(_IntEnum):
     GPU_RECOVERY_ACTION_NODE_REBOOT = NVML_GPU_RECOVERY_ACTION_NODE_REBOOT
     GPU_RECOVERY_ACTION_DRAIN_P2P = NVML_GPU_RECOVERY_ACTION_DRAIN_P2P
     GPU_RECOVERY_ACTION_DRAIN_AND_RESET = NVML_GPU_RECOVERY_ACTION_DRAIN_AND_RESET
+    GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN = NVML_GPU_RECOVERY_ACTION_RECOVER_IMEX_DOMAIN
 
 class FanState(_IntEnum):
     """See `nvmlFanState_t`."""
@@ -556,6 +557,7 @@ class GpmMetricId(_IntEnum):
     GPM_METRIC_ANY_TENSOR_UTIL = NVML_GPM_METRIC_ANY_TENSOR_UTIL
     GPM_METRIC_DFMA_TENSOR_UTIL = NVML_GPM_METRIC_DFMA_TENSOR_UTIL
     GPM_METRIC_HMMA_TENSOR_UTIL = NVML_GPM_METRIC_HMMA_TENSOR_UTIL
+    GPM_METRIC_DMMA_TENSOR_UTIL = NVML_GPM_METRIC_DMMA_TENSOR_UTIL
     GPM_METRIC_IMMA_TENSOR_UTIL = NVML_GPM_METRIC_IMMA_TENSOR_UTIL
     GPM_METRIC_DRAM_BW_UTIL = NVML_GPM_METRIC_DRAM_BW_UTIL
     GPM_METRIC_FP64_UTIL = NVML_GPM_METRIC_FP64_UTIL
@@ -729,6 +731,55 @@ class GpmMetricId(_IntEnum):
     GPM_METRIC_GR7_CTXSW_REQUESTS = NVML_GPM_METRIC_GR7_CTXSW_REQUESTS
     GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ = NVML_GPM_METRIC_GR7_CTXSW_CYCLES_PER_REQ
     GPM_METRIC_GR7_CTXSW_ACTIVE_PCT = NVML_GPM_METRIC_GR7_CTXSW_ACTIVE_PCT
+    GPM_METRIC_SM_CYCLES_ELAPSED = NVML_GPM_METRIC_SM_CYCLES_ELAPSED
+    GPM_METRIC_SM_CYCLES_ACTIVE = NVML_GPM_METRIC_SM_CYCLES_ACTIVE
+    GPM_METRIC_MMA_CYCLES_ACTIVE = NVML_GPM_METRIC_MMA_CYCLES_ACTIVE
+    GPM_METRIC_DMMA_CYCLES_ACTIVE = NVML_GPM_METRIC_DMMA_CYCLES_ACTIVE
+    GPM_METRIC_HMMA_CYCLES_ACTIVE = NVML_GPM_METRIC_HMMA_CYCLES_ACTIVE
+    GPM_METRIC_IMMA_CYCLES_ACTIVE = NVML_GPM_METRIC_IMMA_CYCLES_ACTIVE
+    GPM_METRIC_DFMA_CYCLES_ACTIVE = NVML_GPM_METRIC_DFMA_CYCLES_ACTIVE
+    GPM_METRIC_PCIE_TX = NVML_GPM_METRIC_PCIE_TX
+    GPM_METRIC_PCIE_RX = NVML_GPM_METRIC_PCIE_RX
+    GPM_METRIC_INTEGER_CYCLES_ACTIVE = NVML_GPM_METRIC_INTEGER_CYCLES_ACTIVE
+    GPM_METRIC_FP64_CYCLES_ACTIVE = NVML_GPM_METRIC_FP64_CYCLES_ACTIVE
+    GPM_METRIC_FP32_CYCLES_ACTIVE = NVML_GPM_METRIC_FP32_CYCLES_ACTIVE
+    GPM_METRIC_FP16_CYCLES_ACTIVE = NVML_GPM_METRIC_FP16_CYCLES_ACTIVE
+    GPM_METRIC_NVLINK_L0_RX = NVML_GPM_METRIC_NVLINK_L0_RX
+    GPM_METRIC_NVLINK_L0_TX = NVML_GPM_METRIC_NVLINK_L0_TX
+    GPM_METRIC_NVLINK_L1_RX = NVML_GPM_METRIC_NVLINK_L1_RX
+    GPM_METRIC_NVLINK_L1_TX = NVML_GPM_METRIC_NVLINK_L1_TX
+    GPM_METRIC_NVLINK_L2_RX = NVML_GPM_METRIC_NVLINK_L2_RX
+    GPM_METRIC_NVLINK_L2_TX = NVML_GPM_METRIC_NVLINK_L2_TX
+    GPM_METRIC_NVLINK_L3_RX = NVML_GPM_METRIC_NVLINK_L3_RX
+    GPM_METRIC_NVLINK_L3_TX = NVML_GPM_METRIC_NVLINK_L3_TX
+    GPM_METRIC_NVLINK_L4_RX = NVML_GPM_METRIC_NVLINK_L4_RX
+    GPM_METRIC_NVLINK_L4_TX = NVML_GPM_METRIC_NVLINK_L4_TX
+    GPM_METRIC_NVLINK_L5_RX = NVML_GPM_METRIC_NVLINK_L5_RX
+    GPM_METRIC_NVLINK_L5_TX = NVML_GPM_METRIC_NVLINK_L5_TX
+    GPM_METRIC_NVLINK_L6_RX = NVML_GPM_METRIC_NVLINK_L6_RX
+    GPM_METRIC_NVLINK_L6_TX = NVML_GPM_METRIC_NVLINK_L6_TX
+    GPM_METRIC_NVLINK_L7_RX = NVML_GPM_METRIC_NVLINK_L7_RX
+    GPM_METRIC_NVLINK_L7_TX = NVML_GPM_METRIC_NVLINK_L7_TX
+    GPM_METRIC_NVLINK_L8_RX = NVML_GPM_METRIC_NVLINK_L8_RX
+    GPM_METRIC_NVLINK_L8_TX = NVML_GPM_METRIC_NVLINK_L8_TX
+    GPM_METRIC_NVLINK_L9_RX = NVML_GPM_METRIC_NVLINK_L9_RX
+    GPM_METRIC_NVLINK_L9_TX = NVML_GPM_METRIC_NVLINK_L9_TX
+    GPM_METRIC_NVLINK_L10_RX = NVML_GPM_METRIC_NVLINK_L10_RX
+    GPM_METRIC_NVLINK_L10_TX = NVML_GPM_METRIC_NVLINK_L10_TX
+    GPM_METRIC_NVLINK_L11_RX = NVML_GPM_METRIC_NVLINK_L11_RX
+    GPM_METRIC_NVLINK_L11_TX = NVML_GPM_METRIC_NVLINK_L11_TX
+    GPM_METRIC_NVLINK_L12_RX = NVML_GPM_METRIC_NVLINK_L12_RX
+    GPM_METRIC_NVLINK_L12_TX = NVML_GPM_METRIC_NVLINK_L12_TX
+    GPM_METRIC_NVLINK_L13_RX = NVML_GPM_METRIC_NVLINK_L13_RX
+    GPM_METRIC_NVLINK_L13_TX = NVML_GPM_METRIC_NVLINK_L13_TX
+    GPM_METRIC_NVLINK_L14_RX = NVML_GPM_METRIC_NVLINK_L14_RX
+    GPM_METRIC_NVLINK_L14_TX = NVML_GPM_METRIC_NVLINK_L14_TX
+    GPM_METRIC_NVLINK_L15_RX = NVML_GPM_METRIC_NVLINK_L15_RX
+    GPM_METRIC_NVLINK_L15_TX = NVML_GPM_METRIC_NVLINK_L15_TX
+    GPM_METRIC_NVLINK_L16_RX = NVML_GPM_METRIC_NVLINK_L16_RX
+    GPM_METRIC_NVLINK_L16_TX = NVML_GPM_METRIC_NVLINK_L16_TX
+    GPM_METRIC_NVLINK_L17_RX = NVML_GPM_METRIC_NVLINK_L17_RX
+    GPM_METRIC_NVLINK_L17_TX = NVML_GPM_METRIC_NVLINK_L17_TX
     GPM_METRIC_MAX = NVML_GPM_METRIC_MAX
 
 class PowerProfileType(_IntEnum):
@@ -1778,7 +1829,7 @@ cdef _get_pci_info_ext_v1_dtype_offsets():
     cdef nvmlPciInfoExt_v1_t pod = nvmlPciInfoExt_v1_t()
     return _numpy.dtype({
         'names': ['version', 'domain', 'bus', 'device_', 'pci_device_id', 'pci_sub_system_id', 'base_class', 'sub_class', 'bus_id'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int8],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 32)],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.domain)) - (<intptr_t>&pod),
@@ -1998,7 +2049,7 @@ cdef _get_pci_info_dtype_offsets():
     cdef nvmlPciInfo_t pod = nvmlPciInfo_t()
     return _numpy.dtype({
         'names': ['bus_id_legacy', 'domain', 'bus', 'device_', 'pci_device_id', 'pci_sub_system_id', 'bus_id'],
-        'formats': [_numpy.int8, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int8],
+        'formats': [(_numpy.int8, 16), _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 32)],
         'offsets': [
             (<intptr_t>&(pod.busIdLegacy)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.domain)) - (<intptr_t>&pod),
@@ -4901,7 +4952,7 @@ cdef _get_device_perf_modes_v1_dtype_offsets():
     cdef nvmlDevicePerfModes_v1_t pod = nvmlDevicePerfModes_v1_t()
     return _numpy.dtype({
         'names': ['version', 'str'],
-        'formats': [_numpy.uint32, _numpy.int8],
+        'formats': [_numpy.uint32, (_numpy.int8, 2048)],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.str)) - (<intptr_t>&pod),
@@ -5037,7 +5088,7 @@ cdef _get_device_current_clock_freqs_v1_dtype_offsets():
     cdef nvmlDeviceCurrentClockFreqs_v1_t pod = nvmlDeviceCurrentClockFreqs_v1_t()
     return _numpy.dtype({
         'names': ['version', 'str'],
-        'formats': [_numpy.uint32, _numpy.int8],
+        'formats': [_numpy.uint32, (_numpy.int8, 2048)],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.str)) - (<intptr_t>&pod),
@@ -5849,7 +5900,7 @@ cdef _get_platform_info_v1_dtype_offsets():
     cdef nvmlPlatformInfo_v1_t pod = nvmlPlatformInfo_v1_t()
     return _numpy.dtype({
         'names': ['version', 'ib_guid', 'rack_guid', 'chassis_physical_slot_number', 'compute_slot_ind_ex', 'node_ind_ex', 'peer_type', 'module_id'],
-        'formats': [_numpy.uint32, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8],
+        'formats': [_numpy.uint32, (_numpy.uint8, 16), (_numpy.uint8, 16), _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.ibGuid)) - (<intptr_t>&pod),
@@ -6061,7 +6112,7 @@ cdef _get_platform_info_v2_dtype_offsets():
     cdef nvmlPlatformInfo_v2_t pod = nvmlPlatformInfo_v2_t()
     return _numpy.dtype({
         'names': ['version', 'ib_guid', 'chassis_serial_number', 'slot_number', 'tray_ind_ex', 'host_id', 'peer_type', 'module_id'],
-        'formats': [_numpy.uint32, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8],
+        'formats': [_numpy.uint32, (_numpy.uint8, 16), (_numpy.uint8, 16), _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8, _numpy.uint8],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.ibGuid)) - (<intptr_t>&pod),
@@ -6993,7 +7044,7 @@ cdef _get_vgpu_process_utilization_info_v1_dtype_offsets():
     cdef nvmlVgpuProcessUtilizationInfo_v1_t pod = nvmlVgpuProcessUtilizationInfo_v1_t()
     return _numpy.dtype({
         'names': ['process_name', 'time_stamp', 'vgpu_instance', 'pid', 'sm_util', 'mem_util', 'enc_util', 'dec_util', 'jpg_util', 'ofa_util'],
-        'formats': [_numpy.int8, _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'formats': [(_numpy.int8, 64), _numpy.uint64, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.processName)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.timeStamp)) - (<intptr_t>&pod),
@@ -8063,7 +8114,7 @@ cdef _get_vgpu_scheduler_capabilities_dtype_offsets():
     cdef nvmlVgpuSchedulerCapabilities_t pod = nvmlVgpuSchedulerCapabilities_t()
     return _numpy.dtype({
         'names': ['supported_schedulers', 'max_timeslice', 'min_timeslice', 'is_arr_mode_supported', 'max_frequency_for_arr', 'min_frequency_for_arr', 'max_avg_factor_for_arr', 'min_avg_factor_for_arr'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'formats': [(_numpy.uint32, 3), _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.supportedSchedulers)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.maxTimeslice)) - (<intptr_t>&pod),
@@ -9233,7 +9284,7 @@ cdef _get_hwbc_entry_dtype_offsets():
     cdef nvmlHwbcEntry_t pod = nvmlHwbcEntry_t()
     return _numpy.dtype({
         'names': ['hwbc_id', 'firmware_version'],
-        'formats': [_numpy.uint32, _numpy.int8],
+        'formats': [_numpy.uint32, (_numpy.int8, 32)],
         'offsets': [
             (<intptr_t>&(pod.hwbcId)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.firmwareVersion)) - (<intptr_t>&pod),
@@ -9377,7 +9428,7 @@ cdef _get_led_state_dtype_offsets():
     cdef nvmlLedState_t pod = nvmlLedState_t()
     return _numpy.dtype({
         'names': ['cause', 'color'],
-        'formats': [_numpy.int8, _numpy.int32],
+        'formats': [(_numpy.int8, 256), _numpy.int32],
         'offsets': [
             (<intptr_t>&(pod.cause)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.color)) - (<intptr_t>&pod),
@@ -9513,7 +9564,7 @@ cdef _get_unit_info_dtype_offsets():
     cdef nvmlUnitInfo_t pod = nvmlUnitInfo_t()
     return _numpy.dtype({
         'names': ['name', 'id', 'serial', 'firmware_version'],
-        'formats': [_numpy.int8, _numpy.int8, _numpy.int8, _numpy.int8],
+        'formats': [(_numpy.int8, 96), (_numpy.int8, 96), (_numpy.int8, 96), (_numpy.int8, 96)],
         'offsets': [
             (<intptr_t>&(pod.name)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
@@ -9685,7 +9736,7 @@ cdef _get_psu_info_dtype_offsets():
     cdef nvmlPSUInfo_t pod = nvmlPSUInfo_t()
     return _numpy.dtype({
         'names': ['state', 'current', 'voltage', 'power'],
-        'formats': [_numpy.int8, _numpy.uint32, _numpy.uint32, _numpy.uint32],
+        'formats': [(_numpy.int8, 256), _numpy.uint32, _numpy.uint32, _numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.state)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.current)) - (<intptr_t>&pod),
@@ -10159,7 +10210,7 @@ cdef _get_accounting_stats_dtype_offsets():
     cdef nvmlAccountingStats_t pod = nvmlAccountingStats_t()
     return _numpy.dtype({
         'names': ['gpu_utilization', 'memory_utilization', 'max_memory_usage', 'time', 'start_time', 'is_running', 'reserved'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, (_numpy.uint32, 5)],
         'offsets': [
             (<intptr_t>&(pod.gpuUtilization)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.memoryUtilization)) - (<intptr_t>&pod),
@@ -11544,7 +11595,7 @@ cdef _get_conf_compute_gpu_certificate_dtype_offsets():
     cdef nvmlConfComputeGpuCertificate_t pod = nvmlConfComputeGpuCertificate_t()
     return _numpy.dtype({
         'names': ['cert_chain_size', 'attestation_cert_chain_size', 'cert_chain', 'attestation_cert_chain'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint8, _numpy.uint8],
+        'formats': [_numpy.uint32, _numpy.uint32, (_numpy.uint8, 4096), (_numpy.uint8, 5120)],
         'offsets': [
             (<intptr_t>&(pod.certChainSize)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.attestationCertChainSize)) - (<intptr_t>&pod),
@@ -11708,7 +11759,7 @@ cdef _get_conf_compute_gpu_attestation_report_dtype_offsets():
     cdef nvmlConfComputeGpuAttestationReport_t pod = nvmlConfComputeGpuAttestationReport_t()
     return _numpy.dtype({
         'names': ['is_cec_attestation_report_present', 'attestation_report_size', 'cec_attestation_report_size', 'nonce', 'attestation_report', 'cec_attestation_report'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint8, _numpy.uint8, _numpy.uint8],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.uint8, 32), (_numpy.uint8, 8192), (_numpy.uint8, 4096)],
         'offsets': [
             (<intptr_t>&(pod.isCecAttestationReportPresent)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.attestationReportSize)) - (<intptr_t>&pod),
@@ -12032,7 +12083,7 @@ cdef _get_gpu_fabric_info_v2_dtype_offsets():
     cdef nvmlGpuFabricInfo_v2_t pod = nvmlGpuFabricInfo_v2_t()
     return _numpy.dtype({
         'names': ['version', 'cluster_uuid', 'status', 'clique_id', 'state', 'health_mask'],
-        'formats': [_numpy.uint32, _numpy.uint8, _numpy.int32, _numpy.uint32, _numpy.uint8, _numpy.uint32],
+        'formats': [_numpy.uint32, (_numpy.uint8, 16), _numpy.int32, _numpy.uint32, _numpy.uint8, _numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.clusterUuid)) - (<intptr_t>&pod),
@@ -12216,7 +12267,7 @@ cdef _get_nvlink_supported_bw_modes_v1_dtype_offsets():
     cdef nvmlNvlinkSupportedBwModes_v1_t pod = nvmlNvlinkSupportedBwModes_v1_t()
     return _numpy.dtype({
         'names': ['version', 'bw_modes', 'total_bw_modes'],
-        'formats': [_numpy.uint32, _numpy.uint8, _numpy.uint8],
+        'formats': [_numpy.uint32, (_numpy.uint8, 23), _numpy.uint8],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.bwModes)) - (<intptr_t>&pod),
@@ -12784,7 +12835,7 @@ cdef _get_vgpu_metadata_dtype_offsets():
     cdef nvmlVgpuMetadata_t pod = nvmlVgpuMetadata_t()
     return _numpy.dtype({
         'names': ['version', 'revision', 'guest_info_state', 'guest_driver_version', 'host_driver_version', 'reserved', 'vgpu_virtualization_caps', 'guest_vgpu_version', 'opaque_data_size', 'opaque_data'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.int32, _numpy.int8, _numpy.int8, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int8],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.int32, (_numpy.int8, 80), (_numpy.int8, 80), (_numpy.uint32, 6), _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 4)],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.revision)) - (<intptr_t>&pod),
@@ -13291,7 +13342,7 @@ cdef _get_gpu_instance_profile_info_v2_dtype_offsets():
     cdef nvmlGpuInstanceProfileInfo_v2_t pod = nvmlGpuInstanceProfileInfo_v2_t()
     return _numpy.dtype({
         'names': ['version', 'id', 'is_p2p_supported', 'slice_count', 'instance_count', 'multiprocessor_count', 'copy_engine_count', 'decoder_count', 'encoder_count', 'jpeg_count', 'ofa_count', 'memory_size_mb', 'name'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.int8],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64, (_numpy.int8, 96)],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
@@ -13559,7 +13610,7 @@ cdef _get_gpu_instance_profile_info_v3_dtype_offsets():
     cdef nvmlGpuInstanceProfileInfo_v3_t pod = nvmlGpuInstanceProfileInfo_v3_t()
     return _numpy.dtype({
         'names': ['version', 'id', 'slice_count', 'instance_count', 'multiprocessor_count', 'copy_engine_count', 'decoder_count', 'encoder_count', 'jpeg_count', 'ofa_count', 'memory_size_mb', 'name', 'capabilities'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.int8, _numpy.uint32],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint64, (_numpy.int8, 96), _numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
@@ -13973,7 +14024,7 @@ cdef _get_compute_instance_profile_info_v2_dtype_offsets():
     cdef nvmlComputeInstanceProfileInfo_v2_t pod = nvmlComputeInstanceProfileInfo_v2_t()
     return _numpy.dtype({
         'names': ['version', 'id', 'slice_count', 'instance_count', 'multiprocessor_count', 'shared_copy_engine_count', 'shared_decoder_count', 'shared_encoder_count', 'shared_jpeg_count', 'shared_ofa_count', 'name'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int8],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 96)],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
@@ -14217,7 +14268,7 @@ cdef _get_compute_instance_profile_info_v3_dtype_offsets():
     cdef nvmlComputeInstanceProfileInfo_v3_t pod = nvmlComputeInstanceProfileInfo_v3_t()
     return _numpy.dtype({
         'names': ['version', 'id', 'slice_count', 'instance_count', 'multiprocessor_count', 'shared_copy_engine_count', 'shared_decoder_count', 'shared_encoder_count', 'shared_jpeg_count', 'shared_ofa_count', 'name', 'capabilities'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.int8, _numpy.uint32],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, (_numpy.int8, 96), _numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.id)) - (<intptr_t>&pod),
@@ -15240,7 +15291,7 @@ cdef class DevicePowerMizerModes_v1:
 
     @property
     def supported_power_mizer_modes(self):
-        """int: OUT: Bitmask of supported powermizer modes."""
+        """int: OUT: Bitmask of supported powermizer modes. The bitmask of supported power mizer modes on this device. The supported modes can be combined using the bitwise OR operator '|'. For example, if a device supports all PowerMizer modes, the bitmask would be: supportedPowerMizerModes = ((1 << NVML_POWER_MIZER_MODE_ADAPTIVE) | (1 << NVML_POWER_MIZER_MODE_PREFER_MAXIMUM_PERFORMANCE) | (1 << NVML_POWER_MIZER_MODE_AUTO) | (1 << NVML_POWER_MIZER_MODE_PREFER_CONSISTENT_PERFORMANCE));  This bitmask can be used to check which power mizer modes are available on the device by performing a bitwise AND operation with the specific mode you want to check."""
         return self._ptr[0].supportedPowerMizerModes
 
     @supported_power_mizer_modes.setter
@@ -15495,7 +15546,7 @@ cdef _get_gpu_fabric_info_v3_dtype_offsets():
     cdef nvmlGpuFabricInfo_v3_t pod = nvmlGpuFabricInfo_v3_t()
     return _numpy.dtype({
         'names': ['version', 'cluster_uuid', 'status', 'clique_id', 'state', 'health_mask', 'health_summary'],
-        'formats': [_numpy.uint32, _numpy.uint8, _numpy.int32, _numpy.uint32, _numpy.uint8, _numpy.uint32, _numpy.uint8],
+        'formats': [_numpy.uint32, (_numpy.uint8, 16), _numpy.int32, _numpy.uint32, _numpy.uint8, _numpy.uint32, _numpy.uint8],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.clusterUuid)) - (<intptr_t>&pod),
@@ -16351,7 +16402,7 @@ cdef _get_excluded_device_info_dtype_offsets():
     cdef nvmlExcludedDeviceInfo_t pod = nvmlExcludedDeviceInfo_t()
     return _numpy.dtype({
         'names': ['pci_info', 'uuid'],
-        'formats': [pci_info_dtype, _numpy.int8],
+        'formats': [pci_info_dtype, (_numpy.int8, 80)],
         'offsets': [
             (<intptr_t>&(pod.pciInfo)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.uuid)) - (<intptr_t>&pod),
@@ -16641,7 +16692,7 @@ cdef _get_bridge_chip_hierarchy_dtype_offsets():
     cdef nvmlBridgeChipHierarchy_t pod = nvmlBridgeChipHierarchy_t()
     return _numpy.dtype({
         'names': ['bridge_count', 'bridge_chip_info'],
-        'formats': [_numpy.uint8, bridge_chip_info_dtype],
+        'formats': [_numpy.uint8, (bridge_chip_info_dtype, 128)],
         'offsets': [
             (<intptr_t>&(pod.bridgeCount)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.bridgeChipInfo)) - (<intptr_t>&pod),
@@ -17475,7 +17526,7 @@ cdef _get_gpu_thermal_settings_dtype_offsets():
     cdef nvmlGpuThermalSettings_t pod = nvmlGpuThermalSettings_t()
     return _numpy.dtype({
         'names': ['count', 'sensor'],
-        'formats': [_numpy.uint32, _py_anon_pod0_dtype],
+        'formats': [_numpy.uint32, (_py_anon_pod0_dtype, 3)],
         'offsets': [
             (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.sensor)) - (<intptr_t>&pod),
@@ -17610,7 +17661,7 @@ cdef _get_clk_mon_status_dtype_offsets():
     cdef nvmlClkMonStatus_t pod = nvmlClkMonStatus_t()
     return _numpy.dtype({
         'names': ['b_global_status', 'clk_mon_list_size', 'clk_mon_list'],
-        'formats': [_numpy.uint32, _numpy.uint32, clk_mon_fault_info_dtype],
+        'formats': [_numpy.uint32, _numpy.uint32, (clk_mon_fault_info_dtype, 32)],
         'offsets': [
             (<intptr_t>&(pod.bGlobalStatus)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.clkMonListSize)) - (<intptr_t>&pod),
@@ -17910,7 +17961,7 @@ cdef _get_gpu_dynamic_pstates_info_dtype_offsets():
     cdef nvmlGpuDynamicPstatesInfo_t pod = nvmlGpuDynamicPstatesInfo_t()
     return _numpy.dtype({
         'names': ['flags_', 'utilization'],
-        'formats': [_numpy.uint32, _py_anon_pod1_dtype],
+        'formats': [_numpy.uint32, (_py_anon_pod1_dtype, 8)],
         'offsets': [
             (<intptr_t>&(pod.flags)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.utilization)) - (<intptr_t>&pod),
@@ -18601,7 +18652,7 @@ cdef _get_grid_licensable_feature_dtype_offsets():
     cdef nvmlGridLicensableFeature_t pod = nvmlGridLicensableFeature_t()
     return _numpy.dtype({
         'names': ['feature_code', 'feature_state', 'license_info', 'product_name', 'feature_enabled', 'license_expiry'],
-        'formats': [_numpy.int32, _numpy.uint32, _numpy.int8, _numpy.int8, _numpy.uint32, grid_license_expiry_dtype],
+        'formats': [_numpy.int32, _numpy.uint32, (_numpy.int8, 128), (_numpy.int8, 128), _numpy.uint32, grid_license_expiry_dtype],
         'offsets': [
             (<intptr_t>&(pod.featureCode)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.featureState)) - (<intptr_t>&pod),
@@ -18789,7 +18840,7 @@ cdef _get_unit_fan_speeds_dtype_offsets():
     cdef nvmlUnitFanSpeeds_t pod = nvmlUnitFanSpeeds_t()
     return _numpy.dtype({
         'names': ['fans', 'count'],
-        'formats': [unit_fan_info_dtype, _numpy.uint32],
+        'formats': [(unit_fan_info_dtype, 24), _numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.fans)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.count)) - (<intptr_t>&pod),
@@ -18924,7 +18975,7 @@ cdef _get_vgpu_pgpu_metadata_dtype_offsets():
     cdef nvmlVgpuPgpuMetadata_t pod = nvmlVgpuPgpuMetadata_t()
     return _numpy.dtype({
         'names': ['version', 'revision', 'host_driver_version', 'pgpu_virtualization_caps', 'reserved', 'host_supported_vgpu_range', 'opaque_data_size', 'opaque_data'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.int8, _numpy.uint32, _numpy.uint32, vgpu_version_dtype, _numpy.uint32, _numpy.int8],
+        'formats': [_numpy.uint32, _numpy.uint32, (_numpy.int8, 80), _numpy.uint32, (_numpy.uint32, 5), vgpu_version_dtype, _numpy.uint32, (_numpy.int8, 4)],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.revision)) - (<intptr_t>&pod),
@@ -19593,7 +19644,7 @@ cdef _get_nvlink_firmware_info_dtype_offsets():
     cdef nvmlNvlinkFirmwareInfo_t pod = nvmlNvlinkFirmwareInfo_t()
     return _numpy.dtype({
         'names': ['firmware_version', 'num_valid_entries'],
-        'formats': [nvlink_firmware_version_dtype, _numpy.uint32],
+        'formats': [(nvlink_firmware_version_dtype, 100), _numpy.uint32],
         'offsets': [
             (<intptr_t>&(pod.firmwareVersion)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.numValidEntries)) - (<intptr_t>&pod),
@@ -20039,7 +20090,7 @@ cdef _get_vgpu_scheduler_log_dtype_offsets():
     cdef nvmlVgpuSchedulerLog_t pod = nvmlVgpuSchedulerLog_t()
     return _numpy.dtype({
         'names': ['engine_id', 'scheduler_policy', 'arr_mode', 'scheduler_params', 'entries_count', 'log_entries'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype, _numpy.uint32, vgpu_scheduler_log_entry_dtype],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype, _numpy.uint32, (vgpu_scheduler_log_entry_dtype, 200)],
         'offsets': [
             (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.schedulerPolicy)) - (<intptr_t>&pod),
@@ -20537,7 +20588,7 @@ cdef _get_vgpu_scheduler_log_info_v1_dtype_offsets():
     cdef nvmlVgpuSchedulerLogInfo_v1_t pod = nvmlVgpuSchedulerLogInfo_v1_t()
     return _numpy.dtype({
         'names': ['version', 'engine_id', 'scheduler_policy', 'arr_mode', 'scheduler_params', 'entries_count', 'log_entries'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype, _numpy.uint32, vgpu_scheduler_log_entry_dtype],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32, _numpy.uint32, vgpu_scheduler_params_dtype, _numpy.uint32, (vgpu_scheduler_log_entry_dtype, 200)],
         'offsets': [
             (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.engineId)) - (<intptr_t>&pod),
@@ -20902,7 +20953,7 @@ cdef _get_grid_licensable_features_dtype_offsets():
     cdef nvmlGridLicensableFeatures_t pod = nvmlGridLicensableFeatures_t()
     return _numpy.dtype({
         'names': ['is_grid_license_supported', 'licensable_features_count', 'grid_licensable_features'],
-        'formats': [_numpy.int32, _numpy.uint32, grid_licensable_feature_dtype],
+        'formats': [_numpy.int32, _numpy.uint32, (grid_licensable_feature_dtype, 3)],
         'offsets': [
             (<intptr_t>&(pod.isGridLicenseSupported)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.licensableFeaturesCount)) - (<intptr_t>&pod),
@@ -23083,7 +23134,7 @@ cpdef tuple device_get_gpu_operation_mode(intptr_t device):
 
 
 cpdef object device_get_memory_info_v2(intptr_t device):
-    """Retrieves the amount of used, free, reserved and total memory available on the device, in bytes. The reserved amount is supported on version 2 only.
+    """Retrieves the amount of used, free, reserved and total memory available on the device, in bytes. nvmlDeviceGetMemoryInfo_v2 accounts separately for reserved memory and includes it in the used memory amount.
 
     Args:
         device (intptr_t): The identifier of the target device.
@@ -24631,7 +24682,7 @@ cpdef unsigned int device_get_nvlink_version(intptr_t device, unsigned int link)
         link (unsigned int): Specifies the NvLink link to be queried.
 
     Returns:
-        unsigned int: Requested NvLink version from nvmlNvlinkVersion_t.
+        unsigned int: Requested NvLink version from ``nvmlNvlinkVersion_t``.
 
     .. seealso:: `nvmlDeviceGetNvLinkVersion`
     """
@@ -26665,7 +26716,7 @@ cpdef gpm_sample_get(intptr_t device, intptr_t gpm_sample):
     """Read a sample of GPM metrics into the provided ``gpm_sample`` buffer. After two samples are gathered, you can call nvmlGpmMetricGet on those samples to retrive metrics.
 
     Args:
-        device (intptr_t): Device to get samples for.
+        device (intptr_t): The device handle or MIG device handle to get samples for.
         gpm_sample (intptr_t): Buffer to read samples into.
 
     .. seealso:: `nvmlGpmSampleGet`
@@ -26694,7 +26745,7 @@ cpdef object gpm_query_device_support(intptr_t device):
     """Indicate whether the supplied device supports GPM.
 
     Args:
-        device (intptr_t): NVML device to query for.
+        device (intptr_t): The device handle or MIG device handle to query for.
 
     Returns:
         nvmlGpmSupport_t: Structure to indicate GPM support ``nvmlGpmSupport_t``. Indicates GPM support per system for the supplied device.
@@ -26984,7 +27035,7 @@ cpdef device_set_rusd_settings_v1(intptr_t device, intptr_t settings):
 
     Args:
         device (intptr_t): The identifier of the target device.
-        settings (intptr_t): Reference to nvmlRusdSettings_t struct.
+        settings (intptr_t): Reference to ``nvmlRusdSettings_v1_t`` struct.
 
     .. seealso:: `nvmlDeviceSetRusdSettings_v1`
     """
