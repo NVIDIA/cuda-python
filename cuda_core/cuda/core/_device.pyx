@@ -16,10 +16,6 @@ from cuda.core._event import Event, EventOptions
 from cuda.core._graph import GraphBuilder
 from cuda.core._stream import IsStreamT, Stream, StreamOptions
 from cuda.core._utils.clear_error_support import assert_type
-try:
-    from cuda.bindings.utils import warn_if_cuda_major_version_mismatch
-except ImportError:
-    warn_if_cuda_major_version_mismatch = lambda: None
 from cuda.core._utils.cuda_utils import (
     ComputeCapability,
     CUDAError,
@@ -972,7 +968,12 @@ class Device:
                 HANDLE_RETURN(cydriver.cuInit(0))
                 _is_cuInit = True
             # Check version compatibility after CUDA is initialized
-            warn_if_cuda_major_version_mismatch()
+            try:
+                from cuda.bindings.utils import warn_if_cuda_major_version_mismatch
+            except ImportError:
+                pass
+            else:
+                warn_if_cuda_major_version_mismatch()
 
         # important: creating a Device instance does not initialize the GPU!
         cdef cydriver.CUdevice dev
