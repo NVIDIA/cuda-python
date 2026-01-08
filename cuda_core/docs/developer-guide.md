@@ -28,25 +28,27 @@ To support this, we suggest organizing content from most important to least impo
 
 These are guidelines, not rules. Place helper functions near their call sites if that's clearer. Group related code together if it aids understanding. When in doubt, choose whatever makes the code easiest to read and maintain.
 
+The following is a suggested file organization:
+
 ### 1. SPDX Copyright Header
 
-The file must begin with an SPDX copyright header. Follow the pattern used in existing files. The pre-commit hook will add or update these notices automatically when necessary.
+Every file begins with an SPDX copyright header. The pre-commit hook adds or updates these automatically.
 
 ### 2. Import Statements
 
-Import statements come immediately after the copyright header. Follow the import ordering conventions specified in [Import Statements](#import-statements).
+Imports come next. See [Import Statements](#import-statements) for ordering conventions.
 
-### 3. `__all__` Declaration
+### 3. `__all__` Declaration (Optional)
 
-Each submodule should define `__all__` to specify symbols included in star imports.
+If present, `__all__` specifies symbols included in star imports.
 
 ```python
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
 ```
 
-### 4. Type Aliases and Constants
+### 4. Type Aliases and Constants (Optional)
 
-Type aliases and module-level constants may immediately follow `__all__` (if present) or come after imports:
+Type aliases and module-level constants, if any, come next.
 
 ```python
 DevicePointerT = driver.CUdeviceptr | int | None
@@ -57,34 +59,19 @@ LEGACY_DEFAULT_STREAM = C_LEGACY_DEFAULT_STREAM
 
 ### 5. Principal Class or Function
 
-If the file principally implements a single class or function (e.g., `_buffer.pyx` defines the `Buffer` class, `_device.pyx` defines the `Device` class), that principal class or function should come next, immediately after `__all__` (if present).
-
-The principal class or function typically appears first in its section.
+If the file centers on a single class or function (e.g., `_buffer.pyx` defines `Buffer`, `_device.pyx` defines `Device`), that principal element comes first among the definitions.
 
 ### 6. Other Public Classes and Functions
 
-Following the principal class or function, define other public classes and functions. These include:
-
-- **Auxiliary classes**: Supporting classes that are part of the public API (e.g., `DeviceMemoryResourceOptions` is an auxiliary class used by `DeviceMemoryResource`)
-- **Abstract base classes**: ABCs that define interfaces (e.g., `MemoryResource` in `_buffer.pyx`)
-- **Other public classes**: Additional classes exported by the module
-
-Consider organizing classes and functions logically—for example, by grouping related functionality or by order of typical usage. When no clear logical ordering exists, alphabetical ordering can help with discoverability.
-
-**Example:** In `_device_memory_resource.pyx`, `DeviceMemoryResource` is the principal class and appears first, followed by `DeviceMemoryResourceOptions` (its options class).
+Other public classes and functions follow. These might include auxiliary classes (e.g., `DeviceMemoryResourceOptions`), abstract base classes, or additional exports. Organize them logically—by related functionality or typical usage.
 
 ### 7. Public Module Functions
 
-After all classes, define public module-level functions that are part of the API.
+Public module-level functions come after classes.
 
-### 8. Private or Implementation Functions
+### 8. Private and Implementation Details
 
-Finally, define private functions and implementation details. These include:
-
-- Functions with names starting with `_` (private)
-- `cdef inline` functions used for internal implementation
-- Helper functions not part of the public API
-- Any specialized or low-level code that would distract from the principal content
+Finally, private functions and implementation details: functions prefixed with `_`, `cdef inline` helpers, and any specialized code that would distract from the principal content.
 
 ### Example Structure
 
