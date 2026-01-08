@@ -86,6 +86,9 @@ def get_driver_branch() -> str:
     """
     Retrieves the driver branch of the NVIDIA driver installed on the system.
     """
+    if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+        raise RuntimeError("NVML library is not available")
+    initialize()
     return nvml.system_get_driver_branch()
 
 
