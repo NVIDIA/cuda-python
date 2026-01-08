@@ -146,8 +146,11 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
 
 def _get_cuda_bindings_require():
-    cuda_major = _determine_cuda_major_version()
-    return [f"cuda-bindings=={cuda_major}.*"]
+    # When building from source, we want to use the local editable installation
+    # of cuda-bindings, not pull from PyPI. Return empty list to let pip use
+    # whatever is already installed (which should be the editable version).
+    # The optional dependencies in pyproject.toml will handle runtime dependencies.
+    return []
 
 
 def get_requires_for_build_editable(config_settings=None):
