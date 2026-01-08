@@ -168,10 +168,23 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
 def _get_cuda_bindings_require():
     # When building from source, we want to use the local editable installation
-    # of cuda-bindings, not pull from PyPI. Return empty list to let pip use
-    # whatever is already installed (which should be the editable version).
+    # of cuda-bindings, not pull from PyPI. Return a local path requirement
+    # pointing to the sibling cuda_bindings directory.
     # The optional dependencies in pyproject.toml will handle runtime dependencies.
-    return []
+    cuda_major = _determine_cuda_major_version()
+    # Use a local path requirement to ensure we use the editable install
+    # This prevents pip from pulling from PyPI during backend dependency installation
+    # Format: file:///absolute/path (PEP 508: three slashes for absolute paths)
+    cuda_bindings_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cuda_bindings")
+    if os.path.exists(os.path.join(cuda_bindings_path, "pyproject.toml")):
+        # Return local path requirement (pip will install it from local source)
+        abs_path = os.path.abspath(cuda_bindings_path)
+        # Use file:/// URL format for absolute paths (PEP 508: three slashes)
+        return [f"file:///{abs_path}#egg=cuda-bindings"]
+    else:
+        # Fallback to version requirement if local path doesn't exist
+        # (shouldn't happen in normal builds, but provides safety)
+        return [f"cuda-bindings=={cuda_major}.*"]
 
 
 def get_requires_for_build_editable(config_settings=None):
