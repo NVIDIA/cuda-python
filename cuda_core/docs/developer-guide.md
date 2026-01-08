@@ -30,7 +30,11 @@ This guide defines conventions for Python and Cython code in `cuda/core`.
 
 ## File Structure
 
-Files in `cuda/core` should follow a consistent structure. The suggested ordering of elements within a file is as follows. Developers are free to deviate when a different organization makes more sense for a particular file.
+Files in `cuda/core` should follow a sensible structure. The suggested ordering of elements within a file is as follows. Developers are free to deviate when a different organization makes more sense for a particular file.
+
+The guiding principle is that content should flow from most important to least important—principal classes first, then supporting classes, then implementation details. This allows readers to start at the top and quickly find what's most relevant. Unlike C/C++ where definitions must precede uses, Python has no such constraint, so we can optimize for readability.
+
+This is not a strict rule. It is sometimes better (and perfectly fine) to place small helper functions near their point of use. When in doubt, optimize for readability.
 
 ### 1. SPDX Copyright Header
 
@@ -42,7 +46,7 @@ Import statements come immediately after the copyright header. Follow the import
 
 ### 3. `__all__` Declaration
 
-If the module exports public API elements, include an `__all__` list after the imports and before any other code. This explicitly defines the public API of the module.
+Each submodule should define `__all__` to specify symbols included in star imports.
 
 ```python
 __all__ = ['DeviceMemoryResource', 'DeviceMemoryResourceOptions']
@@ -88,6 +92,7 @@ Finally, define private functions and implementation details. These include:
 - Functions with names starting with `_` (private)
 - `cdef inline` functions used for internal implementation
 - Helper functions not part of the public API
+- Any specialized or low-level code that would distract from the principal content
 
 ### Example Structure
 
@@ -206,7 +211,7 @@ cdef class DeviceProperties:
 For complex subpackages that require extra structure (like `_memory/`), use the following pattern:
 
 1. **Private submodules**: Each component is implemented in a private submodule (e.g., `_buffer.pyx`, `_device_memory_resource.pyx`)
-2. **Submodule `__all__`**: Each submodule defines its own `__all__` list with the symbols it exports
+2. **Submodule `__all__`**: Each submodule defines its own `__all__` list
 3. **Subpackage `__init__.py`**: The subpackage `__init__.py` uses `from ._module import *` to assemble the package
 
 **Example structure for `_memory/` subpackage:**
@@ -245,7 +250,7 @@ from ._virtual_memory_resource import *  # noqa: F403
 
 This pattern allows:
 - **Modular organization**: Each component lives in its own file
-- **Clear public API**: Each submodule explicitly defines what it exports via `__all__`
+- **Clear star-import behavior**: Each submodule explicitly defines what it exports via `__all__`
 - **Clean package interface**: The subpackage `__init__.py` assembles all exports into a single namespace
 - **Easier refactoring**: Components can be moved or reorganized without changing the public API
 
@@ -257,7 +262,7 @@ This pattern allows:
 
 2. **Keep `.pxd` files minimal**: Only include declarations needed for Cython compilation. Omit implementation details, docstrings, and Python-only code.
 
-3. **Use `__all__` in submodules**: Each submodule should define `__all__` to explicitly declare its public API.
+3. **Use `__all__` in submodules**: Each submodule should define `__all__`.
 
 4. **Use `from ._module import *` in subpackage `__init__.py`**: This pattern assembles the subpackage API from its submodules. Use `# noqa: F403` to suppress linting warnings about wildcard imports.
 
@@ -1516,12 +1521,10 @@ cdef size_t size = self._size
 
 Use naming conventions to distinguish public and private APIs:
 
-- **Public API**: No leading underscore, documented in docstrings, included in `__all__`
-- **Private API**: Leading underscore (`_`), may have minimal documentation, not in `__all__`
+- **Public API**: No leading underscore, documented in docstrings
+- **Private API**: Leading underscore (`_`), may have minimal documentation
 
 ```python
-__all__ = ['Buffer', 'MemoryResource']  # Public API
-
 # Public API
 cdef class Buffer:
     def allocate(self):  # Public method
@@ -1578,7 +1581,7 @@ Design APIs to fail fast with clear error messages:
 
 2. **Document public APIs**: All public APIs must have complete docstrings following the [Docstrings](#docstrings) guidelines.
 
-3. **Use `__all__` explicitly**: List all public symbols in `__all__` to clearly define the module's public API.
+3. **Use `__all__` explicitly**: Each submodule should define `__all__` to specify symbols included in star imports.
 
 4. **Use type hints**: Provide type annotations for all public APIs to improve IDE support and documentation.
 
