@@ -800,14 +800,14 @@ Use Sphinx cross-reference roles to link to other documented objects. Use the mo
 
 | Role | Use for | Example |
 |------|---------|---------|
-| `:class:` | Classes | `:class:`Buffer`` |
-| `:func:` | Functions | `:func:`launch`` |
-| `:meth:` | Methods | `:meth:`Device.create_stream`` |
-| `:attr:` | Attributes | `:attr:`device_id`` |
-| `:mod:` | Modules | `:mod:`multiprocessing`` |
-| `:obj:` | Type aliases, other objects | `:obj:`DevicePointerT`` |
+| `:class:` | Classes | `` :class:`Buffer` `` |
+| `:func:` | Functions | `` :func:`launch` `` |
+| `:meth:` | Methods | `` :meth:`Device.create_stream` `` |
+| `:attr:` | Attributes | `` :attr:`device_id` `` |
+| `:mod:` | Modules | `` :mod:`multiprocessing` `` |
+| `:obj:` | Type aliases, other objects | `` :obj:`DevicePointerT` `` |
 
-The `~` prefix displays only the final component: `:class:`~cuda.core.Buffer`` renders as "Buffer" while still linking to the full path.
+The `~` prefix displays only the final component: `` :class:`~cuda.core.Buffer` `` renders as "Buffer" while still linking to the full path.
 
 For more details, see the [Sphinx Python domain documentation](https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects).
 
