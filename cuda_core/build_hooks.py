@@ -179,8 +179,9 @@ def _get_cuda_bindings_require():
     if os.path.exists(os.path.join(cuda_bindings_path, "pyproject.toml")):
         # Return local path requirement (pip will install it from local source)
         abs_path = os.path.abspath(cuda_bindings_path)
-        # Use file:/// URL format for absolute paths (PEP 508: three slashes)
-        return [f"file:///{abs_path}#egg=cuda-bindings"]
+        # Use file:// URL format for absolute paths (PEP 508: file:///path)
+        # abs_path already starts with /, so use file:// + abs_path (not file:///)
+        return [f"file://{abs_path}#egg=cuda-bindings"]
     else:
         # Fallback to version requirement if local path doesn't exist
         # (shouldn't happen in normal builds, but provides safety)
