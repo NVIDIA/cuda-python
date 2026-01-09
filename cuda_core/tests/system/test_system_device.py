@@ -13,6 +13,7 @@ import os
 import re
 import sys
 
+import helpers
 import pytest
 from cuda.core import system
 from cuda.core.system import _device as system_device
@@ -25,11 +26,6 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 def check_gpu_available():
     if not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE or system.get_num_devices() == 0:
         pytest.skip("No GPUs available to run device tests", allow_module_level=True)
-
-
-def test_device_index_handle():
-    for device in system.Device.get_all_devices():
-        assert isinstance(device.handle, int)
 
 
 def test_device_architecture():
@@ -189,3 +185,60 @@ def test_unpack_bitmask(params):
 def test_unpack_bitmask_single_value():
     with pytest.raises(TypeError):
         system_device._unpack_bitmask(1)
+
+
+def test_device_brand():
+    for device in system.Device.get_all_devices():
+        brand = device.brand
+        assert isinstance(brand, system_device.BrandType)
+        assert isinstance(brand.name, str)
+        assert isinstance(brand.value, int)
+
+
+def test_device_pci_bus_id():
+    for device in system.Device.get_all_devices():
+        pci_bus_id = device.pci_info.bus_id
+        assert isinstance(pci_bus_id, str)
+
+        new_device = system.Device(pci_bus_id=device.pci_info.bus_id)
+        assert new_device.index == device.index
+
+
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
+def test_device_attributes():
+    for device in system.Device.get_all_devices():
+        attributes = device.attributes
+        assert isinstance(attributes, system_device.DeviceAttributes)
+
+        assert isinstance(attributes.multiprocessor_count, int)
+        assert attributes.multiprocessor_count > 0
+
+        assert isinstance(attributes.shared_copy_engine_count, int)
+        assert isinstance(attributes.shared_decoder_count, int)
+        assert isinstance(attributes.shared_encoder_count, int)
+        assert isinstance(attributes.shared_jpeg_count, int)
+        assert isinstance(attributes.shared_ofa_count, int)
+        assert isinstance(attributes.gpu_instance_slice_count, int)
+        assert isinstance(attributes.compute_instance_slice_count, int)
+        assert isinstance(attributes.memory_size_mb, int)
+        assert attributes.memory_size_mb > 0
+
+
+def test_c2c_mode_enabled():
+    skip_reasons = set()
+    for device in system.Device.get_all_devices():
+        try:
+            is_enabled = device.is_c2c_mode_enabled
+        except nvml.NotSupportedError:
+            skip_reasons.add(f"C2C mode info not supported on {device}")
+        else:
+            assert isinstance(is_enabled, bool)
+    if skip_reasons:
+        pytest.skip(" ; ".join(skip_reasons))
+
+
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Persistence mode not supported on WSL or Windows")
+def test_persistence_mode_enabled():
+    for device in system.Device.get_all_devices():
+        is_enabled = device.persistence_mode_enabled
+        assert isinstance(is_enabled, bool)

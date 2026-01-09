@@ -72,6 +72,7 @@ CUDA system information and NVIDIA Management Library (NVML)
 
    system.get_driver_version
    system.get_driver_version_full
+   system.get_driver_branch
    system.get_num_devices
    system.get_nvml_version
    system.get_process_name
@@ -79,11 +80,12 @@ CUDA system information and NVIDIA Management Library (NVML)
    :template: autosummary/cyclass.rst
 
    system.Device
-   system.DeviceArchitecture
-   system.MemoryInfo
    system.BAR1MemoryInfo
+   system.BrandType
+   system.DeviceArchitecture
+   system.DeviceAttributes
+   system.MemoryInfo
    system.PciInfo
-
 
 .. module:: cuda.core.utils
 
