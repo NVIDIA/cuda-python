@@ -15,6 +15,7 @@ import sys
 
 import pytest
 from cuda.core import system
+from cuda.core.system import _device
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from cuda.bindings import _nvml as nvml
@@ -182,12 +183,12 @@ def test_device_uuid():
     ],
 )
 def test_unpack_bitmask(params):
-    assert system._unpack_bitmask(array.array("Q", params["input"])) == params["output"]
+    assert _device._unpack_bitmask(array.array("Q", params["input"])) == params["output"]
 
 
 def test_unpack_bitmask_single_value():
     with pytest.raises(TypeError):
-        system._unpack_bitmask(1)
+        _device._unpack_bitmask(1)
 
 
 def test_field_values():
