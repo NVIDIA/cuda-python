@@ -8,43 +8,24 @@ cuda.core.Kernel
 
 .. autoclass:: Kernel
 
+   
+   
+   .. rubric:: Methods
 
+   
+   .. automethod:: __init__
 
+   
+   
 
-Kernel.__init__
----------------
+   
+   
+   .. rubric:: Attributes
 
-.. automethod:: Kernel.__init__
-
-
-
-
-
-
-
-
-Kernel.arguments_info
----------------------
-
-.. autoproperty:: Kernel.arguments_info
-
-
-Kernel.attributes
------------------
-
-.. autoproperty:: Kernel.attributes
-
-
-Kernel.num_arguments
---------------------
-
-.. autoproperty:: Kernel.num_arguments
-
-
-Kernel.occupancy
-----------------
-
-.. autoproperty:: Kernel.occupancy
-
-
-
+   
+   .. autoproperty:: arguments_info
+   .. autoproperty:: attributes
+   .. autoproperty:: num_arguments
+   .. autoproperty:: occupancy
+   
+   

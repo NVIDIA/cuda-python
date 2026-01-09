@@ -8,43 +8,24 @@ cuda.core.\_module.ParamInfo
 
 .. autoclass:: ParamInfo
 
+   
+   
+   .. rubric:: Methods
 
+   
+   .. automethod:: __init__
+   .. automethod:: count
+   .. automethod:: index
 
+   
+   
 
-ParamInfo.__init__
-------------------
+   
+   
+   .. rubric:: Attributes
 
-.. automethod:: ParamInfo.__init__
-
-
-ParamInfo.count
----------------
-
-.. automethod:: ParamInfo.count
-
-
-ParamInfo.index
----------------
-
-.. automethod:: ParamInfo.index
-
-
-
-
-
-
-
-
-ParamInfo.offset
-----------------
-
-.. autoproperty:: ParamInfo.offset
-
-
-ParamInfo.size
---------------
-
-.. autoproperty:: ParamInfo.size
-
-
-
+   
+   .. autoproperty:: offset
+   .. autoproperty:: size
+   
+   

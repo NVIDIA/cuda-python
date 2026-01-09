@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f23e6f88"></script>
+    <script src="../_static/documentation_options.js?v=89a4c239"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev25';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev28';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -593,21 +593,15 @@ capturing is enabled results in a runtime error.</p>
 <dd class="field-odd"><p><strong>device_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><em>Device</em></a>) – Device or Device ordinal for which a graph memory resource is obtained.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<section id="graphmemoryresource-init">
-<h2>GraphMemoryResource.__init__<a class="headerlink" href="#graphmemoryresource-init" title="Link to this heading">#</a></h2>
+<p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphMemoryResource.__init__">
-<span class="sig-prename descclassname"><span class="pre">GraphMemoryResource.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphMemoryResource.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphMemoryResource.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-</section>
-<section id="graphmemoryresource-allocate">
-<h2>GraphMemoryResource.allocate<a class="headerlink" href="#graphmemoryresource-allocate" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphMemoryResource.allocate">
-<span class="sig-prename descclassname"><span class="pre">GraphMemoryResource.</span></span><span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
+<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -619,21 +613,15 @@ capturing is enabled results in a runtime error.</p>
 <dd><p>Allocate a buffer of the requested size. See documentation for <code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code>.</p>
 </dd></dl>
 
-</section>
-<section id="graphmemoryresource-close">
-<h2>GraphMemoryResource.close<a class="headerlink" href="#graphmemoryresource-close" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphMemoryResource.close">
-<span class="sig-prename descclassname"><span class="pre">GraphMemoryResource.</span></span><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphMemoryResource.close" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphMemoryResource.close" title="Link to this definition">#</a></dt>
 <dd><p>No operation (provided for compatibility).</p>
 </dd></dl>
 
-</section>
-<section id="graphmemoryresource-deallocate">
-<h2>GraphMemoryResource.deallocate<a class="headerlink" href="#graphmemoryresource-deallocate" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphMemoryResource.deallocate">
-<span class="sig-prename descclassname"><span class="pre">GraphMemoryResource.</span></span><span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span>
+<span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -646,28 +634,15 @@ capturing is enabled results in a runtime error.</p>
 <dd><p>Deallocate a buffer of the requested size. See documentation for <code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code>.</p>
 </dd></dl>
 
-</section>
-<section id="graphmemoryresource-trim">
-<h2>GraphMemoryResource.trim<a class="headerlink" href="#graphmemoryresource-trim" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphMemoryResource.trim">
-<span class="sig-prename descclassname"><span class="pre">GraphMemoryResource.</span></span><span class="sig-name descname"><span class="pre">trim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphMemoryResource.trim" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">trim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphMemoryResource.trim" title="Link to this definition">#</a></dt>
 <dd><p>Free unused memory that was cached on the specified device for use with graphs back to the OS.</p>
 </dd></dl>
 
-</section>
-<section id="graphmemoryresource-attributes">
-<h2>GraphMemoryResource.attributes<a class="headerlink" href="#graphmemoryresource-attributes" title="Link to this heading">#</a></h2>
-</section>
-<section id="graphmemoryresource-device-id">
-<h2>GraphMemoryResource.device_id<a class="headerlink" href="#graphmemoryresource-device-id" title="Link to this heading">#</a></h2>
-</section>
-<section id="graphmemoryresource-is-device-accessible">
-<h2>GraphMemoryResource.is_device_accessible<a class="headerlink" href="#graphmemoryresource-is-device-accessible" title="Link to this heading">#</a></h2>
-</section>
-<section id="graphmemoryresource-is-host-accessible">
-<h2>GraphMemoryResource.is_host_accessible<a class="headerlink" href="#graphmemoryresource-is-host-accessible" title="Link to this heading">#</a></h2>
-</section>
+<p class="rubric">Attributes</p>
+</dd></dl>
+
 </section>
 
 
@@ -719,33 +694,25 @@ capturing is enabled results in a runtime error.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphMemoryResource"><code class="docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphmemoryresource-init">GraphMemoryResource.__init__</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphMemoryResource"><code class="docutils literal notranslate"><span class="pre">GraphMemoryResource</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphMemoryResource.__init__"><code class="docutils literal notranslate"><span class="pre">GraphMemoryResource.__init__()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphmemoryresource-allocate">GraphMemoryResource.allocate</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphMemoryResource.allocate"><code class="docutils literal notranslate"><span class="pre">GraphMemoryResource.allocate()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphmemoryresource-close">GraphMemoryResource.close</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphMemoryResource.close"><code class="docutils literal notranslate"><span class="pre">GraphMemoryResource.close()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphmemoryresource-deallocate">GraphMemoryResource.deallocate</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphMemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">GraphMemoryResource.deallocate()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphmemoryresource-trim">GraphMemoryResource.trim</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphMemoryResource.trim"><code class="docutils literal notranslate"><span class="pre">GraphMemoryResource.trim()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphmemoryresource-attributes">GraphMemoryResource.attributes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphmemoryresource-device-id">GraphMemoryResource.device_id</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphmemoryresource-is-device-accessible">GraphMemoryResource.is_device_accessible</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphmemoryresource-is-host-accessible">GraphMemoryResource.is_host_accessible</a></li>
 </ul>
   </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/generated/cuda.core.GraphMemoryResource.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               

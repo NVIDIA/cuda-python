@@ -8,121 +8,37 @@ cuda.core.PinnedMemoryResource
 
 .. autoclass:: PinnedMemoryResource
 
-
-
-
-PinnedMemoryResource.__init__
------------------------------
-
-.. automethod:: PinnedMemoryResource.__init__
-
-
-PinnedMemoryResource.allocate
------------------------------
-
-.. automethod:: PinnedMemoryResource.allocate
-
-
-PinnedMemoryResource.close
---------------------------
-
-.. automethod:: PinnedMemoryResource.close
-
-
-PinnedMemoryResource.deallocate
--------------------------------
-
-.. automethod:: PinnedMemoryResource.deallocate
-
-
-PinnedMemoryResource.from_allocation_handle
--------------------------------------------
-
-.. automethod:: PinnedMemoryResource.from_allocation_handle
-
-
-PinnedMemoryResource.from_registry
-----------------------------------
-
-.. automethod:: PinnedMemoryResource.from_registry
-
-
-PinnedMemoryResource.get_allocation_handle
-------------------------------------------
-
-.. automethod:: PinnedMemoryResource.get_allocation_handle
-
-
-PinnedMemoryResource.register
------------------------------
-
-.. automethod:: PinnedMemoryResource.register
-
-
-
-
-
-
-
-
-PinnedMemoryResource.attributes
--------------------------------
-
-.. autoproperty:: PinnedMemoryResource.attributes
-
-
-PinnedMemoryResource.device_id
-------------------------------
-
-.. autoproperty:: PinnedMemoryResource.device_id
-
-
-PinnedMemoryResource.handle
----------------------------
-
-.. autoproperty:: PinnedMemoryResource.handle
-
-
-PinnedMemoryResource.is_device_accessible
------------------------------------------
-
-.. autoproperty:: PinnedMemoryResource.is_device_accessible
-
-
-PinnedMemoryResource.is_handle_owned
-------------------------------------
-
-.. autoproperty:: PinnedMemoryResource.is_handle_owned
-
-
-PinnedMemoryResource.is_host_accessible
----------------------------------------
-
-.. autoproperty:: PinnedMemoryResource.is_host_accessible
-
-
-PinnedMemoryResource.is_ipc_enabled
------------------------------------
-
-.. autoproperty:: PinnedMemoryResource.is_ipc_enabled
-
-
-PinnedMemoryResource.is_mapped
-------------------------------
-
-.. autoproperty:: PinnedMemoryResource.is_mapped
-
-
-PinnedMemoryResource.peer_accessible_by
----------------------------------------
-
-.. autoproperty:: PinnedMemoryResource.peer_accessible_by
-
-
-PinnedMemoryResource.uuid
--------------------------
-
-.. autoproperty:: PinnedMemoryResource.uuid
-
-
-
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: allocate
+   .. automethod:: close
+   .. automethod:: deallocate
+   .. automethod:: from_allocation_handle
+   .. automethod:: from_registry
+   .. automethod:: get_allocation_handle
+   .. automethod:: register
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoproperty:: attributes
+   .. autoproperty:: device_id
+   .. autoproperty:: handle
+   .. autoproperty:: is_device_accessible
+   .. autoproperty:: is_handle_owned
+   .. autoproperty:: is_host_accessible
+   .. autoproperty:: is_ipc_enabled
+   .. autoproperty:: is_mapped
+   .. autoproperty:: peer_accessible_by
+   .. autoproperty:: uuid
+   
+   

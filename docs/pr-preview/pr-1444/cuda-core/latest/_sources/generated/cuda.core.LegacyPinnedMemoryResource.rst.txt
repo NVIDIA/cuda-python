@@ -8,49 +8,25 @@ cuda.core.LegacyPinnedMemoryResource
 
 .. autoclass:: LegacyPinnedMemoryResource
 
+   
+   
+   .. rubric:: Methods
 
+   
+   .. automethod:: __init__
+   .. automethod:: allocate
+   .. automethod:: deallocate
 
+   
+   
 
-LegacyPinnedMemoryResource.__init__
------------------------------------
+   
+   
+   .. rubric:: Attributes
 
-.. automethod:: LegacyPinnedMemoryResource.__init__
-
-
-LegacyPinnedMemoryResource.allocate
------------------------------------
-
-.. automethod:: LegacyPinnedMemoryResource.allocate
-
-
-LegacyPinnedMemoryResource.deallocate
--------------------------------------
-
-.. automethod:: LegacyPinnedMemoryResource.deallocate
-
-
-
-
-
-
-
-
-LegacyPinnedMemoryResource.device_id
-------------------------------------
-
-.. autoproperty:: LegacyPinnedMemoryResource.device_id
-
-
-LegacyPinnedMemoryResource.is_device_accessible
------------------------------------------------
-
-.. autoproperty:: LegacyPinnedMemoryResource.is_device_accessible
-
-
-LegacyPinnedMemoryResource.is_host_accessible
----------------------------------------------
-
-.. autoproperty:: LegacyPinnedMemoryResource.is_host_accessible
-
-
-
+   
+   .. autoproperty:: device_id
+   .. autoproperty:: is_device_accessible
+   .. autoproperty:: is_host_accessible
+   
+   

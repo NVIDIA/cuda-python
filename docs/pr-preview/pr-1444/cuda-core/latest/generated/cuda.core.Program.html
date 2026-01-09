@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f23e6f88"></script>
+    <script src="../_static/documentation_options.js?v=89a4c239"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev25';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev28';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -604,13 +604,10 @@ See <a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.
 </ul>
 </dd>
 </dl>
-</dd></dl>
-
-<section id="program-init">
-<h2>Program.__init__<a class="headerlink" href="#program-init" title="Link to this heading">#</a></h2>
+<p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Program.__init__">
-<span class="sig-prename descclassname"><span class="pre">Program.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">code</span></span></em>,</dd>
@@ -621,21 +618,15 @@ See <a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Program.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-</section>
-<section id="program-close">
-<h2>Program.close<a class="headerlink" href="#program-close" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Program.close">
-<span class="sig-prename descclassname"><span class="pre">Program.</span></span><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Program.close" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Program.close" title="Link to this definition">#</a></dt>
 <dd><p>Destroy this program.</p>
 </dd></dl>
 
-</section>
-<section id="program-compile">
-<h2>Program.compile<a class="headerlink" href="#program-compile" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Program.compile">
-<span class="sig-prename descclassname"><span class="pre">Program.</span></span><span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_expressions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Program.compile" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_expressions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Program.compile" title="Link to this definition">#</a></dt>
 <dd><p>Compile the program with a specific compilation type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -658,21 +649,16 @@ from compilation.
 </dl>
 </dd></dl>
 
-</section>
-<section id="program-backend">
-<h2>Program.backend<a class="headerlink" href="#program-backend" title="Link to this heading">#</a></h2>
+<p class="rubric">Attributes</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.Program.backend">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Program.</span></span><span class="sig-name descname"><span class="pre">backend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#cuda.core.Program.backend" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#cuda.core.Program.backend" title="Link to this definition">#</a></dt>
 <dd><p>Return this Program instance’s underlying backend.</p>
 </dd></dl>
 
-</section>
-<section id="program-handle">
-<h2>Program.handle<a class="headerlink" href="#program-handle" title="Link to this heading">#</a></h2>
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.Program.handle">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Program.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ProgramHandleT</span></em><a class="headerlink" href="#cuda.core.Program.handle" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ProgramHandleT</span></em><a class="headerlink" href="#cuda.core.Program.handle" title="Link to this definition">#</a></dt>
 <dd><p>Return the underlying handle object.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -685,7 +671,8 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Pr
 </div>
 </dd></dl>
 
-</section>
+</dd></dl>
+
 </section>
 
 
@@ -737,29 +724,25 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Pr
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program"><code class="docutils literal notranslate"><span class="pre">Program</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#program-init">Program.__init__</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program"><code class="docutils literal notranslate"><span class="pre">Program</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.__init__"><code class="docutils literal notranslate"><span class="pre">Program.__init__()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#program-close">Program.close</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.close"><code class="docutils literal notranslate"><span class="pre">Program.close()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#program-compile">Program.compile</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.compile"><code class="docutils literal notranslate"><span class="pre">Program.compile()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#program-backend">Program.backend</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.backend"><code class="docutils literal notranslate"><span class="pre">Program.backend</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#program-handle">Program.handle</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.handle"><code class="docutils literal notranslate"><span class="pre">Program.handle</span></code></a></li>
 </ul>
 </li>
 </ul>
   </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/generated/cuda.core.Program.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               

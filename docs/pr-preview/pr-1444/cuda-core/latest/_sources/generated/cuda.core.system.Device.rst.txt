@@ -8,85 +8,31 @@ cuda.core.system.Device
 
 .. autoclass:: Device
 
+   
+   
+   .. rubric:: Methods
 
+   
+   .. automethod:: __init__
+   .. automethod:: get_all_devices
 
+   
+   
 
-Device.__init__
----------------
+   
+   
+   .. rubric:: Attributes
 
-.. automethod:: Device.__init__
-
-
-Device.get_all_devices
-----------------------
-
-.. automethod:: Device.get_all_devices
-
-
-
-
-
-
-
-
-Device.architecture
--------------------
-
-.. autoattribute:: Device.architecture
-
-
-Device.bar1_memory_info
------------------------
-
-.. autoattribute:: Device.bar1_memory_info
-
-
-Device.cpu_affinity
--------------------
-
-.. autoattribute:: Device.cpu_affinity
-
-
-Device.cuda_compute_capability
-------------------------------
-
-.. autoattribute:: Device.cuda_compute_capability
-
-
-Device.handle
--------------
-
-.. autoattribute:: Device.handle
-
-
-Device.memory_info
-------------------
-
-.. autoattribute:: Device.memory_info
-
-
-Device.name
------------
-
-.. autoattribute:: Device.name
-
-
-Device.pci_info
----------------
-
-.. autoattribute:: Device.pci_info
-
-
-Device.serial
--------------
-
-.. autoattribute:: Device.serial
-
-
-Device.uuid
------------
-
-.. autoattribute:: Device.uuid
-
-
-
+   
+   .. autoattribute:: architecture
+   .. autoattribute:: bar1_memory_info
+   .. autoattribute:: cpu_affinity
+   .. autoattribute:: cuda_compute_capability
+   .. autoattribute:: handle
+   .. autoattribute:: memory_info
+   .. autoattribute:: name
+   .. autoattribute:: pci_info
+   .. autoattribute:: serial
+   .. autoattribute:: uuid
+   
+   

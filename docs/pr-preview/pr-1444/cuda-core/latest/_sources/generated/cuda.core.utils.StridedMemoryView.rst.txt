@@ -8,91 +8,32 @@ cuda.core.utils.StridedMemoryView
 
 .. autoclass:: StridedMemoryView
 
+   
+   
+   .. rubric:: Methods
 
+   
+   .. automethod:: __init__
+   .. automethod:: copy_from
+   .. automethod:: copy_to
+   .. automethod:: from_any_interface
+   .. automethod:: from_array_interface
+   .. automethod:: from_buffer
+   .. automethod:: from_cuda_array_interface
+   .. automethod:: from_dlpack
+   .. automethod:: view
 
+   
+   
 
-StridedMemoryView.__init__
---------------------------
+   
+   
+   .. rubric:: Attributes
 
-.. automethod:: StridedMemoryView.__init__
-
-
-StridedMemoryView.copy_from
----------------------------
-
-.. automethod:: StridedMemoryView.copy_from
-
-
-StridedMemoryView.copy_to
--------------------------
-
-.. automethod:: StridedMemoryView.copy_to
-
-
-StridedMemoryView.from_any_interface
-------------------------------------
-
-.. automethod:: StridedMemoryView.from_any_interface
-
-
-StridedMemoryView.from_array_interface
---------------------------------------
-
-.. automethod:: StridedMemoryView.from_array_interface
-
-
-StridedMemoryView.from_buffer
------------------------------
-
-.. automethod:: StridedMemoryView.from_buffer
-
-
-StridedMemoryView.from_cuda_array_interface
--------------------------------------------
-
-.. automethod:: StridedMemoryView.from_cuda_array_interface
-
-
-StridedMemoryView.from_dlpack
------------------------------
-
-.. automethod:: StridedMemoryView.from_dlpack
-
-
-StridedMemoryView.view
-----------------------
-
-.. automethod:: StridedMemoryView.view
-
-
-
-
-
-
-
-
-StridedMemoryView.dtype
------------------------
-
-.. autoattribute:: StridedMemoryView.dtype
-
-
-StridedMemoryView.shape
------------------------
-
-.. autoattribute:: StridedMemoryView.shape
-
-
-StridedMemoryView.size
-----------------------
-
-.. autoattribute:: StridedMemoryView.size
-
-
-StridedMemoryView.strides
--------------------------
-
-.. autoattribute:: StridedMemoryView.strides
-
-
-
+   
+   .. autoattribute:: dtype
+   .. autoattribute:: shape
+   .. autoattribute:: size
+   .. autoattribute:: strides
+   
+   

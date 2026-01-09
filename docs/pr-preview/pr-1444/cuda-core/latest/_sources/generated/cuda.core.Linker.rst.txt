@@ -8,55 +8,26 @@ cuda.core.Linker
 
 .. autoclass:: Linker
 
+   
+   
+   .. rubric:: Methods
 
+   
+   .. automethod:: __init__
+   .. automethod:: close
+   .. automethod:: get_error_log
+   .. automethod:: get_info_log
+   .. automethod:: link
 
+   
+   
 
-Linker.__init__
----------------
+   
+   
+   .. rubric:: Attributes
 
-.. automethod:: Linker.__init__
-
-
-Linker.close
-------------
-
-.. automethod:: Linker.close
-
-
-Linker.get_error_log
---------------------
-
-.. automethod:: Linker.get_error_log
-
-
-Linker.get_info_log
--------------------
-
-.. automethod:: Linker.get_info_log
-
-
-Linker.link
------------
-
-.. automethod:: Linker.link
-
-
-
-
-
-
-
-
-Linker.backend
---------------
-
-.. autoproperty:: Linker.backend
-
-
-Linker.handle
--------------
-
-.. autoproperty:: Linker.handle
-
-
-
+   
+   .. autoproperty:: backend
+   .. autoproperty:: handle
+   
+   

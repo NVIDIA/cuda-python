@@ -8,55 +8,26 @@ cuda.core.VirtualMemoryResource
 
 .. autoclass:: VirtualMemoryResource
 
+   
+   
+   .. rubric:: Methods
 
+   
+   .. automethod:: __init__
+   .. automethod:: allocate
+   .. automethod:: deallocate
+   .. automethod:: modify_allocation
 
+   
+   
 
-VirtualMemoryResource.__init__
-------------------------------
+   
+   
+   .. rubric:: Attributes
 
-.. automethod:: VirtualMemoryResource.__init__
-
-
-VirtualMemoryResource.allocate
-------------------------------
-
-.. automethod:: VirtualMemoryResource.allocate
-
-
-VirtualMemoryResource.deallocate
---------------------------------
-
-.. automethod:: VirtualMemoryResource.deallocate
-
-
-VirtualMemoryResource.modify_allocation
----------------------------------------
-
-.. automethod:: VirtualMemoryResource.modify_allocation
-
-
-
-
-
-
-
-
-VirtualMemoryResource.device_id
--------------------------------
-
-.. autoproperty:: VirtualMemoryResource.device_id
-
-
-VirtualMemoryResource.is_device_accessible
-------------------------------------------
-
-.. autoproperty:: VirtualMemoryResource.is_device_accessible
-
-
-VirtualMemoryResource.is_host_accessible
-----------------------------------------
-
-.. autoproperty:: VirtualMemoryResource.is_host_accessible
-
-
-
+   
+   .. autoproperty:: device_id
+   .. autoproperty:: is_device_accessible
+   .. autoproperty:: is_host_accessible
+   
+   

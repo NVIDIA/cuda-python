@@ -8,43 +8,24 @@ cuda.core.\_module.MaxPotentialBlockSizeOccupancyResult
 
 .. autoclass:: MaxPotentialBlockSizeOccupancyResult
 
+   
+   
+   .. rubric:: Methods
 
+   
+   .. automethod:: __init__
+   .. automethod:: count
+   .. automethod:: index
 
+   
+   
 
-MaxPotentialBlockSizeOccupancyResult.__init__
----------------------------------------------
+   
+   
+   .. rubric:: Attributes
 
-.. automethod:: MaxPotentialBlockSizeOccupancyResult.__init__
-
-
-MaxPotentialBlockSizeOccupancyResult.count
-------------------------------------------
-
-.. automethod:: MaxPotentialBlockSizeOccupancyResult.count
-
-
-MaxPotentialBlockSizeOccupancyResult.index
-------------------------------------------
-
-.. automethod:: MaxPotentialBlockSizeOccupancyResult.index
-
-
-
-
-
-
-
-
-MaxPotentialBlockSizeOccupancyResult.max_block_size
----------------------------------------------------
-
-.. autoproperty:: MaxPotentialBlockSizeOccupancyResult.max_block_size
-
-
-MaxPotentialBlockSizeOccupancyResult.min_grid_size
---------------------------------------------------
-
-.. autoproperty:: MaxPotentialBlockSizeOccupancyResult.min_grid_size
-
-
-
+   
+   .. autoproperty:: max_block_size
+   .. autoproperty:: min_grid_size
+   
+   

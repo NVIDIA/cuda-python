@@ -8,133 +8,39 @@ cuda.core.Device
 
 .. autoclass:: Device
 
-
-
-
-Device.__init__
----------------
-
-.. automethod:: Device.__init__
-
-
-Device.allocate
----------------
-
-.. automethod:: Device.allocate
-
-
-Device.can_access_peer
-----------------------
-
-.. automethod:: Device.can_access_peer
-
-
-Device.create_context
----------------------
-
-.. automethod:: Device.create_context
-
-
-Device.create_event
--------------------
-
-.. automethod:: Device.create_event
-
-
-Device.create_graph_builder
----------------------------
-
-.. automethod:: Device.create_graph_builder
-
-
-Device.create_stream
---------------------
-
-.. automethod:: Device.create_stream
-
-
-Device.get_all_devices
-----------------------
-
-.. automethod:: Device.get_all_devices
-
-
-Device.set_current
-------------------
-
-.. automethod:: Device.set_current
-
-
-Device.sync
------------
-
-.. automethod:: Device.sync
-
-
-
-
-
-
-
-
-Device.arch
------------
-
-.. autoproperty:: Device.arch
-
-
-Device.compute_capability
--------------------------
-
-.. autoproperty:: Device.compute_capability
-
-
-Device.context
---------------
-
-.. autoproperty:: Device.context
-
-
-Device.default_stream
----------------------
-
-.. autoproperty:: Device.default_stream
-
-
-Device.device_id
-----------------
-
-.. autoproperty:: Device.device_id
-
-
-Device.memory_resource
-----------------------
-
-.. autoproperty:: Device.memory_resource
-
-
-Device.name
------------
-
-.. autoproperty:: Device.name
-
-
-Device.pci_bus_id
------------------
-
-.. autoproperty:: Device.pci_bus_id
-
-
-Device.properties
------------------
-
-.. autoproperty:: Device.properties
-
-
-Device.uuid
------------
-
-.. autoproperty:: Device.uuid
-
-
-
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: allocate
+   .. automethod:: can_access_peer
+   .. automethod:: create_context
+   .. automethod:: create_event
+   .. automethod:: create_graph_builder
+   .. automethod:: create_stream
+   .. automethod:: get_all_devices
+   .. automethod:: set_current
+   .. automethod:: sync
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoproperty:: arch
+   .. autoproperty:: compute_capability
+   .. autoproperty:: context
+   .. autoproperty:: default_stream
+   .. autoproperty:: device_id
+   .. autoproperty:: memory_resource
+   .. autoproperty:: name
+   .. autoproperty:: pci_bus_id
+   .. autoproperty:: properties
+   .. autoproperty:: uuid
+   
+   

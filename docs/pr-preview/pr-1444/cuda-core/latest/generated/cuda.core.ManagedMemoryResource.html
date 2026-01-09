@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f23e6f88"></script>
+    <script src="../_static/documentation_options.js?v=89a4c239"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev25';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev28';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -601,21 +601,15 @@ managed memory resource does not own the pool (<cite>is_handle_owned</cite> is
 <p class="rubric">Notes</p>
 <p>IPC (Inter-Process Communication) is not currently supported for managed
 memory pools.</p>
-</dd></dl>
-
-<section id="managedmemoryresource-init">
-<h2>ManagedMemoryResource.__init__<a class="headerlink" href="#managedmemoryresource-init" title="Link to this heading">#</a></h2>
+<p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.__init__">
-<span class="sig-prename descclassname"><span class="pre">ManagedMemoryResource.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-</section>
-<section id="managedmemoryresource-allocate">
-<h2>ManagedMemoryResource.allocate<a class="headerlink" href="#managedmemoryresource-allocate" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.allocate">
-<span class="sig-prename descclassname"><span class="pre">ManagedMemoryResource.</span></span><span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
+<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -643,22 +637,16 @@ resource was created for.</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="managedmemoryresource-close">
-<h2>ManagedMemoryResource.close<a class="headerlink" href="#managedmemoryresource-close" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.close">
-<span class="sig-prename descclassname"><span class="pre">ManagedMemoryResource.</span></span><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.close" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.ManagedMemoryResource.close" title="Link to this definition">#</a></dt>
 <dd><p>Close the device memory resource and destroy the associated memory pool
 if owned.</p>
 </dd></dl>
 
-</section>
-<section id="managedmemoryresource-deallocate">
-<h2>ManagedMemoryResource.deallocate<a class="headerlink" href="#managedmemoryresource-deallocate" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.ManagedMemoryResource.deallocate">
-<span class="sig-prename descclassname"><span class="pre">ManagedMemoryResource.</span></span><span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span>
+<span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -682,37 +670,9 @@ is used.</p></li>
 </dl>
 </dd></dl>
 
-</section>
-<section id="managedmemoryresource-attributes">
-<h2>ManagedMemoryResource.attributes<a class="headerlink" href="#managedmemoryresource-attributes" title="Link to this heading">#</a></h2>
-</section>
-<section id="managedmemoryresource-device-id">
-<h2>ManagedMemoryResource.device_id<a class="headerlink" href="#managedmemoryresource-device-id" title="Link to this heading">#</a></h2>
-</section>
-<section id="managedmemoryresource-handle">
-<h2>ManagedMemoryResource.handle<a class="headerlink" href="#managedmemoryresource-handle" title="Link to this heading">#</a></h2>
-</section>
-<section id="managedmemoryresource-is-device-accessible">
-<h2>ManagedMemoryResource.is_device_accessible<a class="headerlink" href="#managedmemoryresource-is-device-accessible" title="Link to this heading">#</a></h2>
-</section>
-<section id="managedmemoryresource-is-handle-owned">
-<h2>ManagedMemoryResource.is_handle_owned<a class="headerlink" href="#managedmemoryresource-is-handle-owned" title="Link to this heading">#</a></h2>
-</section>
-<section id="managedmemoryresource-is-host-accessible">
-<h2>ManagedMemoryResource.is_host_accessible<a class="headerlink" href="#managedmemoryresource-is-host-accessible" title="Link to this heading">#</a></h2>
-</section>
-<section id="managedmemoryresource-is-ipc-enabled">
-<h2>ManagedMemoryResource.is_ipc_enabled<a class="headerlink" href="#managedmemoryresource-is-ipc-enabled" title="Link to this heading">#</a></h2>
-</section>
-<section id="managedmemoryresource-is-mapped">
-<h2>ManagedMemoryResource.is_mapped<a class="headerlink" href="#managedmemoryresource-is-mapped" title="Link to this heading">#</a></h2>
-</section>
-<section id="managedmemoryresource-peer-accessible-by">
-<h2>ManagedMemoryResource.peer_accessible_by<a class="headerlink" href="#managedmemoryresource-peer-accessible-by" title="Link to this heading">#</a></h2>
-</section>
-<section id="managedmemoryresource-uuid">
-<h2>ManagedMemoryResource.uuid<a class="headerlink" href="#managedmemoryresource-uuid" title="Link to this heading">#</a></h2>
-</section>
+<p class="rubric">Attributes</p>
+</dd></dl>
+
 </section>
 
 
@@ -764,35 +724,24 @@ is used.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-init">ManagedMemoryResource.__init__</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.__init__"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.__init__()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-allocate">ManagedMemoryResource.allocate</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.allocate"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.allocate()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-close">ManagedMemoryResource.close</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.close"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.close()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-deallocate">ManagedMemoryResource.deallocate</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResource.deallocate()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-attributes">ManagedMemoryResource.attributes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-device-id">ManagedMemoryResource.device_id</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-handle">ManagedMemoryResource.handle</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-is-device-accessible">ManagedMemoryResource.is_device_accessible</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-is-handle-owned">ManagedMemoryResource.is_handle_owned</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-is-host-accessible">ManagedMemoryResource.is_host_accessible</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-is-ipc-enabled">ManagedMemoryResource.is_ipc_enabled</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-is-mapped">ManagedMemoryResource.is_mapped</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-peer-accessible-by">ManagedMemoryResource.peer_accessible_by</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#managedmemoryresource-uuid">ManagedMemoryResource.uuid</a></li>
 </ul>
   </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/generated/cuda.core.ManagedMemoryResource.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               

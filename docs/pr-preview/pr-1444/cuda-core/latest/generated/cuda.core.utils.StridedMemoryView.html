@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f23e6f88"></script>
+    <script src="../_static/documentation_options.js?v=89a4c239"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev25';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev28';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -682,21 +682,15 @@ it will be the Buffer instance passed to the method.</p>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<section id="stridedmemoryview-init">
-<h2>StridedMemoryView.__init__<a class="headerlink" href="#stridedmemoryview-init" title="Link to this heading">#</a></h2>
+<p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.__init__">
-<span class="sig-prename descclassname"><span class="pre">StridedMemoryView.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-</section>
-<section id="stridedmemoryview-copy-from">
-<h2>StridedMemoryView.copy_from<a class="headerlink" href="#stridedmemoryview-copy-from" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.copy_from">
-<span class="sig-prename descclassname"><span class="pre">StridedMemoryView.</span></span><span class="sig-name descname"><span class="pre">copy_from</span></span><span class="sig-paren">(</span>
+<span class="sig-name descname"><span class="pre">copy_from</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -742,12 +736,9 @@ still synchronize with the host if necessary.</p></li>
 </dl>
 </dd></dl>
 
-</section>
-<section id="stridedmemoryview-copy-to">
-<h2>StridedMemoryView.copy_to<a class="headerlink" href="#stridedmemoryview-copy-to" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.copy_to">
-<span class="sig-prename descclassname"><span class="pre">StridedMemoryView.</span></span><span class="sig-name descname"><span class="pre">copy_to</span></span><span class="sig-paren">(</span>
+<span class="sig-name descname"><span class="pre">copy_to</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -762,12 +753,9 @@ still synchronize with the host if necessary.</p></li>
 <p>For details, see <a class="reference internal" href="#cuda.core.utils.StridedMemoryView.copy_from" title="cuda.core.utils.StridedMemoryView.copy_from"><code class="xref py py-meth docutils literal notranslate"><span class="pre">copy_from()</span></code></a>.</p>
 </dd></dl>
 
-</section>
-<section id="stridedmemoryview-from-any-interface">
-<h2>StridedMemoryView.from_any_interface<a class="headerlink" href="#stridedmemoryview-from-any-interface" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.from_any_interface">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">StridedMemoryView.</span></span><span class="sig-name descname"><span class="pre">from_any_interface</span></span><span class="sig-paren">(</span>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_any_interface</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
@@ -778,12 +766,9 @@ still synchronize with the host if necessary.</p></li>
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><span class="pre">StridedMemoryView</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.from_any_interface" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-</section>
-<section id="stridedmemoryview-from-array-interface">
-<h2>StridedMemoryView.from_array_interface<a class="headerlink" href="#stridedmemoryview-from-array-interface" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.from_array_interface">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">StridedMemoryView.</span></span><span class="sig-name descname"><span class="pre">from_array_interface</span></span><span class="sig-paren">(</span>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_array_interface</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
@@ -793,12 +778,9 @@ still synchronize with the host if necessary.</p></li>
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><span class="pre">StridedMemoryView</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.from_array_interface" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-</section>
-<section id="stridedmemoryview-from-buffer">
-<h2>StridedMemoryView.from_buffer<a class="headerlink" href="#stridedmemoryview-from-buffer" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.from_buffer">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">StridedMemoryView.</span></span><span class="sig-name descname"><span class="pre">from_buffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cls,</span> <span class="pre">buffer:</span> <span class="pre">Buffer,</span> <span class="pre">tuple</span> <span class="pre">shape:</span> <span class="pre">tuple[int,</span> <span class="pre">...],</span> <span class="pre">tuple</span> <span class="pre">strides:</span> <span class="pre">tuple[int,</span> <span class="pre">...]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">*,</span> <span class="pre">int</span> <span class="pre">itemsize:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">dtype:</span> <span class="pre">numpy.dtype</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">bool</span> <span class="pre">is_readonly:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><span class="pre">StridedMemoryView</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.from_buffer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_buffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cls,</span> <span class="pre">buffer:</span> <span class="pre">Buffer,</span> <span class="pre">tuple</span> <span class="pre">shape:</span> <span class="pre">tuple[int,</span> <span class="pre">...],</span> <span class="pre">tuple</span> <span class="pre">strides:</span> <span class="pre">tuple[int,</span> <span class="pre">...]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">*,</span> <span class="pre">int</span> <span class="pre">itemsize:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">dtype:</span> <span class="pre">numpy.dtype</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">bool</span> <span class="pre">is_readonly:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><span class="pre">StridedMemoryView</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.from_buffer" title="Link to this definition">#</a></dt>
 <dd><p>Creates a <a class="reference internal" href="#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a> instance from a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code> and shape and strides tuples.
 The Buffer can be either allocation coming from a <code class="xref py py-obj docutils literal notranslate"><span class="pre">MemoryResource</span></code> or an external allocation
 wrapped in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">Buffer</span></code> object with <code class="docutils literal notranslate"><span class="pre">Buffer.from_handle(ptr,</span> <span class="pre">size,</span> <span class="pre">owner=...)</span></code>.</p>
@@ -824,12 +806,9 @@ If specified, the dtype’s itemsize must match the layout’s itemsize.</p></li
 </dl>
 </dd></dl>
 
-</section>
-<section id="stridedmemoryview-from-cuda-array-interface">
-<h2>StridedMemoryView.from_cuda_array_interface<a class="headerlink" href="#stridedmemoryview-from-cuda-array-interface" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.from_cuda_array_interface">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">StridedMemoryView.</span></span><span class="sig-name descname"><span class="pre">from_cuda_array_interface</span></span><span class="sig-paren">(</span>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_cuda_array_interface</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
@@ -840,12 +819,9 @@ If specified, the dtype’s itemsize must match the layout’s itemsize.</p></li
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><span class="pre">StridedMemoryView</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.from_cuda_array_interface" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-</section>
-<section id="stridedmemoryview-from-dlpack">
-<h2>StridedMemoryView.from_dlpack<a class="headerlink" href="#stridedmemoryview-from-dlpack" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.from_dlpack">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">StridedMemoryView.</span></span><span class="sig-name descname"><span class="pre">from_dlpack</span></span><span class="sig-paren">(</span>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dlpack</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
@@ -856,12 +832,9 @@ If specified, the dtype’s itemsize must match the layout’s itemsize.</p></li
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.utils.StridedMemoryView" title="cuda.core.utils.StridedMemoryView"><span class="pre">StridedMemoryView</span></a></span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.from_dlpack" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-</section>
-<section id="stridedmemoryview-view">
-<h2>StridedMemoryView.view<a class="headerlink" href="#stridedmemoryview-view" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.view">
-<span class="sig-prename descclassname"><span class="pre">StridedMemoryView.</span></span><span class="sig-name descname"><span class="pre">view</span></span><span class="sig-paren">(</span>
+<span class="sig-name descname"><span class="pre">view</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -874,12 +847,10 @@ If specified, the dtype’s itemsize must match the layout’s itemsize.</p></li
 Same as calling <a class="reference internal" href="#cuda.core.utils.StridedMemoryView.from_buffer" title="cuda.core.utils.StridedMemoryView.from_buffer"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_buffer()</span></code></a> with the current buffer.</p>
 </dd></dl>
 
-</section>
-<section id="stridedmemoryview-dtype">
-<h2>StridedMemoryView.dtype<a class="headerlink" href="#stridedmemoryview-dtype" title="Link to this heading">#</a></h2>
+<p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.dtype">
-<span class="sig-prename descclassname"><span class="pre">StridedMemoryView.</span></span><span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.dtype" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.dtype" title="Link to this definition">#</a></dt>
 <dd><p>Optional[numpy.dtype]</p>
 <p>Data type of the tensor.</p>
 <dl class="field-list simple">
@@ -889,12 +860,9 @@ Same as calling <a class="reference internal" href="#cuda.core.utils.StridedMemo
 </dl>
 </dd></dl>
 
-</section>
-<section id="stridedmemoryview-shape">
-<h2>StridedMemoryView.shape<a class="headerlink" href="#stridedmemoryview-shape" title="Link to this heading">#</a></h2>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.shape">
-<span class="sig-prename descclassname"><span class="pre">StridedMemoryView.</span></span><span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.shape" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.shape" title="Link to this definition">#</a></dt>
 <dd><p>tuple[int, …]</p>
 <p>Shape of the tensor.</p>
 <dl class="field-list simple">
@@ -904,12 +872,9 @@ Same as calling <a class="reference internal" href="#cuda.core.utils.StridedMemo
 </dl>
 </dd></dl>
 
-</section>
-<section id="stridedmemoryview-size">
-<h2>StridedMemoryView.size<a class="headerlink" href="#stridedmemoryview-size" title="Link to this heading">#</a></h2>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.size">
-<span class="sig-prename descclassname"><span class="pre">StridedMemoryView.</span></span><span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.size" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.size" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -918,12 +883,9 @@ Same as calling <a class="reference internal" href="#cuda.core.utils.StridedMemo
 </dl>
 </dd></dl>
 
-</section>
-<section id="stridedmemoryview-strides">
-<h2>StridedMemoryView.strides<a class="headerlink" href="#stridedmemoryview-strides" title="Link to this heading">#</a></h2>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.utils.StridedMemoryView.strides">
-<span class="sig-prename descclassname"><span class="pre">StridedMemoryView.</span></span><span class="sig-name descname"><span class="pre">strides</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.strides" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">strides</span></span><a class="headerlink" href="#cuda.core.utils.StridedMemoryView.strides" title="Link to this definition">#</a></dt>
 <dd><p>Optional[tuple[int, …]]</p>
 <p>Strides of the tensor (in <strong>counts</strong>, not bytes).</p>
 <dl class="field-list simple">
@@ -933,7 +895,8 @@ Same as calling <a class="reference internal" href="#cuda.core.utils.StridedMemo
 </dl>
 </dd></dl>
 
-</section>
+</dd></dl>
+
 </section>
 
 
@@ -985,68 +948,38 @@ Same as calling <a class="reference internal" href="#cuda.core.utils.StridedMemo
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.ptr"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.ptr</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.device_id"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.device_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.is_device_accessible</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.readonly"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.readonly</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.exporting_obj"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.exporting_obj</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stridedmemoryview-init">StridedMemoryView.__init__</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.__init__"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.__init__()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stridedmemoryview-copy-from">StridedMemoryView.copy_from</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.copy_from"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.copy_from()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stridedmemoryview-copy-to">StridedMemoryView.copy_to</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.copy_to"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.copy_to()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stridedmemoryview-from-any-interface">StridedMemoryView.from_any_interface</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.from_any_interface"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.from_any_interface()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stridedmemoryview-from-array-interface">StridedMemoryView.from_array_interface</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.from_array_interface"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.from_array_interface()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stridedmemoryview-from-buffer">StridedMemoryView.from_buffer</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.from_buffer"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.from_buffer()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stridedmemoryview-from-cuda-array-interface">StridedMemoryView.from_cuda_array_interface</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.from_cuda_array_interface"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.from_cuda_array_interface()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stridedmemoryview-from-dlpack">StridedMemoryView.from_dlpack</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.from_dlpack"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.from_dlpack()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stridedmemoryview-view">StridedMemoryView.view</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.view"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.view()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stridedmemoryview-dtype">StridedMemoryView.dtype</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.dtype"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.dtype</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stridedmemoryview-shape">StridedMemoryView.shape</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.shape"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.shape</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stridedmemoryview-size">StridedMemoryView.size</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.size"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.size</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stridedmemoryview-strides">StridedMemoryView.strides</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.utils.StridedMemoryView.strides"><code class="docutils literal notranslate"><span class="pre">StridedMemoryView.strides</span></code></a></li>
 </ul>
 </li>
 </ul>
   </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/generated/cuda.core.utils.StridedMemoryView.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               

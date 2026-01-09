@@ -8,121 +8,37 @@ cuda.core.DeviceMemoryResource
 
 .. autoclass:: DeviceMemoryResource
 
-
-
-
-DeviceMemoryResource.__init__
------------------------------
-
-.. automethod:: DeviceMemoryResource.__init__
-
-
-DeviceMemoryResource.allocate
------------------------------
-
-.. automethod:: DeviceMemoryResource.allocate
-
-
-DeviceMemoryResource.close
---------------------------
-
-.. automethod:: DeviceMemoryResource.close
-
-
-DeviceMemoryResource.deallocate
--------------------------------
-
-.. automethod:: DeviceMemoryResource.deallocate
-
-
-DeviceMemoryResource.from_allocation_handle
--------------------------------------------
-
-.. automethod:: DeviceMemoryResource.from_allocation_handle
-
-
-DeviceMemoryResource.from_registry
-----------------------------------
-
-.. automethod:: DeviceMemoryResource.from_registry
-
-
-DeviceMemoryResource.get_allocation_handle
-------------------------------------------
-
-.. automethod:: DeviceMemoryResource.get_allocation_handle
-
-
-DeviceMemoryResource.register
------------------------------
-
-.. automethod:: DeviceMemoryResource.register
-
-
-
-
-
-
-
-
-DeviceMemoryResource.attributes
--------------------------------
-
-.. autoproperty:: DeviceMemoryResource.attributes
-
-
-DeviceMemoryResource.device_id
-------------------------------
-
-.. autoproperty:: DeviceMemoryResource.device_id
-
-
-DeviceMemoryResource.handle
----------------------------
-
-.. autoproperty:: DeviceMemoryResource.handle
-
-
-DeviceMemoryResource.is_device_accessible
------------------------------------------
-
-.. autoproperty:: DeviceMemoryResource.is_device_accessible
-
-
-DeviceMemoryResource.is_handle_owned
-------------------------------------
-
-.. autoproperty:: DeviceMemoryResource.is_handle_owned
-
-
-DeviceMemoryResource.is_host_accessible
----------------------------------------
-
-.. autoproperty:: DeviceMemoryResource.is_host_accessible
-
-
-DeviceMemoryResource.is_ipc_enabled
------------------------------------
-
-.. autoproperty:: DeviceMemoryResource.is_ipc_enabled
-
-
-DeviceMemoryResource.is_mapped
-------------------------------
-
-.. autoproperty:: DeviceMemoryResource.is_mapped
-
-
-DeviceMemoryResource.peer_accessible_by
----------------------------------------
-
-.. autoproperty:: DeviceMemoryResource.peer_accessible_by
-
-
-DeviceMemoryResource.uuid
--------------------------
-
-.. autoproperty:: DeviceMemoryResource.uuid
-
-
-
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: allocate
+   .. automethod:: close
+   .. automethod:: deallocate
+   .. automethod:: from_allocation_handle
+   .. automethod:: from_registry
+   .. automethod:: get_allocation_handle
+   .. automethod:: register
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoproperty:: attributes
+   .. autoproperty:: device_id
+   .. autoproperty:: handle
+   .. autoproperty:: is_device_accessible
+   .. autoproperty:: is_handle_owned
+   .. autoproperty:: is_host_accessible
+   .. autoproperty:: is_ipc_enabled
+   .. autoproperty:: is_mapped
+   .. autoproperty:: peer_accessible_by
+   .. autoproperty:: uuid
+   
+   

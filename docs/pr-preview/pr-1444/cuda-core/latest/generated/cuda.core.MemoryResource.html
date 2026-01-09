@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f23e6f88"></script>
+    <script src="../_static/documentation_options.js?v=89a4c239"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev25';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev28';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -589,21 +589,15 @@ buffers will inherit. (Since all <a class="reference internal" href="cuda.core.B
 returned by the <a class="reference internal" href="#cuda.core.MemoryResource.allocate" title="cuda.core.MemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">allocate()</span></code></a> method would hold a reference to self, the
 buffer properties are retrieved simply by looking up the underlying memory
 resource’s respective property.)</p>
-</dd></dl>
-
-<section id="memoryresource-init">
-<h2>MemoryResource.__init__<a class="headerlink" href="#memoryresource-init" title="Link to this heading">#</a></h2>
+<p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.MemoryResource.__init__">
-<span class="sig-prename descclassname"><span class="pre">MemoryResource.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.MemoryResource.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.MemoryResource.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-</section>
-<section id="memoryresource-allocate">
-<h2>MemoryResource.allocate<a class="headerlink" href="#memoryresource-allocate" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.MemoryResource.allocate">
-<span class="sig-prename descclassname"><span class="pre">MemoryResource.</span></span><span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
+<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -632,12 +626,9 @@ depending on the resource’s properties.</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="memoryresource-deallocate">
-<h2>MemoryResource.deallocate<a class="headerlink" href="#memoryresource-deallocate" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.MemoryResource.deallocate">
-<span class="sig-prename descclassname"><span class="pre">MemoryResource.</span></span><span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span>
+<span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -661,16 +652,9 @@ and document the behavior.</p></li>
 </dl>
 </dd></dl>
 
-</section>
-<section id="memoryresource-device-id">
-<h2>MemoryResource.device_id<a class="headerlink" href="#memoryresource-device-id" title="Link to this heading">#</a></h2>
-</section>
-<section id="memoryresource-is-device-accessible">
-<h2>MemoryResource.is_device_accessible<a class="headerlink" href="#memoryresource-is-device-accessible" title="Link to this heading">#</a></h2>
-</section>
-<section id="memoryresource-is-host-accessible">
-<h2>MemoryResource.is_host_accessible<a class="headerlink" href="#memoryresource-is-host-accessible" title="Link to this heading">#</a></h2>
-</section>
+<p class="rubric">Attributes</p>
+</dd></dl>
+
 </section>
 
 
@@ -722,24 +706,23 @@ and document the behavior.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.MemoryResource"><code class="docutils literal notranslate"><span class="pre">MemoryResource</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-init">MemoryResource.__init__</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.MemoryResource"><code class="docutils literal notranslate"><span class="pre">MemoryResource</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.MemoryResource.__init__"><code class="docutils literal notranslate"><span class="pre">MemoryResource.__init__()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-allocate">MemoryResource.allocate</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.MemoryResource.allocate"><code class="docutils literal notranslate"><span class="pre">MemoryResource.allocate()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-deallocate">MemoryResource.deallocate</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.MemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">MemoryResource.deallocate()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-device-id">MemoryResource.device_id</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-is-device-accessible">MemoryResource.is_device_accessible</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-is-host-accessible">MemoryResource.is_host_accessible</a></li>
 </ul>
   </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/generated/cuda.core.MemoryResource.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               

@@ -8,109 +8,35 @@ cuda.core.Buffer
 
 .. autoclass:: Buffer
 
+   
+   
+   .. rubric:: Methods
 
+   
+   .. automethod:: __init__
+   .. automethod:: close
+   .. automethod:: copy_from
+   .. automethod:: copy_to
+   .. automethod:: fill
+   .. automethod:: from_handle
+   .. automethod:: from_ipc_descriptor
+   .. automethod:: get_ipc_descriptor
 
+   
+   
 
-Buffer.__init__
----------------
+   
+   
+   .. rubric:: Attributes
 
-.. automethod:: Buffer.__init__
-
-
-Buffer.close
-------------
-
-.. automethod:: Buffer.close
-
-
-Buffer.copy_from
-----------------
-
-.. automethod:: Buffer.copy_from
-
-
-Buffer.copy_to
---------------
-
-.. automethod:: Buffer.copy_to
-
-
-Buffer.fill
------------
-
-.. automethod:: Buffer.fill
-
-
-Buffer.from_handle
-------------------
-
-.. automethod:: Buffer.from_handle
-
-
-Buffer.from_ipc_descriptor
---------------------------
-
-.. automethod:: Buffer.from_ipc_descriptor
-
-
-Buffer.get_ipc_descriptor
--------------------------
-
-.. automethod:: Buffer.get_ipc_descriptor
-
-
-
-
-
-
-
-
-Buffer.device_id
-----------------
-
-.. autoproperty:: Buffer.device_id
-
-
-Buffer.handle
--------------
-
-.. autoproperty:: Buffer.handle
-
-
-Buffer.is_device_accessible
----------------------------
-
-.. autoproperty:: Buffer.is_device_accessible
-
-
-Buffer.is_host_accessible
--------------------------
-
-.. autoproperty:: Buffer.is_host_accessible
-
-
-Buffer.is_mapped
-----------------
-
-.. autoproperty:: Buffer.is_mapped
-
-
-Buffer.memory_resource
-----------------------
-
-.. autoproperty:: Buffer.memory_resource
-
-
-Buffer.owner
-------------
-
-.. autoproperty:: Buffer.owner
-
-
-Buffer.size
------------
-
-.. autoproperty:: Buffer.size
-
-
-
+   
+   .. autoproperty:: device_id
+   .. autoproperty:: handle
+   .. autoproperty:: is_device_accessible
+   .. autoproperty:: is_host_accessible
+   .. autoproperty:: is_mapped
+   .. autoproperty:: memory_resource
+   .. autoproperty:: owner
+   .. autoproperty:: size
+   
+   

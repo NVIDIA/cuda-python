@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=f23e6f88"></script>
+    <script src="../_static/documentation_options.js?v=89a4c239"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev25';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev28';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -586,21 +586,15 @@
 different memory resources are to give access to their memory
 allocations.</p>
 <p>Support for data interchange mechanisms are provided by DLPack.</p>
-</dd></dl>
-
-<section id="buffer-init">
-<h2>Buffer.__init__<a class="headerlink" href="#buffer-init" title="Link to this heading">#</a></h2>
+<p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Buffer.__init__">
-<span class="sig-prename descclassname"><span class="pre">Buffer.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Buffer.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Buffer.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-</section>
-<section id="buffer-close">
-<h2>Buffer.close<a class="headerlink" href="#buffer-close" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Buffer.close">
-<span class="sig-prename descclassname"><span class="pre">Buffer.</span></span><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Buffer.close" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Buffer.close" title="Link to this definition">#</a></dt>
 <dd><p>Deallocate this buffer asynchronously on the given stream.</p>
 <p>This buffer is released back to their memory resource
 asynchronously on the given stream.</p>
@@ -612,12 +606,9 @@ the behavior depends on the underlying memory resource.</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="buffer-copy-from">
-<h2>Buffer.copy_from<a class="headerlink" href="#buffer-copy-from" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Buffer.copy_from">
-<span class="sig-prename descclassname"><span class="pre">Buffer.</span></span><span class="sig-name descname"><span class="pre">copy_from</span></span><span class="sig-paren">(</span>
+<span class="sig-name descname"><span class="pre">copy_from</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -639,12 +630,9 @@ asynchronous copy</p></li>
 </dl>
 </dd></dl>
 
-</section>
-<section id="buffer-copy-to">
-<h2>Buffer.copy_to<a class="headerlink" href="#buffer-copy-to" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Buffer.copy_to">
-<span class="sig-prename descclassname"><span class="pre">Buffer.</span></span><span class="sig-name descname"><span class="pre">copy_to</span></span><span class="sig-paren">(</span>
+<span class="sig-name descname"><span class="pre">copy_to</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -669,12 +657,9 @@ asynchronous copy</p></li>
 </dl>
 </dd></dl>
 
-</section>
-<section id="buffer-fill">
-<h2>Buffer.fill<a class="headerlink" href="#buffer-fill" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Buffer.fill">
-<span class="sig-prename descclassname"><span class="pre">Buffer.</span></span><span class="sig-name descname"><span class="pre">fill</span></span><span class="sig-paren">(</span>
+<span class="sig-name descname"><span class="pre">fill</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -707,12 +692,9 @@ asynchronous copy</p></li>
 </dl>
 </dd></dl>
 
-</section>
-<section id="buffer-from-handle">
-<h2>Buffer.from_handle<a class="headerlink" href="#buffer-from-handle" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Buffer.from_handle">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Buffer.</span></span><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">ptr:</span> <span class="pre">DevicePointerT</span></span></em>,</dd>
@@ -737,12 +719,9 @@ The <code class="docutils literal notranslate"><span class="pre">owner</span></c
 </dl>
 </dd></dl>
 
-</section>
-<section id="buffer-from-ipc-descriptor">
-<h2>Buffer.from_ipc_descriptor<a class="headerlink" href="#buffer-from-ipc-descriptor" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Buffer.from_ipc_descriptor">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Buffer.</span></span><span class="sig-name descname"><span class="pre">from_ipc_descriptor</span></span><span class="sig-paren">(</span>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ipc_descriptor</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
@@ -755,40 +734,15 @@ The <code class="docutils literal notranslate"><span class="pre">owner</span></c
 <dd><p>Import a buffer that was exported from another process.</p>
 </dd></dl>
 
-</section>
-<section id="buffer-get-ipc-descriptor">
-<h2>Buffer.get_ipc_descriptor<a class="headerlink" href="#buffer-get-ipc-descriptor" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Buffer.get_ipc_descriptor">
-<span class="sig-prename descclassname"><span class="pre">Buffer.</span></span><span class="sig-name descname"><span class="pre">get_ipc_descriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor" title="cuda.core._memory._ipc.IPCBufferDescriptor"><span class="pre">IPCBufferDescriptor</span></a></span></span><a class="headerlink" href="#cuda.core.Buffer.get_ipc_descriptor" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_ipc_descriptor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core._memory._ipc.IPCBufferDescriptor.html#cuda.core._memory._ipc.IPCBufferDescriptor" title="cuda.core._memory._ipc.IPCBufferDescriptor"><span class="pre">IPCBufferDescriptor</span></a></span></span><a class="headerlink" href="#cuda.core.Buffer.get_ipc_descriptor" title="Link to this definition">#</a></dt>
 <dd><p>Export a buffer allocated for sharing between processes.</p>
 </dd></dl>
 
-</section>
-<section id="buffer-device-id">
-<h2>Buffer.device_id<a class="headerlink" href="#buffer-device-id" title="Link to this heading">#</a></h2>
-</section>
-<section id="buffer-handle">
-<h2>Buffer.handle<a class="headerlink" href="#buffer-handle" title="Link to this heading">#</a></h2>
-</section>
-<section id="buffer-is-device-accessible">
-<h2>Buffer.is_device_accessible<a class="headerlink" href="#buffer-is-device-accessible" title="Link to this heading">#</a></h2>
-</section>
-<section id="buffer-is-host-accessible">
-<h2>Buffer.is_host_accessible<a class="headerlink" href="#buffer-is-host-accessible" title="Link to this heading">#</a></h2>
-</section>
-<section id="buffer-is-mapped">
-<h2>Buffer.is_mapped<a class="headerlink" href="#buffer-is-mapped" title="Link to this heading">#</a></h2>
-</section>
-<section id="buffer-memory-resource">
-<h2>Buffer.memory_resource<a class="headerlink" href="#buffer-memory-resource" title="Link to this heading">#</a></h2>
-</section>
-<section id="buffer-owner">
-<h2>Buffer.owner<a class="headerlink" href="#buffer-owner" title="Link to this heading">#</a></h2>
-</section>
-<section id="buffer-size">
-<h2>Buffer.size<a class="headerlink" href="#buffer-size" title="Link to this heading">#</a></h2>
-</section>
+<p class="rubric">Attributes</p>
+</dd></dl>
+
 </section>
 
 
@@ -840,49 +794,28 @@ The <code class="docutils literal notranslate"><span class="pre">owner</span></c
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer"><code class="docutils literal notranslate"><span class="pre">Buffer</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-init">Buffer.__init__</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer"><code class="docutils literal notranslate"><span class="pre">Buffer</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.__init__"><code class="docutils literal notranslate"><span class="pre">Buffer.__init__()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-close">Buffer.close</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.close"><code class="docutils literal notranslate"><span class="pre">Buffer.close()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-copy-from">Buffer.copy_from</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.copy_from"><code class="docutils literal notranslate"><span class="pre">Buffer.copy_from()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-copy-to">Buffer.copy_to</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.copy_to"><code class="docutils literal notranslate"><span class="pre">Buffer.copy_to()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-fill">Buffer.fill</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.fill"><code class="docutils literal notranslate"><span class="pre">Buffer.fill()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-from-handle">Buffer.from_handle</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.from_handle"><code class="docutils literal notranslate"><span class="pre">Buffer.from_handle()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-from-ipc-descriptor">Buffer.from_ipc_descriptor</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.from_ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Buffer.from_ipc_descriptor()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-get-ipc-descriptor">Buffer.get_ipc_descriptor</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Buffer.get_ipc_descriptor"><code class="docutils literal notranslate"><span class="pre">Buffer.get_ipc_descriptor()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-device-id">Buffer.device_id</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-handle">Buffer.handle</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-is-device-accessible">Buffer.is_device_accessible</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-is-host-accessible">Buffer.is_host_accessible</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-is-mapped">Buffer.is_mapped</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-memory-resource">Buffer.memory_resource</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-owner">Buffer.owner</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-size">Buffer.size</a></li>
 </ul>
   </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/generated/cuda.core.Buffer.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               
