@@ -13,7 +13,7 @@
 {{ objname }}.{{ item }}
 {{ "-" * (objname|length + 1 + item|length) }}
 
-.. automethod:: {{ item }}
+.. automethod:: {{ objname }}.{{ item }}
 
 {% endfor %}
 {% endif %}
@@ -25,7 +25,7 @@
 {{ objname }}.{{ item }}
 {{ "-" * (objname|length + 1 + item|length) }}
 
-.. autoproperty:: {{ item }}
+.. autoproperty:: {{ objname }}.{{ item }}
 
 {% endfor %}
 {% endif %}
