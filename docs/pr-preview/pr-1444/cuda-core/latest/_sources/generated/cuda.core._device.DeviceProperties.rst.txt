@@ -1,0 +1,168 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.\_device.DeviceProperties
+===================================
+
+.. currentmodule:: cuda.core._device
+
+.. autoclass:: DeviceProperties
+
+   
+   
+   
+   .. autoattribute:: async_engine_count
+   .. autoattribute:: can_flush_remote_writes
+   .. autoattribute:: can_map_host_memory
+   .. autoattribute:: can_tex2d_gather
+   .. autoattribute:: can_use_64_bit_stream_mem_ops
+   .. autoattribute:: can_use_host_pointer_for_registered_mem
+   .. autoattribute:: can_use_stream_wait_value_nor
+   .. autoattribute:: clock_rate
+   .. autoattribute:: cluster_launch
+   .. autoattribute:: compute_capability_major
+   .. autoattribute:: compute_capability_minor
+   .. autoattribute:: compute_mode
+   .. autoattribute:: compute_preemption_supported
+   .. autoattribute:: concurrent_kernels
+   .. autoattribute:: concurrent_managed_access
+   .. autoattribute:: cooperative_launch
+   .. autoattribute:: d3d12_cig_supported
+   .. autoattribute:: deferred_mapping_cuda_array_supported
+   .. autoattribute:: direct_managed_mem_access_from_host
+   .. autoattribute:: dma_buf_supported
+   .. autoattribute:: ecc_enabled
+   .. autoattribute:: generic_compression_supported
+   .. autoattribute:: global_l1_cache_supported
+   .. autoattribute:: global_memory_bus_width
+   .. autoattribute:: gpu_direct_rdma_flush_writes_options
+   .. autoattribute:: gpu_direct_rdma_supported
+   .. autoattribute:: gpu_direct_rdma_with_cuda_vmm_supported
+   .. autoattribute:: gpu_direct_rdma_writes_ordering
+   .. autoattribute:: gpu_overlap
+   .. autoattribute:: gpu_pci_device_id
+   .. autoattribute:: gpu_pci_subsystem_id
+   .. autoattribute:: handle_type_fabric_supported
+   .. autoattribute:: handle_type_posix_file_descriptor_supported
+   .. autoattribute:: handle_type_win32_handle_supported
+   .. autoattribute:: handle_type_win32_kmt_handle_supported
+   .. autoattribute:: host_alloc_dma_buf_supported
+   .. autoattribute:: host_memory_pools_supported
+   .. autoattribute:: host_native_atomic_supported
+   .. autoattribute:: host_numa_id
+   .. autoattribute:: host_numa_memory_pools_supported
+   .. autoattribute:: host_numa_multinode_ipc_supported
+   .. autoattribute:: host_numa_virtual_memory_management_supported
+   .. autoattribute:: host_register_supported
+   .. autoattribute:: host_virtual_memory_management_supported
+   .. autoattribute:: integrated
+   .. autoattribute:: ipc_event_supported
+   .. autoattribute:: kernel_exec_timeout
+   .. autoattribute:: l2_cache_size
+   .. autoattribute:: local_l1_cache_supported
+   .. autoattribute:: managed_memory
+   .. autoattribute:: max_access_policy_window_size
+   .. autoattribute:: max_block_dim_x
+   .. autoattribute:: max_block_dim_y
+   .. autoattribute:: max_block_dim_z
+   .. autoattribute:: max_blocks_per_multiprocessor
+   .. autoattribute:: max_grid_dim_x
+   .. autoattribute:: max_grid_dim_y
+   .. autoattribute:: max_grid_dim_z
+   .. autoattribute:: max_persisting_l2_cache_size
+   .. autoattribute:: max_pitch
+   .. autoattribute:: max_registers_per_block
+   .. autoattribute:: max_registers_per_multiprocessor
+   .. autoattribute:: max_shared_memory_per_block
+   .. autoattribute:: max_shared_memory_per_block_optin
+   .. autoattribute:: max_shared_memory_per_multiprocessor
+   .. autoattribute:: max_threads_per_block
+   .. autoattribute:: max_threads_per_multiprocessor
+   .. autoattribute:: maximum_surface1d_layered_layers
+   .. autoattribute:: maximum_surface1d_layered_width
+   .. autoattribute:: maximum_surface1d_width
+   .. autoattribute:: maximum_surface2d_height
+   .. autoattribute:: maximum_surface2d_layered_height
+   .. autoattribute:: maximum_surface2d_layered_layers
+   .. autoattribute:: maximum_surface2d_layered_width
+   .. autoattribute:: maximum_surface2d_width
+   .. autoattribute:: maximum_surface3d_depth
+   .. autoattribute:: maximum_surface3d_height
+   .. autoattribute:: maximum_surface3d_width
+   .. autoattribute:: maximum_surfacecubemap_layered_layers
+   .. autoattribute:: maximum_surfacecubemap_layered_width
+   .. autoattribute:: maximum_surfacecubemap_width
+   .. autoattribute:: maximum_texture1d_layered_layers
+   .. autoattribute:: maximum_texture1d_layered_width
+   .. autoattribute:: maximum_texture1d_linear_width
+   .. autoattribute:: maximum_texture1d_mipmapped_width
+   .. autoattribute:: maximum_texture1d_width
+   .. autoattribute:: maximum_texture2d_gather_height
+   .. autoattribute:: maximum_texture2d_gather_width
+   .. autoattribute:: maximum_texture2d_height
+   .. autoattribute:: maximum_texture2d_layered_height
+   .. autoattribute:: maximum_texture2d_layered_layers
+   .. autoattribute:: maximum_texture2d_layered_width
+   .. autoattribute:: maximum_texture2d_linear_height
+   .. autoattribute:: maximum_texture2d_linear_pitch
+   .. autoattribute:: maximum_texture2d_linear_width
+   .. autoattribute:: maximum_texture2d_mipmapped_height
+   .. autoattribute:: maximum_texture2d_mipmapped_width
+   .. autoattribute:: maximum_texture2d_width
+   .. autoattribute:: maximum_texture3d_depth
+   .. autoattribute:: maximum_texture3d_depth_alternate
+   .. autoattribute:: maximum_texture3d_height
+   .. autoattribute:: maximum_texture3d_height_alternate
+   .. autoattribute:: maximum_texture3d_width
+   .. autoattribute:: maximum_texture3d_width_alternate
+   .. autoattribute:: maximum_texturecubemap_layered_layers
+   .. autoattribute:: maximum_texturecubemap_layered_width
+   .. autoattribute:: maximum_texturecubemap_width
+   .. autoattribute:: mem_decompress_algorithm_mask
+   .. autoattribute:: mem_decompress_maximum_length
+   .. autoattribute:: mem_sync_domain_count
+   .. autoattribute:: memory_clock_rate
+   .. autoattribute:: memory_pools_supported
+   .. autoattribute:: mempool_supported_handle_types
+   .. autoattribute:: mps_enabled
+   .. autoattribute:: multi_gpu_board
+   .. autoattribute:: multi_gpu_board_group_id
+   .. autoattribute:: multicast_supported
+   .. autoattribute:: multiprocessor_count
+   .. autoattribute:: numa_config
+   .. autoattribute:: numa_id
+   .. autoattribute:: only_partial_host_native_atomic_supported
+   .. autoattribute:: pageable_memory_access
+   .. autoattribute:: pageable_memory_access_uses_host_page_tables
+   .. autoattribute:: pci_bus_id
+   .. autoattribute:: pci_device_id
+   .. autoattribute:: pci_domain_id
+   .. autoattribute:: read_only_host_register_supported
+   .. autoattribute:: reserved_shared_memory_per_block
+   .. autoattribute:: single_to_double_precision_perf_ratio
+   .. autoattribute:: sparse_cuda_array_supported
+   .. autoattribute:: stream_priorities_supported
+   .. autoattribute:: surface_alignment
+   .. autoattribute:: tcc_driver
+   .. autoattribute:: tensor_map_access_supported
+   .. autoattribute:: texture_alignment
+   .. autoattribute:: texture_pitch_alignment
+   .. autoattribute:: timeline_semaphore_interop_supported
+   .. autoattribute:: total_constant_memory
+   .. autoattribute:: unified_addressing
+   .. autoattribute:: unified_function_pointers
+   .. autoattribute:: virtual_memory_management_supported
+   .. autoattribute:: vulkan_cig_supported
+   .. autoattribute:: warp_size
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+
+   
+   
