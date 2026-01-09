@@ -7,20 +7,6 @@ cuda.core.Program
 .. currentmodule:: cuda.core
 
 .. autoclass:: Program
-
-   
-   
-   
-   .. automethod:: __init__
-   .. automethod:: close
-   .. automethod:: compile
-   
-   
-
-   
-   
-   
-   .. autoproperty:: backend
-   .. autoproperty:: handle
-   
-   
+   :members:
+   :undoc-members:
+   :show-inheritance:

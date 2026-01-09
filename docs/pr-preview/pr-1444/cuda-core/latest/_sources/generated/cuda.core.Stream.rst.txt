@@ -7,27 +7,6 @@ cuda.core.Stream
 .. currentmodule:: cuda.core
 
 .. autoclass:: Stream
-
-   
-   
-   
-   .. automethod:: __init__
-   .. automethod:: close
-   .. automethod:: create_graph_builder
-   .. automethod:: from_handle
-   .. automethod:: record
-   .. automethod:: sync
-   .. automethod:: wait
-   
-   
-
-   
-   
-   
-   .. autoproperty:: context
-   .. autoproperty:: device
-   .. autoproperty:: handle
-   .. autoproperty:: is_nonblocking
-   .. autoproperty:: priority
-   
-   
+   :members:
+   :undoc-members:
+   :show-inheritance:

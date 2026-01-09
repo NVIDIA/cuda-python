@@ -7,21 +7,6 @@ cuda.core.LegacyPinnedMemoryResource
 .. currentmodule:: cuda.core
 
 .. autoclass:: LegacyPinnedMemoryResource
-
-   
-   
-   
-   .. automethod:: __init__
-   .. automethod:: allocate
-   .. automethod:: deallocate
-   
-   
-
-   
-   
-   
-   .. autoproperty:: device_id
-   .. autoproperty:: is_device_accessible
-   .. autoproperty:: is_host_accessible
-   
-   
+   :members:
+   :undoc-members:
+   :show-inheritance:

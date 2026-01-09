@@ -7,19 +7,6 @@ cuda.core.\_memory.\_ipc.IPCAllocationHandle
 .. currentmodule:: cuda.core._memory._ipc
 
 .. autoclass:: IPCAllocationHandle
-
-   
-   
-   
-   .. automethod:: __init__
-   .. automethod:: close
-   
-   
-
-   
-   
-   
-   .. autoproperty:: handle
-   .. autoproperty:: uuid
-   
-   
+   :members:
+   :undoc-members:
+   :show-inheritance:

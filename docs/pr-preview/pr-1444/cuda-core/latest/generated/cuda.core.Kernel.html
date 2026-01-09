@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=39b7ff45"></script>
+    <script src="../_static/documentation_options.js?v=9dcf7b5c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev22';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev23';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -581,16 +581,12 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.Kernel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">Kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Kernel" title="Link to this definition">#</a></dt>
-<dd><p>Represent a compiled kernel that had been loaded onto the device.</p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Represent a compiled kernel that had been loaded onto the device.</p>
 <p>Kernel instances can execution when passed directly into the
 <a class="reference internal" href="cuda.core.launch.html#cuda.core.launch" title="cuda.core.launch"><code class="xref py py-func docutils literal notranslate"><span class="pre">launch()</span></code></a> function.</p>
 <p>Directly creating a <a class="reference internal" href="#cuda.core.Kernel" title="cuda.core._module.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> is not supported, and they
 should instead be created through a <a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> object.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Kernel.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Kernel.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.Kernel.arguments_info">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arguments_info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cuda.core._module.ParamInfo.html#cuda.core._module.ParamInfo" title="cuda.core._module.ParamInfo"><span class="pre">ParamInfo</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#cuda.core.Kernel.arguments_info" title="Link to this definition">#</a></dt>
@@ -679,7 +675,6 @@ should instead be created through a <a class="reference internal" href="cuda.cor
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel"><code class="docutils literal notranslate"><span class="pre">Kernel</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.__init__"><code class="docutils literal notranslate"><span class="pre">Kernel.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.arguments_info"><code class="docutils literal notranslate"><span class="pre">Kernel.arguments_info</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.attributes"><code class="docutils literal notranslate"><span class="pre">Kernel.attributes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.num_arguments"><code class="docutils literal notranslate"><span class="pre">Kernel.num_arguments</span></code></a></li>

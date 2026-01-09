@@ -7,20 +7,6 @@ cuda.core.Kernel
 .. currentmodule:: cuda.core
 
 .. autoclass:: Kernel
-
-   
-   
-   
-   .. automethod:: __init__
-   
-   
-
-   
-   
-   
-   .. autoproperty:: arguments_info
-   .. autoproperty:: attributes
-   .. autoproperty:: num_arguments
-   .. autoproperty:: occupancy
-   
-   
+   :members:
+   :undoc-members:
+   :show-inheritance:

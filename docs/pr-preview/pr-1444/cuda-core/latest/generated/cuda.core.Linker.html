@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=39b7ff45"></script>
+    <script src="../_static/documentation_options.js?v=9dcf7b5c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev22';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev23';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -588,7 +588,8 @@
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Linker" title="Link to this definition">#</a></dt>
-<dd><p>Represent a linking machinery to link one or multiple object codes into
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Represent a linking machinery to link one or multiple object codes into
 <a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a> with the specified options.</p>
 <p>This object provides a unified interface to multiple underlying
 linker libraries (such as nvJitLink or cuLink* from CUDA driver).</p>
@@ -600,17 +601,11 @@ linker libraries (such as nvJitLink or cuLink* from CUDA driver).</p>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Linker.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">object_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><span class="pre">ObjectCode</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.LinkerOptions.html#cuda.core.LinkerOptions" title="cuda.core._linker.LinkerOptions"><span class="pre">LinkerOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Linker.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.Linker.backend">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#cuda.core.Linker.backend" title="Link to this definition">#</a></dt>
+<dd><p>Return this Linker instance’s underlying backend.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Linker.close">
@@ -646,6 +641,21 @@ linker libraries (such as nvJitLink or cuLink* from CUDA driver).</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.Linker.handle">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LinkerHandleT</span></em><a class="headerlink" href="#cuda.core.Linker.handle" title="Link to this definition">#</a></dt>
+<dd><p>Return the underlying handle object.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The type of the returned object depends on the backend.</p>
+</div>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This handle is a Python object. To get the memory address of the underlying C
+handle, call <code class="docutils literal notranslate"><span class="pre">int(Linker.handle)</span></code>.</p>
+</div>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Linker.link">
 <span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_type</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><span class="pre">ObjectCode</span></a></span></span><a class="headerlink" href="#cuda.core.Linker.link" title="Link to this definition">#</a></dt>
@@ -665,27 +675,6 @@ linker libraries (such as nvJitLink or cuLink* from CUDA driver).</p>
 <p class="admonition-title">Note</p>
 <p>See nvrtc compiler options documnetation to ensure the input object codes are
 correctly compiled for linking.</p>
-</div>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.Linker.backend">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#cuda.core.Linker.backend" title="Link to this definition">#</a></dt>
-<dd><p>Return this Linker instance’s underlying backend.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cuda.core.Linker.handle">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LinkerHandleT</span></em><a class="headerlink" href="#cuda.core.Linker.handle" title="Link to this definition">#</a></dt>
-<dd><p>Return the underlying handle object.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The type of the returned object depends on the backend.</p>
-</div>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
-<p>This handle is a Python object. To get the memory address of the underlying C
-handle, call <code class="docutils literal notranslate"><span class="pre">int(Linker.handle)</span></code>.</p>
 </div>
 </dd></dl>
 
@@ -743,13 +732,12 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Li
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker"><code class="docutils literal notranslate"><span class="pre">Linker</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.__init__"><code class="docutils literal notranslate"><span class="pre">Linker.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.backend"><code class="docutils literal notranslate"><span class="pre">Linker.backend</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.close"><code class="docutils literal notranslate"><span class="pre">Linker.close()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.get_error_log"><code class="docutils literal notranslate"><span class="pre">Linker.get_error_log()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.get_info_log"><code class="docutils literal notranslate"><span class="pre">Linker.get_info_log()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.link"><code class="docutils literal notranslate"><span class="pre">Linker.link()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.backend"><code class="docutils literal notranslate"><span class="pre">Linker.backend</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.handle"><code class="docutils literal notranslate"><span class="pre">Linker.handle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Linker.link"><code class="docutils literal notranslate"><span class="pre">Linker.link()</span></code></a></li>
 </ul>
 </li>
 </ul>

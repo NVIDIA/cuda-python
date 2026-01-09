@@ -7,17 +7,6 @@ cuda.core.\_memory.\_ipc.IPCBufferDescriptor
 .. currentmodule:: cuda.core._memory._ipc
 
 .. autoclass:: IPCBufferDescriptor
-
-   
-   
-   
-   .. automethod:: __init__
-   
-   
-
-   
-   
-   
-   .. autoproperty:: size
-   
-   
+   :members:
+   :undoc-members:
+   :show-inheritance:

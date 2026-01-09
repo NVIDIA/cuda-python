@@ -7,31 +7,6 @@ cuda.core.Buffer
 .. currentmodule:: cuda.core
 
 .. autoclass:: Buffer
-
-   
-   
-   
-   .. automethod:: __init__
-   .. automethod:: close
-   .. automethod:: copy_from
-   .. automethod:: copy_to
-   .. automethod:: fill
-   .. automethod:: from_handle
-   .. automethod:: from_ipc_descriptor
-   .. automethod:: get_ipc_descriptor
-   
-   
-
-   
-   
-   
-   .. autoproperty:: device_id
-   .. autoproperty:: handle
-   .. autoproperty:: is_device_accessible
-   .. autoproperty:: is_host_accessible
-   .. autoproperty:: is_mapped
-   .. autoproperty:: memory_resource
-   .. autoproperty:: owner
-   .. autoproperty:: size
-   
-   
+   :members:
+   :undoc-members:
+   :show-inheritance:

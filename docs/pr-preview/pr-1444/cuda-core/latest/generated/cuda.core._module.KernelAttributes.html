@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=39b7ff45"></script>
+    <script src="../_static/documentation_options.js?v=9dcf7b5c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev22';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev23';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -576,11 +576,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core._module.KernelAttributes">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core._module.</span></span><span class="sig-name descname"><span class="pre">KernelAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._module.KernelAttributes" title="Link to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._module.KernelAttributes.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.binary_version">
 <span class="sig-name descname"><span class="pre">binary_version</span></span><span class="sig-paren">(</span>
@@ -783,6 +779,11 @@ This attribute is read-only.</p>
 This attribute is read-only.</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.slots">
+<span class="sig-name descname"><span class="pre">slots</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('_kernel',</span> <span class="pre">'_cache',</span> <span class="pre">'_backend_version',</span> <span class="pre">'_loader')</span></em><a class="headerlink" href="#cuda.core._module.KernelAttributes.slots" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -819,7 +820,6 @@ This attribute is read-only.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes"><code class="docutils literal notranslate"><span class="pre">KernelAttributes</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.__init__"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.binary_version"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.binary_version()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.cache_mode_ca"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.cache_mode_ca()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.cluster_scheduling_policy_preference"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.cluster_scheduling_policy_preference()</span></code></a></li>
@@ -836,6 +836,7 @@ This attribute is read-only.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.required_cluster_height"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.required_cluster_height()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.required_cluster_width"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.required_cluster_width()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.shared_size_bytes"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.shared_size_bytes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.slots"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.slots</span></code></a></li>
 </ul>
 </li>
 </ul>
