@@ -209,10 +209,9 @@ def _check_cuda_bindings_installed():
     bindings_version = bindings_dist.version
     bindings_major_version = bindings_version.split(".")[0]
 
-    # Check if it's an editable install
+    # Check if it's an editable install using PEP 610 (direct_url.json)
+    # This is the standard method for Python 3.10+ and pip 20.1+
     is_editable = False
-
-    # Method 1: Check direct_url.json (PEP 610 - modern editable installs)
     try:
         dist_location = Path(bindings_dist.locate_file(""))
         # dist-info or egg-info directory
@@ -225,32 +224,6 @@ def _check_cuda_bindings_installed():
                     is_editable = True
     except Exception:  # noqa: S110
         pass
-
-    # Method 2: Check if package is in current repository (another way to detect editable)
-    if not is_editable:
-        try:
-            import cuda.bindings
-
-            bindings_path = Path(cuda.bindings.__file__).resolve()
-            repo_root = Path(__file__).resolve().parent.parent.parent
-            if repo_root in bindings_path.parents:
-                is_editable = True
-        except Exception:  # noqa: S110
-            pass
-
-    # Method 3: Check for .egg-link file (old editable install method)
-    if not is_editable:
-        try:
-            # Look for .egg-link files in site-packages
-            import site
-
-            for site_dir in site.getsitepackages():
-                egg_link_path = Path(site_dir) / "cuda-bindings.egg-link"
-                if egg_link_path.exists():
-                    is_editable = True
-                    break
-        except Exception:  # noqa: S110
-            pass
 
     return (True, is_editable, bindings_major_version)
 
