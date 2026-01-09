@@ -10,7 +10,7 @@ cdef class Event:
 
     cdef:
         EventHandle _h_event
-        ContextHandle _h_context  # Cached for fast access
+        ContextHandle _h_context
         bint _timing_disabled
         bint _busy_waited
         bint _ipc_enabled

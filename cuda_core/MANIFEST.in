@@ -2,4 +2,5 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-recursive-include cuda/core *.pyx *.pxd *.cpp *.hpp
+recursive-include cuda/core *.pyx *.pxd
+recursive-include cuda/core/_cpp *.cpp *.hpp
