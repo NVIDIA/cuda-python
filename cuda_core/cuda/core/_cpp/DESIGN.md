@@ -73,9 +73,9 @@ Handles can be accessed in three ways via overloaded helper functions:
 
 | Function | Returns | Use Case | Notes
 |----------|---------|----------|-------|
-| `cu(h)` | Raw CUDA type (e.g., `CUstream`) | Passing to CUDA APIs | An attribute of `cuda.bindings.cydriver` |
-| `intptr(h)` | `intptr_t` | Python interop, foreign code | |
-| `py(h)` | Python wrapper object | Returning to Python callers | An attribute of `cure.bindings.driver`
+| `as_cu(h)` | Raw CUDA type (e.g., `CUstream`) | Passing to CUDA APIs | An attribute of `cuda.bindings.cydriver` |
+| `as_intptr(h)` | `intptr_t` | Python interop, foreign code | |
+| `as_py(h)` | Python wrapper object | Returning to Python callers | An attribute of `cuda.bindings.driver`
 
 These overloads exist because `std::shared_ptr` cannot have additional attributes.
 Wrapping handles in Python objects would be superfluous overhead for internal use,
@@ -85,13 +85,13 @@ Example usage from Cython:
 
 ```cython
 # Get raw handle for CUDA API calls
-cdef CUstream raw_stream = cu(h_stream)  # cuda.bindings.cydriver.CUstream
+cdef CUstream raw_stream = as_cu(h_stream)  # cuda.bindings.cydriver.CUstream
 
 # Get as integer for other use cases
-return hash(intptr(h_stream))
+return hash(as_intptr(h_stream))
 
 # Get Python wrapper for returning to user
-return py(h_stream)  # cuda.bindings.driver.CUstream
+return as_py(h_stream)  # cuda.bindings.driver.CUstream
 ```
 
 ## Code Structure
@@ -290,10 +290,10 @@ if not h_stream:
     HANDLE_RETURN(get_last_error())
 
 # Use in CUDA API
-cuStreamSynchronize(cu(h_stream))
+cuStreamSynchronize(as_cu(h_stream))
 
 # Return to Python
-return py(h_stream)
+return as_py(h_stream)
 ```
 
 ## Summary

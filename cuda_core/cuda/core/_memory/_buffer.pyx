@@ -18,8 +18,8 @@ from cuda.core._resource_handles cimport (
     StreamHandle,
     _init_handles_table,
     deviceptr_create_with_owner,
-    intptr,
-    cu,
+    as_intptr,
+    as_cu,
     set_deallocation_stream,
 )
 
@@ -189,7 +189,7 @@ cdef class Buffer:
             )
         with nogil:
             HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                cu(dst._h_ptr), cu(self._h_ptr), src_size, cu(s._h_stream)))
+                as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, as_cu(s._h_stream)))
         return dst
 
     def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder):
@@ -214,7 +214,7 @@ cdef class Buffer:
             )
         with nogil:
             HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                cu(self._h_ptr), cu(src._h_ptr), dst_size, cu(s._h_stream)))
+                as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, as_cu(s._h_stream)))
 
     def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder):
         """Fill this buffer with a repeating byte pattern.
@@ -326,7 +326,7 @@ cdef class Buffer:
         """
         # Return raw integer for compatibility with ctypes and other tools
         # that expect a raw pointer value
-        return intptr(self._h_ptr)
+        return as_intptr(self._h_ptr)
 
     @property
     def is_device_accessible(self) -> bool:
@@ -371,7 +371,7 @@ cdef class Buffer:
 cdef inline void _init_mem_attrs(Buffer self):
     """Initialize memory attributes by querying the pointer."""
     if not self._mem_attrs_inited:
-        _query_memory_attrs(self._mem_attrs, cu(self._h_ptr))
+        _query_memory_attrs(self._mem_attrs, as_cu(self._h_ptr))
         self._mem_attrs_inited = True
 
 
@@ -526,8 +526,8 @@ cdef inline void Buffer_close(Buffer self, object stream):
 
 
 cdef inline int Buffer_fill_uint8(Buffer self, uint8_t value, StreamHandle h_stream) except? -1:
-    cdef cydriver.CUdeviceptr ptr = cu(self._h_ptr)
-    cdef cydriver.CUstream s = cu(h_stream)
+    cdef cydriver.CUdeviceptr ptr = as_cu(self._h_ptr)
+    cdef cydriver.CUstream s = as_cu(h_stream)
     with nogil:
         HANDLE_RETURN(cydriver.cuMemsetD8Async(ptr, value, self._size, s))
     return 0
@@ -537,8 +537,8 @@ cdef inline int Buffer_fill_from_ptr(
     Buffer self, const char* ptr, size_t width, StreamHandle h_stream
 ) except? -1:
     cdef size_t buffer_size = self._size
-    cdef cydriver.CUdeviceptr dst = cu(self._h_ptr)
-    cdef cydriver.CUstream s = cu(h_stream)
+    cdef cydriver.CUdeviceptr dst = as_cu(self._h_ptr)
+    cdef cydriver.CUstream s = as_cu(h_stream)
 
     if width == 1:
         with nogil:

@@ -622,7 +622,7 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, 
     }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
-    if (CUDA_SUCCESS != (err = p_cuMemAllocFromPoolAsync(&ptr, size, *h_pool, cu(h_stream)))) {
+    if (CUDA_SUCCESS != (err = p_cuMemAllocFromPoolAsync(&ptr, size, *h_pool, as_cu(h_stream)))) {
         return {};
     }
 
@@ -630,7 +630,7 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, 
         new DevicePtrBox{ptr, h_stream},
         [h_pool](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            p_cuMemFreeAsync(b->resource, cu(b->h_stream));
+            p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
             delete b;
         }
     );
@@ -644,7 +644,7 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
     }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
-    if (CUDA_SUCCESS != (err = p_cuMemAllocAsync(&ptr, size, cu(h_stream)))) {
+    if (CUDA_SUCCESS != (err = p_cuMemAllocAsync(&ptr, size, as_cu(h_stream)))) {
         return {};
     }
 
@@ -652,7 +652,7 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
         new DevicePtrBox{ptr, h_stream},
         [](DevicePtrBox* b) {
             GILReleaseGuard gil;
-            p_cuMemFreeAsync(b->resource, cu(b->h_stream));
+            p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
             delete b;
         }
     );
@@ -830,7 +830,7 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
                         ipc_ptr_cache.erase(it);
                     }
                 }
-                p_cuMemFreeAsync(b->resource, cu(b->h_stream));
+                p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
                 delete b;
             }
         );
@@ -849,7 +849,7 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
             new DevicePtrBox{ptr, h_stream},
             [h_pool](DevicePtrBox* b) {
                 GILReleaseGuard gil;
-                p_cuMemFreeAsync(b->resource, cu(b->h_stream));
+                p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
                 delete b;
             }
         );

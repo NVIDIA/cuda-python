@@ -18,7 +18,7 @@ from cuda.core._resource_handles cimport (
     EventHandle,
     _init_handles_table,
     create_event_handle_noctx,
-    cu,
+    as_cu,
 )
 
 # Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
@@ -604,9 +604,9 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
                 with nogil:
                     h_event = create_event_handle_noctx(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
                     HANDLE_RETURN(cydriver.cuEventRecord(
-                        cu(h_event), <cydriver.CUstream>producer_s))
+                        as_cu(h_event), <cydriver.CUstream>producer_s))
                     HANDLE_RETURN(cydriver.cuStreamWaitEvent(
-                        <cydriver.CUstream>consumer_s, cu(h_event), 0))
+                        <cydriver.CUstream>consumer_s, as_cu(h_event), 0))
 
     return buf
 

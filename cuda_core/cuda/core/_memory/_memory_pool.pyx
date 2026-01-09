@@ -21,8 +21,8 @@ from cuda.core._resource_handles cimport (
     create_mempool_handle_ref,
     get_device_mempool,
     deviceptr_alloc_from_pool,
-    cu,
-    py,
+    as_cu,
+    as_py,
 )
 
 # Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
@@ -76,7 +76,7 @@ cdef class _MemPoolAttributes:
         cdef _MemPool mr = <_MemPool>(self._mr_weakref())
         if mr is None:
             raise RuntimeError("_MemPool is expired")
-        cdef cydriver.CUmemoryPool pool_handle = cu(mr._h_pool)
+        cdef cydriver.CUmemoryPool pool_handle = as_cu(mr._h_pool)
         with nogil:
             HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(pool_handle, attr_enum, value))
         return 0
@@ -218,7 +218,7 @@ cdef class _MemPool(MemoryResource):
     @property
     def handle(self) -> object:
         """Handle to the underlying memory pool."""
-        return py(self._h_pool)
+        return as_py(self._h_pool)
 
     @property
     def is_handle_owned(self) -> bool:
@@ -285,7 +285,7 @@ cdef class _MemPool(MemoryResource):
                     i += 1
 
                 with nogil:
-                    HANDLE_RETURN(cydriver.cuMemPoolSetAccess(cu(self._h_pool), access_desc, count))
+                    HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), access_desc, count))
             finally:
                 if access_desc != NULL:
                     PyMem_Free(access_desc)
@@ -339,14 +339,14 @@ cdef int _MP_init_current(_MemPool self, int dev_id, _MemPoolOptions opts) excep
         with nogil:
             HANDLE_RETURN(
                 cydriver.cuMemPoolGetAttribute(
-                    cu(self._h_pool),
+                    as_cu(self._h_pool),
                     cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
                     &current_threshold
                 )
             )
             if current_threshold == 0:
                 HANDLE_RETURN(cydriver.cuMemPoolSetAttribute(
-                    cu(self._h_pool),
+                    as_cu(self._h_pool),
                     cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
                     &max_threshold
                 ))
@@ -428,7 +428,7 @@ cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
 
 
 cdef inline Buffer _MP_allocate(_MemPool self, size_t size, Stream stream):
-    cdef cydriver.CUstream s = cu(stream._h_stream)
+    cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef DevicePtrHandle h_ptr
     with nogil:
         check_not_capturing(s)
@@ -441,7 +441,7 @@ cdef inline Buffer _MP_allocate(_MemPool self, size_t size, Stream stream):
 cdef inline void _MP_deallocate(
     _MemPool self, uintptr_t ptr, size_t size, Stream stream
 ) noexcept nogil:
-    cdef cydriver.CUstream s = cu(stream._h_stream)
+    cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     cdef cydriver.CUresult r
     with nogil:

@@ -8,7 +8,7 @@ from cuda.bindings cimport cydriver
 
 from cuda.core._launch_config cimport LaunchConfig
 from cuda.core._kernel_arg_handler cimport ParamHolder
-from cuda.core._resource_handles cimport cu
+from cuda.core._resource_handles cimport as_cu
 from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
@@ -88,7 +88,7 @@ def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kern
     # rich.
     if _use_ex:
         drv_cfg = conf._to_native_launch_config()
-        drv_cfg.hStream = cu(s._h_stream)
+        drv_cfg.hStream = as_cu(s._h_stream)
         if conf.cooperative_launch:
             _check_cooperative_launch(kernel, conf, s)
         with nogil:
@@ -100,7 +100,7 @@ def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kern
                 func_handle,
                 conf.grid[0], conf.grid[1], conf.grid[2],
                 conf.block[0], conf.block[1], conf.block[2],
-                conf.shmem_size, cu(s._h_stream), args_ptr, NULL
+                conf.shmem_size, as_cu(s._h_stream), args_ptr, NULL
             )
         )
 

@@ -18,26 +18,26 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ctypedef shared_ptr[const cydriver.CUmemoryPool] MemoryPoolHandle
     ctypedef shared_ptr[const cydriver.CUdeviceptr] DevicePtrHandle
 
-    # cu() - extract the raw CUDA handle (inline C++)
-    cydriver.CUcontext cu(ContextHandle h) nogil
-    cydriver.CUstream cu(StreamHandle h) nogil
-    cydriver.CUevent cu(EventHandle h) nogil
-    cydriver.CUmemoryPool cu(MemoryPoolHandle h) nogil
-    cydriver.CUdeviceptr cu(DevicePtrHandle h) nogil
+    # as_cu() - extract the raw CUDA handle (inline C++)
+    cydriver.CUcontext as_cu(ContextHandle h) nogil
+    cydriver.CUstream as_cu(StreamHandle h) nogil
+    cydriver.CUevent as_cu(EventHandle h) nogil
+    cydriver.CUmemoryPool as_cu(MemoryPoolHandle h) nogil
+    cydriver.CUdeviceptr as_cu(DevicePtrHandle h) nogil
 
-    # intptr() - extract handle as intptr_t for Python interop (inline C++)
-    intptr_t intptr(ContextHandle h) nogil
-    intptr_t intptr(StreamHandle h) nogil
-    intptr_t intptr(EventHandle h) nogil
-    intptr_t intptr(MemoryPoolHandle h) nogil
-    intptr_t intptr(DevicePtrHandle h) nogil
+    # as_intptr() - extract handle as intptr_t for Python interop (inline C++)
+    intptr_t as_intptr(ContextHandle h) nogil
+    intptr_t as_intptr(StreamHandle h) nogil
+    intptr_t as_intptr(EventHandle h) nogil
+    intptr_t as_intptr(MemoryPoolHandle h) nogil
+    intptr_t as_intptr(DevicePtrHandle h) nogil
 
-    # py() - convert handle to Python driver wrapper object (inline C++; requires GIL)
-    object py(ContextHandle h)
-    object py(StreamHandle h)
-    object py(EventHandle h)
-    object py(MemoryPoolHandle h)
-    object py(DevicePtrHandle h)
+    # as_py() - convert handle to Python driver wrapper object (inline C++; requires GIL)
+    object as_py(ContextHandle h)
+    object as_py(StreamHandle h)
+    object as_py(EventHandle h)
+    object as_py(MemoryPoolHandle h)
+    object as_py(DevicePtrHandle h)
 
 
 # The resource handles API table is exported from `cuda.core._resource_handles`

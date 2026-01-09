@@ -185,50 +185,50 @@ void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream);
 // Overloaded helper functions to extract raw resources from handles
 // ============================================================================
 
-// cu() - extract the raw CUDA handle
-inline CUcontext cu(const ContextHandle& h) noexcept {
+// as_cu() - extract the raw CUDA handle
+inline CUcontext as_cu(const ContextHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
-inline CUstream cu(const StreamHandle& h) noexcept {
+inline CUstream as_cu(const StreamHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
-inline CUevent cu(const EventHandle& h) noexcept {
+inline CUevent as_cu(const EventHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
-inline CUmemoryPool cu(const MemoryPoolHandle& h) noexcept {
+inline CUmemoryPool as_cu(const MemoryPoolHandle& h) noexcept {
     return h ? *h : nullptr;
 }
 
-inline CUdeviceptr cu(const DevicePtrHandle& h) noexcept {
+inline CUdeviceptr as_cu(const DevicePtrHandle& h) noexcept {
     return h ? *h : 0;
 }
 
-// intptr() - extract handle as intptr_t for Python interop
+// as_intptr() - extract handle as intptr_t for Python interop
 // Using signed intptr_t per C standard convention and issue #1342
-inline std::intptr_t intptr(const ContextHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(cu(h));
+inline std::intptr_t as_intptr(const ContextHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t intptr(const StreamHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(cu(h));
+inline std::intptr_t as_intptr(const StreamHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t intptr(const EventHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(cu(h));
+inline std::intptr_t as_intptr(const EventHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t intptr(const MemoryPoolHandle& h) noexcept {
-    return reinterpret_cast<std::intptr_t>(cu(h));
+inline std::intptr_t as_intptr(const MemoryPoolHandle& h) noexcept {
+    return reinterpret_cast<std::intptr_t>(as_cu(h));
 }
 
-inline std::intptr_t intptr(const DevicePtrHandle& h) noexcept {
-    return static_cast<std::intptr_t>(cu(h));
+inline std::intptr_t as_intptr(const DevicePtrHandle& h) noexcept {
+    return static_cast<std::intptr_t>(as_cu(h));
 }
 
-// py() - convert handle to Python driver wrapper object (returns new reference)
+// as_py() - convert handle to Python driver wrapper object (returns new reference)
 namespace detail {
 // n.b. class lookup is not cached to avoid deadlock hazard, see DESIGN.md
 inline PyObject* make_py(const char* class_name, std::intptr_t value) {
@@ -243,24 +243,24 @@ inline PyObject* make_py(const char* class_name, std::intptr_t value) {
 }
 }  // namespace detail
 
-inline PyObject* py(const ContextHandle& h) {
-    return detail::make_py("CUcontext", intptr(h));
+inline PyObject* as_py(const ContextHandle& h) {
+    return detail::make_py("CUcontext", as_intptr(h));
 }
 
-inline PyObject* py(const StreamHandle& h) {
-    return detail::make_py("CUstream", intptr(h));
+inline PyObject* as_py(const StreamHandle& h) {
+    return detail::make_py("CUstream", as_intptr(h));
 }
 
-inline PyObject* py(const EventHandle& h) {
-    return detail::make_py("CUevent", intptr(h));
+inline PyObject* as_py(const EventHandle& h) {
+    return detail::make_py("CUevent", as_intptr(h));
 }
 
-inline PyObject* py(const MemoryPoolHandle& h) {
-    return detail::make_py("CUmemoryPool", intptr(h));
+inline PyObject* as_py(const MemoryPoolHandle& h) {
+    return detail::make_py("CUmemoryPool", as_intptr(h));
 }
 
-inline PyObject* py(const DevicePtrHandle& h) {
-    return detail::make_py("CUdeviceptr", intptr(h));
+inline PyObject* as_py(const DevicePtrHandle& h) {
+    return detail::make_py("CUdeviceptr", as_intptr(h));
 }
 
 }  // namespace cuda_core

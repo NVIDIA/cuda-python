@@ -14,9 +14,9 @@ from cuda.core._resource_handles cimport (
     _init_handles_table,
     create_event_handle,
     create_event_handle_ipc,
-    intptr,
-    cu,
-    py,
+    as_intptr,
+    as_cu,
+    as_py,
 )
 
 # Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
@@ -150,7 +150,7 @@ cdef class Event:
         # return self - other (in milliseconds)
         cdef float timing
         with nogil:
-            err = cydriver.cuEventElapsedTime(&timing, cu((<Event>other)._h_event), cu(self._h_event))
+            err = cydriver.cuEventElapsedTime(&timing, as_cu((<Event>other)._h_event), as_cu(self._h_event))
         if err == 0:
             return timing
         else:
@@ -176,14 +176,14 @@ cdef class Event:
             raise RuntimeError(explanation)
 
     def __hash__(self) -> int:
-        return hash((type(self), intptr(self._h_context), intptr(self._h_event)))
+        return hash((type(self), as_intptr(self._h_context), as_intptr(self._h_event)))
 
     def __eq__(self, other) -> bool:
         # Note: using isinstance because `Event` can be subclassed.
         if not isinstance(other, Event):
             return NotImplemented
         cdef Event _other = <Event>other
-        return intptr(self._h_event) == intptr(_other._h_event)
+        return as_intptr(self._h_event) == as_intptr(_other._h_event)
 
     def get_ipc_descriptor(self) -> IPCEventDescriptor:
         """Export an event allocated for sharing between processes."""
@@ -193,7 +193,7 @@ cdef class Event:
             raise RuntimeError("Event is not IPC-enabled")
         cdef cydriver.CUipcEventHandle data
         with nogil:
-            HANDLE_RETURN(cydriver.cuIpcGetEventHandle(&data, cu(self._h_event)))
+            HANDLE_RETURN(cydriver.cuIpcGetEventHandle(&data, as_cu(self._h_event)))
         cdef bytes data_b = cpython.PyBytes_FromStringAndSize(<char*>(data.reserved), sizeof(data.reserved))
         self._ipc_descriptor = IPCEventDescriptor._init(data_b, self._busy_waited)
         return self._ipc_descriptor
@@ -243,13 +243,13 @@ cdef class Event:
 
         """
         with nogil:
-            HANDLE_RETURN(cydriver.cuEventSynchronize(cu(self._h_event)))
+            HANDLE_RETURN(cydriver.cuEventSynchronize(as_cu(self._h_event)))
 
     @property
     def is_done(self) -> bool:
         """Return True if all captured works have been completed, otherwise False."""
         with nogil:
-            result = cydriver.cuEventQuery(cu(self._h_event))
+            result = cydriver.cuEventQuery(as_cu(self._h_event))
         if result == cydriver.CUresult.CUDA_SUCCESS:
             return True
         if result == cydriver.CUresult.CUDA_ERROR_NOT_READY:
@@ -265,7 +265,7 @@ cdef class Event:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(Event.handle)``.
         """
-        return py(self._h_event)
+        return as_py(self._h_event)
 
     @property
     def device(self) -> Device:
