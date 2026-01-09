@@ -77,7 +77,7 @@ html_theme_options = {
         "navbar-nav",
     ],
     # Use custom secondary sidebar that includes autodoc entries
-    "secondary_sidebar_items": ["page-toc", "sourcelink"],
+    "secondary_sidebar_items": ["page-toc"],
     # Show more TOC levels by default
     "show_toc_level": 3,
 }
