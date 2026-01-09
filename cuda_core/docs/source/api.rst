@@ -36,7 +36,6 @@ CUDA runtime
    ManagedMemoryResource
    LegacyPinnedMemoryResource
    VirtualMemoryResource
-   LaunchConfig
 
    :template: dataclass.rst
 
@@ -47,6 +46,7 @@ CUDA runtime
    GraphCompleteOptions
    GraphDebugPrintOptions
    StreamOptions
+   LaunchConfig
    VirtualMemoryResourceOptions
 
 
