@@ -23,9 +23,6 @@ CUDA runtime
    Graph
    GraphBuilder
    launch
-   GraphMemoryResource
-   LegacyPinnedMemoryResource
-   VirtualMemoryResource
 
    :template: autosummary/cyclass.rst
 
@@ -34,19 +31,22 @@ CUDA runtime
    Event
    MemoryResource
    DeviceMemoryResource
+   GraphMemoryResource
    PinnedMemoryResource
    ManagedMemoryResource
-   StreamOptions
-   EventOptions
-   DeviceMemoryResourceOptions
-   PinnedMemoryResourceOptions
-   ManagedMemoryResourceOptions
+   LegacyPinnedMemoryResource
+   VirtualMemoryResource
    LaunchConfig
 
    :template: dataclass.rst
 
+   DeviceMemoryResourceOptions
+   PinnedMemoryResourceOptions
+   ManagedMemoryResourceOptions
+   EventOptions
    GraphCompleteOptions
    GraphDebugPrintOptions
+   StreamOptions
    VirtualMemoryResourceOptions
 
 
