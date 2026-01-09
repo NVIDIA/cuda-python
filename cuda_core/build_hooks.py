@@ -9,8 +9,11 @@
 
 import functools
 import glob
+import importlib.metadata
+import json
 import os
 import re
+from pathlib import Path
 
 from Cython.Build import cythonize
 from setuptools import Extension
@@ -191,9 +194,103 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
 
 
+def _check_cuda_bindings_installed():
+    """Check if cuda-bindings is installed and validate its version.
+
+    Returns:
+        tuple: (is_installed: bool, is_editable: bool, major_version: str | None)
+        If not installed, returns (False, False, None)
+    """
+    try:
+        bindings_dist = importlib.metadata.distribution("cuda-bindings")
+    except importlib.metadata.PackageNotFoundError:
+        return (False, False, None)
+
+    bindings_version = bindings_dist.version
+    bindings_major_version = bindings_version.split(".")[0]
+
+    # Check if it's an editable install
+    is_editable = False
+
+    # Method 1: Check direct_url.json (PEP 610 - modern editable installs)
+    try:
+        dist_location = Path(bindings_dist.locate_file(""))
+        # dist-info or egg-info directory
+        metadata_dir = dist_location.parent
+        direct_url_path = metadata_dir / "direct_url.json"
+        if direct_url_path.exists():
+            with open(direct_url_path) as f:
+                direct_url = json.load(f)
+                if direct_url.get("dir_info", {}).get("editable"):
+                    is_editable = True
+    except Exception:  # noqa: S110
+        pass
+
+    # Method 2: Check if package is in current repository (another way to detect editable)
+    if not is_editable:
+        try:
+            import cuda.bindings
+
+            bindings_path = Path(cuda.bindings.__file__).resolve()
+            repo_root = Path(__file__).resolve().parent.parent.parent
+            if repo_root in bindings_path.parents:
+                is_editable = True
+        except Exception:  # noqa: S110
+            pass
+
+    # Method 3: Check for .egg-link file (old editable install method)
+    if not is_editable:
+        try:
+            # Look for .egg-link files in site-packages
+            import site
+
+            for site_dir in site.getsitepackages():
+                egg_link_path = Path(site_dir) / "cuda-bindings.egg-link"
+                if egg_link_path.exists():
+                    is_editable = True
+                    break
+        except Exception:  # noqa: S110
+            pass
+
+    return (True, is_editable, bindings_major_version)
+
+
 def _get_cuda_bindings_require():
+    """Determine cuda-bindings build requirement.
+
+    Strategy:
+    1. If cuda-bindings is already installed (any version), don't require it (keep existing)
+    2. If installed from sources (editable), definitely keep it
+    3. Otherwise, if installed version major doesn't match CUDA major, raise error
+    4. If not installed, require matching CUDA major version
+    """
+    bindings_installed, bindings_editable, bindings_major = _check_cuda_bindings_installed()
+
+    # If not installed, require matching CUDA major version
+    if not bindings_installed:
+        cuda_major = _determine_cuda_major_version()
+        return [f"cuda-bindings=={cuda_major}.*"]
+
+    # If installed from sources (editable), keep it (don't require anything)
+    if bindings_editable:
+        return []
+
+    # If installed but not editable, check version matches CUDA major
     cuda_major = _determine_cuda_major_version()
-    return [f"cuda-bindings=={cuda_major}.*"]
+    if bindings_major != cuda_major:
+        raise RuntimeError(
+            f"Installed cuda-bindings version has major version {bindings_major}, "
+            f"but CUDA major version is {cuda_major}.\n"
+            f"This mismatch could cause build or runtime errors.\n"
+            f"\n"
+            f"To fix:\n"
+            f"  1. Uninstall cuda-bindings: pip uninstall cuda-bindings\n"
+            f"  2. Or install from sources: pip install -e ./cuda_bindings\n"
+            f"  3. Or install matching version: pip install 'cuda-bindings=={cuda_major}.*'"
+        )
+
+    # Installed and version matches (or is editable), keep it
+    return []
 
 
 def get_requires_for_build_editable(config_settings=None):
