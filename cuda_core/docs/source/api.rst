@@ -79,10 +79,10 @@ CUDA system information and NVIDIA Management Library (NVML)
    :template: autosummary/cyclass.rst
 
    system.Device
+   system.DeviceArchitecture
    system.FieldId
    system.FieldValue
    system.FieldValues
-   system.DeviceArchitecture
    system.MemoryInfo
    system.BAR1MemoryInfo
    system.PciInfo
