@@ -11,6 +11,7 @@ from cuda.pathfinder._static_libs.supported_nvidia_static_libs import (
 )
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.path_utils import _abs_norm
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
@@ -152,11 +153,6 @@ def find_nvidia_static_lib(artifact_name: str) -> str | None:
     """
     if artifact_name not in SUPPORTED_STATIC_LIBS:
         raise RuntimeError(f"UNKNOWN {artifact_name=}")
-
-    def _abs_norm(path: str | None) -> str | None:
-        if path:
-            return os.path.normpath(os.path.abspath(path))
-        return None
 
     # Try site-packages first
     if artifact_path := _find_artifact_under_site_packages(artifact_name):

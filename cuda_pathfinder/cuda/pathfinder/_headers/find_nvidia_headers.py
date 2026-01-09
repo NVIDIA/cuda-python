@@ -8,13 +8,8 @@ import os
 from cuda.pathfinder._headers import supported_nvidia_headers
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.path_utils import _abs_norm
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
-
-
-def _abs_norm(path: str | None) -> str | None:
-    if path:
-        return os.path.normpath(os.path.abspath(path))
-    return None
 
 
 def _joined_isfile(dirpath: str, basename: str) -> bool:

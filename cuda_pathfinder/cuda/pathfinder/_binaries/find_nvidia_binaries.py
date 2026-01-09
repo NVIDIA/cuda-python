@@ -7,6 +7,7 @@ import os
 from cuda.pathfinder._binaries.supported_nvidia_binaries import SITE_PACKAGES_BINDIRS, SUPPORTED_BINARIES
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.path_utils import _abs_norm
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
@@ -97,11 +98,6 @@ def find_nvidia_binary(binary_name: str) -> str | None:
            - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order) and look in the
              ``bin`` subdirectory.
     """
-    def _abs_norm(path: str | None) -> str | None:
-        if path:
-            return os.path.normpath(os.path.abspath(path))
-        return None
-
     if binary_name not in SUPPORTED_BINARIES:
         raise RuntimeError(f"UNKNOWN {binary_name=}")
 
