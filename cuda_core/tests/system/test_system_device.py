@@ -15,7 +15,6 @@ import sys
 
 import pytest
 from cuda.core import system
-from cuda.core.system import _device as system_device
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from cuda.bindings import _nvml as nvml
@@ -36,7 +35,7 @@ def test_device_architecture():
     for device in system.Device.get_all_devices():
         device_arch = device.architecture
 
-        assert isinstance(device_arch, system_device.DeviceArchitecture)
+        assert isinstance(device_arch, system.DeviceArchitecture)
         if sys.version_info < (3, 12):
             assert device_arch.id in nvml.DeviceArch.__members__.values()
         else:
@@ -52,7 +51,7 @@ def test_device_bar1_memory():
             bar1_memory_info.used,
         )
 
-        assert isinstance(bar1_memory_info, system_device.BAR1MemoryInfo)
+        assert isinstance(bar1_memory_info, system.BAR1MemoryInfo)
         assert isinstance(free, int)
         assert isinstance(total, int)
         assert isinstance(used, int)
@@ -93,7 +92,7 @@ def test_device_memory():
         memory_info = device.memory_info
         free, total, used, reserved = memory_info.free, memory_info.total, memory_info.used, memory_info.reserved
 
-        assert isinstance(memory_info, system_device.MemoryInfo)
+        assert isinstance(memory_info, system.MemoryInfo)
         assert isinstance(free, int)
         assert isinstance(total, int)
         assert isinstance(used, int)
@@ -116,7 +115,7 @@ def test_device_name():
 def test_device_pci_info():
     for device in system.Device.get_all_devices():
         pci_info = device.pci_info
-        assert isinstance(pci_info, system_device.PciInfo)
+        assert isinstance(pci_info, system.PciInfo)
 
         assert isinstance(pci_info.bus_id, str)
         assert re.match("[a-f0-9]{8}:[a-f0-9]{2}:[a-f0-9]{2}.[a-f0-9]", pci_info.bus_id.lower())
@@ -183,12 +182,12 @@ def test_device_uuid():
     ],
 )
 def test_unpack_bitmask(params):
-    assert system_device._unpack_bitmask(array.array("Q", params["input"])) == params["output"]
+    assert system._unpack_bitmask(array.array("Q", params["input"])) == params["output"]
 
 
 def test_unpack_bitmask_single_value():
     with pytest.raises(TypeError):
-        system_device._unpack_bitmask(1)
+        system._unpack_bitmask(1)
 
 
 def test_field_values():
@@ -197,8 +196,8 @@ def test_field_values():
         # test those.
 
         field_ids = [
-            system_device.FieldId.DEV_TOTAL_ENERGY_CONSUMPTION,
-            system_device.FieldId.DEV_PCIE_COUNT_TX_BYTES,
+            system.FieldId.DEV_TOTAL_ENERGY_CONSUMPTION,
+            system.FieldId.DEV_PCIE_COUNT_TX_BYTES,
         ]
         field_values = device.get_field_values(field_ids)
         field_values.validate()
@@ -206,7 +205,7 @@ def test_field_values():
         with pytest.raises(TypeError):
             field_values["invalid_index"]
 
-        assert isinstance(field_values, system_device.FieldValues)
+        assert isinstance(field_values, system.FieldValues)
         assert len(field_values) == len(field_ids)
 
         raw_values = field_values.get_all_values()
@@ -224,7 +223,7 @@ def test_field_values():
 
         # Test only one element, because that's weirdly a special case
         field_ids = [
-            system_device.FieldId.DEV_PCIE_REPLAY_COUNTER,
+            system.FieldId.DEV_PCIE_REPLAY_COUNTER,
         ]
         field_values = device.get_field_values(field_ids)
         assert len(field_values) == 1
