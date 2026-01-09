@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=9dcf7b5c"></script>
+    <script src="../_static/documentation_options.js?v=5646eb91"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev23';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev24';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -576,1729 +576,442 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core._device.</span></span><span class="sig-name descname"><span class="pre">DeviceProperties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._device.DeviceProperties" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>A class to query various attributes of a CUDA device.</p>
+<dd><p>A class to query various attributes of a CUDA device.</p>
 <p>Attributes are read-only and provide information about the device.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.async_engine_count">
-<span class="sig-name descname"><span class="pre">async_engine_count</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.async_engine_count" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Number of asynchronous engines.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.async_engine_count</p>
-</dd>
-</dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.can_flush_remote_writes">
-<span class="sig-name descname"><span class="pre">can_flush_remote_writes</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_flush_remote_writes" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: The CU_STREAM_WAIT_VALUE_FLUSH flag and the CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES MemOp are supported on the device. See Stream Memory Operations for additional details.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.can_flush_remote_writes</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.can_map_host_memory">
-<span class="sig-name descname"><span class="pre">can_map_host_memory</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_map_host_memory" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device can map host memory into CUDA address space.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.can_map_host_memory</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.can_tex2d_gather">
-<span class="sig-name descname"><span class="pre">can_tex2d_gather</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_tex2d_gather" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: True if device supports 2D texture gather operations, False if not.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.can_tex2d_gather</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.can_use_64_bit_stream_mem_ops">
-<span class="sig-name descname"><span class="pre">can_use_64_bit_stream_mem_ops</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_use_64_bit_stream_mem_ops" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: 64-bit operations are supported in cuStreamBatchMemOp and related MemOp APIs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.can_use_64_bit_stream_mem_ops</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.can_use_host_pointer_for_registered_mem">
-<span class="sig-name descname"><span class="pre">can_use_host_pointer_for_registered_mem</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_use_host_pointer_for_registered_mem" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device can access host registered memory at the same virtual address as the CPU.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.can_use_host_pointer_for_registered_mem</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.can_use_stream_wait_value_nor">
-<span class="sig-name descname"><span class="pre">can_use_stream_wait_value_nor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_use_stream_wait_value_nor" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: CU_STREAM_WAIT_VALUE_NOR is supported by MemOp APIs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.can_use_stream_wait_value_nor</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.clock_rate">
-<span class="sig-name descname"><span class="pre">clock_rate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.clock_rate" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Typical clock frequency in kilohertz.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.clock_rate</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.cluster_launch">
-<span class="sig-name descname"><span class="pre">cluster_launch</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.cluster_launch" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Indicates device supports cluster launch.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.cluster_launch</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.compute_capability_major">
-<span class="sig-name descname"><span class="pre">compute_capability_major</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.compute_capability_major" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Major compute capability version number.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.compute_capability_major</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.compute_capability_minor">
-<span class="sig-name descname"><span class="pre">compute_capability_minor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.compute_capability_minor" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Minor compute capability version number.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.compute_capability_minor</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.compute_mode">
-<span class="sig-name descname"><span class="pre">compute_mode</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.compute_mode" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Compute mode (See CUcomputemode for details).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.compute_mode</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.compute_preemption_supported">
-<span class="sig-name descname"><span class="pre">compute_preemption_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.compute_preemption_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports compute preemption.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.compute_preemption_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.concurrent_kernels">
-<span class="sig-name descname"><span class="pre">concurrent_kernels</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.concurrent_kernels" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device can possibly execute multiple kernels concurrently.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.concurrent_kernels</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.concurrent_managed_access">
-<span class="sig-name descname"><span class="pre">concurrent_managed_access</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.concurrent_managed_access" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device can coherently access managed memory concurrently with the CPU.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.concurrent_managed_access</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.cooperative_launch">
-<span class="sig-name descname"><span class="pre">cooperative_launch</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.cooperative_launch" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports launching cooperative kernels via cuLaunchCooperativeKernel.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.cooperative_launch</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.d3d12_cig_supported">
-<span class="sig-name descname"><span class="pre">d3d12_cig_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.d3d12_cig_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports CIG with D3D12.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.d3d12_cig_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.deferred_mapping_cuda_array_supported">
-<span class="sig-name descname"><span class="pre">deferred_mapping_cuda_array_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.deferred_mapping_cuda_array_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports deferred mapping CUDA arrays and CUDA mipmapped arrays.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.deferred_mapping_cuda_array_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.direct_managed_mem_access_from_host">
-<span class="sig-name descname"><span class="pre">direct_managed_mem_access_from_host</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.direct_managed_mem_access_from_host" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: The host can directly access managed memory on the device without migration.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.direct_managed_mem_access_from_host</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.dma_buf_supported">
-<span class="sig-name descname"><span class="pre">dma_buf_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.dma_buf_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports buffer sharing with dma_buf mechanism.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.dma_buf_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.ecc_enabled">
-<span class="sig-name descname"><span class="pre">ecc_enabled</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.ecc_enabled" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device has ECC support enabled.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.ecc_enabled</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.generic_compression_supported">
-<span class="sig-name descname"><span class="pre">generic_compression_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.generic_compression_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports compression of memory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.generic_compression_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.global_l1_cache_supported">
-<span class="sig-name descname"><span class="pre">global_l1_cache_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.global_l1_cache_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports caching globals in L1.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.global_l1_cache_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.global_memory_bus_width">
-<span class="sig-name descname"><span class="pre">global_memory_bus_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.global_memory_bus_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Global memory bus width in bits.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.global_memory_bus_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_direct_rdma_flush_writes_options">
-<span class="sig-name descname"><span class="pre">gpu_direct_rdma_flush_writes_options</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_flush_writes_options" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: The returned attribute shall be interpreted as a bitmask, where the individual bits are described by the CUflushGPUDirectRDMAWritesOptions enum.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.gpu_direct_rdma_flush_writes_options</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_direct_rdma_supported">
-<span class="sig-name descname"><span class="pre">gpu_direct_rdma_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports GPUDirect RDMA APIs, like nvidia_p2p_get_pages (see <a class="reference external" href="https://docs.nvidia.com/cuda/gpudirect-rdma">https://docs.nvidia.com/cuda/gpudirect-rdma</a> for more information).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.gpu_direct_rdma_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported">
-<span class="sig-name descname"><span class="pre">gpu_direct_rdma_with_cuda_vmm_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports specifying the GPUDirect RDMA flag with cuMemCreate.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_direct_rdma_writes_ordering">
-<span class="sig-name descname"><span class="pre">gpu_direct_rdma_writes_ordering</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_writes_ordering" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: GPUDirect RDMA writes to the device do not need to be flushed for consumers within the scope indicated by the returned attribute. See CUGPUDirectRDMAWritesOrdering for the numerical values returned here.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.gpu_direct_rdma_writes_ordering</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_overlap">
-<span class="sig-name descname"><span class="pre">gpu_overlap</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_overlap" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device can possibly copy memory and execute a kernel concurrently. Deprecated. Use instead async_engine_count.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.gpu_overlap</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_pci_device_id">
-<span class="sig-name descname"><span class="pre">gpu_pci_device_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_pci_device_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: The combined 16-bit PCI device ID and 16-bit PCI vendor ID.</p>
-<p>Returns 0 if the driver does not support this query.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.gpu_pci_device_id</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_pci_subsystem_id">
-<span class="sig-name descname"><span class="pre">gpu_pci_subsystem_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_pci_subsystem_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.</p>
-<p>Returns 0 if the driver does not support this query.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.gpu_pci_subsystem_id</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.handle_type_fabric_supported">
-<span class="sig-name descname"><span class="pre">handle_type_fabric_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.handle_type_fabric_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports exporting memory to a fabric handle with cuMemExportToShareableHandle() or requested with cuMemCreate().</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.handle_type_fabric_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.handle_type_posix_file_descriptor_supported">
-<span class="sig-name descname"><span class="pre">handle_type_posix_file_descriptor_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.handle_type_posix_file_descriptor_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports exporting memory to a posix file descriptor with cuMemExportToShareableHandle, if requested via cuMemCreate.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.handle_type_posix_file_descriptor_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.handle_type_win32_handle_supported">
-<span class="sig-name descname"><span class="pre">handle_type_win32_handle_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.handle_type_win32_handle_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports exporting memory to a Win32 NT handle with cuMemExportToShareableHandle, if requested via cuMemCreate.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.handle_type_win32_handle_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.handle_type_win32_kmt_handle_supported">
-<span class="sig-name descname"><span class="pre">handle_type_win32_kmt_handle_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.handle_type_win32_kmt_handle_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports exporting memory to a Win32 KMT handle with cuMemExportToShareableHandle, if requested via cuMemCreate.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.handle_type_win32_kmt_handle_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_alloc_dma_buf_supported">
-<span class="sig-name descname"><span class="pre">host_alloc_dma_buf_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_alloc_dma_buf_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports page-locked host memory buffer sharing with dma_buf mechanism.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.host_alloc_dma_buf_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_memory_pools_supported">
-<span class="sig-name descname"><span class="pre">host_memory_pools_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_memory_pools_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device suports HOST location with the cuMemAllocAsync and cuMemPool family of APIs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.host_memory_pools_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_native_atomic_supported">
-<span class="sig-name descname"><span class="pre">host_native_atomic_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_native_atomic_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Link between the device and the host supports all native atomic operations.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.host_native_atomic_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_numa_id">
-<span class="sig-name descname"><span class="pre">host_numa_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_numa_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.host_numa_id</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_numa_memory_pools_supported">
-<span class="sig-name descname"><span class="pre">host_numa_memory_pools_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_numa_memory_pools_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports HOST_NUMA location with the cuMemAllocAsync and cuMemPool family of APIs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.host_numa_memory_pools_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_numa_multinode_ipc_supported">
-<span class="sig-name descname"><span class="pre">host_numa_multinode_ipc_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_numa_multinode_ipc_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports HOST_NUMA location IPC between nodes in a multi-node system.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.host_numa_multinode_ipc_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_numa_virtual_memory_management_supported">
-<span class="sig-name descname"><span class="pre">host_numa_virtual_memory_management_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_numa_virtual_memory_management_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports HOST_NUMA location with the virtual memory management APIs like cuMemCreate, cuMemMap and related APIs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.host_numa_virtual_memory_management_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_register_supported">
-<span class="sig-name descname"><span class="pre">host_register_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_register_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports host memory registration via cudaHostRegister.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.host_register_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_virtual_memory_management_supported">
-<span class="sig-name descname"><span class="pre">host_virtual_memory_management_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_virtual_memory_management_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports HOST location with the virtual memory management APIs like cuMemCreate, cuMemMap and related APIs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.host_virtual_memory_management_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.integrated">
-<span class="sig-name descname"><span class="pre">integrated</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.integrated" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device is integrated with host memory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.integrated</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.ipc_event_supported">
-<span class="sig-name descname"><span class="pre">ipc_event_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.ipc_event_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports IPC Events.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.ipc_event_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.kernel_exec_timeout">
-<span class="sig-name descname"><span class="pre">kernel_exec_timeout</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.kernel_exec_timeout" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Specifies whether there is a run time limit on kernels.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.kernel_exec_timeout</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.l2_cache_size">
-<span class="sig-name descname"><span class="pre">l2_cache_size</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.l2_cache_size" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Size of L2 cache in bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.l2_cache_size</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.local_l1_cache_supported">
-<span class="sig-name descname"><span class="pre">local_l1_cache_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.local_l1_cache_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports caching locals in L1.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.local_l1_cache_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.managed_memory">
-<span class="sig-name descname"><span class="pre">managed_memory</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.managed_memory" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device can allocate managed memory on this system.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.managed_memory</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_access_policy_window_size">
-<span class="sig-name descname"><span class="pre">max_access_policy_window_size</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_access_policy_window_size" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum value of CUaccessPolicyWindow.num_bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_access_policy_window_size</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_block_dim_x">
-<span class="sig-name descname"><span class="pre">max_block_dim_x</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_block_dim_x" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum block dimension X.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_block_dim_x</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_block_dim_y">
-<span class="sig-name descname"><span class="pre">max_block_dim_y</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_block_dim_y" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum block dimension Y.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_block_dim_y</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_block_dim_z">
-<span class="sig-name descname"><span class="pre">max_block_dim_z</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_block_dim_z" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum block dimension Z.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_block_dim_z</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_blocks_per_multiprocessor">
-<span class="sig-name descname"><span class="pre">max_blocks_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_blocks_per_multiprocessor" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum number of blocks per multiprocessor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_blocks_per_multiprocessor</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_grid_dim_x">
-<span class="sig-name descname"><span class="pre">max_grid_dim_x</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_grid_dim_x" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum grid dimension X.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_grid_dim_x</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_grid_dim_y">
-<span class="sig-name descname"><span class="pre">max_grid_dim_y</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_grid_dim_y" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum grid dimension Y.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_grid_dim_y</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_grid_dim_z">
-<span class="sig-name descname"><span class="pre">max_grid_dim_z</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_grid_dim_z" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum grid dimension Z.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_grid_dim_z</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_persisting_l2_cache_size">
-<span class="sig-name descname"><span class="pre">max_persisting_l2_cache_size</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_persisting_l2_cache_size" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum L2 persisting lines capacity setting in bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_persisting_l2_cache_size</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_pitch">
-<span class="sig-name descname"><span class="pre">max_pitch</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_pitch" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum pitch in bytes allowed by memory copies.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_pitch</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_registers_per_block">
-<span class="sig-name descname"><span class="pre">max_registers_per_block</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_registers_per_block" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum number of 32-bit registers available to a thread block.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_registers_per_block</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_registers_per_multiprocessor">
-<span class="sig-name descname"><span class="pre">max_registers_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_registers_per_multiprocessor" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum number of 32-bit registers available per multiprocessor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_registers_per_multiprocessor</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_shared_memory_per_block">
-<span class="sig-name descname"><span class="pre">max_shared_memory_per_block</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_shared_memory_per_block" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum shared memory available per block in bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_shared_memory_per_block</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_shared_memory_per_block_optin">
-<span class="sig-name descname"><span class="pre">max_shared_memory_per_block_optin</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_shared_memory_per_block_optin" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum optin shared memory per block.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_shared_memory_per_block_optin</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_shared_memory_per_multiprocessor">
-<span class="sig-name descname"><span class="pre">max_shared_memory_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_shared_memory_per_multiprocessor" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum shared memory available per multiprocessor in bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_shared_memory_per_multiprocessor</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_threads_per_block">
-<span class="sig-name descname"><span class="pre">max_threads_per_block</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_threads_per_block" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum number of threads per block.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_threads_per_block</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_threads_per_multiprocessor">
-<span class="sig-name descname"><span class="pre">max_threads_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_threads_per_multiprocessor" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum resident threads per multiprocessor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.max_threads_per_multiprocessor</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface1d_layered_layers">
-<span class="sig-name descname"><span class="pre">maximum_surface1d_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface1d_layered_layers" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum layers in a 1D layered surface.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surface1d_layered_layers</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface1d_layered_width">
-<span class="sig-name descname"><span class="pre">maximum_surface1d_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface1d_layered_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 1D layered surface width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surface1d_layered_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface1d_width">
-<span class="sig-name descname"><span class="pre">maximum_surface1d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface1d_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 1D surface width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surface1d_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface2d_height">
-<span class="sig-name descname"><span class="pre">maximum_surface2d_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_height" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 2D surface height.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surface2d_height</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface2d_layered_height">
-<span class="sig-name descname"><span class="pre">maximum_surface2d_layered_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_layered_height" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 2D layered surface height.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surface2d_layered_height</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface2d_layered_layers">
-<span class="sig-name descname"><span class="pre">maximum_surface2d_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_layered_layers" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum layers in a 2D layered surface.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surface2d_layered_layers</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface2d_layered_width">
-<span class="sig-name descname"><span class="pre">maximum_surface2d_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_layered_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 2D layered surface width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surface2d_layered_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface2d_width">
-<span class="sig-name descname"><span class="pre">maximum_surface2d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 2D surface width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surface2d_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface3d_depth">
-<span class="sig-name descname"><span class="pre">maximum_surface3d_depth</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface3d_depth" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 3D surface depth.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surface3d_depth</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface3d_height">
-<span class="sig-name descname"><span class="pre">maximum_surface3d_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface3d_height" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 3D surface height.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surface3d_height</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface3d_width">
-<span class="sig-name descname"><span class="pre">maximum_surface3d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface3d_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 3D surface width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surface3d_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surfacecubemap_layered_layers">
-<span class="sig-name descname"><span class="pre">maximum_surfacecubemap_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surfacecubemap_layered_layers" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum layers in a cubemap layered surface.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surfacecubemap_layered_layers</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surfacecubemap_layered_width">
-<span class="sig-name descname"><span class="pre">maximum_surfacecubemap_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surfacecubemap_layered_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum cubemap layered surface width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surfacecubemap_layered_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surfacecubemap_width">
-<span class="sig-name descname"><span class="pre">maximum_surfacecubemap_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surfacecubemap_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum cubemap surface width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_surfacecubemap_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture1d_layered_layers">
-<span class="sig-name descname"><span class="pre">maximum_texture1d_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_layered_layers" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum layers in a 1D layered texture.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture1d_layered_layers</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture1d_layered_width">
-<span class="sig-name descname"><span class="pre">maximum_texture1d_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_layered_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 1D layered texture width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture1d_layered_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture1d_linear_width">
-<span class="sig-name descname"><span class="pre">maximum_texture1d_linear_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_linear_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum width for a 1D texture bound to linear memory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture1d_linear_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture1d_mipmapped_width">
-<span class="sig-name descname"><span class="pre">maximum_texture1d_mipmapped_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_mipmapped_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum mipmapped 1D texture width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture1d_mipmapped_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture1d_width">
-<span class="sig-name descname"><span class="pre">maximum_texture1d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 1D texture width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture1d_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_gather_height">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_gather_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_gather_height" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 2D texture gather height.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture2d_gather_height</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_gather_width">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_gather_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_gather_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 2D texture gather width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture2d_gather_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_height">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_height" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 2D texture height.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture2d_height</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_layered_height">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_layered_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_layered_height" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 2D layered texture height.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture2d_layered_height</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_layered_layers">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_layered_layers" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum layers in a 2D layered texture.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture2d_layered_layers</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_layered_width">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_layered_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 2D layered texture width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture2d_layered_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_linear_height">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_linear_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_linear_height" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum height for a 2D texture bound to linear memory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture2d_linear_height</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_linear_pitch">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_linear_pitch</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_linear_pitch" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum pitch in bytes for a 2D texture bound to linear memory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture2d_linear_pitch</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_linear_width">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_linear_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_linear_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum width for a 2D texture bound to linear memory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture2d_linear_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_mipmapped_height">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_mipmapped_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_mipmapped_height" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum mipmapped 2D texture height.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture2d_mipmapped_height</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_mipmapped_width">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_mipmapped_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_mipmapped_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum mipmapped 2D texture width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture2d_mipmapped_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_width">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 2D texture width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture2d_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture3d_depth">
-<span class="sig-name descname"><span class="pre">maximum_texture3d_depth</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_depth" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 3D texture depth.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture3d_depth</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture3d_depth_alternate">
-<span class="sig-name descname"><span class="pre">maximum_texture3d_depth_alternate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_depth_alternate" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Alternate maximum 3D texture depth, 0 if no alternate maximum 3D texture size is supported.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture3d_depth_alternate</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture3d_height">
-<span class="sig-name descname"><span class="pre">maximum_texture3d_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_height" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 3D texture height.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture3d_height</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture3d_height_alternate">
-<span class="sig-name descname"><span class="pre">maximum_texture3d_height_alternate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_height_alternate" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Alternate maximum 3D texture height, 0 if no alternate maximum 3D texture size is supported.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture3d_height_alternate</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture3d_width">
-<span class="sig-name descname"><span class="pre">maximum_texture3d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum 3D texture width.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture3d_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture3d_width_alternate">
-<span class="sig-name descname"><span class="pre">maximum_texture3d_width_alternate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_width_alternate" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Alternate maximum 3D texture width, 0 if no alternate maximum 3D texture size is supported.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texture3d_width_alternate</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_layers">
-<span class="sig-name descname"><span class="pre">maximum_texturecubemap_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_layers" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum layers in a cubemap layered texture.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texturecubemap_layered_layers</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_width">
-<span class="sig-name descname"><span class="pre">maximum_texturecubemap_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum cubemap layered texture width or height.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texturecubemap_layered_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texturecubemap_width">
-<span class="sig-name descname"><span class="pre">maximum_texturecubemap_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texturecubemap_width" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Maximum cubemap texture width or height.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.maximum_texturecubemap_width</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.mem_decompress_algorithm_mask">
-<span class="sig-name descname"><span class="pre">mem_decompress_algorithm_mask</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mem_decompress_algorithm_mask" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: The returned valued shall be interpreted as a bitmask, where the individual bits are described by the CUmemDecompressAlgorithm enum.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.mem_decompress_algorithm_mask</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.mem_decompress_maximum_length">
-<span class="sig-name descname"><span class="pre">mem_decompress_maximum_length</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mem_decompress_maximum_length" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: The returned valued is the maximum length in bytes of a single decompress operation that is allowed.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.mem_decompress_maximum_length</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.mem_sync_domain_count">
-<span class="sig-name descname"><span class="pre">mem_sync_domain_count</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mem_sync_domain_count" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Number of memory domains the device supports.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.mem_sync_domain_count</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.memory_clock_rate">
-<span class="sig-name descname"><span class="pre">memory_clock_rate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.memory_clock_rate" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Peak memory clock frequency in kilohertz.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.memory_clock_rate</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.memory_pools_supported">
-<span class="sig-name descname"><span class="pre">memory_pools_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.memory_pools_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports using the cuMemAllocAsync and cuMemPool family of APIs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.memory_pools_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.mempool_supported_handle_types">
-<span class="sig-name descname"><span class="pre">mempool_supported_handle_types</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mempool_supported_handle_types" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Handle types supported with mempool based IPC.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.mempool_supported_handle_types</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.mps_enabled">
-<span class="sig-name descname"><span class="pre">mps_enabled</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mps_enabled" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Indicates if contexts created on this device will be shared via MPS.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.mps_enabled</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.multi_gpu_board">
-<span class="sig-name descname"><span class="pre">multi_gpu_board</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.multi_gpu_board" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device is on a multi-GPU board.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.multi_gpu_board</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.multi_gpu_board_group_id">
-<span class="sig-name descname"><span class="pre">multi_gpu_board_group_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.multi_gpu_board_group_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Unique id for a group of devices on the same multi-GPU board.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.multi_gpu_board_group_id</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.multicast_supported">
-<span class="sig-name descname"><span class="pre">multicast_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.multicast_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports switch multicast and reduction operations.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.multicast_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.multiprocessor_count">
-<span class="sig-name descname"><span class="pre">multiprocessor_count</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.multiprocessor_count" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Number of multiprocessors on device.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.multiprocessor_count</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.numa_config">
-<span class="sig-name descname"><span class="pre">numa_config</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.numa_config" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: NUMA configuration of a device: value is of type CUdeviceNumaConfig enum.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.numa_config</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.numa_id">
-<span class="sig-name descname"><span class="pre">numa_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.numa_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: NUMA node ID of the GPU memory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.numa_id</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.only_partial_host_native_atomic_supported">
-<span class="sig-name descname"><span class="pre">only_partial_host_native_atomic_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.only_partial_host_native_atomic_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Link between the device and the host supports only some native atomic operations.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.only_partial_host_native_atomic_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.pageable_memory_access">
-<span class="sig-name descname"><span class="pre">pageable_memory_access</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pageable_memory_access" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports coherently accessing pageable memory without calling cudaHostRegister on it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.pageable_memory_access</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.pageable_memory_access_uses_host_page_tables">
-<span class="sig-name descname"><span class="pre">pageable_memory_access_uses_host_page_tables</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pageable_memory_access_uses_host_page_tables" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device accesses pageable memory via the host’s page tables.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.pageable_memory_access_uses_host_page_tables</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.pci_bus_id">
-<span class="sig-name descname"><span class="pre">pci_bus_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pci_bus_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: PCI bus ID of the device.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.pci_bus_id</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.pci_device_id">
-<span class="sig-name descname"><span class="pre">pci_device_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pci_device_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: PCI device ID of the device.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.pci_device_id</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.pci_domain_id">
-<span class="sig-name descname"><span class="pre">pci_domain_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pci_domain_id" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: PCI domain ID of the device.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.pci_domain_id</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.read_only_host_register_supported">
-<span class="sig-name descname"><span class="pre">read_only_host_register_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.read_only_host_register_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: True if device supports using the cuMemHostRegister flag CU_MEMHOSTERGISTER_READ_ONLY to register memory that must be mapped as read-only to the GPU, False if not.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.read_only_host_register_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.reserved_shared_memory_per_block">
-<span class="sig-name descname"><span class="pre">reserved_shared_memory_per_block</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.reserved_shared_memory_per_block" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Shared memory reserved by CUDA driver per block in bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.reserved_shared_memory_per_block</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.single_to_double_precision_perf_ratio">
-<span class="sig-name descname"><span class="pre">single_to_double_precision_perf_ratio</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.single_to_double_precision_perf_ratio" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Ratio of single precision performance (in floating-point operations per second) to double precision performance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.single_to_double_precision_perf_ratio</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.sparse_cuda_array_supported">
-<span class="sig-name descname"><span class="pre">sparse_cuda_array_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.sparse_cuda_array_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports sparse CUDA arrays and sparse CUDA mipmapped arrays.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.sparse_cuda_array_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.stream_priorities_supported">
-<span class="sig-name descname"><span class="pre">stream_priorities_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.stream_priorities_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: True if device supports stream priorities, False if not.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.stream_priorities_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.surface_alignment">
-<span class="sig-name descname"><span class="pre">surface_alignment</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.surface_alignment" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Surface alignment requirement in bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.surface_alignment</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.tcc_driver">
-<span class="sig-name descname"><span class="pre">tcc_driver</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.tcc_driver" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device is using TCC driver model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.tcc_driver</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.tensor_map_access_supported">
-<span class="sig-name descname"><span class="pre">tensor_map_access_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.tensor_map_access_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports accessing memory using Tensor Map.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.tensor_map_access_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.texture_alignment">
-<span class="sig-name descname"><span class="pre">texture_alignment</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.texture_alignment" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Alignment requirement for textures.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.texture_alignment</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.texture_pitch_alignment">
-<span class="sig-name descname"><span class="pre">texture_pitch_alignment</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.texture_pitch_alignment" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Pitch alignment requirement for textures.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.texture_pitch_alignment</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.timeline_semaphore_interop_supported">
-<span class="sig-name descname"><span class="pre">timeline_semaphore_interop_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.timeline_semaphore_interop_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: External timeline semaphore interop is supported on the device.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.timeline_semaphore_interop_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.total_constant_memory">
-<span class="sig-name descname"><span class="pre">total_constant_memory</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.total_constant_memory" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Memory available on device for constant variables in a CUDA C kernel in bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.total_constant_memory</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.unified_addressing">
-<span class="sig-name descname"><span class="pre">unified_addressing</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.unified_addressing" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device shares a unified address space with the host.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.unified_addressing</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.unified_function_pointers">
-<span class="sig-name descname"><span class="pre">unified_function_pointers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.unified_function_pointers" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports unified function pointers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.unified_function_pointers</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.virtual_memory_management_supported">
-<span class="sig-name descname"><span class="pre">virtual_memory_management_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.virtual_memory_management_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports virtual memory management APIs like cuMemAddressReserve, cuMemCreate, cuMemMap and related APIs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.virtual_memory_management_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.vulkan_cig_supported">
-<span class="sig-name descname"><span class="pre">vulkan_cig_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.vulkan_cig_supported" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>bool: Device supports CIG with Vulkan.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.vulkan_cig_supported</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.warp_size">
-<span class="sig-name descname"><span class="pre">warp_size</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.warp_size" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>int: Warp size in threads.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DeviceProperties.warp_size</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="deviceproperties-init">
+<h2>DeviceProperties.__init__<a class="headerlink" href="#deviceproperties-init" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-async-engine-count">
+<h2>DeviceProperties.async_engine_count<a class="headerlink" href="#deviceproperties-async-engine-count" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-can-flush-remote-writes">
+<h2>DeviceProperties.can_flush_remote_writes<a class="headerlink" href="#deviceproperties-can-flush-remote-writes" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-can-map-host-memory">
+<h2>DeviceProperties.can_map_host_memory<a class="headerlink" href="#deviceproperties-can-map-host-memory" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-can-tex2d-gather">
+<h2>DeviceProperties.can_tex2d_gather<a class="headerlink" href="#deviceproperties-can-tex2d-gather" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-can-use-64-bit-stream-mem-ops">
+<h2>DeviceProperties.can_use_64_bit_stream_mem_ops<a class="headerlink" href="#deviceproperties-can-use-64-bit-stream-mem-ops" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-can-use-host-pointer-for-registered-mem">
+<h2>DeviceProperties.can_use_host_pointer_for_registered_mem<a class="headerlink" href="#deviceproperties-can-use-host-pointer-for-registered-mem" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-can-use-stream-wait-value-nor">
+<h2>DeviceProperties.can_use_stream_wait_value_nor<a class="headerlink" href="#deviceproperties-can-use-stream-wait-value-nor" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-clock-rate">
+<h2>DeviceProperties.clock_rate<a class="headerlink" href="#deviceproperties-clock-rate" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-cluster-launch">
+<h2>DeviceProperties.cluster_launch<a class="headerlink" href="#deviceproperties-cluster-launch" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-compute-capability-major">
+<h2>DeviceProperties.compute_capability_major<a class="headerlink" href="#deviceproperties-compute-capability-major" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-compute-capability-minor">
+<h2>DeviceProperties.compute_capability_minor<a class="headerlink" href="#deviceproperties-compute-capability-minor" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-compute-mode">
+<h2>DeviceProperties.compute_mode<a class="headerlink" href="#deviceproperties-compute-mode" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-compute-preemption-supported">
+<h2>DeviceProperties.compute_preemption_supported<a class="headerlink" href="#deviceproperties-compute-preemption-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-concurrent-kernels">
+<h2>DeviceProperties.concurrent_kernels<a class="headerlink" href="#deviceproperties-concurrent-kernels" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-concurrent-managed-access">
+<h2>DeviceProperties.concurrent_managed_access<a class="headerlink" href="#deviceproperties-concurrent-managed-access" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-cooperative-launch">
+<h2>DeviceProperties.cooperative_launch<a class="headerlink" href="#deviceproperties-cooperative-launch" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-d3d12-cig-supported">
+<h2>DeviceProperties.d3d12_cig_supported<a class="headerlink" href="#deviceproperties-d3d12-cig-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-deferred-mapping-cuda-array-supported">
+<h2>DeviceProperties.deferred_mapping_cuda_array_supported<a class="headerlink" href="#deviceproperties-deferred-mapping-cuda-array-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-direct-managed-mem-access-from-host">
+<h2>DeviceProperties.direct_managed_mem_access_from_host<a class="headerlink" href="#deviceproperties-direct-managed-mem-access-from-host" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-dma-buf-supported">
+<h2>DeviceProperties.dma_buf_supported<a class="headerlink" href="#deviceproperties-dma-buf-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-ecc-enabled">
+<h2>DeviceProperties.ecc_enabled<a class="headerlink" href="#deviceproperties-ecc-enabled" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-generic-compression-supported">
+<h2>DeviceProperties.generic_compression_supported<a class="headerlink" href="#deviceproperties-generic-compression-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-global-l1-cache-supported">
+<h2>DeviceProperties.global_l1_cache_supported<a class="headerlink" href="#deviceproperties-global-l1-cache-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-global-memory-bus-width">
+<h2>DeviceProperties.global_memory_bus_width<a class="headerlink" href="#deviceproperties-global-memory-bus-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-gpu-direct-rdma-flush-writes-options">
+<h2>DeviceProperties.gpu_direct_rdma_flush_writes_options<a class="headerlink" href="#deviceproperties-gpu-direct-rdma-flush-writes-options" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-gpu-direct-rdma-supported">
+<h2>DeviceProperties.gpu_direct_rdma_supported<a class="headerlink" href="#deviceproperties-gpu-direct-rdma-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-gpu-direct-rdma-with-cuda-vmm-supported">
+<h2>DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported<a class="headerlink" href="#deviceproperties-gpu-direct-rdma-with-cuda-vmm-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-gpu-direct-rdma-writes-ordering">
+<h2>DeviceProperties.gpu_direct_rdma_writes_ordering<a class="headerlink" href="#deviceproperties-gpu-direct-rdma-writes-ordering" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-gpu-overlap">
+<h2>DeviceProperties.gpu_overlap<a class="headerlink" href="#deviceproperties-gpu-overlap" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-gpu-pci-device-id">
+<h2>DeviceProperties.gpu_pci_device_id<a class="headerlink" href="#deviceproperties-gpu-pci-device-id" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-gpu-pci-subsystem-id">
+<h2>DeviceProperties.gpu_pci_subsystem_id<a class="headerlink" href="#deviceproperties-gpu-pci-subsystem-id" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-handle-type-fabric-supported">
+<h2>DeviceProperties.handle_type_fabric_supported<a class="headerlink" href="#deviceproperties-handle-type-fabric-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-handle-type-posix-file-descriptor-supported">
+<h2>DeviceProperties.handle_type_posix_file_descriptor_supported<a class="headerlink" href="#deviceproperties-handle-type-posix-file-descriptor-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-handle-type-win32-handle-supported">
+<h2>DeviceProperties.handle_type_win32_handle_supported<a class="headerlink" href="#deviceproperties-handle-type-win32-handle-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-handle-type-win32-kmt-handle-supported">
+<h2>DeviceProperties.handle_type_win32_kmt_handle_supported<a class="headerlink" href="#deviceproperties-handle-type-win32-kmt-handle-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-host-alloc-dma-buf-supported">
+<h2>DeviceProperties.host_alloc_dma_buf_supported<a class="headerlink" href="#deviceproperties-host-alloc-dma-buf-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-host-memory-pools-supported">
+<h2>DeviceProperties.host_memory_pools_supported<a class="headerlink" href="#deviceproperties-host-memory-pools-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-host-native-atomic-supported">
+<h2>DeviceProperties.host_native_atomic_supported<a class="headerlink" href="#deviceproperties-host-native-atomic-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-host-numa-id">
+<h2>DeviceProperties.host_numa_id<a class="headerlink" href="#deviceproperties-host-numa-id" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-host-numa-memory-pools-supported">
+<h2>DeviceProperties.host_numa_memory_pools_supported<a class="headerlink" href="#deviceproperties-host-numa-memory-pools-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-host-numa-multinode-ipc-supported">
+<h2>DeviceProperties.host_numa_multinode_ipc_supported<a class="headerlink" href="#deviceproperties-host-numa-multinode-ipc-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-host-numa-virtual-memory-management-supported">
+<h2>DeviceProperties.host_numa_virtual_memory_management_supported<a class="headerlink" href="#deviceproperties-host-numa-virtual-memory-management-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-host-register-supported">
+<h2>DeviceProperties.host_register_supported<a class="headerlink" href="#deviceproperties-host-register-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-host-virtual-memory-management-supported">
+<h2>DeviceProperties.host_virtual_memory_management_supported<a class="headerlink" href="#deviceproperties-host-virtual-memory-management-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-integrated">
+<h2>DeviceProperties.integrated<a class="headerlink" href="#deviceproperties-integrated" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-ipc-event-supported">
+<h2>DeviceProperties.ipc_event_supported<a class="headerlink" href="#deviceproperties-ipc-event-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-kernel-exec-timeout">
+<h2>DeviceProperties.kernel_exec_timeout<a class="headerlink" href="#deviceproperties-kernel-exec-timeout" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-l2-cache-size">
+<h2>DeviceProperties.l2_cache_size<a class="headerlink" href="#deviceproperties-l2-cache-size" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-local-l1-cache-supported">
+<h2>DeviceProperties.local_l1_cache_supported<a class="headerlink" href="#deviceproperties-local-l1-cache-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-managed-memory">
+<h2>DeviceProperties.managed_memory<a class="headerlink" href="#deviceproperties-managed-memory" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-access-policy-window-size">
+<h2>DeviceProperties.max_access_policy_window_size<a class="headerlink" href="#deviceproperties-max-access-policy-window-size" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-block-dim-x">
+<h2>DeviceProperties.max_block_dim_x<a class="headerlink" href="#deviceproperties-max-block-dim-x" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-block-dim-y">
+<h2>DeviceProperties.max_block_dim_y<a class="headerlink" href="#deviceproperties-max-block-dim-y" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-block-dim-z">
+<h2>DeviceProperties.max_block_dim_z<a class="headerlink" href="#deviceproperties-max-block-dim-z" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-blocks-per-multiprocessor">
+<h2>DeviceProperties.max_blocks_per_multiprocessor<a class="headerlink" href="#deviceproperties-max-blocks-per-multiprocessor" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-grid-dim-x">
+<h2>DeviceProperties.max_grid_dim_x<a class="headerlink" href="#deviceproperties-max-grid-dim-x" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-grid-dim-y">
+<h2>DeviceProperties.max_grid_dim_y<a class="headerlink" href="#deviceproperties-max-grid-dim-y" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-grid-dim-z">
+<h2>DeviceProperties.max_grid_dim_z<a class="headerlink" href="#deviceproperties-max-grid-dim-z" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-persisting-l2-cache-size">
+<h2>DeviceProperties.max_persisting_l2_cache_size<a class="headerlink" href="#deviceproperties-max-persisting-l2-cache-size" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-pitch">
+<h2>DeviceProperties.max_pitch<a class="headerlink" href="#deviceproperties-max-pitch" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-registers-per-block">
+<h2>DeviceProperties.max_registers_per_block<a class="headerlink" href="#deviceproperties-max-registers-per-block" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-registers-per-multiprocessor">
+<h2>DeviceProperties.max_registers_per_multiprocessor<a class="headerlink" href="#deviceproperties-max-registers-per-multiprocessor" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-shared-memory-per-block">
+<h2>DeviceProperties.max_shared_memory_per_block<a class="headerlink" href="#deviceproperties-max-shared-memory-per-block" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-shared-memory-per-block-optin">
+<h2>DeviceProperties.max_shared_memory_per_block_optin<a class="headerlink" href="#deviceproperties-max-shared-memory-per-block-optin" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-shared-memory-per-multiprocessor">
+<h2>DeviceProperties.max_shared_memory_per_multiprocessor<a class="headerlink" href="#deviceproperties-max-shared-memory-per-multiprocessor" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-threads-per-block">
+<h2>DeviceProperties.max_threads_per_block<a class="headerlink" href="#deviceproperties-max-threads-per-block" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-max-threads-per-multiprocessor">
+<h2>DeviceProperties.max_threads_per_multiprocessor<a class="headerlink" href="#deviceproperties-max-threads-per-multiprocessor" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surface1d-layered-layers">
+<h2>DeviceProperties.maximum_surface1d_layered_layers<a class="headerlink" href="#deviceproperties-maximum-surface1d-layered-layers" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surface1d-layered-width">
+<h2>DeviceProperties.maximum_surface1d_layered_width<a class="headerlink" href="#deviceproperties-maximum-surface1d-layered-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surface1d-width">
+<h2>DeviceProperties.maximum_surface1d_width<a class="headerlink" href="#deviceproperties-maximum-surface1d-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surface2d-height">
+<h2>DeviceProperties.maximum_surface2d_height<a class="headerlink" href="#deviceproperties-maximum-surface2d-height" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surface2d-layered-height">
+<h2>DeviceProperties.maximum_surface2d_layered_height<a class="headerlink" href="#deviceproperties-maximum-surface2d-layered-height" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surface2d-layered-layers">
+<h2>DeviceProperties.maximum_surface2d_layered_layers<a class="headerlink" href="#deviceproperties-maximum-surface2d-layered-layers" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surface2d-layered-width">
+<h2>DeviceProperties.maximum_surface2d_layered_width<a class="headerlink" href="#deviceproperties-maximum-surface2d-layered-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surface2d-width">
+<h2>DeviceProperties.maximum_surface2d_width<a class="headerlink" href="#deviceproperties-maximum-surface2d-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surface3d-depth">
+<h2>DeviceProperties.maximum_surface3d_depth<a class="headerlink" href="#deviceproperties-maximum-surface3d-depth" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surface3d-height">
+<h2>DeviceProperties.maximum_surface3d_height<a class="headerlink" href="#deviceproperties-maximum-surface3d-height" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surface3d-width">
+<h2>DeviceProperties.maximum_surface3d_width<a class="headerlink" href="#deviceproperties-maximum-surface3d-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surfacecubemap-layered-layers">
+<h2>DeviceProperties.maximum_surfacecubemap_layered_layers<a class="headerlink" href="#deviceproperties-maximum-surfacecubemap-layered-layers" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surfacecubemap-layered-width">
+<h2>DeviceProperties.maximum_surfacecubemap_layered_width<a class="headerlink" href="#deviceproperties-maximum-surfacecubemap-layered-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-surfacecubemap-width">
+<h2>DeviceProperties.maximum_surfacecubemap_width<a class="headerlink" href="#deviceproperties-maximum-surfacecubemap-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture1d-layered-layers">
+<h2>DeviceProperties.maximum_texture1d_layered_layers<a class="headerlink" href="#deviceproperties-maximum-texture1d-layered-layers" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture1d-layered-width">
+<h2>DeviceProperties.maximum_texture1d_layered_width<a class="headerlink" href="#deviceproperties-maximum-texture1d-layered-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture1d-linear-width">
+<h2>DeviceProperties.maximum_texture1d_linear_width<a class="headerlink" href="#deviceproperties-maximum-texture1d-linear-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture1d-mipmapped-width">
+<h2>DeviceProperties.maximum_texture1d_mipmapped_width<a class="headerlink" href="#deviceproperties-maximum-texture1d-mipmapped-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture1d-width">
+<h2>DeviceProperties.maximum_texture1d_width<a class="headerlink" href="#deviceproperties-maximum-texture1d-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture2d-gather-height">
+<h2>DeviceProperties.maximum_texture2d_gather_height<a class="headerlink" href="#deviceproperties-maximum-texture2d-gather-height" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture2d-gather-width">
+<h2>DeviceProperties.maximum_texture2d_gather_width<a class="headerlink" href="#deviceproperties-maximum-texture2d-gather-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture2d-height">
+<h2>DeviceProperties.maximum_texture2d_height<a class="headerlink" href="#deviceproperties-maximum-texture2d-height" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture2d-layered-height">
+<h2>DeviceProperties.maximum_texture2d_layered_height<a class="headerlink" href="#deviceproperties-maximum-texture2d-layered-height" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture2d-layered-layers">
+<h2>DeviceProperties.maximum_texture2d_layered_layers<a class="headerlink" href="#deviceproperties-maximum-texture2d-layered-layers" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture2d-layered-width">
+<h2>DeviceProperties.maximum_texture2d_layered_width<a class="headerlink" href="#deviceproperties-maximum-texture2d-layered-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture2d-linear-height">
+<h2>DeviceProperties.maximum_texture2d_linear_height<a class="headerlink" href="#deviceproperties-maximum-texture2d-linear-height" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture2d-linear-pitch">
+<h2>DeviceProperties.maximum_texture2d_linear_pitch<a class="headerlink" href="#deviceproperties-maximum-texture2d-linear-pitch" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture2d-linear-width">
+<h2>DeviceProperties.maximum_texture2d_linear_width<a class="headerlink" href="#deviceproperties-maximum-texture2d-linear-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture2d-mipmapped-height">
+<h2>DeviceProperties.maximum_texture2d_mipmapped_height<a class="headerlink" href="#deviceproperties-maximum-texture2d-mipmapped-height" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture2d-mipmapped-width">
+<h2>DeviceProperties.maximum_texture2d_mipmapped_width<a class="headerlink" href="#deviceproperties-maximum-texture2d-mipmapped-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture2d-width">
+<h2>DeviceProperties.maximum_texture2d_width<a class="headerlink" href="#deviceproperties-maximum-texture2d-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture3d-depth">
+<h2>DeviceProperties.maximum_texture3d_depth<a class="headerlink" href="#deviceproperties-maximum-texture3d-depth" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture3d-depth-alternate">
+<h2>DeviceProperties.maximum_texture3d_depth_alternate<a class="headerlink" href="#deviceproperties-maximum-texture3d-depth-alternate" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture3d-height">
+<h2>DeviceProperties.maximum_texture3d_height<a class="headerlink" href="#deviceproperties-maximum-texture3d-height" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture3d-height-alternate">
+<h2>DeviceProperties.maximum_texture3d_height_alternate<a class="headerlink" href="#deviceproperties-maximum-texture3d-height-alternate" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture3d-width">
+<h2>DeviceProperties.maximum_texture3d_width<a class="headerlink" href="#deviceproperties-maximum-texture3d-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texture3d-width-alternate">
+<h2>DeviceProperties.maximum_texture3d_width_alternate<a class="headerlink" href="#deviceproperties-maximum-texture3d-width-alternate" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texturecubemap-layered-layers">
+<h2>DeviceProperties.maximum_texturecubemap_layered_layers<a class="headerlink" href="#deviceproperties-maximum-texturecubemap-layered-layers" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texturecubemap-layered-width">
+<h2>DeviceProperties.maximum_texturecubemap_layered_width<a class="headerlink" href="#deviceproperties-maximum-texturecubemap-layered-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-maximum-texturecubemap-width">
+<h2>DeviceProperties.maximum_texturecubemap_width<a class="headerlink" href="#deviceproperties-maximum-texturecubemap-width" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-mem-decompress-algorithm-mask">
+<h2>DeviceProperties.mem_decompress_algorithm_mask<a class="headerlink" href="#deviceproperties-mem-decompress-algorithm-mask" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-mem-decompress-maximum-length">
+<h2>DeviceProperties.mem_decompress_maximum_length<a class="headerlink" href="#deviceproperties-mem-decompress-maximum-length" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-mem-sync-domain-count">
+<h2>DeviceProperties.mem_sync_domain_count<a class="headerlink" href="#deviceproperties-mem-sync-domain-count" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-memory-clock-rate">
+<h2>DeviceProperties.memory_clock_rate<a class="headerlink" href="#deviceproperties-memory-clock-rate" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-memory-pools-supported">
+<h2>DeviceProperties.memory_pools_supported<a class="headerlink" href="#deviceproperties-memory-pools-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-mempool-supported-handle-types">
+<h2>DeviceProperties.mempool_supported_handle_types<a class="headerlink" href="#deviceproperties-mempool-supported-handle-types" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-mps-enabled">
+<h2>DeviceProperties.mps_enabled<a class="headerlink" href="#deviceproperties-mps-enabled" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-multi-gpu-board">
+<h2>DeviceProperties.multi_gpu_board<a class="headerlink" href="#deviceproperties-multi-gpu-board" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-multi-gpu-board-group-id">
+<h2>DeviceProperties.multi_gpu_board_group_id<a class="headerlink" href="#deviceproperties-multi-gpu-board-group-id" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-multicast-supported">
+<h2>DeviceProperties.multicast_supported<a class="headerlink" href="#deviceproperties-multicast-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-multiprocessor-count">
+<h2>DeviceProperties.multiprocessor_count<a class="headerlink" href="#deviceproperties-multiprocessor-count" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-numa-config">
+<h2>DeviceProperties.numa_config<a class="headerlink" href="#deviceproperties-numa-config" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-numa-id">
+<h2>DeviceProperties.numa_id<a class="headerlink" href="#deviceproperties-numa-id" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-only-partial-host-native-atomic-supported">
+<h2>DeviceProperties.only_partial_host_native_atomic_supported<a class="headerlink" href="#deviceproperties-only-partial-host-native-atomic-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-pageable-memory-access">
+<h2>DeviceProperties.pageable_memory_access<a class="headerlink" href="#deviceproperties-pageable-memory-access" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-pageable-memory-access-uses-host-page-tables">
+<h2>DeviceProperties.pageable_memory_access_uses_host_page_tables<a class="headerlink" href="#deviceproperties-pageable-memory-access-uses-host-page-tables" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-pci-bus-id">
+<h2>DeviceProperties.pci_bus_id<a class="headerlink" href="#deviceproperties-pci-bus-id" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-pci-device-id">
+<h2>DeviceProperties.pci_device_id<a class="headerlink" href="#deviceproperties-pci-device-id" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-pci-domain-id">
+<h2>DeviceProperties.pci_domain_id<a class="headerlink" href="#deviceproperties-pci-domain-id" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-read-only-host-register-supported">
+<h2>DeviceProperties.read_only_host_register_supported<a class="headerlink" href="#deviceproperties-read-only-host-register-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-reserved-shared-memory-per-block">
+<h2>DeviceProperties.reserved_shared_memory_per_block<a class="headerlink" href="#deviceproperties-reserved-shared-memory-per-block" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-single-to-double-precision-perf-ratio">
+<h2>DeviceProperties.single_to_double_precision_perf_ratio<a class="headerlink" href="#deviceproperties-single-to-double-precision-perf-ratio" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-sparse-cuda-array-supported">
+<h2>DeviceProperties.sparse_cuda_array_supported<a class="headerlink" href="#deviceproperties-sparse-cuda-array-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-stream-priorities-supported">
+<h2>DeviceProperties.stream_priorities_supported<a class="headerlink" href="#deviceproperties-stream-priorities-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-surface-alignment">
+<h2>DeviceProperties.surface_alignment<a class="headerlink" href="#deviceproperties-surface-alignment" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-tcc-driver">
+<h2>DeviceProperties.tcc_driver<a class="headerlink" href="#deviceproperties-tcc-driver" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-tensor-map-access-supported">
+<h2>DeviceProperties.tensor_map_access_supported<a class="headerlink" href="#deviceproperties-tensor-map-access-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-texture-alignment">
+<h2>DeviceProperties.texture_alignment<a class="headerlink" href="#deviceproperties-texture-alignment" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-texture-pitch-alignment">
+<h2>DeviceProperties.texture_pitch_alignment<a class="headerlink" href="#deviceproperties-texture-pitch-alignment" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-timeline-semaphore-interop-supported">
+<h2>DeviceProperties.timeline_semaphore_interop_supported<a class="headerlink" href="#deviceproperties-timeline-semaphore-interop-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-total-constant-memory">
+<h2>DeviceProperties.total_constant_memory<a class="headerlink" href="#deviceproperties-total-constant-memory" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-unified-addressing">
+<h2>DeviceProperties.unified_addressing<a class="headerlink" href="#deviceproperties-unified-addressing" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-unified-function-pointers">
+<h2>DeviceProperties.unified_function_pointers<a class="headerlink" href="#deviceproperties-unified-function-pointers" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-virtual-memory-management-supported">
+<h2>DeviceProperties.virtual_memory_management_supported<a class="headerlink" href="#deviceproperties-virtual-memory-management-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-vulkan-cig-supported">
+<h2>DeviceProperties.vulkan_cig_supported<a class="headerlink" href="#deviceproperties-vulkan-cig-supported" title="Link to this heading">#</a></h2>
+</section>
+<section id="deviceproperties-warp-size">
+<h2>DeviceProperties.warp_size<a class="headerlink" href="#deviceproperties-warp-size" title="Link to this heading">#</a></h2>
+</section>
 </section>
 
 
@@ -2332,152 +1045,151 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties"><code class="docutils literal notranslate"><span class="pre">DeviceProperties</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.async_engine_count"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.async_engine_count</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.can_flush_remote_writes"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.can_flush_remote_writes</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.can_map_host_memory"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.can_map_host_memory</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.can_tex2d_gather"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.can_tex2d_gather</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.can_use_64_bit_stream_mem_ops"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.can_use_64_bit_stream_mem_ops</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.can_use_host_pointer_for_registered_mem"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.can_use_host_pointer_for_registered_mem</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.can_use_stream_wait_value_nor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.can_use_stream_wait_value_nor</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.clock_rate"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.clock_rate</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.cluster_launch"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.cluster_launch</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.compute_capability_major"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.compute_capability_major</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.compute_capability_minor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.compute_capability_minor</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.compute_mode"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.compute_mode</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.compute_preemption_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.compute_preemption_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.concurrent_kernels"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.concurrent_kernels</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.concurrent_managed_access"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.concurrent_managed_access</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.cooperative_launch"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.cooperative_launch</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.d3d12_cig_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.d3d12_cig_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.deferred_mapping_cuda_array_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.deferred_mapping_cuda_array_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.direct_managed_mem_access_from_host"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.direct_managed_mem_access_from_host</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.dma_buf_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.dma_buf_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.ecc_enabled"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.ecc_enabled</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.generic_compression_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.generic_compression_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.global_l1_cache_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.global_l1_cache_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.global_memory_bus_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.global_memory_bus_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_flush_writes_options"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_direct_rdma_flush_writes_options</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_direct_rdma_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_writes_ordering"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_direct_rdma_writes_ordering</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.gpu_overlap"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_overlap</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.gpu_pci_device_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_pci_device_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.gpu_pci_subsystem_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.gpu_pci_subsystem_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.handle_type_fabric_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.handle_type_fabric_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.handle_type_posix_file_descriptor_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.handle_type_posix_file_descriptor_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.handle_type_win32_handle_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.handle_type_win32_handle_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.handle_type_win32_kmt_handle_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.handle_type_win32_kmt_handle_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.host_alloc_dma_buf_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.host_alloc_dma_buf_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.host_memory_pools_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.host_memory_pools_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.host_native_atomic_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.host_native_atomic_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.host_numa_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.host_numa_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.host_numa_memory_pools_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.host_numa_memory_pools_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.host_numa_multinode_ipc_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.host_numa_multinode_ipc_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.host_numa_virtual_memory_management_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.host_numa_virtual_memory_management_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.host_register_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.host_register_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.host_virtual_memory_management_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.host_virtual_memory_management_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.integrated"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.integrated</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.ipc_event_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.ipc_event_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.kernel_exec_timeout"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.kernel_exec_timeout</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.l2_cache_size"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.l2_cache_size</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.local_l1_cache_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.local_l1_cache_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.managed_memory"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.managed_memory</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_access_policy_window_size"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_access_policy_window_size</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_block_dim_x"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_block_dim_x</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_block_dim_y"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_block_dim_y</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_block_dim_z"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_block_dim_z</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_blocks_per_multiprocessor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_blocks_per_multiprocessor</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_grid_dim_x"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_grid_dim_x</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_grid_dim_y"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_grid_dim_y</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_grid_dim_z"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_grid_dim_z</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_persisting_l2_cache_size"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_persisting_l2_cache_size</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_pitch"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_pitch</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_registers_per_block"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_registers_per_block</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_registers_per_multiprocessor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_registers_per_multiprocessor</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_shared_memory_per_block"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_shared_memory_per_block</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_shared_memory_per_block_optin"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_shared_memory_per_block_optin</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_shared_memory_per_multiprocessor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_shared_memory_per_multiprocessor</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_threads_per_block"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_threads_per_block</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.max_threads_per_multiprocessor"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.max_threads_per_multiprocessor</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surface1d_layered_layers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface1d_layered_layers</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surface1d_layered_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface1d_layered_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surface1d_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface1d_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surface2d_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface2d_height</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surface2d_layered_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface2d_layered_height</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surface2d_layered_layers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface2d_layered_layers</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surface2d_layered_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface2d_layered_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surface2d_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface2d_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surface3d_depth"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface3d_depth</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surface3d_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface3d_height</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surface3d_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surface3d_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surfacecubemap_layered_layers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surfacecubemap_layered_layers</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surfacecubemap_layered_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surfacecubemap_layered_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_surfacecubemap_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_surfacecubemap_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture1d_layered_layers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture1d_layered_layers</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture1d_layered_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture1d_layered_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture1d_linear_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture1d_linear_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture1d_mipmapped_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture1d_mipmapped_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture1d_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture1d_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture2d_gather_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_gather_height</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture2d_gather_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_gather_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture2d_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_height</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture2d_layered_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_layered_height</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture2d_layered_layers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_layered_layers</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture2d_layered_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_layered_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture2d_linear_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_linear_height</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture2d_linear_pitch"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_linear_pitch</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture2d_linear_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_linear_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture2d_mipmapped_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_mipmapped_height</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture2d_mipmapped_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_mipmapped_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture2d_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture2d_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture3d_depth"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture3d_depth</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture3d_depth_alternate"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture3d_depth_alternate</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture3d_height"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture3d_height</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture3d_height_alternate"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture3d_height_alternate</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture3d_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture3d_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texture3d_width_alternate"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texture3d_width_alternate</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_layers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texturecubemap_layered_layers</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texturecubemap_layered_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.maximum_texturecubemap_width"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.maximum_texturecubemap_width</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.mem_decompress_algorithm_mask"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.mem_decompress_algorithm_mask</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.mem_decompress_maximum_length"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.mem_decompress_maximum_length</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.mem_sync_domain_count"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.mem_sync_domain_count</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.memory_clock_rate"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.memory_clock_rate</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.memory_pools_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.memory_pools_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.mempool_supported_handle_types"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.mempool_supported_handle_types</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.mps_enabled"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.mps_enabled</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.multi_gpu_board"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.multi_gpu_board</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.multi_gpu_board_group_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.multi_gpu_board_group_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.multicast_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.multicast_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.multiprocessor_count"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.multiprocessor_count</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.numa_config"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.numa_config</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.numa_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.numa_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.only_partial_host_native_atomic_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.only_partial_host_native_atomic_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.pageable_memory_access"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.pageable_memory_access</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.pageable_memory_access_uses_host_page_tables"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.pageable_memory_access_uses_host_page_tables</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.pci_bus_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.pci_bus_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.pci_device_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.pci_device_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.pci_domain_id"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.pci_domain_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.read_only_host_register_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.read_only_host_register_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.reserved_shared_memory_per_block"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.reserved_shared_memory_per_block</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.single_to_double_precision_perf_ratio"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.single_to_double_precision_perf_ratio</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.sparse_cuda_array_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.sparse_cuda_array_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.stream_priorities_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.stream_priorities_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.surface_alignment"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.surface_alignment</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.tcc_driver"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.tcc_driver</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.tensor_map_access_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.tensor_map_access_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.texture_alignment"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.texture_alignment</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.texture_pitch_alignment"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.texture_pitch_alignment</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.timeline_semaphore_interop_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.timeline_semaphore_interop_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.total_constant_memory"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.total_constant_memory</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.unified_addressing"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.unified_addressing</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.unified_function_pointers"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.unified_function_pointers</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.virtual_memory_management_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.virtual_memory_management_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.vulkan_cig_supported"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.vulkan_cig_supported</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.warp_size"><code class="docutils literal notranslate"><span class="pre">DeviceProperties.warp_size</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties"><code class="docutils literal notranslate"><span class="pre">DeviceProperties</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-init">DeviceProperties.__init__</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-async-engine-count">DeviceProperties.async_engine_count</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-can-flush-remote-writes">DeviceProperties.can_flush_remote_writes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-can-map-host-memory">DeviceProperties.can_map_host_memory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-can-tex2d-gather">DeviceProperties.can_tex2d_gather</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-can-use-64-bit-stream-mem-ops">DeviceProperties.can_use_64_bit_stream_mem_ops</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-can-use-host-pointer-for-registered-mem">DeviceProperties.can_use_host_pointer_for_registered_mem</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-can-use-stream-wait-value-nor">DeviceProperties.can_use_stream_wait_value_nor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-clock-rate">DeviceProperties.clock_rate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-cluster-launch">DeviceProperties.cluster_launch</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-compute-capability-major">DeviceProperties.compute_capability_major</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-compute-capability-minor">DeviceProperties.compute_capability_minor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-compute-mode">DeviceProperties.compute_mode</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-compute-preemption-supported">DeviceProperties.compute_preemption_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-concurrent-kernels">DeviceProperties.concurrent_kernels</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-concurrent-managed-access">DeviceProperties.concurrent_managed_access</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-cooperative-launch">DeviceProperties.cooperative_launch</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-d3d12-cig-supported">DeviceProperties.d3d12_cig_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-deferred-mapping-cuda-array-supported">DeviceProperties.deferred_mapping_cuda_array_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-direct-managed-mem-access-from-host">DeviceProperties.direct_managed_mem_access_from_host</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-dma-buf-supported">DeviceProperties.dma_buf_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-ecc-enabled">DeviceProperties.ecc_enabled</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-generic-compression-supported">DeviceProperties.generic_compression_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-global-l1-cache-supported">DeviceProperties.global_l1_cache_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-global-memory-bus-width">DeviceProperties.global_memory_bus_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-gpu-direct-rdma-flush-writes-options">DeviceProperties.gpu_direct_rdma_flush_writes_options</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-gpu-direct-rdma-supported">DeviceProperties.gpu_direct_rdma_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-gpu-direct-rdma-with-cuda-vmm-supported">DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-gpu-direct-rdma-writes-ordering">DeviceProperties.gpu_direct_rdma_writes_ordering</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-gpu-overlap">DeviceProperties.gpu_overlap</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-gpu-pci-device-id">DeviceProperties.gpu_pci_device_id</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-gpu-pci-subsystem-id">DeviceProperties.gpu_pci_subsystem_id</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-handle-type-fabric-supported">DeviceProperties.handle_type_fabric_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-handle-type-posix-file-descriptor-supported">DeviceProperties.handle_type_posix_file_descriptor_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-handle-type-win32-handle-supported">DeviceProperties.handle_type_win32_handle_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-handle-type-win32-kmt-handle-supported">DeviceProperties.handle_type_win32_kmt_handle_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-host-alloc-dma-buf-supported">DeviceProperties.host_alloc_dma_buf_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-host-memory-pools-supported">DeviceProperties.host_memory_pools_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-host-native-atomic-supported">DeviceProperties.host_native_atomic_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-host-numa-id">DeviceProperties.host_numa_id</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-host-numa-memory-pools-supported">DeviceProperties.host_numa_memory_pools_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-host-numa-multinode-ipc-supported">DeviceProperties.host_numa_multinode_ipc_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-host-numa-virtual-memory-management-supported">DeviceProperties.host_numa_virtual_memory_management_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-host-register-supported">DeviceProperties.host_register_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-host-virtual-memory-management-supported">DeviceProperties.host_virtual_memory_management_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-integrated">DeviceProperties.integrated</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-ipc-event-supported">DeviceProperties.ipc_event_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-kernel-exec-timeout">DeviceProperties.kernel_exec_timeout</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-l2-cache-size">DeviceProperties.l2_cache_size</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-local-l1-cache-supported">DeviceProperties.local_l1_cache_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-managed-memory">DeviceProperties.managed_memory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-access-policy-window-size">DeviceProperties.max_access_policy_window_size</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-block-dim-x">DeviceProperties.max_block_dim_x</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-block-dim-y">DeviceProperties.max_block_dim_y</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-block-dim-z">DeviceProperties.max_block_dim_z</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-blocks-per-multiprocessor">DeviceProperties.max_blocks_per_multiprocessor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-grid-dim-x">DeviceProperties.max_grid_dim_x</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-grid-dim-y">DeviceProperties.max_grid_dim_y</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-grid-dim-z">DeviceProperties.max_grid_dim_z</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-persisting-l2-cache-size">DeviceProperties.max_persisting_l2_cache_size</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-pitch">DeviceProperties.max_pitch</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-registers-per-block">DeviceProperties.max_registers_per_block</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-registers-per-multiprocessor">DeviceProperties.max_registers_per_multiprocessor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-shared-memory-per-block">DeviceProperties.max_shared_memory_per_block</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-shared-memory-per-block-optin">DeviceProperties.max_shared_memory_per_block_optin</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-shared-memory-per-multiprocessor">DeviceProperties.max_shared_memory_per_multiprocessor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-threads-per-block">DeviceProperties.max_threads_per_block</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-max-threads-per-multiprocessor">DeviceProperties.max_threads_per_multiprocessor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surface1d-layered-layers">DeviceProperties.maximum_surface1d_layered_layers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surface1d-layered-width">DeviceProperties.maximum_surface1d_layered_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surface1d-width">DeviceProperties.maximum_surface1d_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surface2d-height">DeviceProperties.maximum_surface2d_height</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surface2d-layered-height">DeviceProperties.maximum_surface2d_layered_height</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surface2d-layered-layers">DeviceProperties.maximum_surface2d_layered_layers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surface2d-layered-width">DeviceProperties.maximum_surface2d_layered_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surface2d-width">DeviceProperties.maximum_surface2d_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surface3d-depth">DeviceProperties.maximum_surface3d_depth</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surface3d-height">DeviceProperties.maximum_surface3d_height</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surface3d-width">DeviceProperties.maximum_surface3d_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surfacecubemap-layered-layers">DeviceProperties.maximum_surfacecubemap_layered_layers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surfacecubemap-layered-width">DeviceProperties.maximum_surfacecubemap_layered_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-surfacecubemap-width">DeviceProperties.maximum_surfacecubemap_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture1d-layered-layers">DeviceProperties.maximum_texture1d_layered_layers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture1d-layered-width">DeviceProperties.maximum_texture1d_layered_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture1d-linear-width">DeviceProperties.maximum_texture1d_linear_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture1d-mipmapped-width">DeviceProperties.maximum_texture1d_mipmapped_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture1d-width">DeviceProperties.maximum_texture1d_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture2d-gather-height">DeviceProperties.maximum_texture2d_gather_height</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture2d-gather-width">DeviceProperties.maximum_texture2d_gather_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture2d-height">DeviceProperties.maximum_texture2d_height</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture2d-layered-height">DeviceProperties.maximum_texture2d_layered_height</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture2d-layered-layers">DeviceProperties.maximum_texture2d_layered_layers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture2d-layered-width">DeviceProperties.maximum_texture2d_layered_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture2d-linear-height">DeviceProperties.maximum_texture2d_linear_height</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture2d-linear-pitch">DeviceProperties.maximum_texture2d_linear_pitch</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture2d-linear-width">DeviceProperties.maximum_texture2d_linear_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture2d-mipmapped-height">DeviceProperties.maximum_texture2d_mipmapped_height</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture2d-mipmapped-width">DeviceProperties.maximum_texture2d_mipmapped_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture2d-width">DeviceProperties.maximum_texture2d_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture3d-depth">DeviceProperties.maximum_texture3d_depth</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture3d-depth-alternate">DeviceProperties.maximum_texture3d_depth_alternate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture3d-height">DeviceProperties.maximum_texture3d_height</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture3d-height-alternate">DeviceProperties.maximum_texture3d_height_alternate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture3d-width">DeviceProperties.maximum_texture3d_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texture3d-width-alternate">DeviceProperties.maximum_texture3d_width_alternate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texturecubemap-layered-layers">DeviceProperties.maximum_texturecubemap_layered_layers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texturecubemap-layered-width">DeviceProperties.maximum_texturecubemap_layered_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-maximum-texturecubemap-width">DeviceProperties.maximum_texturecubemap_width</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-mem-decompress-algorithm-mask">DeviceProperties.mem_decompress_algorithm_mask</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-mem-decompress-maximum-length">DeviceProperties.mem_decompress_maximum_length</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-mem-sync-domain-count">DeviceProperties.mem_sync_domain_count</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-memory-clock-rate">DeviceProperties.memory_clock_rate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-memory-pools-supported">DeviceProperties.memory_pools_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-mempool-supported-handle-types">DeviceProperties.mempool_supported_handle_types</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-mps-enabled">DeviceProperties.mps_enabled</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-multi-gpu-board">DeviceProperties.multi_gpu_board</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-multi-gpu-board-group-id">DeviceProperties.multi_gpu_board_group_id</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-multicast-supported">DeviceProperties.multicast_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-multiprocessor-count">DeviceProperties.multiprocessor_count</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-numa-config">DeviceProperties.numa_config</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-numa-id">DeviceProperties.numa_id</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-only-partial-host-native-atomic-supported">DeviceProperties.only_partial_host_native_atomic_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-pageable-memory-access">DeviceProperties.pageable_memory_access</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-pageable-memory-access-uses-host-page-tables">DeviceProperties.pageable_memory_access_uses_host_page_tables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-pci-bus-id">DeviceProperties.pci_bus_id</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-pci-device-id">DeviceProperties.pci_device_id</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-pci-domain-id">DeviceProperties.pci_domain_id</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-read-only-host-register-supported">DeviceProperties.read_only_host_register_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-reserved-shared-memory-per-block">DeviceProperties.reserved_shared_memory_per_block</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-single-to-double-precision-perf-ratio">DeviceProperties.single_to_double_precision_perf_ratio</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-sparse-cuda-array-supported">DeviceProperties.sparse_cuda_array_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-stream-priorities-supported">DeviceProperties.stream_priorities_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-surface-alignment">DeviceProperties.surface_alignment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-tcc-driver">DeviceProperties.tcc_driver</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-tensor-map-access-supported">DeviceProperties.tensor_map_access_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-texture-alignment">DeviceProperties.texture_alignment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-texture-pitch-alignment">DeviceProperties.texture_pitch_alignment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-timeline-semaphore-interop-supported">DeviceProperties.timeline_semaphore_interop_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-total-constant-memory">DeviceProperties.total_constant_memory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-unified-addressing">DeviceProperties.unified_addressing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-unified-function-pointers">DeviceProperties.unified_function_pointers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-virtual-memory-management-supported">DeviceProperties.virtual_memory_management_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-vulkan-cig-supported">DeviceProperties.vulkan_cig_supported</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceproperties-warp-size">DeviceProperties.warp_size</a></li>
 </ul>
   </nav></div>
 

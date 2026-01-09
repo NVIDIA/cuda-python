@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=9dcf7b5c"></script>
+    <script src="../_static/documentation_options.js?v=5646eb91"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev23';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev24';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -581,8 +581,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">PinnedMemoryResource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.PinnedMemoryResource" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_MemPool</span></code></p>
-<p>A host-pinned memory resource managing a stream-ordered memory pool.</p>
+<dd><p>A host-pinned memory resource managing a stream-ordered memory pool.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>options</strong> (<a class="reference internal" href="cuda.core.PinnedMemoryResourceOptions.html#cuda.core.PinnedMemoryResourceOptions" title="cuda.core.PinnedMemoryResourceOptions"><em>PinnedMemoryResourceOptions</em></a>) – <p>Memory resource creation options.</p>
@@ -607,115 +606,62 @@ with location ID 0.</p>
 <p>Note: IPC support for pinned memory requires a single NUMA node. A warning
 is issued if multiple NUMA nodes are detected.</p>
 <p>See <a class="reference internal" href="cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource" title="cuda.core.DeviceMemoryResource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a> for more details on IPC usage patterns.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.from_allocation_handle">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_allocation_handle</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">alloc_handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><span class="pre">IPCAllocationHandle</span></a></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><span class="pre">PinnedMemoryResource</span></a></span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.from_allocation_handle" title="Link to this definition">#</a></dt>
-<dd><p>Create a host-pinned memory resource from an allocation handle.</p>
-<p>Construct a new <cite>PinnedMemoryResource</cite> instance that imports a memory
-pool from a shareable handle. The memory pool is marked as owned.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>alloc_handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><em>IPCAllocationHandle</em></a>) – The shareable handle of the host-pinned memory resource to import. If an
-integer is supplied, it must represent a valid platform-specific
-handle. It is the caller’s responsibility to close that handle.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>A new host-pinned memory resource instance with the imported handle.</p>
-</dd>
-</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.from_registry">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_registry</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/uuid.html#uuid.UUID" title="(in Python v3.14)"><span class="pre">uuid.UUID</span></a></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><span class="pre">PinnedMemoryResource</span></a></span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.from_registry" title="Link to this definition">#</a></dt>
-<dd><p>Obtain a registered mapped memory resource.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If no mapped memory resource is found in the registry.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.get_allocation_handle">
-<span class="sig-name descname"><span class="pre">get_allocation_handle</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core._memory._ipc.IPCAllocationHandle.html#cuda.core._memory._ipc.IPCAllocationHandle" title="cuda.core._memory._ipc.IPCAllocationHandle"><span class="pre">IPCAllocationHandle</span></a></span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.get_allocation_handle" title="Link to this definition">#</a></dt>
-<dd><p>Export the memory pool handle to be shared (requires IPC).</p>
-<p>The handle can be used to share the memory pool with other processes.
-The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The shareable handle for the memory pool.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.is_device_accessible">
-<span class="sig-name descname"><span class="pre">is_device_accessible</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.is_device_accessible" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>Return True. This memory resource provides device-accessible buffers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PinnedMemoryResource.is_device_accessible</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.is_host_accessible">
-<span class="sig-name descname"><span class="pre">is_host_accessible</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.is_host_accessible" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>Return True. This memory resource provides host-accessible buffers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PinnedMemoryResource.is_host_accessible</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResource.register">
-<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/uuid.html#uuid.UUID" title="(in Python v3.14)"><span class="pre">uuid.UUID</span></a></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.PinnedMemoryResource" title="cuda.core.PinnedMemoryResource"><span class="pre">PinnedMemoryResource</span></a></span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResource.register" title="Link to this definition">#</a></dt>
-<dd><p>Register a mapped memory resource.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>The registered mapped memory resource. If one was previously registered</em></p></li>
-<li><p><em>with the given key, it is returned.</em></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="pinnedmemoryresource-init">
+<h2>PinnedMemoryResource.__init__<a class="headerlink" href="#pinnedmemoryresource-init" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-allocate">
+<h2>PinnedMemoryResource.allocate<a class="headerlink" href="#pinnedmemoryresource-allocate" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-close">
+<h2>PinnedMemoryResource.close<a class="headerlink" href="#pinnedmemoryresource-close" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-deallocate">
+<h2>PinnedMemoryResource.deallocate<a class="headerlink" href="#pinnedmemoryresource-deallocate" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-from-allocation-handle">
+<h2>PinnedMemoryResource.from_allocation_handle<a class="headerlink" href="#pinnedmemoryresource-from-allocation-handle" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-from-registry">
+<h2>PinnedMemoryResource.from_registry<a class="headerlink" href="#pinnedmemoryresource-from-registry" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-get-allocation-handle">
+<h2>PinnedMemoryResource.get_allocation_handle<a class="headerlink" href="#pinnedmemoryresource-get-allocation-handle" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-register">
+<h2>PinnedMemoryResource.register<a class="headerlink" href="#pinnedmemoryresource-register" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-attributes">
+<h2>PinnedMemoryResource.attributes<a class="headerlink" href="#pinnedmemoryresource-attributes" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-device-id">
+<h2>PinnedMemoryResource.device_id<a class="headerlink" href="#pinnedmemoryresource-device-id" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-handle">
+<h2>PinnedMemoryResource.handle<a class="headerlink" href="#pinnedmemoryresource-handle" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-is-device-accessible">
+<h2>PinnedMemoryResource.is_device_accessible<a class="headerlink" href="#pinnedmemoryresource-is-device-accessible" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-is-handle-owned">
+<h2>PinnedMemoryResource.is_handle_owned<a class="headerlink" href="#pinnedmemoryresource-is-handle-owned" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-is-host-accessible">
+<h2>PinnedMemoryResource.is_host_accessible<a class="headerlink" href="#pinnedmemoryresource-is-host-accessible" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-is-ipc-enabled">
+<h2>PinnedMemoryResource.is_ipc_enabled<a class="headerlink" href="#pinnedmemoryresource-is-ipc-enabled" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-is-mapped">
+<h2>PinnedMemoryResource.is_mapped<a class="headerlink" href="#pinnedmemoryresource-is-mapped" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-peer-accessible-by">
+<h2>PinnedMemoryResource.peer_accessible_by<a class="headerlink" href="#pinnedmemoryresource-peer-accessible-by" title="Link to this heading">#</a></h2>
+</section>
+<section id="pinnedmemoryresource-uuid">
+<h2>PinnedMemoryResource.uuid<a class="headerlink" href="#pinnedmemoryresource-uuid" title="Link to this heading">#</a></h2>
+</section>
 </section>
 
 
@@ -767,15 +713,25 @@ The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.from_allocation_handle"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.from_allocation_handle()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.from_registry"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.from_registry()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.get_allocation_handle"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.get_allocation_handle()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.is_device_accessible</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.is_host_accessible</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource.register"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource.register()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResource"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-init">PinnedMemoryResource.__init__</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-allocate">PinnedMemoryResource.allocate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-close">PinnedMemoryResource.close</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-deallocate">PinnedMemoryResource.deallocate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-from-allocation-handle">PinnedMemoryResource.from_allocation_handle</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-from-registry">PinnedMemoryResource.from_registry</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-get-allocation-handle">PinnedMemoryResource.get_allocation_handle</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-register">PinnedMemoryResource.register</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-attributes">PinnedMemoryResource.attributes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-device-id">PinnedMemoryResource.device_id</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-handle">PinnedMemoryResource.handle</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-is-device-accessible">PinnedMemoryResource.is_device_accessible</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-is-handle-owned">PinnedMemoryResource.is_handle_owned</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-is-host-accessible">PinnedMemoryResource.is_host_accessible</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-is-ipc-enabled">PinnedMemoryResource.is_ipc_enabled</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-is-mapped">PinnedMemoryResource.is_mapped</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-peer-accessible-by">PinnedMemoryResource.peer_accessible_by</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pinnedmemoryresource-uuid">PinnedMemoryResource.uuid</a></li>
 </ul>
   </nav></div>
 

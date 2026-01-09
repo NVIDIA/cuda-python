@@ -7,6 +7,122 @@ cuda.core.DeviceMemoryResource
 .. currentmodule:: cuda.core
 
 .. autoclass:: DeviceMemoryResource
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+DeviceMemoryResource.__init__
+-----------------------------
+
+.. automethod:: __init__
+
+
+DeviceMemoryResource.allocate
+-----------------------------
+
+.. automethod:: allocate
+
+
+DeviceMemoryResource.close
+--------------------------
+
+.. automethod:: close
+
+
+DeviceMemoryResource.deallocate
+-------------------------------
+
+.. automethod:: deallocate
+
+
+DeviceMemoryResource.from_allocation_handle
+-------------------------------------------
+
+.. automethod:: from_allocation_handle
+
+
+DeviceMemoryResource.from_registry
+----------------------------------
+
+.. automethod:: from_registry
+
+
+DeviceMemoryResource.get_allocation_handle
+------------------------------------------
+
+.. automethod:: get_allocation_handle
+
+
+DeviceMemoryResource.register
+-----------------------------
+
+.. automethod:: register
+
+
+
+
+
+
+
+
+DeviceMemoryResource.attributes
+-------------------------------
+
+.. autoproperty:: attributes
+
+
+DeviceMemoryResource.device_id
+------------------------------
+
+.. autoproperty:: device_id
+
+
+DeviceMemoryResource.handle
+---------------------------
+
+.. autoproperty:: handle
+
+
+DeviceMemoryResource.is_device_accessible
+-----------------------------------------
+
+.. autoproperty:: is_device_accessible
+
+
+DeviceMemoryResource.is_handle_owned
+------------------------------------
+
+.. autoproperty:: is_handle_owned
+
+
+DeviceMemoryResource.is_host_accessible
+---------------------------------------
+
+.. autoproperty:: is_host_accessible
+
+
+DeviceMemoryResource.is_ipc_enabled
+-----------------------------------
+
+.. autoproperty:: is_ipc_enabled
+
+
+DeviceMemoryResource.is_mapped
+------------------------------
+
+.. autoproperty:: is_mapped
+
+
+DeviceMemoryResource.peer_accessible_by
+---------------------------------------
+
+.. autoproperty:: peer_accessible_by
+
+
+DeviceMemoryResource.uuid
+-------------------------
+
+.. autoproperty:: uuid
+
+
+

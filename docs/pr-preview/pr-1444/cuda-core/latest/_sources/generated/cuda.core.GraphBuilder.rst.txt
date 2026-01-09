@@ -7,6 +7,116 @@ cuda.core.GraphBuilder
 .. currentmodule:: cuda.core
 
 .. autoclass:: GraphBuilder
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+GraphBuilder.__init__
+---------------------
+
+.. automethod:: __init__
+
+
+GraphBuilder.add_child
+----------------------
+
+.. automethod:: add_child
+
+
+GraphBuilder.begin_building
+---------------------------
+
+.. automethod:: begin_building
+
+
+GraphBuilder.close
+------------------
+
+.. automethod:: close
+
+
+GraphBuilder.complete
+---------------------
+
+.. automethod:: complete
+
+
+GraphBuilder.create_conditional_handle
+--------------------------------------
+
+.. automethod:: create_conditional_handle
+
+
+GraphBuilder.debug_dot_print
+----------------------------
+
+.. automethod:: debug_dot_print
+
+
+GraphBuilder.end_building
+-------------------------
+
+.. automethod:: end_building
+
+
+GraphBuilder.if_cond
+--------------------
+
+.. automethod:: if_cond
+
+
+GraphBuilder.if_else
+--------------------
+
+.. automethod:: if_else
+
+
+GraphBuilder.join
+-----------------
+
+.. automethod:: join
+
+
+GraphBuilder.split
+------------------
+
+.. automethod:: split
+
+
+GraphBuilder.switch
+-------------------
+
+.. automethod:: switch
+
+
+GraphBuilder.while_loop
+-----------------------
+
+.. automethod:: while_loop
+
+
+
+
+
+
+
+
+GraphBuilder.is_building
+------------------------
+
+.. autoproperty:: is_building
+
+
+GraphBuilder.is_join_required
+-----------------------------
+
+.. autoproperty:: is_join_required
+
+
+GraphBuilder.stream
+-------------------
+
+.. autoproperty:: stream
+
+
+

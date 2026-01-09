@@ -7,6 +7,56 @@ cuda.core.\_module.KernelOccupancy
 .. currentmodule:: cuda.core._module
 
 .. autoclass:: KernelOccupancy
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+KernelOccupancy.__init__
+------------------------
+
+.. automethod:: __init__
+
+
+KernelOccupancy.available_dynamic_shared_memory_per_block
+---------------------------------------------------------
+
+.. automethod:: available_dynamic_shared_memory_per_block
+
+
+KernelOccupancy.max_active_blocks_per_multiprocessor
+----------------------------------------------------
+
+.. automethod:: max_active_blocks_per_multiprocessor
+
+
+KernelOccupancy.max_active_clusters
+-----------------------------------
+
+.. automethod:: max_active_clusters
+
+
+KernelOccupancy.max_potential_block_size
+----------------------------------------
+
+.. automethod:: max_potential_block_size
+
+
+KernelOccupancy.max_potential_cluster_size
+------------------------------------------
+
+.. automethod:: max_potential_cluster_size
+
+
+
+
+
+
+
+
+KernelOccupancy.slots
+---------------------
+
+.. autoproperty:: slots
+
+
+

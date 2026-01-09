@@ -7,6 +7,98 @@ cuda.core.ManagedMemoryResource
 .. currentmodule:: cuda.core
 
 .. autoclass:: ManagedMemoryResource
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+ManagedMemoryResource.__init__
+------------------------------
+
+.. automethod:: __init__
+
+
+ManagedMemoryResource.allocate
+------------------------------
+
+.. automethod:: allocate
+
+
+ManagedMemoryResource.close
+---------------------------
+
+.. automethod:: close
+
+
+ManagedMemoryResource.deallocate
+--------------------------------
+
+.. automethod:: deallocate
+
+
+
+
+
+
+
+
+ManagedMemoryResource.attributes
+--------------------------------
+
+.. autoproperty:: attributes
+
+
+ManagedMemoryResource.device_id
+-------------------------------
+
+.. autoproperty:: device_id
+
+
+ManagedMemoryResource.handle
+----------------------------
+
+.. autoproperty:: handle
+
+
+ManagedMemoryResource.is_device_accessible
+------------------------------------------
+
+.. autoproperty:: is_device_accessible
+
+
+ManagedMemoryResource.is_handle_owned
+-------------------------------------
+
+.. autoproperty:: is_handle_owned
+
+
+ManagedMemoryResource.is_host_accessible
+----------------------------------------
+
+.. autoproperty:: is_host_accessible
+
+
+ManagedMemoryResource.is_ipc_enabled
+------------------------------------
+
+.. autoproperty:: is_ipc_enabled
+
+
+ManagedMemoryResource.is_mapped
+-------------------------------
+
+.. autoproperty:: is_mapped
+
+
+ManagedMemoryResource.peer_accessible_by
+----------------------------------------
+
+.. autoproperty:: peer_accessible_by
+
+
+ManagedMemoryResource.uuid
+--------------------------
+
+.. autoproperty:: uuid
+
+
+

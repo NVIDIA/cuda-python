@@ -7,6 +7,86 @@ cuda.core.system.Device
 .. currentmodule:: cuda.core.system
 
 .. autoclass:: Device
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+Device.__init__
+---------------
+
+.. automethod:: __init__
+
+
+Device.get_all_devices
+----------------------
+
+.. automethod:: get_all_devices
+
+
+
+
+
+
+
+
+Device.architecture
+-------------------
+
+.. autoattribute:: architecture
+
+
+Device.bar1_memory_info
+-----------------------
+
+.. autoattribute:: bar1_memory_info
+
+
+Device.cpu_affinity
+-------------------
+
+.. autoattribute:: cpu_affinity
+
+
+Device.cuda_compute_capability
+------------------------------
+
+.. autoattribute:: cuda_compute_capability
+
+
+Device.handle
+-------------
+
+.. autoattribute:: handle
+
+
+Device.memory_info
+------------------
+
+.. autoattribute:: memory_info
+
+
+Device.name
+-----------
+
+.. autoattribute:: name
+
+
+Device.pci_info
+---------------
+
+.. autoattribute:: pci_info
+
+
+Device.serial
+-------------
+
+.. autoattribute:: serial
+
+
+Device.uuid
+-----------
+
+.. autoattribute:: uuid
+
+
+

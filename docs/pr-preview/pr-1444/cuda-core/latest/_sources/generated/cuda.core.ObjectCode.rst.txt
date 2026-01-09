@@ -7,6 +7,86 @@ cuda.core.ObjectCode
 .. currentmodule:: cuda.core
 
 .. autoclass:: ObjectCode
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+ObjectCode.__init__
+-------------------
+
+.. automethod:: __init__
+
+
+ObjectCode.from_cubin
+---------------------
+
+.. automethod:: from_cubin
+
+
+ObjectCode.from_fatbin
+----------------------
+
+.. automethod:: from_fatbin
+
+
+ObjectCode.from_library
+-----------------------
+
+.. automethod:: from_library
+
+
+ObjectCode.from_ltoir
+---------------------
+
+.. automethod:: from_ltoir
+
+
+ObjectCode.from_object
+----------------------
+
+.. automethod:: from_object
+
+
+ObjectCode.from_ptx
+-------------------
+
+.. automethod:: from_ptx
+
+
+ObjectCode.get_kernel
+---------------------
+
+.. automethod:: get_kernel
+
+
+
+
+
+
+
+
+ObjectCode.code
+---------------
+
+.. autoproperty:: code
+
+
+ObjectCode.code_type
+--------------------
+
+.. autoproperty:: code_type
+
+
+ObjectCode.handle
+-----------------
+
+.. autoproperty:: handle
+
+
+ObjectCode.name
+---------------
+
+.. autoproperty:: name
+
+
+

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=9dcf7b5c"></script>
+    <script src="../_static/documentation_options.js?v=5646eb91"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev23';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev24';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -581,54 +581,28 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core.Graph">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">Graph</span></span><a class="headerlink" href="#cuda.core.Graph" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Represents an executable graph.</p>
+<dd><p>Represents an executable graph.</p>
 <p>A graph groups a set of CUDA kernels and other CUDA operations together and executes
 them with a specified dependency tree. It speeds up the workflow by combining the
 driver activities associated with CUDA kernel launches and CUDA API calls.</p>
 <p>Graphs must be built using a <a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> object.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Graph.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Graph.close" title="Link to this definition">#</a></dt>
-<dd><p>Destroy the graph.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Graph.launch">
-<span class="sig-name descname"><span class="pre">launch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Graph.launch" title="Link to this definition">#</a></dt>
-<dd><p>Launches the graph in a stream.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>) – The stream in which to launch the graph</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Graph.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">builder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Graph.update" title="Link to this definition">#</a></dt>
-<dd><p>Update the graph using new build configuration from the builder.</p>
-<p>The topology of the provided builder must be identical to this graph.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>builder</strong> (<a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – The builder to update the graph with.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Graph.upload">
-<span class="sig-name descname"><span class="pre">upload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Graph.upload" title="Link to this definition">#</a></dt>
-<dd><p>Uploads the graph in a stream.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a>) – The stream in which to upload the graph</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="graph-init">
+<h2>Graph.__init__<a class="headerlink" href="#graph-init" title="Link to this heading">#</a></h2>
+</section>
+<section id="graph-close">
+<h2>Graph.close<a class="headerlink" href="#graph-close" title="Link to this heading">#</a></h2>
+</section>
+<section id="graph-launch">
+<h2>Graph.launch<a class="headerlink" href="#graph-launch" title="Link to this heading">#</a></h2>
+</section>
+<section id="graph-update">
+<h2>Graph.update<a class="headerlink" href="#graph-update" title="Link to this heading">#</a></h2>
+</section>
+<section id="graph-upload">
+<h2>Graph.upload<a class="headerlink" href="#graph-upload" title="Link to this heading">#</a></h2>
+</section>
 </section>
 
 
@@ -680,13 +654,12 @@ driver activities associated with CUDA kernel launches and CUDA API calls.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Graph"><code class="docutils literal notranslate"><span class="pre">Graph</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Graph.close"><code class="docutils literal notranslate"><span class="pre">Graph.close()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Graph.launch"><code class="docutils literal notranslate"><span class="pre">Graph.launch()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Graph.update"><code class="docutils literal notranslate"><span class="pre">Graph.update()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Graph.upload"><code class="docutils literal notranslate"><span class="pre">Graph.upload()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Graph"><code class="docutils literal notranslate"><span class="pre">Graph</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-init">Graph.__init__</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-close">Graph.close</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-launch">Graph.launch</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-update">Graph.update</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-upload">Graph.upload</a></li>
 </ul>
   </nav></div>
 

@@ -7,6 +7,134 @@ cuda.core.Device
 .. currentmodule:: cuda.core
 
 .. autoclass:: Device
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+Device.__init__
+---------------
+
+.. automethod:: __init__
+
+
+Device.allocate
+---------------
+
+.. automethod:: allocate
+
+
+Device.can_access_peer
+----------------------
+
+.. automethod:: can_access_peer
+
+
+Device.create_context
+---------------------
+
+.. automethod:: create_context
+
+
+Device.create_event
+-------------------
+
+.. automethod:: create_event
+
+
+Device.create_graph_builder
+---------------------------
+
+.. automethod:: create_graph_builder
+
+
+Device.create_stream
+--------------------
+
+.. automethod:: create_stream
+
+
+Device.get_all_devices
+----------------------
+
+.. automethod:: get_all_devices
+
+
+Device.set_current
+------------------
+
+.. automethod:: set_current
+
+
+Device.sync
+-----------
+
+.. automethod:: sync
+
+
+
+
+
+
+
+
+Device.arch
+-----------
+
+.. autoproperty:: arch
+
+
+Device.compute_capability
+-------------------------
+
+.. autoproperty:: compute_capability
+
+
+Device.context
+--------------
+
+.. autoproperty:: context
+
+
+Device.default_stream
+---------------------
+
+.. autoproperty:: default_stream
+
+
+Device.device_id
+----------------
+
+.. autoproperty:: device_id
+
+
+Device.memory_resource
+----------------------
+
+.. autoproperty:: memory_resource
+
+
+Device.name
+-----------
+
+.. autoproperty:: name
+
+
+Device.pci_bus_id
+-----------------
+
+.. autoproperty:: pci_bus_id
+
+
+Device.properties
+-----------------
+
+.. autoproperty:: properties
+
+
+Device.uuid
+-----------
+
+.. autoproperty:: uuid
+
+
+

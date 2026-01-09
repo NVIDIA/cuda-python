@@ -7,6 +7,86 @@ cuda.core.Event
 .. currentmodule:: cuda.core
 
 .. autoclass:: Event
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+Event.__init__
+--------------
+
+.. automethod:: __init__
+
+
+Event.close
+-----------
+
+.. automethod:: close
+
+
+Event.from_ipc_descriptor
+-------------------------
+
+.. automethod:: from_ipc_descriptor
+
+
+Event.get_ipc_descriptor
+------------------------
+
+.. automethod:: get_ipc_descriptor
+
+
+Event.sync
+----------
+
+.. automethod:: sync
+
+
+
+
+
+
+
+
+Event.context
+-------------
+
+.. autoproperty:: context
+
+
+Event.device
+------------
+
+.. autoproperty:: device
+
+
+Event.handle
+------------
+
+.. autoproperty:: handle
+
+
+Event.is_done
+-------------
+
+.. autoproperty:: is_done
+
+
+Event.is_ipc_enabled
+--------------------
+
+.. autoproperty:: is_ipc_enabled
+
+
+Event.is_sync_busy_waited
+-------------------------
+
+.. autoproperty:: is_sync_busy_waited
+
+
+Event.is_timing_disabled
+------------------------
+
+.. autoproperty:: is_timing_disabled
+
+
+

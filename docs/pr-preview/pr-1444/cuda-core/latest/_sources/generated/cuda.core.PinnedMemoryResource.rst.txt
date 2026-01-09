@@ -7,6 +7,122 @@ cuda.core.PinnedMemoryResource
 .. currentmodule:: cuda.core
 
 .. autoclass:: PinnedMemoryResource
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+PinnedMemoryResource.__init__
+-----------------------------
+
+.. automethod:: __init__
+
+
+PinnedMemoryResource.allocate
+-----------------------------
+
+.. automethod:: allocate
+
+
+PinnedMemoryResource.close
+--------------------------
+
+.. automethod:: close
+
+
+PinnedMemoryResource.deallocate
+-------------------------------
+
+.. automethod:: deallocate
+
+
+PinnedMemoryResource.from_allocation_handle
+-------------------------------------------
+
+.. automethod:: from_allocation_handle
+
+
+PinnedMemoryResource.from_registry
+----------------------------------
+
+.. automethod:: from_registry
+
+
+PinnedMemoryResource.get_allocation_handle
+------------------------------------------
+
+.. automethod:: get_allocation_handle
+
+
+PinnedMemoryResource.register
+-----------------------------
+
+.. automethod:: register
+
+
+
+
+
+
+
+
+PinnedMemoryResource.attributes
+-------------------------------
+
+.. autoproperty:: attributes
+
+
+PinnedMemoryResource.device_id
+------------------------------
+
+.. autoproperty:: device_id
+
+
+PinnedMemoryResource.handle
+---------------------------
+
+.. autoproperty:: handle
+
+
+PinnedMemoryResource.is_device_accessible
+-----------------------------------------
+
+.. autoproperty:: is_device_accessible
+
+
+PinnedMemoryResource.is_handle_owned
+------------------------------------
+
+.. autoproperty:: is_handle_owned
+
+
+PinnedMemoryResource.is_host_accessible
+---------------------------------------
+
+.. autoproperty:: is_host_accessible
+
+
+PinnedMemoryResource.is_ipc_enabled
+-----------------------------------
+
+.. autoproperty:: is_ipc_enabled
+
+
+PinnedMemoryResource.is_mapped
+------------------------------
+
+.. autoproperty:: is_mapped
+
+
+PinnedMemoryResource.peer_accessible_by
+---------------------------------------
+
+.. autoproperty:: peer_accessible_by
+
+
+PinnedMemoryResource.uuid
+-------------------------
+
+.. autoproperty:: uuid
+
+
+

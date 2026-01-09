@@ -7,6 +7,878 @@ cuda.core.\_device.DeviceProperties
 .. currentmodule:: cuda.core._device
 
 .. autoclass:: DeviceProperties
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+DeviceProperties.__init__
+-------------------------
+
+.. automethod:: __init__
+
+
+
+
+
+
+
+
+DeviceProperties.async_engine_count
+-----------------------------------
+
+.. autoattribute:: async_engine_count
+
+
+DeviceProperties.can_flush_remote_writes
+----------------------------------------
+
+.. autoattribute:: can_flush_remote_writes
+
+
+DeviceProperties.can_map_host_memory
+------------------------------------
+
+.. autoattribute:: can_map_host_memory
+
+
+DeviceProperties.can_tex2d_gather
+---------------------------------
+
+.. autoattribute:: can_tex2d_gather
+
+
+DeviceProperties.can_use_64_bit_stream_mem_ops
+----------------------------------------------
+
+.. autoattribute:: can_use_64_bit_stream_mem_ops
+
+
+DeviceProperties.can_use_host_pointer_for_registered_mem
+--------------------------------------------------------
+
+.. autoattribute:: can_use_host_pointer_for_registered_mem
+
+
+DeviceProperties.can_use_stream_wait_value_nor
+----------------------------------------------
+
+.. autoattribute:: can_use_stream_wait_value_nor
+
+
+DeviceProperties.clock_rate
+---------------------------
+
+.. autoattribute:: clock_rate
+
+
+DeviceProperties.cluster_launch
+-------------------------------
+
+.. autoattribute:: cluster_launch
+
+
+DeviceProperties.compute_capability_major
+-----------------------------------------
+
+.. autoattribute:: compute_capability_major
+
+
+DeviceProperties.compute_capability_minor
+-----------------------------------------
+
+.. autoattribute:: compute_capability_minor
+
+
+DeviceProperties.compute_mode
+-----------------------------
+
+.. autoattribute:: compute_mode
+
+
+DeviceProperties.compute_preemption_supported
+---------------------------------------------
+
+.. autoattribute:: compute_preemption_supported
+
+
+DeviceProperties.concurrent_kernels
+-----------------------------------
+
+.. autoattribute:: concurrent_kernels
+
+
+DeviceProperties.concurrent_managed_access
+------------------------------------------
+
+.. autoattribute:: concurrent_managed_access
+
+
+DeviceProperties.cooperative_launch
+-----------------------------------
+
+.. autoattribute:: cooperative_launch
+
+
+DeviceProperties.d3d12_cig_supported
+------------------------------------
+
+.. autoattribute:: d3d12_cig_supported
+
+
+DeviceProperties.deferred_mapping_cuda_array_supported
+------------------------------------------------------
+
+.. autoattribute:: deferred_mapping_cuda_array_supported
+
+
+DeviceProperties.direct_managed_mem_access_from_host
+----------------------------------------------------
+
+.. autoattribute:: direct_managed_mem_access_from_host
+
+
+DeviceProperties.dma_buf_supported
+----------------------------------
+
+.. autoattribute:: dma_buf_supported
+
+
+DeviceProperties.ecc_enabled
+----------------------------
+
+.. autoattribute:: ecc_enabled
+
+
+DeviceProperties.generic_compression_supported
+----------------------------------------------
+
+.. autoattribute:: generic_compression_supported
+
+
+DeviceProperties.global_l1_cache_supported
+------------------------------------------
+
+.. autoattribute:: global_l1_cache_supported
+
+
+DeviceProperties.global_memory_bus_width
+----------------------------------------
+
+.. autoattribute:: global_memory_bus_width
+
+
+DeviceProperties.gpu_direct_rdma_flush_writes_options
+-----------------------------------------------------
+
+.. autoattribute:: gpu_direct_rdma_flush_writes_options
+
+
+DeviceProperties.gpu_direct_rdma_supported
+------------------------------------------
+
+.. autoattribute:: gpu_direct_rdma_supported
+
+
+DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported
+--------------------------------------------------------
+
+.. autoattribute:: gpu_direct_rdma_with_cuda_vmm_supported
+
+
+DeviceProperties.gpu_direct_rdma_writes_ordering
+------------------------------------------------
+
+.. autoattribute:: gpu_direct_rdma_writes_ordering
+
+
+DeviceProperties.gpu_overlap
+----------------------------
+
+.. autoattribute:: gpu_overlap
+
+
+DeviceProperties.gpu_pci_device_id
+----------------------------------
+
+.. autoattribute:: gpu_pci_device_id
+
+
+DeviceProperties.gpu_pci_subsystem_id
+-------------------------------------
+
+.. autoattribute:: gpu_pci_subsystem_id
+
+
+DeviceProperties.handle_type_fabric_supported
+---------------------------------------------
+
+.. autoattribute:: handle_type_fabric_supported
+
+
+DeviceProperties.handle_type_posix_file_descriptor_supported
+------------------------------------------------------------
+
+.. autoattribute:: handle_type_posix_file_descriptor_supported
+
+
+DeviceProperties.handle_type_win32_handle_supported
+---------------------------------------------------
+
+.. autoattribute:: handle_type_win32_handle_supported
+
+
+DeviceProperties.handle_type_win32_kmt_handle_supported
+-------------------------------------------------------
+
+.. autoattribute:: handle_type_win32_kmt_handle_supported
+
+
+DeviceProperties.host_alloc_dma_buf_supported
+---------------------------------------------
+
+.. autoattribute:: host_alloc_dma_buf_supported
+
+
+DeviceProperties.host_memory_pools_supported
+--------------------------------------------
+
+.. autoattribute:: host_memory_pools_supported
+
+
+DeviceProperties.host_native_atomic_supported
+---------------------------------------------
+
+.. autoattribute:: host_native_atomic_supported
+
+
+DeviceProperties.host_numa_id
+-----------------------------
+
+.. autoattribute:: host_numa_id
+
+
+DeviceProperties.host_numa_memory_pools_supported
+-------------------------------------------------
+
+.. autoattribute:: host_numa_memory_pools_supported
+
+
+DeviceProperties.host_numa_multinode_ipc_supported
+--------------------------------------------------
+
+.. autoattribute:: host_numa_multinode_ipc_supported
+
+
+DeviceProperties.host_numa_virtual_memory_management_supported
+--------------------------------------------------------------
+
+.. autoattribute:: host_numa_virtual_memory_management_supported
+
+
+DeviceProperties.host_register_supported
+----------------------------------------
+
+.. autoattribute:: host_register_supported
+
+
+DeviceProperties.host_virtual_memory_management_supported
+---------------------------------------------------------
+
+.. autoattribute:: host_virtual_memory_management_supported
+
+
+DeviceProperties.integrated
+---------------------------
+
+.. autoattribute:: integrated
+
+
+DeviceProperties.ipc_event_supported
+------------------------------------
+
+.. autoattribute:: ipc_event_supported
+
+
+DeviceProperties.kernel_exec_timeout
+------------------------------------
+
+.. autoattribute:: kernel_exec_timeout
+
+
+DeviceProperties.l2_cache_size
+------------------------------
+
+.. autoattribute:: l2_cache_size
+
+
+DeviceProperties.local_l1_cache_supported
+-----------------------------------------
+
+.. autoattribute:: local_l1_cache_supported
+
+
+DeviceProperties.managed_memory
+-------------------------------
+
+.. autoattribute:: managed_memory
+
+
+DeviceProperties.max_access_policy_window_size
+----------------------------------------------
+
+.. autoattribute:: max_access_policy_window_size
+
+
+DeviceProperties.max_block_dim_x
+--------------------------------
+
+.. autoattribute:: max_block_dim_x
+
+
+DeviceProperties.max_block_dim_y
+--------------------------------
+
+.. autoattribute:: max_block_dim_y
+
+
+DeviceProperties.max_block_dim_z
+--------------------------------
+
+.. autoattribute:: max_block_dim_z
+
+
+DeviceProperties.max_blocks_per_multiprocessor
+----------------------------------------------
+
+.. autoattribute:: max_blocks_per_multiprocessor
+
+
+DeviceProperties.max_grid_dim_x
+-------------------------------
+
+.. autoattribute:: max_grid_dim_x
+
+
+DeviceProperties.max_grid_dim_y
+-------------------------------
+
+.. autoattribute:: max_grid_dim_y
+
+
+DeviceProperties.max_grid_dim_z
+-------------------------------
+
+.. autoattribute:: max_grid_dim_z
+
+
+DeviceProperties.max_persisting_l2_cache_size
+---------------------------------------------
+
+.. autoattribute:: max_persisting_l2_cache_size
+
+
+DeviceProperties.max_pitch
+--------------------------
+
+.. autoattribute:: max_pitch
+
+
+DeviceProperties.max_registers_per_block
+----------------------------------------
+
+.. autoattribute:: max_registers_per_block
+
+
+DeviceProperties.max_registers_per_multiprocessor
+-------------------------------------------------
+
+.. autoattribute:: max_registers_per_multiprocessor
+
+
+DeviceProperties.max_shared_memory_per_block
+--------------------------------------------
+
+.. autoattribute:: max_shared_memory_per_block
+
+
+DeviceProperties.max_shared_memory_per_block_optin
+--------------------------------------------------
+
+.. autoattribute:: max_shared_memory_per_block_optin
+
+
+DeviceProperties.max_shared_memory_per_multiprocessor
+-----------------------------------------------------
+
+.. autoattribute:: max_shared_memory_per_multiprocessor
+
+
+DeviceProperties.max_threads_per_block
+--------------------------------------
+
+.. autoattribute:: max_threads_per_block
+
+
+DeviceProperties.max_threads_per_multiprocessor
+-----------------------------------------------
+
+.. autoattribute:: max_threads_per_multiprocessor
+
+
+DeviceProperties.maximum_surface1d_layered_layers
+-------------------------------------------------
+
+.. autoattribute:: maximum_surface1d_layered_layers
+
+
+DeviceProperties.maximum_surface1d_layered_width
+------------------------------------------------
+
+.. autoattribute:: maximum_surface1d_layered_width
+
+
+DeviceProperties.maximum_surface1d_width
+----------------------------------------
+
+.. autoattribute:: maximum_surface1d_width
+
+
+DeviceProperties.maximum_surface2d_height
+-----------------------------------------
+
+.. autoattribute:: maximum_surface2d_height
+
+
+DeviceProperties.maximum_surface2d_layered_height
+-------------------------------------------------
+
+.. autoattribute:: maximum_surface2d_layered_height
+
+
+DeviceProperties.maximum_surface2d_layered_layers
+-------------------------------------------------
+
+.. autoattribute:: maximum_surface2d_layered_layers
+
+
+DeviceProperties.maximum_surface2d_layered_width
+------------------------------------------------
+
+.. autoattribute:: maximum_surface2d_layered_width
+
+
+DeviceProperties.maximum_surface2d_width
+----------------------------------------
+
+.. autoattribute:: maximum_surface2d_width
+
+
+DeviceProperties.maximum_surface3d_depth
+----------------------------------------
+
+.. autoattribute:: maximum_surface3d_depth
+
+
+DeviceProperties.maximum_surface3d_height
+-----------------------------------------
+
+.. autoattribute:: maximum_surface3d_height
+
+
+DeviceProperties.maximum_surface3d_width
+----------------------------------------
+
+.. autoattribute:: maximum_surface3d_width
+
+
+DeviceProperties.maximum_surfacecubemap_layered_layers
+------------------------------------------------------
+
+.. autoattribute:: maximum_surfacecubemap_layered_layers
+
+
+DeviceProperties.maximum_surfacecubemap_layered_width
+-----------------------------------------------------
+
+.. autoattribute:: maximum_surfacecubemap_layered_width
+
+
+DeviceProperties.maximum_surfacecubemap_width
+---------------------------------------------
+
+.. autoattribute:: maximum_surfacecubemap_width
+
+
+DeviceProperties.maximum_texture1d_layered_layers
+-------------------------------------------------
+
+.. autoattribute:: maximum_texture1d_layered_layers
+
+
+DeviceProperties.maximum_texture1d_layered_width
+------------------------------------------------
+
+.. autoattribute:: maximum_texture1d_layered_width
+
+
+DeviceProperties.maximum_texture1d_linear_width
+-----------------------------------------------
+
+.. autoattribute:: maximum_texture1d_linear_width
+
+
+DeviceProperties.maximum_texture1d_mipmapped_width
+--------------------------------------------------
+
+.. autoattribute:: maximum_texture1d_mipmapped_width
+
+
+DeviceProperties.maximum_texture1d_width
+----------------------------------------
+
+.. autoattribute:: maximum_texture1d_width
+
+
+DeviceProperties.maximum_texture2d_gather_height
+------------------------------------------------
+
+.. autoattribute:: maximum_texture2d_gather_height
+
+
+DeviceProperties.maximum_texture2d_gather_width
+-----------------------------------------------
+
+.. autoattribute:: maximum_texture2d_gather_width
+
+
+DeviceProperties.maximum_texture2d_height
+-----------------------------------------
+
+.. autoattribute:: maximum_texture2d_height
+
+
+DeviceProperties.maximum_texture2d_layered_height
+-------------------------------------------------
+
+.. autoattribute:: maximum_texture2d_layered_height
+
+
+DeviceProperties.maximum_texture2d_layered_layers
+-------------------------------------------------
+
+.. autoattribute:: maximum_texture2d_layered_layers
+
+
+DeviceProperties.maximum_texture2d_layered_width
+------------------------------------------------
+
+.. autoattribute:: maximum_texture2d_layered_width
+
+
+DeviceProperties.maximum_texture2d_linear_height
+------------------------------------------------
+
+.. autoattribute:: maximum_texture2d_linear_height
+
+
+DeviceProperties.maximum_texture2d_linear_pitch
+-----------------------------------------------
+
+.. autoattribute:: maximum_texture2d_linear_pitch
+
+
+DeviceProperties.maximum_texture2d_linear_width
+-----------------------------------------------
+
+.. autoattribute:: maximum_texture2d_linear_width
+
+
+DeviceProperties.maximum_texture2d_mipmapped_height
+---------------------------------------------------
+
+.. autoattribute:: maximum_texture2d_mipmapped_height
+
+
+DeviceProperties.maximum_texture2d_mipmapped_width
+--------------------------------------------------
+
+.. autoattribute:: maximum_texture2d_mipmapped_width
+
+
+DeviceProperties.maximum_texture2d_width
+----------------------------------------
+
+.. autoattribute:: maximum_texture2d_width
+
+
+DeviceProperties.maximum_texture3d_depth
+----------------------------------------
+
+.. autoattribute:: maximum_texture3d_depth
+
+
+DeviceProperties.maximum_texture3d_depth_alternate
+--------------------------------------------------
+
+.. autoattribute:: maximum_texture3d_depth_alternate
+
+
+DeviceProperties.maximum_texture3d_height
+-----------------------------------------
+
+.. autoattribute:: maximum_texture3d_height
+
+
+DeviceProperties.maximum_texture3d_height_alternate
+---------------------------------------------------
+
+.. autoattribute:: maximum_texture3d_height_alternate
+
+
+DeviceProperties.maximum_texture3d_width
+----------------------------------------
+
+.. autoattribute:: maximum_texture3d_width
+
+
+DeviceProperties.maximum_texture3d_width_alternate
+--------------------------------------------------
+
+.. autoattribute:: maximum_texture3d_width_alternate
+
+
+DeviceProperties.maximum_texturecubemap_layered_layers
+------------------------------------------------------
+
+.. autoattribute:: maximum_texturecubemap_layered_layers
+
+
+DeviceProperties.maximum_texturecubemap_layered_width
+-----------------------------------------------------
+
+.. autoattribute:: maximum_texturecubemap_layered_width
+
+
+DeviceProperties.maximum_texturecubemap_width
+---------------------------------------------
+
+.. autoattribute:: maximum_texturecubemap_width
+
+
+DeviceProperties.mem_decompress_algorithm_mask
+----------------------------------------------
+
+.. autoattribute:: mem_decompress_algorithm_mask
+
+
+DeviceProperties.mem_decompress_maximum_length
+----------------------------------------------
+
+.. autoattribute:: mem_decompress_maximum_length
+
+
+DeviceProperties.mem_sync_domain_count
+--------------------------------------
+
+.. autoattribute:: mem_sync_domain_count
+
+
+DeviceProperties.memory_clock_rate
+----------------------------------
+
+.. autoattribute:: memory_clock_rate
+
+
+DeviceProperties.memory_pools_supported
+---------------------------------------
+
+.. autoattribute:: memory_pools_supported
+
+
+DeviceProperties.mempool_supported_handle_types
+-----------------------------------------------
+
+.. autoattribute:: mempool_supported_handle_types
+
+
+DeviceProperties.mps_enabled
+----------------------------
+
+.. autoattribute:: mps_enabled
+
+
+DeviceProperties.multi_gpu_board
+--------------------------------
+
+.. autoattribute:: multi_gpu_board
+
+
+DeviceProperties.multi_gpu_board_group_id
+-----------------------------------------
+
+.. autoattribute:: multi_gpu_board_group_id
+
+
+DeviceProperties.multicast_supported
+------------------------------------
+
+.. autoattribute:: multicast_supported
+
+
+DeviceProperties.multiprocessor_count
+-------------------------------------
+
+.. autoattribute:: multiprocessor_count
+
+
+DeviceProperties.numa_config
+----------------------------
+
+.. autoattribute:: numa_config
+
+
+DeviceProperties.numa_id
+------------------------
+
+.. autoattribute:: numa_id
+
+
+DeviceProperties.only_partial_host_native_atomic_supported
+----------------------------------------------------------
+
+.. autoattribute:: only_partial_host_native_atomic_supported
+
+
+DeviceProperties.pageable_memory_access
+---------------------------------------
+
+.. autoattribute:: pageable_memory_access
+
+
+DeviceProperties.pageable_memory_access_uses_host_page_tables
+-------------------------------------------------------------
+
+.. autoattribute:: pageable_memory_access_uses_host_page_tables
+
+
+DeviceProperties.pci_bus_id
+---------------------------
+
+.. autoattribute:: pci_bus_id
+
+
+DeviceProperties.pci_device_id
+------------------------------
+
+.. autoattribute:: pci_device_id
+
+
+DeviceProperties.pci_domain_id
+------------------------------
+
+.. autoattribute:: pci_domain_id
+
+
+DeviceProperties.read_only_host_register_supported
+--------------------------------------------------
+
+.. autoattribute:: read_only_host_register_supported
+
+
+DeviceProperties.reserved_shared_memory_per_block
+-------------------------------------------------
+
+.. autoattribute:: reserved_shared_memory_per_block
+
+
+DeviceProperties.single_to_double_precision_perf_ratio
+------------------------------------------------------
+
+.. autoattribute:: single_to_double_precision_perf_ratio
+
+
+DeviceProperties.sparse_cuda_array_supported
+--------------------------------------------
+
+.. autoattribute:: sparse_cuda_array_supported
+
+
+DeviceProperties.stream_priorities_supported
+--------------------------------------------
+
+.. autoattribute:: stream_priorities_supported
+
+
+DeviceProperties.surface_alignment
+----------------------------------
+
+.. autoattribute:: surface_alignment
+
+
+DeviceProperties.tcc_driver
+---------------------------
+
+.. autoattribute:: tcc_driver
+
+
+DeviceProperties.tensor_map_access_supported
+--------------------------------------------
+
+.. autoattribute:: tensor_map_access_supported
+
+
+DeviceProperties.texture_alignment
+----------------------------------
+
+.. autoattribute:: texture_alignment
+
+
+DeviceProperties.texture_pitch_alignment
+----------------------------------------
+
+.. autoattribute:: texture_pitch_alignment
+
+
+DeviceProperties.timeline_semaphore_interop_supported
+-----------------------------------------------------
+
+.. autoattribute:: timeline_semaphore_interop_supported
+
+
+DeviceProperties.total_constant_memory
+--------------------------------------
+
+.. autoattribute:: total_constant_memory
+
+
+DeviceProperties.unified_addressing
+-----------------------------------
+
+.. autoattribute:: unified_addressing
+
+
+DeviceProperties.unified_function_pointers
+------------------------------------------
+
+.. autoattribute:: unified_function_pointers
+
+
+DeviceProperties.virtual_memory_management_supported
+----------------------------------------------------
+
+.. autoattribute:: virtual_memory_management_supported
+
+
+DeviceProperties.vulkan_cig_supported
+-------------------------------------
+
+.. autoattribute:: vulkan_cig_supported
+
+
+DeviceProperties.warp_size
+--------------------------
+
+.. autoattribute:: warp_size
+
+
+

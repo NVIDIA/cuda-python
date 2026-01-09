@@ -7,6 +7,44 @@ cuda.core.\_module.ParamInfo
 .. currentmodule:: cuda.core._module
 
 .. autoclass:: ParamInfo
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+ParamInfo.__init__
+------------------
+
+.. automethod:: __init__
+
+
+ParamInfo.count
+---------------
+
+.. automethod:: count
+
+
+ParamInfo.index
+---------------
+
+.. automethod:: index
+
+
+
+
+
+
+
+
+ParamInfo.offset
+----------------
+
+.. autoproperty:: offset
+
+
+ParamInfo.size
+--------------
+
+.. autoproperty:: size
+
+
+

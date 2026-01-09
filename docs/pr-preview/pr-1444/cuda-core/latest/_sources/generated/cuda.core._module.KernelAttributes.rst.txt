@@ -7,6 +7,122 @@ cuda.core.\_module.KernelAttributes
 .. currentmodule:: cuda.core._module
 
 .. autoclass:: KernelAttributes
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+KernelAttributes.__init__
+-------------------------
+
+.. automethod:: __init__
+
+
+KernelAttributes.binary_version
+-------------------------------
+
+.. automethod:: binary_version
+
+
+KernelAttributes.cache_mode_ca
+------------------------------
+
+.. automethod:: cache_mode_ca
+
+
+KernelAttributes.cluster_scheduling_policy_preference
+-----------------------------------------------------
+
+.. automethod:: cluster_scheduling_policy_preference
+
+
+KernelAttributes.cluster_size_must_be_set
+-----------------------------------------
+
+.. automethod:: cluster_size_must_be_set
+
+
+KernelAttributes.const_size_bytes
+---------------------------------
+
+.. automethod:: const_size_bytes
+
+
+KernelAttributes.local_size_bytes
+---------------------------------
+
+.. automethod:: local_size_bytes
+
+
+KernelAttributes.max_dynamic_shared_size_bytes
+----------------------------------------------
+
+.. automethod:: max_dynamic_shared_size_bytes
+
+
+KernelAttributes.max_threads_per_block
+--------------------------------------
+
+.. automethod:: max_threads_per_block
+
+
+KernelAttributes.non_portable_cluster_size_allowed
+--------------------------------------------------
+
+.. automethod:: non_portable_cluster_size_allowed
+
+
+KernelAttributes.num_regs
+-------------------------
+
+.. automethod:: num_regs
+
+
+KernelAttributes.preferred_shared_memory_carveout
+-------------------------------------------------
+
+.. automethod:: preferred_shared_memory_carveout
+
+
+KernelAttributes.ptx_version
+----------------------------
+
+.. automethod:: ptx_version
+
+
+KernelAttributes.required_cluster_depth
+---------------------------------------
+
+.. automethod:: required_cluster_depth
+
+
+KernelAttributes.required_cluster_height
+----------------------------------------
+
+.. automethod:: required_cluster_height
+
+
+KernelAttributes.required_cluster_width
+---------------------------------------
+
+.. automethod:: required_cluster_width
+
+
+KernelAttributes.shared_size_bytes
+----------------------------------
+
+.. automethod:: shared_size_bytes
+
+
+
+
+
+
+
+
+KernelAttributes.slots
+----------------------
+
+.. autoproperty:: slots
+
+
+

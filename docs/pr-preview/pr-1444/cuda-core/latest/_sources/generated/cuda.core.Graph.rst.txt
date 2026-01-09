@@ -7,6 +7,42 @@ cuda.core.Graph
 .. currentmodule:: cuda.core
 
 .. autoclass:: Graph
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+Graph.__init__
+--------------
+
+.. automethod:: __init__
+
+
+Graph.close
+-----------
+
+.. automethod:: close
+
+
+Graph.launch
+------------
+
+.. automethod:: launch
+
+
+Graph.update
+------------
+
+.. automethod:: update
+
+
+Graph.upload
+------------
+
+.. automethod:: upload
+
+
+
+
+
+
+

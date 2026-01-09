@@ -7,6 +7,56 @@ cuda.core.Linker
 .. currentmodule:: cuda.core
 
 .. autoclass:: Linker
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+
+
+
+Linker.__init__
+---------------
+
+.. automethod:: __init__
+
+
+Linker.close
+------------
+
+.. automethod:: close
+
+
+Linker.get_error_log
+--------------------
+
+.. automethod:: get_error_log
+
+
+Linker.get_info_log
+-------------------
+
+.. automethod:: get_info_log
+
+
+Linker.link
+-----------
+
+.. automethod:: link
+
+
+
+
+
+
+
+
+Linker.backend
+--------------
+
+.. autoproperty:: backend
+
+
+Linker.handle
+-------------
+
+.. autoproperty:: handle
+
+
+
