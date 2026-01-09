@@ -10,9 +10,6 @@ cuda.core.Linker
 
 
 
-Methods
--------
-
 
 .. automethod:: Linker.__init__
 .. automethod:: Linker.close
@@ -23,10 +20,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: Linker.backend

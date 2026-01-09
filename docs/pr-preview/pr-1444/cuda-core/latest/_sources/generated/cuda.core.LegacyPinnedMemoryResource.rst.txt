@@ -10,9 +10,6 @@ cuda.core.LegacyPinnedMemoryResource
 
 
 
-Methods
--------
-
 
 .. automethod:: LegacyPinnedMemoryResource.__init__
 .. automethod:: LegacyPinnedMemoryResource.allocate
@@ -21,10 +18,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: LegacyPinnedMemoryResource.device_id

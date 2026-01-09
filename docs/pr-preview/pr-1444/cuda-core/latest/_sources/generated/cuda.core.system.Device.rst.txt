@@ -10,8 +10,13 @@ cuda.core.system.Device
 
 
 
-Attributes
-----------
+
+.. automethod:: Device.__init__
+.. automethod:: Device.get_all_devices
+
+
+
+
 
 
 .. autoattribute:: Device.architecture
@@ -24,16 +29,4 @@ Attributes
 .. autoattribute:: Device.pci_info
 .. autoattribute:: Device.serial
 .. autoattribute:: Device.uuid
-
-
-
-
-
-Methods
--------
-
-
-.. automethod:: Device.__init__
-.. automethod:: Device.get_all_devices
-
 

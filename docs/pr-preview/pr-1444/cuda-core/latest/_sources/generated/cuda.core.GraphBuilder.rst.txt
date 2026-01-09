@@ -10,9 +10,6 @@ cuda.core.GraphBuilder
 
 
 
-Methods
--------
-
 
 .. automethod:: GraphBuilder.__init__
 .. automethod:: GraphBuilder.add_child
@@ -32,10 +29,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: GraphBuilder.is_building

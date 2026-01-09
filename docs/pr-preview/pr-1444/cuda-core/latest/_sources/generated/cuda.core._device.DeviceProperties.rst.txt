@@ -10,8 +10,12 @@ cuda.core.\_device.DeviceProperties
 
 
 
-Attributes
-----------
+
+.. automethod:: DeviceProperties.__init__
+
+
+
+
 
 
 .. autoattribute:: DeviceProperties.async_engine_count
@@ -157,15 +161,4 @@ Attributes
 .. autoattribute:: DeviceProperties.virtual_memory_management_supported
 .. autoattribute:: DeviceProperties.vulkan_cig_supported
 .. autoattribute:: DeviceProperties.warp_size
-
-
-
-
-
-Methods
--------
-
-
-.. automethod:: DeviceProperties.__init__
-
 

@@ -10,9 +10,6 @@ cuda.core.ObjectCode
 
 
 
-Methods
--------
-
 
 .. automethod:: ObjectCode.__init__
 .. automethod:: ObjectCode.from_cubin
@@ -26,10 +23,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: ObjectCode.code

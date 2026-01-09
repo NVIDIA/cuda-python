@@ -10,9 +10,6 @@ cuda.core.\_memory.\_ipc.IPCAllocationHandle
 
 
 
-Methods
--------
-
 
 .. automethod:: IPCAllocationHandle.__init__
 .. automethod:: IPCAllocationHandle.close
@@ -20,10 +17,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: IPCAllocationHandle.handle

@@ -10,9 +10,6 @@ cuda.core.VirtualMemoryResource
 
 
 
-Methods
--------
-
 
 .. automethod:: VirtualMemoryResource.__init__
 .. automethod:: VirtualMemoryResource.allocate
@@ -22,10 +19,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: VirtualMemoryResource.device_id

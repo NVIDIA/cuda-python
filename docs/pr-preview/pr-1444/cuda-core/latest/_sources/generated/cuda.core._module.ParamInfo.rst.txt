@@ -10,9 +10,6 @@ cuda.core.\_module.ParamInfo
 
 
 
-Methods
--------
-
 
 .. automethod:: ParamInfo.__init__
 .. automethod:: ParamInfo.count
@@ -21,10 +18,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: ParamInfo.offset

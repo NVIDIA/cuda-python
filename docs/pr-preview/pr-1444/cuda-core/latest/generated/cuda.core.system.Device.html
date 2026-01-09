@@ -598,8 +598,25 @@ Library (NVML).  To use CUDA with a device, use <a class="reference internal" hr
 </dl>
 </dd></dl>
 
-<section id="attributes">
-<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.Device.__init__">
+<span class="sig-prename descclassname"><span class="pre">Device.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.Device.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.Device.get_all_devices">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Device.</span></span><span class="sig-name descname"><span class="pre">get_all_devices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cuda.core.system.Device" title="cuda.core.system.Device"><span class="pre">Device</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_all_devices" title="Link to this definition">#</a></dt>
+<dd><p>Query the available device instances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>An iterator over available devices.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Iterator of <a class="reference internal" href="#cuda.core.system.Device" title="cuda.core.system.Device">Device</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.architecture">
 <span class="sig-prename descclassname"><span class="pre">Device.</span></span><span class="sig-name descname"><span class="pre">architecture</span></span><a class="headerlink" href="#cuda.core.system.Device.architecture" title="Link to this definition">#</a></dt>
@@ -738,29 +755,6 @@ board serial identifier.</p>
 </dd></dl>
 
 </section>
-<section id="methods">
-<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h2>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.system.Device.__init__">
-<span class="sig-prename descclassname"><span class="pre">Device.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.Device.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.system.Device.get_all_devices">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Device.</span></span><span class="sig-name descname"><span class="pre">get_all_devices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cuda.core.system.Device" title="cuda.core.system.Device"><span class="pre">Device</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_all_devices" title="Link to this definition">#</a></dt>
-<dd><p>Query the available device instances.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>An iterator over available devices.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Iterator of <a class="reference internal" href="#cuda.core.system.Device" title="cuda.core.system.Device">Device</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-</section>
 
 
                 </article>
@@ -812,24 +806,18 @@ board serial identifier.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device"><code class="docutils literal notranslate"><span class="pre">Device</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.architecture"><code class="docutils literal notranslate"><span class="pre">architecture</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.bar1_memory_info"><code class="docutils literal notranslate"><span class="pre">bar1_memory_info</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.cpu_affinity"><code class="docutils literal notranslate"><span class="pre">cpu_affinity</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.cuda_compute_capability"><code class="docutils literal notranslate"><span class="pre">cuda_compute_capability</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.handle"><code class="docutils literal notranslate"><span class="pre">handle</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.memory_info"><code class="docutils literal notranslate"><span class="pre">memory_info</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.name"><code class="docutils literal notranslate"><span class="pre">name</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.pci_info"><code class="docutils literal notranslate"><span class="pre">pci_info</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.serial"><code class="docutils literal notranslate"><span class="pre">serial</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.uuid"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#methods">Methods</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_all_devices"><code class="docutils literal notranslate"><span class="pre">get_all_devices()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_all_devices"><code class="docutils literal notranslate"><span class="pre">get_all_devices()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.architecture"><code class="docutils literal notranslate"><span class="pre">architecture</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.bar1_memory_info"><code class="docutils literal notranslate"><span class="pre">bar1_memory_info</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.cpu_affinity"><code class="docutils literal notranslate"><span class="pre">cpu_affinity</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.cuda_compute_capability"><code class="docutils literal notranslate"><span class="pre">cuda_compute_capability</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.handle"><code class="docutils literal notranslate"><span class="pre">handle</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.memory_info"><code class="docutils literal notranslate"><span class="pre">memory_info</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.name"><code class="docutils literal notranslate"><span class="pre">name</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.pci_info"><code class="docutils literal notranslate"><span class="pre">pci_info</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.serial"><code class="docutils literal notranslate"><span class="pre">serial</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.uuid"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
 </ul>
   </nav></div>
 

@@ -10,9 +10,6 @@ cuda.core.\_module.MaxPotentialBlockSizeOccupancyResult
 
 
 
-Methods
--------
-
 
 .. automethod:: MaxPotentialBlockSizeOccupancyResult.__init__
 .. automethod:: MaxPotentialBlockSizeOccupancyResult.count
@@ -21,10 +18,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: MaxPotentialBlockSizeOccupancyResult.max_block_size

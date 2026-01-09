@@ -10,9 +10,6 @@ cuda.core.GraphMemoryResource
 
 
 
-Methods
--------
-
 
 .. automethod:: GraphMemoryResource.__init__
 .. automethod:: GraphMemoryResource.allocate
@@ -23,10 +20,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: GraphMemoryResource.attributes

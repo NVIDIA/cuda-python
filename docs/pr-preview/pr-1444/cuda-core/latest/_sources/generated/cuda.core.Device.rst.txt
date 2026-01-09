@@ -10,9 +10,6 @@ cuda.core.Device
 
 
 
-Methods
--------
-
 
 .. automethod:: Device.__init__
 .. automethod:: Device.allocate
@@ -28,10 +25,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: Device.arch

@@ -10,22 +10,6 @@ cuda.core.utils.StridedMemoryView
 
 
 
-Attributes
-----------
-
-
-.. autoattribute:: StridedMemoryView.dtype
-.. autoattribute:: StridedMemoryView.shape
-.. autoattribute:: StridedMemoryView.size
-.. autoattribute:: StridedMemoryView.strides
-
-
-
-
-
-Methods
--------
-
 
 .. automethod:: StridedMemoryView.__init__
 .. automethod:: StridedMemoryView.copy_from
@@ -37,4 +21,13 @@ Methods
 .. automethod:: StridedMemoryView.from_dlpack
 .. automethod:: StridedMemoryView.view
 
+
+
+
+
+
+.. autoattribute:: StridedMemoryView.dtype
+.. autoattribute:: StridedMemoryView.shape
+.. autoattribute:: StridedMemoryView.size
+.. autoattribute:: StridedMemoryView.strides
 

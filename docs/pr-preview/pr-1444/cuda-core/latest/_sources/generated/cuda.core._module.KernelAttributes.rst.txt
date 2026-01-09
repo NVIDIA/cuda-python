@@ -10,9 +10,6 @@ cuda.core.\_module.KernelAttributes
 
 
 
-Methods
--------
-
 
 .. automethod:: KernelAttributes.__init__
 .. automethod:: KernelAttributes.binary_version
@@ -35,10 +32,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: KernelAttributes.slots

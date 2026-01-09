@@ -10,9 +10,6 @@ cuda.core.Program
 
 
 
-Methods
--------
-
 
 .. automethod:: Program.__init__
 .. automethod:: Program.close
@@ -21,10 +18,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: Program.backend

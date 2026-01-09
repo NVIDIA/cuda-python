@@ -10,9 +10,6 @@ cuda.core.Event
 
 
 
-Methods
--------
-
 
 .. automethod:: Event.__init__
 .. automethod:: Event.close
@@ -23,10 +20,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: Event.context

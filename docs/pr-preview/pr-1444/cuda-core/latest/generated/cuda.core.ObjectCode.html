@@ -598,8 +598,6 @@ context.</p>
 </div>
 </dd></dl>
 
-<section id="methods">
-<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.ObjectCode.__init__">
 <span class="sig-prename descclassname"><span class="pre">ObjectCode.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.ObjectCode.__init__" title="Link to this definition">#</a></dt>
@@ -784,9 +782,6 @@ them (default to no mappings).</p></li>
 </dl>
 </dd></dl>
 
-</section>
-<section id="attributes">
-<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.ObjectCode.code">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ObjectCode.</span></span><span class="sig-name descname"><span class="pre">code</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytearray" title="(in Python v3.14)"><span class="pre">bytearray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#cuda.core.ObjectCode.code" title="Link to this definition">#</a></dt>
@@ -816,7 +811,6 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Ob
 <dd><p>Return a human-readable name of this code object.</p>
 </dd></dl>
 
-</section>
 </section>
 
 
@@ -869,24 +863,18 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(Ob
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode"><code class="docutils literal notranslate"><span class="pre">ObjectCode</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#methods">Methods</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_cubin"><code class="docutils literal notranslate"><span class="pre">from_cubin()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_fatbin"><code class="docutils literal notranslate"><span class="pre">from_fatbin()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_library"><code class="docutils literal notranslate"><span class="pre">from_library()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_ltoir"><code class="docutils literal notranslate"><span class="pre">from_ltoir()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_object"><code class="docutils literal notranslate"><span class="pre">from_object()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_ptx"><code class="docutils literal notranslate"><span class="pre">from_ptx()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.get_kernel"><code class="docutils literal notranslate"><span class="pre">get_kernel()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.code"><code class="docutils literal notranslate"><span class="pre">code</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.code_type"><code class="docutils literal notranslate"><span class="pre">code_type</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.handle"><code class="docutils literal notranslate"><span class="pre">handle</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.name"><code class="docutils literal notranslate"><span class="pre">name</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_cubin"><code class="docutils literal notranslate"><span class="pre">from_cubin()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_fatbin"><code class="docutils literal notranslate"><span class="pre">from_fatbin()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_library"><code class="docutils literal notranslate"><span class="pre">from_library()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_ltoir"><code class="docutils literal notranslate"><span class="pre">from_ltoir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_object"><code class="docutils literal notranslate"><span class="pre">from_object()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.from_ptx"><code class="docutils literal notranslate"><span class="pre">from_ptx()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.get_kernel"><code class="docutils literal notranslate"><span class="pre">get_kernel()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.code"><code class="docutils literal notranslate"><span class="pre">code</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.code_type"><code class="docutils literal notranslate"><span class="pre">code_type</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.handle"><code class="docutils literal notranslate"><span class="pre">handle</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ObjectCode.name"><code class="docutils literal notranslate"><span class="pre">name</span></code></a></li>
 </ul>
   </nav></div>
 

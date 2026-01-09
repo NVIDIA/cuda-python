@@ -603,8 +603,6 @@ Default value of <cite>None</cite> return the currently used device.</p>
 </dl>
 </dd></dl>
 
-<section id="methods">
-<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.Device.__init__">
 <span class="sig-prename descclassname"><span class="pre">Device.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Device.__init__" title="Link to this definition">#</a></dt>
@@ -815,9 +813,6 @@ calling this method, e.g.</p>
 </div>
 </dd></dl>
 
-</section>
-<section id="attributes">
-<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.Device.arch">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Device.</span></span><span class="sig-name descname"><span class="pre">arch</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#cuda.core.Device.arch" title="Link to this definition">#</a></dt>
@@ -901,7 +896,6 @@ driver is older than CUDA 11.4.</p>
 </dd></dl>
 
 </section>
-</section>
 
 
                 </article>
@@ -953,32 +947,26 @@ driver is older than CUDA 11.4.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device"><code class="docutils literal notranslate"><span class="pre">Device</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#methods">Methods</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.allocate"><code class="docutils literal notranslate"><span class="pre">allocate()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.can_access_peer"><code class="docutils literal notranslate"><span class="pre">can_access_peer()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_context"><code class="docutils literal notranslate"><span class="pre">create_context()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_event"><code class="docutils literal notranslate"><span class="pre">create_event()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_graph_builder"><code class="docutils literal notranslate"><span class="pre">create_graph_builder()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_stream"><code class="docutils literal notranslate"><span class="pre">create_stream()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.get_all_devices"><code class="docutils literal notranslate"><span class="pre">get_all_devices()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.set_current"><code class="docutils literal notranslate"><span class="pre">set_current()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.sync"><code class="docutils literal notranslate"><span class="pre">sync()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.arch"><code class="docutils literal notranslate"><span class="pre">arch</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.compute_capability"><code class="docutils literal notranslate"><span class="pre">compute_capability</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.context"><code class="docutils literal notranslate"><span class="pre">context</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.default_stream"><code class="docutils literal notranslate"><span class="pre">default_stream</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.device_id"><code class="docutils literal notranslate"><span class="pre">device_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.memory_resource"><code class="docutils literal notranslate"><span class="pre">memory_resource</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.name"><code class="docutils literal notranslate"><span class="pre">name</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.pci_bus_id"><code class="docutils literal notranslate"><span class="pre">pci_bus_id</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.properties"><code class="docutils literal notranslate"><span class="pre">properties</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.uuid"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.allocate"><code class="docutils literal notranslate"><span class="pre">allocate()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.can_access_peer"><code class="docutils literal notranslate"><span class="pre">can_access_peer()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_context"><code class="docutils literal notranslate"><span class="pre">create_context()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_event"><code class="docutils literal notranslate"><span class="pre">create_event()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_graph_builder"><code class="docutils literal notranslate"><span class="pre">create_graph_builder()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.create_stream"><code class="docutils literal notranslate"><span class="pre">create_stream()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.get_all_devices"><code class="docutils literal notranslate"><span class="pre">get_all_devices()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.set_current"><code class="docutils literal notranslate"><span class="pre">set_current()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.sync"><code class="docutils literal notranslate"><span class="pre">sync()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.arch"><code class="docutils literal notranslate"><span class="pre">arch</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.compute_capability"><code class="docutils literal notranslate"><span class="pre">compute_capability</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.context"><code class="docutils literal notranslate"><span class="pre">context</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.default_stream"><code class="docutils literal notranslate"><span class="pre">default_stream</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.device_id"><code class="docutils literal notranslate"><span class="pre">device_id</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.memory_resource"><code class="docutils literal notranslate"><span class="pre">memory_resource</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.name"><code class="docutils literal notranslate"><span class="pre">name</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.pci_bus_id"><code class="docutils literal notranslate"><span class="pre">pci_bus_id</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.properties"><code class="docutils literal notranslate"><span class="pre">properties</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Device.uuid"><code class="docutils literal notranslate"><span class="pre">uuid</span></code></a></li>
 </ul>
   </nav></div>
 

@@ -10,19 +10,12 @@ cuda.core.Kernel
 
 
 
-Methods
--------
-
 
 .. automethod:: Kernel.__init__
 
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: Kernel.arguments_info

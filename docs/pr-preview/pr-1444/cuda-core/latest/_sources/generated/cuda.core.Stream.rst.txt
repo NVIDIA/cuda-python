@@ -10,9 +10,6 @@ cuda.core.Stream
 
 
 
-Methods
--------
-
 
 .. automethod:: Stream.__init__
 .. automethod:: Stream.close
@@ -25,10 +22,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: Stream.context

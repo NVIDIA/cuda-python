@@ -10,9 +10,6 @@ cuda.core.\_module.KernelOccupancy
 
 
 
-Methods
--------
-
 
 .. automethod:: KernelOccupancy.__init__
 .. automethod:: KernelOccupancy.available_dynamic_shared_memory_per_block
@@ -24,10 +21,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: KernelOccupancy.slots

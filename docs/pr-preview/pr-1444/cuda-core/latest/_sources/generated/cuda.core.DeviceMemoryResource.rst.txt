@@ -10,9 +10,6 @@ cuda.core.DeviceMemoryResource
 
 
 
-Methods
--------
-
 
 .. automethod:: DeviceMemoryResource.__init__
 .. automethod:: DeviceMemoryResource.allocate
@@ -26,10 +23,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: DeviceMemoryResource.attributes

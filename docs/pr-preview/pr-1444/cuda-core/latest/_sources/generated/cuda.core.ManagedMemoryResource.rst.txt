@@ -10,9 +10,6 @@ cuda.core.ManagedMemoryResource
 
 
 
-Methods
--------
-
 
 .. automethod:: ManagedMemoryResource.__init__
 .. automethod:: ManagedMemoryResource.allocate
@@ -22,10 +19,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: ManagedMemoryResource.attributes

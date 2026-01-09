@@ -10,9 +10,6 @@ cuda.core.PinnedMemoryResource
 
 
 
-Methods
--------
-
 
 .. automethod:: PinnedMemoryResource.__init__
 .. automethod:: PinnedMemoryResource.allocate
@@ -26,10 +23,6 @@ Methods
 
 
 
-
-
-Attributes
-----------
 
 
 .. autoproperty:: PinnedMemoryResource.attributes
