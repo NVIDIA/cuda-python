@@ -13,6 +13,7 @@ import os
 import re
 import sys
 
+import helpers
 import pytest
 from cuda.core import system
 from cuda.core.system import _device as system_device
@@ -191,6 +192,7 @@ def test_unpack_bitmask_single_value():
         system_device._unpack_bitmask(1)
 
 
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Events not supported on WSL or Windows")
 def test_register_events():
     # This is not the world's greatest test.  All of the events are pretty
     # infrequent and hard to simulate.  So all we do here is register an event,
