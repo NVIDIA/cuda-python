@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.PinnedMemoryResourceOptions &#8212; cuda.core</title>
+    <title>cuda.core.system.PciInfo &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.PinnedMemoryResourceOptions';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.PciInfo';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,13 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.PinnedMemoryResourceOptions.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.system.PciInfo.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.ManagedMemoryResourceOptions" href="cuda.core.ManagedMemoryResourceOptions.html" />
-    <link rel="prev" title="cuda.core.DeviceMemoryResourceOptions" href="cuda.core.DeviceMemoryResourceOptions.html" />
+    <link rel="next" title="cuda.core.utils.args_viewable_as_strided_memory" href="cuda.core.utils.args_viewable_as_strided_memory.html" />
+    <link rel="prev" title="cuda.core.system.BAR1MemoryInfo" href="cuda.core.system.BAR1MemoryInfo.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -478,7 +478,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LegacyPinnedMemoryResource.html">cuda.core.LegacyPinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResource.html">cuda.core.VirtualMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResourceOptions.html">cuda.core.DeviceMemoryResourceOptions</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.PinnedMemoryResourceOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphCompleteOptions.html">cuda.core.GraphCompleteOptions</a></li>
@@ -501,7 +501,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.MemoryInfo.html">cuda.core.system.MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.PciInfo.html">cuda.core.system.PciInfo</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.PciInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
@@ -563,7 +563,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.PinnedMemoryResourceOptions</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.PciInfo</span></li>
   </ul>
 </nav>
 </div>
@@ -580,43 +580,89 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-pinnedmemoryresourceoptions">
-<h1>cuda.core.PinnedMemoryResourceOptions<a class="headerlink" href="#cuda-core-pinnedmemoryresourceoptions" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-system-pciinfo">
+<h1>cuda.core.system.PciInfo<a class="headerlink" href="#cuda-core-system-pciinfo" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResourceOptions">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">PinnedMemoryResourceOptions</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">ipc_enabled</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.PinnedMemoryResourceOptions" title="Link to this definition">#</a></dt>
-<dd><p>Customizable <code class="xref py py-obj docutils literal notranslate"><span class="pre">PinnedMemoryResource</span></code> options.</p>
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">PciInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pci_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">nvml.PciInfo</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.PciInfo" title="Link to this definition">#</a></dt>
+<dd><p>PCI information about a GPU device.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResourceOptions.ipc_enabled">
-<span class="sig-name descname"><span class="pre">ipc_enabled</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResourceOptions.ipc_enabled" title="Link to this definition">#</a></dt>
-<dd><p>Specifies whether to create an IPC-enabled memory pool. When set to
-True, the memory pool and its allocations can be shared with other
-processes. (Default to False)</p>
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.bus">
+<span class="sig-name descname"><span class="pre">bus</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.bus" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The bus on which the device resides, 0 to 255</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
+<dd class="field-odd"><p>PciInfo.bus</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.PinnedMemoryResourceOptions.max_size">
-<span class="sig-name descname"><span class="pre">max_size</span></span><a class="headerlink" href="#cuda.core.PinnedMemoryResourceOptions.max_size" title="Link to this definition">#</a></dt>
-<dd><p>Maximum pool size. When set to 0, defaults to a system-dependent value.
-(Default to 0)</p>
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.bus_id">
+<span class="sig-name descname"><span class="pre">bus_id</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.bus_id" title="Link to this definition">#</a></dt>
+<dd><p>str</p>
+<p>The tuple domain:bus:device.function PCI identifier string</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, optional</p>
+<dd class="field-odd"><p>PciInfo.bus_id</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.device">
+<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.device" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The device’s id on the bus, 0 to 31</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PciInfo.device</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.device_id">
+<span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.device_id" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The PCI device id of the device</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PciInfo.device_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.domain">
+<span class="sig-name descname"><span class="pre">domain</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.domain" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The PCI domain on which the device’s bus resides, 0 to 0xffffffff</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PciInfo.domain</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.vendor_id">
+<span class="sig-name descname"><span class="pre">vendor_id</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.vendor_id" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The PCI vendor id of the device</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PciInfo.vendor_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.PciInfo.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -633,20 +679,20 @@ processes. (Default to False)</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.DeviceMemoryResourceOptions.html"
+       href="cuda.core.system.BAR1MemoryInfo.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.DeviceMemoryResourceOptions</p>
+        <p class="prev-next-title">cuda.core.system.BAR1MemoryInfo</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.ManagedMemoryResourceOptions.html"
+       href="cuda.core.utils.args_viewable_as_strided_memory.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.ManagedMemoryResourceOptions</p>
+        <p class="prev-next-title">cuda.core.utils.args_viewable_as_strided_memory</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -671,9 +717,14 @@ processes. (Default to False)</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResourceOptions"><code class="docutils literal notranslate"><span class="pre">PinnedMemoryResourceOptions</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResourceOptions.ipc_enabled"><code class="docutils literal notranslate"><span class="pre">ipc_enabled</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.PinnedMemoryResourceOptions.max_size"><code class="docutils literal notranslate"><span class="pre">max_size</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo"><code class="docutils literal notranslate"><span class="pre">PciInfo</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.bus"><code class="docutils literal notranslate"><span class="pre">bus</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.bus_id"><code class="docutils literal notranslate"><span class="pre">bus_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.device"><code class="docutils literal notranslate"><span class="pre">device</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.device_id"><code class="docutils literal notranslate"><span class="pre">device_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.domain"><code class="docutils literal notranslate"><span class="pre">domain</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.vendor_id"><code class="docutils literal notranslate"><span class="pre">vendor_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
 </ul>
 </li>
 </ul>
