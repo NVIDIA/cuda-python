@@ -6,19 +6,6 @@
 .. currentmodule:: {{ module }}
 
 .. autoprotocol:: {{ objname }}
-
-   {% block methods %}
-   {% if methods %}
-   {% for item in methods %}
-   .. automethod:: {{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
-
-   {% block attributes %}
-   {% if attributes %}
-   {% for item in attributes %}
-   .. autoproperty:: {{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
+   :members:
+   :undoc-members:
+   :show-inheritance:
