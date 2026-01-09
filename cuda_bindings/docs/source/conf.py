@@ -57,7 +57,7 @@ exclude_patterns = []
 # This enables the "On This Page" sidebar to show class methods and properties
 # Requires Sphinx 5.1+
 toc_object_entries = True
-toc_object_entries_show_parents = "hide"
+toc_object_entries_show_parents = "domain"
 
 # -- Options for HTML output -------------------------------------------------
 
