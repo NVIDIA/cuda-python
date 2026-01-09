@@ -7,21 +7,20 @@
 
 .. autoclass:: {{ objname }}
 
-   {% block attributes %}
-   {% if attributes %}
-   {% for item in attributes %}
-   .. autoattribute:: {{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endblock %}
+{% block methods %}
+{% if methods %}
+{% for item in methods %}
+.. automethod:: {{ objname }}.{{ item }}
 
-   {% block methods %}
-   {% if methods %}
-   .. rubric:: {{ _('Methods') }}
+{%- endfor %}
+{% endif %}
+{% endblock %}
 
-   {% for item in methods %}
-   .. automethod:: {{ item }}
-   {%- endfor %}
+{% block attributes %}
+{% if attributes %}
+{% for item in attributes %}
+.. autoattribute:: {{ objname }}.{{ item }}
 
-   {% endif %}
-   {% endblock %}
+{%- endfor %}
+{% endif %}
+{% endblock %}
