@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core._module.ParamInfo &#8212; cuda.core</title>
+    <title>cuda.core.system.PciInfo &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core._module.ParamInfo';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.PciInfo';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,11 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/generated/cuda.core._module.ParamInfo.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.system.PciInfo.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="cuda.core.utils.args_viewable_as_strided_memory" href="cuda.core.utils.args_viewable_as_strided_memory.html" />
+    <link rel="prev" title="cuda.core.system.BAR1MemoryInfo" href="cuda.core.system.BAR1MemoryInfo.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -202,7 +204,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
   </a>
@@ -391,7 +393,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
   </a>
@@ -456,11 +458,11 @@
      aria-label="Table of Contents">
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Graph.html">cuda.core.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
@@ -499,7 +501,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.MemoryInfo.html">cuda.core.system.MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.PciInfo.html">cuda.core.system.PciInfo</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.PciInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
@@ -558,7 +560,10 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core._module.ParamInfo</span></li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.PciInfo</span></li>
   </ul>
 </nav>
 </div>
@@ -575,31 +580,90 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-module-paraminfo">
-<h1>cuda.core._module.ParamInfo<a class="headerlink" href="#cuda-core-module-paraminfo" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-system-pciinfo">
+<h1>cuda.core.system.PciInfo<a class="headerlink" href="#cuda-core-system-pciinfo" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core._module.ParamInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core._module.</span></span><span class="sig-name descname"><span class="pre">ParamInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._module.ParamInfo" title="Link to this definition">#</a></dt>
-<dd><p class="rubric">Methods</p>
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">PciInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pci_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">nvml.PciInfo</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.PciInfo" title="Link to this definition">#</a></dt>
+<dd><p>PCI information about a GPU device.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.bus">
+<span class="sig-name descname"><span class="pre">bus</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.bus" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The bus on which the device resides, 0 to 255</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PciInfo.bus</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.bus_id">
+<span class="sig-name descname"><span class="pre">bus_id</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.bus_id" title="Link to this definition">#</a></dt>
+<dd><p>str</p>
+<p>The tuple domain:bus:device.function PCI identifier string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PciInfo.bus_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.device">
+<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.device" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The device’s id on the bus, 0 to 31</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PciInfo.device</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.device_id">
+<span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.device_id" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The PCI device id of the device</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PciInfo.device_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.domain">
+<span class="sig-name descname"><span class="pre">domain</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.domain" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The PCI domain on which the device’s bus resides, 0 to 0xffffffff</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PciInfo.domain</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.vendor_id">
+<span class="sig-name descname"><span class="pre">vendor_id</span></span><a class="headerlink" href="#cuda.core.system.PciInfo.vendor_id" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The PCI vendor id of the device</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PciInfo.vendor_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core._module.ParamInfo.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._module.ParamInfo.__init__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.system.PciInfo.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.PciInfo.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core._module.ParamInfo.count">
-<span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._module.ParamInfo.count" title="Link to this definition">#</a></dt>
-<dd><p>Return number of occurrences of value.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core._module.ParamInfo.index">
-<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9223372036854775807</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._module.ParamInfo.index" title="Link to this definition">#</a></dt>
-<dd><p>Return first index of value.</p>
-<p>Raises ValueError if the value is not present.</p>
-</dd></dl>
-
-<p class="rubric">Attributes</p>
 </dd></dl>
 
 </section>
@@ -614,6 +678,24 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="cuda.core.system.BAR1MemoryInfo.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">cuda.core.system.BAR1MemoryInfo</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="cuda.core.utils.args_viewable_as_strided_memory.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">cuda.core.utils.args_viewable_as_strided_memory</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -635,10 +717,14 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.ParamInfo"><code class="docutils literal notranslate"><span class="pre">ParamInfo</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.ParamInfo.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.ParamInfo.count"><code class="docutils literal notranslate"><span class="pre">count()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.ParamInfo.index"><code class="docutils literal notranslate"><span class="pre">index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo"><code class="docutils literal notranslate"><span class="pre">PciInfo</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.bus"><code class="docutils literal notranslate"><span class="pre">bus</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.bus_id"><code class="docutils literal notranslate"><span class="pre">bus_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.device"><code class="docutils literal notranslate"><span class="pre">device</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.device_id"><code class="docutils literal notranslate"><span class="pre">device_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.domain"><code class="docutils literal notranslate"><span class="pre">domain</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.vendor_id"><code class="docutils literal notranslate"><span class="pre">vendor_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.PciInfo.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
 </ul>
 </li>
 </ul>

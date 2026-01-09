@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=24f4b2f5"></script>
+    <script src="../_static/documentation_options.js?v=aa37f136"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev18';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev20';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -63,7 +63,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.utils.args_viewable_as_strided_memory" href="cuda.core.utils.args_viewable_as_strided_memory.html" />
+    <link rel="next" title="cuda.core.system.DeviceArchitecture" href="cuda.core.system.DeviceArchitecture.html" />
     <link rel="prev" title="cuda.core.system.get_process_name" href="cuda.core.system.get_process_name.html" />
 
 
@@ -498,6 +498,10 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.MemoryInfo.html">cuda.core.system.MemoryInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.PciInfo.html">cuda.core.system.PciInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
@@ -582,7 +586,7 @@
 <dt class="sig sig-object py" id="cuda.core.system.Device">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">Device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">index:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.Device" title="Link to this definition">#</a></dt>
 <dd><p>Representation of a device.</p>
-<p><code class="docutils literal notranslate"><span class="pre">cuda.core.system.Device</span></code> provides access to various pieces of metadata
+<p><a class="reference internal" href="#cuda.core.system.Device" title="cuda.core.system.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.system.Device</span></code></a> provides access to various pieces of metadata
 about devices and their topology, as provided by the NVIDIA Management
 Library (NVML).  To use CUDA with a device, use <a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.Device</span></code></a>.</p>
 <dl class="field-list simple">
@@ -777,11 +781,11 @@ board serial identifier.</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.utils.args_viewable_as_strided_memory.html"
+       href="cuda.core.system.DeviceArchitecture.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.utils.args_viewable_as_strided_memory</p>
+        <p class="prev-next-title">cuda.core.system.DeviceArchitecture</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
