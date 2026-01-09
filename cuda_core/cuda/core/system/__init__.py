@@ -23,16 +23,11 @@ __all__ = [
 from ._system import *
 
 if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
-    from ._device import Device, DeviceArchitecture
+    from ._device import *
+    from ._device import __all__ as _device_all
     from .exceptions import *
     from .exceptions import __all__ as _exceptions_all
 
-    __all__.extend(
-        [
-            "get_nvml_version",
-            "Device",
-            "DeviceArchitecture",
-        ]
-    )
-
+    __all__.append("get_nvml_version")
+    __all__.extend(_device_all)
     __all__.extend(_exceptions_all)
