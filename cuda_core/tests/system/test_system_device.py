@@ -224,7 +224,16 @@ def test_field_values():
 
         # Test only one element, because that's weirdly a special case
         field_ids = [
-            system_device.FieldId.DEV_TOTAL_ENERGY_CONSUMPTION,
+            system_device.FieldId.DEV_PCIE_REPLAY_COUNTER,
         ]
         field_values = device.get_field_values(field_ids)
+        assert len(field_values) == 1
         field_values.validate()
+        old_value = field_values[0].value
+
+        # Test clear_field_values
+        device.clear_field_values(field_ids)
+        field_values = device.get_field_values(field_ids)
+        field_values.validate()
+        assert len(field_values) == 1
+        assert field_values[0].value <= old_value
