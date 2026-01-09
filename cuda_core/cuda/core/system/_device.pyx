@@ -227,7 +227,7 @@ cdef class FieldValue:
 
         Raises
         ------
-        nvml.NvmlError
+        :class:`cuda.core.system.NvmlError`
             If there was an error retrieving the field value.
         """
         nvml.check_status(self._field_value.nvml_return)
@@ -278,7 +278,7 @@ cdef class FieldValues:
 
         Raises
         ------
-        nvml.NvmlError
+        :class:`cuda.core.system.NvmlError`
             If any of the contained field values has an associated exception.
         """
         # TODO: This is a classic use case for an `ExceptionGroup`, but those
@@ -298,12 +298,12 @@ cdef class FieldValues:
 
         Returns
         -------
-        list of int or float
+        list[int | float]
             List of all field values.
 
         Raises
         ------
-        nvml.NvmlError
+        :class:`cuda.core.system.NvmlError`
             If any of the contained field values has an associated exception.
         """
         return [x.value for x in self]
