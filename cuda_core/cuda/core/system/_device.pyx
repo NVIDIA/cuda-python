@@ -260,7 +260,7 @@ cdef class Device:
     ----------
     index: int, optional
         Integer representing the CUDA device index to get a handle to.  Valid
-        values are between ``0`` and ``cuda.cure.system.get_num_devices() - 1``.
+        values are between ``0`` and ``cuda.core.system.get_num_devices() - 1``.
 
         The order in which devices are enumerated has no guarantees of
         consistency between reboots.  For that reason, it is recommended that
