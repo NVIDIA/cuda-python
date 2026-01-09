@@ -484,7 +484,7 @@ cdef class Device:
         Parameters
         ----------
         field_ids: list of int or tuple of (int, int)
-            List of field IDs to query.
+            List of field IDs to clear.
 
             Each item may be either a single from the :class:`FieldId` enum, or
             a pair of (:class:`FieldId`, scope ID).
