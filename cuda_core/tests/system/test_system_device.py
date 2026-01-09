@@ -242,3 +242,8 @@ def test_persistence_mode_enabled():
     for device in system.Device.get_all_devices():
         is_enabled = device.persistence_mode_enabled
         assert isinstance(is_enabled, bool)
+        try:
+            device.persistence_mode_enabled = False
+            assert device.persistence_mode_enabled is False
+        finally:
+            device.persistence_mode_enabled = is_enabled

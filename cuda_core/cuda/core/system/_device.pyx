@@ -184,7 +184,7 @@ cdef class DeviceAttributes:
     @property
     def multiprocessor_count(self) -> int:
         """
-        The streaming multiprocessor count.
+        The streaming multiprocessor count
         """
         return self._attributes.multiprocessor_count
 
