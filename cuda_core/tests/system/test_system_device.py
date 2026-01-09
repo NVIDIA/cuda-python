@@ -210,7 +210,7 @@ def test_field_values():
         assert len(field_values) == len(field_ids)
 
         raw_values = field_values.get_all_values()
-        assert [x == y.value for x, y in zip(raw_values, field_values)]
+        assert all(x == y.value for x, y in zip(raw_values, field_values))
 
         for field_id, field_value in zip(field_ids, field_values):
             assert field_value.field_id == field_id
