@@ -25,9 +25,12 @@ from ._system import *
 if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from ._device import *
     from ._device import __all__ as _device_all
+    from ._system_events import *
+    from ._system_events import __all__ as _system_events_all
     from .exceptions import *
     from .exceptions import __all__ as _exceptions_all
 
     __all__.append("get_nvml_version")
     __all__.extend(_device_all)
+    __all__.extend(_system_events_all)
     __all__.extend(_exceptions_all)
