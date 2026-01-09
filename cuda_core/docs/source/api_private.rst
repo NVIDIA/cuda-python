@@ -22,8 +22,6 @@ CUDA runtime
    _memory._virtual_memory_resource.VirtualMemoryGranularityT
    _memory._virtual_memory_resource.VirtualMemoryAccessTypeT
    _memory._virtual_memory_resource.VirtualMemoryHandleTypeT
-   _memory._ipc.IPCAllocationHandle
-   _memory._ipc.IPCBufferDescriptor
    _module.KernelAttributes
    _module.KernelOccupancy
    _module.ParamInfo
@@ -32,6 +30,8 @@ CUDA runtime
    :template: autosummary/cyclass.rst
 
    _device.DeviceProperties
+   _memory._ipc.IPCAllocationHandle
+   _memory._ipc.IPCBufferDescriptor
 
 
 CUDA protocols
