@@ -4,7 +4,9 @@
 import functools
 import glob
 import os
+from typing import Sequence
 
+from cuda.pathfinder._static_libs.artifact_search_config import ARTIFACT_CONFIGS
 from cuda.pathfinder._static_libs.supported_nvidia_static_libs import (
     SITE_PACKAGES_STATIC_LIBDIRS,
     SUPPORTED_STATIC_LIBS,
@@ -29,92 +31,101 @@ def _find_artifact_under_site_packages(artifact_name: str) -> str | None:
     return None
 
 
-def _find_libdevice_in_conda() -> str | None:
-    """Search for libdevice.10.bc in conda prefix."""
+def _search_paths(
+    base_dir: str,
+    subdirs: Sequence[str],
+    filenames: Sequence[str],
+) -> str | None:
+    """Search for a file in multiple subdirectories of a base directory.
+
+    Args:
+        base_dir: The base directory to search in.
+        subdirs: Subdirectories to check (relative to base_dir).
+        filenames: Filenames to look for in each subdirectory.
+
+    Returns:
+        First matching file path, or None if not found.
+    """
+    for subdir in subdirs:
+        dir_path = os.path.join(base_dir, subdir)
+        for filename in filenames:
+            file_path = os.path.join(dir_path, filename)
+            if os.path.isfile(file_path):
+                return file_path
+    return None
+
+
+def _search_targets_subdirs(
+    cuda_home: str,
+    filenames: Sequence[str],
+) -> str | None:
+    """Search in targets/*/lib and targets/*/lib64 subdirectories.
+
+    For cross-compilation setups. Returns the first match, preferring
+    more recently modified targets.
+
+    Args:
+        cuda_home: The CUDA home directory.
+        filenames: Filenames to search for.
+
+    Returns:
+        First matching file path, or None if not found.
+    """
+    for lib_subdir in ("lib64", "lib"):
+        pattern = os.path.join(cuda_home, "targets", "*", lib_subdir)
+        for dir_path in sorted(glob.glob(pattern), reverse=True):
+            for filename in filenames:
+                file_path = os.path.join(dir_path, filename)
+                if os.path.isfile(file_path):
+                    return file_path
+    return None
+
+
+def _find_artifact_in_conda(artifact_name: str) -> str | None:
+    """Generic conda prefix search for any configured artifact.
+
+    Args:
+        artifact_name: The name of the artifact to find.
+
+    Returns:
+        Path to the artifact if found, None otherwise.
+    """
     conda_prefix = os.environ.get("CONDA_PREFIX")
     if not conda_prefix:
         return None
 
-    # Check multiple possible locations
-    if IS_WINDOWS:
-        possible_paths = [
-            os.path.join(conda_prefix, "Library", "nvvm", "libdevice", "libdevice.10.bc"),
-        ]
-    else:
-        possible_paths = [
-            os.path.join(conda_prefix, "nvvm", "libdevice", "libdevice.10.bc"),
-        ]
+    config = ARTIFACT_CONFIGS.get(artifact_name)
+    if not config:
+        return None
 
-    for path in possible_paths:
-        if os.path.isfile(path):
-            return path
-    return None
+    return _search_paths(conda_prefix, config.conda_dirs, config.filenames)
 
 
-def _find_libdevice_in_cuda_home() -> str | None:
-    """Search for libdevice.10.bc in CUDA_HOME or CUDA_PATH."""
+def _find_artifact_in_cuda_home(artifact_name: str) -> str | None:
+    """Generic CUDA_HOME/CUDA_PATH search for any configured artifact.
+
+    Args:
+        artifact_name: The name of the artifact to find.
+
+    Returns:
+        Path to the artifact if found, None otherwise.
+    """
     cuda_home = get_cuda_home_or_path()
     if cuda_home is None:
         return None
 
-    libdevice_path = os.path.join(cuda_home, "nvvm", "libdevice", "libdevice.10.bc")
-    if os.path.isfile(libdevice_path):
-        return libdevice_path
-    return None
-
-
-def _find_libcudadevrt_in_conda() -> str | None:
-    """Search for libcudadevrt.a in conda prefix."""
-    conda_prefix = os.environ.get("CONDA_PREFIX")
-    if not conda_prefix:
+    config = ARTIFACT_CONFIGS.get(artifact_name)
+    if not config:
         return None
 
-    if IS_WINDOWS:
-        # On Windows, it might be cudadevrt.lib
-        possible_paths = [
-            os.path.join(conda_prefix, "Library", "lib", "libcudadevrt.a"),
-            os.path.join(conda_prefix, "Library", "lib", "x64", "cudadevrt.lib"),
-        ]
-    else:
-        possible_paths = [
-            os.path.join(conda_prefix, "lib", "libcudadevrt.a"),
-        ]
+    # Try standard directories first
+    if result := _search_paths(cuda_home, config.cuda_home_dirs, config.filenames):
+        return result
 
-    for path in possible_paths:
-        if os.path.isfile(path):
-            return path
-    return None
-
-
-def _find_libcudadevrt_in_cuda_home() -> str | None:
-    """Search for libcudadevrt.a in CUDA_HOME or CUDA_PATH."""
-    cuda_home = get_cuda_home_or_path()
-    if cuda_home is None:
-        return None
-
-    if IS_WINDOWS:
-        # On Windows, check for cudadevrt.lib in various locations
-        possible_paths = [
-            os.path.join(cuda_home, "lib", "x64", "cudadevrt.lib"),
-            os.path.join(cuda_home, "lib", "cudadevrt.lib"),
-        ]
-    else:
-        # On Linux, check lib64 and lib
-        possible_paths = [
-            os.path.join(cuda_home, "lib64", "libcudadevrt.a"),
-            os.path.join(cuda_home, "lib", "libcudadevrt.a"),
-        ]
-
-    for path in possible_paths:
-        if os.path.isfile(path):
-            return path
-
-    # Also check targets subdirectories (for cross-compilation setups)
-    if not IS_WINDOWS:
-        targets_pattern = os.path.join(cuda_home, "targets", "*", "lib", "libcudadevrt.a")
-        for path in sorted(glob.glob(targets_pattern), reverse=True):
-            if os.path.isfile(path):
-                return path
+    # Try targets subdirectories for cross-compilation
+    if config.search_targets_subdirs and not IS_WINDOWS:
+        if result := _search_targets_subdirs(cuda_home, config.filenames):
+            return result
 
     return None
 
@@ -158,23 +169,12 @@ def find_nvidia_static_lib(artifact_name: str) -> str | None:
     if artifact_path := _find_artifact_under_site_packages(artifact_name):
         return _abs_norm(artifact_path)
 
-    # Handle specific artifacts with custom search logic
-    if artifact_name == "libdevice.10.bc":
-        # Try conda prefix
-        if artifact_path := _find_libdevice_in_conda():
-            return _abs_norm(artifact_path)
+    # Try conda prefix (generic, configuration-driven)
+    if artifact_path := _find_artifact_in_conda(artifact_name):
+        return _abs_norm(artifact_path)
 
-        # Try CUDA_HOME/CUDA_PATH
-        if artifact_path := _find_libdevice_in_cuda_home():
-            return _abs_norm(artifact_path)
-
-    elif artifact_name == "libcudadevrt.a":
-        # Try conda prefix
-        if artifact_path := _find_libcudadevrt_in_conda():
-            return _abs_norm(artifact_path)
-
-        # Try CUDA_HOME/CUDA_PATH
-        if artifact_path := _find_libcudadevrt_in_cuda_home():
-            return _abs_norm(artifact_path)
+    # Try CUDA_HOME/CUDA_PATH (generic, configuration-driven)
+    if artifact_path := _find_artifact_in_cuda_home(artifact_name):
+        return _abs_norm(artifact_path)
 
     return None
