@@ -47,6 +47,12 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# Include object entries (methods, attributes, etc.) in the table of contents
+# This enables the "On This Page" sidebar to show class methods and properties
+# Requires Sphinx 5.1+
+toc_object_entries = True
+toc_object_entries_show_parents = "hide"
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
