@@ -451,7 +451,7 @@ cdef class Device:
     def persistence_mode_enabled(self, enabled: bool) -> None:
         nvml.device_set_persistence_mode(
             self._handle,
-            enabled and nvml.EnableState.FEATURE_ENABLED or nvml.EnableState.FEATURE_DISABLED
+            nvml.EnableState.FEATURE_ENABLED if enabled else nvml.EnableState.FEATURE_DISABLED
         )
 
 
