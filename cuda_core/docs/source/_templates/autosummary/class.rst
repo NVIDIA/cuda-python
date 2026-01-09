@@ -6,27 +6,7 @@
 .. currentmodule:: {{ module }}
 
 .. autoclass:: {{ objname }}
-
-{% block methods %}
-{% if methods %}
-{% for item in methods %}
-{{ objname }}.{{ item }}
-{{ "-" * (objname|length + 1 + item|length) }}
-
-.. automethod:: {{ objname }}.{{ item }}
-
-{% endfor %}
-{% endif %}
-{% endblock %}
-
-{% block attributes %}
-{% if attributes %}
-{% for item in attributes %}
-{{ objname }}.{{ item }}
-{{ "-" * (objname|length + 1 + item|length) }}
-
-.. autoproperty:: {{ objname }}.{{ item }}
-
-{% endfor %}
-{% endif %}
-{% endblock %}
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
