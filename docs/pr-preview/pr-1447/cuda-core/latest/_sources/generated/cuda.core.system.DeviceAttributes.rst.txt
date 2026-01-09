@@ -1,0 +1,34 @@
+﻿.. SPDX-FileCopyrightText: Copyright (c) 2024-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: Apache-2.0
+
+cuda.core.system.DeviceAttributes
+=================================
+
+.. currentmodule:: cuda.core.system
+
+.. autoclass:: DeviceAttributes
+
+   
+   
+   
+   .. autoattribute:: compute_instance_slice_count
+   .. autoattribute:: gpu_instance_slice_count
+   .. autoattribute:: memory_size_mb
+   .. autoattribute:: multiprocessor_count
+   .. autoattribute:: shared_copy_engine_count
+   .. autoattribute:: shared_decoder_count
+   .. autoattribute:: shared_encoder_count
+   .. autoattribute:: shared_jpeg_count
+   .. autoattribute:: shared_ofa_count
+   
+   
+
+   
+   
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+
+   
+   
