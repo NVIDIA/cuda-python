@@ -15,11 +15,11 @@ Welcome to the documentation for ``cuda.core``.
    interoperability
    api
    contribute
-   developer-guide
 
 .. toctree::
    :maxdepth: 1
 
+   developer-guide
    conduct
    license
 
