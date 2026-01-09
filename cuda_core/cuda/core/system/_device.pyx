@@ -8,14 +8,17 @@ from libc.math cimport ceil
 from multiprocessing import cpu_count
 from typing import Iterable
 
-from cuda.bindings import _nvml as nvml
-
 from ._nvml_context cimport initialize
+from ._system import CUDA_BINDINGS_NVML_IS_COMPATIBLE
 
 include "_device_utils.pxi"
 
 
-FieldId = nvml.FieldId
+if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+    from cuda.bindings import _nvml as nvml
+    FieldId = nvml.FieldId
+else:
+    FieldId = None
 
 
 class DeviceArchitecture:
