@@ -11,23 +11,23 @@ cuda.core.utils.StridedMemoryView
 
 
 
-.. automethod:: StridedMemoryView.__init__
-.. automethod:: StridedMemoryView.copy_from
-.. automethod:: StridedMemoryView.copy_to
-.. automethod:: StridedMemoryView.from_any_interface
-.. automethod:: StridedMemoryView.from_array_interface
-.. automethod:: StridedMemoryView.from_buffer
-.. automethod:: StridedMemoryView.from_cuda_array_interface
-.. automethod:: StridedMemoryView.from_dlpack
-.. automethod:: StridedMemoryView.view
+.. automethod:: __init__
+.. automethod:: copy_from
+.. automethod:: copy_to
+.. automethod:: from_any_interface
+.. automethod:: from_array_interface
+.. automethod:: from_buffer
+.. automethod:: from_cuda_array_interface
+.. automethod:: from_dlpack
+.. automethod:: view
 
 
 
 
 
 
-.. autoattribute:: StridedMemoryView.dtype
-.. autoattribute:: StridedMemoryView.shape
-.. autoattribute:: StridedMemoryView.size
-.. autoattribute:: StridedMemoryView.strides
+.. autoattribute:: dtype
+.. autoattribute:: shape
+.. autoattribute:: size
+.. autoattribute:: strides
 

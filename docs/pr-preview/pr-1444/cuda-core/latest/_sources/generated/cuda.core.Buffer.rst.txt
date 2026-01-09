@@ -11,26 +11,26 @@ cuda.core.Buffer
 
 
 
-.. automethod:: Buffer.__init__
-.. automethod:: Buffer.close
-.. automethod:: Buffer.copy_from
-.. automethod:: Buffer.copy_to
-.. automethod:: Buffer.fill
-.. automethod:: Buffer.from_handle
-.. automethod:: Buffer.from_ipc_descriptor
-.. automethod:: Buffer.get_ipc_descriptor
+.. automethod:: __init__
+.. automethod:: close
+.. automethod:: copy_from
+.. automethod:: copy_to
+.. automethod:: fill
+.. automethod:: from_handle
+.. automethod:: from_ipc_descriptor
+.. automethod:: get_ipc_descriptor
 
 
 
 
 
 
-.. autoproperty:: Buffer.device_id
-.. autoproperty:: Buffer.handle
-.. autoproperty:: Buffer.is_device_accessible
-.. autoproperty:: Buffer.is_host_accessible
-.. autoproperty:: Buffer.is_mapped
-.. autoproperty:: Buffer.memory_resource
-.. autoproperty:: Buffer.owner
-.. autoproperty:: Buffer.size
+.. autoproperty:: device_id
+.. autoproperty:: handle
+.. autoproperty:: is_device_accessible
+.. autoproperty:: is_host_accessible
+.. autoproperty:: is_mapped
+.. autoproperty:: memory_resource
+.. autoproperty:: owner
+.. autoproperty:: size
 

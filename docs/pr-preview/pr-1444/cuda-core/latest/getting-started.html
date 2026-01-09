@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=0e4f752f"></script>
+    <script src="_static/documentation_options.js?v=39b7ff45"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev21';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev22';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -619,7 +619,7 @@ You can find the complete example in <a class="reference external" href="https:/
 </div>
 <p>Next, we create a <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a> object
 and a corresponding <a class="reference internal" href="generated/cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></a>.
-Don’t forget to use <a class="reference internal" href="generated/cuda.core.Device.html#cuda.core.Device.set_current" title="cuda.core.Device.set_current"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.set_current()</span></code></a>!</p>
+Don’t forget to use <code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.set_current()</span></code>!</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cupy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cp</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cuda.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Device</span><span class="p">,</span> <span class="n">LaunchConfig</span><span class="p">,</span> <span class="n">Program</span><span class="p">,</span> <span class="n">ProgramOptions</span><span class="p">,</span> <span class="n">launch</span>
 
@@ -630,7 +630,7 @@ Don’t forget to use <a class="reference internal" href="generated/cuda.core.De
 </div>
 <p>Next, we compile the CUDA C++ kernel from earlier using the <a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program" title="cuda.core.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a> class.
 The result of the compilation  is saved as a CUBIN.
-Note the use of the <code class="docutils literal notranslate"><span class="pre">name_expressions</span></code> parameter to the <a class="reference internal" href="generated/cuda.core.Program.html#cuda.core.Program.compile" title="cuda.core.Program.compile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Program.compile()</span></code></a> method to specify which kernel template instantiations to compile:</p>
+Note the use of the <code class="docutils literal notranslate"><span class="pre">name_expressions</span></code> parameter to the <code class="xref py py-meth docutils literal notranslate"><span class="pre">Program.compile()</span></code> method to specify which kernel template instantiations to compile:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">program_options</span> <span class="o">=</span> <span class="n">ProgramOptions</span><span class="p">(</span><span class="n">std</span><span class="o">=</span><span class="s2">&quot;c++17&quot;</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;sm_</span><span class="si">{</span><span class="n">dev</span><span class="o">.</span><span class="n">arch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">prog</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">code_type</span><span class="o">=</span><span class="s2">&quot;c++&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">program_options</span><span class="p">)</span>
 <span class="n">mod</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;cubin&quot;</span><span class="p">,</span> <span class="n">name_expressions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;vector_add&lt;float&gt;&quot;</span><span class="p">,))</span>

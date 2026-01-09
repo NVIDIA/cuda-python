@@ -11,15 +11,15 @@ cuda.core.Program
 
 
 
-.. automethod:: Program.__init__
-.. automethod:: Program.close
-.. automethod:: Program.compile
+.. automethod:: __init__
+.. automethod:: close
+.. automethod:: compile
 
 
 
 
 
 
-.. autoproperty:: Program.backend
-.. autoproperty:: Program.handle
+.. autoproperty:: backend
+.. autoproperty:: handle
 

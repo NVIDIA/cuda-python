@@ -11,15 +11,15 @@ cuda.core.\_module.ParamInfo
 
 
 
-.. automethod:: ParamInfo.__init__
-.. automethod:: ParamInfo.count
-.. automethod:: ParamInfo.index
+.. automethod:: __init__
+.. automethod:: count
+.. automethod:: index
 
 
 
 
 
 
-.. autoproperty:: ParamInfo.offset
-.. autoproperty:: ParamInfo.size
+.. autoproperty:: offset
+.. autoproperty:: size
 

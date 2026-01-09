@@ -11,22 +11,22 @@ cuda.core.system.Device
 
 
 
-.. automethod:: Device.__init__
-.. automethod:: Device.get_all_devices
+.. automethod:: __init__
+.. automethod:: get_all_devices
 
 
 
 
 
 
-.. autoattribute:: Device.architecture
-.. autoattribute:: Device.bar1_memory_info
-.. autoattribute:: Device.cpu_affinity
-.. autoattribute:: Device.cuda_compute_capability
-.. autoattribute:: Device.handle
-.. autoattribute:: Device.memory_info
-.. autoattribute:: Device.name
-.. autoattribute:: Device.pci_info
-.. autoattribute:: Device.serial
-.. autoattribute:: Device.uuid
+.. autoattribute:: architecture
+.. autoattribute:: bar1_memory_info
+.. autoattribute:: cpu_affinity
+.. autoattribute:: cuda_compute_capability
+.. autoattribute:: handle
+.. autoattribute:: memory_info
+.. autoattribute:: name
+.. autoattribute:: pci_info
+.. autoattribute:: serial
+.. autoattribute:: uuid
 

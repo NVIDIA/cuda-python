@@ -11,15 +11,15 @@ cuda.core.Kernel
 
 
 
-.. automethod:: Kernel.__init__
+.. automethod:: __init__
 
 
 
 
 
 
-.. autoproperty:: Kernel.arguments_info
-.. autoproperty:: Kernel.attributes
-.. autoproperty:: Kernel.num_arguments
-.. autoproperty:: Kernel.occupancy
+.. autoproperty:: arguments_info
+.. autoproperty:: attributes
+.. autoproperty:: num_arguments
+.. autoproperty:: occupancy
 

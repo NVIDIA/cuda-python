@@ -11,27 +11,27 @@ cuda.core.GraphBuilder
 
 
 
-.. automethod:: GraphBuilder.__init__
-.. automethod:: GraphBuilder.add_child
-.. automethod:: GraphBuilder.begin_building
-.. automethod:: GraphBuilder.close
-.. automethod:: GraphBuilder.complete
-.. automethod:: GraphBuilder.create_conditional_handle
-.. automethod:: GraphBuilder.debug_dot_print
-.. automethod:: GraphBuilder.end_building
-.. automethod:: GraphBuilder.if_cond
-.. automethod:: GraphBuilder.if_else
-.. automethod:: GraphBuilder.join
-.. automethod:: GraphBuilder.split
-.. automethod:: GraphBuilder.switch
-.. automethod:: GraphBuilder.while_loop
+.. automethod:: __init__
+.. automethod:: add_child
+.. automethod:: begin_building
+.. automethod:: close
+.. automethod:: complete
+.. automethod:: create_conditional_handle
+.. automethod:: debug_dot_print
+.. automethod:: end_building
+.. automethod:: if_cond
+.. automethod:: if_else
+.. automethod:: join
+.. automethod:: split
+.. automethod:: switch
+.. automethod:: while_loop
 
 
 
 
 
 
-.. autoproperty:: GraphBuilder.is_building
-.. autoproperty:: GraphBuilder.is_join_required
-.. autoproperty:: GraphBuilder.stream
+.. autoproperty:: is_building
+.. autoproperty:: is_join_required
+.. autoproperty:: stream
 
