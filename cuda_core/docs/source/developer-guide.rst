@@ -192,11 +192,11 @@ File Types
 
 The ``cuda/core`` package uses three types of files:
 
-1. **``.pyx`` files**: Cython implementation files containing the actual
+1. **.pyx files**: Cython implementation files containing the actual
    code
-2. **``.pxd`` files**: Cython declaration files containing type
+2. **.pxd files**: Cython declaration files containing type
    definitions and function signatures for C-level access
-3. **``.py`` files**: Pure Python files for utilities and high-level
+3. **.py files**: Pure Python files for utilities and high-level
    interfaces
 
 File Naming Conventions
@@ -217,10 +217,10 @@ Relationship Between ``.pxd`` and ``.pyx`` Files
 For each ``.pyx`` file that defines classes or functions used by other
 Cython modules, create a corresponding ``.pxd`` file:
 
-- **``.pxd`` file**: Contains ``cdef`` class declarations,
+- **.pxd file**: Contains ``cdef`` class declarations,
   ``cdef``/``cpdef`` function signatures, and ``cdef`` attribute
   declarations
-- **``.pyx`` file**: Contains the full implementation including Python
+- **.pyx file**: Contains the full implementation including Python
   methods, docstrings, and implementation details
 
 **Example:**
@@ -275,12 +275,12 @@ For complex subpackages that require extra structure (like
 
 1. **Private submodules**: Each component is implemented in a private
    submodule (e.g., ``_buffer.pyx``, ``_device_memory_resource.pyx``)
-2. **Submodule ``__all__``**: Each submodule defines its own ``__all__``
+2. **Submodule __all__**: Each submodule defines its own ``__all__``
    list
-3. **Subpackage ``__init__.py``**: The subpackage ``__init__.py`` uses
+3. **Subpackage __init__.py**: The subpackage ``__init__.py`` uses
    ``from ._module import *`` to assemble the package
 
-**Example structure for ``_memory/`` subpackage:**
+**Example structure for _memory/ subpackage:**
 
 ``_memory/_buffer.pyx``:
 
@@ -335,19 +335,19 @@ improve maintainability).
 Guidelines
 ~~~~~~~~~~
 
-1. **Always create ``.pxd`` files for shared Cython types**: If a class
+1. **Always create .pxd files for shared Cython types**: If a class
    or function is ``cimport``\ ed by other modules, provide a ``.pxd``
    declaration file.
 
-2. **Keep ``.pxd`` files minimal**: Only include declarations needed for
+2. **Keep .pxd files minimal**: Only include declarations needed for
    Cython compilation. Omit implementation details, docstrings, and
    Python-only code.
 
-3. **Use ``__all__`` when helpful**: Define ``__all__`` to control
+3. **Use __all__ when helpful**: Define ``__all__`` to control
    exported symbols when it simplifies or clarifies the module
    structure.
 
-4. **Use ``from ._module import *`` in subpackage ``__init__.py``**:
+4. **Use from ._module import * in subpackage __init__.py**:
    This pattern assembles the subpackage API from its submodules. Use
    ``# noqa: F403`` to suppress linting warnings about wildcard imports.
 
@@ -476,7 +476,7 @@ Additional Rules
    Do not use blank lines within a group unless using multi-line import
    formatting.
 
-5. **``try/except`` Blocks**: Import fallbacks (e.g., for optional
+5. **try/except blocks**: Import fallbacks (e.g., for optional
    dependencies) should be placed in the appropriate group (external or
    cuda-core) using ``try/except`` blocks.
 
@@ -756,13 +756,13 @@ header). This enables:
 Guidelines
 ^^^^^^^^^^
 
-1. **Use ``from __future__ import annotations``**: This should be
+1. **Use from __future__ import annotations**: This should be
    present in all ``.py`` and ``.pyx`` files with type annotations.
 
-2. **Use ``|`` for unions**: Prefer ``X | Y | None`` over
+2. **Use | for unions**: Prefer ``X | Y | None`` over
    ``Union[X, Y]`` or ``Optional[X]``.
 
-3. **Avoid ``TYPE_CHECKING`` blocks**: With
+3. **Avoid TYPE_CHECKING blocks**: With
    ``from __future__ import annotations``, forward references work
    without ``TYPE_CHECKING`` guards.
 
@@ -1113,8 +1113,8 @@ CUDA Exceptions
 
 The project defines custom exceptions for CUDA-specific errors:
 
-- **``CUDAError``**: Base exception for CUDA driver errors
-- **``NVRTCError``**: Exception for NVRTC compiler errors (inherits from
+- **CUDAError**: Base exception for CUDA driver errors
+- **NVRTCError**: Exception for NVRTC compiler errors (inherits from
   ``CUDAError``)
 
 Use these instead of generic exceptions when reporting CUDA failures.
