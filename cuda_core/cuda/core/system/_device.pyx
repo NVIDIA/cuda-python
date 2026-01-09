@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from libc.stdint cimport intptr_t
+from libc.stdint cimport intptr_t, uint64_t
 from libc.math cimport ceil
 
 from multiprocessing import cpu_count
@@ -13,6 +13,9 @@ from cuda.bindings import _nvml as nvml
 from ._nvml_context cimport initialize
 
 include "_device_utils.pxi"
+
+
+EventType = nvml.EventType
 
 
 class DeviceArchitecture:
@@ -171,6 +174,138 @@ cdef class PciInfo:
         return self._pci_info.pci_device_id >> 16
 
 
+cdef class EventData:
+    """
+    Data about a single event.
+    """
+    def __init__(self, event_data: nvml.EventData):
+        self._event_data = event_data
+
+    @property
+    def device(self) -> Device:
+        """
+        The device on which the event occurred.
+        """
+        return Device(handle=self._event_data.device)
+
+    @property
+    def event_type(self) -> EventType:
+        """
+        The type of event that was triggered.
+        """
+        return EventType(self._event_data.event_type)
+
+    @property
+    def event_data(self) -> int:
+        """
+        Returns Xid error for the device in the event of
+        :member:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
+
+        Raises :class:`ValueError` for other event types.
+        """
+        if self.event_type != EventType.EVENT_TYPE_XID_CRITICAL_ERROR:
+            raise ValueError("event_data is only available for Xid critical error events.")
+        return self._event_data.event_data
+
+    @property
+    def gpu_instance_id(self) -> int:
+        """
+        The GPU instance ID for MIG devices.
+
+        Only valid for events of type :member:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
+
+        Raises :class:`ValueError` for other event types.
+        """
+        if self.event_type != EventType.EVENT_TYPE_XID_CRITICAL_ERROR:
+            raise ValueError("gpu_instance_id is only available for Xid critical error events.")
+        return self._event_data.gpu_instance_id
+
+    @property
+    def compute_instance_id(self) -> int:
+        """
+        The Compute instance ID for MIG devices.
+
+        Only valid for events of type :member:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
+
+        Raises :class:`ValueError` for other event types.
+        """
+        if self.event_type != EventType.EVENT_TYPE_XID_CRITICAL_ERROR:
+            raise ValueError("compute_instance_id is only available for Xid critical error events.")
+        return self._event_data.compute_instance_id
+
+
+cdef class DeviceEvents:
+    """
+    Represents a set of events that can be waited on for a specific device.
+    """
+    cdef intptr_t _event_set
+    cdef intptr_t _device_handle
+
+    def __init__(self, device_handle: intptr_t, events: EventType | int | list[EventType | int]):
+        cdef unsigned long long event_bitmask
+        if isinstance(events, (int, EventType)):
+            event_bitmask = <unsigned long long>int(events)
+        elif isinstance(events, list):
+            event_bitmask = 0
+            for ev in events:
+                event_bitmask |= <unsigned long long>int(ev)
+        else:
+            raise TypeError("events must be an EventType, int, or list of EventType or int")
+
+        self._device_handle = device_handle
+        self._event_set = nvml.event_set_create()
+        # If this raises, the event needs to be freed and this is handled by
+        # this class's __dealloc__ method.
+        nvml.device_register_events(self._device_handle, event_bitmask, self._event_set)
+
+    def __dealloc__(self):
+        nvml.event_set_free(self._event_set)
+
+    def wait(self, timeout_ms: int = 0) -> None:
+        """
+        Wait for events in the event set.
+
+        For Fermi™ or newer fully supported devices.
+
+        If some events are ready to be delivered at the time of the call,
+        function returns immediately.  If there are no events ready to be
+        delivered, function sleeps until event arrives but not longer than
+        specified timeout. If timeout passes, a
+        :class:`cuda.core.system.TimeoutError` is raised. This function in
+        certain conditions can return before specified timeout passes (e.g. when
+        interrupt arrives).
+
+        On Windows, in case of Xid error, the function returns the most recent
+        Xid error type seen by the system.  If there are multiple Xid errors
+        generated before ``wait`` is invoked, then the last seen Xid
+        error type is returned for all Xid error events.
+
+        On Linux, every Xid error event would return the associated event data
+        and other information if applicable.
+
+        In MIG mode, if device handle is provided, the API reports all the
+        events for the available instances, only if the caller has appropriate
+        privileges. In absence of required privileges, only the events which
+        affect all the instances (i.e. whole device) are reported.
+
+        This API does not currently support per-instance event reporting using
+        MIG device handles.
+
+        Parameters
+        ----------
+        timeout_ms: int
+            The timeout in milliseconds. A value of 0 means to wait indefinitely.
+
+        Raises
+        ------
+        cuda.core.system.TimeoutError
+            If the timeout expires before an event is received.
+        cuda.core.system.GpuIsLostError
+            If the GPU has fallen off the bus or is otherwise inaccessible.
+        """
+        return EventData(nvml.event_set_wait_v2(self._event_set, timeout_ms))
+
+
 cdef class Device:
     """
     Representation of a device.
@@ -194,20 +329,25 @@ cdef class Device:
 
     cdef intptr_t _handle
 
-    def __init__(self, index: int | None = None, uuid: bytes | str | None = None):
+    def __init__(self, index: int | None = None, uuid: bytes | str | None = None, handle: int | None = None):
         initialize()
 
-        if index is not None and uuid is not None:
-            raise ValueError("Handle requires only one of either device `index` or `uuid`.")
-        if index is None and uuid is None:
+        args = [index, uuid, handle]
+        cdef int arg_count = sum(arg is not None for arg in args)
+
+        if arg_count > 1:
+            raise ValueError("Handle requires only one of `index`, `uuid` or `handle`.")
+        if arg_count == 0:
             raise ValueError("Handle requires either a device `index` or `uuid`.")
 
         if index is not None:
             self._handle = nvml.device_get_handle_by_index_v2(index)
-        else:
+        elif uuid is not None:
             if isinstance(uuid, bytes):
                 uuid = uuid.decode("ascii")
             self._handle = nvml.device_get_handle_by_uuid(uuid)
+        elif handle is not None:
+            self._handle = handle
 
     @property
     def handle(self) -> int:
@@ -313,11 +453,72 @@ cdef class Device:
         """
         return nvml.device_get_uuid(self._handle)
 
+    def register_events(self, events: EventType | int | list[EventType | int]) -> DeviceEvents:
+        """
+        Starts recording events on this device.
+
+        For Fermi™ or newer fully supported devices.  For Linux only.
+
+        ECC events are available only on ECC-enabled devices (see
+        :meth:`Device.get_total_ecc_errors`).  Power capping events are
+        available only on Power Management enabled devices (see
+        :meth:`Device.get_power_management_mode`).
+
+        This call starts recording of events on specific device.  All events
+        that occurred before this call are not recorded.  Wait for events using
+        the :meth:`DeviceEvents.wait` method on the result.
+
+        Examples
+        --------
+        >>> device = Device(index=0)
+        >>> events = device.register_events([
+        ...     EventType.EVENT_TYPE_XID_CRITICAL_ERROR,
+        ... ])
+        >>> while event := events.wait(timeout_ms=10000):
+        ...     print(f"Event {event.event_type} occurred on device {event.device.uuid}")
+
+        Parameters
+        ----------
+        events: EventType, int, or list of EventType or int
+            The event type or list of event types to register for this device.
+
+        Returns
+        -------
+        :class:`DeviceEvents`
+            An object representing the registered events.  Call
+            :meth:`DeviceEvents.wait` on this object to wait for events.
+
+        Raises
+        ------
+        :class:`cuda.core.system.NotSupportedError`
+            None of the requested event types are registered.
+        """
+        return DeviceEvents(self._handle, events)
+
+    def get_supported_event_types(self) -> list[EventType]:
+        """
+        Get the list of event types supported by this device.
+
+        For Fermi™ or newer fully supported devices.  For Linux only (returns an
+        empty list on Windows).
+
+        Returns
+        -------
+        list[EventType]
+            The list of supported event types.
+        """
+        cdef uint64_t[1] bitmask
+        bitmask[0] = nvml.device_get_supported_event_types(self._handle)
+
+        return [EventType(ev) for ev in _unpack_bitmask(bitmask)]
 
 __all__ = [
     "BAR1MemoryInfo",
     "Device",
     "DeviceArchitecture",
+    "DeviceEvents",
+    "EventData",
+    "EventType",
     "MemoryInfo",
     "PciInfo",
 ]
