@@ -23,6 +23,69 @@ from setuptools.command.build_py import build_py
 from setuptools.command.editable_wheel import _TopLevelFinder, editable_wheel
 from setuptools.extension import Extension
 
+
+# ----------------------------------------------------------------------
+# Validate git tags are available (fail early before setuptools-scm runs)
+def _validate_git_tags_available():
+    """Verify that git tags are available for setuptools-scm version detection."""
+    import subprocess
+
+    # Check if git is available
+    try:
+        subprocess.run(["git", "--version"], capture_output=True, check=True, timeout=5)  # noqa: S607
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+        raise RuntimeError(
+            "Git is not available in PATH. setuptools-scm requires git to determine version from tags.\n"
+            "Please ensure git is installed and available in your PATH."
+        ) from None
+
+    # Check if we're in a git repository
+    try:
+        subprocess.run(
+            ["git", "rev-parse", "--git-dir"],  # noqa: S607
+            capture_output=True,
+            check=True,
+            timeout=5,
+        )
+    except subprocess.CalledProcessError:
+        raise RuntimeError(
+            "Not in a git repository. setuptools-scm requires git tags to determine version.\n"
+            "Please run this from within the cuda-python git repository."
+        ) from None
+
+    # Check if git describe works (this is what setuptools-scm uses)
+    try:
+        result = subprocess.run(
+            ["git", "describe", "--tags", "--long", "--match", "v*[0-9]*"],  # noqa: S607
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"git describe failed! This means setuptools-scm will fall back to version '0.1.x'.\n"
+                f"\n"
+                f"Error: {result.stderr.strip()}\n"
+                f"\n"
+                f"This usually means:\n"
+                f"  1. Git tags are not fetched (run: git fetch --tags)\n"
+                f"  2. Running from wrong directory (setuptools_scm root='..')\n"
+                f"  3. No matching tags found\n"
+                f"\n"
+                f"To fix:\n"
+                f"  git fetch --tags\n"
+                f"\n"
+                f"To debug, run: git describe --tags --long --match 'v*[0-9]*'"
+            ) from None
+    except subprocess.TimeoutExpired:
+        raise RuntimeError(
+            "git describe command timed out. This may indicate git repository issues.\n"
+            "Please check your git repository state."
+        ) from None
+
+
+_validate_git_tags_available()
+
 # ----------------------------------------------------------------------
 # Fetch configuration options
 
