@@ -8,20 +8,20 @@ cuda.core.Graph
 
 .. autoclass:: Graph
 
-   
-   
-   .. rubric:: Methods
 
-   
-   .. automethod:: __init__
-   .. automethod:: close
-   .. automethod:: launch
-   .. automethod:: update
-   .. automethod:: upload
 
-   
-   
+Methods
+-------
 
-   
-   
-   
+
+.. automethod:: Graph.__init__
+.. automethod:: Graph.close
+.. automethod:: Graph.launch
+.. automethod:: Graph.update
+.. automethod:: Graph.upload
+
+
+
+
+
+

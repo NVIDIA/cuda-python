@@ -8,37 +8,38 @@ cuda.core.\_module.KernelAttributes
 
 .. autoclass:: KernelAttributes
 
-   
-   
-   .. rubric:: Methods
 
-   
-   .. automethod:: __init__
-   .. automethod:: binary_version
-   .. automethod:: cache_mode_ca
-   .. automethod:: cluster_scheduling_policy_preference
-   .. automethod:: cluster_size_must_be_set
-   .. automethod:: const_size_bytes
-   .. automethod:: local_size_bytes
-   .. automethod:: max_dynamic_shared_size_bytes
-   .. automethod:: max_threads_per_block
-   .. automethod:: non_portable_cluster_size_allowed
-   .. automethod:: num_regs
-   .. automethod:: preferred_shared_memory_carveout
-   .. automethod:: ptx_version
-   .. automethod:: required_cluster_depth
-   .. automethod:: required_cluster_height
-   .. automethod:: required_cluster_width
-   .. automethod:: shared_size_bytes
 
-   
-   
+Methods
+-------
 
-   
-   
-   .. rubric:: Attributes
 
-   
-   .. autoproperty:: slots
-   
-   
+.. automethod:: KernelAttributes.__init__
+.. automethod:: KernelAttributes.binary_version
+.. automethod:: KernelAttributes.cache_mode_ca
+.. automethod:: KernelAttributes.cluster_scheduling_policy_preference
+.. automethod:: KernelAttributes.cluster_size_must_be_set
+.. automethod:: KernelAttributes.const_size_bytes
+.. automethod:: KernelAttributes.local_size_bytes
+.. automethod:: KernelAttributes.max_dynamic_shared_size_bytes
+.. automethod:: KernelAttributes.max_threads_per_block
+.. automethod:: KernelAttributes.non_portable_cluster_size_allowed
+.. automethod:: KernelAttributes.num_regs
+.. automethod:: KernelAttributes.preferred_shared_memory_carveout
+.. automethod:: KernelAttributes.ptx_version
+.. automethod:: KernelAttributes.required_cluster_depth
+.. automethod:: KernelAttributes.required_cluster_height
+.. automethod:: KernelAttributes.required_cluster_width
+.. automethod:: KernelAttributes.shared_size_bytes
+
+
+
+
+
+
+Attributes
+----------
+
+
+.. autoproperty:: KernelAttributes.slots
+

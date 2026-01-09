@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=808c36ec"></script>
+    <script src="../_static/documentation_options.js?v=0e4f752f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev19';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev21';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -578,9 +578,13 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core._device.</span></span><span class="sig-name descname"><span class="pre">DeviceProperties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._device.DeviceProperties" title="Link to this definition">#</a></dt>
 <dd><p>A class to query various attributes of a CUDA device.</p>
 <p>Attributes are read-only and provide information about the device.</p>
+</dd></dl>
+
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.async_engine_count">
-<span class="sig-name descname"><span class="pre">async_engine_count</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.async_engine_count" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">async_engine_count</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.async_engine_count" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Number of asynchronous engines.</p>
 <dl class="field-list simple">
@@ -592,7 +596,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.can_flush_remote_writes">
-<span class="sig-name descname"><span class="pre">can_flush_remote_writes</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_flush_remote_writes" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">can_flush_remote_writes</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_flush_remote_writes" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: The CU_STREAM_WAIT_VALUE_FLUSH flag and the CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES MemOp are supported on the device. See Stream Memory Operations for additional details.</p>
 <dl class="field-list simple">
@@ -604,7 +608,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.can_map_host_memory">
-<span class="sig-name descname"><span class="pre">can_map_host_memory</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_map_host_memory" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">can_map_host_memory</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_map_host_memory" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device can map host memory into CUDA address space.</p>
 <dl class="field-list simple">
@@ -616,7 +620,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.can_tex2d_gather">
-<span class="sig-name descname"><span class="pre">can_tex2d_gather</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_tex2d_gather" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">can_tex2d_gather</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_tex2d_gather" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: True if device supports 2D texture gather operations, False if not.</p>
 <dl class="field-list simple">
@@ -628,7 +632,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.can_use_64_bit_stream_mem_ops">
-<span class="sig-name descname"><span class="pre">can_use_64_bit_stream_mem_ops</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_use_64_bit_stream_mem_ops" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">can_use_64_bit_stream_mem_ops</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_use_64_bit_stream_mem_ops" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: 64-bit operations are supported in cuStreamBatchMemOp and related MemOp APIs.</p>
 <dl class="field-list simple">
@@ -640,7 +644,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.can_use_host_pointer_for_registered_mem">
-<span class="sig-name descname"><span class="pre">can_use_host_pointer_for_registered_mem</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_use_host_pointer_for_registered_mem" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">can_use_host_pointer_for_registered_mem</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_use_host_pointer_for_registered_mem" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device can access host registered memory at the same virtual address as the CPU.</p>
 <dl class="field-list simple">
@@ -652,7 +656,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.can_use_stream_wait_value_nor">
-<span class="sig-name descname"><span class="pre">can_use_stream_wait_value_nor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_use_stream_wait_value_nor" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">can_use_stream_wait_value_nor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.can_use_stream_wait_value_nor" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: CU_STREAM_WAIT_VALUE_NOR is supported by MemOp APIs.</p>
 <dl class="field-list simple">
@@ -664,7 +668,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.clock_rate">
-<span class="sig-name descname"><span class="pre">clock_rate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.clock_rate" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">clock_rate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.clock_rate" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Typical clock frequency in kilohertz.</p>
 <dl class="field-list simple">
@@ -676,7 +680,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.cluster_launch">
-<span class="sig-name descname"><span class="pre">cluster_launch</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.cluster_launch" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">cluster_launch</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.cluster_launch" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Indicates device supports cluster launch.</p>
 <dl class="field-list simple">
@@ -688,7 +692,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.compute_capability_major">
-<span class="sig-name descname"><span class="pre">compute_capability_major</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.compute_capability_major" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">compute_capability_major</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.compute_capability_major" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Major compute capability version number.</p>
 <dl class="field-list simple">
@@ -700,7 +704,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.compute_capability_minor">
-<span class="sig-name descname"><span class="pre">compute_capability_minor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.compute_capability_minor" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">compute_capability_minor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.compute_capability_minor" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Minor compute capability version number.</p>
 <dl class="field-list simple">
@@ -712,7 +716,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.compute_mode">
-<span class="sig-name descname"><span class="pre">compute_mode</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.compute_mode" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">compute_mode</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.compute_mode" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Compute mode (See CUcomputemode for details).</p>
 <dl class="field-list simple">
@@ -724,7 +728,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.compute_preemption_supported">
-<span class="sig-name descname"><span class="pre">compute_preemption_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.compute_preemption_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">compute_preemption_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.compute_preemption_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports compute preemption.</p>
 <dl class="field-list simple">
@@ -736,7 +740,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.concurrent_kernels">
-<span class="sig-name descname"><span class="pre">concurrent_kernels</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.concurrent_kernels" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">concurrent_kernels</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.concurrent_kernels" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device can possibly execute multiple kernels concurrently.</p>
 <dl class="field-list simple">
@@ -748,7 +752,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.concurrent_managed_access">
-<span class="sig-name descname"><span class="pre">concurrent_managed_access</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.concurrent_managed_access" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">concurrent_managed_access</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.concurrent_managed_access" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device can coherently access managed memory concurrently with the CPU.</p>
 <dl class="field-list simple">
@@ -760,7 +764,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.cooperative_launch">
-<span class="sig-name descname"><span class="pre">cooperative_launch</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.cooperative_launch" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">cooperative_launch</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.cooperative_launch" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports launching cooperative kernels via cuLaunchCooperativeKernel.</p>
 <dl class="field-list simple">
@@ -772,7 +776,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.d3d12_cig_supported">
-<span class="sig-name descname"><span class="pre">d3d12_cig_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.d3d12_cig_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">d3d12_cig_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.d3d12_cig_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports CIG with D3D12.</p>
 <dl class="field-list simple">
@@ -784,7 +788,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.deferred_mapping_cuda_array_supported">
-<span class="sig-name descname"><span class="pre">deferred_mapping_cuda_array_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.deferred_mapping_cuda_array_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">deferred_mapping_cuda_array_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.deferred_mapping_cuda_array_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports deferred mapping CUDA arrays and CUDA mipmapped arrays.</p>
 <dl class="field-list simple">
@@ -796,7 +800,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.direct_managed_mem_access_from_host">
-<span class="sig-name descname"><span class="pre">direct_managed_mem_access_from_host</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.direct_managed_mem_access_from_host" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">direct_managed_mem_access_from_host</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.direct_managed_mem_access_from_host" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: The host can directly access managed memory on the device without migration.</p>
 <dl class="field-list simple">
@@ -808,7 +812,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.dma_buf_supported">
-<span class="sig-name descname"><span class="pre">dma_buf_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.dma_buf_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">dma_buf_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.dma_buf_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports buffer sharing with dma_buf mechanism.</p>
 <dl class="field-list simple">
@@ -820,7 +824,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.ecc_enabled">
-<span class="sig-name descname"><span class="pre">ecc_enabled</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.ecc_enabled" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">ecc_enabled</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.ecc_enabled" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device has ECC support enabled.</p>
 <dl class="field-list simple">
@@ -832,7 +836,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.generic_compression_supported">
-<span class="sig-name descname"><span class="pre">generic_compression_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.generic_compression_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">generic_compression_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.generic_compression_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports compression of memory.</p>
 <dl class="field-list simple">
@@ -844,7 +848,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.global_l1_cache_supported">
-<span class="sig-name descname"><span class="pre">global_l1_cache_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.global_l1_cache_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">global_l1_cache_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.global_l1_cache_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports caching globals in L1.</p>
 <dl class="field-list simple">
@@ -856,7 +860,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.global_memory_bus_width">
-<span class="sig-name descname"><span class="pre">global_memory_bus_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.global_memory_bus_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">global_memory_bus_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.global_memory_bus_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Global memory bus width in bits.</p>
 <dl class="field-list simple">
@@ -868,7 +872,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_direct_rdma_flush_writes_options">
-<span class="sig-name descname"><span class="pre">gpu_direct_rdma_flush_writes_options</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_flush_writes_options" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">gpu_direct_rdma_flush_writes_options</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_flush_writes_options" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: The returned attribute shall be interpreted as a bitmask, where the individual bits are described by the CUflushGPUDirectRDMAWritesOptions enum.</p>
 <dl class="field-list simple">
@@ -880,7 +884,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_direct_rdma_supported">
-<span class="sig-name descname"><span class="pre">gpu_direct_rdma_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">gpu_direct_rdma_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports GPUDirect RDMA APIs, like nvidia_p2p_get_pages (see <a class="reference external" href="https://docs.nvidia.com/cuda/gpudirect-rdma">https://docs.nvidia.com/cuda/gpudirect-rdma</a> for more information).</p>
 <dl class="field-list simple">
@@ -892,7 +896,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported">
-<span class="sig-name descname"><span class="pre">gpu_direct_rdma_with_cuda_vmm_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">gpu_direct_rdma_with_cuda_vmm_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_with_cuda_vmm_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports specifying the GPUDirect RDMA flag with cuMemCreate.</p>
 <dl class="field-list simple">
@@ -904,7 +908,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_direct_rdma_writes_ordering">
-<span class="sig-name descname"><span class="pre">gpu_direct_rdma_writes_ordering</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_writes_ordering" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">gpu_direct_rdma_writes_ordering</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_direct_rdma_writes_ordering" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: GPUDirect RDMA writes to the device do not need to be flushed for consumers within the scope indicated by the returned attribute. See CUGPUDirectRDMAWritesOrdering for the numerical values returned here.</p>
 <dl class="field-list simple">
@@ -916,7 +920,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_overlap">
-<span class="sig-name descname"><span class="pre">gpu_overlap</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_overlap" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">gpu_overlap</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_overlap" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device can possibly copy memory and execute a kernel concurrently. Deprecated. Use instead async_engine_count.</p>
 <dl class="field-list simple">
@@ -928,7 +932,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_pci_device_id">
-<span class="sig-name descname"><span class="pre">gpu_pci_device_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_pci_device_id" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">gpu_pci_device_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_pci_device_id" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: The combined 16-bit PCI device ID and 16-bit PCI vendor ID.</p>
 <p>Returns 0 if the driver does not support this query.</p>
@@ -941,7 +945,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.gpu_pci_subsystem_id">
-<span class="sig-name descname"><span class="pre">gpu_pci_subsystem_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_pci_subsystem_id" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">gpu_pci_subsystem_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.gpu_pci_subsystem_id" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: The combined 16-bit PCI subsystem ID and 16-bit PCI subsystem vendor ID.</p>
 <p>Returns 0 if the driver does not support this query.</p>
@@ -954,7 +958,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.handle_type_fabric_supported">
-<span class="sig-name descname"><span class="pre">handle_type_fabric_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.handle_type_fabric_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">handle_type_fabric_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.handle_type_fabric_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports exporting memory to a fabric handle with cuMemExportToShareableHandle() or requested with cuMemCreate().</p>
 <dl class="field-list simple">
@@ -966,7 +970,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.handle_type_posix_file_descriptor_supported">
-<span class="sig-name descname"><span class="pre">handle_type_posix_file_descriptor_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.handle_type_posix_file_descriptor_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">handle_type_posix_file_descriptor_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.handle_type_posix_file_descriptor_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports exporting memory to a posix file descriptor with cuMemExportToShareableHandle, if requested via cuMemCreate.</p>
 <dl class="field-list simple">
@@ -978,7 +982,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.handle_type_win32_handle_supported">
-<span class="sig-name descname"><span class="pre">handle_type_win32_handle_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.handle_type_win32_handle_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">handle_type_win32_handle_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.handle_type_win32_handle_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports exporting memory to a Win32 NT handle with cuMemExportToShareableHandle, if requested via cuMemCreate.</p>
 <dl class="field-list simple">
@@ -990,7 +994,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.handle_type_win32_kmt_handle_supported">
-<span class="sig-name descname"><span class="pre">handle_type_win32_kmt_handle_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.handle_type_win32_kmt_handle_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">handle_type_win32_kmt_handle_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.handle_type_win32_kmt_handle_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports exporting memory to a Win32 KMT handle with cuMemExportToShareableHandle, if requested via cuMemCreate.</p>
 <dl class="field-list simple">
@@ -1002,7 +1006,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_alloc_dma_buf_supported">
-<span class="sig-name descname"><span class="pre">host_alloc_dma_buf_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_alloc_dma_buf_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">host_alloc_dma_buf_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_alloc_dma_buf_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports page-locked host memory buffer sharing with dma_buf mechanism.</p>
 <dl class="field-list simple">
@@ -1014,7 +1018,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_memory_pools_supported">
-<span class="sig-name descname"><span class="pre">host_memory_pools_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_memory_pools_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">host_memory_pools_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_memory_pools_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device suports HOST location with the cuMemAllocAsync and cuMemPool family of APIs.</p>
 <dl class="field-list simple">
@@ -1026,7 +1030,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_native_atomic_supported">
-<span class="sig-name descname"><span class="pre">host_native_atomic_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_native_atomic_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">host_native_atomic_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_native_atomic_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Link between the device and the host supports all native atomic operations.</p>
 <dl class="field-list simple">
@@ -1038,7 +1042,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_numa_id">
-<span class="sig-name descname"><span class="pre">host_numa_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_numa_id" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">host_numa_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_numa_id" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: NUMA ID of the host node closest to the device. Returns -1 when system does not support NUMA.</p>
 <dl class="field-list simple">
@@ -1050,7 +1054,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_numa_memory_pools_supported">
-<span class="sig-name descname"><span class="pre">host_numa_memory_pools_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_numa_memory_pools_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">host_numa_memory_pools_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_numa_memory_pools_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports HOST_NUMA location with the cuMemAllocAsync and cuMemPool family of APIs.</p>
 <dl class="field-list simple">
@@ -1062,7 +1066,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_numa_multinode_ipc_supported">
-<span class="sig-name descname"><span class="pre">host_numa_multinode_ipc_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_numa_multinode_ipc_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">host_numa_multinode_ipc_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_numa_multinode_ipc_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports HOST_NUMA location IPC between nodes in a multi-node system.</p>
 <dl class="field-list simple">
@@ -1074,7 +1078,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_numa_virtual_memory_management_supported">
-<span class="sig-name descname"><span class="pre">host_numa_virtual_memory_management_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_numa_virtual_memory_management_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">host_numa_virtual_memory_management_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_numa_virtual_memory_management_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports HOST_NUMA location with the virtual memory management APIs like cuMemCreate, cuMemMap and related APIs.</p>
 <dl class="field-list simple">
@@ -1086,7 +1090,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_register_supported">
-<span class="sig-name descname"><span class="pre">host_register_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_register_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">host_register_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_register_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports host memory registration via cudaHostRegister.</p>
 <dl class="field-list simple">
@@ -1098,7 +1102,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.host_virtual_memory_management_supported">
-<span class="sig-name descname"><span class="pre">host_virtual_memory_management_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_virtual_memory_management_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">host_virtual_memory_management_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.host_virtual_memory_management_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports HOST location with the virtual memory management APIs like cuMemCreate, cuMemMap and related APIs.</p>
 <dl class="field-list simple">
@@ -1110,7 +1114,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.integrated">
-<span class="sig-name descname"><span class="pre">integrated</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.integrated" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">integrated</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.integrated" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device is integrated with host memory.</p>
 <dl class="field-list simple">
@@ -1122,7 +1126,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.ipc_event_supported">
-<span class="sig-name descname"><span class="pre">ipc_event_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.ipc_event_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">ipc_event_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.ipc_event_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports IPC Events.</p>
 <dl class="field-list simple">
@@ -1134,7 +1138,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.kernel_exec_timeout">
-<span class="sig-name descname"><span class="pre">kernel_exec_timeout</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.kernel_exec_timeout" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">kernel_exec_timeout</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.kernel_exec_timeout" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Specifies whether there is a run time limit on kernels.</p>
 <dl class="field-list simple">
@@ -1146,7 +1150,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.l2_cache_size">
-<span class="sig-name descname"><span class="pre">l2_cache_size</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.l2_cache_size" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">l2_cache_size</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.l2_cache_size" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Size of L2 cache in bytes.</p>
 <dl class="field-list simple">
@@ -1158,7 +1162,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.local_l1_cache_supported">
-<span class="sig-name descname"><span class="pre">local_l1_cache_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.local_l1_cache_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">local_l1_cache_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.local_l1_cache_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports caching locals in L1.</p>
 <dl class="field-list simple">
@@ -1170,7 +1174,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.managed_memory">
-<span class="sig-name descname"><span class="pre">managed_memory</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.managed_memory" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">managed_memory</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.managed_memory" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device can allocate managed memory on this system.</p>
 <dl class="field-list simple">
@@ -1182,7 +1186,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_access_policy_window_size">
-<span class="sig-name descname"><span class="pre">max_access_policy_window_size</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_access_policy_window_size" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_access_policy_window_size</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_access_policy_window_size" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum value of CUaccessPolicyWindow.num_bytes.</p>
 <dl class="field-list simple">
@@ -1194,7 +1198,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_block_dim_x">
-<span class="sig-name descname"><span class="pre">max_block_dim_x</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_block_dim_x" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_block_dim_x</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_block_dim_x" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum block dimension X.</p>
 <dl class="field-list simple">
@@ -1206,7 +1210,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_block_dim_y">
-<span class="sig-name descname"><span class="pre">max_block_dim_y</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_block_dim_y" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_block_dim_y</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_block_dim_y" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum block dimension Y.</p>
 <dl class="field-list simple">
@@ -1218,7 +1222,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_block_dim_z">
-<span class="sig-name descname"><span class="pre">max_block_dim_z</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_block_dim_z" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_block_dim_z</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_block_dim_z" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum block dimension Z.</p>
 <dl class="field-list simple">
@@ -1230,7 +1234,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_blocks_per_multiprocessor">
-<span class="sig-name descname"><span class="pre">max_blocks_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_blocks_per_multiprocessor" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_blocks_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_blocks_per_multiprocessor" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum number of blocks per multiprocessor.</p>
 <dl class="field-list simple">
@@ -1242,7 +1246,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_grid_dim_x">
-<span class="sig-name descname"><span class="pre">max_grid_dim_x</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_grid_dim_x" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_grid_dim_x</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_grid_dim_x" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum grid dimension X.</p>
 <dl class="field-list simple">
@@ -1254,7 +1258,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_grid_dim_y">
-<span class="sig-name descname"><span class="pre">max_grid_dim_y</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_grid_dim_y" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_grid_dim_y</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_grid_dim_y" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum grid dimension Y.</p>
 <dl class="field-list simple">
@@ -1266,7 +1270,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_grid_dim_z">
-<span class="sig-name descname"><span class="pre">max_grid_dim_z</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_grid_dim_z" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_grid_dim_z</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_grid_dim_z" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum grid dimension Z.</p>
 <dl class="field-list simple">
@@ -1278,7 +1282,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_persisting_l2_cache_size">
-<span class="sig-name descname"><span class="pre">max_persisting_l2_cache_size</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_persisting_l2_cache_size" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_persisting_l2_cache_size</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_persisting_l2_cache_size" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum L2 persisting lines capacity setting in bytes.</p>
 <dl class="field-list simple">
@@ -1290,7 +1294,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_pitch">
-<span class="sig-name descname"><span class="pre">max_pitch</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_pitch" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_pitch</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_pitch" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum pitch in bytes allowed by memory copies.</p>
 <dl class="field-list simple">
@@ -1302,7 +1306,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_registers_per_block">
-<span class="sig-name descname"><span class="pre">max_registers_per_block</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_registers_per_block" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_registers_per_block</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_registers_per_block" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum number of 32-bit registers available to a thread block.</p>
 <dl class="field-list simple">
@@ -1314,7 +1318,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_registers_per_multiprocessor">
-<span class="sig-name descname"><span class="pre">max_registers_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_registers_per_multiprocessor" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_registers_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_registers_per_multiprocessor" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum number of 32-bit registers available per multiprocessor.</p>
 <dl class="field-list simple">
@@ -1326,7 +1330,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_shared_memory_per_block">
-<span class="sig-name descname"><span class="pre">max_shared_memory_per_block</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_shared_memory_per_block" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_shared_memory_per_block</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_shared_memory_per_block" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum shared memory available per block in bytes.</p>
 <dl class="field-list simple">
@@ -1338,7 +1342,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_shared_memory_per_block_optin">
-<span class="sig-name descname"><span class="pre">max_shared_memory_per_block_optin</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_shared_memory_per_block_optin" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_shared_memory_per_block_optin</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_shared_memory_per_block_optin" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum optin shared memory per block.</p>
 <dl class="field-list simple">
@@ -1350,7 +1354,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_shared_memory_per_multiprocessor">
-<span class="sig-name descname"><span class="pre">max_shared_memory_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_shared_memory_per_multiprocessor" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_shared_memory_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_shared_memory_per_multiprocessor" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum shared memory available per multiprocessor in bytes.</p>
 <dl class="field-list simple">
@@ -1362,7 +1366,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_threads_per_block">
-<span class="sig-name descname"><span class="pre">max_threads_per_block</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_threads_per_block" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_threads_per_block</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_threads_per_block" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum number of threads per block.</p>
 <dl class="field-list simple">
@@ -1374,7 +1378,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.max_threads_per_multiprocessor">
-<span class="sig-name descname"><span class="pre">max_threads_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_threads_per_multiprocessor" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">max_threads_per_multiprocessor</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.max_threads_per_multiprocessor" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum resident threads per multiprocessor.</p>
 <dl class="field-list simple">
@@ -1386,7 +1390,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface1d_layered_layers">
-<span class="sig-name descname"><span class="pre">maximum_surface1d_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface1d_layered_layers" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surface1d_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface1d_layered_layers" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum layers in a 1D layered surface.</p>
 <dl class="field-list simple">
@@ -1398,7 +1402,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface1d_layered_width">
-<span class="sig-name descname"><span class="pre">maximum_surface1d_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface1d_layered_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surface1d_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface1d_layered_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 1D layered surface width.</p>
 <dl class="field-list simple">
@@ -1410,7 +1414,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface1d_width">
-<span class="sig-name descname"><span class="pre">maximum_surface1d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface1d_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surface1d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface1d_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 1D surface width.</p>
 <dl class="field-list simple">
@@ -1422,7 +1426,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface2d_height">
-<span class="sig-name descname"><span class="pre">maximum_surface2d_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_height" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surface2d_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_height" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 2D surface height.</p>
 <dl class="field-list simple">
@@ -1434,7 +1438,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface2d_layered_height">
-<span class="sig-name descname"><span class="pre">maximum_surface2d_layered_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_layered_height" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surface2d_layered_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_layered_height" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 2D layered surface height.</p>
 <dl class="field-list simple">
@@ -1446,7 +1450,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface2d_layered_layers">
-<span class="sig-name descname"><span class="pre">maximum_surface2d_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_layered_layers" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surface2d_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_layered_layers" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum layers in a 2D layered surface.</p>
 <dl class="field-list simple">
@@ -1458,7 +1462,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface2d_layered_width">
-<span class="sig-name descname"><span class="pre">maximum_surface2d_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_layered_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surface2d_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_layered_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 2D layered surface width.</p>
 <dl class="field-list simple">
@@ -1470,7 +1474,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface2d_width">
-<span class="sig-name descname"><span class="pre">maximum_surface2d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surface2d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface2d_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 2D surface width.</p>
 <dl class="field-list simple">
@@ -1482,7 +1486,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface3d_depth">
-<span class="sig-name descname"><span class="pre">maximum_surface3d_depth</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface3d_depth" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surface3d_depth</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface3d_depth" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 3D surface depth.</p>
 <dl class="field-list simple">
@@ -1494,7 +1498,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface3d_height">
-<span class="sig-name descname"><span class="pre">maximum_surface3d_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface3d_height" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surface3d_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface3d_height" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 3D surface height.</p>
 <dl class="field-list simple">
@@ -1506,7 +1510,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surface3d_width">
-<span class="sig-name descname"><span class="pre">maximum_surface3d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface3d_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surface3d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surface3d_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 3D surface width.</p>
 <dl class="field-list simple">
@@ -1518,7 +1522,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surfacecubemap_layered_layers">
-<span class="sig-name descname"><span class="pre">maximum_surfacecubemap_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surfacecubemap_layered_layers" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surfacecubemap_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surfacecubemap_layered_layers" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum layers in a cubemap layered surface.</p>
 <dl class="field-list simple">
@@ -1530,7 +1534,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surfacecubemap_layered_width">
-<span class="sig-name descname"><span class="pre">maximum_surfacecubemap_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surfacecubemap_layered_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surfacecubemap_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surfacecubemap_layered_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum cubemap layered surface width.</p>
 <dl class="field-list simple">
@@ -1542,7 +1546,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_surfacecubemap_width">
-<span class="sig-name descname"><span class="pre">maximum_surfacecubemap_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surfacecubemap_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_surfacecubemap_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_surfacecubemap_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum cubemap surface width.</p>
 <dl class="field-list simple">
@@ -1554,7 +1558,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture1d_layered_layers">
-<span class="sig-name descname"><span class="pre">maximum_texture1d_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_layered_layers" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture1d_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_layered_layers" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum layers in a 1D layered texture.</p>
 <dl class="field-list simple">
@@ -1566,7 +1570,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture1d_layered_width">
-<span class="sig-name descname"><span class="pre">maximum_texture1d_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_layered_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture1d_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_layered_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 1D layered texture width.</p>
 <dl class="field-list simple">
@@ -1578,7 +1582,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture1d_linear_width">
-<span class="sig-name descname"><span class="pre">maximum_texture1d_linear_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_linear_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture1d_linear_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_linear_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum width for a 1D texture bound to linear memory.</p>
 <dl class="field-list simple">
@@ -1590,7 +1594,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture1d_mipmapped_width">
-<span class="sig-name descname"><span class="pre">maximum_texture1d_mipmapped_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_mipmapped_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture1d_mipmapped_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_mipmapped_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum mipmapped 1D texture width.</p>
 <dl class="field-list simple">
@@ -1602,7 +1606,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture1d_width">
-<span class="sig-name descname"><span class="pre">maximum_texture1d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture1d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture1d_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 1D texture width.</p>
 <dl class="field-list simple">
@@ -1614,7 +1618,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_gather_height">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_gather_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_gather_height" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture2d_gather_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_gather_height" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 2D texture gather height.</p>
 <dl class="field-list simple">
@@ -1626,7 +1630,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_gather_width">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_gather_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_gather_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture2d_gather_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_gather_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 2D texture gather width.</p>
 <dl class="field-list simple">
@@ -1638,7 +1642,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_height">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_height" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture2d_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_height" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 2D texture height.</p>
 <dl class="field-list simple">
@@ -1650,7 +1654,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_layered_height">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_layered_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_layered_height" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture2d_layered_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_layered_height" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 2D layered texture height.</p>
 <dl class="field-list simple">
@@ -1662,7 +1666,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_layered_layers">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_layered_layers" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture2d_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_layered_layers" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum layers in a 2D layered texture.</p>
 <dl class="field-list simple">
@@ -1674,7 +1678,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_layered_width">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_layered_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture2d_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_layered_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 2D layered texture width.</p>
 <dl class="field-list simple">
@@ -1686,7 +1690,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_linear_height">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_linear_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_linear_height" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture2d_linear_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_linear_height" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum height for a 2D texture bound to linear memory.</p>
 <dl class="field-list simple">
@@ -1698,7 +1702,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_linear_pitch">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_linear_pitch</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_linear_pitch" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture2d_linear_pitch</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_linear_pitch" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum pitch in bytes for a 2D texture bound to linear memory.</p>
 <dl class="field-list simple">
@@ -1710,7 +1714,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_linear_width">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_linear_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_linear_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture2d_linear_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_linear_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum width for a 2D texture bound to linear memory.</p>
 <dl class="field-list simple">
@@ -1722,7 +1726,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_mipmapped_height">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_mipmapped_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_mipmapped_height" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture2d_mipmapped_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_mipmapped_height" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum mipmapped 2D texture height.</p>
 <dl class="field-list simple">
@@ -1734,7 +1738,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_mipmapped_width">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_mipmapped_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_mipmapped_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture2d_mipmapped_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_mipmapped_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum mipmapped 2D texture width.</p>
 <dl class="field-list simple">
@@ -1746,7 +1750,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture2d_width">
-<span class="sig-name descname"><span class="pre">maximum_texture2d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture2d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture2d_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 2D texture width.</p>
 <dl class="field-list simple">
@@ -1758,7 +1762,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture3d_depth">
-<span class="sig-name descname"><span class="pre">maximum_texture3d_depth</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_depth" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture3d_depth</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_depth" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 3D texture depth.</p>
 <dl class="field-list simple">
@@ -1770,7 +1774,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture3d_depth_alternate">
-<span class="sig-name descname"><span class="pre">maximum_texture3d_depth_alternate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_depth_alternate" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture3d_depth_alternate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_depth_alternate" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Alternate maximum 3D texture depth, 0 if no alternate maximum 3D texture size is supported.</p>
 <dl class="field-list simple">
@@ -1782,7 +1786,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture3d_height">
-<span class="sig-name descname"><span class="pre">maximum_texture3d_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_height" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture3d_height</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_height" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 3D texture height.</p>
 <dl class="field-list simple">
@@ -1794,7 +1798,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture3d_height_alternate">
-<span class="sig-name descname"><span class="pre">maximum_texture3d_height_alternate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_height_alternate" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture3d_height_alternate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_height_alternate" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Alternate maximum 3D texture height, 0 if no alternate maximum 3D texture size is supported.</p>
 <dl class="field-list simple">
@@ -1806,7 +1810,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture3d_width">
-<span class="sig-name descname"><span class="pre">maximum_texture3d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture3d_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum 3D texture width.</p>
 <dl class="field-list simple">
@@ -1818,7 +1822,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texture3d_width_alternate">
-<span class="sig-name descname"><span class="pre">maximum_texture3d_width_alternate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_width_alternate" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texture3d_width_alternate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texture3d_width_alternate" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Alternate maximum 3D texture width, 0 if no alternate maximum 3D texture size is supported.</p>
 <dl class="field-list simple">
@@ -1830,7 +1834,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_layers">
-<span class="sig-name descname"><span class="pre">maximum_texturecubemap_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_layers" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texturecubemap_layered_layers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_layers" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum layers in a cubemap layered texture.</p>
 <dl class="field-list simple">
@@ -1842,7 +1846,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_width">
-<span class="sig-name descname"><span class="pre">maximum_texturecubemap_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texturecubemap_layered_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texturecubemap_layered_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum cubemap layered texture width or height.</p>
 <dl class="field-list simple">
@@ -1854,7 +1858,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.maximum_texturecubemap_width">
-<span class="sig-name descname"><span class="pre">maximum_texturecubemap_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texturecubemap_width" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">maximum_texturecubemap_width</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.maximum_texturecubemap_width" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Maximum cubemap texture width or height.</p>
 <dl class="field-list simple">
@@ -1866,7 +1870,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.mem_decompress_algorithm_mask">
-<span class="sig-name descname"><span class="pre">mem_decompress_algorithm_mask</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mem_decompress_algorithm_mask" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">mem_decompress_algorithm_mask</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mem_decompress_algorithm_mask" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: The returned valued shall be interpreted as a bitmask, where the individual bits are described by the CUmemDecompressAlgorithm enum.</p>
 <dl class="field-list simple">
@@ -1878,7 +1882,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.mem_decompress_maximum_length">
-<span class="sig-name descname"><span class="pre">mem_decompress_maximum_length</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mem_decompress_maximum_length" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">mem_decompress_maximum_length</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mem_decompress_maximum_length" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: The returned valued is the maximum length in bytes of a single decompress operation that is allowed.</p>
 <dl class="field-list simple">
@@ -1890,7 +1894,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.mem_sync_domain_count">
-<span class="sig-name descname"><span class="pre">mem_sync_domain_count</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mem_sync_domain_count" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">mem_sync_domain_count</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mem_sync_domain_count" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Number of memory domains the device supports.</p>
 <dl class="field-list simple">
@@ -1902,7 +1906,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.memory_clock_rate">
-<span class="sig-name descname"><span class="pre">memory_clock_rate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.memory_clock_rate" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">memory_clock_rate</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.memory_clock_rate" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Peak memory clock frequency in kilohertz.</p>
 <dl class="field-list simple">
@@ -1914,7 +1918,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.memory_pools_supported">
-<span class="sig-name descname"><span class="pre">memory_pools_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.memory_pools_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">memory_pools_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.memory_pools_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports using the cuMemAllocAsync and cuMemPool family of APIs.</p>
 <dl class="field-list simple">
@@ -1926,7 +1930,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.mempool_supported_handle_types">
-<span class="sig-name descname"><span class="pre">mempool_supported_handle_types</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mempool_supported_handle_types" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">mempool_supported_handle_types</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mempool_supported_handle_types" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Handle types supported with mempool based IPC.</p>
 <dl class="field-list simple">
@@ -1938,7 +1942,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.mps_enabled">
-<span class="sig-name descname"><span class="pre">mps_enabled</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mps_enabled" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">mps_enabled</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.mps_enabled" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Indicates if contexts created on this device will be shared via MPS.</p>
 <dl class="field-list simple">
@@ -1950,7 +1954,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.multi_gpu_board">
-<span class="sig-name descname"><span class="pre">multi_gpu_board</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.multi_gpu_board" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">multi_gpu_board</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.multi_gpu_board" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device is on a multi-GPU board.</p>
 <dl class="field-list simple">
@@ -1962,7 +1966,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.multi_gpu_board_group_id">
-<span class="sig-name descname"><span class="pre">multi_gpu_board_group_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.multi_gpu_board_group_id" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">multi_gpu_board_group_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.multi_gpu_board_group_id" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Unique id for a group of devices on the same multi-GPU board.</p>
 <dl class="field-list simple">
@@ -1974,7 +1978,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.multicast_supported">
-<span class="sig-name descname"><span class="pre">multicast_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.multicast_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">multicast_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.multicast_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports switch multicast and reduction operations.</p>
 <dl class="field-list simple">
@@ -1986,7 +1990,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.multiprocessor_count">
-<span class="sig-name descname"><span class="pre">multiprocessor_count</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.multiprocessor_count" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">multiprocessor_count</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.multiprocessor_count" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Number of multiprocessors on device.</p>
 <dl class="field-list simple">
@@ -1998,7 +2002,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.numa_config">
-<span class="sig-name descname"><span class="pre">numa_config</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.numa_config" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">numa_config</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.numa_config" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: NUMA configuration of a device: value is of type CUdeviceNumaConfig enum.</p>
 <dl class="field-list simple">
@@ -2010,7 +2014,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.numa_id">
-<span class="sig-name descname"><span class="pre">numa_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.numa_id" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">numa_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.numa_id" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: NUMA node ID of the GPU memory.</p>
 <dl class="field-list simple">
@@ -2022,7 +2026,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.only_partial_host_native_atomic_supported">
-<span class="sig-name descname"><span class="pre">only_partial_host_native_atomic_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.only_partial_host_native_atomic_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">only_partial_host_native_atomic_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.only_partial_host_native_atomic_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Link between the device and the host supports only some native atomic operations.</p>
 <dl class="field-list simple">
@@ -2034,7 +2038,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.pageable_memory_access">
-<span class="sig-name descname"><span class="pre">pageable_memory_access</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pageable_memory_access" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">pageable_memory_access</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pageable_memory_access" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports coherently accessing pageable memory without calling cudaHostRegister on it.</p>
 <dl class="field-list simple">
@@ -2046,7 +2050,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.pageable_memory_access_uses_host_page_tables">
-<span class="sig-name descname"><span class="pre">pageable_memory_access_uses_host_page_tables</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pageable_memory_access_uses_host_page_tables" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">pageable_memory_access_uses_host_page_tables</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pageable_memory_access_uses_host_page_tables" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device accesses pageable memory via the host’s page tables.</p>
 <dl class="field-list simple">
@@ -2058,7 +2062,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.pci_bus_id">
-<span class="sig-name descname"><span class="pre">pci_bus_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pci_bus_id" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">pci_bus_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pci_bus_id" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: PCI bus ID of the device.</p>
 <dl class="field-list simple">
@@ -2070,7 +2074,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.pci_device_id">
-<span class="sig-name descname"><span class="pre">pci_device_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pci_device_id" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">pci_device_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pci_device_id" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: PCI device ID of the device.</p>
 <dl class="field-list simple">
@@ -2082,7 +2086,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.pci_domain_id">
-<span class="sig-name descname"><span class="pre">pci_domain_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pci_domain_id" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">pci_domain_id</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.pci_domain_id" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: PCI domain ID of the device.</p>
 <dl class="field-list simple">
@@ -2094,7 +2098,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.read_only_host_register_supported">
-<span class="sig-name descname"><span class="pre">read_only_host_register_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.read_only_host_register_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">read_only_host_register_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.read_only_host_register_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: True if device supports using the cuMemHostRegister flag CU_MEMHOSTERGISTER_READ_ONLY to register memory that must be mapped as read-only to the GPU, False if not.</p>
 <dl class="field-list simple">
@@ -2106,7 +2110,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.reserved_shared_memory_per_block">
-<span class="sig-name descname"><span class="pre">reserved_shared_memory_per_block</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.reserved_shared_memory_per_block" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">reserved_shared_memory_per_block</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.reserved_shared_memory_per_block" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Shared memory reserved by CUDA driver per block in bytes.</p>
 <dl class="field-list simple">
@@ -2118,7 +2122,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.single_to_double_precision_perf_ratio">
-<span class="sig-name descname"><span class="pre">single_to_double_precision_perf_ratio</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.single_to_double_precision_perf_ratio" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">single_to_double_precision_perf_ratio</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.single_to_double_precision_perf_ratio" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Ratio of single precision performance (in floating-point operations per second) to double precision performance.</p>
 <dl class="field-list simple">
@@ -2130,7 +2134,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.sparse_cuda_array_supported">
-<span class="sig-name descname"><span class="pre">sparse_cuda_array_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.sparse_cuda_array_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">sparse_cuda_array_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.sparse_cuda_array_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports sparse CUDA arrays and sparse CUDA mipmapped arrays.</p>
 <dl class="field-list simple">
@@ -2142,7 +2146,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.stream_priorities_supported">
-<span class="sig-name descname"><span class="pre">stream_priorities_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.stream_priorities_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">stream_priorities_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.stream_priorities_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: True if device supports stream priorities, False if not.</p>
 <dl class="field-list simple">
@@ -2154,7 +2158,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.surface_alignment">
-<span class="sig-name descname"><span class="pre">surface_alignment</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.surface_alignment" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">surface_alignment</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.surface_alignment" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Surface alignment requirement in bytes.</p>
 <dl class="field-list simple">
@@ -2166,7 +2170,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.tcc_driver">
-<span class="sig-name descname"><span class="pre">tcc_driver</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.tcc_driver" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">tcc_driver</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.tcc_driver" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device is using TCC driver model.</p>
 <dl class="field-list simple">
@@ -2178,7 +2182,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.tensor_map_access_supported">
-<span class="sig-name descname"><span class="pre">tensor_map_access_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.tensor_map_access_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">tensor_map_access_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.tensor_map_access_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports accessing memory using Tensor Map.</p>
 <dl class="field-list simple">
@@ -2190,7 +2194,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.texture_alignment">
-<span class="sig-name descname"><span class="pre">texture_alignment</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.texture_alignment" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">texture_alignment</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.texture_alignment" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Alignment requirement for textures.</p>
 <dl class="field-list simple">
@@ -2202,7 +2206,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.texture_pitch_alignment">
-<span class="sig-name descname"><span class="pre">texture_pitch_alignment</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.texture_pitch_alignment" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">texture_pitch_alignment</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.texture_pitch_alignment" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Pitch alignment requirement for textures.</p>
 <dl class="field-list simple">
@@ -2214,7 +2218,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.timeline_semaphore_interop_supported">
-<span class="sig-name descname"><span class="pre">timeline_semaphore_interop_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.timeline_semaphore_interop_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">timeline_semaphore_interop_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.timeline_semaphore_interop_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: External timeline semaphore interop is supported on the device.</p>
 <dl class="field-list simple">
@@ -2226,7 +2230,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.total_constant_memory">
-<span class="sig-name descname"><span class="pre">total_constant_memory</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.total_constant_memory" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">total_constant_memory</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.total_constant_memory" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Memory available on device for constant variables in a CUDA C kernel in bytes.</p>
 <dl class="field-list simple">
@@ -2238,7 +2242,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.unified_addressing">
-<span class="sig-name descname"><span class="pre">unified_addressing</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.unified_addressing" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">unified_addressing</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.unified_addressing" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device shares a unified address space with the host.</p>
 <dl class="field-list simple">
@@ -2250,7 +2254,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.unified_function_pointers">
-<span class="sig-name descname"><span class="pre">unified_function_pointers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.unified_function_pointers" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">unified_function_pointers</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.unified_function_pointers" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports unified function pointers.</p>
 <dl class="field-list simple">
@@ -2262,7 +2266,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.virtual_memory_management_supported">
-<span class="sig-name descname"><span class="pre">virtual_memory_management_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.virtual_memory_management_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">virtual_memory_management_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.virtual_memory_management_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports virtual memory management APIs like cuMemAddressReserve, cuMemCreate, cuMemMap and related APIs.</p>
 <dl class="field-list simple">
@@ -2274,7 +2278,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.vulkan_cig_supported">
-<span class="sig-name descname"><span class="pre">vulkan_cig_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.vulkan_cig_supported" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">vulkan_cig_supported</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.vulkan_cig_supported" title="Link to this definition">#</a></dt>
 <dd><p>bool</p>
 <p>bool: Device supports CIG with Vulkan.</p>
 <dl class="field-list simple">
@@ -2286,7 +2290,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.warp_size">
-<span class="sig-name descname"><span class="pre">warp_size</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.warp_size" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">warp_size</span></span><a class="headerlink" href="#cuda.core._device.DeviceProperties.warp_size" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>int: Warp size in threads.</p>
 <dl class="field-list simple">
@@ -2296,14 +2300,15 @@
 </dl>
 </dd></dl>
 
-<p class="rubric">Methods</p>
+</section>
+<section id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core._device.DeviceProperties.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._device.DeviceProperties.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceProperties.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._device.DeviceProperties.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-</dd></dl>
-
+</section>
 </section>
 
 
@@ -2337,7 +2342,8 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties"><code class="docutils literal notranslate"><span class="pre">DeviceProperties</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties"><code class="docutils literal notranslate"><span class="pre">DeviceProperties</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.async_engine_count"><code class="docutils literal notranslate"><span class="pre">async_engine_count</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.can_flush_remote_writes"><code class="docutils literal notranslate"><span class="pre">can_flush_remote_writes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.can_map_host_memory"><code class="docutils literal notranslate"><span class="pre">can_map_host_memory</span></code></a></li>
@@ -2481,6 +2487,9 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.virtual_memory_management_supported"><code class="docutils literal notranslate"><span class="pre">virtual_memory_management_supported</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.vulkan_cig_supported"><code class="docutils literal notranslate"><span class="pre">vulkan_cig_supported</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.warp_size"><code class="docutils literal notranslate"><span class="pre">warp_size</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#methods">Methods</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._device.DeviceProperties.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
 </ul>
 </li>

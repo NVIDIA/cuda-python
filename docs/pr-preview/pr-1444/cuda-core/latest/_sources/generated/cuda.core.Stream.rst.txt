@@ -8,31 +8,32 @@ cuda.core.Stream
 
 .. autoclass:: Stream
 
-   
-   
-   .. rubric:: Methods
 
-   
-   .. automethod:: __init__
-   .. automethod:: close
-   .. automethod:: create_graph_builder
-   .. automethod:: from_handle
-   .. automethod:: record
-   .. automethod:: sync
-   .. automethod:: wait
 
-   
-   
+Methods
+-------
 
-   
-   
-   .. rubric:: Attributes
 
-   
-   .. autoproperty:: context
-   .. autoproperty:: device
-   .. autoproperty:: handle
-   .. autoproperty:: is_nonblocking
-   .. autoproperty:: priority
-   
-   
+.. automethod:: Stream.__init__
+.. automethod:: Stream.close
+.. automethod:: Stream.create_graph_builder
+.. automethod:: Stream.from_handle
+.. automethod:: Stream.record
+.. automethod:: Stream.sync
+.. automethod:: Stream.wait
+
+
+
+
+
+
+Attributes
+----------
+
+
+.. autoproperty:: Stream.context
+.. autoproperty:: Stream.device
+.. autoproperty:: Stream.handle
+.. autoproperty:: Stream.is_nonblocking
+.. autoproperty:: Stream.priority
+

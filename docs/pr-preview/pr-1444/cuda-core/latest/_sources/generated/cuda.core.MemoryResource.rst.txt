@@ -8,25 +8,26 @@ cuda.core.MemoryResource
 
 .. autoclass:: MemoryResource
 
-   
-   
-   .. rubric:: Methods
 
-   
-   .. automethod:: __init__
-   .. automethod:: allocate
-   .. automethod:: deallocate
 
-   
-   
+Methods
+-------
 
-   
-   
-   .. rubric:: Attributes
 
-   
-   .. autoproperty:: device_id
-   .. autoproperty:: is_device_accessible
-   .. autoproperty:: is_host_accessible
-   
-   
+.. automethod:: MemoryResource.__init__
+.. automethod:: MemoryResource.allocate
+.. automethod:: MemoryResource.deallocate
+
+
+
+
+
+
+Attributes
+----------
+
+
+.. autoproperty:: MemoryResource.device_id
+.. autoproperty:: MemoryResource.is_device_accessible
+.. autoproperty:: MemoryResource.is_host_accessible
+

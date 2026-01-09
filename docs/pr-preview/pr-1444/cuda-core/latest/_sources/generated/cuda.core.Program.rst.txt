@@ -8,24 +8,25 @@ cuda.core.Program
 
 .. autoclass:: Program
 
-   
-   
-   .. rubric:: Methods
 
-   
-   .. automethod:: __init__
-   .. automethod:: close
-   .. automethod:: compile
 
-   
-   
+Methods
+-------
 
-   
-   
-   .. rubric:: Attributes
 
-   
-   .. autoproperty:: backend
-   .. autoproperty:: handle
-   
-   
+.. automethod:: Program.__init__
+.. automethod:: Program.close
+.. automethod:: Program.compile
+
+
+
+
+
+
+Attributes
+----------
+
+
+.. autoproperty:: Program.backend
+.. autoproperty:: Program.handle
+

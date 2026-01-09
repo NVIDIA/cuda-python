@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=808c36ec"></script>
+    <script src="../_static/documentation_options.js?v=0e4f752f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev19';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev21';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -646,15 +646,18 @@ an MMR is created and registered in the receiving process. Subsequently,
 buffers may be serialized and transferred using ordinary <a class="reference external" href="https://docs.python.org/3/library/pickle.html#module-pickle" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pickle</span></code></a>
 methods.  The reconstruction procedure uses the registry to find the
 associated MMR.</p>
-<p class="rubric">Methods</p>
+</dd></dl>
+
+<section id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.DeviceMemoryResource.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceMemoryResource.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.DeviceMemoryResource.allocate">
-<span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
+<span class="sig-prename descclassname"><span class="pre">DeviceMemoryResource.</span></span><span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -684,14 +687,14 @@ resource was created for.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.DeviceMemoryResource.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.close" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">DeviceMemoryResource.</span></span><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.DeviceMemoryResource.close" title="Link to this definition">#</a></dt>
 <dd><p>Close the device memory resource and destroy the associated memory pool
 if owned.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.DeviceMemoryResource.deallocate">
-<span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span>
+<span class="sig-prename descclassname"><span class="pre">DeviceMemoryResource.</span></span><span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -717,7 +720,7 @@ is used.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.DeviceMemoryResource.from_allocation_handle">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_allocation_handle</span></span><span class="sig-paren">(</span>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">DeviceMemoryResource.</span></span><span class="sig-name descname"><span class="pre">from_allocation_handle</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
@@ -748,7 +751,7 @@ handle. It is the caller’s responsibility to close that handle.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.DeviceMemoryResource.from_registry">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_registry</span></span><span class="sig-paren">(</span>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">DeviceMemoryResource.</span></span><span class="sig-name descname"><span class="pre">from_registry</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/uuid.html#uuid.UUID" title="(in Python v3.14)"><span class="pre">uuid.UUID</span></a></span></em>,</dd>
@@ -765,7 +768,7 @@ handle. It is the caller’s responsibility to close that handle.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.DeviceMemoryResource.get_allocation_handle">
-<span class="sig-name descname"><span class="pre">get_allocation_handle</span></span><span class="sig-paren">(</span>
+<span class="sig-prename descclassname"><span class="pre">DeviceMemoryResource.</span></span><span class="sig-name descname"><span class="pre">get_allocation_handle</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -784,7 +787,7 @@ The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.DeviceMemoryResource.register">
-<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span>
+<span class="sig-prename descclassname"><span class="pre">DeviceMemoryResource.</span></span><span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
@@ -804,9 +807,10 @@ The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
 </dl>
 </dd></dl>
 
-<p class="rubric">Attributes</p>
-</dd></dl>
-
+</section>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
+</section>
 </section>
 
 
@@ -858,7 +862,8 @@ The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource"><code class="docutils literal notranslate"><span class="pre">DeviceMemoryResource</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#methods">Methods</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource.allocate"><code class="docutils literal notranslate"><span class="pre">allocate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource.close"><code class="docutils literal notranslate"><span class="pre">close()</span></code></a></li>
@@ -869,6 +874,7 @@ The handle is cached in this <cite>MemoryResource</cite> and owned by it.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.DeviceMemoryResource.register"><code class="docutils literal notranslate"><span class="pre">register()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
 </ul>
   </nav></div>
 

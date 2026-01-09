@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=808c36ec"></script>
+    <script src="../_static/documentation_options.js?v=0e4f752f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev19';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev21';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -588,15 +588,18 @@ driver activities associated with CUDA kernel launches and CUDA API calls.</p>
 <p>Directly creating a <a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> is not supported due
 to ambiguity. New graph builders should instead be created through a
 <a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a>, or a <code class="xref py py-obj docutils literal notranslate"><span class="pre">stream</span></code> object.</p>
-<p class="rubric">Methods</p>
+</dd></dl>
+
+<section id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphBuilder.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphBuilder.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.add_child">
-<span class="sig-name descname"><span class="pre">add_child</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphBuilder.add_child" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">add_child</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphBuilder.add_child" title="Link to this definition">#</a></dt>
 <dd><p>Adds the child <a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> builder into self.</p>
 <p>The child graph builder will be added as a child node to the parent graph builder.</p>
 <dl class="field-list simple">
@@ -608,7 +611,7 @@ to ambiguity. New graph builders should instead be created through a
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.begin_building">
-<span class="sig-name descname"><span class="pre">begin_building</span></span><span class="sig-paren">(</span>
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">begin_building</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'relaxed'</span></span></em>,</dd>
@@ -632,7 +635,7 @@ Default set to use relaxed.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphBuilder.close" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphBuilder.close" title="Link to this definition">#</a></dt>
 <dd><p>Destroy the graph builder.</p>
 <p>Closes the associated stream if we own it. Borrowed stream
 object will instead have their references released.</p>
@@ -640,7 +643,7 @@ object will instead have their references released.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.complete">
-<span class="sig-name descname"><span class="pre">complete</span></span><span class="sig-paren">(</span>
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">complete</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.GraphCompleteOptions.html#cuda.core.GraphCompleteOptions" title="cuda.core._graph.GraphCompleteOptions"><span class="pre">GraphCompleteOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -663,7 +666,7 @@ object will instead have their references released.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.create_conditional_handle">
-<span class="sig-name descname"><span class="pre">create_conditional_handle</span></span><span class="sig-paren">(</span>
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">create_conditional_handle</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">default_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -686,7 +689,7 @@ object will instead have their references released.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.debug_dot_print">
-<span class="sig-name descname"><span class="pre">debug_dot_print</span></span><span class="sig-paren">(</span>
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">debug_dot_print</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>,</dd>
@@ -707,13 +710,13 @@ object will instead have their references released.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.end_building">
-<span class="sig-name descname"><span class="pre">end_building</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.end_building" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">end_building</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.end_building" title="Link to this definition">#</a></dt>
 <dd><p>Ends the building process.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.if_cond">
-<span class="sig-name descname"><span class="pre">if_cond</span></span><span class="sig-paren">(</span>
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">if_cond</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUgraphConditionalHandle" title="(in cuda.bindings)"><span class="pre">CUgraphConditionalHandle</span></a></span></em>,</dd>
@@ -739,7 +742,7 @@ handle evaluates to true at runtime.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.if_else">
-<span class="sig-name descname"><span class="pre">if_else</span></span><span class="sig-paren">(</span>
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">if_else</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUgraphConditionalHandle" title="(in cuda.bindings)"><span class="pre">CUgraphConditionalHandle</span></a></span></em>,</dd>
@@ -765,7 +768,7 @@ evaluates to true at runtime, otherwise the else branch will execute.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.join">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">graph_builders</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.join" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">graph_builders</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.join" title="Link to this definition">#</a></dt>
 <dd><p>Joins multiple graph builders into a single graph builder.</p>
 <p>The returned builder inherits work dependencies from the provided builders.</p>
 <dl class="field-list simple">
@@ -783,7 +786,7 @@ evaluates to true at runtime, otherwise the else branch will execute.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.split">
-<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span>
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>,</dd>
@@ -809,7 +812,7 @@ is always the original graph builder.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.switch">
-<span class="sig-name descname"><span class="pre">switch</span></span><span class="sig-paren">(</span>
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">switch</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUgraphConditionalHandle" title="(in cuda.bindings)"><span class="pre">CUgraphConditionalHandle</span></a></span></em>,</dd>
@@ -840,7 +843,7 @@ will be executed.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.while_loop">
-<span class="sig-name descname"><span class="pre">while_loop</span></span><span class="sig-paren">(</span>
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">while_loop</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUgraphConditionalHandle" title="(in cuda.bindings)"><span class="pre">CUgraphConditionalHandle</span></a></span></em>,</dd>
@@ -864,27 +867,28 @@ until the conditional handle evaluates to false.</p>
 </dl>
 </dd></dl>
 
-<p class="rubric">Attributes</p>
+</section>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.is_building">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_building</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.GraphBuilder.is_building" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">is_building</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.GraphBuilder.is_building" title="Link to this definition">#</a></dt>
 <dd><p>Returns True if the graph builder is currently building.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.is_join_required">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_join_required</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.GraphBuilder.is_join_required" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">is_join_required</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.GraphBuilder.is_join_required" title="Link to this definition">#</a></dt>
 <dd><p>Returns True if this graph builder must be joined before building is ended.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="cuda.core.GraphBuilder.stream">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a></em><a class="headerlink" href="#cuda.core.GraphBuilder.stream" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a></em><a class="headerlink" href="#cuda.core.GraphBuilder.stream" title="Link to this definition">#</a></dt>
 <dd><p>Returns the stream associated with the graph builder.</p>
 </dd></dl>
 
-</dd></dl>
-
+</section>
 </section>
 
 
@@ -936,7 +940,8 @@ until the conditional handle evaluates to false.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder"><code class="docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder"><code class="docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#methods">Methods</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.add_child"><code class="docutils literal notranslate"><span class="pre">add_child()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.begin_building"><code class="docutils literal notranslate"><span class="pre">begin_building()</span></code></a></li>
@@ -951,6 +956,9 @@ until the conditional handle evaluates to false.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.split"><code class="docutils literal notranslate"><span class="pre">split()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.switch"><code class="docutils literal notranslate"><span class="pre">switch()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.while_loop"><code class="docutils literal notranslate"><span class="pre">while_loop()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.is_building"><code class="docutils literal notranslate"><span class="pre">is_building</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.is_join_required"><code class="docutils literal notranslate"><span class="pre">is_join_required</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.stream"><code class="docutils literal notranslate"><span class="pre">stream</span></code></a></li>
