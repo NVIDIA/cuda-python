@@ -24,7 +24,7 @@ cuda.core.\_memory.\_ipc.IPCAllocationHandle
    .. rubric:: Attributes
 
    
-   .. autoproperty:: handle
-   .. autoproperty:: uuid
+   .. autoattribute:: handle
+   .. autoattribute:: uuid
    
    
