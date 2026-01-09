@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.LaunchConfig &#8212; cuda.core</title>
+    <title>cuda.core.system.DeviceArchitecture &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.LaunchConfig';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.DeviceArchitecture';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,13 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.LaunchConfig.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.system.DeviceArchitecture.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.VirtualMemoryResourceOptions" href="cuda.core.VirtualMemoryResourceOptions.html" />
-    <link rel="prev" title="cuda.core.StreamOptions" href="cuda.core.StreamOptions.html" />
+    <link rel="next" title="cuda.core.system.MemoryInfo" href="cuda.core.system.MemoryInfo.html" />
+    <link rel="prev" title="cuda.core.system.Device" href="cuda.core.system.Device.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -484,7 +484,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphCompleteOptions.html">cuda.core.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphDebugPrintOptions.html">cuda.core.GraphDebugPrintOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
@@ -498,7 +498,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.DeviceArchitecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.MemoryInfo.html">cuda.core.system.MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.PciInfo.html">cuda.core.system.PciInfo</a></li>
@@ -563,7 +563,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.LaunchConfig</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.DeviceArchitecture</span></li>
   </ul>
 </nav>
 </div>
@@ -580,90 +580,31 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-launchconfig">
-<h1>cuda.core.LaunchConfig<a class="headerlink" href="#cuda-core-launchconfig" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-system-devicearchitecture">
+<h1>cuda.core.system.DeviceArchitecture<a class="headerlink" href="#cuda-core-system-devicearchitecture" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.LaunchConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">LaunchConfig</span></span><span class="sig-paren">(</span>
+<dt class="sig sig-object py" id="cuda.core.system.DeviceArchitecture">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">DeviceArchitecture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">architecture</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.DeviceArchitecture" title="Link to this definition">#</a></dt>
+<dd><p>Device architecture enumeration.</p>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceArchitecture.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">architecture:</span> <span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.DeviceArchitecture.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">cluster</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">shmem_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">cooperative_launch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.LaunchConfig" title="Link to this definition">#</a></dt>
-<dd><p>Customizable launch options.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>When cluster is specified, the grid parameter represents the number of
-clusters (not blocks). The hierarchy is: grid (clusters) -&gt; cluster (blocks) -&gt;
-block (threads). Each dimension in grid specifies clusters in the grid, each dimension in
-cluster specifies blocks per cluster, and each dimension in block specifies
-threads per block.</p>
-</div>
+<p class="rubric">Attributes</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.LaunchConfig.grid">
-<span class="sig-name descname"><span class="pre">grid</span></span><a class="headerlink" href="#cuda.core.LaunchConfig.grid" title="Link to this definition">#</a></dt>
-<dd><p>Collection of threads that will execute a kernel function. When cluster
-is not specified, this represents the number of blocks, otherwise
-this represents the number of clusters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.core.system.DeviceArchitecture.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#cuda.core.system.DeviceArchitecture.id" title="Link to this definition">#</a></dt>
+<dd><p>The numeric id of the device architecture.</p>
+<p>Returns -1 if the device is unknown.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.LaunchConfig.cluster">
-<span class="sig-name descname"><span class="pre">cluster</span></span><a class="headerlink" href="#cuda.core.LaunchConfig.cluster" title="Link to this definition">#</a></dt>
-<dd><p>Group of blocks (Thread Block Cluster) that will execute on the same
-GPU Processing Cluster (GPC). Blocks within a cluster have access to
-distributed shared memory and can be explicitly synchronized.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.LaunchConfig.block">
-<span class="sig-name descname"><span class="pre">block</span></span><a class="headerlink" href="#cuda.core.LaunchConfig.block" title="Link to this definition">#</a></dt>
-<dd><p>Group of threads (Thread Block) that will execute on the same
-streaming multiprocessor (SM). Threads within a thread blocks have
-access to shared memory and can be explicitly synchronized.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.LaunchConfig.shmem_size">
-<span class="sig-name descname"><span class="pre">shmem_size</span></span><a class="headerlink" href="#cuda.core.LaunchConfig.shmem_size" title="Link to this definition">#</a></dt>
-<dd><p>Dynamic shared-memory size per thread block in bytes.
-(Default to size 0)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, optional</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.LaunchConfig.cooperative_launch">
-<span class="sig-name descname"><span class="pre">cooperative_launch</span></span><a class="headerlink" href="#cuda.core.LaunchConfig.cooperative_launch" title="Link to this definition">#</a></dt>
-<dd><p>Whether this config can be used to launch a cooperative kernel.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="cuda.core.system.DeviceArchitecture.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cuda.core.system.DeviceArchitecture.name" title="Link to this definition">#</a></dt>
+<dd><p>The name of the device architecture.</p>
+<p>Returns “Unlisted” if the device is unknown.</p>
 </dd></dl>
 
 </dd></dl>
@@ -681,20 +622,20 @@ access to shared memory and can be explicitly synchronized.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.StreamOptions.html"
+       href="cuda.core.system.Device.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.StreamOptions</p>
+        <p class="prev-next-title">cuda.core.system.Device</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.VirtualMemoryResourceOptions.html"
+       href="cuda.core.system.MemoryInfo.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.VirtualMemoryResourceOptions</p>
+        <p class="prev-next-title">cuda.core.system.MemoryInfo</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -719,12 +660,10 @@ access to shared memory and can be explicitly synchronized.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig"><code class="docutils literal notranslate"><span class="pre">LaunchConfig</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.grid"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.grid</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.cluster"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.cluster</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.block"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.block</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.shmem_size"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.shmem_size</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LaunchConfig.cooperative_launch"><code class="docutils literal notranslate"><span class="pre">LaunchConfig.cooperative_launch</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceArchitecture"><code class="docutils literal notranslate"><span class="pre">DeviceArchitecture</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceArchitecture.__init__"><code class="docutils literal notranslate"><span class="pre">DeviceArchitecture.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceArchitecture.id"><code class="docutils literal notranslate"><span class="pre">DeviceArchitecture.id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceArchitecture.name"><code class="docutils literal notranslate"><span class="pre">DeviceArchitecture.name</span></code></a></li>
 </ul>
 </li>
 </ul>
