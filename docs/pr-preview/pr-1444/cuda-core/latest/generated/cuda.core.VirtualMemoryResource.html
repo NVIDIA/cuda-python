@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=cef82172"></script>
+    <script src="../_static/documentation_options.js?v=5d782f01"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev30';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev32';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -63,7 +63,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.Buffer" href="cuda.core.Buffer.html" />
+    <link rel="next" title="cuda.core.DeviceMemoryResourceOptions" href="cuda.core.DeviceMemoryResourceOptions.html" />
     <link rel="prev" title="cuda.core.LegacyPinnedMemoryResource" href="cuda.core.LegacyPinnedMemoryResource.html" />
 
 
@@ -467,24 +467,24 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Graph.html">cuda.core.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LegacyPinnedMemoryResource.html">cuda.core.LegacyPinnedMemoryResource</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.VirtualMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResource.html">cuda.core.PinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedMemoryResource.html">cuda.core.ManagedMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.LegacyPinnedMemoryResource.html">cuda.core.LegacyPinnedMemoryResource</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.VirtualMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResourceOptions.html">cuda.core.DeviceMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedMemoryResourceOptions.html">cuda.core.ManagedMemoryResourceOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphCompleteOptions.html">cuda.core.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphDebugPrintOptions.html">cuda.core.GraphDebugPrintOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
@@ -702,9 +702,9 @@ all steps the function took are rolled back so a new allocation is not created.<
 </dd></dl>
 
 <p class="rubric">Attributes</p>
-<dl class="py property">
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.device_id">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.VirtualMemoryResource.device_id" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">device_id</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResource.device_id" title="Link to this definition">#</a></dt>
 <dd><p>Get the device ID associated with this memory resource.</p>
 <dl class="simple">
 <dt>Returns:</dt><dd><p>int: CUDA device ID. -1 if the memory resource allocates host memory</p>
@@ -712,15 +712,15 @@ all steps the function took are rolled back so a new allocation is not created.<
 </dl>
 </dd></dl>
 
-<dl class="py property">
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.is_device_accessible">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_device_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.VirtualMemoryResource.is_device_accessible" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_device_accessible</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResource.is_device_accessible" title="Link to this definition">#</a></dt>
 <dd><p>Indicates whether the allocated memory is accessible from the device.</p>
 </dd></dl>
 
-<dl class="py property">
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.VirtualMemoryResource.is_host_accessible">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_host_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.VirtualMemoryResource.is_host_accessible" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_host_accessible</span></span><a class="headerlink" href="#cuda.core.VirtualMemoryResource.is_host_accessible" title="Link to this definition">#</a></dt>
 <dd><p>Indicates whether the allocated memory is accessible from the host.</p>
 </dd></dl>
 
@@ -748,11 +748,11 @@ all steps the function took are rolled back so a new allocation is not created.<
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.Buffer.html"
+       href="cuda.core.DeviceMemoryResourceOptions.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.Buffer</p>
+        <p class="prev-next-title">cuda.core.DeviceMemoryResourceOptions</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

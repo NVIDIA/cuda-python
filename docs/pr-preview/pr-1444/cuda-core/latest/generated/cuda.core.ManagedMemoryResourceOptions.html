@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=cef82172"></script>
+    <script src="../_static/documentation_options.js?v=5d782f01"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev30';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev32';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -63,7 +63,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.LaunchConfig" href="cuda.core.LaunchConfig.html" />
+    <link rel="next" title="cuda.core.EventOptions" href="cuda.core.EventOptions.html" />
     <link rel="prev" title="cuda.core.PinnedMemoryResourceOptions" href="cuda.core.PinnedMemoryResourceOptions.html" />
 
 
@@ -467,24 +467,24 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Graph.html">cuda.core.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LegacyPinnedMemoryResource.html">cuda.core.LegacyPinnedMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResource.html">cuda.core.VirtualMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphMemoryResource.html">cuda.core.GraphMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResource.html">cuda.core.PinnedMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ManagedMemoryResource.html">cuda.core.ManagedMemoryResource</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.LegacyPinnedMemoryResource.html">cuda.core.LegacyPinnedMemoryResource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResource.html">cuda.core.VirtualMemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResourceOptions.html">cuda.core.DeviceMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.PinnedMemoryResourceOptions.html">cuda.core.PinnedMemoryResourceOptions</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.ManagedMemoryResourceOptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphCompleteOptions.html">cuda.core.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphDebugPrintOptions.html">cuda.core.GraphDebugPrintOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Linker.html">cuda.core.Linker</a></li>
@@ -596,24 +596,6 @@ or None to let the driver decide.
 </dl>
 </dd></dl>
 
-<p class="rubric">Methods</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.ManagedMemoryResourceOptions.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.ManagedMemoryResourceOptions.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Attributes</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">preferred_location</span></span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>preferred_location</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -638,11 +620,11 @@ or None to let the driver decide.
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.LaunchConfig.html"
+       href="cuda.core.EventOptions.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.LaunchConfig</p>
+        <p class="prev-next-title">cuda.core.EventOptions</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -669,8 +651,6 @@ or None to let the driver decide.
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResourceOptions"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResourceOptions.preferred_location"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions.preferred_location</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.ManagedMemoryResourceOptions.__init__"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id0"><code class="docutils literal notranslate"><span class="pre">ManagedMemoryResourceOptions.preferred_location</span></code></a></li>
 </ul>
 </li>
 </ul>
