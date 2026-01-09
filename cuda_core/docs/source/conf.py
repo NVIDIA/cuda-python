@@ -73,6 +73,10 @@ html_theme_options = {
         "version-switcher",
         "navbar-nav",
     ],
+    # Use custom secondary sidebar that includes autodoc entries
+    "secondary_sidebar_items": ["page-toc", "sourcelink"],
+    # Show more TOC levels by default
+    "show_toc_level": 3,
 }
 if os.environ.get("CI"):
     if int(os.environ.get("BUILD_PREVIEW", 0)):

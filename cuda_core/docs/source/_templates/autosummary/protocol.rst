@@ -6,7 +6,24 @@
 .. currentmodule:: {{ module }}
 
 .. autoprotocol:: {{ objname }}
-   :members:
-   :undoc-members:
-   :inherited-members:
-   :show-inheritance:
+
+   {% block methods %}
+   {% if methods %}
+   .. rubric:: {{ _('Methods') }}
+
+   {% for item in methods %}
+   .. automethod:: {{ item }}
+   {%- endfor %}
+
+   {% endif %}
+   {% endblock %}
+
+   {% block attributes %}
+   {% if attributes %}
+   .. rubric:: {{ _('Attributes') }}
+
+   {% for item in attributes %}
+   .. autoproperty:: {{ item }}
+   {%- endfor %}
+   {% endif %}
+   {% endblock %}
