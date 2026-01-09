@@ -72,9 +72,16 @@ CUDA system information and NVIDIA Management Library (NVML)
 
    system.get_driver_version
    system.get_driver_version_full
+   system.get_driver_branch
    system.get_num_devices
    system.get_nvml_version
    system.get_process_name
+
+   system.register_events
+   system.RegisteredSystemEvents
+   system.SystemEvent
+   system.SystemEvents
+   system.SystemEventType
 
    :template: autosummary/cyclass.rst
 
