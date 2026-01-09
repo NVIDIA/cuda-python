@@ -14,19 +14,19 @@ cuda.core.Program
 Program.__init__
 ----------------
 
-.. automethod:: __init__
+.. automethod:: Program.__init__
 
 
 Program.close
 -------------
 
-.. automethod:: close
+.. automethod:: Program.close
 
 
 Program.compile
 ---------------
 
-.. automethod:: compile
+.. automethod:: Program.compile
 
 
 
@@ -38,13 +38,13 @@ Program.compile
 Program.backend
 ---------------
 
-.. autoproperty:: backend
+.. autoproperty:: Program.backend
 
 
 Program.handle
 --------------
 
-.. autoproperty:: handle
+.. autoproperty:: Program.handle
 
 
 

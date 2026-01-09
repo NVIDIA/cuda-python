@@ -14,25 +14,25 @@ cuda.core.ManagedMemoryResource
 ManagedMemoryResource.__init__
 ------------------------------
 
-.. automethod:: __init__
+.. automethod:: ManagedMemoryResource.__init__
 
 
 ManagedMemoryResource.allocate
 ------------------------------
 
-.. automethod:: allocate
+.. automethod:: ManagedMemoryResource.allocate
 
 
 ManagedMemoryResource.close
 ---------------------------
 
-.. automethod:: close
+.. automethod:: ManagedMemoryResource.close
 
 
 ManagedMemoryResource.deallocate
 --------------------------------
 
-.. automethod:: deallocate
+.. automethod:: ManagedMemoryResource.deallocate
 
 
 
@@ -44,61 +44,61 @@ ManagedMemoryResource.deallocate
 ManagedMemoryResource.attributes
 --------------------------------
 
-.. autoproperty:: attributes
+.. autoproperty:: ManagedMemoryResource.attributes
 
 
 ManagedMemoryResource.device_id
 -------------------------------
 
-.. autoproperty:: device_id
+.. autoproperty:: ManagedMemoryResource.device_id
 
 
 ManagedMemoryResource.handle
 ----------------------------
 
-.. autoproperty:: handle
+.. autoproperty:: ManagedMemoryResource.handle
 
 
 ManagedMemoryResource.is_device_accessible
 ------------------------------------------
 
-.. autoproperty:: is_device_accessible
+.. autoproperty:: ManagedMemoryResource.is_device_accessible
 
 
 ManagedMemoryResource.is_handle_owned
 -------------------------------------
 
-.. autoproperty:: is_handle_owned
+.. autoproperty:: ManagedMemoryResource.is_handle_owned
 
 
 ManagedMemoryResource.is_host_accessible
 ----------------------------------------
 
-.. autoproperty:: is_host_accessible
+.. autoproperty:: ManagedMemoryResource.is_host_accessible
 
 
 ManagedMemoryResource.is_ipc_enabled
 ------------------------------------
 
-.. autoproperty:: is_ipc_enabled
+.. autoproperty:: ManagedMemoryResource.is_ipc_enabled
 
 
 ManagedMemoryResource.is_mapped
 -------------------------------
 
-.. autoproperty:: is_mapped
+.. autoproperty:: ManagedMemoryResource.is_mapped
 
 
 ManagedMemoryResource.peer_accessible_by
 ----------------------------------------
 
-.. autoproperty:: peer_accessible_by
+.. autoproperty:: ManagedMemoryResource.peer_accessible_by
 
 
 ManagedMemoryResource.uuid
 --------------------------
 
-.. autoproperty:: uuid
+.. autoproperty:: ManagedMemoryResource.uuid
 
 
 

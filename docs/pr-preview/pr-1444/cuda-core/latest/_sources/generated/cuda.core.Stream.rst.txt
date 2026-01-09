@@ -14,43 +14,43 @@ cuda.core.Stream
 Stream.__init__
 ---------------
 
-.. automethod:: __init__
+.. automethod:: Stream.__init__
 
 
 Stream.close
 ------------
 
-.. automethod:: close
+.. automethod:: Stream.close
 
 
 Stream.create_graph_builder
 ---------------------------
 
-.. automethod:: create_graph_builder
+.. automethod:: Stream.create_graph_builder
 
 
 Stream.from_handle
 ------------------
 
-.. automethod:: from_handle
+.. automethod:: Stream.from_handle
 
 
 Stream.record
 -------------
 
-.. automethod:: record
+.. automethod:: Stream.record
 
 
 Stream.sync
 -----------
 
-.. automethod:: sync
+.. automethod:: Stream.sync
 
 
 Stream.wait
 -----------
 
-.. automethod:: wait
+.. automethod:: Stream.wait
 
 
 
@@ -62,31 +62,31 @@ Stream.wait
 Stream.context
 --------------
 
-.. autoproperty:: context
+.. autoproperty:: Stream.context
 
 
 Stream.device
 -------------
 
-.. autoproperty:: device
+.. autoproperty:: Stream.device
 
 
 Stream.handle
 -------------
 
-.. autoproperty:: handle
+.. autoproperty:: Stream.handle
 
 
 Stream.is_nonblocking
 ---------------------
 
-.. autoproperty:: is_nonblocking
+.. autoproperty:: Stream.is_nonblocking
 
 
 Stream.priority
 ---------------
 
-.. autoproperty:: priority
+.. autoproperty:: Stream.priority
 
 
 

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=5646eb91"></script>
+    <script src="../_static/documentation_options.js?v=f23e6f88"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev24';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev25';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -580,54 +580,261 @@
 
 <section id="kernelattributes-init">
 <h2>KernelAttributes.__init__<a class="headerlink" href="#kernelattributes-init" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.__init__">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._module.KernelAttributes.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="kernelattributes-binary-version">
 <h2>KernelAttributes.binary_version<a class="headerlink" href="#kernelattributes-binary-version" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.binary_version">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">binary_version</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.binary_version" title="Link to this definition">#</a></dt>
+<dd><p>int : The binary architecture version for which the function was compiled.
+This attribute is read-only.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-cache-mode-ca">
 <h2>KernelAttributes.cache_mode_ca<a class="headerlink" href="#kernelattributes-cache-mode-ca" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.cache_mode_ca">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">cache_mode_ca</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.cache_mode_ca" title="Link to this definition">#</a></dt>
+<dd><p>bool : Whether the function has been compiled with user specified option “-Xptxas –dlcm=ca” set.
+This attribute is read-only.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-cluster-scheduling-policy-preference">
 <h2>KernelAttributes.cluster_scheduling_policy_preference<a class="headerlink" href="#kernelattributes-cluster-scheduling-policy-preference" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.cluster_scheduling_policy_preference">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">cluster_scheduling_policy_preference</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.cluster_scheduling_policy_preference" title="Link to this definition">#</a></dt>
+<dd><p>int : The block scheduling policy of a function.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-cluster-size-must-be-set">
 <h2>KernelAttributes.cluster_size_must_be_set<a class="headerlink" href="#kernelattributes-cluster-size-must-be-set" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.cluster_size_must_be_set">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">cluster_size_must_be_set</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.cluster_size_must_be_set" title="Link to this definition">#</a></dt>
+<dd><p>bool : The kernel must launch with a valid cluster size specified.
+This attribute is read-only.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-const-size-bytes">
 <h2>KernelAttributes.const_size_bytes<a class="headerlink" href="#kernelattributes-const-size-bytes" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.const_size_bytes">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">const_size_bytes</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.const_size_bytes" title="Link to this definition">#</a></dt>
+<dd><p>int : The size in bytes of user-allocated constant memory required by this function.
+This attribute is read-only.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-local-size-bytes">
 <h2>KernelAttributes.local_size_bytes<a class="headerlink" href="#kernelattributes-local-size-bytes" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.local_size_bytes">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">local_size_bytes</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.local_size_bytes" title="Link to this definition">#</a></dt>
+<dd><p>int : The size in bytes of local memory used by each thread of this function.
+This attribute is read-only.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-max-dynamic-shared-size-bytes">
 <h2>KernelAttributes.max_dynamic_shared_size_bytes<a class="headerlink" href="#kernelattributes-max-dynamic-shared-size-bytes" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.max_dynamic_shared_size_bytes">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">max_dynamic_shared_size_bytes</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.max_dynamic_shared_size_bytes" title="Link to this definition">#</a></dt>
+<dd><p>int : The maximum size in bytes of dynamically-allocated shared memory that can be used
+by this function.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-max-threads-per-block">
 <h2>KernelAttributes.max_threads_per_block<a class="headerlink" href="#kernelattributes-max-threads-per-block" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.max_threads_per_block">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">max_threads_per_block</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.max_threads_per_block" title="Link to this definition">#</a></dt>
+<dd><p>int : The maximum number of threads per block.
+This attribute is read-only.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-non-portable-cluster-size-allowed">
 <h2>KernelAttributes.non_portable_cluster_size_allowed<a class="headerlink" href="#kernelattributes-non-portable-cluster-size-allowed" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.non_portable_cluster_size_allowed">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">non_portable_cluster_size_allowed</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.non_portable_cluster_size_allowed" title="Link to this definition">#</a></dt>
+<dd><p>bool : Whether the function can be launched with non-portable cluster size.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-num-regs">
 <h2>KernelAttributes.num_regs<a class="headerlink" href="#kernelattributes-num-regs" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.num_regs">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">num_regs</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.num_regs" title="Link to this definition">#</a></dt>
+<dd><p>int : The number of registers used by each thread of this function.
+This attribute is read-only.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-preferred-shared-memory-carveout">
 <h2>KernelAttributes.preferred_shared_memory_carveout<a class="headerlink" href="#kernelattributes-preferred-shared-memory-carveout" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.preferred_shared_memory_carveout">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">preferred_shared_memory_carveout</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.preferred_shared_memory_carveout" title="Link to this definition">#</a></dt>
+<dd><p>int : The shared memory carveout preference, in percent of the total shared memory.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-ptx-version">
 <h2>KernelAttributes.ptx_version<a class="headerlink" href="#kernelattributes-ptx-version" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.ptx_version">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">ptx_version</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.ptx_version" title="Link to this definition">#</a></dt>
+<dd><p>int : The PTX virtual architecture version for which the function was compiled.
+This attribute is read-only.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-required-cluster-depth">
 <h2>KernelAttributes.required_cluster_depth<a class="headerlink" href="#kernelattributes-required-cluster-depth" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.required_cluster_depth">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">required_cluster_depth</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.required_cluster_depth" title="Link to this definition">#</a></dt>
+<dd><p>int : The required cluster depth in blocks.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-required-cluster-height">
 <h2>KernelAttributes.required_cluster_height<a class="headerlink" href="#kernelattributes-required-cluster-height" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.required_cluster_height">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">required_cluster_height</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.required_cluster_height" title="Link to this definition">#</a></dt>
+<dd><p>int : The required cluster height in blocks.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-required-cluster-width">
 <h2>KernelAttributes.required_cluster_width<a class="headerlink" href="#kernelattributes-required-cluster-width" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.required_cluster_width">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">required_cluster_width</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.required_cluster_width" title="Link to this definition">#</a></dt>
+<dd><p>int : The required cluster width in blocks.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-shared-size-bytes">
 <h2>KernelAttributes.shared_size_bytes<a class="headerlink" href="#kernelattributes-shared-size-bytes" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.KernelAttributes.shared_size_bytes">
+<span class="sig-prename descclassname"><span class="pre">KernelAttributes.</span></span><span class="sig-name descname"><span class="pre">shared_size_bytes</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><span class="pre">Device</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core._module.KernelAttributes.shared_size_bytes" title="Link to this definition">#</a></dt>
+<dd><p>int : The size in bytes of statically-allocated shared memory required by this function.
+This attribute is read-only.</p>
+</dd></dl>
+
 </section>
 <section id="kernelattributes-slots">
 <h2>KernelAttributes.slots<a class="headerlink" href="#kernelattributes-slots" title="Link to this heading">#</a></h2>
@@ -666,23 +873,74 @@
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes"><code class="docutils literal notranslate"><span class="pre">KernelAttributes</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-init">KernelAttributes.__init__</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-binary-version">KernelAttributes.binary_version</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-cache-mode-ca">KernelAttributes.cache_mode_ca</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-cluster-scheduling-policy-preference">KernelAttributes.cluster_scheduling_policy_preference</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-cluster-size-must-be-set">KernelAttributes.cluster_size_must_be_set</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-const-size-bytes">KernelAttributes.const_size_bytes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-local-size-bytes">KernelAttributes.local_size_bytes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-max-dynamic-shared-size-bytes">KernelAttributes.max_dynamic_shared_size_bytes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-max-threads-per-block">KernelAttributes.max_threads_per_block</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-non-portable-cluster-size-allowed">KernelAttributes.non_portable_cluster_size_allowed</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-num-regs">KernelAttributes.num_regs</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-preferred-shared-memory-carveout">KernelAttributes.preferred_shared_memory_carveout</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-ptx-version">KernelAttributes.ptx_version</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-required-cluster-depth">KernelAttributes.required_cluster_depth</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-required-cluster-height">KernelAttributes.required_cluster_height</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-required-cluster-width">KernelAttributes.required_cluster_width</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-shared-size-bytes">KernelAttributes.shared_size_bytes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-init">KernelAttributes.__init__</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.__init__"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-binary-version">KernelAttributes.binary_version</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.binary_version"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.binary_version()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-cache-mode-ca">KernelAttributes.cache_mode_ca</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.cache_mode_ca"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.cache_mode_ca()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-cluster-scheduling-policy-preference">KernelAttributes.cluster_scheduling_policy_preference</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.cluster_scheduling_policy_preference"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.cluster_scheduling_policy_preference()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-cluster-size-must-be-set">KernelAttributes.cluster_size_must_be_set</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.cluster_size_must_be_set"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.cluster_size_must_be_set()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-const-size-bytes">KernelAttributes.const_size_bytes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.const_size_bytes"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.const_size_bytes()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-local-size-bytes">KernelAttributes.local_size_bytes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.local_size_bytes"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.local_size_bytes()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-max-dynamic-shared-size-bytes">KernelAttributes.max_dynamic_shared_size_bytes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.max_dynamic_shared_size_bytes"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.max_dynamic_shared_size_bytes()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-max-threads-per-block">KernelAttributes.max_threads_per_block</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.max_threads_per_block"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.max_threads_per_block()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-non-portable-cluster-size-allowed">KernelAttributes.non_portable_cluster_size_allowed</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.non_portable_cluster_size_allowed"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.non_portable_cluster_size_allowed()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-num-regs">KernelAttributes.num_regs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.num_regs"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.num_regs()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-preferred-shared-memory-carveout">KernelAttributes.preferred_shared_memory_carveout</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.preferred_shared_memory_carveout"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.preferred_shared_memory_carveout()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-ptx-version">KernelAttributes.ptx_version</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.ptx_version"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.ptx_version()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-required-cluster-depth">KernelAttributes.required_cluster_depth</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.required_cluster_depth"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.required_cluster_depth()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-required-cluster-height">KernelAttributes.required_cluster_height</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.required_cluster_height"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.required_cluster_height()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-required-cluster-width">KernelAttributes.required_cluster_width</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.required_cluster_width"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.required_cluster_width()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-shared-size-bytes">KernelAttributes.shared_size_bytes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.KernelAttributes.shared_size_bytes"><code class="docutils literal notranslate"><span class="pre">KernelAttributes.shared_size_bytes()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kernelattributes-slots">KernelAttributes.slots</a></li>
 </ul>
   </nav></div>

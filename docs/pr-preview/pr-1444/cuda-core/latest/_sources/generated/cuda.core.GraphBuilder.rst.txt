@@ -14,85 +14,85 @@ cuda.core.GraphBuilder
 GraphBuilder.__init__
 ---------------------
 
-.. automethod:: __init__
+.. automethod:: GraphBuilder.__init__
 
 
 GraphBuilder.add_child
 ----------------------
 
-.. automethod:: add_child
+.. automethod:: GraphBuilder.add_child
 
 
 GraphBuilder.begin_building
 ---------------------------
 
-.. automethod:: begin_building
+.. automethod:: GraphBuilder.begin_building
 
 
 GraphBuilder.close
 ------------------
 
-.. automethod:: close
+.. automethod:: GraphBuilder.close
 
 
 GraphBuilder.complete
 ---------------------
 
-.. automethod:: complete
+.. automethod:: GraphBuilder.complete
 
 
 GraphBuilder.create_conditional_handle
 --------------------------------------
 
-.. automethod:: create_conditional_handle
+.. automethod:: GraphBuilder.create_conditional_handle
 
 
 GraphBuilder.debug_dot_print
 ----------------------------
 
-.. automethod:: debug_dot_print
+.. automethod:: GraphBuilder.debug_dot_print
 
 
 GraphBuilder.end_building
 -------------------------
 
-.. automethod:: end_building
+.. automethod:: GraphBuilder.end_building
 
 
 GraphBuilder.if_cond
 --------------------
 
-.. automethod:: if_cond
+.. automethod:: GraphBuilder.if_cond
 
 
 GraphBuilder.if_else
 --------------------
 
-.. automethod:: if_else
+.. automethod:: GraphBuilder.if_else
 
 
 GraphBuilder.join
 -----------------
 
-.. automethod:: join
+.. automethod:: GraphBuilder.join
 
 
 GraphBuilder.split
 ------------------
 
-.. automethod:: split
+.. automethod:: GraphBuilder.split
 
 
 GraphBuilder.switch
 -------------------
 
-.. automethod:: switch
+.. automethod:: GraphBuilder.switch
 
 
 GraphBuilder.while_loop
 -----------------------
 
-.. automethod:: while_loop
+.. automethod:: GraphBuilder.while_loop
 
 
 
@@ -104,19 +104,19 @@ GraphBuilder.while_loop
 GraphBuilder.is_building
 ------------------------
 
-.. autoproperty:: is_building
+.. autoproperty:: GraphBuilder.is_building
 
 
 GraphBuilder.is_join_required
 -----------------------------
 
-.. autoproperty:: is_join_required
+.. autoproperty:: GraphBuilder.is_join_required
 
 
 GraphBuilder.stream
 -------------------
 
-.. autoproperty:: stream
+.. autoproperty:: GraphBuilder.stream
 
 
 

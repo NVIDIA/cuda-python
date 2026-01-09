@@ -14,19 +14,19 @@ cuda.core.LegacyPinnedMemoryResource
 LegacyPinnedMemoryResource.__init__
 -----------------------------------
 
-.. automethod:: __init__
+.. automethod:: LegacyPinnedMemoryResource.__init__
 
 
 LegacyPinnedMemoryResource.allocate
 -----------------------------------
 
-.. automethod:: allocate
+.. automethod:: LegacyPinnedMemoryResource.allocate
 
 
 LegacyPinnedMemoryResource.deallocate
 -------------------------------------
 
-.. automethod:: deallocate
+.. automethod:: LegacyPinnedMemoryResource.deallocate
 
 
 
@@ -38,19 +38,19 @@ LegacyPinnedMemoryResource.deallocate
 LegacyPinnedMemoryResource.device_id
 ------------------------------------
 
-.. autoproperty:: device_id
+.. autoproperty:: LegacyPinnedMemoryResource.device_id
 
 
 LegacyPinnedMemoryResource.is_device_accessible
 -----------------------------------------------
 
-.. autoproperty:: is_device_accessible
+.. autoproperty:: LegacyPinnedMemoryResource.is_device_accessible
 
 
 LegacyPinnedMemoryResource.is_host_accessible
 ---------------------------------------------
 
-.. autoproperty:: is_host_accessible
+.. autoproperty:: LegacyPinnedMemoryResource.is_host_accessible
 
 
 

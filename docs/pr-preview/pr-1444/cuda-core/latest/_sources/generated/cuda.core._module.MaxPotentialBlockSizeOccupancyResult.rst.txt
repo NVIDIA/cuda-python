@@ -14,19 +14,19 @@ cuda.core.\_module.MaxPotentialBlockSizeOccupancyResult
 MaxPotentialBlockSizeOccupancyResult.__init__
 ---------------------------------------------
 
-.. automethod:: __init__
+.. automethod:: MaxPotentialBlockSizeOccupancyResult.__init__
 
 
 MaxPotentialBlockSizeOccupancyResult.count
 ------------------------------------------
 
-.. automethod:: count
+.. automethod:: MaxPotentialBlockSizeOccupancyResult.count
 
 
 MaxPotentialBlockSizeOccupancyResult.index
 ------------------------------------------
 
-.. automethod:: index
+.. automethod:: MaxPotentialBlockSizeOccupancyResult.index
 
 
 
@@ -38,13 +38,13 @@ MaxPotentialBlockSizeOccupancyResult.index
 MaxPotentialBlockSizeOccupancyResult.max_block_size
 ---------------------------------------------------
 
-.. autoproperty:: max_block_size
+.. autoproperty:: MaxPotentialBlockSizeOccupancyResult.max_block_size
 
 
 MaxPotentialBlockSizeOccupancyResult.min_grid_size
 --------------------------------------------------
 
-.. autoproperty:: min_grid_size
+.. autoproperty:: MaxPotentialBlockSizeOccupancyResult.min_grid_size
 
 
 

@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=5646eb91"></script>
+    <script src="../_static/documentation_options.js?v=f23e6f88"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev24';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev25';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -592,54 +592,347 @@ to ambiguity. New graph builders should instead be created through a
 
 <section id="graphbuilder-init">
 <h2>GraphBuilder.__init__<a class="headerlink" href="#graphbuilder-init" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.__init__">
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphBuilder.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="graphbuilder-add-child">
 <h2>GraphBuilder.add_child<a class="headerlink" href="#graphbuilder-add-child" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.add_child">
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">add_child</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphBuilder.add_child" title="Link to this definition">#</a></dt>
+<dd><p>Adds the child <a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> builder into self.</p>
+<p>The child graph builder will be added as a child node to the parent graph builder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>child_graph</strong> (<a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – The child graph builder. Must have finished building.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-begin-building">
 <h2>GraphBuilder.begin_building<a class="headerlink" href="#graphbuilder-begin-building" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.begin_building">
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">begin_building</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'relaxed'</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.begin_building" title="Link to this definition">#</a></dt>
+<dd><p>Begins the building process.</p>
+<p>Build <cite>mode</cite> for controlling interaction with other API calls must be one of the following:</p>
+<ul class="simple">
+<li><p><cite>global</cite> : Prohibit potentially unsafe operations across all streams in the process.</p></li>
+<li><p><cite>thread_local</cite> : Prohibit potentially unsafe operations in streams created by the current thread.</p></li>
+<li><p><cite>relaxed</cite> : The local thread is not prohibited from potentially unsafe operations.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Build mode to control the interaction with other API calls that are porentially unsafe.
+Default set to use relaxed.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-close">
 <h2>GraphBuilder.close<a class="headerlink" href="#graphbuilder-close" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.close">
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphBuilder.close" title="Link to this definition">#</a></dt>
+<dd><p>Destroy the graph builder.</p>
+<p>Closes the associated stream if we own it. Borrowed stream
+object will instead have their references released.</p>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-complete">
 <h2>GraphBuilder.complete<a class="headerlink" href="#graphbuilder-complete" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.complete">
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">complete</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.GraphCompleteOptions.html#cuda.core.GraphCompleteOptions" title="cuda.core._graph.GraphCompleteOptions"><span class="pre">GraphCompleteOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Graph.html#cuda.core.Graph" title="cuda.core._graph.Graph"><span class="pre">Graph</span></a></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.complete" title="Link to this definition">#</a></dt>
+<dd><p>Completes the graph builder and returns the built <a class="reference internal" href="cuda.core.Graph.html#cuda.core.Graph" title="cuda.core._graph.Graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Graph</span></code></a> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>options</strong> (<a class="reference internal" href="cuda.core.GraphCompleteOptions.html#cuda.core.GraphCompleteOptions" title="cuda.core._graph.GraphCompleteOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphCompleteOptions</span></code></a>, optional) – Customizable dataclass for the graph builder completion options.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>graph</strong> – The newly built graph.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.Graph.html#cuda.core.Graph" title="cuda.core._graph.Graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Graph</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-create-conditional-handle">
 <h2>GraphBuilder.create_conditional_handle<a class="headerlink" href="#graphbuilder-create-conditional-handle" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.create_conditional_handle">
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">create_conditional_handle</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">default_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUgraphConditionalHandle" title="(in cuda.bindings)"><span class="pre">CUgraphConditionalHandle</span></a></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.create_conditional_handle" title="Link to this definition">#</a></dt>
+<dd><p>Creates a conditional handle for the graph builder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>default_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The default value to assign to the conditional handle.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>handle</strong> – The newly created conditional handle.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>driver.CUgraphConditionalHandle</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-debug-dot-print">
 <h2>GraphBuilder.debug_dot_print<a class="headerlink" href="#graphbuilder-debug-dot-print" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.debug_dot_print">
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">debug_dot_print</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.GraphDebugPrintOptions.html#cuda.core.GraphDebugPrintOptions" title="cuda.core._graph.GraphDebugPrintOptions"><span class="pre">GraphDebugPrintOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.GraphBuilder.debug_dot_print" title="Link to this definition">#</a></dt>
+<dd><p>Generates a DOT debug file for the graph builder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – File path to use for writting debug DOT output</p></li>
+<li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.GraphDebugPrintOptions.html#cuda.core.GraphDebugPrintOptions" title="cuda.core._graph.GraphDebugPrintOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphDebugPrintOptions</span></code></a>, optional) – Customizable dataclass for the debug print options.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-end-building">
 <h2>GraphBuilder.end_building<a class="headerlink" href="#graphbuilder-end-building" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.end_building">
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">end_building</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.end_building" title="Link to this definition">#</a></dt>
+<dd><p>Ends the building process.</p>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-if-cond">
 <h2>GraphBuilder.if_cond<a class="headerlink" href="#graphbuilder-if-cond" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.if_cond">
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">if_cond</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUgraphConditionalHandle" title="(in cuda.bindings)"><span class="pre">CUgraphConditionalHandle</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.if_cond" title="Link to this definition">#</a></dt>
+<dd><p>Adds an if condition branch and returns a new graph builder for it.</p>
+<p>The resulting if graph will only execute the branch if the conditional
+handle evaluates to true at runtime.</p>
+<p>The new builder inherits work dependencies from the original builder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handle</strong> (<em>driver.CUgraphConditionalHandle</em>) – The handle to use for the if conditional.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>graph_builder</strong> – The newly created conditional graph builder.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-if-else">
 <h2>GraphBuilder.if_else<a class="headerlink" href="#graphbuilder-if-else" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.if_else">
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">if_else</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUgraphConditionalHandle" title="(in cuda.bindings)"><span class="pre">CUgraphConditionalHandle</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.if_else" title="Link to this definition">#</a></dt>
+<dd><p>Adds an if-else condition branch and returns new graph builders for both branches.</p>
+<p>The resulting if graph will execute the branch if the conditional handle
+evaluates to true at runtime, otherwise the else branch will execute.</p>
+<p>The new builders inherit work dependencies from the original builder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handle</strong> (<em>driver.CUgraphConditionalHandle</em>) – The handle to use for the if-else conditional.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>graph_builders</strong> – A tuple of two new graph builders, one for the if branch and one for the else branch.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, <a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-join">
 <h2>GraphBuilder.join<a class="headerlink" href="#graphbuilder-join" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.join">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">graph_builders</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.join" title="Link to this definition">#</a></dt>
+<dd><p>Joins multiple graph builders into a single graph builder.</p>
+<p>The returned builder inherits work dependencies from the provided builders.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*graph_builders</strong> (<a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>) – The graph builders to join.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>graph_builder</strong> – The newly joined graph builder.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-split">
 <h2>GraphBuilder.split<a class="headerlink" href="#graphbuilder-split" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.split">
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.split" title="Link to this definition">#</a></dt>
+<dd><p>Splits the original graph builder into multiple graph builders.</p>
+<p>The new builders inherit work dependencies from the original builder.
+The original builder is reused for the split and is returned first in the tuple.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of graph builders to split the graph builder into.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>graph_builders</strong> – A tuple of split graph builders. The first graph builder in the tuple
+is always the original graph builder.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-switch">
 <h2>GraphBuilder.switch<a class="headerlink" href="#graphbuilder-switch" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.switch">
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">switch</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUgraphConditionalHandle" title="(in cuda.bindings)"><span class="pre">CUgraphConditionalHandle</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.switch" title="Link to this definition">#</a></dt>
+<dd><p>Adds a switch condition branch and returns new graph builders for all cases.</p>
+<p>The resulting switch graph will execute the branch that matches the
+case index of the conditional handle at runtime. If no match is found, no branch
+will be executed.</p>
+<p>The new builders inherit work dependencies from the original builder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> (<em>driver.CUgraphConditionalHandle</em>) – The handle to use for the switch conditional.</p></li>
+<li><p><strong>count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of cases to add to the switch conditional.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>graph_builders</strong> – A tuple of new graph builders, one for each branch.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-while-loop">
 <h2>GraphBuilder.while_loop<a class="headerlink" href="#graphbuilder-while-loop" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.while_loop">
+<span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">while_loop</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://nvidia.github.io/cuda-python/cuda-bindings/latest/module/driver.html#cuda.bindings.driver.CUgraphConditionalHandle" title="(in cuda.bindings)"><span class="pre">CUgraphConditionalHandle</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.GraphBuilder.while_loop" title="Link to this definition">#</a></dt>
+<dd><p>Adds a while loop and returns a new graph builder for it.</p>
+<p>The resulting while loop graph will execute the branch repeatedly at runtime
+until the conditional handle evaluates to false.</p>
+<p>The new builder inherits work dependencies from the original builder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handle</strong> (<em>driver.CUgraphConditionalHandle</em>) – The handle to use for the while loop.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>graph_builder</strong> – The newly created while loop graph builder.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-is-building">
 <h2>GraphBuilder.is_building<a class="headerlink" href="#graphbuilder-is-building" title="Link to this heading">#</a></h2>
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.is_building">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">is_building</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.GraphBuilder.is_building" title="Link to this definition">#</a></dt>
+<dd><p>Returns True if the graph builder is currently building.</p>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-is-join-required">
 <h2>GraphBuilder.is_join_required<a class="headerlink" href="#graphbuilder-is-join-required" title="Link to this heading">#</a></h2>
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.is_join_required">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">is_join_required</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.GraphBuilder.is_join_required" title="Link to this definition">#</a></dt>
+<dd><p>Returns True if this graph builder must be joined before building is ended.</p>
+</dd></dl>
+
 </section>
 <section id="graphbuilder-stream">
 <h2>GraphBuilder.stream<a class="headerlink" href="#graphbuilder-stream" title="Link to this heading">#</a></h2>
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.GraphBuilder.stream">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">GraphBuilder.</span></span><span class="sig-name descname"><span class="pre">stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a></em><a class="headerlink" href="#cuda.core.GraphBuilder.stream" title="Link to this definition">#</a></dt>
+<dd><p>Returns the stream associated with the graph builder.</p>
+</dd></dl>
+
 </section>
 </section>
 
@@ -693,23 +986,74 @@ to ambiguity. New graph builders should instead be created through a
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder"><code class="docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-init">GraphBuilder.__init__</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-add-child">GraphBuilder.add_child</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-begin-building">GraphBuilder.begin_building</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-close">GraphBuilder.close</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-complete">GraphBuilder.complete</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-create-conditional-handle">GraphBuilder.create_conditional_handle</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-debug-dot-print">GraphBuilder.debug_dot_print</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-end-building">GraphBuilder.end_building</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-if-cond">GraphBuilder.if_cond</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-if-else">GraphBuilder.if_else</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-join">GraphBuilder.join</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-split">GraphBuilder.split</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-switch">GraphBuilder.switch</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-while-loop">GraphBuilder.while_loop</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-is-building">GraphBuilder.is_building</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-is-join-required">GraphBuilder.is_join_required</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-stream">GraphBuilder.stream</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-init">GraphBuilder.__init__</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.__init__"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-add-child">GraphBuilder.add_child</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.add_child"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.add_child()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-begin-building">GraphBuilder.begin_building</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.begin_building"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.begin_building()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-close">GraphBuilder.close</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.close"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.close()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-complete">GraphBuilder.complete</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.complete"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.complete()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-create-conditional-handle">GraphBuilder.create_conditional_handle</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.create_conditional_handle"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.create_conditional_handle()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-debug-dot-print">GraphBuilder.debug_dot_print</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.debug_dot_print"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.debug_dot_print()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-end-building">GraphBuilder.end_building</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.end_building"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.end_building()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-if-cond">GraphBuilder.if_cond</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.if_cond"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.if_cond()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-if-else">GraphBuilder.if_else</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.if_else"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.if_else()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-join">GraphBuilder.join</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.join"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.join()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-split">GraphBuilder.split</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.split"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.split()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-switch">GraphBuilder.switch</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.switch"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.switch()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-while-loop">GraphBuilder.while_loop</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.while_loop"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.while_loop()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-is-building">GraphBuilder.is_building</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.is_building"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.is_building</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-is-join-required">GraphBuilder.is_join_required</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.is_join_required"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.is_join_required</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphbuilder-stream">GraphBuilder.stream</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphBuilder.stream"><code class="docutils literal notranslate"><span class="pre">GraphBuilder.stream</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

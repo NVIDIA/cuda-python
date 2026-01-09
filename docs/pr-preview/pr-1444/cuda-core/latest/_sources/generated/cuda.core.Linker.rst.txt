@@ -14,31 +14,31 @@ cuda.core.Linker
 Linker.__init__
 ---------------
 
-.. automethod:: __init__
+.. automethod:: Linker.__init__
 
 
 Linker.close
 ------------
 
-.. automethod:: close
+.. automethod:: Linker.close
 
 
 Linker.get_error_log
 --------------------
 
-.. automethod:: get_error_log
+.. automethod:: Linker.get_error_log
 
 
 Linker.get_info_log
 -------------------
 
-.. automethod:: get_info_log
+.. automethod:: Linker.get_info_log
 
 
 Linker.link
 -----------
 
-.. automethod:: link
+.. automethod:: Linker.link
 
 
 
@@ -50,13 +50,13 @@ Linker.link
 Linker.backend
 --------------
 
-.. autoproperty:: backend
+.. autoproperty:: Linker.backend
 
 
 Linker.handle
 -------------
 
-.. autoproperty:: handle
+.. autoproperty:: Linker.handle
 
 
 

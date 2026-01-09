@@ -14,13 +14,13 @@ cuda.core.system.Device
 Device.__init__
 ---------------
 
-.. automethod:: __init__
+.. automethod:: Device.__init__
 
 
 Device.get_all_devices
 ----------------------
 
-.. automethod:: get_all_devices
+.. automethod:: Device.get_all_devices
 
 
 
@@ -32,61 +32,61 @@ Device.get_all_devices
 Device.architecture
 -------------------
 
-.. autoattribute:: architecture
+.. autoattribute:: Device.architecture
 
 
 Device.bar1_memory_info
 -----------------------
 
-.. autoattribute:: bar1_memory_info
+.. autoattribute:: Device.bar1_memory_info
 
 
 Device.cpu_affinity
 -------------------
 
-.. autoattribute:: cpu_affinity
+.. autoattribute:: Device.cpu_affinity
 
 
 Device.cuda_compute_capability
 ------------------------------
 
-.. autoattribute:: cuda_compute_capability
+.. autoattribute:: Device.cuda_compute_capability
 
 
 Device.handle
 -------------
 
-.. autoattribute:: handle
+.. autoattribute:: Device.handle
 
 
 Device.memory_info
 ------------------
 
-.. autoattribute:: memory_info
+.. autoattribute:: Device.memory_info
 
 
 Device.name
 -----------
 
-.. autoattribute:: name
+.. autoattribute:: Device.name
 
 
 Device.pci_info
 ---------------
 
-.. autoattribute:: pci_info
+.. autoattribute:: Device.pci_info
 
 
 Device.serial
 -------------
 
-.. autoattribute:: serial
+.. autoattribute:: Device.serial
 
 
 Device.uuid
 -----------
 
-.. autoattribute:: uuid
+.. autoattribute:: Device.uuid
 
 
 

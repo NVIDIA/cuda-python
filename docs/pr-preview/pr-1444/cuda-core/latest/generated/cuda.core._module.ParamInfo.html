@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=5646eb91"></script>
+    <script src="../_static/documentation_options.js?v=f23e6f88"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev24';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev25';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -580,12 +580,30 @@
 
 <section id="paraminfo-init">
 <h2>ParamInfo.__init__<a class="headerlink" href="#paraminfo-init" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.ParamInfo.__init__">
+<span class="sig-prename descclassname"><span class="pre">ParamInfo.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._module.ParamInfo.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="paraminfo-count">
 <h2>ParamInfo.count<a class="headerlink" href="#paraminfo-count" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.ParamInfo.count">
+<span class="sig-prename descclassname"><span class="pre">ParamInfo.</span></span><span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._module.ParamInfo.count" title="Link to this definition">#</a></dt>
+<dd><p>Return number of occurrences of value.</p>
+</dd></dl>
+
 </section>
 <section id="paraminfo-index">
 <h2>ParamInfo.index<a class="headerlink" href="#paraminfo-index" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core._module.ParamInfo.index">
+<span class="sig-prename descclassname"><span class="pre">ParamInfo.</span></span><span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9223372036854775807</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._module.ParamInfo.index" title="Link to this definition">#</a></dt>
+<dd><p>Return first index of value.</p>
+<p>Raises ValueError if the value is not present.</p>
+</dd></dl>
+
 </section>
 <section id="paraminfo-offset">
 <h2>ParamInfo.offset<a class="headerlink" href="#paraminfo-offset" title="Link to this heading">#</a></h2>
@@ -627,9 +645,18 @@
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.ParamInfo"><code class="docutils literal notranslate"><span class="pre">ParamInfo</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paraminfo-init">ParamInfo.__init__</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paraminfo-count">ParamInfo.count</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paraminfo-index">ParamInfo.index</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paraminfo-init">ParamInfo.__init__</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.ParamInfo.__init__"><code class="docutils literal notranslate"><span class="pre">ParamInfo.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paraminfo-count">ParamInfo.count</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.ParamInfo.count"><code class="docutils literal notranslate"><span class="pre">ParamInfo.count()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paraminfo-index">ParamInfo.index</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._module.ParamInfo.index"><code class="docutils literal notranslate"><span class="pre">ParamInfo.index()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paraminfo-offset">ParamInfo.offset</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#paraminfo-size">ParamInfo.size</a></li>
 </ul>

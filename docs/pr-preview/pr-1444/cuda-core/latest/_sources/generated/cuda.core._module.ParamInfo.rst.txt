@@ -14,19 +14,19 @@ cuda.core.\_module.ParamInfo
 ParamInfo.__init__
 ------------------
 
-.. automethod:: __init__
+.. automethod:: ParamInfo.__init__
 
 
 ParamInfo.count
 ---------------
 
-.. automethod:: count
+.. automethod:: ParamInfo.count
 
 
 ParamInfo.index
 ---------------
 
-.. automethod:: index
+.. automethod:: ParamInfo.index
 
 
 
@@ -38,13 +38,13 @@ ParamInfo.index
 ParamInfo.offset
 ----------------
 
-.. autoproperty:: offset
+.. autoproperty:: ParamInfo.offset
 
 
 ParamInfo.size
 --------------
 
-.. autoproperty:: size
+.. autoproperty:: ParamInfo.size
 
 
 

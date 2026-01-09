@@ -14,13 +14,13 @@ cuda.core.\_memory.\_ipc.IPCAllocationHandle
 IPCAllocationHandle.__init__
 ----------------------------
 
-.. automethod:: __init__
+.. automethod:: IPCAllocationHandle.__init__
 
 
 IPCAllocationHandle.close
 -------------------------
 
-.. automethod:: close
+.. automethod:: IPCAllocationHandle.close
 
 
 
@@ -32,13 +32,13 @@ IPCAllocationHandle.close
 IPCAllocationHandle.handle
 --------------------------
 
-.. autoproperty:: handle
+.. autoproperty:: IPCAllocationHandle.handle
 
 
 IPCAllocationHandle.uuid
 ------------------------
 
-.. autoproperty:: uuid
+.. autoproperty:: IPCAllocationHandle.uuid
 
 
 

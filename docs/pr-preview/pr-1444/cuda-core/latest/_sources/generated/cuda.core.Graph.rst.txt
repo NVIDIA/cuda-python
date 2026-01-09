@@ -14,31 +14,31 @@ cuda.core.Graph
 Graph.__init__
 --------------
 
-.. automethod:: __init__
+.. automethod:: Graph.__init__
 
 
 Graph.close
 -----------
 
-.. automethod:: close
+.. automethod:: Graph.close
 
 
 Graph.launch
 ------------
 
-.. automethod:: launch
+.. automethod:: Graph.launch
 
 
 Graph.update
 ------------
 
-.. automethod:: update
+.. automethod:: Graph.update
 
 
 Graph.upload
 ------------
 
-.. automethod:: upload
+.. automethod:: Graph.upload
 
 
 

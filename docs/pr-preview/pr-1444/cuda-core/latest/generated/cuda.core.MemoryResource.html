@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=5646eb91"></script>
+    <script src="../_static/documentation_options.js?v=f23e6f88"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev24';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev25';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -586,19 +586,81 @@ deallocation of buffers.</p>
 <p>Subclasses must implement methods for allocating and deallocation, as well
 as properties associated with this memory resource from which all allocated
 buffers will inherit. (Since all <a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Buffer</span></code></a> instances allocated and
-returned by the <code class="xref py py-meth docutils literal notranslate"><span class="pre">allocate()</span></code> method would hold a reference to self, the
+returned by the <a class="reference internal" href="#cuda.core.MemoryResource.allocate" title="cuda.core.MemoryResource.allocate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">allocate()</span></code></a> method would hold a reference to self, the
 buffer properties are retrieved simply by looking up the underlying memory
 resource’s respective property.)</p>
 </dd></dl>
 
 <section id="memoryresource-init">
 <h2>MemoryResource.__init__<a class="headerlink" href="#memoryresource-init" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.MemoryResource.__init__">
+<span class="sig-prename descclassname"><span class="pre">MemoryResource.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.MemoryResource.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="memoryresource-allocate">
 <h2>MemoryResource.allocate<a class="headerlink" href="#memoryresource-allocate" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.MemoryResource.allocate">
+<span class="sig-prename descclassname"><span class="pre">MemoryResource.</span></span><span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.MemoryResource.allocate" title="Link to this definition">#</a></dt>
+<dd><p>Allocate a buffer of the requested size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to allocate, in bytes.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – The stream on which to perform the allocation asynchronously.
+If None, it is up to each memory resource implementation to decide
+and document the behavior.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The allocated buffer object, which can be used for device or host operations
+depending on the resource’s properties.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer">Buffer</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="memoryresource-deallocate">
 <h2>MemoryResource.deallocate<a class="headerlink" href="#memoryresource-deallocate" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.MemoryResource.deallocate">
+<span class="sig-prename descclassname"><span class="pre">MemoryResource.</span></span><span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">ptr:</span> <span class="pre">DevicePointerT</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">size_t</span> <span class="pre">size</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">Stream</span> <span class="pre">|</span> <span class="pre">GraphBuilder</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.MemoryResource.deallocate" title="Link to this definition">#</a></dt>
+<dd><p>Deallocate a buffer previously allocated by this resource.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ptr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code>) – The pointer or handle to the buffer to deallocate.</p></li>
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to deallocate, in bytes.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – The stream on which to perform the deallocation asynchronously.
+If None, it is up to each memory resource implementation to decide
+and document the behavior.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="memoryresource-device-id">
 <h2>MemoryResource.device_id<a class="headerlink" href="#memoryresource-device-id" title="Link to this heading">#</a></h2>
@@ -661,9 +723,18 @@ resource’s respective property.)</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.MemoryResource"><code class="docutils literal notranslate"><span class="pre">MemoryResource</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-init">MemoryResource.__init__</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-allocate">MemoryResource.allocate</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-deallocate">MemoryResource.deallocate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-init">MemoryResource.__init__</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.MemoryResource.__init__"><code class="docutils literal notranslate"><span class="pre">MemoryResource.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-allocate">MemoryResource.allocate</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.MemoryResource.allocate"><code class="docutils literal notranslate"><span class="pre">MemoryResource.allocate()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-deallocate">MemoryResource.deallocate</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.MemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">MemoryResource.deallocate()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-device-id">MemoryResource.device_id</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-is-device-accessible">MemoryResource.is_device_accessible</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memoryresource-is-host-accessible">MemoryResource.is_host_accessible</a></li>

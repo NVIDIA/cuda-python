@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=5646eb91"></script>
+    <script src="../_static/documentation_options.js?v=f23e6f88"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev24';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev25';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -587,21 +587,104 @@ APIs.</p>
 
 <section id="legacypinnedmemoryresource-init">
 <h2>LegacyPinnedMemoryResource.__init__<a class="headerlink" href="#legacypinnedmemoryresource-init" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource.__init__">
+<span class="sig-prename descclassname"><span class="pre">LegacyPinnedMemoryResource.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="legacypinnedmemoryresource-allocate">
 <h2>LegacyPinnedMemoryResource.allocate<a class="headerlink" href="#legacypinnedmemoryresource-allocate" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource.allocate">
+<span class="sig-prename descclassname"><span class="pre">LegacyPinnedMemoryResource.</span></span><span class="sig-name descname"><span class="pre">allocate</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core._memory._buffer.Buffer"><span class="pre">Buffer</span></a></span></span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.allocate" title="Link to this definition">#</a></dt>
+<dd><p>Allocate a buffer of the requested size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to allocate, in bytes.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><em>Stream</em></a><em>, </em><em>optional</em>) – Currently ignored</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The allocated buffer object, which is accessible on both host and device.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.Buffer.html#cuda.core.Buffer" title="cuda.core.Buffer">Buffer</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="legacypinnedmemoryresource-deallocate">
 <h2>LegacyPinnedMemoryResource.deallocate<a class="headerlink" href="#legacypinnedmemoryresource-deallocate" title="Link to this heading">#</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource.deallocate">
+<span class="sig-prename descclassname"><span class="pre">LegacyPinnedMemoryResource.</span></span><span class="sig-name descname"><span class="pre">deallocate</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">ptr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DevicePointerT</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.deallocate" title="Link to this definition">#</a></dt>
+<dd><p>Deallocate a buffer previously allocated by this resource.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ptr</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">DevicePointerT</span></code>) – The pointer or handle to the buffer to deallocate.</p></li>
+<li><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The size of the buffer to deallocate, in bytes.</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core.Stream"><em>Stream</em></a>) – The stream on which to perform the deallocation synchronously.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="legacypinnedmemoryresource-device-id">
 <h2>LegacyPinnedMemoryResource.device_id<a class="headerlink" href="#legacypinnedmemoryresource-device-id" title="Link to this heading">#</a></h2>
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource.device_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">LegacyPinnedMemoryResource.</span></span><span class="sig-name descname"><span class="pre">device_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></em><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.device_id" title="Link to this definition">#</a></dt>
+<dd><p>This memory resource is not bound to any GPU.</p>
+</dd></dl>
+
 </section>
 <section id="legacypinnedmemoryresource-is-device-accessible">
 <h2>LegacyPinnedMemoryResource.is_device_accessible<a class="headerlink" href="#legacypinnedmemoryresource-is-device-accessible" title="Link to this heading">#</a></h2>
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource.is_device_accessible">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">LegacyPinnedMemoryResource.</span></span><span class="sig-name descname"><span class="pre">is_device_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.is_device_accessible" title="Link to this definition">#</a></dt>
+<dd><p>this memory resource provides device-accessible buffers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="legacypinnedmemoryresource-is-host-accessible">
 <h2>LegacyPinnedMemoryResource.is_host_accessible<a class="headerlink" href="#legacypinnedmemoryresource-is-host-accessible" title="Link to this heading">#</a></h2>
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.LegacyPinnedMemoryResource.is_host_accessible">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">LegacyPinnedMemoryResource.</span></span><span class="sig-name descname"><span class="pre">is_host_accessible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#cuda.core.LegacyPinnedMemoryResource.is_host_accessible" title="Link to this definition">#</a></dt>
+<dd><p>this memory resource provides host-accessible buffers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 
@@ -655,12 +738,30 @@ APIs.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#legacypinnedmemoryresource-init">LegacyPinnedMemoryResource.__init__</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#legacypinnedmemoryresource-allocate">LegacyPinnedMemoryResource.allocate</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#legacypinnedmemoryresource-deallocate">LegacyPinnedMemoryResource.deallocate</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#legacypinnedmemoryresource-device-id">LegacyPinnedMemoryResource.device_id</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#legacypinnedmemoryresource-is-device-accessible">LegacyPinnedMemoryResource.is_device_accessible</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#legacypinnedmemoryresource-is-host-accessible">LegacyPinnedMemoryResource.is_host_accessible</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#legacypinnedmemoryresource-init">LegacyPinnedMemoryResource.__init__</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource.__init__"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#legacypinnedmemoryresource-allocate">LegacyPinnedMemoryResource.allocate</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource.allocate"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.allocate()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#legacypinnedmemoryresource-deallocate">LegacyPinnedMemoryResource.deallocate</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource.deallocate"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.deallocate()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#legacypinnedmemoryresource-device-id">LegacyPinnedMemoryResource.device_id</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource.device_id"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.device_id</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#legacypinnedmemoryresource-is-device-accessible">LegacyPinnedMemoryResource.is_device_accessible</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource.is_device_accessible"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.is_device_accessible</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#legacypinnedmemoryresource-is-host-accessible">LegacyPinnedMemoryResource.is_host_accessible</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.LegacyPinnedMemoryResource.is_host_accessible"><code class="docutils literal notranslate"><span class="pre">LegacyPinnedMemoryResource.is_host_accessible</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
