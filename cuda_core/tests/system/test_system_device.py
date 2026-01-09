@@ -206,8 +206,14 @@ def test_device_pci_bus_id():
 
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_device_attributes():
+    skip_reasons = []
+
     for device in system.Device.get_all_devices():
-        attributes = device.attributes
+        try:
+            attributes = device.attributes
+        except system.NotSupportedError:
+            skip_reasons.append(f"Device attributes not supported on '{device.name}'")
+            continue
         assert isinstance(attributes, system_device.DeviceAttributes)
 
         assert isinstance(attributes.multiprocessor_count, int)
@@ -222,6 +228,9 @@ def test_device_attributes():
         assert isinstance(attributes.compute_instance_slice_count, int)
         assert isinstance(attributes.memory_size_mb, int)
         assert attributes.memory_size_mb > 0
+
+    if skip_reasons:
+        pytest.skip(" ; ".join(skip_reasons))
 
 
 def test_c2c_mode_enabled():

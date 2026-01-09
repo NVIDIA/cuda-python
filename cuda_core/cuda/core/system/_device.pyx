@@ -427,7 +427,8 @@ cdef class Device:
         """
         Get various device attributes.
 
-        Only available on Linux systems.
+        For Ampere™ or newer fully supported devices.  Only available on Linux
+        systems.
         """
         return DeviceAttributes(nvml.device_get_attributes_v2(self._handle))
 
