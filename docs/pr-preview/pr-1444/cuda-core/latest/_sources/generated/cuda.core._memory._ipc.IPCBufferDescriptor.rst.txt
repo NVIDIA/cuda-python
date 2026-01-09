@@ -8,15 +8,16 @@ cuda.core.\_memory.\_ipc.IPCBufferDescriptor
 
 .. autoclass:: IPCBufferDescriptor
 
+   
+   
+   
+   .. automethod:: __init__
+   
+   
 
-
-
-.. automethod:: __init__
-
-
-
-
-
-
-.. autoproperty:: size
-
+   
+   
+   
+   .. autoproperty:: size
+   
+   

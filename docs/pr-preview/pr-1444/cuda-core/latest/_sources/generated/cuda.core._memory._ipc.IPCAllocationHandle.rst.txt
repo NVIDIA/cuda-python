@@ -8,17 +8,18 @@ cuda.core.\_memory.\_ipc.IPCAllocationHandle
 
 .. autoclass:: IPCAllocationHandle
 
+   
+   
+   
+   .. automethod:: __init__
+   .. automethod:: close
+   
+   
 
-
-
-.. automethod:: __init__
-.. automethod:: close
-
-
-
-
-
-
-.. autoproperty:: handle
-.. autoproperty:: uuid
-
+   
+   
+   
+   .. autoproperty:: handle
+   .. autoproperty:: uuid
+   
+   

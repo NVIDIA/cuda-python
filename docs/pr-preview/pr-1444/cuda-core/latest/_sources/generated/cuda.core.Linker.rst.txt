@@ -8,20 +8,21 @@ cuda.core.Linker
 
 .. autoclass:: Linker
 
+   
+   
+   
+   .. automethod:: __init__
+   .. automethod:: close
+   .. automethod:: get_error_log
+   .. automethod:: get_info_log
+   .. automethod:: link
+   
+   
 
-
-
-.. automethod:: __init__
-.. automethod:: close
-.. automethod:: get_error_log
-.. automethod:: get_info_log
-.. automethod:: link
-
-
-
-
-
-
-.. autoproperty:: backend
-.. autoproperty:: handle
-
+   
+   
+   
+   .. autoproperty:: backend
+   .. autoproperty:: handle
+   
+   

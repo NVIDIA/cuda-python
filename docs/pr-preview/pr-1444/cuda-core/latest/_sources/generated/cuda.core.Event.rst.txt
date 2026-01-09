@@ -8,25 +8,26 @@ cuda.core.Event
 
 .. autoclass:: Event
 
+   
+   
+   
+   .. automethod:: __init__
+   .. automethod:: close
+   .. automethod:: from_ipc_descriptor
+   .. automethod:: get_ipc_descriptor
+   .. automethod:: sync
+   
+   
 
-
-
-.. automethod:: __init__
-.. automethod:: close
-.. automethod:: from_ipc_descriptor
-.. automethod:: get_ipc_descriptor
-.. automethod:: sync
-
-
-
-
-
-
-.. autoproperty:: context
-.. autoproperty:: device
-.. autoproperty:: handle
-.. autoproperty:: is_done
-.. autoproperty:: is_ipc_enabled
-.. autoproperty:: is_sync_busy_waited
-.. autoproperty:: is_timing_disabled
-
+   
+   
+   
+   .. autoproperty:: context
+   .. autoproperty:: device
+   .. autoproperty:: handle
+   .. autoproperty:: is_done
+   .. autoproperty:: is_ipc_enabled
+   .. autoproperty:: is_sync_busy_waited
+   .. autoproperty:: is_timing_disabled
+   
+   

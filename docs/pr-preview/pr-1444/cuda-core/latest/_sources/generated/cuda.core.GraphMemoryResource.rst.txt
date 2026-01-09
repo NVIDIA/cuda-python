@@ -8,22 +8,23 @@ cuda.core.GraphMemoryResource
 
 .. autoclass:: GraphMemoryResource
 
+   
+   
+   
+   .. automethod:: __init__
+   .. automethod:: allocate
+   .. automethod:: close
+   .. automethod:: deallocate
+   .. automethod:: trim
+   
+   
 
-
-
-.. automethod:: __init__
-.. automethod:: allocate
-.. automethod:: close
-.. automethod:: deallocate
-.. automethod:: trim
-
-
-
-
-
-
-.. autoproperty:: attributes
-.. autoproperty:: device_id
-.. autoproperty:: is_device_accessible
-.. autoproperty:: is_host_accessible
-
+   
+   
+   
+   .. autoproperty:: attributes
+   .. autoproperty:: device_id
+   .. autoproperty:: is_device_accessible
+   .. autoproperty:: is_host_accessible
+   
+   

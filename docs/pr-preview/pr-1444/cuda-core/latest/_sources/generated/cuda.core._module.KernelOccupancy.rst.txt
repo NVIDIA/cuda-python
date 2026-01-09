@@ -8,20 +8,21 @@ cuda.core.\_module.KernelOccupancy
 
 .. autoclass:: KernelOccupancy
 
+   
+   
+   
+   .. automethod:: __init__
+   .. automethod:: available_dynamic_shared_memory_per_block
+   .. automethod:: max_active_blocks_per_multiprocessor
+   .. automethod:: max_active_clusters
+   .. automethod:: max_potential_block_size
+   .. automethod:: max_potential_cluster_size
+   
+   
 
-
-
-.. automethod:: __init__
-.. automethod:: available_dynamic_shared_memory_per_block
-.. automethod:: max_active_blocks_per_multiprocessor
-.. automethod:: max_active_clusters
-.. automethod:: max_potential_block_size
-.. automethod:: max_potential_cluster_size
-
-
-
-
-
-
-.. autoproperty:: slots
-
+   
+   
+   
+   .. autoproperty:: slots
+   
+   

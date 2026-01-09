@@ -8,25 +8,26 @@ cuda.core.ObjectCode
 
 .. autoclass:: ObjectCode
 
+   
+   
+   
+   .. automethod:: __init__
+   .. automethod:: from_cubin
+   .. automethod:: from_fatbin
+   .. automethod:: from_library
+   .. automethod:: from_ltoir
+   .. automethod:: from_object
+   .. automethod:: from_ptx
+   .. automethod:: get_kernel
+   
+   
 
-
-
-.. automethod:: __init__
-.. automethod:: from_cubin
-.. automethod:: from_fatbin
-.. automethod:: from_library
-.. automethod:: from_ltoir
-.. automethod:: from_object
-.. automethod:: from_ptx
-.. automethod:: get_kernel
-
-
-
-
-
-
-.. autoproperty:: code
-.. autoproperty:: code_type
-.. autoproperty:: handle
-.. autoproperty:: name
-
+   
+   
+   
+   .. autoproperty:: code
+   .. autoproperty:: code_type
+   .. autoproperty:: handle
+   .. autoproperty:: name
+   
+   

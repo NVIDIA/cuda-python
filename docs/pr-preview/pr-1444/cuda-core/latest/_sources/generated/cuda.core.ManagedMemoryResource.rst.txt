@@ -8,27 +8,28 @@ cuda.core.ManagedMemoryResource
 
 .. autoclass:: ManagedMemoryResource
 
+   
+   
+   
+   .. automethod:: __init__
+   .. automethod:: allocate
+   .. automethod:: close
+   .. automethod:: deallocate
+   
+   
 
-
-
-.. automethod:: __init__
-.. automethod:: allocate
-.. automethod:: close
-.. automethod:: deallocate
-
-
-
-
-
-
-.. autoproperty:: attributes
-.. autoproperty:: device_id
-.. autoproperty:: handle
-.. autoproperty:: is_device_accessible
-.. autoproperty:: is_handle_owned
-.. autoproperty:: is_host_accessible
-.. autoproperty:: is_ipc_enabled
-.. autoproperty:: is_mapped
-.. autoproperty:: peer_accessible_by
-.. autoproperty:: uuid
-
+   
+   
+   
+   .. autoproperty:: attributes
+   .. autoproperty:: device_id
+   .. autoproperty:: handle
+   .. autoproperty:: is_device_accessible
+   .. autoproperty:: is_handle_owned
+   .. autoproperty:: is_host_accessible
+   .. autoproperty:: is_ipc_enabled
+   .. autoproperty:: is_mapped
+   .. autoproperty:: peer_accessible_by
+   .. autoproperty:: uuid
+   
+   

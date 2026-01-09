@@ -604,6 +604,71 @@ See <a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.
 </ul>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Program.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">code</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">code_type</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.ProgramOptions" title="cuda.core._program.ProgramOptions"><span class="pre">ProgramOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Program.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Program.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Program.close" title="Link to this definition">#</a></dt>
+<dd><p>Destroy this program.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Program.compile">
+<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_expressions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Program.compile" title="Link to this definition">#</a></dt>
+<dd><p>Compile the program with a specific compilation type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_type</strong> (<em>Any</em>) – String of the targeted compilation type.
+Supported options are “ptx”, “cubin” and “ltoir”.</p></li>
+<li><p><strong>name_expressions</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>]</em><em>, </em><em>optional</em>) – List of explicit name expressions to become accessible.
+(Default to no expressions)</p></li>
+<li><p><strong>logs</strong> (<em>Any</em><em>, </em><em>optional</em>) – Object with a write method to receive the logs generated
+from compilation.
+(Default to no logs)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Newly created code object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.Program.backend">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#cuda.core.Program.backend" title="Link to this definition">#</a></dt>
+<dd><p>Return this Program instance’s underlying backend.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cuda.core.Program.handle">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">handle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ProgramHandleT</span></em><a class="headerlink" href="#cuda.core.Program.handle" title="Link to this definition">#</a></dt>
+<dd><p>Return the underlying handle object.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The type of the returned object depends on the backend.</p>
+</div>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This handle is a Python object. To get the memory address of the underlying C
+handle, call <code class="docutils literal notranslate"><span class="pre">int(Program.handle)</span></code>.</p>
+</div>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -657,7 +722,14 @@ See <a class="reference internal" href="cuda.core.ProgramOptions.html#cuda.core.
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program"><code class="docutils literal notranslate"><span class="pre">Program</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program"><code class="docutils literal notranslate"><span class="pre">Program</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.__init__"><code class="docutils literal notranslate"><span class="pre">Program.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.close"><code class="docutils literal notranslate"><span class="pre">Program.close()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.compile"><code class="docutils literal notranslate"><span class="pre">Program.compile()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.backend"><code class="docutils literal notranslate"><span class="pre">Program.backend</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Program.handle"><code class="docutils literal notranslate"><span class="pre">Program.handle</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

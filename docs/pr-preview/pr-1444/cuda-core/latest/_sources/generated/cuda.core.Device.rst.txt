@@ -8,33 +8,34 @@ cuda.core.Device
 
 .. autoclass:: Device
 
+   
+   
+   
+   .. automethod:: __init__
+   .. automethod:: allocate
+   .. automethod:: can_access_peer
+   .. automethod:: create_context
+   .. automethod:: create_event
+   .. automethod:: create_graph_builder
+   .. automethod:: create_stream
+   .. automethod:: get_all_devices
+   .. automethod:: set_current
+   .. automethod:: sync
+   
+   
 
-
-
-.. automethod:: __init__
-.. automethod:: allocate
-.. automethod:: can_access_peer
-.. automethod:: create_context
-.. automethod:: create_event
-.. automethod:: create_graph_builder
-.. automethod:: create_stream
-.. automethod:: get_all_devices
-.. automethod:: set_current
-.. automethod:: sync
-
-
-
-
-
-
-.. autoproperty:: arch
-.. autoproperty:: compute_capability
-.. autoproperty:: context
-.. autoproperty:: default_stream
-.. autoproperty:: device_id
-.. autoproperty:: memory_resource
-.. autoproperty:: name
-.. autoproperty:: pci_bus_id
-.. autoproperty:: properties
-.. autoproperty:: uuid
-
+   
+   
+   
+   .. autoproperty:: arch
+   .. autoproperty:: compute_capability
+   .. autoproperty:: context
+   .. autoproperty:: default_stream
+   .. autoproperty:: device_id
+   .. autoproperty:: memory_resource
+   .. autoproperty:: name
+   .. autoproperty:: pci_bus_id
+   .. autoproperty:: properties
+   .. autoproperty:: uuid
+   
+   

@@ -8,18 +8,19 @@ cuda.core.\_module.MaxPotentialBlockSizeOccupancyResult
 
 .. autoclass:: MaxPotentialBlockSizeOccupancyResult
 
+   
+   
+   
+   .. automethod:: __init__
+   .. automethod:: count
+   .. automethod:: index
+   
+   
 
-
-
-.. automethod:: __init__
-.. automethod:: count
-.. automethod:: index
-
-
-
-
-
-
-.. autoproperty:: max_block_size
-.. autoproperty:: min_grid_size
-
+   
+   
+   
+   .. autoproperty:: max_block_size
+   .. autoproperty:: min_grid_size
+   
+   

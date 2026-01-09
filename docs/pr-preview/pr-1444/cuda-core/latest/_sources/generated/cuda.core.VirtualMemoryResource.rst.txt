@@ -8,20 +8,21 @@ cuda.core.VirtualMemoryResource
 
 .. autoclass:: VirtualMemoryResource
 
+   
+   
+   
+   .. automethod:: __init__
+   .. automethod:: allocate
+   .. automethod:: deallocate
+   .. automethod:: modify_allocation
+   
+   
 
-
-
-.. automethod:: __init__
-.. automethod:: allocate
-.. automethod:: deallocate
-.. automethod:: modify_allocation
-
-
-
-
-
-
-.. autoproperty:: device_id
-.. autoproperty:: is_device_accessible
-.. autoproperty:: is_host_accessible
-
+   
+   
+   
+   .. autoproperty:: device_id
+   .. autoproperty:: is_device_accessible
+   .. autoproperty:: is_host_accessible
+   
+   

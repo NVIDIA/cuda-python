@@ -8,18 +8,19 @@ cuda.core.Program
 
 .. autoclass:: Program
 
+   
+   
+   
+   .. automethod:: __init__
+   .. automethod:: close
+   .. automethod:: compile
+   
+   
 
-
-
-.. automethod:: __init__
-.. automethod:: close
-.. automethod:: compile
-
-
-
-
-
-
-.. autoproperty:: backend
-.. autoproperty:: handle
-
+   
+   
+   
+   .. autoproperty:: backend
+   .. autoproperty:: handle
+   
+   

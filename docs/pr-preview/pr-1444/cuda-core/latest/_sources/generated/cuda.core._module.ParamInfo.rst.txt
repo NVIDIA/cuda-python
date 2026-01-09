@@ -8,18 +8,19 @@ cuda.core.\_module.ParamInfo
 
 .. autoclass:: ParamInfo
 
+   
+   
+   
+   .. automethod:: __init__
+   .. automethod:: count
+   .. automethod:: index
+   
+   
 
-
-
-.. automethod:: __init__
-.. automethod:: count
-.. automethod:: index
-
-
-
-
-
-
-.. autoproperty:: offset
-.. autoproperty:: size
-
+   
+   
+   
+   .. autoproperty:: offset
+   .. autoproperty:: size
+   
+   
