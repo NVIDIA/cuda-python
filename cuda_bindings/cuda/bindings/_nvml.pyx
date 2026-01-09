@@ -27422,7 +27422,8 @@ cpdef object device_get_field_values(intptr_t device, values):
         __status__ = nvmlDeviceGetFieldValues(<Device>device, valuesCount, ptr)
     check_status(__status__)
 
-    return FieldValue.from_ptr(<intptr_t>ptr, valuesCount)
+    values_._data.resize((valuesCount,))
+    return values_
 
 
 cpdef object device_clear_field_values(intptr_t device, values):
@@ -28060,4 +28061,5 @@ cpdef object system_event_set_wait(intptr_t event_set, unsigned int timeout_ms, 
         request[0].version = sizeof(nvmlSystemEventSetWaitRequest_v1_t) | (1 << 24)
         __status__ = nvmlSystemEventSetWait(<nvmlSystemEventSetWaitRequest_t*>request)
     check_status(__status__)
-    return SystemEventData_v1.from_ptr(event_data._get_ptr(), size=request[0].numEvent)
+    event_data._data.resize((request[0].numEvent,))
+    return event_data
