@@ -28010,11 +28010,11 @@ cpdef intptr_t system_event_set_create():
         request[0].version = sizeof(nvmlSystemEventSetCreateRequest_v1_t) | (1 << 24)
         __status__ = nvmlSystemEventSetCreate(<nvmlSystemEventSetCreateRequest_t*>request)
     check_status(__status__)
-    return <intptr_t>(request.set)
+    return <intptr_t>(request[0].set)
 
 
 cpdef system_event_set_free(intptr_t event_set):
-    """Create an empty set of system events. Event set should be freed by ``nvmlSystemEventSetFree``."""
+    """Frees an event set."""
     cdef nvmlSystemEventSetFreeRequest_v1_t[1] request
     request[0].set = <nvmlSystemEventSet_t>event_set
     with nogil:
@@ -28028,7 +28028,7 @@ cpdef system_register_events(intptr_t event_set, unsigned long long event_types)
 
     Args:
         event_set (intptr_t): The system event set handle.
-        event_types (unsigned int): Bitmask of nvmlSystemEventType_t values representing the events to register.
+        event_types (unsigned long long): Bitmask of nvmlSystemEventType_t values representing the events to register.
     """
     cdef nvmlSystemRegisterEventRequest_v1_t[1] request
     request[0].set = <nvmlSystemEventSet_t>event_set
@@ -28060,4 +28060,4 @@ cpdef object system_event_set_wait(intptr_t event_set, unsigned int timeout_ms, 
         request[0].version = sizeof(nvmlSystemEventSetWaitRequest_v1_t) | (1 << 24)
         __status__ = nvmlSystemEventSetWait(<nvmlSystemEventSetWaitRequest_t*>request)
     check_status(__status__)
-    return SystemEventData_v1.from_ptr(event_data._get_ptr(), size=request.numEvent)
+    return SystemEventData_v1.from_ptr(event_data._get_ptr(), size=request[0].numEvent)

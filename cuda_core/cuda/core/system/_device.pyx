@@ -212,7 +212,7 @@ cdef class EventData:
         """
         The GPU instance ID for MIG devices.
 
-        Only valid for events of type :member:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
+        Only valid for events of type :attr:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
 
         Raises :class:`ValueError` for other event types.
         """
@@ -225,7 +225,7 @@ cdef class EventData:
         """
         The Compute instance ID for MIG devices.
 
-        Only valid for events of type :member:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
+        Only valid for events of type :attr:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
 
         Raises :class:`ValueError` for other event types.
         """
@@ -261,7 +261,7 @@ cdef class DeviceEvents:
     def __dealloc__(self):
         nvml.event_set_free(self._event_set)
 
-    def wait(self, timeout_ms: int = 0) -> None:
+    def wait(self, timeout_ms: int = 0) -> EventData:
         """
         Wait for events in the event set.
 
@@ -298,9 +298,9 @@ cdef class DeviceEvents:
 
         Raises
         ------
-        cuda.core.system.TimeoutError
+        :class:`cuda.core.system.TimeoutError`
             If the timeout expires before an event is received.
-        cuda.core.system.GpuIsLostError
+        :class:`cuda.core.system.GpuIsLostError`
             If the GPU has fallen off the bus or is otherwise inaccessible.
         """
         return EventData(nvml.event_set_wait_v2(self._event_set, timeout_ms))
