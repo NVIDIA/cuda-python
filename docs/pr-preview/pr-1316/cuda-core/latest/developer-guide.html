@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=ed6b127d"></script>
+    <script src="_static/documentation_options.js?v=49139664"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev38';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev39';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -745,11 +745,11 @@ fallback when no clear logical structure exists.</p></li>
 <h3>File Types<a class="headerlink" href="#file-types" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">cuda/core</span></code> package uses three types of files:</p>
 <ol class="arabic simple">
-<li><p><strong>``.pyx`` files</strong>: Cython implementation files containing the actual
+<li><p><strong>.pyx files</strong>: Cython implementation files containing the actual
 code</p></li>
-<li><p><strong>``.pxd`` files</strong>: Cython declaration files containing type
+<li><p><strong>.pxd files</strong>: Cython declaration files containing type
 definitions and function signatures for C-level access</p></li>
-<li><p><strong>``.py`` files</strong>: Pure Python files for utilities and high-level
+<li><p><strong>.py files</strong>: Pure Python files for utilities and high-level
 interfaces</p></li>
 </ol>
 </section>
@@ -769,10 +769,10 @@ pure Python code</p></li>
 <p>For each <code class="docutils literal notranslate"><span class="pre">.pyx</span></code> file that defines classes or functions used by other
 Cython modules, create a corresponding <code class="docutils literal notranslate"><span class="pre">.pxd</span></code> file:</p>
 <ul class="simple">
-<li><p><strong>``.pxd`` file</strong>: Contains <code class="docutils literal notranslate"><span class="pre">cdef</span></code> class declarations,
+<li><p><strong>.pxd file</strong>: Contains <code class="docutils literal notranslate"><span class="pre">cdef</span></code> class declarations,
 <code class="docutils literal notranslate"><span class="pre">cdef</span></code>/<code class="docutils literal notranslate"><span class="pre">cpdef</span></code> function signatures, and <code class="docutils literal notranslate"><span class="pre">cdef</span></code> attribute
 declarations</p></li>
-<li><p><strong>``.pyx`` file</strong>: Contains the full implementation including Python
+<li><p><strong>.pyx file</strong>: Contains the full implementation including Python
 methods, docstrings, and implementation details</p></li>
 </ul>
 <p><strong>Example:</strong></p>
@@ -819,12 +819,12 @@ functions directly in the module file with an <code class="docutils literal notr
 <ol class="arabic simple">
 <li><p><strong>Private submodules</strong>: Each component is implemented in a private
 submodule (e.g., <code class="docutils literal notranslate"><span class="pre">_buffer.pyx</span></code>, <code class="docutils literal notranslate"><span class="pre">_device_memory_resource.pyx</span></code>)</p></li>
-<li><p><strong>Submodule ``__all__``</strong>: Each submodule defines its own <code class="docutils literal notranslate"><span class="pre">__all__</span></code>
+<li><p><strong>Submodule __all__</strong>: Each submodule defines its own <code class="docutils literal notranslate"><span class="pre">__all__</span></code>
 list</p></li>
-<li><p><strong>Subpackage ``__init__.py``</strong>: The subpackage <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> uses
+<li><p><strong>Subpackage __init__.py</strong>: The subpackage <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> uses
 <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">._module</span> <span class="pre">import</span> <span class="pre">*</span></code> to assemble the package</p></li>
 </ol>
-<p><strong>Example structure for ``_memory/`` subpackage:</strong></p>
+<p><strong>Example structure for _memory/ subpackage:</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">_memory/_buffer.pyx</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Buffer&#39;</span><span class="p">,</span> <span class="s1">&#39;MemoryResource&#39;</span><span class="p">]</span>
 
@@ -873,16 +873,16 @@ improve maintainability).</p>
 <section id="guidelines">
 <h3>Guidelines<a class="headerlink" href="#guidelines" title="Link to this heading">#</a></h3>
 <ol class="arabic simple">
-<li><p><strong>Always create ``.pxd`` files for shared Cython types</strong>: If a class
+<li><p><strong>Always create .pxd files for shared Cython types</strong>: If a class
 or function is <code class="docutils literal notranslate"><span class="pre">cimport</span></code>ed by other modules, provide a <code class="docutils literal notranslate"><span class="pre">.pxd</span></code>
 declaration file.</p></li>
-<li><p><strong>Keep ``.pxd`` files minimal</strong>: Only include declarations needed for
+<li><p><strong>Keep .pxd files minimal</strong>: Only include declarations needed for
 Cython compilation. Omit implementation details, docstrings, and
 Python-only code.</p></li>
-<li><p><strong>Use ``__all__`` when helpful</strong>: Define <code class="docutils literal notranslate"><span class="pre">__all__</span></code> to control
+<li><p><strong>Use __all__ when helpful</strong>: Define <code class="docutils literal notranslate"><span class="pre">__all__</span></code> to control
 exported symbols when it simplifies or clarifies the module
 structure.</p></li>
-<li><p><strong>Use ``from ._module import *`` in subpackage ``__init__.py``</strong>:
+<li><p><strong>Use from ._module import * in subpackage __init__.py</strong>:
 This pattern assembles the subpackage API from its submodules. Use
 <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">noqa:</span> <span class="pre">F403</span></code> to suppress linting warnings about wildcard imports.</p></li>
 <li><p><strong>Migrate to subpackage structure when complex</strong>: When a top-level
@@ -986,7 +986,7 @@ Declarations</a> for details).</p></li>
 <li><p><strong>Blank Lines</strong>: Use blank lines to separate the five import groups.
 Do not use blank lines within a group unless using multi-line import
 formatting.</p></li>
-<li><p><strong>``try/except`` Blocks</strong>: Import fallbacks (e.g., for optional
+<li><p><strong>try/except blocks</strong>: Import fallbacks (e.g., for optional
 dependencies) should be placed in the appropriate group (external or
 cuda-core) using <code class="docutils literal notranslate"><span class="pre">try/except</span></code> blocks.</p></li>
 </ol>
@@ -1235,11 +1235,11 @@ circular import issues.</p></li>
 <section id="guidelines-1">
 <span id="id18"></span><h4>Guidelines<a class="headerlink" href="#guidelines-1" title="Link to this heading">#</a></h4>
 <ol class="arabic simple">
-<li><p><strong>Use ``from __future__ import annotations``</strong>: This should be
+<li><p><strong>Use from __future__ import annotations</strong>: This should be
 present in all <code class="docutils literal notranslate"><span class="pre">.py</span></code> and <code class="docutils literal notranslate"><span class="pre">.pyx</span></code> files with type annotations.</p></li>
-<li><p><strong>Use ``|`` for unions</strong>: Prefer <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">|</span> <span class="pre">Y</span> <span class="pre">|</span> <span class="pre">None</span></code> over
+<li><p><strong>Use | for unions</strong>: Prefer <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">|</span> <span class="pre">Y</span> <span class="pre">|</span> <span class="pre">None</span></code> over
 <code class="docutils literal notranslate"><span class="pre">Union[X,</span> <span class="pre">Y]</span></code> or <code class="docutils literal notranslate"><span class="pre">Optional[X]</span></code>.</p></li>
-<li><p><strong>Avoid ``TYPE_CHECKING`` blocks</strong>: With
+<li><p><strong>Avoid TYPE_CHECKING blocks</strong>: With
 <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">__future__</span> <span class="pre">import</span> <span class="pre">annotations</span></code>, forward references work
 without <code class="docutils literal notranslate"><span class="pre">TYPE_CHECKING</span></code> guards.</p></li>
 <li><p><strong>Import types normally</strong>: Even if a type is only used in
@@ -1572,8 +1572,8 @@ with implementation changes.</p></li>
 <h3>CUDA Exceptions<a class="headerlink" href="#cuda-exceptions" title="Link to this heading">#</a></h3>
 <p>The project defines custom exceptions for CUDA-specific errors:</p>
 <ul class="simple">
-<li><p><strong>``CUDAError``</strong>: Base exception for CUDA driver errors</p></li>
-<li><p><strong>``NVRTCError``</strong>: Exception for NVRTC compiler errors (inherits from
+<li><p><strong>CUDAError</strong>: Base exception for CUDA driver errors</p></li>
+<li><p><strong>NVRTCError</strong>: Exception for NVRTC compiler errors (inherits from
 <code class="docutils literal notranslate"><span class="pre">CUDAError</span></code>)</p></li>
 </ul>
 <p>Use these instead of generic exceptions when reporting CUDA failures.</p>
