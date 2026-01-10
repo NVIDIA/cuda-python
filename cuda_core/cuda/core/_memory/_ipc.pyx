@@ -3,11 +3,23 @@
 # SPDX-License-Identifier: Apache-2.0
 
 cimport cpython
-from libc.stdint cimport uintptr_t
-from libc.string cimport memcpy
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer
+from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle
+from cuda.core._memory._memory_pool cimport _MemPool
+from cuda.core._stream cimport Stream
+from cuda.core._resource_handles cimport (
+    DevicePtrHandle,
+    _init_handles_table,
+    create_mempool_handle_ipc,
+    deviceptr_import_ipc,
+    get_last_error,
+    as_cu,
+)
+
+# Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
+_init_handles_table()
+
 from cuda.core._stream cimport default_stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
@@ -87,6 +99,10 @@ cdef class IPCBufferDescriptor:
     def size(self):
         return self._size
 
+    cdef const void* payload_ptr(self) noexcept:
+        """Return the payload as a const void* for C API calls."""
+        return <const void*><const char*>(self._payload)
+
 
 cdef class IPCAllocationHandle:
     """Shareable handle to an IPC-enabled device memory pool."""
@@ -150,7 +166,7 @@ cdef IPCBufferDescriptor Buffer_get_ipc_descriptor(Buffer self):
     cdef cydriver.CUmemPoolPtrExportData data
     with nogil:
         HANDLE_RETURN(
-            cydriver.cuMemPoolExportPointer(&data, <cydriver.CUdeviceptr>(self._ptr))
+            cydriver.cuMemPoolExportPointer(&data, as_cu(self._h_ptr))
         )
     cdef bytes data_b = cpython.PyBytes_FromStringAndSize(
         <char*>(data.reserved), sizeof(data.reserved)
@@ -166,16 +182,15 @@ cdef Buffer Buffer_from_ipc_descriptor(
     if stream is None:
         # Note: match this behavior to _MemPool.allocate()
         stream = default_stream()
-    cdef cydriver.CUmemPoolPtrExportData data
-    memcpy(
-        data.reserved,
-        <const void*><const char*>(ipc_descriptor._payload),
-        sizeof(data.reserved)
+    cdef Stream s = <Stream>stream
+    cdef DevicePtrHandle h_ptr = deviceptr_import_ipc(
+        mr._h_pool,
+        ipc_descriptor.payload_ptr(),
+        s._h_stream
     )
-    cdef cydriver.CUdeviceptr ptr
-    with nogil:
-        HANDLE_RETURN(cydriver.cuMemPoolImportPointer(&ptr, mr._handle, &data))
-    return Buffer._init(<uintptr_t>ptr, ipc_descriptor.size, mr, stream, ipc_descriptor)
+    if not h_ptr:
+        HANDLE_RETURN(get_last_error())
+    return Buffer_from_deviceptr_handle(h_ptr, ipc_descriptor.size, mr, ipc_descriptor)
 
 
 # _MemPool IPC Implementation
@@ -198,17 +213,14 @@ cdef _MemPool MP_from_allocation_handle(cls, alloc_handle):
             os.close(fd)
             raise
 
-    # Construct a new mempool
+    # Construct a new mempool.
     cdef _MemPool self = <_MemPool>(cls.__new__(cls))
     self._mempool_owned = True
+    cdef int ipc_fd = int(alloc_handle)
+    self._h_pool = create_mempool_handle_ipc(ipc_fd, IPC_HANDLE_TYPE)
+    if not self._h_pool:
+        raise RuntimeError("Failed to import memory pool from IPC handle")
     self._ipc_data = IPCDataForMR(alloc_handle, True)
-
-    # Map the mempool into this process.
-    cdef int handle = int(alloc_handle)
-    with nogil:
-        HANDLE_RETURN(cydriver.cuMemPoolImportFromShareableHandle(
-            &(self._handle), <void*><uintptr_t>(handle), IPC_HANDLE_TYPE, 0)
-        )
 
     # Register it.
     if uuid is not None:
@@ -240,7 +252,7 @@ cdef IPCAllocationHandle MP_export_mempool(_MemPool self):
     cdef int fd
     with nogil:
         HANDLE_RETURN(cydriver.cuMemPoolExportToShareableHandle(
-            &fd, self._handle, IPC_HANDLE_TYPE, 0)
+            &fd, as_cu(self._h_pool), IPC_HANDLE_TYPE, 0)
         )
     try:
         return IPCAllocationHandle._init(fd, uuid.uuid4())

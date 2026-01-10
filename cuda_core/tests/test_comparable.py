@@ -9,8 +9,6 @@ across Device, Stream, Event, and Context objects.
 """
 
 from cuda.core import Device, Stream
-from cuda.core._context import Context
-from cuda.core._event import Event, EventOptions
 from cuda.core._stream import StreamOptions
 
 # ============================================================================
@@ -105,50 +103,34 @@ def test_event_subclass_equality(init_cuda):
 
     Event uses isinstance() for equality checking, similar to Stream.
     """
-
-    class MyEvent(Event):
-        pass
-
     device = Device(0)
     device.set_current()
 
-    # Create two different events
-    event = Event._init(device.device_id, device.context, options=EventOptions())
-    my_event = MyEvent._init(device.device_id, device.context, options=EventOptions())
+    # Create events using public API
+    event1 = device.create_event()
+    event2 = device.create_event()
+    event3 = device.create_event()
 
     # Different events should not be equal (different handles)
-    assert event != my_event, "Different Event instances are not equal"
-
-    # Same subclass type with different handles
-    my_event2 = MyEvent._init(device.device_id, device.context, options=EventOptions())
-    assert my_event != my_event2, "Different MyEvent instances are not equal"
+    assert event1 != event2, "Different Event instances are not equal"
+    assert event2 != event3, "Different Event instances are not equal"
 
 
-def test_context_subclass_equality(init_cuda):
-    """Test Context subclass equality behavior."""
-
-    class MyContext(Context):
-        pass
-
+def test_context_equality(init_cuda):
+    """Test Context equality behavior."""
     device = Device(0)
     device.set_current()
-    stream = device.create_stream()
-    context = stream.context
 
-    # MyContext._from_ctx() returns a Context instance, not MyContext
-    my_context = MyContext._from_ctx(context._handle, device.device_id)
-    assert type(my_context) is Context, "_from_ctx returns Context, not subclass"
-    assert type(my_context) is not MyContext
-
-    # Since both are Context instances with same handle, they're equal
-    assert context == my_context, "Context instances with same handle are equal"
-
-    # Create another context from different stream
+    # Get context from different sources
+    stream1 = device.create_stream()
     stream2 = device.create_stream()
+    context1 = stream1.context
     context2 = stream2.context
+    device_context = device.context
 
     # Same device, same primary context, should be equal
-    assert context == context2, "Contexts from same device are equal"
+    assert context1 == context2, "Contexts from same device are equal"
+    assert context1 == device_context, "Stream context equals device context"
 
 
 def test_subclass_type_safety(init_cuda):

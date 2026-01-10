@@ -10,9 +10,24 @@ from libc.string cimport memset
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer, MemoryResource
+from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
 from cuda.core._memory cimport _ipc
 from cuda.core._stream cimport default_stream, Stream_accept, Stream
+from cuda.core._resource_handles cimport (
+    MemoryPoolHandle,
+    DevicePtrHandle,
+    _init_handles_table,
+    create_mempool_handle,
+    create_mempool_handle_ref,
+    get_device_mempool,
+    deviceptr_alloc_from_pool,
+    as_cu,
+    as_py,
+)
+
+# Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
+_init_handles_table()
+
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
 )
@@ -61,7 +76,7 @@ cdef class _MemPoolAttributes:
         cdef _MemPool mr = <_MemPool>(self._mr_weakref())
         if mr is None:
             raise RuntimeError("_MemPool is expired")
-        cdef cydriver.CUmemoryPool pool_handle = mr._handle
+        cdef cydriver.CUmemoryPool pool_handle = as_cu(mr._h_pool)
         with nogil:
             HANDLE_RETURN(cydriver.cuMemPoolGetAttribute(pool_handle, attr_enum, value))
         return 0
@@ -127,7 +142,6 @@ cdef class _MemPool(MemoryResource):
 
     def __cinit__(self):
         self._dev_id = cydriver.CU_DEVICE_INVALID
-        self._handle = NULL
         self._mempool_owned = False
         self._ipc_data = None
         self._attributes = None
@@ -202,9 +216,9 @@ cdef class _MemPool(MemoryResource):
         return self._dev_id
 
     @property
-    def handle(self) -> driver.CUmemoryPool:
+    def handle(self) -> object:
         """Handle to the underlying memory pool."""
-        return driver.CUmemoryPool(<uintptr_t>(self._handle))
+        return as_py(self._h_pool)
 
     @property
     def is_handle_owned(self) -> bool:
@@ -271,7 +285,7 @@ cdef class _MemPool(MemoryResource):
                     i += 1
 
                 with nogil:
-                    HANDLE_RETURN(cydriver.cuMemPoolSetAccess(self._handle, access_desc, count))
+                    HANDLE_RETURN(cydriver.cuMemPoolSetAccess(as_cu(self._h_pool), access_desc, count))
             finally:
                 if access_desc != NULL:
                     PyMem_Free(access_desc)
@@ -308,64 +322,69 @@ cdef int _MP_init_current(_MemPool self, int dev_id, _MemPoolOptions opts) excep
     cdef cydriver.cuuint64_t current_threshold
     cdef cydriver.cuuint64_t max_threshold = ULLONG_MAX
     cdef cydriver.CUmemLocation loc
+    cdef cydriver.CUmemoryPool pool
 
     self._dev_id = dev_id
     self._mempool_owned = False
 
-    with nogil:
-        if opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED \
-                and opts._location == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE:
-            assert dev_id >= 0
-            HANDLE_RETURN(cydriver.cuDeviceGetMemPool(&(self._handle), dev_id))
+    if opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED \
+            and opts._location == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE:
+        assert dev_id >= 0
+        self._h_pool = get_device_mempool(dev_id)
 
-            # Set a higher release threshold to improve performance when there are
-            # no active allocations.  By default, the release threshold is 0, which
-            # means memory is immediately released back to the OS when there are no
-            # active suballocations, causing performance issues.
+        # Set a higher release threshold to improve performance when there are
+        # no active allocations.  By default, the release threshold is 0, which
+        # means memory is immediately released back to the OS when there are no
+        # active suballocations, causing performance issues.
+        with nogil:
             HANDLE_RETURN(
                 cydriver.cuMemPoolGetAttribute(
-                    self._handle,
+                    as_cu(self._h_pool),
                     cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
                     &current_threshold
                 )
             )
-
-            # If threshold is 0 (default), set it to maximum to retain memory in the pool.
             if current_threshold == 0:
                 HANDLE_RETURN(cydriver.cuMemPoolSetAttribute(
-                    self._handle,
+                    as_cu(self._h_pool),
                     cydriver.CUmemPool_attribute.CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
                     &max_threshold
                 ))
-        elif opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED \
-                and opts._location == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST:
-            IF CUDA_CORE_BUILD_MAJOR >= 13:
-                assert dev_id == -1
+    elif opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED \
+            and opts._location == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST:
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            assert dev_id == -1
+            loc.id = dev_id
+            loc.type = opts._location
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemGetMemPool(&pool, &loc, opts._type))
+            self._h_pool = create_mempool_handle_ref(pool)
+        ELSE:
+            raise RuntimeError("not supported")
+    elif opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED \
+            and opts._location == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA:
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            assert dev_id == 0
+            loc.id = 0
+            loc.type = opts._location
+            with nogil:
+                HANDLE_RETURN(cydriver.cuMemGetMemPool(&pool, &loc, opts._type))
+            self._h_pool = create_mempool_handle_ref(pool)
+        ELSE:
+            raise RuntimeError("not supported")
+    else:
+        IF CUDA_CORE_BUILD_MAJOR >= 13:
+            if opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED:
+                # Managed memory pools
                 loc.id = dev_id
                 loc.type = opts._location
-                HANDLE_RETURN(cydriver.cuMemGetMemPool(&(self._handle), &loc, opts._type))
-            ELSE:
-                raise RuntimeError("not supported")
-        elif opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED \
-                and opts._location == cydriver.CUmemLocationType.CU_MEM_LOCATION_TYPE_HOST_NUMA:
-            IF CUDA_CORE_BUILD_MAJOR >= 13:
-                assert dev_id == 0
-                loc.id = 0
-                loc.type = opts._location
-                HANDLE_RETURN(cydriver.cuMemGetMemPool(&(self._handle), &loc, opts._type))
-            ELSE:
-                raise RuntimeError("not supported")
-        else:
-            IF CUDA_CORE_BUILD_MAJOR >= 13:
-                if opts._type == cydriver.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_MANAGED:
-                    # Managed memory pools
-                    loc.id = dev_id
-                    loc.type = opts._location
-                    HANDLE_RETURN(cydriver.cuMemGetMemPool(&(self._handle), &loc, opts._type))
-                else:
-                    assert False
-            ELSE:
+                with nogil:
+                    HANDLE_RETURN(cydriver.cuMemGetMemPool(&pool, &loc, opts._type))
+                self._h_pool = create_mempool_handle_ref(pool)
+            else:
                 assert False
+        ELSE:
+            assert False
 
     return 0
 
@@ -389,9 +408,7 @@ cdef int _MP_init_create(_MemPool self, int dev_id, _MemPoolOptions opts) except
     self._dev_id = dev_id
     self._mempool_owned = True
 
-    with nogil:
-        HANDLE_RETURN(cydriver.cuMemPoolCreate(&(self._handle), &properties))
-        # TODO: should we also set the threshold here?
+    self._h_pool = create_mempool_handle(properties)
 
     if ipc_enabled:
         alloc_handle = _ipc.MP_export_mempool(self)
@@ -411,24 +428,20 @@ cdef inline int check_not_capturing(cydriver.CUstream s) except?-1 nogil:
 
 
 cdef inline Buffer _MP_allocate(_MemPool self, size_t size, Stream stream):
-    cdef cydriver.CUstream s = stream._handle
-    cdef cydriver.CUdeviceptr devptr
+    cdef cydriver.CUstream s = as_cu(stream._h_stream)
+    cdef DevicePtrHandle h_ptr
     with nogil:
         check_not_capturing(s)
-        HANDLE_RETURN(cydriver.cuMemAllocFromPoolAsync(&devptr, size, self._handle, s))
-    cdef Buffer buf = Buffer.__new__(Buffer)
-    buf._ptr = <uintptr_t>(devptr)
-    buf._ptr_obj = None
-    buf._size = size
-    buf._memory_resource = self
-    buf._alloc_stream = stream
-    return buf
+        h_ptr = deviceptr_alloc_from_pool(size, self._h_pool, stream._h_stream)
+    if not h_ptr:
+        raise RuntimeError("Failed to allocate memory from pool")
+    return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
 
 
 cdef inline void _MP_deallocate(
     _MemPool self, uintptr_t ptr, size_t size, Stream stream
 ) noexcept nogil:
-    cdef cydriver.CUstream s = stream._handle
+    cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     cdef cydriver.CUresult r
     with nogil:
@@ -438,7 +451,7 @@ cdef inline void _MP_deallocate(
 
 
 cdef inline _MP_close(_MemPool self):
-    if self._handle == NULL:
+    if not self._h_pool:
         return
 
     # This works around nvbug 5698116. When a memory pool handle is recycled
@@ -446,14 +459,12 @@ cdef inline _MP_close(_MemPool self):
     if self._peer_accessible_by:
         self.peer_accessible_by = []
 
-    try:
-        if self._mempool_owned:
-            with nogil:
-                HANDLE_RETURN(cydriver.cuMemPoolDestroy(self._handle))
-    finally:
-        self._dev_id = cydriver.CU_DEVICE_INVALID
-        self._handle = NULL
-        self._attributes = None
-        self._mempool_owned = False
-        self._ipc_data = None
-        self._peer_accessible_by = ()
+    # Reset members in declaration order.
+    # The RAII deleter handles nvbug 5698116 workaround (clears peer access)
+    # and calls cuMemPoolDestroy if this is an owning handle.
+    self._h_pool.reset()
+    self._dev_id = cydriver.CU_DEVICE_INVALID
+    self._mempool_owned = False
+    self._ipc_data = None
+    self._attributes = None
+    self._peer_accessible_by = ()

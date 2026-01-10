@@ -13,7 +13,19 @@ from typing import Optional
 
 import numpy
 
+from cuda.bindings cimport cydriver
+from cuda.core._resource_handles cimport (
+    EventHandle,
+    _init_handles_table,
+    create_event_handle_noctx,
+    as_cu,
+)
+
+# Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
+_init_handles_table()
+
 from cuda.core._utils.cuda_utils import handle_return, driver
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 
 from cuda.core._memory import Buffer
@@ -579,6 +591,7 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
         buf.device_id = handle_return(driver.cuCtxGetDevice())
 
     cdef intptr_t producer_s, consumer_s
+    cdef EventHandle h_event
     stream_ptr = int(stream_ptr)
     if stream_ptr != -1:
         stream = cai_data.get("stream")
@@ -588,11 +601,12 @@ cpdef StridedMemoryView view_as_cai(obj, stream_ptr, view=None):
             assert producer_s > 0
             # establish stream order
             if producer_s != consumer_s:
-                e = handle_return(driver.cuEventCreate(
-                    driver.CUevent_flags.CU_EVENT_DISABLE_TIMING))
-                handle_return(driver.cuEventRecord(e, producer_s))
-                handle_return(driver.cuStreamWaitEvent(consumer_s, e, 0))
-                handle_return(driver.cuEventDestroy(e))
+                with nogil:
+                    h_event = create_event_handle_noctx(cydriver.CUevent_flags.CU_EVENT_DISABLE_TIMING)
+                    HANDLE_RETURN(cydriver.cuEventRecord(
+                        as_cu(h_event), <cydriver.CUstream>producer_s))
+                    HANDLE_RETURN(cydriver.cuStreamWaitEvent(
+                        <cydriver.CUstream>consumer_s, as_cu(h_event), 0))
 
     return buf
 
