@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0e4f752f"></script>
+    <script src="../_static/documentation_options.js?v=39b7ff45"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev21';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev22';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -606,8 +606,9 @@ using Stream.from_handle().</p>
 <dt class="sig sig-object py" id="cuda.core.Stream.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Stream.close" title="Link to this definition">#</a></dt>
 <dd><p>Destroy the stream.</p>
-<p>Destroy the stream if we own it. Borrowed foreign stream
-object will instead have their references released.</p>
+<p>Releases the stream handle. For owned streams, this destroys the
+underlying CUDA stream. For borrowed streams, this releases the
+reference and allows the Python owner to be GC’d.</p>
 </dd></dl>
 
 <dl class="py method">

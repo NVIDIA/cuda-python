@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0e4f752f"></script>
+    <script src="../_static/documentation_options.js?v=39b7ff45"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev21';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev22';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -605,7 +605,7 @@ asynchronously on the given stream.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>stream</strong> (<a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> | <a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a>, optional) – The stream object to use for asynchronous deallocation. If None,
-the behavior depends on the underlying memory resource.</p>
+the deallocation stream stored in the handle is used.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -721,6 +721,11 @@ The <code class="docutils literal notranslate"><span class="pre">owner</span></c
 </ul>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This creates a non-owning reference. The pointer will NOT be freed
+when the Buffer is closed or garbage collected.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
