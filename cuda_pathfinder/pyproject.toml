@@ -78,7 +78,7 @@ root = ".."
 version_file = "cuda/pathfinder/_version.py"
 # We deliberately do not want to include the version suffixes (a/b/rc) in cuda-pathfinder versioning
 tag_regex = "^cuda-pathfinder-(?P<version>v\\d+\\.\\d+\\.\\d+)"
-git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-pathfinder-v*[0-9]*" ]
+git_describe_command = ["python", "cuda_pathfinder/git_describe_command_shim.py", "cuda-pathfinder-v*[0-9]*"]
 
 [tool.pytest.ini_options]
 addopts = "--showlocals"
