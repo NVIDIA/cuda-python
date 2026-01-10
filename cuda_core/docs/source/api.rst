@@ -23,6 +23,9 @@ CUDA runtime
    Graph
    GraphBuilder
    launch
+
+   :template: autosummary/cyclass.rst
+
    Buffer
    Stream
    Event
