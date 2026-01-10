@@ -9,137 +9,102 @@ from cuda.pathfinder._binaries.supported_nvidia_binaries import SITE_PACKAGES_BI
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.path_utils import _abs_norm
+from cuda.pathfinder._utils.toolchain_tracker import (
+    SearchContext,
+    SearchLocation,
+    ToolchainSource,
+    get_default_context,
+)
 
 
-def _get_binary_filename_candidates(binary_name: str) -> tuple[str, ...]:
-    """Generate possible binary filename variations.
-
-    Returns multiple candidates to support fuzzy search across platforms.
-    The filesystem will naturally filter to what exists.
-
-    Args:
-        binary_name: Base name of the binary (e.g., "nvdisasm").
-
-    Returns:
-        Tuple of possible filenames to try (exact name, with .exe extension).
-    """
-    # Try exact name first, then with .exe extension
-    # This works across platforms - non-existent files simply won't be found
-    return (binary_name, f"{binary_name}.exe")
-
-
-def _find_file_in_dir(directory: str, filename_candidates: Sequence[str]) -> str | None:
-    """Search for the first existing file from candidates in a directory.
+def _binary_filename_variants(name: str) -> Sequence[str]:
+    """Generate filename variants for a binary (cross-platform).
 
     Args:
-        directory: Directory to search in.
-        filename_candidates: Possible filenames to try.
+        name: Base binary name.
 
     Returns:
-        Path to first matching file, or None if none found.
+        Tuple of possible filenames (e.g., "nvcc", "nvcc.exe").
     """
-    for filename in filename_candidates:
-        file_path = os.path.join(directory, filename)
-        if os.path.isfile(file_path):
-            return file_path
-    return None
+    return (name, f"{name}.exe")
 
 
-def _find_binary_under_site_packages(binary_name: str) -> str | None:
-    """Search for a binary in site-packages directories."""
+def _get_site_packages_subdirs(binary_name: str) -> Sequence[str]:
+    """Get site-packages subdirectories for a binary.
+
+    Args:
+        binary_name: Name of the binary.
+
+    Returns:
+        List of subdirectories to search, or empty list if binary not in site-packages.
+    """
     rel_dirs = SITE_PACKAGES_BINDIRS.get(binary_name)
-    if rel_dirs is None:
-        return None
+    if not rel_dirs:
+        return []
 
-    filename_candidates = _get_binary_filename_candidates(binary_name)
-
+    # Expand site-packages paths
+    subdirs = []
     for rel_dir in rel_dirs:
-        for bin_dir in find_sub_dirs_all_sitepackages(tuple(rel_dir.split("/"))):
-            if found := _find_file_in_dir(bin_dir, filename_candidates):
-                return found
-    return None
+        for found_dir in find_sub_dirs_all_sitepackages(tuple(rel_dir.split("/"))):
+            subdirs.append(found_dir)
+    return subdirs
 
 
-def _find_binary_in_conda(binary_name: str) -> str | None:
-    """Search for a binary in conda prefix.
+# Define search locations for binaries
+def _create_search_locations(binary_name: str) -> list[SearchLocation]:
+    """Create search location configurations for a specific binary.
 
-    Searches common conda bin directory locations across platforms.
+    Args:
+        binary_name: Name of the binary to search for.
+
+    Returns:
+        List of SearchLocation objects to try.
     """
-    conda_prefix = os.environ.get("CONDA_PREFIX")
-    if not conda_prefix:
-        return None
-
-    filename_candidates = _get_binary_filename_candidates(binary_name)
-
-    # Try both Windows and Unix bin directory layouts
-    # The filesystem will naturally tell us what exists
-    bin_dirs = (
-        os.path.join(conda_prefix, "Library", "bin"),  # Windows conda layout
-        os.path.join(conda_prefix, "bin"),  # Unix conda layout
-    )
-
-    for bin_dir in bin_dirs:
-        if found := _find_file_in_dir(bin_dir, filename_candidates):
-            return found
-    return None
-
-
-def _find_binary_in_cuda_home(binary_name: str) -> str | None:
-    """Search for a binary in CUDA_HOME or CUDA_PATH."""
-    cuda_home = get_cuda_home_or_path()
-    if cuda_home is None:
-        return None
-
-    filename_candidates = _get_binary_filename_candidates(binary_name)
-    bin_dir = os.path.join(cuda_home, "bin")
-
-    return _find_file_in_dir(bin_dir, filename_candidates)
+    return [
+        SearchLocation(
+            source=ToolchainSource.SITE_PACKAGES,
+            base_dir_func=lambda: None,  # Use subdirs for full paths
+            subdirs=_get_site_packages_subdirs(binary_name),
+            filename_variants=_binary_filename_variants,
+        ),
+        SearchLocation(
+            source=ToolchainSource.CONDA,
+            base_dir_func=lambda: os.environ.get("CONDA_PREFIX"),
+            subdirs=["Library/bin", "bin"],  # Windows and Unix layouts
+            filename_variants=_binary_filename_variants,
+        ),
+        SearchLocation(
+            source=ToolchainSource.CUDA_HOME,
+            base_dir_func=get_cuda_home_or_path,
+            subdirs=["bin"],
+            filename_variants=_binary_filename_variants,
+        ),
+    ]
 
 
 @functools.cache
-def find_nvidia_binary(binary_name: str) -> str | None:
+def find_nvidia_binary(binary_name: str, *, context: SearchContext | None = None) -> str | None:
     """Locate a CUDA binary executable.
 
     Args:
-        binary_name (str): The name of the binary to find (e.g., ``"nvdisasm"``,
-            ``"cuobjdump"``).
+        binary_name: Name of the binary (e.g., "nvdisasm", "cuobjdump").
+        context: Optional SearchContext for toolchain consistency tracking.
+            If None, uses the default module-level context.
 
     Returns:
-        str or None: Absolute path to the discovered binary, or ``None`` if the
-        binary cannot be found.
+        Absolute path to the binary, or None if not found.
 
     Raises:
-        RuntimeError: If ``binary_name`` is not in the supported set.
-
-    Search order:
-        1. **NVIDIA Python wheels**
-
-           - Scan installed distributions (``site-packages``) for binaries
-             shipped in NVIDIA wheels (e.g., ``cuda-toolkit[nvcc]``).
-
-        2. **Conda environments**
-
-           - Check Conda-style installation prefixes (``$CONDA_PREFIX/bin`` on
-             Linux/Mac or ``$CONDA_PREFIX/Library/bin`` on Windows).
-
-        3. **CUDA Toolkit environment variables**
-
-           - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order) and look in the
-             ``bin`` subdirectory.
+        RuntimeError: If binary_name is not supported.
+        ToolchainMismatchError: If binary found in different source than
+            the context's preferred source.
     """
     if binary_name not in SUPPORTED_BINARIES:
         raise RuntimeError(f"UNKNOWN {binary_name=}")
 
-    # Try site-packages first
-    if binary_path := _find_binary_under_site_packages(binary_name):
-        return _abs_norm(binary_path)
+    if context is None:
+        context = get_default_context()
 
-    # Try conda prefix
-    if binary_path := _find_binary_in_conda(binary_name):
-        return _abs_norm(binary_path)
-
-    # Try CUDA_HOME/CUDA_PATH
-    if binary_path := _find_binary_in_cuda_home(binary_name):
-        return _abs_norm(binary_path)
-
-    return None
+    locations = _create_search_locations(binary_name)
+    path = context.find(binary_name, locations)
+    return _abs_norm(path) if path else None
