@@ -86,8 +86,13 @@ def _determine_cuda_major_version() -> str:
 _extensions = None
 
 
-def _build_cuda_core():
-    # Validate git tags are available (fail early before setuptools-scm runs)
+# Please keep the implementations in cuda-pathfinder, cuda-bindings, cuda-core in sync.
+def _validate_git_tags_available(tag_pattern: str) -> None:
+    """Verify that git tags are available for setuptools-scm version detection.
+
+    Args:
+        tag_pattern: Git tag pattern to match (e.g., "v*[0-9]*")
+    """
     import subprocess
 
     # Check if git is available
@@ -104,8 +109,8 @@ def _build_cuda_core():
 
     # Check if git describe works (this is what setuptools-scm uses)
     try:
-        result = subprocess.run(
-            ["git", "describe", "--tags", "--long", "--match", "cuda-core-v*[0-9]*"],  # noqa: S607
+        result = subprocess.run(  # noqa: S603
+            ["git", "describe", "--tags", "--long", "--match", tag_pattern],  # noqa: S607
             cwd=repo_root,
             capture_output=True,
             text=True,
@@ -125,13 +130,18 @@ def _build_cuda_core():
                 f"To fix:\n"
                 f"  git fetch --tags\n"
                 f"\n"
-                f"To debug, run: git describe --tags --long --match 'cuda-core-v*[0-9]*'"
+                f"To debug, run: git describe --tags --long --match '{tag_pattern}'"
             ) from None
     except subprocess.TimeoutExpired:
         raise RuntimeError(
             "git describe command timed out. This may indicate git repository issues.\n"
             "Please check your git repository state."
         ) from None
+
+
+def _build_cuda_core():
+    # Validate git tags are available (fail early before setuptools-scm runs)
+    _validate_git_tags_available("cuda-core-v*[0-9]*")
 
     # Customizing the build hooks is needed because we must defer cythonization until cuda-bindings,
     # now a required build-time dependency that's dynamically installed via the other hook below,

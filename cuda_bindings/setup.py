@@ -25,9 +25,14 @@ from setuptools.extension import Extension
 
 
 # ----------------------------------------------------------------------
+# Please keep the implementations in cuda-pathfinder, cuda-bindings, cuda-core in sync.
 # Validate git tags are available (fail early before setuptools-scm runs)
-def _validate_git_tags_available():
-    """Verify that git tags are available for setuptools-scm version detection."""
+def _validate_git_tags_available(tag_pattern: str) -> None:
+    """Verify that git tags are available for setuptools-scm version detection.
+
+    Args:
+        tag_pattern: Git tag pattern to match (e.g., "v*[0-9]*")
+    """
     import subprocess
 
     # Check if git is available
@@ -39,24 +44,14 @@ def _validate_git_tags_available():
             "Please ensure git is installed and available in your PATH."
         ) from None
 
-    # Check if we're in a git repository
-    try:
-        subprocess.run(
-            ["git", "rev-parse", "--git-dir"],  # noqa: S607
-            capture_output=True,
-            check=True,
-            timeout=5,
-        )
-    except subprocess.CalledProcessError:
-        raise RuntimeError(
-            "Not in a git repository. setuptools-scm requires git tags to determine version.\n"
-            "Please run this from within the cuda-python git repository."
-        ) from None
+    # Find git repository root (setuptools_scm root='..')
+    repo_root = os.path.dirname(os.path.dirname(__file__))
 
     # Check if git describe works (this is what setuptools-scm uses)
     try:
-        result = subprocess.run(
-            ["git", "describe", "--tags", "--long", "--match", "v*[0-9]*"],  # noqa: S607
+        result = subprocess.run(  # noqa: S603
+            ["git", "describe", "--tags", "--long", "--match", tag_pattern],  # noqa: S607
+            cwd=repo_root,
             capture_output=True,
             text=True,
             timeout=5,
@@ -75,7 +70,7 @@ def _validate_git_tags_available():
                 f"To fix:\n"
                 f"  git fetch --tags\n"
                 f"\n"
-                f"To debug, run: git describe --tags --long --match 'v*[0-9]*'"
+                f"To debug, run: git describe --tags --long --match '{tag_pattern}'"
             ) from None
     except subprocess.TimeoutExpired:
         raise RuntimeError(
@@ -84,7 +79,7 @@ def _validate_git_tags_available():
         ) from None
 
 
-_validate_git_tags_available()
+_validate_git_tags_available("v*[0-9]*")
 
 # ----------------------------------------------------------------------
 # Fetch configuration options

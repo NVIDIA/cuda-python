@@ -10,12 +10,17 @@ hooks are delegated to setuptools.build_meta.
 """
 
 import os
-import subprocess
 
 
-# Validate tags before importing setuptools.build_meta (which will use setuptools-scm)
-def _validate_git_tags_available():
-    """Verify that git tags are available for setuptools-scm version detection."""
+# Please keep the implementations in cuda-pathfinder, cuda-bindings, cuda-core in sync.
+def _validate_git_tags_available(tag_pattern: str) -> None:
+    """Verify that git tags are available for setuptools-scm version detection.
+
+    Args:
+        tag_pattern: Git tag pattern to match (e.g., "v*[0-9]*")
+    """
+    import subprocess
+
     # Check if git is available
     try:
         subprocess.run(["git", "--version"], capture_output=True, check=True, timeout=5)  # noqa: S607
@@ -30,8 +35,8 @@ def _validate_git_tags_available():
 
     # Check if git describe works (this is what setuptools-scm uses)
     try:
-        result = subprocess.run(
-            ["git", "describe", "--tags", "--long", "--match", "cuda-pathfinder-v*[0-9]*"],  # noqa: S607
+        result = subprocess.run(  # noqa: S603
+            ["git", "describe", "--tags", "--long", "--match", tag_pattern],  # noqa: S607
             cwd=repo_root,
             capture_output=True,
             text=True,
@@ -51,7 +56,7 @@ def _validate_git_tags_available():
                 f"To fix:\n"
                 f"  git fetch --tags\n"
                 f"\n"
-                f"To debug, run: git describe --tags --long --match 'cuda-pathfinder-v*[0-9]*'"
+                f"To debug, run: git describe --tags --long --match '{tag_pattern}'"
             ) from None
     except subprocess.TimeoutExpired:
         raise RuntimeError(
@@ -61,7 +66,7 @@ def _validate_git_tags_available():
 
 
 # Validate tags before any build operations
-_validate_git_tags_available()
+_validate_git_tags_available("cuda-pathfinder-v*[0-9]*")
 
 # Import and re-export all PEP 517 hooks from setuptools.build_meta
 from setuptools.build_meta import *  # noqa: F403, E402
