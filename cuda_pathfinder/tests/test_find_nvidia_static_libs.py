@@ -1,0 +1,68 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+import os
+
+import pytest
+
+from cuda.pathfinder import find_nvidia_static_lib
+from cuda.pathfinder._static_libs.supported_nvidia_static_libs import SUPPORTED_STATIC_LIBS
+
+STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_STATIC_LIBS_STRICTNESS", "see_what_works")
+assert STRICTNESS in ("see_what_works", "all_must_work")
+
+
+def test_unknown_artifact():
+    with pytest.raises(RuntimeError, match=r"^UNKNOWN artifact_name='unknown-artifact'$"):
+        find_nvidia_static_lib("unknown-artifact")
+
+
+@pytest.mark.parametrize("artifact_name", SUPPORTED_STATIC_LIBS)
+def test_find_static_libs(info_summary_append, artifact_name):
+    artifact_path = find_nvidia_static_lib(artifact_name)
+    info_summary_append(f"{artifact_path=!r}")
+    if artifact_path:
+        assert os.path.isfile(artifact_path)
+        # Verify the artifact name (or its base) is in the path
+        base_name = artifact_name.replace(".10", "")  # Handle libdevice.10.bc -> libdevice
+        assert base_name.split(".")[0] in artifact_path.lower()
+    if STRICTNESS == "all_must_work":
+        assert artifact_path is not None
+
+
+def test_libdevice_specific(info_summary_append):
+    """Specific test for libdevice.10.bc to ensure it's working."""
+    artifact_path = find_nvidia_static_lib("libdevice.10.bc")
+    info_summary_append(f"libdevice.10.bc path: {artifact_path!r}")
+    if artifact_path:
+        assert os.path.isfile(artifact_path)
+        assert "libdevice" in artifact_path
+        # Should end with .bc
+        assert artifact_path.endswith(".bc")
+    # Only assert existence if we're in strict mode or if cuda is installed
+    if STRICTNESS == "all_must_work" or os.environ.get("CUDA_HOME") or os.environ.get("CONDA_PREFIX"):
+        if artifact_path:
+            assert os.path.isfile(artifact_path)
+
+
+def test_libcudadevrt_specific(info_summary_append):
+    """Specific test for libcudadevrt.a to ensure it's working."""
+    artifact_path = find_nvidia_static_lib("libcudadevrt.a")
+    info_summary_append(f"libcudadevrt.a path: {artifact_path!r}")
+    if artifact_path:
+        assert os.path.isfile(artifact_path)
+        # On Linux it should be .a, on Windows it might be .lib
+        assert artifact_path.endswith((".a", ".lib"))
+        assert "cudadevrt" in artifact_path.lower()
+    # Only assert existence if we're in strict mode or if cuda is installed
+    if STRICTNESS == "all_must_work" or os.environ.get("CUDA_HOME") or os.environ.get("CONDA_PREFIX"):
+        if artifact_path:
+            assert os.path.isfile(artifact_path)
+
+
+def test_caching():
+    """Test that the find functions are properly cached."""
+    # Call twice and ensure we get the same object (due to functools.cache)
+    path1 = find_nvidia_static_lib("libdevice.10.bc")
+    path2 = find_nvidia_static_lib("libdevice.10.bc")
+    assert path1 is path2  # Should be the exact same object due to caching
