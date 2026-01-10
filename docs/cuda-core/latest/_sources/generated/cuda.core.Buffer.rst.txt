@@ -30,13 +30,13 @@ cuda.core.Buffer
    .. rubric:: Attributes
 
    
-   .. autoproperty:: device_id
-   .. autoproperty:: handle
-   .. autoproperty:: is_device_accessible
-   .. autoproperty:: is_host_accessible
-   .. autoproperty:: is_mapped
-   .. autoproperty:: memory_resource
-   .. autoproperty:: owner
-   .. autoproperty:: size
+   .. autoattribute:: device_id
+   .. autoattribute:: handle
+   .. autoattribute:: is_device_accessible
+   .. autoattribute:: is_host_accessible
+   .. autoattribute:: is_mapped
+   .. autoattribute:: memory_resource
+   .. autoattribute:: owner
+   .. autoattribute:: size
    
    

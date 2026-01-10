@@ -29,10 +29,10 @@ cuda.core.Stream
    .. rubric:: Attributes
 
    
-   .. autoproperty:: context
-   .. autoproperty:: device
-   .. autoproperty:: handle
-   .. autoproperty:: is_nonblocking
-   .. autoproperty:: priority
+   .. autoattribute:: context
+   .. autoattribute:: device
+   .. autoattribute:: handle
+   .. autoattribute:: is_nonblocking
+   .. autoattribute:: priority
    
    
