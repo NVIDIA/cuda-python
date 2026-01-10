@@ -13,6 +13,7 @@ import os
 import re
 import sys
 
+import helpers
 import pytest
 from cuda.core import system
 from cuda.core.system import _device as system_device
@@ -189,3 +190,28 @@ def test_unpack_bitmask(params):
 def test_unpack_bitmask_single_value():
     with pytest.raises(TypeError):
         system_device._unpack_bitmask(1)
+
+
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Events not supported on WSL or Windows")
+def test_register_events():
+    # This is not the world's greatest test.  All of the events are pretty
+    # infrequent and hard to simulate.  So all we do here is register an event,
+    # wait with a timeout, and ensure that we get no event (since we didn't do
+    # anything to trigger one).
+
+    # Also, some hardware doesn't support any event types.
+
+    for device in system.Device.get_all_devices():
+        supported_events = device.get_supported_event_types()
+        assert isinstance(supported_events, list)
+        assert all(isinstance(ev, system_device.EventType) for ev in supported_events)
+
+    for device in system.Device.get_all_devices():
+        events = device.register_events([])
+        with pytest.raises(system.TimeoutError):
+            events.wait(timeout_ms=500)
+
+    for device in system.Device.get_all_devices():
+        events = device.register_events(0)
+        with pytest.raises(system.TimeoutError):
+            events.wait(timeout_ms=500)
