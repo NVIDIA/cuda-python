@@ -83,6 +83,9 @@ CUDA system information and NVIDIA Management Library (NVML)
 
    system.Device
    system.DeviceArchitecture
+   system.FieldId
+   system.FieldValue
+   system.FieldValues
    system.MemoryInfo
    system.BAR1MemoryInfo
    system.PciInfo

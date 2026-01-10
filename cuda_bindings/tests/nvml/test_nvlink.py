@@ -11,14 +11,14 @@ def test_nvlink_get_link_count(all_devices):
     """
     for device in all_devices:
         fields = nvml.FieldValue(1)
-        fields[0].field_id = nvml.FI.DEV_NVLINK_LINK_COUNT
+        fields[0].field_id = nvml.FieldId.DEV_NVLINK_LINK_COUNT
         value = nvml.device_get_field_values(device, fields)[0]
         assert value.nvml_return == nvml.Return.SUCCESS or value.nvml_return == nvml.Return.ERROR_NOT_SUPPORTED, (
             f"Unexpected return {value.nvml_return} for link count field query"
         )
 
         # Use the alternative argument to device_get_field_values
-        value = nvml.device_get_field_values(device, [nvml.FI.DEV_NVLINK_LINK_COUNT])[0]
+        value = nvml.device_get_field_values(device, [nvml.FieldId.DEV_NVLINK_LINK_COUNT])[0]
         assert value.nvml_return == nvml.Return.SUCCESS or value.nvml_return == nvml.Return.ERROR_NOT_SUPPORTED, (
             f"Unexpected return {value.nvml_return} for link count field query"
         )
