@@ -30,24 +30,24 @@ def _binary_filename_variants(name: str) -> Sequence[str]:
 
 
 def _get_site_packages_subdirs(binary_name: str) -> Sequence[str]:
-    """Get site-packages subdirectories for a binary.
+    """Get site-packages sub-directories for a binary.
 
     Args:
         binary_name: Name of the binary.
 
     Returns:
-        List of subdirectories to search, or empty list if binary not in site-packages.
+        List of sub-directories to search, or empty list if binary not in site-packages.
     """
-    rel_dirs = SITE_PACKAGES_BINDIRS.get(binary_name)
-    if not rel_dirs:
+    relative_directories = SITE_PACKAGES_BINDIRS.get(binary_name)
+    if not relative_directories:
         return []
 
     # Expand site-packages paths
-    subdirs = []
-    for rel_dir in rel_dirs:
-        for found_dir in find_sub_dirs_all_sitepackages(tuple(rel_dir.split("/"))):
-            subdirs.append(found_dir)
-    return subdirs
+    sub_directories = []
+    for relative_directory in relative_directories:
+        for found_dir in find_sub_dirs_all_sitepackages(tuple(relative_directory.split("/"))):
+            sub_directories.append(found_dir)
+    return sub_directories
 
 
 # Define search locations for binaries
