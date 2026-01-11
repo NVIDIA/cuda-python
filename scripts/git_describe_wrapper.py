@@ -33,6 +33,28 @@ except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpi
     print("setuptools-scm requires git to determine version from tags.", file=sys.stderr)  # noqa: T201
     sys.exit(1)
 
+# Check if repository is shallow (which can cause git describe to fail)
+try:
+    result = subprocess.run(  # noqa: S603
+        ["git", "rev-parse", "--is-shallow-repository"],  # noqa: S607
+        capture_output=True,
+        text=True,
+        timeout=5,
+    )
+    if result.returncode == 0 and result.stdout.strip() == "true":
+        print("ERROR: Repository is a shallow clone.", file=sys.stderr)  # noqa: T201
+        print("", file=sys.stderr)  # noqa: T201
+        print("Shallow clones may not have all tags, causing git describe to fail.", file=sys.stderr)  # noqa: T201
+        print("This will cause setuptools-scm to fall back to version '0.1.x'.", file=sys.stderr)  # noqa: T201
+        print("", file=sys.stderr)  # noqa: T201
+        print("To fix:", file=sys.stderr)  # noqa: T201
+        print("  git fetch --unshallow", file=sys.stderr)  # noqa: T201
+        print("  git fetch --tags", file=sys.stderr)  # noqa: T201
+        sys.exit(1)
+except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+    # If git rev-parse fails, continue anyway (might not be in a git repo)
+    pass
+
 # Run git describe (setuptools-scm expects --dirty --tags --long)
 result = subprocess.run(  # noqa: S603
     ["git", "describe", "--dirty", "--tags", "--long", "--match", tag_pattern],  # noqa: S607
