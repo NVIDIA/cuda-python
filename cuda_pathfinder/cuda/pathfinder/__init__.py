@@ -3,8 +3,6 @@
 
 """cuda.pathfinder public APIs"""
 
-from cuda.pathfinder._version import __version__  # noqa: F401
-
 from cuda.pathfinder._dynamic_libs.load_dl_common import DynamicLibNotFoundError as DynamicLibNotFoundError
 from cuda.pathfinder._dynamic_libs.load_dl_common import LoadedDL as LoadedDL
 from cuda.pathfinder._dynamic_libs.load_nvidia_dynamic_lib import load_nvidia_dynamic_lib as load_nvidia_dynamic_lib
@@ -13,6 +11,8 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
 )
 from cuda.pathfinder._headers.find_nvidia_headers import find_nvidia_header_directory as find_nvidia_header_directory
 from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_CTK as _SUPPORTED_HEADERS_CTK
+
+from cuda.pathfinder._version import __version__  # noqa: F401  # isort: skip
 
 # Indirections to help Sphinx find the docstrings.
 #: Mapping from short CUDA Toolkit (CTK) library names to their canonical

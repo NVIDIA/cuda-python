@@ -8,6 +8,7 @@ import os
 import pathlib
 import platform
 import shutil
+import subprocess
 import sys
 import sysconfig
 import tempfile
@@ -410,10 +411,61 @@ class ParallelBuildExtensions(build_ext):
         super().build_extension(ext)
 
 
+class ValidateVersion(build_py):
+    """Custom build_py that validates version after setuptools-scm generates it."""
+
+    def run(self):
+        # setuptools-scm generates _version.py during build_py phase
+        # Validate version after parent run() completes
+        super().run()
+        _validate_version()
+
+
 cmdclass = {
     "bdist_wheel": WheelsBuildExtensions,
     "build_ext": ParallelBuildExtensions,
+    "build_py": ValidateVersion,
 }
+
+# ----------------------------------------------------------------------
+# Version validation
+
+
+def _validate_version():
+    """Validate that setuptools-scm did not fall back to default version.
+
+    This checks if cuda-bindings version is a fallback (0.0.x or 0.1.dev*) which
+    indicates setuptools-scm failed to detect version from git tags.
+    """
+    repo_root = pathlib.Path(__file__).resolve().parent.parent
+    validation_script = repo_root / "scripts" / "validate_version.py"
+
+    if not validation_script.exists():
+        # If validation script doesn't exist, skip validation (shouldn't happen)
+        return
+
+    # Run validation script
+    result = subprocess.run(  # noqa: S603
+        [
+            sys.executable,
+            str(validation_script),
+            "cuda-bindings",
+            "cuda/bindings/_version.py",
+            "12.9.*|13.*",
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+
+    if result.returncode != 0:
+        error_msg = result.stderr.strip() or result.stdout.strip()
+        raise RuntimeError(
+            f"Version validation failed for cuda-bindings:\n{error_msg}\n"
+            f"This build will fail to prevent using incorrect fallback version."
+        )
+
 
 # ----------------------------------------------------------------------
 # Setup
