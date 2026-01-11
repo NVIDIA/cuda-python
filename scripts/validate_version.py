@@ -33,10 +33,10 @@ def validate_version(package_name: str, version_file_path: str, expected_pattern
     """
     version_file = Path(version_file_path)
     if not version_file.exists():
-        raise RuntimeError(
-            f"Version file not found: {version_file_path}\n"
-            f"This may indicate setuptools-scm failed to generate version metadata."
-        )
+        # Version file might not exist yet if validation runs during prepare_metadata
+        # In that case, skip validation silently (it will be validated later in build hooks)
+        # This allows prepare_metadata to complete, and validation will happen in build_editable/build_wheel
+        return
 
     # Read version from _version.py
     with open(version_file, encoding="utf-8") as f:

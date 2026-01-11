@@ -21,17 +21,15 @@ from setuptools import build_meta as _build_meta
 
 
 def prepare_metadata_for_build_editable(metadata_directory, config_settings=None):
-    result = _build_meta.prepare_metadata_for_build_editable(metadata_directory, config_settings)
-    # Validate version after metadata is prepared (which generates _version.py)
-    _validate_version()
-    return result
+    # Don't validate here - _version.py might not be written yet
+    # Validation will happen in build_editable where the file definitely exists
+    return _build_meta.prepare_metadata_for_build_editable(metadata_directory, config_settings)
 
 
 def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
-    result = _build_meta.prepare_metadata_for_build_wheel(metadata_directory, config_settings)
-    # Validate version after metadata is prepared (which generates _version.py)
-    _validate_version()
-    return result
+    # Don't validate here - _version.py might not be written yet
+    # Validation will happen in build_wheel where the file definitely exists
+    return _build_meta.prepare_metadata_for_build_wheel(metadata_directory, config_settings)
 
 
 build_sdist = _build_meta.build_sdist
@@ -203,11 +201,15 @@ def _validate_version():
 
 
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
+    # Validate version here - _version.py definitely exists by this point
+    _validate_version()
     _build_cuda_core()
     return _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
+    # Validate version here - _version.py definitely exists by this point
+    _validate_version()
     _build_cuda_core()
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
 
