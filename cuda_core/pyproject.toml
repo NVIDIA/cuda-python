@@ -84,7 +84,7 @@ root = ".."
 version_file = "cuda/core/_version.py"
 # We deliberately do not want to include the version suffixes (a/b/rc) in cuda-core versioning
 tag_regex = "^cuda-core-(?P<version>v\\d+\\.\\d+\\.\\d+)"
-git_describe_command = ["python", "cuda_core/git_describe_command_shim.py", "cuda-core-v*[0-9]*"]
+git_describe_command = ["python", "scripts/git_describe_wrapper.py", "cuda-core-v*[0-9]*"]
 
 [tool.cibuildwheel]
 skip = "*-musllinux_*"

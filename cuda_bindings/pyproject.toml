@@ -82,4 +82,4 @@ root = ".."
 version_file = "cuda/bindings/_version.py"
 # We deliberately do not want to include the version suffixes (a/b/rc) in cuda-bindings versioning
 tag_regex = "^(?P<version>v\\d+\\.\\d+\\.\\d+)"
-git_describe_command = ["python", "cuda_bindings/git_describe_command_shim.py", "v*[0-9]*"]
+git_describe_command = ["python", "scripts/git_describe_wrapper.py", "v*[0-9]*"]

@@ -3,24 +3,24 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-"""Git describe runner for setuptools-scm that fails loudly if no matching tags found.
+"""Git describe wrapper for setuptools-scm that fails loudly if no matching tags found.
 
 This script is used as a replacement for git_describe_command in pyproject.toml.
 It provides better error messages and ensures setuptools-scm doesn't silently
 fall back to 0.1.x when tags are missing.
 
 Usage:
-    python git_describe_command_runner.py <tag_pattern>
+    python git_describe_wrapper.py <tag_pattern>
 
 Example:
-    python git_describe_command_runner.py "v*[0-9]*"
+    python git_describe_wrapper.py "v*[0-9]*"
 """
 
 import subprocess
 import sys
 
 if len(sys.argv) < 2:
-    print("Usage: python git_describe_command_runner.py <tag_pattern>", file=sys.stderr)  # noqa: T201
+    print("Usage: python git_describe_wrapper.py <tag_pattern>", file=sys.stderr)  # noqa: T201
     sys.exit(1)
 
 tag_pattern = sys.argv[1]
