@@ -11,27 +11,14 @@ import functools
 import glob
 import os
 import re
-import subprocess
-import sys
 from pathlib import Path
 
 from Cython.Build import cythonize
 from setuptools import Extension
 from setuptools import build_meta as _build_meta
 
-
-def prepare_metadata_for_build_editable(metadata_directory, config_settings=None):
-    # Don't validate here - _version.py might not be written yet
-    # Validation will happen in build_editable where the file definitely exists
-    return _build_meta.prepare_metadata_for_build_editable(metadata_directory, config_settings)
-
-
-def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
-    # Don't validate here - _version.py might not be written yet
-    # Validation will happen in build_wheel where the file definitely exists
-    return _build_meta.prepare_metadata_for_build_wheel(metadata_directory, config_settings)
-
-
+prepare_metadata_for_build_editable = _build_meta.prepare_metadata_for_build_editable
+prepare_metadata_for_build_wheel = _build_meta.prepare_metadata_for_build_wheel
 build_sdist = _build_meta.build_sdist
 get_requires_for_build_sdist = _build_meta.get_requires_for_build_sdist
 
@@ -164,52 +151,12 @@ def _build_cuda_core():
     return
 
 
-def _validate_version():
-    """Validate that setuptools-scm did not fall back to default version.
-
-    This checks if cuda-core version is a fallback (0.0.x or 0.1.dev*) which
-    indicates setuptools-scm failed to detect version from git tags.
-    """
-    repo_root = Path(__file__).resolve().parent.parent
-    validation_script = repo_root / "scripts" / "validate_version.py"
-
-    if not validation_script.exists():
-        # If validation script doesn't exist, skip validation (shouldn't happen)
-        return
-
-    # Run validation script
-    result = subprocess.run(  # noqa: S603
-        [
-            sys.executable,
-            str(validation_script),
-            "cuda-core",
-            "cuda/core/_version.py",
-            "0.5.*",
-        ],
-        cwd=repo_root,
-        capture_output=True,
-        text=True,
-        timeout=10,
-    )
-
-    if result.returncode != 0:
-        error_msg = result.stderr.strip() or result.stdout.strip()
-        raise RuntimeError(
-            f"Version validation failed for cuda-core:\n{error_msg}\n"
-            f"This build will fail to prevent using incorrect fallback version."
-        )
-
-
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
-    # Validate version here - _version.py definitely exists by this point
-    _validate_version()
     _build_cuda_core()
     return _build_meta.build_editable(wheel_directory, config_settings, metadata_directory)
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
-    # Validate version here - _version.py definitely exists by this point
-    _validate_version()
     _build_cuda_core()
     return _build_meta.build_wheel(wheel_directory, config_settings, metadata_directory)
 

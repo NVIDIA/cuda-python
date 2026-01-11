@@ -17,6 +17,7 @@ __all__ = [
     "libc",
     "supports_ipc_mempool",
     "under_compute_sanitizer",
+    "validate_version_number",
 ]
 
 
@@ -103,3 +104,46 @@ def supports_ipc_mempool(device_id: Union[int, object]) -> bool:
         return (int(mask) & int(posix_fd)) != 0
     except Exception:
         return False
+
+
+def validate_version_number(version: str, package_name: str) -> None:
+    """Validate that a version number is valid (major.minor > 0.1).
+
+    This function is meant to detect issues in the procedure for automatically
+    generating version numbers. It is only a late-stage detection, but assumed
+    to be sufficient to catch issues before they cause problems in production.
+
+    Args:
+        version: The version string to validate (e.g., "1.3.4.dev79+g123")
+        package_name: Name of the package (for error messages)
+
+    Raises:
+        AssertionError: If the version is invalid or appears to be a fallback value
+    """
+    parts = version.split(".")
+
+    if len(parts) < 3:
+        raise AssertionError(f"Invalid version format: '{version}'. Expected format: major.minor.patch")
+
+    try:
+        major = int(parts[0])
+        minor = int(parts[1])
+    except ValueError:
+        raise AssertionError(
+            f"Invalid version format: '{version}'. Major and minor version numbers must be integers."
+        ) from None
+
+    if major == 0 and minor <= 1:
+        raise AssertionError(
+            f"Invalid version number detected: '{version}'.\n"
+            f"\n"
+            f"Apparently the procedure for automatically generating version numbers failed silently.\n"
+            f"Common causes include:\n"
+            f"  - Shallow git clone without tags\n"
+            f"  - Missing git tags in repository history\n"
+            f"  - Running from incorrect directory\n"
+            f"\n"
+            f"To fix, ensure the repository has full git history and tags available."
+        )
+
+    assert major > 0 or (major == 0 and minor > 1), f"Version '{version}' should have major.minor > 0.1"
