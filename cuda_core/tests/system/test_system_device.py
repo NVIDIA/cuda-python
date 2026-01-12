@@ -217,6 +217,10 @@ def test_register_events():
             events.wait(timeout_ms=500)
 
 
+def test_event_type_parsing():
+    [system.EventType(ev) for ev in _device._unpack_bitmask(array.array("Q", [3]))]
+
+
 def test_field_values():
     for device in system.Device.get_all_devices():
         # TODO: Are there any fields that return double's?  It would be good to
