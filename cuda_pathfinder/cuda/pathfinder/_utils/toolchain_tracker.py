@@ -1,8 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Toolchain consistency tracking for CUDA artifact searches."""
-
 import os
 from dataclasses import dataclass
 from enum import Enum, auto

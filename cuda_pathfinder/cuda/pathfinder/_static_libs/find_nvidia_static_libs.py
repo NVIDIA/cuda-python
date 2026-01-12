@@ -2,11 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
-import glob
 import os
-from typing import Optional, Sequence
+from typing import Sequence
 
-from cuda.pathfinder._static_libs.artifact_search_config import ARTIFACT_CONFIGS
 from cuda.pathfinder._static_libs.supported_nvidia_static_libs import (
     SITE_PACKAGES_STATIC_LIBDIRS,
     SUPPORTED_STATIC_LIBS,
@@ -23,73 +21,59 @@ from cuda.pathfinder._utils.toolchain_tracker import (
 )
 
 
+# Generic search locations by toolchain source (platform-specific at import time)
+if IS_WINDOWS:
+    CONDA_LIB_SUBDIRS = ("Library/lib", "Library/lib/x64")
+    CONDA_NVVM_SUBDIRS = ("Library/nvvm/libdevice",)
+    CUDA_HOME_LIB_SUBDIRS = ("lib/x64", "lib")
+    CUDA_HOME_NVVM_SUBDIRS = ("nvvm/libdevice",)
+else:
+    CONDA_LIB_SUBDIRS = ("lib",)
+    CONDA_NVVM_SUBDIRS = ("nvvm/libdevice",)
+    CUDA_HOME_LIB_SUBDIRS = ("lib64", "lib")
+    CUDA_HOME_NVVM_SUBDIRS = ("nvvm/libdevice",)
+
+
 def _static_lib_filename_variants(artifact_name: str) -> Sequence[str]:
-    """Get filename variants for a static library artifact.
+    """Generate platform-appropriate filename variants for an artifact.
 
     Args:
-        artifact_name: The artifact name to get filenames for.
+        artifact_name: Canonical artifact name (e.g., "cudadevrt", "libdevice.10.bc").
 
     Returns:
-        Sequence of filenames to search for.
+        Sequence of filenames to search for on this platform.
+
+    Examples:
+        On Windows:
+            "cudadevrt" -> ("cudadevrt.lib",)
+            "libdevice.10.bc" -> ("libdevice.10.bc",)
+        On Linux:
+            "cudadevrt" -> ("libcudadevrt.a",)
+            "libdevice.10.bc" -> ("libdevice.10.bc",)
     """
-    config = ARTIFACT_CONFIGS.get(artifact_name)
-    if not config:
+    # Files that are the same on all platforms (e.g., .bc bitcode files)
+    if "." in artifact_name:
         return (artifact_name,)
-    return config.filenames
+
+    # Platform-specific library naming conventions
+    if IS_WINDOWS:
+        return (f"{artifact_name}.lib",)
+    else:
+        return (f"lib{artifact_name}.a",)
 
 
-def _get_site_packages_subdirs(artifact_name: str) -> Sequence[str]:
-    """Get site-packages subdirectories for an artifact.
-
-    Args:
-        artifact_name: Name of the artifact.
-
-    Returns:
-        List of absolute paths to search in site-packages, or empty if not available.
-    """
-    rel_dirs = SITE_PACKAGES_STATIC_LIBDIRS.get(artifact_name)
-    if not rel_dirs:
-        return []
-
-    subdirs = []
-    for rel_dir in rel_dirs:
-        for found_dir in find_sub_dirs_all_sitepackages(tuple(rel_dir.split("/"))):
-            subdirs.append(found_dir)
-    return subdirs
-
-
-def _get_conda_subdirs(artifact_name: str) -> Sequence[str]:
-    """Get conda subdirectories for an artifact.
-
-    Args:
-        artifact_name: Name of the artifact.
+def _get_cuda_home_subdirs_with_targets() -> tuple[str, ...]:
+    """Get CUDA_HOME subdirectories including expanded targets/* paths.
 
     Returns:
-        List of subdirectories relative to CONDA_PREFIX.
+        Tuple of subdirectories to search under CUDA_HOME.
     """
-    config = ARTIFACT_CONFIGS.get(artifact_name)
-    if not config:
-        return []
-    return config.conda_dirs
+    import glob
 
+    subdirs = list(CUDA_HOME_LIB_SUBDIRS + CUDA_HOME_NVVM_SUBDIRS)
 
-def _get_cuda_home_subdirs(artifact_name: str) -> Sequence[str]:
-    """Get CUDA_HOME subdirectories for an artifact, including targets/ search if needed.
-
-    Args:
-        artifact_name: Name of the artifact.
-
-    Returns:
-        List of subdirectories to search.
-    """
-    config = ARTIFACT_CONFIGS.get(artifact_name)
-    if not config:
-        return []
-
-    subdirs = list(config.cuda_home_dirs)
-
-    # Add targets/* expansion for cross-compilation (Linux only)
-    if config.search_targets_subdirs and not IS_WINDOWS:
+    # On Linux, also search targets/*/lib64 and targets/*/lib for cross-compilation
+    if not IS_WINDOWS:
         cuda_home = get_cuda_home_or_path()
         if cuda_home:
             for lib_subdir in ("lib64", "lib"):
@@ -99,11 +83,11 @@ def _get_cuda_home_subdirs(artifact_name: str) -> Sequence[str]:
                     rel_path = os.path.relpath(target_dir, cuda_home)
                     subdirs.append(rel_path)
 
-    return subdirs
+    return tuple(subdirs)
 
 
 def _create_search_locations(artifact_name: str) -> list[SearchLocation]:
-    """Create search location configurations for a specific artifact.
+    """Create generic search location configurations.
 
     Args:
         artifact_name: Name of the artifact to search for.
@@ -111,26 +95,43 @@ def _create_search_locations(artifact_name: str) -> list[SearchLocation]:
     Returns:
         List of SearchLocation objects to try.
     """
-    return [
-        SearchLocation(
-            source=ToolchainSource.SITE_PACKAGES,
-            base_dir_func=lambda: None,  # Use subdirs for full paths
-            subdirs=_get_site_packages_subdirs(artifact_name),
-            filename_variants=lambda _: _static_lib_filename_variants(artifact_name),
-        ),
+    locations = []
+
+    # Site-packages: Create separate SearchLocation for each found directory
+    relative_directories = SITE_PACKAGES_STATIC_LIBDIRS.get(artifact_name)
+    if relative_directories:
+        for relative_directory in relative_directories:
+            for found_dir in find_sub_dirs_all_sitepackages(tuple(relative_directory.split("/"))):
+                locations.append(
+                    SearchLocation(
+                        source=ToolchainSource.SITE_PACKAGES,
+                        base_dir_func=lambda d=found_dir: d,
+                        subdirs=[""],
+                        filename_variants=_static_lib_filename_variants,
+                    )
+                )
+
+    # Conda: Generic lib and nvvm locations
+    locations.append(
         SearchLocation(
             source=ToolchainSource.CONDA,
             base_dir_func=lambda: os.environ.get("CONDA_PREFIX"),
-            subdirs=_get_conda_subdirs(artifact_name),
-            filename_variants=lambda _: _static_lib_filename_variants(artifact_name),
-        ),
+            subdirs=CONDA_LIB_SUBDIRS + CONDA_NVVM_SUBDIRS,
+            filename_variants=_static_lib_filename_variants,
+        )
+    )
+
+    # CUDA_HOME: Generic lib and nvvm locations (including targets/* on Linux)
+    locations.append(
         SearchLocation(
             source=ToolchainSource.CUDA_HOME,
             base_dir_func=get_cuda_home_or_path,
-            subdirs=_get_cuda_home_subdirs(artifact_name),
-            filename_variants=lambda _: _static_lib_filename_variants(artifact_name),
-        ),
-    ]
+            subdirs=_get_cuda_home_subdirs_with_targets(),
+            filename_variants=_static_lib_filename_variants,
+        )
+    )
+
+    return locations
 
 
 @functools.cache
@@ -138,7 +139,9 @@ def find_nvidia_static_lib(artifact_name: str, *, context: SearchContext | None 
     """Locate a CUDA static library or artifact file.
 
     Args:
-        artifact_name: Name of the artifact (e.g., "libdevice.10.bc", "libcudadevrt.a").
+        artifact_name: Canonical artifact name (e.g., "libdevice.10.bc", "cudadevrt").
+            Platform-specific filenames are resolved automatically:
+            - "cudadevrt" -> "libcudadevrt.a" on Linux, "cudadevrt.lib" on Windows
         context: Optional SearchContext for toolchain consistency tracking.
             If None, uses the default module-level context.
 

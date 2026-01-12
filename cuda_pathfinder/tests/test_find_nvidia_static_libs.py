@@ -46,9 +46,9 @@ def test_libdevice_specific(info_summary_append):
 
 
 def test_libcudadevrt_specific(info_summary_append):
-    """Specific test for libcudadevrt.a to ensure it's working."""
-    artifact_path = find_nvidia_static_lib("libcudadevrt.a")
-    info_summary_append(f"libcudadevrt.a path: {artifact_path!r}")
+    """Specific test for cudadevrt to ensure it's working."""
+    artifact_path = find_nvidia_static_lib("cudadevrt")
+    info_summary_append(f"cudadevrt path: {artifact_path!r}")
     if artifact_path:
         assert os.path.isfile(artifact_path)
         # On Linux it should be .a, on Windows it might be .lib
