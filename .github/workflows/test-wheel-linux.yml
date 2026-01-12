@@ -37,6 +37,8 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+        with:
+          fetch-depth: 1  # Intentionally shallow clone to test wheel installation without full git history
 
       - name: Validate Test Type
         run: |
@@ -94,6 +96,8 @@ jobs:
 
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+        with:
+          fetch-depth: 1  # Intentionally shallow clone to test wheel installation without full git history
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -269,17 +273,22 @@ jobs:
       - name: Ensure cuda-python installable
         run: |
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            pip install cuda_python*.whl
+            pip install --only-binary=:all: cuda_python*.whl
           else
-            pip install $(ls cuda_python*.whl)[all]
+            pip install --only-binary=:all: $(ls cuda_python*.whl)[all]
           fi
+
+      - name: Verify installed package versions
+        run: |
+          # Trigger __version__ assertions to guard against setuptools-scm fallback versions
+          python -c 'import cuda.pathfinder'
+          python -c 'import cuda.bindings'
 
       - name: Install cuda.pathfinder extra wheels for testing
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
-          # Install pathfinder from the pre-built wheel, since building from
-          # source won't work in this context (we don't have a git checkout).
+          # Install pathfinder from the pre-built wheel to test the wheel artifacts
           pip install --only-binary=:all: -v ./*.whl --group "test-cu${TEST_CUDA_MAJOR}"
           pip list
           popd

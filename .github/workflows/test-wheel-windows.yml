@@ -34,6 +34,8 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+        with:
+          fetch-depth: 1  # Intentionally shallow clone to test wheel installation without full git history
 
       - name: Validate Test Type
         run: |
@@ -70,6 +72,8 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+        with:
+          fetch-depth: 1  # Intentionally shallow clone to test wheel installation without full git history
 
       - name: Setup proxy cache
         uses: nv-gha-runners/setup-proxy-cache@main
@@ -236,10 +240,17 @@ jobs:
       - name: Ensure cuda-python installable
         run: |
           if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
-            pip install (Get-ChildItem -Filter cuda_python*.whl).FullName
+            pip install --only-binary=:all: (Get-ChildItem -Filter cuda_python*.whl).FullName
           } else {
-            pip install "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
+            pip install --only-binary=:all: "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
           }
+
+      - name: Verify installed package versions
+        shell: bash --noprofile --norc -xeuo pipefail {0}
+        run: |
+          # Trigger __version__ assertions to guard against setuptools-scm fallback versions
+          python -c 'import cuda.pathfinder'
+          python -c 'import cuda.bindings'
 
       - name: Install cuda.pathfinder extra wheels for testing
         shell: bash --noprofile --norc -xeuo pipefail {0}
