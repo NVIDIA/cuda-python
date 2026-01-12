@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.system.SystemEvent &#8212; cuda.core</title>
+    <title>cuda.core.system.DeviceAttributes &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.SystemEvent';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.DeviceAttributes';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,13 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.system.SystemEvent.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.system.DeviceAttributes.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.system.SystemEvents" href="cuda.core.system.SystemEvents.html" />
-    <link rel="prev" title="cuda.core.system.RegisteredSystemEvents" href="cuda.core.system.RegisteredSystemEvents.html" />
+    <link rel="next" title="cuda.core.system.DeviceEvents" href="cuda.core.system.DeviceEvents.html" />
+    <link rel="prev" title="cuda.core.system.DeviceArchitecture" href="cuda.core.system.DeviceArchitecture.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -500,14 +500,14 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.RegisteredSystemEvents.html">cuda.core.system.RegisteredSystemEvents</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.SystemEvent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEvent.html">cuda.core.system.SystemEvent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEvents.html">cuda.core.system.SystemEvents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceAttributes.html">cuda.core.system.DeviceAttributes</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.DeviceAttributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceEvents.html">cuda.core.system.DeviceEvents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.EventData.html">cuda.core.system.EventData</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.EventType.html">cuda.core.system.EventType</a></li>
@@ -577,7 +577,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.SystemEvent</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.DeviceAttributes</span></li>
   </ul>
 </nav>
 </div>
@@ -594,19 +594,127 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-system-systemevent">
-<h1>cuda.core.system.SystemEvent<a class="headerlink" href="#cuda-core-system-systemevent" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-system-deviceattributes">
+<h1>cuda.core.system.DeviceAttributes<a class="headerlink" href="#cuda-core-system-deviceattributes" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.system.SystemEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">SystemEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">nvml.SystemEventData_v1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.SystemEvent" title="Link to this definition">#</a></dt>
-<dd><p>Data about a collection of system events.</p>
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">DeviceAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">nvml.DeviceAttributes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.DeviceAttributes" title="Link to this definition">#</a></dt>
+<dd><p>Various device attributes.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.system.SystemEvent.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.SystemEvent.__init__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.compute_instance_slice_count">
+<span class="sig-name descname"><span class="pre">compute_instance_slice_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.compute_instance_slice_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The compute instance slice count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.compute_instance_slice_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.gpu_instance_slice_count">
+<span class="sig-name descname"><span class="pre">gpu_instance_slice_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.gpu_instance_slice_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The GPU instance slice count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.gpu_instance_slice_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.memory_size_mb">
+<span class="sig-name descname"><span class="pre">memory_size_mb</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.memory_size_mb" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>Device memory size in MiB</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.memory_size_mb</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.multiprocessor_count">
+<span class="sig-name descname"><span class="pre">multiprocessor_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.multiprocessor_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The streaming multiprocessor count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.multiprocessor_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.shared_copy_engine_count">
+<span class="sig-name descname"><span class="pre">shared_copy_engine_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.shared_copy_engine_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The shared copy engine count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.shared_copy_engine_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.shared_decoder_count">
+<span class="sig-name descname"><span class="pre">shared_decoder_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.shared_decoder_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The shared decoder engine count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.shared_decoder_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.shared_encoder_count">
+<span class="sig-name descname"><span class="pre">shared_encoder_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.shared_encoder_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The shared encoder engine count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.shared_encoder_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.shared_jpeg_count">
+<span class="sig-name descname"><span class="pre">shared_jpeg_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.shared_jpeg_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The shared JPEG engine count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.shared_jpeg_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.shared_ofa_count">
+<span class="sig-name descname"><span class="pre">shared_ofa_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.shared_ofa_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The shared optical flow accelerator (OFA) engine count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.shared_ofa_count</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -622,20 +730,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.system.RegisteredSystemEvents.html"
+       href="cuda.core.system.DeviceArchitecture.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.system.RegisteredSystemEvents</p>
+        <p class="prev-next-title">cuda.core.system.DeviceArchitecture</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.system.SystemEvents.html"
+       href="cuda.core.system.DeviceEvents.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.system.SystemEvents</p>
+        <p class="prev-next-title">cuda.core.system.DeviceEvents</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -660,8 +768,17 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.SystemEvent"><code class="docutils literal notranslate"><span class="pre">SystemEvent</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.SystemEvent.__init__"><code class="docutils literal notranslate"><span class="pre">SystemEvent.__init__()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.__init__"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.compute_instance_slice_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.compute_instance_slice_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.gpu_instance_slice_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.gpu_instance_slice_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.memory_size_mb"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.memory_size_mb</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.multiprocessor_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.multiprocessor_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.shared_copy_engine_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.shared_copy_engine_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.shared_decoder_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.shared_decoder_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.shared_encoder_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.shared_encoder_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.shared_jpeg_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.shared_jpeg_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.shared_ofa_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.shared_ofa_count</span></code></a></li>
 </ul>
 </li>
 </ul>

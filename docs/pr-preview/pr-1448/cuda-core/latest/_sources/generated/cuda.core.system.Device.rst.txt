@@ -29,13 +29,17 @@ cuda.core.system.Device
 
    
    .. autoattribute:: architecture
+   .. autoattribute:: attributes
    .. autoattribute:: bar1_memory_info
+   .. autoattribute:: brand
    .. autoattribute:: cpu_affinity
    .. autoattribute:: cuda_compute_capability
-   .. autoattribute:: handle
+   .. autoattribute:: index
+   .. autoattribute:: is_c2c_mode_enabled
    .. autoattribute:: memory_info
    .. autoattribute:: name
    .. autoattribute:: pci_info
+   .. autoattribute:: persistence_mode_enabled
    .. autoattribute:: serial
    .. autoattribute:: uuid
    
