@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=61be61fb"></script>
+    <script src="../_static/documentation_options.js?v=6a80a56b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev27';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev31';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -643,8 +643,9 @@ device info, such as aggregate ECC counts.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.InforomInfo.bbx_flush_time">
 <span class="sig-name descname"><span class="pre">bbx_flush_time</span></span><a class="headerlink" href="#cuda.core.system.InforomInfo.bbx_flush_time" title="Link to this definition">#</a></dt>
-<dd><p>int</p>
-<p>Retrieves the timestamp and duration of the last flush of the BBX (bloackbox) InfoROM object during the current run.</p>
+<dd><p>tuple[int, int]</p>
+<p>Retrieves the timestamp and duration of the last flush of the BBX
+(blackbox) InfoROM object during the current run.</p>
 <p>For all products with an InfoROM.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -659,6 +660,18 @@ device info, such as aggregate ECC counts.</p>
 </dd>
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>InforomInfo.bbx_flush_time</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.InforomInfo.board_part_number">
+<span class="sig-name descname"><span class="pre">board_part_number</span></span><a class="headerlink" href="#cuda.core.system.InforomInfo.board_part_number" title="Link to this definition">#</a></dt>
+<dd><p>str</p>
+<p>The device board part number which is programmed into the board’s InfoROM.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>InforomInfo.board_part_number</p>
 </dd>
 </dl>
 </dd></dl>
@@ -766,6 +779,7 @@ object version which is only an indicator of supported features.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.InforomInfo.get_version"><code class="docutils literal notranslate"><span class="pre">InforomInfo.get_version()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.InforomInfo.validate"><code class="docutils literal notranslate"><span class="pre">InforomInfo.validate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.InforomInfo.bbx_flush_time"><code class="docutils literal notranslate"><span class="pre">InforomInfo.bbx_flush_time</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.InforomInfo.board_part_number"><code class="docutils literal notranslate"><span class="pre">InforomInfo.board_part_number</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.InforomInfo.configuration_checksum"><code class="docutils literal notranslate"><span class="pre">InforomInfo.configuration_checksum</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.InforomInfo.image_version"><code class="docutils literal notranslate"><span class="pre">InforomInfo.image_version</span></code></a></li>
 </ul>

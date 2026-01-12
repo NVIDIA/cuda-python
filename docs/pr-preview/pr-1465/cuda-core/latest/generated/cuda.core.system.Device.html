@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=61be61fb"></script>
+    <script src="../_static/documentation_options.js?v=6a80a56b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev27';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev31';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -607,7 +607,6 @@
 <dd><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">uuid:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">pci_bus_id:</span> <span class="pre">bytes</span> <span class="pre">|</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">handle:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.Device" title="Link to this definition">#</a></dt>
@@ -780,7 +779,7 @@ software-based mirroring of the CPU’s page tables, on the GPU.</p></li>
 memory (<code class="docutils literal notranslate"><span class="pre">malloc</span></code>, <code class="docutils literal notranslate"><span class="pre">mmap</span></code>) is addressable from the device (GPU), via
 Address Translation Services. This means that there is (effectively) a
 single set of page tables, and the CPU and GPU both use them.</p></li>
-<li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">AddressingMode.DEVICE_ADDRESSING_MODE_NONE</span></code>: Neither HHM or ATS
+<li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">AddressingMode.DEVICE_ADDRESSING_MODE_NONE</span></code>: Neither HMM nor ATS
 is active.</p></li>
 </ul>
 <dl class="field-list simple">
@@ -818,18 +817,6 @@ bus).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Device.bar1_memory_info</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.system.Device.board_part_number">
-<span class="sig-name descname"><span class="pre">board_part_number</span></span><a class="headerlink" href="#cuda.core.system.Device.board_part_number" title="Link to this definition">#</a></dt>
-<dd><p>str</p>
-<p>Retrieves the the device board part number which is programmed into the board’s InfoROM.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Device.board_part_number</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1137,7 +1124,6 @@ board serial identifier.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.addressing_mode"><code class="docutils literal notranslate"><span class="pre">Device.addressing_mode</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.architecture"><code class="docutils literal notranslate"><span class="pre">Device.architecture</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.bar1_memory_info"><code class="docutils literal notranslate"><span class="pre">Device.bar1_memory_info</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.board_part_number"><code class="docutils literal notranslate"><span class="pre">Device.board_part_number</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.brand"><code class="docutils literal notranslate"><span class="pre">Device.brand</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.cpu_affinity"><code class="docutils literal notranslate"><span class="pre">Device.cpu_affinity</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.cuda_compute_capability"><code class="docutils literal notranslate"><span class="pre">Device.cuda_compute_capability</span></code></a></li>

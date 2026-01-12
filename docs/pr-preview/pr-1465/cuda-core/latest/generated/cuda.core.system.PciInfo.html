@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=61be61fb"></script>
+    <script src="../_static/documentation_options.js?v=6a80a56b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev27';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev31';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -611,28 +611,28 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.get_current_pcie_link_generation">
 <span class="sig-name descname"><span class="pre">get_current_pcie_link_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system.PciInfo.get_current_pcie_link_generation" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the current PCIe link generation.</p>
+<dd><p>Retrieve the current PCIe link generation.</p>
 <p>For Fermi™ or newer fully supported devices.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.get_current_pcie_link_width">
 <span class="sig-name descname"><span class="pre">get_current_pcie_link_width</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system.PciInfo.get_current_pcie_link_width" title="Link to this definition">#</a></dt>
-<dd><p>Retreives the current PCIe link width.</p>
+<dd><p>Retrieve the current PCIe link width.</p>
 <p>For Fermi™ or newer fully supported devices.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.get_gpu_max_pcie_link_generation">
 <span class="sig-name descname"><span class="pre">get_gpu_max_pcie_link_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system.PciInfo.get_gpu_max_pcie_link_generation" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the maximum PCIe link generation supported by this GPU device.</p>
+<dd><p>Retrieve the maximum PCIe link generation supported by this GPU device.</p>
 <p>For Fermi™ or newer fully supported devices.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.get_max_pcie_link_generation">
 <span class="sig-name descname"><span class="pre">get_max_pcie_link_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system.PciInfo.get_max_pcie_link_generation" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the maximum PCIe link generation possible with this device and system.</p>
+<dd><p>Retrieve the maximum PCIe link generation possible with this device and system.</p>
 <p>For Fermi™ or newer fully supported devices.</p>
 <p>For example, for a generation 2 PCIe device attached to a generation 1
 PCIe bus, the max link generation this function will report is
@@ -642,7 +642,7 @@ generation 1.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.PciInfo.get_max_pcie_link_width">
 <span class="sig-name descname"><span class="pre">get_max_pcie_link_width</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system.PciInfo.get_max_pcie_link_width" title="Link to this definition">#</a></dt>
-<dd><p>Retrieves the maximum PCIe link width possible with this device and system.</p>
+<dd><p>Retrieve the maximum PCIe link width possible with this device and system.</p>
 <p>For Fermi™ or newer fully supported devices.</p>
 <p>For example, for a device with a 16x PCIe bus width attached to a 8x
 PCIe system bus this function will report

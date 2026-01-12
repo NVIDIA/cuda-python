@@ -26,6 +26,7 @@ cuda.core.system.InforomInfo
 
    
    .. autoattribute:: bbx_flush_time
+   .. autoattribute:: board_part_number
    .. autoattribute:: configuration_checksum
    .. autoattribute:: image_version
    

@@ -33,7 +33,6 @@ cuda.core.system.Device
    .. autoattribute:: addressing_mode
    .. autoattribute:: architecture
    .. autoattribute:: bar1_memory_info
-   .. autoattribute:: board_part_number
    .. autoattribute:: brand
    .. autoattribute:: cpu_affinity
    .. autoattribute:: cuda_compute_capability
