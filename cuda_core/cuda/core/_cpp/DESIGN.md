@@ -117,7 +117,8 @@ link against this code directly—they access it through a capsule mechanism
 
 ## Capsule Architecture
 
-The implementation uses **two separate capsule mechanisms** for different purposes:
+The implementation uses a capsule mechanism for cross-module C++ function sharing,
+and Cython's `__pyx_capi__` for CUDA driver function resolution:
 
 ### Capsule 1: C++ API Table (`_CXX_API`)
 
@@ -160,38 +161,45 @@ cdef inline StreamHandle create_stream_handle(...) except * nogil:
 Importing modules are expected to call `_init_handles_table()` prior to calling
 any wrapper functions.
 
-### Capsule 2: CUDA Driver API (`_CUDA_DRIVER_API_V1`)
+### CUDA Driver Function Pointers via `__pyx_capi__`
 
 **Problem**: cuda.core cannot directly call CUDA driver functions because:
 
 1. We don't want to link against `libcuda.so` at build time.
 2. The driver symbols must be resolved dynamically through cuda-bindings.
 
-**Solution**: `_resource_handles.pyx` creates a capsule containing CUDA driver
-function pointers obtained from cuda-bindings:
+**Solution**: The C++ code declares extern function pointer variables:
 
 ```cpp
-struct CudaDriverApiV1 {
-    uint32_t abi_version;
-    uint32_t struct_size;
-
-    uintptr_t cuDevicePrimaryCtxRetain;
-    uintptr_t cuDevicePrimaryCtxRelease;
-    uintptr_t cuStreamCreateWithPriority;
-    uintptr_t cuStreamDestroy;
-    // ... etc
-};
+// resource_handles.hpp
+extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
+extern decltype(&cuMemPoolCreate) p_cuMemPoolCreate;
+// ... etc
 ```
 
-The C++ code retrieves this capsule once (via `load_driver_api()`) and caches the
-function pointers for subsequent use.
+At module import time, `_resource_handles.pyx` populates these pointers by
+extracting them from `cuda.bindings.cydriver.__pyx_capi__`:
 
-### Why Two Capsules?
+```cython
+import cuda.bindings.cydriver as cydriver
 
-| Capsule | Direction | Purpose |
-|---------|-----------|---------|
-| `_CXX_API` | C++ → Cython | Share handle functions across modules |
-| `_CUDA_DRIVER_API_V1` | Cython → C++ | Provide resolved driver symbols |
+cdef void* _get_driver_fn(str name):
+    capsule = cydriver.__pyx_capi__[name]
+    return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
+
+p_cuStreamCreateWithPriority = _get_driver_fn("cuStreamCreateWithPriority")
+```
+
+The `__pyx_capi__` dictionary contains PyCapsules that Cython automatically
+generates for each `cdef` function declared in a `.pxd` file. Each capsule's
+name is the function's C signature; we query it with `PyCapsule_GetName()`
+rather than hardcoding signatures.
+
+This approach:
+- Avoids linking against `libcuda.so` at build time
+- Works on CPU-only machines (capsule extraction succeeds; actual driver calls
+  will return errors like `CUDA_ERROR_NO_DEVICE`)
+- Requires no custom capsule infrastructure—uses Cython's built-in mechanism
 
 ## Key Implementation Details
 
