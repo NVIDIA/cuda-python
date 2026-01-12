@@ -89,7 +89,10 @@ CUDA system information and NVIDIA Management Library (NVML)
    :template: autosummary/cyclass.rst
 
    system.Device
+   system.BAR1MemoryInfo
+   system.BrandType
    system.DeviceArchitecture
+   system.DeviceAttributes
    system.DeviceEvents
    system.EventData
    system.EventType
@@ -97,9 +100,7 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.FieldValue
    system.FieldValues
    system.MemoryInfo
-   system.BAR1MemoryInfo
    system.PciInfo
-
 
 .. module:: cuda.core.utils
 
