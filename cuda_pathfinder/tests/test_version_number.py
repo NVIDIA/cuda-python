@@ -6,5 +6,5 @@ from helpers import validate_version_number
 import cuda.pathfinder
 
 
-def test_version_number():
+def test_pathfinder_version():
     validate_version_number(cuda.pathfinder.__version__, "cuda-pathfinder")
