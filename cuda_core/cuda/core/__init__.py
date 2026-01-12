@@ -15,6 +15,8 @@ else:
 
 import importlib
 
+assert tuple(int(_) for _ in __version__.split(".")[:2]) > (0, 1), "FATAL: invalid __version__"
+
 # The _resource_handles module exports a PyCapsule dispatch table that other
 # extension modules access via PyCapsule_Import. We import it here to ensure
 # it's loaded before other modules try to use it.

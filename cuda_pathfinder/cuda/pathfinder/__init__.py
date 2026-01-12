@@ -12,7 +12,9 @@ from cuda.pathfinder._dynamic_libs.supported_nvidia_libs import (
 from cuda.pathfinder._headers.find_nvidia_headers import find_nvidia_header_directory as find_nvidia_header_directory
 from cuda.pathfinder._headers.supported_nvidia_headers import SUPPORTED_HEADERS_CTK as _SUPPORTED_HEADERS_CTK
 
-from cuda.pathfinder._version import __version__  # noqa: F401  # isort: skip
+from cuda.pathfinder._version import __version__  # isort: skip
+
+assert tuple(int(_) for _ in __version__.split(".")[:2]) > (0, 1), "FATAL: invalid __version__"
 
 # Indirections to help Sphinx find the docstrings.
 #: Mapping from short CUDA Toolkit (CTK) library names to their canonical
