@@ -783,7 +783,7 @@ cdef class Device:
           memory (``malloc``, ``mmap``) is addressable from the device (GPU), via
           Address Translation Services. This means that there is (effectively) a
           single set of page tables, and the CPU and GPU both use them.
-        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_NONE`: Neither HHM or ATS
+        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_NONE`: Neither HMM nor ATS
           is active.
         """
         return AddressingMode(nvml.device_get_addressing_mode(self._handle).value)
