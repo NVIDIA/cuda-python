@@ -218,7 +218,11 @@ def test_register_events():
 
 
 def test_event_type_parsing():
-    [system.EventType(ev) for ev in _device._unpack_bitmask(array.array("Q", [3]))]
+    events = [system.EventType(1 << ev) for ev in _device._unpack_bitmask(array.array("Q", [3]))]
+    assert events == [
+        system.EventType.EVENT_TYPE_SINGLE_BIT_ECC_ERROR,
+        system.EventType.EVENT_TYPE_DOUBLE_BIT_ECC_ERROR,
+    ]
 
 
 def test_field_values():

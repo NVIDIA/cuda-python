@@ -645,10 +645,7 @@ cdef class Device:
         """
         cdef uint64_t[1] bitmask
         bitmask[0] = nvml.device_get_supported_event_types(self._handle)
-        print("BITMASK", bitmask[0])
-        assert False
-
-        return [EventType(ev) for ev in _unpack_bitmask(bitmask)]
+        return [EventType(1 << ev) for ev in _unpack_bitmask(bitmask)]
 
     def get_field_values(self, field_ids: list[int | tuple[int, int]]) -> FieldValues:
         """
