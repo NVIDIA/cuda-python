@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.system.get_driver_version &#8212; cuda.core</title>
+    <title>cuda.core.system.FieldValue &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.get_driver_version';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.FieldValue';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,13 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.system.get_driver_version.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.system.FieldValue.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.system.get_driver_version_full" href="cuda.core.system.get_driver_version_full.html" />
-    <link rel="prev" title="cuda.core.LinkerOptions" href="cuda.core.LinkerOptions.html" />
+    <link rel="next" title="cuda.core.system.FieldValues" href="cuda.core.system.FieldValues.html" />
+    <link rel="prev" title="cuda.core.system.FieldId" href="cuda.core.system.FieldId.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -492,7 +492,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Kernel.html">cuda.core.Kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.ProgramOptions.html">cuda.core.ProgramOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.get_driver_version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
@@ -500,7 +500,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldValue.html">cuda.core.system.FieldValue</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.FieldValue</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldValues.html">cuda.core.system.FieldValues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.MemoryInfo.html">cuda.core.system.MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
@@ -566,7 +566,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.get_driver_version</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.FieldValue</span></li>
   </ul>
 </nav>
 </div>
@@ -583,24 +583,86 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-system-get-driver-version">
-<h1>cuda.core.system.get_driver_version<a class="headerlink" href="#cuda-core-system-get-driver-version" title="Link to this heading">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="cuda.core.system.get_driver_version">
-<span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">get_driver_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bool</span> <span class="pre">kernel_mode:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.get_driver_version" title="Link to this definition">#</a></dt>
-<dd><p>Get the driver version.</p>
+  <section id="cuda-core-system-fieldvalue">
+<h1>cuda.core.system.FieldValue<a class="headerlink" href="#cuda-core-system-fieldvalue" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.core.system.FieldValue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">FieldValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">nvml.FieldValue</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.FieldValue" title="Link to this definition">#</a></dt>
+<dd><p>Represents the data from a single field value.</p>
+<p>Use <a class="reference internal" href="cuda.core.system.Device.html#cuda.core.system.Device.get_field_values" title="cuda.core.system.Device.get_field_values"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.get_field_values()</span></code></a> to get multiple field values at once.</p>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.FieldValue.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.FieldValue.__init__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.FieldValue.field_id">
+<span class="sig-name descname"><span class="pre">field_id</span></span><a class="headerlink" href="#cuda.core.system.FieldValue.field_id" title="Link to this definition">#</a></dt>
+<dd><p>FieldId</p>
+<p>The field ID.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>kernel_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – When <cite>True</cite>, return the kernel-mode driver version, e.g. 580.65.06.
-Otherwise, return the user-mode driver version, e.g. 13.0.1.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>version</strong> – Tuple in the format <cite>(MAJOR, MINOR)</cite>.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>]</p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FieldValue.field_id</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.FieldValue.latency_usec">
+<span class="sig-name descname"><span class="pre">latency_usec</span></span><a class="headerlink" href="#cuda.core.system.FieldValue.latency_usec" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>How long this field value took to update (in usec) within NVML. This may
+be averaged across several fields that are serviced by the same driver
+call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FieldValue.latency_usec</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.FieldValue.scope_id">
+<span class="sig-name descname"><span class="pre">scope_id</span></span><a class="headerlink" href="#cuda.core.system.FieldValue.scope_id" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The scope ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FieldValue.scope_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.FieldValue.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#cuda.core.system.FieldValue.timestamp" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The CPU timestamp (in microseconds since 1970) at which the value was
+sampled.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FieldValue.timestamp</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.FieldValue.value">
+<span class="sig-name descname"><span class="pre">value</span></span><a class="headerlink" href="#cuda.core.system.FieldValue.value" title="Link to this definition">#</a></dt>
+<dd><p>int | float</p>
+<p>The field value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cuda.core.system.NvmlError</strong> – If there was an error retrieving the field value.</p>
+</dd>
+<dt class="field-even">Type<span class="colon">:</span></dt>
+<dd class="field-even"><p>FieldValue.value</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -616,20 +678,20 @@ Otherwise, return the user-mode driver version, e.g. 13.0.1.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.LinkerOptions.html"
+       href="cuda.core.system.FieldId.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.LinkerOptions</p>
+        <p class="prev-next-title">cuda.core.system.FieldId</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.system.get_driver_version_full.html"
+       href="cuda.core.system.FieldValues.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.system.get_driver_version_full</p>
+        <p class="prev-next-title">cuda.core.system.FieldValues</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -654,7 +716,15 @@ Otherwise, return the user-mode driver version, e.g. 13.0.1.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.get_driver_version"><code class="docutils literal notranslate"><span class="pre">get_driver_version()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.FieldValue"><code class="docutils literal notranslate"><span class="pre">FieldValue</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.FieldValue.__init__"><code class="docutils literal notranslate"><span class="pre">FieldValue.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.FieldValue.field_id"><code class="docutils literal notranslate"><span class="pre">FieldValue.field_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.FieldValue.latency_usec"><code class="docutils literal notranslate"><span class="pre">FieldValue.latency_usec</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.FieldValue.scope_id"><code class="docutils literal notranslate"><span class="pre">FieldValue.scope_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.FieldValue.timestamp"><code class="docutils literal notranslate"><span class="pre">FieldValue.timestamp</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.FieldValue.value"><code class="docutils literal notranslate"><span class="pre">FieldValue.value</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

@@ -14,7 +14,9 @@ cuda.core.system.Device
 
    
    .. automethod:: __init__
+   .. automethod:: clear_field_values
    .. automethod:: get_all_devices
+   .. automethod:: get_field_values
 
    
    
