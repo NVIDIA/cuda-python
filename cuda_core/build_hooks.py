@@ -187,7 +187,7 @@ def _check_cuda_bindings_installed():
     version_file_path = Path(bv.__file__).resolve()
     is_editable = repo_root in version_file_path.parents
 
-    # Extract major version from version tuple
+    # Extract major version from version string
     bindings_version = bv.__version__
     bindings_major_version = bindings_version.split(".")[0]
 
