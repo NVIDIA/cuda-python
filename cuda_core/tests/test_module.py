@@ -421,6 +421,7 @@ def test_module_serialization_roundtrip(get_saxpy_kernel_cubin):
     assert objcode._sym_map == result._sym_map
     assert objcode.code_type == result.code_type
 
+
 def test_kernel_from_handle(get_saxpy_kernel_cubin):
     """Test Kernel.from_handle() with a valid handle"""
     original_kernel, objcode = get_saxpy_kernel_cubin
