@@ -26,15 +26,15 @@ cuda.core.ManagedMemoryResource
    .. rubric:: Attributes
 
    
-   .. autoproperty:: attributes
-   .. autoproperty:: device_id
-   .. autoproperty:: handle
-   .. autoproperty:: is_device_accessible
-   .. autoproperty:: is_handle_owned
-   .. autoproperty:: is_host_accessible
-   .. autoproperty:: is_ipc_enabled
-   .. autoproperty:: is_mapped
-   .. autoproperty:: peer_accessible_by
-   .. autoproperty:: uuid
+   .. autoattribute:: attributes
+   .. autoattribute:: device_id
+   .. autoattribute:: handle
+   .. autoattribute:: is_device_accessible
+   .. autoattribute:: is_handle_owned
+   .. autoattribute:: is_host_accessible
+   .. autoattribute:: is_ipc_enabled
+   .. autoattribute:: is_mapped
+   .. autoattribute:: peer_accessible_by
+   .. autoattribute:: uuid
    
    

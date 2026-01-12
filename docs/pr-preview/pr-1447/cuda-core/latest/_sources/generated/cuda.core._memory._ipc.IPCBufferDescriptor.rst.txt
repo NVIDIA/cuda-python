@@ -23,6 +23,6 @@ cuda.core.\_memory.\_ipc.IPCBufferDescriptor
    .. rubric:: Attributes
 
    
-   .. autoproperty:: size
+   .. autoattribute:: size
    
    
