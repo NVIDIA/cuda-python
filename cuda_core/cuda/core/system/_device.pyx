@@ -547,15 +547,14 @@ cdef class Device:
         index: int | None = None,
         uuid: bytes | str | None = None,
         pci_bus_id: bytes | str | None = None,
-        handle: int | None = None
     ):
-        args = [index, uuid, pci_bus_id, handle]
-        arg_count = sum(x is not None for x in args)
+        args = [index, uuid, pci_bus_id]
+        cdef int arg_count = sum(arg is not None for arg in args)
 
         if arg_count > 1:
-            raise ValueError("Handle requires only one of either device `index`, `uuid`, `pci_bus_id` or `handle`.")
+            raise ValueError("Handle requires only one of `index`, `uuid`, or `pci_bus_id`.")
         if arg_count == 0:
-            raise ValueError("Handle requires either a device `index`, `uuid`, `pci_bus_id` or `handle`.")
+            raise ValueError("Handle requires either a device `index`, `uuid`, or `pci_bus_id`.")
 
         initialize()
 
@@ -569,8 +568,6 @@ cdef class Device:
             if isinstance(pci_bus_id, bytes):
                 pci_bus_id = pci_bus_id.decode("ascii")
             self._handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
-        elif handle is not None:
-            self._handle = <intptr_t>handle
 
     @classmethod
     def get_device_count(cls) -> int:
@@ -615,7 +612,9 @@ cdef class Device:
             An iterator over available devices.
         """
         for handle in nvml.system_get_topology_gpu_set(cpu_index):
-            yield cls(handle=<intptr_t>handle)
+            device = Device.__new__()
+            device._handle = handle
+            return device
 
     @property
     def architecture(self) -> DeviceArchitecture:
