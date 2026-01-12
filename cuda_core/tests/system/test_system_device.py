@@ -9,6 +9,7 @@ from .conftest import skip_if_nvml_unsupported
 pytestmark = skip_if_nvml_unsupported
 
 import array
+import multiprocessing
 import os
 import re
 import sys
@@ -25,11 +26,6 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 def check_gpu_available():
     if not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE or system.get_num_devices() == 0:
         pytest.skip("No GPUs available to run device tests", allow_module_level=True)
-
-
-def test_device_index_handle():
-    for device in system.Device.get_all_devices():
-        assert isinstance(device.handle, int)
 
 
 def test_device_architecture():
@@ -237,3 +233,28 @@ def test_field_values():
         field_values.validate()
         assert len(field_values) == 1
         assert field_values[0].value <= old_value
+
+
+def test_get_all_devices_with_cpu_affinity():
+    try:
+        for i in range(multiprocessing.cpu_count()):
+            for device in system.Device.get_all_devices_with_cpu_affinity(i):
+                affinity = device.cpu_affinity
+                assert isinstance(affinity, list)
+                assert {i} == set(affinity)
+    except system.NotSupportedError:
+        pytest.skip("Getting devices with CPU affinity not supported")
+
+
+def test_index():
+    for i, device in enumerate(system.Device.get_all_devices()):
+        index = device.index
+        assert isinstance(index, int)
+        assert index == i
+
+
+def test_module_id():
+    for device in system.Device.get_all_devices():
+        module_id = device.module_id
+        assert isinstance(module_id, int)
+        assert module_id >= 0

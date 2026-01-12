@@ -332,24 +332,48 @@ cdef class Device:
 
     cdef intptr_t _handle
 
-    def __init__(self, index: int | None = None, uuid: bytes | str | None = None):
+    def __init__(
+        self,
+        *,
+        index: int | None = None,
+        uuid: bytes | str | None = None,
+        pci_bus_id: bytes | str | None = None,
+        handle: int | None = None
+    ):
+        args = [index, uuid, pci_bus_id, handle]
+        arg_count = sum(x is not None for x in args)
+
         initialize()
 
-        if index is not None and uuid is not None:
-            raise ValueError("Handle requires only one of either device `index` or `uuid`.")
-        if index is None and uuid is None:
-            raise ValueError("Handle requires either a device `index` or `uuid`.")
+        if arg_count > 1:
+            raise ValueError("Handle requires only one of either device `index`, `uuid`, `pci_bus_id` or `handle`.")
+        if arg_count == 0:
+            raise ValueError("Handle requires either a device `index`, `uuid`, `pci_bus_id` or `handle`.")
 
         if index is not None:
             self._handle = nvml.device_get_handle_by_index_v2(index)
-        else:
+        elif uuid is not None:
             if isinstance(uuid, bytes):
                 uuid = uuid.decode("ascii")
             self._handle = nvml.device_get_handle_by_uuid(uuid)
+        elif pci_bus_id is not None:
+            if isinstance(pci_bus_id, bytes):
+                pci_bus_id = pci_bus_id.decode("ascii")
+            self._handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
+        elif handle is not None:
+            self._handle = <intptr_t>handle
 
-    @property
-    def handle(self) -> int:
-        return self._handle
+    @classmethod
+    def get_device_count(cls) -> int:
+        """
+        Get the number of available devices.
+
+        Returns
+        -------
+        int
+            The number of available devices.
+        """
+        return nvml.device_get_count_v2()
 
     @classmethod
     def get_all_devices(cls) -> Iterable[Device]:
@@ -361,9 +385,28 @@ cdef class Device:
         Iterator of Device
             An iterator over available devices.
         """
-        total = nvml.device_get_count_v2()
-        for device_id in range(total):
-            yield cls(device_id)
+        for device_id in range(nvml.device_get_count_v2()):
+            yield cls(index=device_id)
+
+    @classmethod
+    def get_all_devices_with_cpu_affinity(cls, cpu_index: int) -> Iterable[Device]:
+        """
+        Retrieve the set of GPUs that have a CPU affinity with the given CPU number.
+
+        Supported on Linux only.
+
+        Parameters
+        ----------
+        cpu_index: int
+            The CPU index.
+
+        Returns
+        -------
+        Iterator of Device
+            An iterator over available devices.
+        """
+        for handle in nvml.system_get_topology_gpu_set(cpu_index):
+            yield cls(handle=<intptr_t>handle)
 
     @property
     def architecture(self) -> DeviceArchitecture:
@@ -450,6 +493,36 @@ cdef class Device:
         board serial identifier.
         """
         return nvml.device_get_uuid(self._handle)
+
+    @property
+    def index(self) -> int:
+        """
+        The NVML index of this device.
+
+        Valid indices are derived from the count returned by
+        :meth:`Device.get_device_count`.  For example, if ``get_device_count()``
+        returns 2, the valid indices are 0 and 1, corresponding to GPU 0 and GPU
+        1.
+
+        The order in which NVML enumerates devices has no guarantees of
+        consistency between reboots. For that reason, it is recommended that
+        devices be looked up by their PCI ids or GPU UUID.
+
+        Note: The NVML index may not correlate with other APIs, such as the CUDA
+        device index.
+        """
+        return nvml.device_get_index(self._handle)
+
+    @property
+    def module_id(self) -> int:
+        """
+        Get a unique identifier for the device module on the baseboard.
+
+        This API retrieves a unique identifier for each GPU module that exists
+        on a given baseboard.  For non-baseboard products, this ID would always
+        be 0.
+        """
+        return nvml.device_get_module_id(self._handle)
 
     def get_field_values(self, field_ids: list[int | tuple[int, int]]) -> FieldValues:
         """
