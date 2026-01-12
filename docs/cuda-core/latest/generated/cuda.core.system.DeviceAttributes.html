@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.Stream &#8212; cuda.core</title>
+    <title>cuda.core.system.DeviceAttributes &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.Stream';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.DeviceAttributes';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,13 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.Stream.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.system.DeviceAttributes.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.Event" href="cuda.core.Event.html" />
-    <link rel="prev" title="cuda.core.Buffer" href="cuda.core.Buffer.html" />
+    <link rel="next" title="cuda.core.system.FieldId" href="cuda.core.system.FieldId.html" />
+    <link rel="prev" title="cuda.core.system.DeviceArchitecture" href="cuda.core.system.DeviceArchitecture.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -468,7 +468,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.launch.html">cuda.core.launch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Buffer.html">cuda.core.Buffer</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.Stream</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.Stream.html">cuda.core.Stream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Event.html">cuda.core.Event</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.MemoryResource.html">cuda.core.MemoryResource</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.DeviceMemoryResource.html">cuda.core.DeviceMemoryResource</a></li>
@@ -502,7 +502,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceAttributes.html">cuda.core.system.DeviceAttributes</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.DeviceAttributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldValue.html">cuda.core.system.FieldValue</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldValues.html">cuda.core.system.FieldValues</a></li>
@@ -569,7 +569,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.Stream</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.DeviceAttributes</span></li>
   </ul>
 </nav>
 </div>
@@ -586,191 +586,123 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-stream">
-<h1>cuda.core.Stream<a class="headerlink" href="#cuda-core-stream" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-system-deviceattributes">
+<h1>cuda.core.system.DeviceAttributes<a class="headerlink" href="#cuda-core-system-deviceattributes" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.Stream">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">Stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Stream" title="Link to this definition">#</a></dt>
-<dd><p>Represent a queue of GPU operations that are executed in a specific order.</p>
-<p>Applications use streams to control the order of execution for
-GPU work. Work within a single stream are executed sequentially.
-Whereas work across multiple streams can be further controlled
-using stream priorities and <a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a> managements.</p>
-<p>Advanced users can utilize default streams for enforce complex
-implicit synchronization behaviors.</p>
-<p>Directly creating a <a class="reference internal" href="#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> is not supported due to ambiguity.
-New streams should instead be created through a <a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a>
-object, or created directly through using an existing handle
-using Stream.from_handle().</p>
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">DeviceAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">nvml.DeviceAttributes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.DeviceAttributes" title="Link to this definition">#</a></dt>
+<dd><p>Various device attributes.</p>
 <p class="rubric">Methods</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Stream.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Stream.__init__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Stream.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Stream.close" title="Link to this definition">#</a></dt>
-<dd><p>Destroy the stream.</p>
-<p>Releases the stream handle. For owned streams, this destroys the
-underlying CUDA stream. For borrowed streams, this releases the
-reference and allows the Python owner to be GC’d.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Stream.create_graph_builder">
-<span class="sig-name descname"><span class="pre">create_graph_builder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core.GraphBuilder"><span class="pre">GraphBuilder</span></a></span></span><a class="headerlink" href="#cuda.core.Stream.create_graph_builder" title="Link to this definition">#</a></dt>
-<dd><p>Create a new <a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a> object.</p>
-<p>The new graph builder will be associated with this stream.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Newly created graph builder object.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="cuda.core.GraphBuilder.html#cuda.core.GraphBuilder" title="cuda.core._graph.GraphBuilder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphBuilder</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Stream.from_handle">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">handle:</span> <span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a></span></span><a class="headerlink" href="#cuda.core.Stream.from_handle" title="Link to this definition">#</a></dt>
-<dd><p>Create a new <a class="reference internal" href="#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> object from a foreign stream handle.</p>
-<p>Uses a cudaStream_t pointer address represented as a Python int
-to create a new <a class="reference internal" href="#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> object.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Stream lifetime is not managed, foreign object must remain
-alive while this steam is active.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Stream handle representing the address of a foreign
-stream object.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Newly created stream object.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Stream.record">
-<span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><span class="pre">Event</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.EventOptions.html#cuda.core.EventOptions" title="cuda.core.EventOptions"><span class="pre">EventOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><span class="pre">Event</span></a></span></span><a class="headerlink" href="#cuda.core.Stream.record" title="Link to this definition">#</a></dt>
-<dd><p>Record an event onto the stream.</p>
-<p>Creates an Event object (or reuses the given one) by
-recording on the stream.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>event</strong> (<a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>, optional) – Optional event object to be reused for recording.</p></li>
-<li><p><strong>options</strong> (<a class="reference internal" href="cuda.core.EventOptions.html#cuda.core.EventOptions" title="cuda.core.EventOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventOptions</span></code></a>, optional) – Customizable dataclass for event creation options.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Newly created event object.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Stream.sync">
-<span class="sig-name descname"><span class="pre">sync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Stream.sync" title="Link to this definition">#</a></dt>
-<dd><p>Synchronize the stream.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cuda.core.Stream.wait">
-<span class="sig-name descname"><span class="pre">wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_or_stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core.Event"><span class="pre">Event</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#cuda.core.Stream" title="cuda.core.Stream"><span class="pre">Stream</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Stream.wait" title="Link to this definition">#</a></dt>
-<dd><p>Wait for a CUDA event or a CUDA stream.</p>
-<p>Waiting for an event or a stream establishes a stream order.</p>
-<p>If a <a class="reference internal" href="#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> is provided, then wait until the stream’s
-work is completed. This is done by recording a new <a class="reference internal" href="cuda.core.Event.html#cuda.core.Event" title="cuda.core._event.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>
-on the stream and then waiting on it.</p>
-</dd></dl>
 
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Stream.context">
-<span class="sig-name descname"><span class="pre">context</span></span><a class="headerlink" href="#cuda.core.Stream.context" title="Link to this definition">#</a></dt>
-<dd><p>Context</p>
-<p>Return the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Context</span></code> associated with this stream.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Stream.context</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Stream.device">
-<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#cuda.core.Stream.device" title="Link to this definition">#</a></dt>
-<dd><p>Device</p>
-<p>Return the <a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core._device.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Device</span></code></a> singleton associated with this stream.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The current context on the device may differ from this
-stream’s context. This case occurs when a different CUDA
-context is set current after a stream is created.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Stream.device</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Stream.handle">
-<span class="sig-name descname"><span class="pre">handle</span></span><a class="headerlink" href="#cuda.core.Stream.handle" title="Link to this definition">#</a></dt>
-<dd><p>cuda.bindings.driver.CUstream</p>
-<p>Return the underlying <code class="docutils literal notranslate"><span class="pre">CUstream</span></code> object.</p>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
-<p>This handle is a Python object. To get the memory address of the underlying C
-handle, call <code class="docutils literal notranslate"><span class="pre">int(Stream.handle)</span></code>.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Stream.handle</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Stream.is_nonblocking">
-<span class="sig-name descname"><span class="pre">is_nonblocking</span></span><a class="headerlink" href="#cuda.core.Stream.is_nonblocking" title="Link to this definition">#</a></dt>
-<dd><p>bool</p>
-<p>Return True if this is a nonblocking stream, otherwise False.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Stream.is_nonblocking</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.Stream.priority">
-<span class="sig-name descname"><span class="pre">priority</span></span><a class="headerlink" href="#cuda.core.Stream.priority" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.compute_instance_slice_count">
+<span class="sig-name descname"><span class="pre">compute_instance_slice_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.compute_instance_slice_count" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
-<p>Return the stream priority.</p>
+<p>The compute instance slice count</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Stream.priority</p>
+<dd class="field-odd"><p>DeviceAttributes.compute_instance_slice_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.gpu_instance_slice_count">
+<span class="sig-name descname"><span class="pre">gpu_instance_slice_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.gpu_instance_slice_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The GPU instance slice count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.gpu_instance_slice_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.memory_size_mb">
+<span class="sig-name descname"><span class="pre">memory_size_mb</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.memory_size_mb" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>Device memory size in MiB</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.memory_size_mb</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.multiprocessor_count">
+<span class="sig-name descname"><span class="pre">multiprocessor_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.multiprocessor_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The streaming multiprocessor count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.multiprocessor_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.shared_copy_engine_count">
+<span class="sig-name descname"><span class="pre">shared_copy_engine_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.shared_copy_engine_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The shared copy engine count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.shared_copy_engine_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.shared_decoder_count">
+<span class="sig-name descname"><span class="pre">shared_decoder_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.shared_decoder_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The shared decoder engine count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.shared_decoder_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.shared_encoder_count">
+<span class="sig-name descname"><span class="pre">shared_encoder_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.shared_encoder_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The shared encoder engine count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.shared_encoder_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.shared_jpeg_count">
+<span class="sig-name descname"><span class="pre">shared_jpeg_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.shared_jpeg_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The shared JPEG engine count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.shared_jpeg_count</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.DeviceAttributes.shared_ofa_count">
+<span class="sig-name descname"><span class="pre">shared_ofa_count</span></span><a class="headerlink" href="#cuda.core.system.DeviceAttributes.shared_ofa_count" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The shared optical flow accelerator (OFA) engine count</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeviceAttributes.shared_ofa_count</p>
 </dd>
 </dl>
 </dd></dl>
@@ -790,20 +722,20 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(St
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.Buffer.html"
+       href="cuda.core.system.DeviceArchitecture.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.Buffer</p>
+        <p class="prev-next-title">cuda.core.system.DeviceArchitecture</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.Event.html"
+       href="cuda.core.system.FieldId.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.Event</p>
+        <p class="prev-next-title">cuda.core.system.FieldId</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -828,19 +760,17 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(St
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream"><code class="docutils literal notranslate"><span class="pre">Stream</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.__init__"><code class="docutils literal notranslate"><span class="pre">Stream.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.close"><code class="docutils literal notranslate"><span class="pre">Stream.close()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.create_graph_builder"><code class="docutils literal notranslate"><span class="pre">Stream.create_graph_builder()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.from_handle"><code class="docutils literal notranslate"><span class="pre">Stream.from_handle()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.record"><code class="docutils literal notranslate"><span class="pre">Stream.record()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.sync"><code class="docutils literal notranslate"><span class="pre">Stream.sync()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.wait"><code class="docutils literal notranslate"><span class="pre">Stream.wait()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.context"><code class="docutils literal notranslate"><span class="pre">Stream.context</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.device"><code class="docutils literal notranslate"><span class="pre">Stream.device</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.handle"><code class="docutils literal notranslate"><span class="pre">Stream.handle</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.is_nonblocking"><code class="docutils literal notranslate"><span class="pre">Stream.is_nonblocking</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.priority"><code class="docutils literal notranslate"><span class="pre">Stream.priority</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.__init__"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.compute_instance_slice_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.compute_instance_slice_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.gpu_instance_slice_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.gpu_instance_slice_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.memory_size_mb"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.memory_size_mb</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.multiprocessor_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.multiprocessor_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.shared_copy_engine_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.shared_copy_engine_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.shared_decoder_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.shared_decoder_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.shared_encoder_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.shared_encoder_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.shared_jpeg_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.shared_jpeg_count</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.DeviceAttributes.shared_ofa_count"><code class="docutils literal notranslate"><span class="pre">DeviceAttributes.shared_ofa_count</span></code></a></li>
 </ul>
 </li>
 </ul>
