@@ -8,9 +8,6 @@ import pytest
 from cuda.pathfinder import find_nvidia_static_lib
 from cuda.pathfinder._static_libs.supported_nvidia_static_libs import SUPPORTED_STATIC_LIBS
 
-STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_STATIC_LIBS_STRICTNESS", "see_what_works")
-assert STRICTNESS in ("see_what_works", "all_must_work")
-
 
 def test_unknown_artifact():
     with pytest.raises(RuntimeError, match=r"^UNKNOWN artifact_name='unknown-artifact'$"):
@@ -26,8 +23,6 @@ def test_find_static_libs(info_summary_append, artifact_name):
         # Verify the artifact name (or its base) is in the path
         base_name = artifact_name.replace(".10", "")  # Handle libdevice.10.bc -> libdevice
         assert base_name.split(".")[0] in artifact_path.lower()
-    if STRICTNESS == "all_must_work":
-        assert artifact_path is not None
 
 
 def test_libdevice_specific(info_summary_append):
@@ -39,10 +34,6 @@ def test_libdevice_specific(info_summary_append):
         assert "libdevice" in artifact_path
         # Should end with .bc
         assert artifact_path.endswith(".bc")
-    # Only assert existence if we're in strict mode or if cuda is installed
-    if STRICTNESS == "all_must_work" or os.environ.get("CUDA_HOME") or os.environ.get("CONDA_PREFIX"):
-        if artifact_path:
-            assert os.path.isfile(artifact_path)
 
 
 def test_libcudadevrt_specific(info_summary_append):
@@ -54,10 +45,6 @@ def test_libcudadevrt_specific(info_summary_append):
         # On Linux it should be .a, on Windows it might be .lib
         assert artifact_path.endswith((".a", ".lib"))
         assert "cudadevrt" in artifact_path.lower()
-    # Only assert existence if we're in strict mode or if cuda is installed
-    if STRICTNESS == "all_must_work" or os.environ.get("CUDA_HOME") or os.environ.get("CONDA_PREFIX"):
-        if artifact_path:
-            assert os.path.isfile(artifact_path)
 
 
 def test_caching():

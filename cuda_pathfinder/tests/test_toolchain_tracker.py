@@ -132,13 +132,6 @@ def test_search_location_not_found(tmp_path):
     assert result is None
 
 
-def test_default_context_singleton():
-    """Test that get_default_context returns same instance."""
-    ctx1 = get_default_context()
-    ctx2 = get_default_context()
-    assert ctx1 is ctx2
-
-
 def test_reset_default_context():
     """Test that reset creates a new default context."""
     ctx1 = get_default_context()

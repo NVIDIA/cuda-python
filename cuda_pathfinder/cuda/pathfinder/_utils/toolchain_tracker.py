@@ -143,10 +143,13 @@ class SearchContext:
         Raises:
             ToolchainMismatchError: If found in different source than preferred.
         """
-        # Reorder to search preferred source first
+        # Reorder to search preferred source first, maintaining original order for ties
+        # (stable sort: preferred source gets priority 0, others get priority 1)
         if self._preferred_source:
-            ordered_locations = [loc for loc in locations if loc.source == self._preferred_source]
-            ordered_locations += [loc for loc in locations if loc.source != self._preferred_source]
+            ordered_locations = sorted(
+                locations,
+                key=lambda loc: 0 if loc.source == self._preferred_source else 1
+            )
         else:
             ordered_locations = list(locations)
 

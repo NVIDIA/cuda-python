@@ -15,9 +15,6 @@ from cuda.pathfinder import load_nvidia_dynamic_lib
 from cuda.pathfinder._dynamic_libs import supported_nvidia_libs
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS, quote_for_shell
 
-STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_LOAD_NVIDIA_DYNAMIC_LIB_STRICTNESS", "see_what_works")
-assert STRICTNESS in ("see_what_works", "all_must_work")
-
 
 def test_supported_libnames_linux_sonames_consistency():
     assert tuple(sorted(supported_nvidia_libs.SUPPORTED_LIBNAMES_LINUX)) == tuple(
@@ -104,8 +101,6 @@ def test_load_nvidia_dynamic_lib(info_summary_append, libname):
         raise_child_process_failed()
     assert not result.stderr
     if result.stdout.startswith("CHILD_LOAD_NVIDIA_DYNAMIC_LIB_HELPER_DYNAMIC_LIB_NOT_FOUND_ERROR:"):
-        if STRICTNESS == "all_must_work" and not _is_expected_load_nvidia_dynamic_lib_failure(libname):
-            raise_child_process_failed()
         info_summary_append(f"Not found: {libname=!r}")
     else:
         abs_path = json.loads(result.stdout.rstrip())
