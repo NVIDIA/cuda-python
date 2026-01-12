@@ -4,6 +4,7 @@
 
 from libc.stdint cimport uintptr_t
 
+from cuda.core._resource_handles cimport DevicePtrHandle
 from cuda.core._stream cimport Stream
 
 
@@ -15,16 +16,23 @@ cdef struct _MemAttrs:
 
 cdef class Buffer:
     cdef:
-        uintptr_t      _ptr
-        size_t         _size
-        MemoryResource _memory_resource
-        object         _ipc_data
-        object         _owner
-        object         _ptr_obj
-        Stream         _alloc_stream
-        _MemAttrs      _mem_attrs
-        bint           _mem_attrs_inited
+        DevicePtrHandle _h_ptr
+        size_t          _size
+        MemoryResource  _memory_resource
+        object          _ipc_data
+        object          _owner
+        _MemAttrs       _mem_attrs
+        bint            _mem_attrs_inited
 
 
 cdef class MemoryResource:
     pass
+
+
+# Helper function to create a Buffer from a DevicePtrHandle
+cdef Buffer Buffer_from_deviceptr_handle(
+    DevicePtrHandle h_ptr,
+    size_t size,
+    MemoryResource mr,
+    object ipc_descriptor = *
+)
