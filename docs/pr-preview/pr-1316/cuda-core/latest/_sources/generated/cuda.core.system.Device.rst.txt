@@ -10,6 +10,21 @@ cuda.core.system.Device
 
    
    
+   .. rubric:: Methods
+
+   
+   .. automethod:: __init__
+   .. automethod:: clear_field_values
+   .. automethod:: get_all_devices
+   .. automethod:: get_field_values
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
    
    .. autoattribute:: architecture
    .. autoattribute:: bar1_memory_info
@@ -21,16 +36,5 @@ cuda.core.system.Device
    .. autoattribute:: pci_info
    .. autoattribute:: serial
    .. autoattribute:: uuid
-   
-   
-
-   
-   
-   .. rubric:: Methods
-
-   
-   .. automethod:: __init__
-   .. automethod:: get_all_devices
-
    
    

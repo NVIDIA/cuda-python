@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=49139664"></script>
+    <script src="_static/documentation_options.js?v=4417023b"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev39';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev46';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -513,6 +513,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldValue.html">cuda.core.system.FieldValue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldValues.html">cuda.core.system.FieldValues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.MemoryInfo.html">cuda.core.system.MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.PciInfo.html">cuda.core.system.PciInfo</a></li>
@@ -628,7 +631,7 @@ the pieces fit together.</p>
 least important: principal classes first, then supporting classes, then
 implementation details. This way, readers can start at the top and
 immediately see what matters most. Unlike C/C++ where definitions must
-precede uses, Python imposes no such constraint—we’re free to optimize
+precede uses, Python imposes no such constraint, so we’re free to optimize
 for the reader.</p>
 <p>These are guidelines, not rules. Place helper functions near their call
 sites if that’s clearer. Group related code together if it aids
@@ -678,7 +681,7 @@ element comes first among the definitions.</p>
 <span id="id7"></span><h3>7. Other Public Classes and Functions<a class="headerlink" href="#other-public-classes-and-functions" title="Link to this heading">#</a></h3>
 <p>Other public classes and functions follow. These might include auxiliary
 classes (e.g., <code class="docutils literal notranslate"><span class="pre">DeviceMemoryResourceOptions</span></code>), abstract base classes,
-or additional exports. Organize them logically—by related functionality
+or additional exports. Organize them logically, such as by related functionality
 or typical usage.</p>
 </section>
 <section id="public-module-functions">
@@ -1107,7 +1110,7 @@ logical structure exists. Developers should use their judgment.</p>
 <h3>Helper Functions<a class="headerlink" href="#helper-functions" title="Link to this heading">#</a></h3>
 <p>When a class grows long or a method becomes deeply nested, consider
 extracting implementation details into helper functions. The goal is to
-keep class definitions easy to navigate—readers shouldn’t have to scroll
+keep class definitions easy to navigate. Readers shouldn’t have to scroll
 through hundreds of lines to understand a class’s interface.</p>
 <p>In Cython files, helpers are typically <code class="docutils literal notranslate"><span class="pre">cdef</span></code> or <code class="docutils literal notranslate"><span class="pre">cdef</span> <span class="pre">inline</span></code>
 functions named with the pattern <code class="docutils literal notranslate"><span class="pre">ClassName_methodname</span></code> (e.g.,
@@ -1599,7 +1602,7 @@ points to the caller:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The value depends on call depth—typically <code class="docutils literal notranslate"><span class="pre">stacklevel=2</span></code> for direct
+<p>The value depends on call depth: typically <code class="docutils literal notranslate"><span class="pre">stacklevel=2</span></code> for direct
 calls, <code class="docutils literal notranslate"><span class="pre">stacklevel=3</span></code> when called through a helper.</p>
 </section>
 </section>
@@ -1624,9 +1627,10 @@ functions as <code class="docutils literal notranslate"><span class="pre">nogil<
 </pre></div>
 </div>
 <p>Group multiple driver calls in a single block:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cdef</span> <span class="nb">int</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cdef</span> <span class="nb">int</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">value</span>
 <span class="k">with</span> <span class="n">nogil</span><span class="p">:</span>
     <span class="n">HANDLE_RETURN</span><span class="p">(</span><span class="n">cydriver</span><span class="o">.</span><span class="n">cuCtxGetStreamPriorityRange</span><span class="p">(</span><span class="o">&amp;</span><span class="n">low</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">high</span><span class="p">))</span>
+    <span class="n">HANDLE_RETURN</span><span class="p">(</span><span class="n">cydriver</span><span class="o">.</span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">device_id</span><span class="p">))</span>
 </pre></div>
 </div>
 </section>
@@ -1655,7 +1659,7 @@ to <code class="docutils literal notranslate"><span class="pre">cydriver</span><
 better performance.</p></li>
 </ol>
 <p>This approach separates correctness from optimization. Getting the logic
-right first—with Python’s better error messages and stack traces—often
+right first, with Python’s better error messages and stack traces, often
 saves time overall.</p>
 </section>
 <section id="python-implementation">
@@ -1747,7 +1751,7 @@ saves time overall.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-structure">File Structure</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-structure">File Structure</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#spdx-copyright-header">1. SPDX Copyright Header</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#module-docstring-optional">2. Module Docstring (Optional)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#import-statements">3. Import Statements</a></li>
@@ -1761,11 +1765,11 @@ saves time overall.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notes">Notes</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-layout">Package Layout</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-layout">Package Layout</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#file-types">File Types</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#file-naming-conventions">File Naming Conventions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#relationship-between-pxd-and-pyx-files">Relationship Between <code class="docutils literal notranslate"><span class="pre">.pxd</span></code> and <code class="docutils literal notranslate"><span class="pre">.pyx</span></code> Files</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#module-organization">Module Organization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#module-organization">Module Organization</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#simple-top-level-modules">Simple Top-Level Modules</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#complex-subpackages">Complex Subpackages</a></li>
 </ul>
@@ -1773,7 +1777,7 @@ saves time overall.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#guidelines">Guidelines</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Import Statements</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Import Statements</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#future-imports">1. <code class="docutils literal notranslate"><span class="pre">__future__</span></code> Imports</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#external-cimport-statements">2. External <code class="docutils literal notranslate"><span class="pre">cimport</span></code> Statements</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-core-cimport-statements">3. cuda-core <code class="docutils literal notranslate"><span class="pre">cimport</span></code> Statements</a></li>
@@ -1783,19 +1787,19 @@ saves time overall.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-and-function-definitions">Class and Function Definitions</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-and-function-definitions">Class and Function Definitions</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#class-definition-order">Class Definition Order</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-1">Example</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#helper-functions">Helper Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#function-definitions">Function Definitions</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#naming-conventions">Naming Conventions</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#naming-conventions">Naming Conventions</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cython-cdef-variables">Cython <code class="docutils literal notranslate"><span class="pre">cdef</span></code> Variables</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#type-annotations-and-declarations">Type Annotations and Declarations</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-type-annotations">Python Type Annotations</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#type-annotations-and-declarations">Type Annotations and Declarations</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-type-annotations">Python Type Annotations</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pep-604-union-syntax">PEP 604 Union Syntax</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#forward-references-and-from-future-import-annotations">Forward References and <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">__future__</span> <span class="pre">import</span> <span class="pre">annotations</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#guidelines-1">Guidelines</a></li>
@@ -1804,7 +1808,7 @@ saves time overall.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cython-type-declarations">Cython Type Declarations</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#docstrings">Docstrings</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#docstrings">Docstrings</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#format-overview">Format Overview</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#module-docstrings">Module Docstrings</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#class-docstrings">Class Docstrings</a></li>
@@ -1814,21 +1818,21 @@ saves time overall.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#guidelines-2">Guidelines</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">Errors and Warnings</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#errors-and-warnings">Errors and Warnings</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-exceptions">CUDA Exceptions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-api-error-handling">CUDA API Error Handling</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#warnings">Warnings</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-specific-patterns">CUDA-Specific Patterns</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gil-management-for-cuda-driver-api-calls">GIL Management for CUDA Driver API Calls</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-specific-patterns">CUDA-Specific Patterns</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gil-management-for-cuda-driver-api-calls">GIL Management for CUDA Driver API Calls</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#using-with-nogil-blocks">Using <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">nogil:</span></code> Blocks</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#raising-exceptions-from-nogil-context">Raising Exceptions from <code class="docutils literal notranslate"><span class="pre">nogil</span></code> Context</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-lifecycle">Development Lifecycle</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-lifecycle">Development Lifecycle</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#two-phase-development">Two-Phase Development</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-implementation">Python Implementation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cython-optimization">Cython Optimization</a></li>

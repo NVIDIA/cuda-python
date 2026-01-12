@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=49139664"></script>
+    <script src="_static/documentation_options.js?v=4417023b"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev39';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev46';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -513,6 +513,9 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldValue.html">cuda.core.system.FieldValue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldValues.html">cuda.core.system.FieldValues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.MemoryInfo.html">cuda.core.system.MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.PciInfo.html">cuda.core.system.PciInfo</a></li>
@@ -727,13 +730,22 @@ deprecation periods for breaking changes.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.DeviceArchitecture.html#cuda.core.system.DeviceArchitecture" title="cuda.core.system.DeviceArchitecture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.DeviceArchitecture</span></code></a>(architecture)</p></td>
 <td><p>Device architecture enumeration.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.MemoryInfo.html#cuda.core.system.MemoryInfo" title="cuda.core.system.MemoryInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.MemoryInfo</span></code></a>(memory_info)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.FieldId.html#cuda.core.system.FieldId" title="cuda.core.system.FieldId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FieldId</span></code></a>(value[, names, module, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.FieldValue.html#cuda.core.system.FieldValue" title="cuda.core.system.FieldValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FieldValue</span></code></a>(field_value)</p></td>
+<td><p>Represents the data from a single field value.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.FieldValues.html#cuda.core.system.FieldValues" title="cuda.core.system.FieldValues"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FieldValues</span></code></a>(field_values)</p></td>
+<td><p>Container of multiple field values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.MemoryInfo.html#cuda.core.system.MemoryInfo" title="cuda.core.system.MemoryInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.MemoryInfo</span></code></a>(memory_info)</p></td>
 <td><p>Memory allocation information for a device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.BAR1MemoryInfo.html#cuda.core.system.BAR1MemoryInfo" title="cuda.core.system.BAR1MemoryInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.BAR1MemoryInfo</span></code></a>(memory_info)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.BAR1MemoryInfo.html#cuda.core.system.BAR1MemoryInfo" title="cuda.core.system.BAR1MemoryInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.BAR1MemoryInfo</span></code></a>(memory_info)</p></td>
 <td><p>BAR1 Memory allocation information for a device.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo" title="cuda.core.system.PciInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.PciInfo</span></code></a>(pci_info)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo" title="cuda.core.system.PciInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.PciInfo</span></code></a>(pci_info)</p></td>
 <td><p>PCI information about a GPU device.</p></td>
 </tr>
 </tbody>

@@ -42,7 +42,7 @@ To support this, we suggest organizing content from most important to
 least important: principal classes first, then supporting classes, then
 implementation details. This way, readers can start at the top and
 immediately see what matters most. Unlike C/C++ where definitions must
-precede uses, Python imposes no such constraint—we're free to optimize
+precede uses, Python imposes no such constraint, so we're free to optimize
 for the reader.
 
 These are guidelines, not rules. Place helper functions near their call
@@ -118,7 +118,7 @@ element comes first among the definitions.
 
 Other public classes and functions follow. These might include auxiliary
 classes (e.g., ``DeviceMemoryResourceOptions``), abstract base classes,
-or additional exports. Organize them logically—by related functionality
+or additional exports. Organize them logically, such as by related functionality
 or typical usage.
 
 .. _8-public-module-functions:
@@ -604,7 +604,7 @@ Helper Functions
 
 When a class grows long or a method becomes deeply nested, consider
 extracting implementation details into helper functions. The goal is to
-keep class definitions easy to navigate—readers shouldn't have to scroll
+keep class definitions easy to navigate. Readers shouldn't have to scroll
 through hundreds of lines to understand a class's interface.
 
 In Cython files, helpers are typically ``cdef`` or ``cdef inline``
@@ -1147,7 +1147,7 @@ points to the caller:
 
    warnings.warn(message, UserWarning, stacklevel=3)
 
-The value depends on call depth—typically ``stacklevel=2`` for direct
+The value depends on call depth: typically ``stacklevel=2`` for direct
 calls, ``stacklevel=3`` when called through a helper.
 
 CUDA-Specific Patterns
@@ -1181,9 +1181,10 @@ Group multiple driver calls in a single block:
 
 .. code:: python
 
-   cdef int low, high
+   cdef int low, high, value
    with nogil:
        HANDLE_RETURN(cydriver.cuCtxGetStreamPriorityRange(&low, &high))
+       HANDLE_RETURN(cydriver.cuDeviceGetAttribute(&value, attr, device_id))
 
 Raising Exceptions from ``nogil`` Context
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1213,7 +1214,7 @@ two phases:
    better performance.
 
 This approach separates correctness from optimization. Getting the logic
-right first—with Python's better error messages and stack traces—often
+right first, with Python's better error messages and stack traces, often
 saves time overall.
 
 Python Implementation
