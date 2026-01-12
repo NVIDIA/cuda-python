@@ -453,7 +453,7 @@ class GraphBuilder:
         return self.stream.__cuda_stream__()
 
     def _get_conditional_context(self) -> driver.CUcontext:
-        return self._mnff.stream.context._handle
+        return self._mnff.stream.context.handle
 
     def create_conditional_handle(self, default_value=None) -> driver.CUgraphConditionalHandle:
         """Creates a conditional handle for the graph builder.

@@ -74,6 +74,7 @@ include = ["cuda.core*"]
 
 [tool.setuptools.package-data]
 "cuda.core._include" = ["*.h", "*.hpp", "*.cuh"]
+"cuda.core._cpp" = ["*.cpp", "*.hpp"]
 
 [tool.setuptools.dynamic]
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }

@@ -16,10 +16,10 @@ import sys
 import helpers
 import pytest
 from cuda.core import system
-from cuda.core.system import _device as system_device
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from cuda.bindings import _nvml as nvml
+    from cuda.core.system import _device
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -32,7 +32,7 @@ def test_device_architecture():
     for device in system.Device.get_all_devices():
         device_arch = device.architecture
 
-        assert isinstance(device_arch, system_device.DeviceArchitecture)
+        assert isinstance(device_arch, system.DeviceArchitecture)
         if sys.version_info < (3, 12):
             assert device_arch.id in nvml.DeviceArch.__members__.values()
         else:
@@ -48,7 +48,7 @@ def test_device_bar1_memory():
             bar1_memory_info.used,
         )
 
-        assert isinstance(bar1_memory_info, system_device.BAR1MemoryInfo)
+        assert isinstance(bar1_memory_info, system.BAR1MemoryInfo)
         assert isinstance(free, int)
         assert isinstance(total, int)
         assert isinstance(used, int)
@@ -89,7 +89,7 @@ def test_device_memory():
         memory_info = device.memory_info
         free, total, used, reserved = memory_info.free, memory_info.total, memory_info.used, memory_info.reserved
 
-        assert isinstance(memory_info, system_device.MemoryInfo)
+        assert isinstance(memory_info, system.MemoryInfo)
         assert isinstance(free, int)
         assert isinstance(total, int)
         assert isinstance(used, int)
@@ -112,7 +112,7 @@ def test_device_name():
 def test_device_pci_info():
     for device in system.Device.get_all_devices():
         pci_info = device.pci_info
-        assert isinstance(pci_info, system_device.PciInfo)
+        assert isinstance(pci_info, system.PciInfo)
 
         assert isinstance(pci_info.bus_id, str)
         assert re.match("[a-f0-9]{8}:[a-f0-9]{2}:[a-f0-9]{2}.[a-f0-9]", pci_info.bus_id.lower())
@@ -179,18 +179,18 @@ def test_device_uuid():
     ],
 )
 def test_unpack_bitmask(params):
-    assert system_device._unpack_bitmask(array.array("Q", params["input"])) == params["output"]
+    assert _device._unpack_bitmask(array.array("Q", params["input"])) == params["output"]
 
 
 def test_unpack_bitmask_single_value():
     with pytest.raises(TypeError):
-        system_device._unpack_bitmask(1)
+        _device._unpack_bitmask(1)
 
 
 def test_device_brand():
     for device in system.Device.get_all_devices():
         brand = device.brand
-        assert isinstance(brand, system_device.BrandType)
+        assert isinstance(brand, system.BrandType)
         assert isinstance(brand.name, str)
         assert isinstance(brand.value, int)
 
@@ -214,7 +214,7 @@ def test_device_attributes():
         except system.NotSupportedError:
             skip_reasons.append(f"Device attributes not supported on '{device.name}'")
             continue
-        assert isinstance(attributes, system_device.DeviceAttributes)
+        assert isinstance(attributes, system.DeviceAttributes)
 
         assert isinstance(attributes.multiprocessor_count, int)
         assert attributes.multiprocessor_count > 0
@@ -256,3 +256,51 @@ def test_persistence_mode_enabled():
             assert device.persistence_mode_enabled is False
         finally:
             device.persistence_mode_enabled = is_enabled
+
+
+def test_field_values():
+    for device in system.Device.get_all_devices():
+        # TODO: Are there any fields that return double's?  It would be good to
+        # test those.
+
+        field_ids = [
+            system.FieldId.DEV_TOTAL_ENERGY_CONSUMPTION,
+            system.FieldId.DEV_PCIE_COUNT_TX_BYTES,
+        ]
+        field_values = device.get_field_values(field_ids)
+        field_values.validate()
+
+        with pytest.raises(TypeError):
+            field_values["invalid_index"]
+
+        assert isinstance(field_values, system.FieldValues)
+        assert len(field_values) == len(field_ids)
+
+        raw_values = field_values.get_all_values()
+        assert all(x == y.value for x, y in zip(raw_values, field_values))
+
+        for field_id, field_value in zip(field_ids, field_values):
+            assert field_value.field_id == field_id
+            assert type(field_value.value) is int
+            assert field_value.latency_usec >= 0
+            assert field_value.timestamp >= 0
+
+        orig_timestamp = field_values[0].timestamp
+        field_values = device.get_field_values(field_ids)
+        assert field_values[0].timestamp >= orig_timestamp
+
+        # Test only one element, because that's weirdly a special case
+        field_ids = [
+            system.FieldId.DEV_PCIE_REPLAY_COUNTER,
+        ]
+        field_values = device.get_field_values(field_ids)
+        assert len(field_values) == 1
+        field_values.validate()
+        old_value = field_values[0].value
+
+        # Test clear_field_values
+        device.clear_field_values(field_ids)
+        field_values = device.get_field_values(field_ids)
+        field_values.validate()
+        assert len(field_values) == 1
+        assert field_values[0].value <= old_value

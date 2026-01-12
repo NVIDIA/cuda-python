@@ -20,6 +20,7 @@ import platform  # no-cython-lint
 import uuid
 
 from cuda.core._utils.cuda_utils import check_multiprocessing_start_method
+from cuda.core._resource_handles cimport as_cu
 
 if TYPE_CHECKING:
     from .._device import Device
@@ -254,7 +255,7 @@ cpdef DMR_mempool_get_access(DeviceMemoryResource dmr, int device_id):
     location.id = dev_id
 
     with nogil:
-        HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, dmr._handle, &location))
+        HANDLE_RETURN(cydriver.cuMemPoolGetAccess(&flags, as_cu(dmr._h_pool), &location))
 
     if flags == cydriver.CUmemAccess_flags.CU_MEM_ACCESS_FLAGS_PROT_READWRITE:
         return "rw"

@@ -13,6 +13,19 @@ from cuda.core._memory._device_memory_resource import DeviceMemoryResource
 from cuda.core._memory._pinned_memory_resource import PinnedMemoryResource
 from cuda.core._memory._ipc cimport IPCBufferDescriptor, IPCDataForBuffer
 from cuda.core._memory cimport _ipc
+from cuda.core._resource_handles cimport (
+    DevicePtrHandle,
+    StreamHandle,
+    _init_handles_table,
+    deviceptr_create_with_owner,
+    as_intptr,
+    as_cu,
+    set_deallocation_stream,
+)
+
+# Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
+_init_handles_table()
+
 from cuda.core._stream cimport Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
@@ -50,12 +63,10 @@ cdef class Buffer:
         self._clear()
 
     def _clear(self):
-        self._ptr = 0
+        self._h_ptr.reset()  # Release the handle
         self._size = 0
         self._memory_resource = None
         self._ipc_data = None
-        self._ptr_obj = None
-        self._alloc_stream = None
         self._owner = None
         self._mem_attrs_inited = False
 
@@ -69,20 +80,23 @@ cdef class Buffer:
         stream: Stream | None = None, ipc_descriptor: IPCBufferDescriptor | None = None,
         owner : object | None = None
     ):
-        cdef Buffer self = Buffer.__new__(cls)
-        self._ptr = <uintptr_t>(int(ptr))
-        self._ptr_obj = ptr
-        self._size = size
+        """Legacy init for compatibility - creates a non-owning ref handle.
+
+        Note: The stream parameter is accepted for API compatibility but is
+        ignored since non-owning refs are never freed by the handle.
+        """
         if mr is not None and owner is not None:
             raise ValueError("owner and memory resource cannot be both specified together")
+        cdef Buffer self = Buffer.__new__(cls)
+        self._h_ptr = deviceptr_create_with_owner(<uintptr_t>(int(ptr)), owner)
+        self._size = size
         self._memory_resource = mr
         self._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
-        self._alloc_stream = <Stream>(stream) if stream is not None else None
         self._owner = owner
+        self._mem_attrs_inited = False
         return self
 
-    def __dealloc__(self):
-        self.close(self._alloc_stream)
+    # No __dealloc__ needed - RAII handles cleanup via _h_ptr destructor
 
     def __reduce__(self):
         # Must not serialize the parent's stream!
@@ -107,8 +121,12 @@ cdef class Buffer:
             An object holding external allocation that the ``ptr`` points to.
             The reference is kept as long as the buffer is alive.
             The ``owner`` and ``mr`` cannot be specified together.
+
+        Note
+        ----
+        This creates a non-owning reference. The pointer will NOT be freed
+        when the Buffer is closed or garbage collected.
         """
-        # TODO: It is better to take a stream for latter deallocation
         return Buffer._init(ptr, size, mr=mr, owner=owner)
 
     @classmethod
@@ -135,7 +153,7 @@ cdef class Buffer:
         ----------
         stream : :obj:`~_stream.Stream` | :obj:`~_graph.GraphBuilder`, optional
             The stream object to use for asynchronous deallocation. If None,
-            the behavior depends on the underlying memory resource.
+            the deallocation stream stored in the handle is used.
         """
         Buffer_close(self, stream)
 
@@ -155,29 +173,23 @@ cdef class Buffer:
             asynchronous copy
 
         """
-        stream = Stream_accept(stream)
-        cdef Stream s_stream = <Stream>stream
+        cdef Stream s = Stream_accept(stream)
         cdef size_t src_size = self._size
 
         if dst is None:
             if self._memory_resource is None:
                 raise ValueError("a destination buffer must be provided (this "
                                  "buffer does not have a memory_resource)")
-            dst = self._memory_resource.allocate(src_size, stream)
+            dst = self._memory_resource.allocate(src_size, s)
 
         cdef size_t dst_size = dst._size
         if dst_size != src_size:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        cdef cydriver.CUstream s = s_stream._handle
         with nogil:
             HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                <cydriver.CUdeviceptr>dst._ptr,
-                <cydriver.CUdeviceptr>self._ptr,
-                src_size,
-                s
-            ))
+                as_cu(dst._h_ptr), as_cu(self._h_ptr), src_size, as_cu(s._h_stream)))
         return dst
 
     def copy_from(self, src: Buffer, *, stream: Stream | GraphBuilder):
@@ -192,8 +204,7 @@ cdef class Buffer:
             asynchronous copy
 
         """
-        stream = Stream_accept(stream)
-        cdef Stream s_stream = <Stream>stream
+        cdef Stream s = Stream_accept(stream)
         cdef size_t dst_size = self._size
         cdef size_t src_size = src._size
 
@@ -201,14 +212,9 @@ cdef class Buffer:
             raise ValueError( "buffer sizes mismatch between src and dst (sizes "
                              f"are: src={src_size}, dst={dst_size})"
             )
-        cdef cydriver.CUstream s = s_stream._handle
         with nogil:
             HANDLE_RETURN(cydriver.cuMemcpyAsync(
-                <cydriver.CUdeviceptr>self._ptr,
-                <cydriver.CUdeviceptr>src._ptr,
-                dst_size,
-                s
-            ))
+                as_cu(self._h_ptr), as_cu(src._h_ptr), dst_size, as_cu(s._h_stream)))
 
     def fill(self, value: int | BufferProtocol, *, stream: Stream | GraphBuilder):
         """Fill this buffer with a repeating byte pattern.
@@ -236,12 +242,12 @@ cdef class Buffer:
 
         # Handle int case: 1-byte fill with automatic overflow checking.
         if isinstance(value, int):
-            Buffer_fill_uint8(self, value, s_stream._handle)
+            Buffer_fill_uint8(self, value, s_stream._h_stream)
             return
 
         # Handle bytes case: direct pointer access without intermediate objects.
         if isinstance(value, bytes):
-            Buffer_fill_from_ptr(self, <const char*><bytes>value, len(value), s_stream._handle)
+            Buffer_fill_from_ptr(self, <const char*><bytes>value, len(value), s_stream._h_stream)
             return
 
         # General buffer protocol path using C buffer API.
@@ -251,7 +257,7 @@ cdef class Buffer:
                 f"value must be an int or support the buffer protocol, got {type(value).__name__}"
             )
         try:
-            Buffer_fill_from_ptr(self, <const char*>buf.buf, buf.len, s_stream._handle)
+            Buffer_fill_from_ptr(self, <const char*>buf.buf, buf.len, s_stream._h_stream)
         finally:
             PyBuffer_Release(&buf)
 
@@ -306,9 +312,8 @@ cdef class Buffer:
         """Return the device ordinal of this buffer."""
         if self._memory_resource is not None:
             return self._memory_resource.device_id
-        else:
-            Buffer_init_mem_attrs(self)
-            return self._mem_attrs.device_id
+        _init_mem_attrs(self)
+        return self._mem_attrs.device_id
 
     @property
     def handle(self) -> DevicePointerT:
@@ -319,31 +324,25 @@ cdef class Buffer:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(Buffer.handle)``.
         """
-        if self._ptr_obj is not None:
-            return self._ptr_obj
-        elif self._ptr:
-            return self._ptr
-        else:
-            # contract: Buffer is closed
-            return 0
+        # Return raw integer for compatibility with ctypes and other tools
+        # that expect a raw pointer value
+        return as_intptr(self._h_ptr)
 
     @property
     def is_device_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the GPU, otherwise False."""
         if self._memory_resource is not None:
             return self._memory_resource.is_device_accessible
-        else:
-            Buffer_init_mem_attrs(self)
-            return self._mem_attrs.is_device_accessible
+        _init_mem_attrs(self)
+        return self._mem_attrs.is_device_accessible
 
     @property
     def is_host_accessible(self) -> bool:
         """Return True if this buffer can be accessed by the CPU, otherwise False."""
         if self._memory_resource is not None:
             return self._memory_resource.is_host_accessible
-        else:
-            Buffer_init_mem_attrs(self)
-            return self._mem_attrs.is_host_accessible
+        _init_mem_attrs(self)
+        return self._mem_attrs.is_host_accessible
 
     @property
     def is_mapped(self) -> bool:
@@ -367,100 +366,26 @@ cdef class Buffer:
         return self._owner
 
 
-# Buffer Implementation
-# ---------------------
-cdef inline void Buffer_close(Buffer self, stream):
-    cdef Stream s
-    if self._ptr:
-        if self._memory_resource is not None:
-            s = Stream_accept(stream) if stream is not None else self._alloc_stream
-            self._memory_resource.deallocate(self._ptr, self._size, s)
-        self._ptr = 0
-        self._memory_resource = None
-        self._owner = None
-        self._ptr_obj = None
-        self._alloc_stream = None
-
-
-cdef inline int Buffer_fill_uint8(Buffer self, uint8_t value, cydriver.CUstream s) except? -1:
-    with nogil:
-        HANDLE_RETURN(cydriver.cuMemsetD8Async(<cydriver.CUdeviceptr>self._ptr, value, self._size, s))
-    return 0
-
-
-cdef inline int Buffer_fill_from_ptr(
-    Buffer self, const char* ptr, size_t width, cydriver.CUstream s
-) except? -1:
-    cdef size_t buffer_size = self._size
-
-    if width == 1:
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemsetD8Async(
-                <cydriver.CUdeviceptr>self._ptr, (<uint8_t*>ptr)[0], buffer_size, s))
-    elif width == 2:
-        if buffer_size & 0x1:
-            raise ValueError(f"buffer size ({buffer_size}) must be divisible by 2")
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemsetD16Async(
-                <cydriver.CUdeviceptr>self._ptr, (<uint16_t*>ptr)[0], buffer_size // 2, s))
-    elif width == 4:
-        if buffer_size & 0x3:
-            raise ValueError(f"buffer size ({buffer_size}) must be divisible by 4")
-        with nogil:
-            HANDLE_RETURN(cydriver.cuMemsetD32Async(
-                <cydriver.CUdeviceptr>self._ptr, (<uint32_t*>ptr)[0], buffer_size // 4, s))
-    else:
-        raise ValueError(f"value must be 1, 2, or 4 bytes, got {width}")
-    return 0
-
-
-cdef Buffer_init_mem_attrs(Buffer self):
+# Memory Attribute Query Helpers
+# ------------------------------
+cdef inline void _init_mem_attrs(Buffer self):
+    """Initialize memory attributes by querying the pointer."""
     if not self._mem_attrs_inited:
-        query_memory_attrs(self._mem_attrs, self._ptr)
+        _query_memory_attrs(self._mem_attrs, as_cu(self._h_ptr))
         self._mem_attrs_inited = True
 
 
-cdef int query_memory_attrs(_MemAttrs &out, uintptr_t ptr) except -1 nogil:
+cdef inline int _query_memory_attrs(
+    _MemAttrs& out,
+    cydriver.CUdeviceptr ptr
+) except -1 nogil:
+    """Query memory attributes for a device pointer."""
     cdef unsigned int memory_type = 0
     cdef int is_managed = 0
     cdef int device_id = 0
-    _query_memory_attrs(memory_type, is_managed, device_id, <cydriver.CUdeviceptr>ptr)
-
-    if memory_type == 0:
-        # unregistered host pointer
-        out.is_host_accessible = True
-        out.is_device_accessible = False
-        out.device_id = -1
-    # for managed memory, the memory type can be CU_MEMORYTYPE_DEVICE,
-    # so we need to check it first not to falsely claim it is not
-    # host accessible.
-    elif (
-        is_managed
-        or memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_HOST
-    ):
-        # For pinned memory allocated with cudaMallocHost or paged-locked
-        # with cudaHostRegister, the memory_type is
-        # cydriver.CUmemorytype.CU_MEMORYTYPE_HOST.
-        # TODO(ktokarski): In some cases, the registered memory requires
-        # using different ptr for device and host, we could check
-        # cuMemHostGetDevicePointer and
-        # CU_DEVICE_ATTRIBUTE_CAN_USE_HOST_POINTER_FOR_REGISTERED_MEM
-        # to double check the device accessibility.
-        out.is_host_accessible = True
-        out.is_device_accessible = True
-        out.device_id = device_id
-    elif memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_DEVICE:
-        out.is_host_accessible = False
-        out.is_device_accessible = True
-        out.device_id = device_id
-    else:
-        raise ValueError(f"Unsupported memory type: {memory_type}")
-    return 0
-
-
-cdef inline int _query_memory_attrs(unsigned int& memory_type, int & is_managed, int& device_id, cydriver.CUdeviceptr ptr) except -1 nogil:
     cdef cydriver.CUpointer_attribute attrs[3]
     cdef uintptr_t vals[3]
+
     attrs[0] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_MEMORY_TYPE
     attrs[1] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_IS_MANAGED
     attrs[2] = cydriver.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL
@@ -476,6 +401,27 @@ cdef inline int _query_memory_attrs(unsigned int& memory_type, int & is_managed,
             Device()
         ret = cydriver.cuPointerGetAttributes(3, attrs, <void**>vals, ptr)
     HANDLE_RETURN(ret)
+
+    if memory_type == 0:
+        # unregistered host pointer
+        out.is_host_accessible = True
+        out.is_device_accessible = False
+        out.device_id = -1
+    elif (
+        is_managed
+        or memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_HOST
+    ):
+        # Managed memory or pinned host memory
+        out.is_host_accessible = True
+        out.is_device_accessible = True
+        out.device_id = device_id
+    elif memory_type == cydriver.CUmemorytype.CU_MEMORYTYPE_DEVICE:
+        out.is_host_accessible = False
+        out.is_device_accessible = True
+        out.device_id = device_id
+    else:
+        with cython.gil:
+            raise ValueError(f"Unsupported memory type: {memory_type}")
     return 0
 
 
@@ -541,3 +487,72 @@ cdef class MemoryResource:
     def device_id(self) -> int:
         """Device ID associated with this memory resource, or -1 if not applicable."""
         raise TypeError("MemoryResource.device_id must be implemented by subclasses.")
+
+
+# Buffer Implementation Helpers
+# -----------------------------
+cdef inline Buffer Buffer_from_deviceptr_handle(
+    DevicePtrHandle h_ptr,
+    size_t size,
+    MemoryResource mr,
+    object ipc_descriptor = None
+):
+    """Create a Buffer from an existing DevicePtrHandle."""
+    cdef Buffer buf = Buffer.__new__(Buffer)
+    buf._h_ptr = h_ptr
+    buf._size = size
+    buf._memory_resource = mr
+    buf._ipc_data = IPCDataForBuffer(ipc_descriptor, True) if ipc_descriptor is not None else None
+    buf._owner = None
+    buf._mem_attrs_inited = False
+    return buf
+
+
+cdef inline void Buffer_close(Buffer self, object stream):
+    """Close a buffer, freeing its memory."""
+    cdef Stream s
+    if not self._h_ptr:
+        return
+    # Update deallocation stream if provided
+    if stream is not None:
+        s = Stream_accept(stream)
+        set_deallocation_stream(self._h_ptr, s._h_stream)
+    # Reset handle - RAII deleter will free the memory (and release owner ref in C++)
+    self._h_ptr.reset()
+    self._size = 0
+    self._memory_resource = None
+    self._ipc_data = None
+    self._owner = None
+
+
+cdef inline int Buffer_fill_uint8(Buffer self, uint8_t value, StreamHandle h_stream) except? -1:
+    cdef cydriver.CUdeviceptr ptr = as_cu(self._h_ptr)
+    cdef cydriver.CUstream s = as_cu(h_stream)
+    with nogil:
+        HANDLE_RETURN(cydriver.cuMemsetD8Async(ptr, value, self._size, s))
+    return 0
+
+
+cdef inline int Buffer_fill_from_ptr(
+    Buffer self, const char* ptr, size_t width, StreamHandle h_stream
+) except? -1:
+    cdef size_t buffer_size = self._size
+    cdef cydriver.CUdeviceptr dst = as_cu(self._h_ptr)
+    cdef cydriver.CUstream s = as_cu(h_stream)
+
+    if width == 1:
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemsetD8Async(dst, (<uint8_t*>ptr)[0], buffer_size, s))
+    elif width == 2:
+        if buffer_size & 0x1:
+            raise ValueError(f"buffer size ({buffer_size}) must be divisible by 2")
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemsetD16Async(dst, (<uint16_t*>ptr)[0], buffer_size // 2, s))
+    elif width == 4:
+        if buffer_size & 0x3:
+            raise ValueError(f"buffer size ({buffer_size}) must be divisible by 4")
+        with nogil:
+            HANDLE_RETURN(cydriver.cuMemsetD32Async(dst, (<uint32_t*>ptr)[0], buffer_size // 4, s))
+    else:
+        raise ValueError(f"value must be 1, 2, or 4 bytes, got {width}")
+    return 0
