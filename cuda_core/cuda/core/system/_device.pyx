@@ -207,7 +207,7 @@ cdef class PciInfo:
 
     def get_max_pcie_link_generation(self) -> int:
         """
-        Retrieves the maximum PCIe link generation possible with this device and system.
+        Retrieve the maximum PCIe link generation possible with this device and system.
 
         For Fermi™ or newer fully supported devices.
 
@@ -219,7 +219,7 @@ cdef class PciInfo:
 
     def get_gpu_max_pcie_link_generation(self) -> int:
         """
-        Retrieves the maximum PCIe link generation supported by this GPU device.
+        Retrieve the maximum PCIe link generation supported by this GPU device.
 
         For Fermi™ or newer fully supported devices.
         """
@@ -227,7 +227,7 @@ cdef class PciInfo:
 
     def get_max_pcie_link_width(self) -> int:
         """
-        Retrieves the maximum PCIe link width possible with this device and system.
+        Retrieve the maximum PCIe link width possible with this device and system.
 
         For Fermi™ or newer fully supported devices.
 
@@ -239,7 +239,7 @@ cdef class PciInfo:
 
     def get_current_pcie_link_generation(self) -> int:
         """
-        Retrieves the current PCIe link generation.
+        Retrieve the current PCIe link generation.
 
         For Fermi™ or newer fully supported devices.
         """
@@ -247,7 +247,7 @@ cdef class PciInfo:
 
     def get_current_pcie_link_width(self) -> int:
         """
-        Retreives the current PCIe link width.
+        Retrieve the current PCIe link width.
 
         For Fermi™ or newer fully supported devices.
         """
@@ -761,13 +761,6 @@ cdef class Device:
         device node in ``/dev/nvidiaX``.
         """
         return nvml.device_get_minor_number(self._handle)
-
-    @property
-    def board_part_number(self) -> str:
-        """
-        Retrieves the the device board part number which is programmed into the board's InfoROM.
-        """
-        return nvml.device_get_board_part_number(self._handle)
 
     @property
     def addressing_mode(self) -> AddressingMode:

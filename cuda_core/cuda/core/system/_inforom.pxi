@@ -81,10 +81,10 @@ cdef class InforomInfo:
         nvml.device_validate_inforom(self._device._handle)
 
     @property
-    def bbx_flush_time(self) -> int:
+    def bbx_flush_time(self) -> tuple[int, int]:
         """
         Retrieves the timestamp and duration of the last flush of the BBX
-        (bloackbox) InfoROM object during the current run.
+        (blackbox) InfoROM object during the current run.
 
         For all products with an InfoROM.
 
@@ -95,3 +95,10 @@ cdef class InforomInfo:
             - duration_us: The duration (in μs) of the last BBX flush
         """
         return nvml.device_get_last_bbx_flush_time(self._device._handle)
+
+    @property
+    def board_part_number(self) -> str:
+        """
+        The device board part number which is programmed into the board's InfoROM.
+        """
+        return nvml.device_get_board_part_number(self._device._handle)

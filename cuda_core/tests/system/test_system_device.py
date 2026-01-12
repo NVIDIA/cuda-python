@@ -441,17 +441,6 @@ def test_get_minor_number():
         assert minor_number >= 0
 
 
-def test_board_part_number():
-    for device in system.Device.get_all_devices():
-        try:
-            board_part_number = device.board_part_number
-        except system.NotSupportedError:
-            pytest.skip(f"Device board part number not supported by device '{device.name}'")
-            continue
-        assert isinstance(board_part_number, str)
-        assert len(board_part_number) > 0
-
-
 def test_get_inforom_version():
     for device in system.Device.get_all_devices():
         inforom = device.inforom
@@ -477,5 +466,13 @@ def test_get_inforom_version():
             assert timestamp > 0
             assert isinstance(duration_us, int)
             assert duration_us > 0
+
+        try:
+            board_part_number = inforom.board_part_number
+        except system.NotSupportedError:
+            pass
+        else:
+            assert isinstance(board_part_number, str)
+            assert len(board_part_number) > 0
 
         inforom.validate()
