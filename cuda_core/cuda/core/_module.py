@@ -692,42 +692,6 @@ class ObjectCode:
         """
         return ObjectCode._init(module, "library", name=name, symbol_mapping=symbol_mapping)
 
-    @staticmethod
-    def from_handle(
-        handle: int, code_type: str = "cubin", *, name: str = "", symbol_mapping: dict | None = None
-    ) -> "ObjectCode":
-        """Create a new :obj:`ObjectCode` object from a foreign module handle.
-
-        Uses a CUmodule or CUlibrary pointer address to create a new :obj:`ObjectCode` object.
-
-        Parameters
-        ----------
-        handle : int
-            Module handle representing the address of a foreign
-            module object (CUmodule or CUlibrary).
-        code_type : str, optional
-            The type of code object this handle represents. Must be one of
-            "cubin", "ptx", "ltoir", "fatbin", "object", or "library".
-            (Default: "cubin")
-        name : str, optional
-            A human-readable identifier representing this code object.
-        symbol_mapping : dict, optional
-            A dictionary specifying how the unmangled symbol names (as keys)
-            should be mapped to the mangled names before trying to retrieve
-            them (default to no mappings).
-        """
-        # Create an ObjectCode instance with a placeholder module
-        # The handle will be set directly, bypassing the lazy loading
-        obj = ObjectCode._init(b"", code_type, name=name, symbol_mapping=symbol_mapping)
-
-        # Set the handle directly from the foreign handle
-        if obj._backend_version == "new":
-            obj._handle = driver.CUlibrary(handle)
-        else:
-            obj._handle = driver.CUmodule(handle)
-
-        return obj
-
     # TODO: do we want to unload in a finalizer? Probably not..
 
     def _lazy_load_module(self, *args, **kwargs):
