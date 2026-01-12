@@ -148,14 +148,12 @@ def test_event_context(init_cuda):
     assert context is not None
 
 
-def test_event_subclassing():
-    class MyEvent(Event):
-        pass
-
+def test_event_creation():
+    """Test Event creation via public API."""
     dev = Device()
     dev.set_current()
-    event = MyEvent._init(dev.device_id, dev.context)
-    assert isinstance(event, MyEvent)
+    event = dev.create_event()
+    assert isinstance(event, Event)
 
 
 # ============================================================================

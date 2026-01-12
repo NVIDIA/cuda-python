@@ -100,6 +100,17 @@ def _build_cuda_core():
         for filename in glob.glob(f"{root_path}/**/*.pyx", recursive=True):
             yield filename[len(root_path) : -4]
 
+    def get_sources(mod_name):
+        """Get source files for a module, including any .cpp files."""
+        sources = [f"cuda/core/{mod_name}.pyx"]
+
+        # Add module-specific .cpp file from _cpp/ directory if it exists
+        cpp_file = f"cuda/core/_cpp/{mod_name.lstrip('_')}.cpp"
+        if os.path.exists(cpp_file):
+            sources.append(cpp_file)
+
+        return sources
+
     all_include_dirs = list(os.path.join(root, "include") for root in _get_cuda_paths())
     extra_compile_args = []
     if COMPILE_FOR_COVERAGE:
@@ -110,8 +121,12 @@ def _build_cuda_core():
     ext_modules = tuple(
         Extension(
             f"cuda.core.{mod.replace(os.path.sep, '.')}",
-            sources=[f"cuda/core/{mod}.pyx"],
-            include_dirs=all_include_dirs,
+            sources=get_sources(mod),
+            include_dirs=[
+                "cuda/core/_include",
+                "cuda/core/_cpp",
+            ]
+            + all_include_dirs,
             language="c++",
             extra_compile_args=extra_compile_args,
         )

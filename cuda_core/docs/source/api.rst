@@ -23,6 +23,9 @@ CUDA runtime
    Graph
    GraphBuilder
    launch
+
+   :template: autosummary/cyclass.rst
+
    Buffer
    Stream
    Event
@@ -90,6 +93,9 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.DeviceEvents
    system.EventData
    system.EventType
+   system.FieldId
+   system.FieldValue
+   system.FieldValues
    system.MemoryInfo
    system.BAR1MemoryInfo
    system.PciInfo
