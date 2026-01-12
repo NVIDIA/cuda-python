@@ -91,7 +91,7 @@ EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags);
 // Use for temporary events that are created and destroyed in the same scope.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle(unsigned int flags);
+EventHandle create_event_handle_noctx(unsigned int flags);
 
 // Create an owning event handle from an IPC handle.
 // The originating process owns the event and its context.

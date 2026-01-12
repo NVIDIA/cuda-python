@@ -5,7 +5,6 @@
 #include <Python.h>
 
 #include "resource_handles.hpp"
-#include "resource_handles_cxx_api.hpp"
 #include <cuda.h>
 #include <cstdint>
 #include <cstring>
@@ -470,7 +469,7 @@ EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
     return EventHandle(box, &box->resource);
 }
 
-EventHandle create_event_handle(unsigned int flags) {
+EventHandle create_event_handle_noctx(unsigned int flags) {
     return create_event_handle(ContextHandle{}, flags);
 }
 
@@ -855,62 +854,6 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
         );
         return DevicePtrHandle(box, &box->resource);
     }
-}
-
-// ============================================================================
-// Capsule C++ API table
-// ============================================================================
-
-const ResourceHandlesCxxApiV1* get_resource_handles_cxx_api_v1() noexcept {
-    static const ResourceHandlesCxxApiV1 table = []() {
-        ResourceHandlesCxxApiV1 t{};
-        t.abi_version = RESOURCE_HANDLES_CXX_API_VERSION;
-        t.struct_size = static_cast<std::uint32_t>(sizeof(ResourceHandlesCxxApiV1));
-
-        // Error handling
-        t.get_last_error = &get_last_error;
-        t.peek_last_error = &peek_last_error;
-        t.clear_last_error = &clear_last_error;
-
-        // Context
-        t.create_context_handle_ref = &create_context_handle_ref;
-        t.get_primary_context = &get_primary_context;
-        t.get_current_context = &get_current_context;
-
-        // Stream
-        t.create_stream_handle = &create_stream_handle;
-        t.create_stream_handle_ref = &create_stream_handle_ref;
-        t.create_stream_handle_with_owner = &create_stream_handle_with_owner;
-        t.get_legacy_stream = &get_legacy_stream;
-        t.get_per_thread_stream = &get_per_thread_stream;
-
-        // Event (resolve overloads explicitly)
-        t.create_event_handle =
-            static_cast<EventHandle (*)(ContextHandle, unsigned int)>(&create_event_handle);
-        t.create_event_handle_noctx =
-            static_cast<EventHandle (*)(unsigned int)>(&create_event_handle);
-        t.create_event_handle_ipc = &create_event_handle_ipc;
-
-        // Memory pool
-        t.create_mempool_handle = &create_mempool_handle;
-        t.create_mempool_handle_ref = &create_mempool_handle_ref;
-        t.get_device_mempool = &get_device_mempool;
-        t.create_mempool_handle_ipc = &create_mempool_handle_ipc;
-
-        // Device pointer
-        t.deviceptr_alloc_from_pool = &deviceptr_alloc_from_pool;
-        t.deviceptr_alloc_async = &deviceptr_alloc_async;
-        t.deviceptr_alloc = &deviceptr_alloc;
-        t.deviceptr_alloc_host = &deviceptr_alloc_host;
-        t.deviceptr_create_ref = &deviceptr_create_ref;
-        t.deviceptr_create_with_owner = &deviceptr_create_with_owner;
-        t.deviceptr_import_ipc = &deviceptr_import_ipc;
-        t.deallocation_stream = &deallocation_stream;
-        t.set_deallocation_stream = &set_deallocation_stream;
-
-        return t;
-    }();
-    return &table;
 }
 
 }  // namespace cuda_core
