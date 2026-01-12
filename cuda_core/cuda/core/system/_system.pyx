@@ -20,6 +20,14 @@ else:
 
 if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from cuda.bindings import _nvml as nvml
+    # TODO: We need to be even more specific than version numbers for development.
+    # This can be removed once we have a release including everything we need.
+    for member in ["FieldId"]:
+        if not hasattr(nvml, member):
+            CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
+            break
+
+if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from ._nvml_context import initialize
 else:
     from cuda.core._utils.cuda_utils import driver, handle_return, runtime

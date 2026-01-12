@@ -13,8 +13,6 @@ These tests verify:
 """
 
 from cuda.core import Device
-from cuda.core._context import Context
-from cuda.core._event import Event, EventOptions
 from cuda.core._stream import Stream, StreamOptions
 
 # ============================================================================
@@ -128,65 +126,51 @@ def test_stream_subclass_hash(init_cuda):
     assert hash(my_stream) != hash(my_stream2), "Different streams have different hashes"
 
 
-def test_event_subclass_hash(init_cuda):
-    """Test Event subclass hash behavior."""
-
-    class MyEvent(Event):
-        pass
-
+def test_event_hash(init_cuda):
+    """Test Event hash behavior."""
     device = Device(0)
     device.set_current()
 
-    # Create events with different handles
-    event = Event._init(device.device_id, device.context, options=EventOptions())
-    my_event = MyEvent._init(device.device_id, device.context, options=EventOptions())
+    # Create events using public API
+    event1 = device.create_event()
+    event2 = device.create_event()
 
     # Different events (different handles) -> different hashes
-    assert hash(event) != hash(my_event), "Different events have different hashes"
-    assert event != my_event, "Different handles means not equal"
+    assert hash(event1) != hash(event2), "Different events have different hashes"
+    assert event1 != event2, "Different handles means not equal"
 
     # Verify hash consistency
-    hash1 = hash(event)
-    hash2 = hash(event)
+    hash1 = hash(event1)
+    hash2 = hash(event1)
     assert hash1 == hash2, "Hash is consistent across multiple calls"
 
     # Both should be usable as dict keys
-    cache = {event: "base", my_event: "subclass"}
+    cache = {event1: "first", event2: "second"}
     assert len(cache) == 2, "Different events are distinct dict keys"
-    assert cache[event] == "base"
-    assert cache[my_event] == "subclass"
+    assert cache[event1] == "first"
+    assert cache[event2] == "second"
 
 
-def test_context_subclass_hash(init_cuda):
-    """Test Context subclass hash behavior.
-
-    Context._from_ctx() always returns Context instances, even when called
-    as MyContext._from_ctx(). This means we can't create actual MyContext
-    instances in practice.
-    """
-
-    class MyContext(Context):
-        pass
-
+def test_context_hash(init_cuda):
+    """Test Context hash behavior."""
     device = Device(0)
     device.set_current()
-    stream = device.create_stream()
-    context = stream.context
 
-    # MyContext._from_ctx() returns Context, not MyContext
-    my_context = MyContext._from_ctx(context._handle, device.device_id)
-    assert type(my_context) is Context, "_from_ctx returns Context type"
+    # Get context from different sources
+    stream1 = device.create_stream()
+    stream2 = device.create_stream()
+    context1 = stream1.context
+    context2 = stream2.context
 
-    # Same handle -> same hash
-    assert hash(context) == hash(my_context), "Contexts with same handle have same hash"
+    # Same underlying context -> same hash
+    assert hash(context1) == hash(context2), "Contexts with same handle have same hash"
 
     # Verify equality matches hash
-    assert context == my_context, "Contexts with same handle are equal"
-    assert hash(context) == hash(my_context), "Equal contexts have equal hashes"
+    assert context1 == context2, "Contexts with same handle are equal"
 
     # Verify hash consistency
-    hash1 = hash(context)
-    hash2 = hash(context)
+    hash1 = hash(context1)
+    hash2 = hash(context1)
     assert hash1 == hash2, "Hash is consistent across multiple calls"
 
 
@@ -200,33 +184,24 @@ def test_hash_equality_contract_maintained(init_cuda):
     allowing cross-type equality with consistent hashing.
     """
 
-    class MyStream(Stream):
-        pass
-
-    class MyEvent(Event):
-        pass
-
-    class MyContext(Context):
-        pass
-
     device = Device(0)
     device.set_current()
 
-    # Test Stream: base and subclass with same handle
-    my_stream = MyStream._init(options=StreamOptions(), device_id=device.device_id)
-    stream = Stream.from_handle(int(my_stream.handle))
+    # Test Stream: two references to same handle
+    stream1 = device.create_stream()
+    stream2 = Stream.from_handle(int(stream1.handle))
 
-    assert my_stream == stream, "Equal due to isinstance() check and same handle"
-    assert hash(my_stream) == hash(stream), "Equal objects have equal hashes"
+    assert stream1 == stream2, "Equal due to same handle"
+    assert hash(stream1) == hash(stream2), "Equal objects have equal hashes"
 
-    # Test Context: always returns base type from _from_ctx
-    ctx = device.context
-    my_ctx = MyContext._from_ctx(ctx._handle, device.device_id)
+    # Test Context: contexts from same device share same underlying context
+    ctx1 = device.context
+    ctx2 = device.create_stream().context
 
-    assert ctx == my_ctx, "Equal contexts with same handle"
-    assert hash(ctx) == hash(my_ctx), "Equal objects have equal hashes"
+    assert ctx1 == ctx2, "Equal contexts with same handle"
+    assert hash(ctx1) == hash(ctx2), "Equal objects have equal hashes"
 
     # Test that different handles still produce different hashes
-    my_stream2 = MyStream._init(options=StreamOptions(), device_id=device.device_id)
-    assert my_stream != my_stream2, "Different handles means not equal"
-    assert hash(my_stream) != hash(my_stream2), "Different objects have different hashes"
+    stream3 = device.create_stream()
+    assert stream1 != stream3, "Different handles means not equal"
+    assert hash(stream1) != hash(stream3), "Different objects have different hashes"

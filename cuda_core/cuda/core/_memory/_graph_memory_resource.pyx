@@ -7,7 +7,17 @@ from __future__ import annotations
 from libc.stdint cimport intptr_t
 
 from cuda.bindings cimport cydriver
-from cuda.core._memory._buffer cimport Buffer, MemoryResource
+from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
+from cuda.core._resource_handles cimport (
+    DevicePtrHandle,
+    _init_handles_table,
+    deviceptr_alloc_async,
+    as_cu,
+)
+
+# Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
+_init_handles_table()
+
 from cuda.core._stream cimport default_stream, Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
@@ -22,7 +32,7 @@ __all__ = ['GraphMemoryResource']
 
 cdef class GraphMemoryResourceAttributes:
     cdef:
-        int _dev_id
+        int _device_id
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError("GraphMemoryResourceAttributes cannot be instantiated directly. Please use MemoryResource APIs.")
@@ -30,7 +40,7 @@ cdef class GraphMemoryResourceAttributes:
     @classmethod
     def _init(cls, device_id: int):
         cdef GraphMemoryResourceAttributes self = GraphMemoryResourceAttributes.__new__(cls)
-        self._dev_id = device_id
+        self._device_id = device_id
         return self
 
     def __repr__(self):
@@ -41,12 +51,12 @@ cdef class GraphMemoryResourceAttributes:
 
     cdef int _getattribute(self, cydriver.CUgraphMem_attribute attr_enum, void* value) except?-1:
         with nogil:
-            HANDLE_RETURN(cydriver.cuDeviceGetGraphMemAttribute(self._dev_id, attr_enum, value))
+            HANDLE_RETURN(cydriver.cuDeviceGetGraphMemAttribute(self._device_id, attr_enum, value))
         return 0
 
     cdef int _setattribute(self, cydriver.CUgraphMem_attribute attr_enum, void* value) except?-1:
         with nogil:
-            HANDLE_RETURN(cydriver.cuDeviceSetGraphMemAttribute(self._dev_id, attr_enum, value))
+            HANDLE_RETURN(cydriver.cuDeviceSetGraphMemAttribute(self._device_id, attr_enum, value))
         return 0
 
     @property
@@ -100,7 +110,7 @@ cdef class GraphMemoryResourceAttributes:
 
 cdef class cyGraphMemoryResource(MemoryResource):
     def __cinit__(self, int device_id):
-        self._dev_id = device_id
+        self._device_id = device_id
 
     def allocate(self, size_t size, stream: Stream | GraphBuilder | None = None) -> Buffer:
         """
@@ -123,17 +133,17 @@ cdef class cyGraphMemoryResource(MemoryResource):
     def trim(self):
         """Free unused memory that was cached on the specified device for use with graphs back to the OS."""
         with nogil:
-             HANDLE_RETURN(cydriver.cuDeviceGraphMemTrim(self._dev_id))
+             HANDLE_RETURN(cydriver.cuDeviceGraphMemTrim(self._device_id))
 
     @property
     def attributes(self) -> GraphMemoryResourceAttributes:
         """Asynchronous allocation attributes related to graphs."""
-        return GraphMemoryResourceAttributes._init(self._dev_id)
+        return GraphMemoryResourceAttributes._init(self._device_id)
 
     @property
     def device_id(self) -> int:
         """The associated device ordinal."""
-        return self._dev_id
+        return self._device_id
 
     @property
     def is_device_accessible(self) -> bool:
@@ -186,22 +196,18 @@ cdef inline int check_capturing(cydriver.CUstream s) except?-1 nogil:
 
 
 cdef inline Buffer GMR_allocate(cyGraphMemoryResource self, size_t size, Stream stream):
-    cdef cydriver.CUstream s = stream._handle
-    cdef cydriver.CUdeviceptr devptr
+    cdef cydriver.CUstream s = as_cu(stream._h_stream)
+    cdef DevicePtrHandle h_ptr
     with nogil:
         check_capturing(s)
-        HANDLE_RETURN(cydriver.cuMemAllocAsync(&devptr, size, s))
-    cdef Buffer buf = Buffer.__new__(Buffer)
-    buf._ptr = <intptr_t>(devptr)
-    buf._ptr_obj = None
-    buf._size = size
-    buf._memory_resource = self
-    buf._alloc_stream = stream
-    return buf
+        h_ptr = deviceptr_alloc_async(size, stream._h_stream)
+    if not h_ptr:
+        raise RuntimeError("Failed to allocate memory asynchronously")
+    return Buffer_from_deviceptr_handle(h_ptr, size, self, None)
 
 
 cdef inline void GMR_deallocate(intptr_t ptr, size_t size, Stream stream) noexcept:
-    cdef cydriver.CUstream s = stream._handle
+    cdef cydriver.CUstream s = as_cu(stream._h_stream)
     cdef cydriver.CUdeviceptr devptr = <cydriver.CUdeviceptr>ptr
     with nogil:
         HANDLE_RETURN(cydriver.cuMemFreeAsync(devptr, s))
