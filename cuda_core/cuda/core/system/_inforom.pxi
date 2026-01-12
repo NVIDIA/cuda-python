@@ -83,7 +83,8 @@ cdef class InforomInfo:
     @property
     def bbx_flush_time(self) -> int:
         """
-        Retrieves the timestamp and duration of the last flush of the BBX (bloackbox) InfoROM object during the current run.
+        Retrieves the timestamp and duration of the last flush of the BBX
+        (bloackbox) InfoROM object during the current run.
 
         For all products with an InfoROM.
 
