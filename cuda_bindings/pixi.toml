@@ -21,9 +21,9 @@ pyglet = ">=2.1.9"
 numpy = "*"
 
 [feature.cython-tests.dependencies]
-cython = ">=3.2,<3.3"     # for tests that exercise APIs from cython
-setuptools = "*" # for distutils
-gxx = "*"        # to compile the generated code
+cython = ">=3.2,<3.3" # for tests that exercise APIs from cython
+setuptools = "*"      # for distutils
+gxx = "*"             # to compile the generated code
 # These are necessary because running the Cython tests requires compiling
 # *after* the package is built, and the Cython tests depend on CUDA headers
 # transitively (through cuda-bindings)
@@ -57,7 +57,8 @@ cuda = "13"
 cuda-version = "13.1.*"
 
 [environments]
-cu13 = { features = ["cu13", "test", "cython-tests"], solve-group = "cu13" }
+default = { features = ["cu13", "test", "cython-tests"] }
+cu13 = { features = ["cu13", "test", "cython-tests"] }
 
 # TODO: check if these can be extracted from pyproject.toml
 [package]
@@ -90,7 +91,8 @@ CUDA_HOME = '%PREFIX%\Library'
 
 [package.host-dependencies]
 python = "*"
-setuptools = ">=77"
+setuptools = ">=80"
+setuptools-scm = ">=8"
 cython = ">=3.2,<3.3"
 pyclibrary = ">=0.1.7"
 cuda-cudart-static = "*"

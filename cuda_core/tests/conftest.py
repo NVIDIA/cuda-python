@@ -72,7 +72,7 @@ def init_cuda():
             driver.cuDevicePrimaryCtxSetFlags(device.device_id, driver.CUctx_flags.CU_CTX_SCHED_BLOCKING_SYNC)
         )
 
-    yield
+    yield device
     _ = _device_unset_current()
 
 
