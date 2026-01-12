@@ -188,7 +188,9 @@ cdef class EventData:
         """
         The device on which the event occurred.
         """
-        return Device(handle=self._event_data.device)
+        device = Device.__new__()
+        device._handle = self._event_data.device
+        return device
 
     @property
     def event_type(self) -> EventType:
@@ -555,17 +557,16 @@ cdef class Device:
         index: int | None = None,
         uuid: bytes | str | None = None,
         pci_bus_id: bytes | str | None = None,
-        handle: int | None = None
     ):
-        initialize()
-
-        args = [index, uuid, pci_bus_id, handle]
+        args = [index, uuid, pci_bus_id]
         cdef int arg_count = sum(arg is not None for arg in args)
 
         if arg_count > 1:
-            raise ValueError("Handle requires only one of `index`, `uuid`, `pci_bus_id` or `handle`.")
+            raise ValueError("Handle requires only one of `index`, `uuid`, or `pci_bus_id`.")
         if arg_count == 0:
-            raise ValueError("Handle requires either a device `index`, `pci_bus_id`, or `uuid`.")
+            raise ValueError("Handle requires either a device `index`, `uuid`, or `pci_bus_id`.")
+
+        initialize()
 
         if index is not None:
             self._handle = nvml.device_get_handle_by_index_v2(index)
@@ -577,8 +578,6 @@ cdef class Device:
             if isinstance(pci_bus_id, bytes):
                 pci_bus_id = pci_bus_id.decode("ascii")
             self._handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
-        elif handle is not None:
-            self._handle = handle
 
     @classmethod
     def get_all_devices(cls) -> Iterable[Device]:
