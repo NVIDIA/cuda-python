@@ -23,6 +23,9 @@ CUDA runtime
    Graph
    GraphBuilder
    launch
+
+   :template: autosummary/cyclass.rst
+
    Buffer
    Stream
    Event
@@ -64,12 +67,31 @@ CUDA compilation toolchain
    LinkerOptions
 
 
-CUDA system information
------------------------
+CUDA system information and NVIDIA Management Library (NVML)
+------------------------------------------------------------
 
-.. automethod:: cuda.core._system.System.get_driver_version
-.. automethod:: cuda.core._system.System.get_num_devices
+.. autosummary::
+   :toctree: generated/
 
+   system.get_driver_version
+   system.get_driver_version_full
+   system.get_driver_branch
+   system.get_num_devices
+   system.get_nvml_version
+   system.get_process_name
+
+   :template: autosummary/cyclass.rst
+
+   system.Device
+   system.BAR1MemoryInfo
+   system.BrandType
+   system.DeviceArchitecture
+   system.DeviceAttributes
+   system.FieldId
+   system.FieldValue
+   system.FieldValues
+   system.MemoryInfo
+   system.PciInfo
 
 .. module:: cuda.core.utils
 

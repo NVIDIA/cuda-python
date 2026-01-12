@@ -16,7 +16,6 @@ cuda.core.Program
    .. automethod:: __init__
    .. automethod:: close
    .. automethod:: compile
-   .. automethod:: from_handle
 
    
    

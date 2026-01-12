@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=3a15012f"></script>
+    <script src="../_static/documentation_options.js?v=0ded8b45"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-bindings/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '13.1.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1925,40 +1925,40 @@ stored</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#error-handling">Error Handling</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult"><code class="docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="docutils literal notranslate"><span class="pre">NVRTC_SUCCESS</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_OUT_OF_MEMORY</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_PROGRAM_CREATION_FAILURE</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_INPUT</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_PROGRAM</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_INVALID_OPTION</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_COMPILATION</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_BUILTIN_OPERATION_FAILURE</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_INTERNAL_ERROR</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_TIME_FILE_WRITE_FAILED</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_PCH_CREATE</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_CANCELLED</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED"><code class="docutils literal notranslate"><span class="pre">NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#error-handling">Error Handling</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult"><code class="docutils literal notranslate"><span class="pre">nvrtcResult</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_SUCCESS"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_SUCCESS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_OUT_OF_MEMORY</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_PROGRAM_CREATION_FAILURE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_INPUT"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_INVALID_INPUT</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_INVALID_PROGRAM</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INVALID_OPTION"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_INVALID_OPTION</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_COMPILATION"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_COMPILATION</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_BUILTIN_OPERATION_FAILURE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_NO_NAME_EXPRESSIONS_AFTER_COMPILATION</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_NO_LOWERED_NAMES_BEFORE_COMPILATION</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_NAME_EXPRESSION_NOT_VALID</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_INTERNAL_ERROR</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_TIME_FILE_WRITE_FAILED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_NO_PCH_CREATE_ATTEMPTED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_PCH_CREATE_HEAP_EXHAUSTED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_PCH_CREATE"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_PCH_CREATE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_CANCELLED"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_CANCELLED</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED"><code class="docutils literal notranslate"><span class="pre">nvrtcResult.NVRTC_ERROR_TIME_TRACE_FILE_WRITE_FAILED</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetErrorString"><code class="docutils literal notranslate"><span class="pre">nvrtcGetErrorString()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-information-query">General Information Query</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-information-query">General Information Query</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcVersion"><code class="docutils literal notranslate"><span class="pre">nvrtcVersion()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetNumSupportedArchs"><code class="docutils literal notranslate"><span class="pre">nvrtcGetNumSupportedArchs()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetSupportedArchs"><code class="docutils literal notranslate"><span class="pre">nvrtcGetSupportedArchs()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compilation">Compilation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcProgram.getPtr"><code class="docutils literal notranslate"><span class="pre">getPtr()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compilation">Compilation</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcProgram</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcProgram.getPtr"><code class="docutils literal notranslate"><span class="pre">nvrtcProgram.getPtr()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcCreateProgram"><code class="docutils literal notranslate"><span class="pre">nvrtcCreateProgram()</span></code></a></li>
@@ -1979,7 +1979,7 @@ stored</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcSetFlowCallback"><code class="docutils literal notranslate"><span class="pre">nvrtcSetFlowCallback()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#precompiled-header-pch-cuda-12-8">Precompiled header (PCH) (CUDA 12.8+)</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#precompiled-header-pch-cuda-12-8">Precompiled header (PCH) (CUDA 12.8+)</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetPCHHeapSize"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPCHHeapSize()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcSetPCHHeapSize"><code class="docutils literal notranslate"><span class="pre">nvrtcSetPCHHeapSize()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.bindings.nvrtc.nvrtcGetPCHCreateStatus"><code class="docutils literal notranslate"><span class="pre">nvrtcGetPCHCreateStatus()</span></code></a></li>

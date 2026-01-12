@@ -16,7 +16,6 @@ cuda.core.ObjectCode
    .. automethod:: __init__
    .. automethod:: from_cubin
    .. automethod:: from_fatbin
-   .. automethod:: from_handle
    .. automethod:: from_library
    .. automethod:: from_ltoir
    .. automethod:: from_object
