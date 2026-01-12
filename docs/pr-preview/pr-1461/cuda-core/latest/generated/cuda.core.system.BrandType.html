@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core.StreamOptions &#8212; cuda.core</title>
+    <title>cuda.core.system.BrandType &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.StreamOptions';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.BrandType';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,13 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/generated/cuda.core.StreamOptions.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.system.BrandType.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.LaunchConfig" href="cuda.core.LaunchConfig.html" />
-    <link rel="prev" title="cuda.core.GraphDebugPrintOptions" href="cuda.core.GraphDebugPrintOptions.html" />
+    <link rel="next" title="cuda.core.system.DeviceArchitecture" href="cuda.core.system.DeviceArchitecture.html" />
+    <link rel="prev" title="cuda.core.system.BAR1MemoryInfo" href="cuda.core.system.BAR1MemoryInfo.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -483,7 +483,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.EventOptions.html">cuda.core.EventOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphCompleteOptions.html">cuda.core.GraphCompleteOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphDebugPrintOptions.html">cuda.core.GraphDebugPrintOptions</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.StreamOptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.StreamOptions.html">cuda.core.StreamOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LaunchConfig.html">cuda.core.LaunchConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.VirtualMemoryResourceOptions.html">cuda.core.VirtualMemoryResourceOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Program.html">cuda.core.Program</a></li>
@@ -500,7 +500,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.BrandType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceAttributes.html">cuda.core.system.DeviceAttributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
@@ -569,7 +569,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.StreamOptions</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.BrandType</span></li>
   </ul>
 </nav>
 </div>
@@ -586,42 +586,25 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-streamoptions">
-<h1>cuda.core.StreamOptions<a class="headerlink" href="#cuda-core-streamoptions" title="Link to this heading">#</a></h1>
+  <section id="cuda-core-system-brandtype">
+<h1>cuda.core.system.BrandType<a class="headerlink" href="#cuda-core-system-brandtype" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="cuda.core.StreamOptions">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.</span></span><span class="sig-name descname"><span class="pre">StreamOptions</span></span><span class="sig-paren">(</span>
+<dt class="sig sig-object py" id="cuda.core.system.BrandType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">BrandType</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">nonblocking</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">cython.bint</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">priority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.StreamOptions" title="Link to this definition">#</a></dt>
-<dd><p>Customizable <a class="reference internal" href="cuda.core.Stream.html#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a> options.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.StreamOptions.nonblocking">
-<span class="sig-name descname"><span class="pre">nonblocking</span></span><a class="headerlink" href="#cuda.core.StreamOptions.nonblocking" title="Link to this definition">#</a></dt>
-<dd><p>Stream does not synchronize with the NULL stream. (Default to True)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a>, optional</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.StreamOptions.priority">
-<span class="sig-name descname"><span class="pre">priority</span></span><a class="headerlink" href="#cuda.core.StreamOptions.priority" title="Link to this definition">#</a></dt>
-<dd><p>Stream priority where lower number represents a
-higher priority. (Default to lowest priority)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a>, optional</p>
-</dd>
-</dl>
-</dd></dl>
-
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.BrandType" title="Link to this definition">#</a></dt>
+<dd><p>See <cite>nvmlBrandType_t</cite>.</p>
 </dd></dl>
 
 </section>
@@ -637,20 +620,20 @@ higher priority. (Default to lowest priority)</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.GraphDebugPrintOptions.html"
+       href="cuda.core.system.BAR1MemoryInfo.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.GraphDebugPrintOptions</p>
+        <p class="prev-next-title">cuda.core.system.BAR1MemoryInfo</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.LaunchConfig.html"
+       href="cuda.core.system.DeviceArchitecture.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.LaunchConfig</p>
+        <p class="prev-next-title">cuda.core.system.DeviceArchitecture</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -675,11 +658,7 @@ higher priority. (Default to lowest priority)</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.StreamOptions"><code class="docutils literal notranslate"><span class="pre">StreamOptions</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.StreamOptions.nonblocking"><code class="docutils literal notranslate"><span class="pre">StreamOptions.nonblocking</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.StreamOptions.priority"><code class="docutils literal notranslate"><span class="pre">StreamOptions.priority</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.BrandType"><code class="docutils literal notranslate"><span class="pre">BrandType</span></code></a></li>
 </ul>
   </nav></div>
 

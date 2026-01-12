@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=c5c6e5e2"></script>
+    <script src="_static/documentation_options.js?v=89a4c239"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev26';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev28';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -494,16 +494,19 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.DeviceAttributes.html">cuda.core.system.DeviceAttributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldValue.html">cuda.core.system.FieldValue</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldValues.html">cuda.core.system.FieldValues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.MemoryInfo.html">cuda.core.system.MemoryInfo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.PciInfo.html">cuda.core.system.PciInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
@@ -700,20 +703,32 @@ deprecation periods for breaking changes.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_driver_version_full.html#cuda.core.system.get_driver_version_full" title="cuda.core.system.get_driver_version_full"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_driver_version_full</span></code></a>(bool kernel_mode)</p></td>
 <td><p>Get the full driver version.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_num_devices.html#cuda.core.system.get_num_devices" title="cuda.core.system.get_num_devices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_num_devices</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_driver_branch.html#cuda.core.system.get_driver_branch" title="cuda.core.system.get_driver_branch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_driver_branch</span></code></a>()</p></td>
+<td><p>Retrieves the driver branch of the NVIDIA driver installed on the system.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_num_devices.html#cuda.core.system.get_num_devices" title="cuda.core.system.get_num_devices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_num_devices</span></code></a>()</p></td>
 <td><p>Return the number of devices in the system.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_nvml_version.html#cuda.core.system.get_nvml_version" title="cuda.core.system.get_nvml_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_nvml_version</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_nvml_version.html#cuda.core.system.get_nvml_version" title="cuda.core.system.get_nvml_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_nvml_version</span></code></a>()</p></td>
 <td><p>The version of the NVML library.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.get_process_name.html#cuda.core.system.get_process_name" title="cuda.core.system.get_process_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_process_name</span></code></a>(int pid)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_process_name.html#cuda.core.system.get_process_name" title="cuda.core.system.get_process_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_process_name</span></code></a>(int pid)</p></td>
 <td><p>The name of process with given PID.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.Device</span></code></a>(int index, uuid)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.Device</span></code></a>(int index, uuid, pci_bus_id)</p></td>
 <td><p>Representation of a device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.DeviceArchitecture.html#cuda.core.system.DeviceArchitecture" title="cuda.core.system.DeviceArchitecture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.DeviceArchitecture</span></code></a>(architecture)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.BAR1MemoryInfo.html#cuda.core.system.BAR1MemoryInfo" title="cuda.core.system.BAR1MemoryInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.BAR1MemoryInfo</span></code></a>(memory_info)</p></td>
+<td><p>BAR1 Memory allocation information for a device.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.BrandType.html#cuda.core.system.BrandType" title="cuda.core.system.BrandType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.BrandType</span></code></a>(value[, names, module, ...])</p></td>
+<td><p>See <cite>nvmlBrandType_t</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.DeviceArchitecture.html#cuda.core.system.DeviceArchitecture" title="cuda.core.system.DeviceArchitecture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.DeviceArchitecture</span></code></a>(architecture)</p></td>
 <td><p>Device architecture enumeration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.DeviceAttributes.html#cuda.core.system.DeviceAttributes" title="cuda.core.system.DeviceAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.DeviceAttributes</span></code></a>(attributes)</p></td>
+<td><p>Various device attributes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.FieldId.html#cuda.core.system.FieldId" title="cuda.core.system.FieldId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FieldId</span></code></a>(value[, names, module, ...])</p></td>
 <td><p></p></td>
@@ -727,10 +742,7 @@ deprecation periods for breaking changes.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.MemoryInfo.html#cuda.core.system.MemoryInfo" title="cuda.core.system.MemoryInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.MemoryInfo</span></code></a>(memory_info)</p></td>
 <td><p>Memory allocation information for a device.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.BAR1MemoryInfo.html#cuda.core.system.BAR1MemoryInfo" title="cuda.core.system.BAR1MemoryInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.BAR1MemoryInfo</span></code></a>(memory_info)</p></td>
-<td><p>BAR1 Memory allocation information for a device.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo" title="cuda.core.system.PciInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.PciInfo</span></code></a>(pci_info)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo" title="cuda.core.system.PciInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.PciInfo</span></code></a>(pci_info)</p></td>
 <td><p>PCI information about a GPU device.</p></td>
 </tr>
 </tbody>
