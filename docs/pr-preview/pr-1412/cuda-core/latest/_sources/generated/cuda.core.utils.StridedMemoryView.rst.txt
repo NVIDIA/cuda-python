@@ -10,16 +10,6 @@ cuda.core.utils.StridedMemoryView
 
    
    
-   
-   .. autoattribute:: dtype
-   .. autoattribute:: shape
-   .. autoattribute:: size
-   .. autoattribute:: strides
-   
-   
-
-   
-   
    .. rubric:: Methods
 
    
@@ -33,5 +23,17 @@ cuda.core.utils.StridedMemoryView
    .. automethod:: from_dlpack
    .. automethod:: view
 
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   
+   .. autoattribute:: dtype
+   .. autoattribute:: shape
+   .. autoattribute:: size
+   .. autoattribute:: strides
    
    

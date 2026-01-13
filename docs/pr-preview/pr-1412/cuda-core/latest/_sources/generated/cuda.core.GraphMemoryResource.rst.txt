@@ -27,9 +27,9 @@ cuda.core.GraphMemoryResource
    .. rubric:: Attributes
 
    
-   .. autoproperty:: attributes
-   .. autoproperty:: device_id
-   .. autoproperty:: is_device_accessible
-   .. autoproperty:: is_host_accessible
+   .. autoattribute:: attributes
+   .. autoattribute:: device_id
+   .. autoattribute:: is_device_accessible
+   .. autoattribute:: is_host_accessible
    
    

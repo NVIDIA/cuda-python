@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=c5c6e5e2"></script>
+    <script src="../_static/documentation_options.js?v=a10935a6"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev26';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev36';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -494,13 +494,19 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.LinkerOptions.html">cuda.core.LinkerOptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version.html">cuda.core.system.get_driver_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_version_full.html">cuda.core.system.get_driver_version_full</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_driver_branch.html">cuda.core.system.get_driver_branch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.Device.html">cuda.core.system.Device</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.MemoryInfo.html">cuda.core.system.MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceAttributes.html">cuda.core.system.DeviceAttributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldValue.html">cuda.core.system.FieldValue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldValues.html">cuda.core.system.FieldValues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.MemoryInfo.html">cuda.core.system.MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.PciInfo.html">cuda.core.system.PciInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
@@ -836,23 +842,23 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.verbose"><code class="docutils literal notranslate"><span class="pre">verbose</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.runtime_types"><code class="docutils literal notranslate"><span class="pre">runtime_types</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.kernel_node_params"><code class="docutils literal notranslate"><span class="pre">kernel_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.memcpy_node_params"><code class="docutils literal notranslate"><span class="pre">memcpy_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.memset_node_params"><code class="docutils literal notranslate"><span class="pre">memset_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.host_node_params"><code class="docutils literal notranslate"><span class="pre">host_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.event_node_params"><code class="docutils literal notranslate"><span class="pre">event_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.ext_semas_signal_node_params"><code class="docutils literal notranslate"><span class="pre">ext_semas_signal_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.ext_semas_wait_node_params"><code class="docutils literal notranslate"><span class="pre">ext_semas_wait_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.kernel_node_attributes"><code class="docutils literal notranslate"><span class="pre">kernel_node_attributes</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.handles"><code class="docutils literal notranslate"><span class="pre">handles</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.mem_alloc_node_params"><code class="docutils literal notranslate"><span class="pre">mem_alloc_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.mem_free_node_params"><code class="docutils literal notranslate"><span class="pre">mem_free_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.batch_mem_op_node_params"><code class="docutils literal notranslate"><span class="pre">batch_mem_op_node_params</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.extra_topo_info"><code class="docutils literal notranslate"><span class="pre">extra_topo_info</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.conditional_node_params"><code class="docutils literal notranslate"><span class="pre">conditional_node_params</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.verbose"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.verbose</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.runtime_types"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.runtime_types</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.kernel_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.kernel_node_params</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.memcpy_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.memcpy_node_params</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.memset_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.memset_node_params</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.host_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.host_node_params</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.event_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.event_node_params</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.ext_semas_signal_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.ext_semas_signal_node_params</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.ext_semas_wait_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.ext_semas_wait_node_params</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.kernel_node_attributes"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.kernel_node_attributes</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.handles"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.handles</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.mem_alloc_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.mem_alloc_node_params</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.mem_free_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.mem_free_node_params</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.batch_mem_op_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.batch_mem_op_node_params</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.extra_topo_info"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.extra_topo_info</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.GraphDebugPrintOptions.conditional_node_params"><code class="docutils literal notranslate"><span class="pre">GraphDebugPrintOptions.conditional_node_params</span></code></a></li>
 </ul>
 </li>
 </ul>

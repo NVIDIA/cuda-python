@@ -27,12 +27,12 @@ cuda.core.Event
    .. rubric:: Attributes
 
    
-   .. autoproperty:: context
-   .. autoproperty:: device
-   .. autoproperty:: handle
-   .. autoproperty:: is_done
-   .. autoproperty:: is_ipc_enabled
-   .. autoproperty:: is_sync_busy_waited
-   .. autoproperty:: is_timing_disabled
+   .. autoattribute:: context
+   .. autoattribute:: device
+   .. autoattribute:: handle
+   .. autoattribute:: is_done
+   .. autoattribute:: is_ipc_enabled
+   .. autoattribute:: is_sync_busy_waited
+   .. autoattribute:: is_timing_disabled
    
    
