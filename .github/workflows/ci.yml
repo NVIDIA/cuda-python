@@ -40,6 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       skip: ${{ steps.get-should-skip.outputs.skip }}
+      doc-only: ${{ steps.get-should-skip.outputs.doc_only }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
@@ -50,11 +51,16 @@ jobs:
         run: |
           set -euxo pipefail
           if ${{ startsWith(github.ref_name, 'pull-request/') }}; then
-            skip="$(gh pr view "$(grep -Po '(\d+)$' <<< '${{ github.ref_name }}')" --json title --jq '.title | contains("[no-ci]")')"
+            pr_number="$(grep -Po '(\d+)$' <<< '${{ github.ref_name }}')"
+            pr_title="$(gh pr view "${pr_number}" --json title --jq '.title')"
+            skip="$(echo "${pr_title}" | grep -q '\[no-ci\]' && echo true || echo false)"
+            doc_only="$(echo "${pr_title}" | grep -q '\[doc-only\]' && echo true || echo false)"
           else
             skip=false
+            doc_only=false
           fi
           echo "skip=${skip}" >> "$GITHUB_OUTPUT"
+          echo "doc_only=${doc_only}" >> "$GITHUB_OUTPUT"
 
   # WARNING: make sure all of the build jobs are in sync
   build-linux-64:
@@ -86,7 +92,7 @@ jobs:
         host-platform:
           - linux-aarch64
     name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
@@ -105,7 +111,7 @@ jobs:
         host-platform:
           - win-64
     name: Build ${{ matrix.host-platform }}, CUDA ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
-    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.skip) && !fromJSON(needs.should-skip.outputs.doc-only) }}
     secrets: inherit
     uses: ./.github/workflows/build-wheel.yml
     with:
@@ -121,11 +127,12 @@ jobs:
         host-platform:
           - linux-64
     name: Test ${{ matrix.host-platform }}
-    if: ${{ github.repository_owner == 'nvidia' }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
     permissions:
       contents: read  # This is required for actions/checkout
     needs:
       - ci-vars
+      - should-skip
       - build-linux-64
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
@@ -142,6 +149,8 @@ jobs:
         host-platform:
           - linux-aarch64
     name: Test ${{ matrix.host-platform }}
+    # Note: No doc-only check needed here - if build-linux-aarch64 is skipped,
+    # this job is automatically skipped due to the dependency.
     if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
       contents: read  # This is required for actions/checkout
@@ -162,6 +171,8 @@ jobs:
         host-platform:
           - win-64
     name: Test ${{ matrix.host-platform }}
+    # Note: No doc-only check needed here - if build-windows is skipped,
+    # this job is automatically skipped due to the dependency.
     if: ${{ github.repository_owner == 'nvidia' }}
     permissions:
       contents: read  # This is required for actions/checkout
@@ -196,6 +207,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     needs:
+      - should-skip
       - test-linux-64
       - test-linux-aarch64
       - test-windows
@@ -219,11 +231,18 @@ jobs:
           # failing job(s) will timeout causing a cancellation here and the
           # build to succeed which we don't want (originally this was just
           # 'exit 0')
-          if ${{ needs.test-linux-64.result == 'cancelled' ||
-                 needs.test-linux-aarch64.result == 'cancelled' ||
-                 needs.test-windows.result == 'cancelled' ||
-                 needs.doc.result == 'cancelled' }}; then
+          #
+          # Note: When [doc-only] is in PR title, test jobs are intentionally
+          # skipped and should not cause failure.
+          doc_only=${{ needs.should-skip.outputs.doc-only }}
+          if ${{ needs.doc.result == 'cancelled' }}; then
             exit 1
-          else
-            exit 0
           fi
+          if [[ "${doc_only}" != "true" ]]; then
+            if ${{ needs.test-linux-64.result == 'cancelled' ||
+                   needs.test-linux-aarch64.result == 'cancelled' ||
+                   needs.test-windows.result == 'cancelled' }}; then
+              exit 1
+            fi
+          fi
+          exit 0
