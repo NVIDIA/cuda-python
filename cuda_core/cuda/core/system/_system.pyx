@@ -20,6 +20,14 @@ else:
 
 if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from cuda.bindings import _nvml as nvml
+    # TODO: We need to be even more specific than version numbers for development.
+    # This can be removed once we have a release including everything we need.
+    for member in ["FieldId"]:
+        if not hasattr(nvml, member):
+            CUDA_BINDINGS_NVML_IS_COMPATIBLE = False
+            break
+
+if CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from ._nvml_context import initialize
 else:
     from cuda.core._utils.cuda_utils import driver, handle_return, runtime
@@ -82,6 +90,16 @@ def get_nvml_version() -> tuple[int, ...]:
     return tuple(int(v) for v in nvml.system_get_nvml_version().split("."))
 
 
+def get_driver_branch() -> str:
+    """
+    Retrieves the driver branch of the NVIDIA driver installed on the system.
+    """
+    if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+        raise RuntimeError("NVML library is not available")
+    initialize()
+    return nvml.system_get_driver_branch()
+
+
 def get_num_devices() -> int:
     """
     Return the number of devices in the system.
@@ -112,6 +130,7 @@ def get_process_name(pid: int) -> str:
 
 
 __all__ = [
+    "get_driver_branch",
     "get_driver_version",
     "get_driver_version_full",
     "get_nvml_version",

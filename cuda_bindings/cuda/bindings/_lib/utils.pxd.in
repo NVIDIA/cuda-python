@@ -50,6 +50,7 @@ cdef class _HelperCUpointer_attribute:
     # Return values
     cdef driver.CUcontext _ctx
     cdef unsigned int _uint
+    cdef int _int
     cdef driver.CUdeviceptr _devptr
     cdef void** _void
     cdef driver.CUDA_POINTER_ATTRIBUTE_P2P_TOKENS _token

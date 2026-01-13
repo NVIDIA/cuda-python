@@ -48,6 +48,10 @@ def test_latchkernel():
 
 
 @pytest.mark.skipif(
+    IS_WINDOWS,
+    reason="Extremely slow on Windows (issue #1455).",
+)
+@pytest.mark.skipif(
     under_compute_sanitizer(),
     reason="Too slow under compute-sanitizer (UVM-heavy test).",
 )

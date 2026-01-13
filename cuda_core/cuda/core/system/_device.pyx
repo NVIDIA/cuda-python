@@ -15,6 +15,10 @@ from ._nvml_context cimport initialize
 include "_device_utils.pxi"
 
 
+BrandType = nvml.BrandType
+FieldId = nvml.FieldId
+
+
 class DeviceArchitecture:
     """
     Device architecture enumeration.
@@ -171,47 +175,270 @@ cdef class PciInfo:
         return self._pci_info.pci_device_id >> 16
 
 
+cdef class DeviceAttributes:
+    """
+    Various device attributes.
+    """
+    def __init__(self, attributes: nvml.DeviceAttributes):
+        self._attributes = attributes
+
+    @property
+    def multiprocessor_count(self) -> int:
+        """
+        The streaming multiprocessor count
+        """
+        return self._attributes.multiprocessor_count
+
+    @property
+    def shared_copy_engine_count(self) -> int:
+        """
+        The shared copy engine count
+        """
+        return self._attributes.shared_copy_engine_count
+
+    @property
+    def shared_decoder_count(self) -> int:
+        """
+        The shared decoder engine count
+        """
+        return self._attributes.shared_decoder_count
+
+    @property
+    def shared_encoder_count(self) -> int:
+        """
+        The shared encoder engine count
+        """
+        return self._attributes.shared_encoder_count
+
+    @property
+    def shared_jpeg_count(self) -> int:
+        """
+        The shared JPEG engine count
+        """
+        return self._attributes.shared_jpeg_count
+
+    @property
+    def shared_ofa_count(self) -> int:
+        """
+        The shared optical flow accelerator (OFA) engine count
+        """
+        return self._attributes.shared_ofa_count
+
+    @property
+    def gpu_instance_slice_count(self) -> int:
+        """
+        The GPU instance slice count
+        """
+        return self._attributes.gpu_instance_slice_count
+
+    @property
+    def compute_instance_slice_count(self) -> int:
+        """
+        The compute instance slice count
+        """
+        return self._attributes.compute_instance_slice_count
+
+    @property
+    def memory_size_mb(self) -> int:
+        """
+        Device memory size in MiB
+        """
+        return self._attributes.memory_size_mb
+
+
+cdef class FieldValue:
+    """
+    Represents the data from a single field value.
+
+    Use :meth:`Device.get_field_values` to get multiple field values at once.
+    """
+    cdef object _field_value
+
+    def __init__(self, field_value: nvml.FieldValue):
+        assert len(field_value) == 1
+        self._field_value = field_value
+
+    @property
+    def field_id(self) -> FieldId:
+        """
+        The field ID.
+        """
+        return FieldId(self._field_value.field_id)
+
+    @property
+    def scope_id(self) -> int:
+        """
+        The scope ID.
+        """
+        # Explicit int() cast required because this is a Numpy type
+        return int(self._field_value.scope_id)
+
+    @property
+    def timestamp(self) -> int:
+        """
+        The CPU timestamp (in microseconds since 1970) at which the value was
+        sampled.
+        """
+        # Explicit int() cast required because this is a Numpy type
+        return int(self._field_value.timestamp)
+
+    @property
+    def latency_usec(self) -> int:
+        """
+        How long this field value took to update (in usec) within NVML. This may
+        be averaged across several fields that are serviced by the same driver
+        call.
+        """
+        # Explicit int() cast required because this is a Numpy type
+        return int(self._field_value.latency_usec)
+
+    @property
+    def value(self) -> int | float:
+        """
+        The field value.
+
+        Raises
+        ------
+        :class:`cuda.core.system.NvmlError`
+            If there was an error retrieving the field value.
+        """
+        nvml.check_status(self._field_value.nvml_return)
+
+        cdef int value_type = self._field_value.value_type
+        value = self._field_value.value
+
+        ValueType = nvml.ValueType
+
+        if value_type == ValueType.DOUBLE:
+            return float(value.d_val[0])
+        elif value_type == ValueType.UNSIGNED_INT:
+            return int(value.ui_val[0])
+        elif value_type == ValueType.UNSIGNED_LONG:
+            return int(value.ul_val[0])
+        elif value_type == ValueType.UNSIGNED_LONG_LONG:
+            return int(value.ull_val[0])
+        elif value_type == ValueType.SIGNED_LONG_LONG:
+            return int(value.ll_val[0])
+        elif value_type == ValueType.SIGNED_INT:
+            return int(value.si_val[0])
+        elif value_type == ValueType.UNSIGNED_SHORT:
+            return int(value.us_val[0])
+        else:
+            raise AssertionError("Unexpected value type")
+
+
+cdef class FieldValues:
+    """
+    Container of multiple field values.
+    """
+    cdef object _field_values
+
+    def __init__(self, field_values: nvml.FieldValue):
+        self._field_values = field_values
+
+    def __getitem__(self, idx: int) -> FieldValue:
+        return FieldValue(self._field_values[idx])
+
+    def __len__(self) -> int:
+        return len(self._field_values)
+
+    def validate(self) -> None:
+        """
+        Validate that there are no issues in any of the contained field values.
+
+        Raises an exception for the first issue found, if any.
+
+        Raises
+        ------
+        :class:`cuda.core.system.NvmlError`
+            If any of the contained field values has an associated exception.
+        """
+        # TODO: This is a classic use case for an `ExceptionGroup`, but those
+        # are only available in Python 3.11+.
+        return_values = self._field_values.nvml_return
+        if len(self._field_values) == 1:
+            return_values = [return_values]
+        for return_value in return_values:
+            nvml.check_status(return_value)
+
+    def get_all_values(self) -> list[int | float]:
+        """
+        Get all field values as a list.
+
+        This will validate each of the values and include just the core value in
+        the list.
+
+        Returns
+        -------
+        list[int | float]
+            List of all field values.
+
+        Raises
+        ------
+        :class:`cuda.core.system.NvmlError`
+            If any of the contained field values has an associated exception.
+        """
+        return [x.value for x in self]
+
+
 cdef class Device:
     """
     Representation of a device.
 
-    ``cuda.core.system.Device`` provides access to various pieces of metadata
+    :class:`cuda.core.system.Device` provides access to various pieces of metadata
     about devices and their topology, as provided by the NVIDIA Management
     Library (NVML).  To use CUDA with a device, use :class:`cuda.core.Device`.
+
+    Creating a device instance causes NVML to initialize the target GPU.
+    NVML may initialize additional GPUs if the target GPU is an SLI slave.
 
     Parameters
     ----------
     index: int, optional
-        Integer representing the CUDA device index to get a handle to.
+        Integer representing the CUDA device index to get a handle to.  Valid
+        values are between ``0`` and ``cuda.core.system.get_num_devices() - 1``.
+
+        The order in which devices are enumerated has no guarantees of
+        consistency between reboots.  For that reason, it is recommended that
+        devices are looked up by their PCI ids or UUID.
+
     uuid: bytes or str, optional
         UUID of a CUDA device to get a handle to.
+
+    pci_bus_id: bytes or str, optional
+        PCI bus ID of a CUDA device to get a handle to.
 
     Raises
     ------
     ValueError
-        If neither `index` nor `uuid` are specified or if both are specified.
+        If anything other than a single `index`, `uuid` or `pci_bus_id` are specified.
     """
 
     cdef intptr_t _handle
 
-    def __init__(self, index: int | None = None, uuid: bytes | str | None = None):
+    def __init__(self, index: int | None = None, uuid: bytes | str | None = None, pci_bus_id: bytes | str | None = None):
         initialize()
 
-        if index is not None and uuid is not None:
-            raise ValueError("Handle requires only one of either device `index` or `uuid`.")
-        if index is None and uuid is None:
-            raise ValueError("Handle requires either a device `index` or `uuid`.")
+        args = [index, uuid, pci_bus_id]
+        arg_count = sum(x is not None for x in args)
+
+        if arg_count > 1:
+            raise ValueError("Handle requires only one of either device `index`, `uuid` or `pci_bus_id`.")
+        if arg_count == 0:
+            raise ValueError("Handle requires either a device `index`, `uuid` or `pci_bus_id`.")
 
         if index is not None:
             self._handle = nvml.device_get_handle_by_index_v2(index)
-        else:
+        elif uuid is not None:
             if isinstance(uuid, bytes):
                 uuid = uuid.decode("ascii")
             self._handle = nvml.device_get_handle_by_uuid(uuid)
-
-    @property
-    def handle(self) -> int:
-        return self._handle
+        elif pci_bus_id is not None:
+            if isinstance(pci_bus_id, bytes):
+                pci_bus_id = pci_bus_id.decode("ascii")
+            self._handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
+        else:
+            raise ValueError("Error parsing arguments")
 
     @classmethod
     def get_all_devices(cls) -> Iterable[Device]:
@@ -290,6 +517,24 @@ cdef class Device:
         return nvml.device_get_name(self._handle)
 
     @property
+    def brand(self) -> BrandType:
+        """
+        Brand of the device
+        """
+        return BrandType(nvml.device_get_brand(self._handle))
+
+    @property
+    def index(self) -> int:
+        """
+        The NVML index of this device.
+
+        The order in which NVML enumerates devices has no guarantees of
+        consistency between reboots. For that reason it is recommended that
+        devices be looked up by their PCI ids or GPU UUID.
+        """
+        return nvml.device_get_index(self._handle)
+
+    @property
     def pci_info(self) -> PciInfo:
         """
         The PCI attributes of this device.
@@ -312,3 +557,90 @@ cdef class Device:
         board serial identifier.
         """
         return nvml.device_get_uuid(self._handle)
+
+    @property
+    def attributes(self) -> DeviceAttributes:
+        """
+        Get various device attributes.
+
+        For Ampere™ or newer fully supported devices.  Only available on Linux
+        systems.
+        """
+        return DeviceAttributes(nvml.device_get_attributes_v2(self._handle))
+
+    @property
+    def is_c2c_mode_enabled(self) -> bool:
+        """
+        Whether the C2C (Chip-to-Chip) mode is enabled for this device.
+        """
+        return bool(nvml.device_get_c2c_mode_info_v(self._handle).is_c2c_enabled)
+
+    @property
+    def persistence_mode_enabled(self) -> bool:
+        """
+        Whether persistence mode is enabled for this device.
+
+        For Linux only.
+        """
+        return nvml.device_get_persistence_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED
+
+    @persistence_mode_enabled.setter
+    def persistence_mode_enabled(self, enabled: bool) -> None:
+        nvml.device_set_persistence_mode(
+            self._handle,
+            nvml.EnableState.FEATURE_ENABLED if enabled else nvml.EnableState.FEATURE_DISABLED
+        )
+
+    def get_field_values(self, field_ids: list[int | tuple[int, int]]) -> FieldValues:
+        """
+        Get multiple field values from the device.
+
+        Each value specified can raise its own exception.  That exception will
+        be raised when attempting to access the corresponding ``value`` from the
+        returned :class:`FieldValues` container.
+
+        To confirm that there are no exceptions in the entire container, call
+        :meth:`FieldValues.validate`.
+
+        Parameters
+        ----------
+        field_ids: list of int or tuple of (int, int)
+            List of field IDs to query.
+
+            Each item may be either a single value from the :class:`FieldId`
+            enum, or a pair of (:class:`FieldId`, scope ID).
+
+        Returns
+        -------
+        :class:`FieldValues`
+            Container of field values corresponding to the requested field IDs.
+        """
+        return FieldValues(nvml.device_get_field_values(self._handle, field_ids))
+
+    def clear_field_values(self, field_ids: list[int | tuple[int, int]]) -> None:
+        """
+        Clear multiple field values from the device.
+
+        Parameters
+        ----------
+        field_ids: list of int or tuple of (int, int)
+            List of field IDs to clear.
+
+            Each item may be either a single value from the :class:`FieldId`
+            enum, or a pair of (:class:`FieldId`, scope ID).
+        """
+        nvml.device_clear_field_values(self._handle, field_ids)
+
+
+__all__ = [
+    "BAR1MemoryInfo",
+    "BrandType",
+    "Device",
+    "DeviceArchitecture",
+    "DeviceAttributes",
+    "FieldId",
+    "FieldValue",
+    "FieldValues",
+    "MemoryInfo",
+    "PciInfo",
+]

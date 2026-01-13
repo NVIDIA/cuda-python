@@ -7,4 +7,4 @@ from cuda.core._memory._buffer cimport MemoryResource
 
 cdef class cyGraphMemoryResource(MemoryResource):
     cdef:
-        int _dev_id
+        int _device_id
