@@ -42,52 +42,52 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 
     # Context handles
     ContextHandle create_context_handle_ref "cuda_core::create_context_handle_ref" (
-        cydriver.CUcontext ctx) nogil
+        cydriver.CUcontext ctx) noexcept nogil
     ContextHandle get_primary_context "cuda_core::get_primary_context" (
         int device_id) noexcept nogil
     ContextHandle get_current_context "cuda_core::get_current_context" () noexcept nogil
 
     # Stream handles
     StreamHandle create_stream_handle "cuda_core::create_stream_handle" (
-        ContextHandle h_ctx, unsigned int flags, int priority) nogil
+        ContextHandle h_ctx, unsigned int flags, int priority) noexcept nogil
     StreamHandle create_stream_handle_ref "cuda_core::create_stream_handle_ref" (
-        cydriver.CUstream stream) nogil
+        cydriver.CUstream stream) noexcept nogil
     StreamHandle create_stream_handle_with_owner "cuda_core::create_stream_handle_with_owner" (
-        cydriver.CUstream stream, object owner)
+        cydriver.CUstream stream, object owner) noexcept nogil
     StreamHandle get_legacy_stream "cuda_core::get_legacy_stream" () noexcept nogil
     StreamHandle get_per_thread_stream "cuda_core::get_per_thread_stream" () noexcept nogil
 
     # Event handles (note: _create_event_handle* are internal due to C++ overloading)
     EventHandle create_event_handle "cuda_core::create_event_handle" (
-        ContextHandle h_ctx, unsigned int flags) nogil
+        ContextHandle h_ctx, unsigned int flags) noexcept nogil
     EventHandle create_event_handle_noctx "cuda_core::create_event_handle_noctx" (
-        unsigned int flags) nogil
+        unsigned int flags) noexcept nogil
     EventHandle create_event_handle_ipc "cuda_core::create_event_handle_ipc" (
-        const cydriver.CUipcEventHandle& ipc_handle) nogil
+        const cydriver.CUipcEventHandle& ipc_handle) noexcept nogil
 
     # Memory pool handles
     MemoryPoolHandle create_mempool_handle "cuda_core::create_mempool_handle" (
-        const cydriver.CUmemPoolProps& props) nogil
+        const cydriver.CUmemPoolProps& props) noexcept nogil
     MemoryPoolHandle create_mempool_handle_ref "cuda_core::create_mempool_handle_ref" (
-        cydriver.CUmemoryPool pool) nogil
+        cydriver.CUmemoryPool pool) noexcept nogil
     MemoryPoolHandle get_device_mempool "cuda_core::get_device_mempool" (
         int device_id) noexcept nogil
     MemoryPoolHandle create_mempool_handle_ipc "cuda_core::create_mempool_handle_ipc" (
-        int fd, cydriver.CUmemAllocationHandleType handle_type) nogil
+        int fd, cydriver.CUmemAllocationHandleType handle_type) noexcept nogil
 
     # Device pointer handles
     DevicePtrHandle deviceptr_alloc_from_pool "cuda_core::deviceptr_alloc_from_pool" (
-        size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) nogil
+        size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) noexcept nogil
     DevicePtrHandle deviceptr_alloc_async "cuda_core::deviceptr_alloc_async" (
-        size_t size, StreamHandle h_stream) nogil
-    DevicePtrHandle deviceptr_alloc "cuda_core::deviceptr_alloc" (size_t size) nogil
-    DevicePtrHandle deviceptr_alloc_host "cuda_core::deviceptr_alloc_host" (size_t size) nogil
+        size_t size, StreamHandle h_stream) noexcept nogil
+    DevicePtrHandle deviceptr_alloc "cuda_core::deviceptr_alloc" (size_t size) noexcept nogil
+    DevicePtrHandle deviceptr_alloc_host "cuda_core::deviceptr_alloc_host" (size_t size) noexcept nogil
     DevicePtrHandle deviceptr_create_ref "cuda_core::deviceptr_create_ref" (
-        cydriver.CUdeviceptr ptr) nogil
+        cydriver.CUdeviceptr ptr) noexcept nogil
     DevicePtrHandle deviceptr_create_with_owner "cuda_core::deviceptr_create_with_owner" (
-        cydriver.CUdeviceptr ptr, object owner)
+        cydriver.CUdeviceptr ptr, object owner) noexcept nogil
     DevicePtrHandle deviceptr_import_ipc "cuda_core::deviceptr_import_ipc" (
-        MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) nogil
+        MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) noexcept nogil
     StreamHandle deallocation_stream "cuda_core::deallocation_stream" (
         const DevicePtrHandle& h) noexcept nogil
     void set_deallocation_stream "cuda_core::set_deallocation_stream" (

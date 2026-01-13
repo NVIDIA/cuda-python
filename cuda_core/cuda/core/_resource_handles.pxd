@@ -23,18 +23,18 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ctypedef shared_ptr[const cydriver.CUdeviceptr] DevicePtrHandle
 
     # as_cu() - extract the raw CUDA handle (inline C++)
-    cydriver.CUcontext as_cu(ContextHandle h) nogil
-    cydriver.CUstream as_cu(StreamHandle h) nogil
-    cydriver.CUevent as_cu(EventHandle h) nogil
-    cydriver.CUmemoryPool as_cu(MemoryPoolHandle h) nogil
-    cydriver.CUdeviceptr as_cu(DevicePtrHandle h) nogil
+    cydriver.CUcontext as_cu(ContextHandle h) noexcept nogil
+    cydriver.CUstream as_cu(StreamHandle h) noexcept nogil
+    cydriver.CUevent as_cu(EventHandle h) noexcept nogil
+    cydriver.CUmemoryPool as_cu(MemoryPoolHandle h) noexcept nogil
+    cydriver.CUdeviceptr as_cu(DevicePtrHandle h) noexcept nogil
 
     # as_intptr() - extract handle as intptr_t for Python interop (inline C++)
-    intptr_t as_intptr(ContextHandle h) nogil
-    intptr_t as_intptr(StreamHandle h) nogil
-    intptr_t as_intptr(EventHandle h) nogil
-    intptr_t as_intptr(MemoryPoolHandle h) nogil
-    intptr_t as_intptr(DevicePtrHandle h) nogil
+    intptr_t as_intptr(ContextHandle h) noexcept nogil
+    intptr_t as_intptr(StreamHandle h) noexcept nogil
+    intptr_t as_intptr(EventHandle h) noexcept nogil
+    intptr_t as_intptr(MemoryPoolHandle h) noexcept nogil
+    intptr_t as_intptr(DevicePtrHandle h) noexcept nogil
 
     # as_py() - convert handle to Python driver wrapper object (inline C++; requires GIL)
     object as_py(ContextHandle h)
@@ -64,7 +64,7 @@ cdef ContextHandle get_current_context() noexcept nogil
 cdef StreamHandle create_stream_handle(
     ContextHandle h_ctx, unsigned int flags, int priority) noexcept nogil
 cdef StreamHandle create_stream_handle_ref(cydriver.CUstream stream) noexcept nogil
-cdef StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner)
+cdef StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner) noexcept nogil
 cdef StreamHandle get_legacy_stream() noexcept nogil
 cdef StreamHandle get_per_thread_stream() noexcept nogil
 
@@ -89,7 +89,7 @@ cdef DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) n
 cdef DevicePtrHandle deviceptr_alloc(size_t size) noexcept nogil
 cdef DevicePtrHandle deviceptr_alloc_host(size_t size) noexcept nogil
 cdef DevicePtrHandle deviceptr_create_ref(cydriver.CUdeviceptr ptr) noexcept nogil
-cdef DevicePtrHandle deviceptr_create_with_owner(cydriver.CUdeviceptr ptr, object owner)
+cdef DevicePtrHandle deviceptr_create_with_owner(cydriver.CUdeviceptr ptr, object owner) noexcept nogil
 cdef DevicePtrHandle deviceptr_import_ipc(
     MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) noexcept nogil
 cdef StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept nogil

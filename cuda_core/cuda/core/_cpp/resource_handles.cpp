@@ -314,7 +314,7 @@ struct ContextBox {
 };
 }  // namespace
 
-ContextHandle create_context_handle_ref(CUcontext ctx) {
+ContextHandle create_context_handle_ref(CUcontext ctx) noexcept {
     auto box = std::make_shared<const ContextBox>(ContextBox{ctx});
     return ContextHandle(box, &box->resource);
 }
@@ -385,7 +385,7 @@ struct StreamBox {
 };
 }  // namespace
 
-StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) {
+StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) noexcept {
     if (!ensure_driver_loaded()) {
         err = CUDA_ERROR_NOT_INITIALIZED;
         return {};
@@ -407,19 +407,28 @@ StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int p
     return StreamHandle(box, &box->resource);
 }
 
-StreamHandle create_stream_handle_ref(CUstream stream) {
+StreamHandle create_stream_handle_ref(CUstream stream) noexcept {
     auto box = std::make_shared<const StreamBox>(StreamBox{stream});
     return StreamHandle(box, &box->resource);
 }
 
-StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
-    Py_XINCREF(owner);
+StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) noexcept {
+    if (!owner) {
+        return create_stream_handle_ref(stream);
+    }
+    // GIL required when owner is provided
+    GILAcquireGuard gil;
+    if (!gil.acquired()) {
+        // Python finalizing - fall back to ref version (no owner tracking)
+        return create_stream_handle_ref(stream);
+    }
+    Py_INCREF(owner);
     auto box = std::shared_ptr<const StreamBox>(
         new StreamBox{stream},
         [owner](const StreamBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
-                Py_XDECREF(owner);
+                Py_DECREF(owner);
             }
             delete b;
         }
@@ -447,7 +456,7 @@ struct EventBox {
 };
 }  // namespace
 
-EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
+EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) noexcept {
     if (!ensure_driver_loaded()) {
         err = CUDA_ERROR_NOT_INITIALIZED;
         return {};
@@ -469,11 +478,11 @@ EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
     return EventHandle(box, &box->resource);
 }
 
-EventHandle create_event_handle_noctx(unsigned int flags) {
+EventHandle create_event_handle_noctx(unsigned int flags) noexcept {
     return create_event_handle(ContextHandle{}, flags);
 }
 
-EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
+EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) noexcept {
     if (!ensure_driver_loaded()) {
         err = CUDA_ERROR_NOT_INITIALIZED;
         return {};
@@ -535,7 +544,7 @@ static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool) {
     return MemoryPoolHandle(box, &box->resource);
 }
 
-MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) {
+MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) noexcept {
     if (!ensure_driver_loaded()) {
         err = CUDA_ERROR_NOT_INITIALIZED;
         return {};
@@ -548,7 +557,7 @@ MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) {
     return wrap_mempool_owned(pool);
 }
 
-MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) {
+MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) noexcept {
     auto box = std::make_shared<const MemoryPoolBox>(MemoryPoolBox{pool});
     return MemoryPoolHandle(box, &box->resource);
 }
@@ -566,7 +575,7 @@ MemoryPoolHandle get_device_mempool(int device_id) noexcept {
     return create_mempool_handle_ref(pool);
 }
 
-MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type) {
+MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type) noexcept {
     if (!ensure_driver_loaded()) {
         err = CUDA_ERROR_NOT_INITIALIZED;
         return {};
@@ -606,15 +615,15 @@ static DevicePtrBox* get_box(const DevicePtrHandle& h) {
     );
 }
 
-StreamHandle deallocation_stream(const DevicePtrHandle& h) {
+StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
     return get_box(h)->h_stream;
 }
 
-void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) {
+void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) noexcept {
     get_box(h)->h_stream = std::move(h_stream);
 }
 
-DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) {
+DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) noexcept {
     if (!ensure_driver_loaded()) {
         err = CUDA_ERROR_NOT_INITIALIZED;
         return {};
@@ -636,7 +645,7 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, 
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
+DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) noexcept {
     if (!ensure_driver_loaded()) {
         err = CUDA_ERROR_NOT_INITIALIZED;
         return {};
@@ -658,7 +667,7 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_alloc(size_t size) {
+DevicePtrHandle deviceptr_alloc(size_t size) noexcept {
     if (!ensure_driver_loaded()) {
         err = CUDA_ERROR_NOT_INITIALIZED;
         return {};
@@ -680,7 +689,7 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_alloc_host(size_t size) {
+DevicePtrHandle deviceptr_alloc_host(size_t size) noexcept {
     if (!ensure_driver_loaded()) {
         err = CUDA_ERROR_NOT_INITIALIZED;
         return {};
@@ -702,13 +711,19 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) {
+DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) noexcept {
     auto box = std::make_shared<DevicePtrBox>(DevicePtrBox{ptr, StreamHandle{}});
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
+DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) noexcept {
     if (!owner) {
+        return deviceptr_create_ref(ptr);
+    }
+    // GIL required when owner is provided
+    GILAcquireGuard gil;
+    if (!gil.acquired()) {
+        // Python finalizing - fall back to ref version (no owner tracking)
         return deviceptr_create_ref(ptr);
     }
     Py_INCREF(owner);
@@ -783,7 +798,7 @@ struct ExportDataKeyHash {
 static std::mutex ipc_ptr_cache_mutex;
 static std::unordered_map<ExportDataKey, std::weak_ptr<DevicePtrBox>, ExportDataKeyHash> ipc_ptr_cache;
 
-DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) {
+DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) noexcept {
     if (!ensure_driver_loaded()) {
         err = CUDA_ERROR_NOT_INITIALIZED;
         return {};
