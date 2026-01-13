@@ -14,7 +14,6 @@ cuda.core.system.Device
 
    
    .. automethod:: __init__
-   .. automethod:: attributes
    .. automethod:: clear_field_values
    .. automethod:: get_all_devices
    .. automethod:: get_all_devices_with_cpu_affinity
@@ -32,6 +31,7 @@ cuda.core.system.Device
    
    .. autoattribute:: addressing_mode
    .. autoattribute:: architecture
+   .. autoattribute:: attributes
    .. autoattribute:: bar1_memory_info
    .. autoattribute:: brand
    .. autoattribute:: cpu_affinity
