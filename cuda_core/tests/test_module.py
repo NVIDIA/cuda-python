@@ -8,7 +8,6 @@ import warnings
 import cuda.core
 import pytest
 from cuda.core import Device, Kernel, ObjectCode, Program, ProgramOptions
-from cuda.core._module import _is_cuda_12_plus_backend
 from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 
 try:
@@ -447,13 +446,8 @@ def test_kernel_from_handle_no_module(get_saxpy_kernel_cubin):
     # Get the handle from the original kernel
     handle = int(original_kernel._handle)
 
-    # Kernel.from_handle(..., mod=None) is only supported on the CUDA 12 "new" backend.
-    if not _is_cuda_12_plus_backend():
-        with pytest.raises(NotImplementedError):
-            Kernel.from_handle(handle)
-        pytest.skip("mod=None only supported on CUDA 12+ backend")
-
     # Create a new Kernel from the handle without a module
+    # This is supported on CUDA 12+ backend (CUkernel)
     kernel_from_handle = Kernel.from_handle(handle)
     assert isinstance(kernel_from_handle, Kernel)
 

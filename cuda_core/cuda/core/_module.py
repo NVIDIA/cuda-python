@@ -28,14 +28,7 @@ _py_major_ver = None
 _py_minor_ver = None
 _driver_ver = None
 _kernel_ctypes = None
-_backend = {
-    "old": {
-        "file": driver.cuModuleLoad,
-        "data": driver.cuModuleLoadDataEx,
-        "kernel": driver.cuModuleGetFunction,
-        "attribute": driver.cuFuncGetAttribute,
-    },
-}
+_backend = {}
 
 
 def _lazy_init():
@@ -61,22 +54,19 @@ def _lazy_init():
         if _inited:
             return
 
-        global _py_major_ver, _py_minor_ver, _driver_ver, _kernel_ctypes
+        global _py_major_ver, _py_minor_ver, _driver_ver, _kernel_ctypes, _backend
         # binding availability depends on cuda-python version
         _py_major_ver, _py_minor_ver = get_binding_version()
-        if _py_major_ver >= 12:
-            _backend["new"] = {
-                "file": driver.cuLibraryLoadFromFile,
-                "data": driver.cuLibraryLoadData,
-                "kernel": driver.cuLibraryGetKernel,
-                "attribute": driver.cuKernelGetAttribute,
-            }
-            _kernel_ctypes = (driver.CUfunction, driver.CUkernel)
-        else:
-            _kernel_ctypes = (driver.CUfunction,)
+        _backend = {
+            "file": driver.cuLibraryLoadFromFile,
+            "data": driver.cuLibraryLoadData,
+            "kernel": driver.cuLibraryGetKernel,
+            "attribute": driver.cuKernelGetAttribute,
+        }
+        _kernel_ctypes = (driver.CUkernel,)
         _driver_ver = handle_return(driver.cuDriverGetVersion())
-        if _py_major_ver >= 12 and _driver_ver >= 12040:
-            _backend["new"]["paraminfo"] = driver.cuKernelGetParamInfo
+        if _driver_ver >= 12040:
+            _backend["paraminfo"] = driver.cuKernelGetParamInfo
 
         # Mark as initialized (must be last to ensure all state is set)
         _inited = True
@@ -108,21 +98,6 @@ def _get_kernel_ctypes():
 
 
 @functools.cache
-def _is_cuda_12_plus_backend() -> bool:
-    """Return True when the CUDA 12+ (cuLibrary) backend is available/active."""
-    return _get_py_major_ver() >= 12 and _get_driver_ver() >= 12000
-
-
-@functools.cache
-def _get_backend_version():
-    """Get the backend version ("new" or "old") based on CUDA version.
-
-    Returns "new" for CUDA 12.0+ (uses cuLibrary API), "old" otherwise (uses cuModule API).
-    """
-    return "new" if _is_cuda_12_plus_backend() else "old"
-
-
-@functools.cache
 def _is_cukernel_get_library_supported() -> bool:
     """Return True when cuKernelGetLibrary is available for inverse kernel-to-library lookup.
 
@@ -144,7 +119,7 @@ class KernelAttributes:
     def __new__(self, *args, **kwargs):
         raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
-    slots = ("_kernel", "_cache", "_backend_version", "_loader")
+    slots = ("_kernel", "_cache", "_loader")
 
     @classmethod
     def _init(cls, kernel):
@@ -152,8 +127,9 @@ class KernelAttributes:
         self._kernel = weakref.ref(kernel)
         self._cache = {}
 
-        self._backend_version = _get_backend_version()
-        self._loader = _backend[self._backend_version]
+        # Ensure backend is initialized before setting loader
+        _lazy_init()
+        self._loader = _backend
         return self
 
     def _get_cached_attribute(self, device_id: Device | int, attribute: driver.CUfunction_attribute) -> int:
@@ -166,15 +142,7 @@ class KernelAttributes:
         kernel = self._kernel()
         if kernel is None:
             raise RuntimeError("Cannot access kernel attributes for expired Kernel object")
-        if self._backend_version == "new":
-            result = handle_return(self._loader["attribute"](attribute, kernel._handle, device_id))
-        else:  # "old" backend
-            warn(
-                "Device ID argument is ignored when getting attribute from kernel when cuda version < 12. ",
-                RuntimeWarning,
-                stacklevel=2,
-            )
-            result = handle_return(self._loader["attribute"](attribute, kernel._handle))
+        result = handle_return(self._loader["attribute"](attribute, kernel._handle, device_id))
         self._cache[cache_key] = result
         return result
 
@@ -480,8 +448,6 @@ class Kernel:
 
     def _get_arguments_info(self, param_info=False) -> tuple[int, list[ParamInfo]]:
         attr_impl = self.attributes
-        if attr_impl._backend_version != "new":
-            raise NotImplementedError("New backend is required")
         if "paraminfo" not in attr_impl._loader:
             driver_ver = _get_driver_ver()
             raise NotImplementedError(
@@ -525,13 +491,13 @@ class Kernel:
     def from_handle(handle: int, mod: "ObjectCode" = None) -> "Kernel":
         """Creates a new :obj:`Kernel` object from a foreign kernel handle.
 
-        Uses a CUfunction or CUkernel pointer address to create a new :obj:`Kernel` object.
+        Uses a CUkernel pointer address to create a new :obj:`Kernel` object.
 
         Parameters
         ----------
         handle : int
             Kernel handle representing the address of a foreign
-            kernel object (CUfunction or CUkernel).
+            kernel object (CUkernel).
         mod : :obj:`ObjectCode`, optional
             The ObjectCode object associated with this kernel. If not provided,
             a placeholder ObjectCode will be created. Note that without a proper
@@ -542,24 +508,11 @@ class Kernel:
         if not isinstance(handle, int):
             raise TypeError(f"handle must be an integer, got {type(handle).__name__}")
 
-        # Convert the integer handle to the appropriate driver type.
-        #
-        # - For the CUDA 12+ "new" backend, kernels are CUkernel handles.
-        # - For the legacy "old" backend, kernels are CUfunction handles.
-        if _is_cuda_12_plus_backend():
-            kernel_obj = driver.CUkernel(handle)
-        else:
-            kernel_obj = driver.CUfunction(handle)
+        # Convert the integer handle to CUkernel driver type
+        kernel_obj = driver.CUkernel(handle)
 
         # If no module provided, create a placeholder
         if mod is None:
-            if not _is_cuda_12_plus_backend():
-                raise NotImplementedError(
-                    "Kernel.from_handle(..., mod=None) is only supported for CUkernel handles "
-                    "(CUDA 12 'new' backend). For CUfunction handles, please pass the owning "
-                    "ObjectCode explicitly via the 'mod' argument."
-                )
-
             # For CUkernel, we can (optionally) inverse-lookup the owning CUlibrary via
             # cuKernelGetLibrary (added in CUDA 12.5). If the API is not available, we fall
             # back to a non-null dummy handle purely to disable lazy loading.
@@ -591,14 +544,9 @@ class ObjectCode:
     like to load, use the :meth:`from_cubin` alternative constructor. Constructing directly
     from all other possible code types should be avoided in favor of compilation through
     :class:`~cuda.core.Program`
-
-    Note
-    ----
-    Usage under CUDA 11.x will only load to the current device
-    context.
     """
 
-    __slots__ = ("_handle", "_backend_version", "_code_type", "_module", "_loader", "_sym_map", "_name")
+    __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map", "_name")
     _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "library")
 
     def __new__(self, *args, **kwargs):
@@ -615,8 +563,9 @@ class ObjectCode:
         # handle is assigned during _lazy_load
         self._handle = None
 
-        self._backend_version = _get_backend_version()
-        self._loader = _backend[self._backend_version]
+        # Ensure backend is initialized before setting loader
+        _lazy_init()
+        self._loader = _backend
 
         self._code_type = code_type
         self._module = module
@@ -749,16 +698,10 @@ class ObjectCode:
         module = self._module
         assert_type_str_or_bytes_like(module)
         if isinstance(module, str):
-            if self._backend_version == "new":
-                self._handle = handle_return(self._loader["file"](module.encode(), [], [], 0, [], [], 0))
-            else:  # "old" backend
-                self._handle = handle_return(self._loader["file"](module.encode()))
+            self._handle = handle_return(self._loader["file"](module.encode(), [], [], 0, [], [], 0))
             return
         if isinstance(module, (bytes, bytearray)):
-            if self._backend_version == "new":
-                self._handle = handle_return(self._loader["data"](module, [], [], 0, [], [], 0))
-            else:  # "old" backend
-                self._handle = handle_return(self._loader["data"](module, 0, [], []))
+            self._handle = handle_return(self._loader["data"](module, [], [], 0, [], [], 0))
             return
         raise_code_path_meant_to_be_unreachable()
 
