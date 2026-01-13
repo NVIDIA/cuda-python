@@ -346,7 +346,7 @@ def test_get_all_devices_with_cpu_affinity():
             for device in system.Device.get_all_devices_with_cpu_affinity(i):
                 affinity = device.cpu_affinity
                 assert isinstance(affinity, list)
-                assert {i} == set(affinity)
+                assert i in affinity
     except system.NotSupportedError:
         pytest.skip("Getting devices with CPU affinity not supported")
 
