@@ -615,7 +615,7 @@ cdef class Device:
         for handle in nvml.system_get_topology_gpu_set(cpu_index):
             device = Device.__new__(Device)
             device._handle = handle
-            return device
+            yield device
 
     @property
     def architecture(self) -> DeviceArchitecture:
