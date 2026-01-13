@@ -102,9 +102,6 @@ def LTOIR(arch):
 
 @pytest.fixture
 def OBJECT(arch, tmpdir):
-    if arch == "sm_100":
-        pytest.skip("sm_100 is not supported on local system.")
-
     empty_cplusplus_kernel = "__global__ void A() {} int main() { return 0; }"
     with open(tmpdir / "object.cu", "w") as f:
         f.write(empty_cplusplus_kernel)
@@ -197,7 +194,6 @@ def test_nvdfatbin_add_ltoir(LTOIR, arch):
 
 @pytest.mark.parametrize("arch", ["sm_80"], indirect=True)
 def test_nvdfatbin_add_ltoir_ELF_ARCH_MISMATCH(LTOIR, arch):
-    pytest.skip()
     handle = nvfatbin.create([], 0)
     with pytest.raises(nvfatbin.nvfatbinError, match="ERROR_ELF_ARCH_MISMATCH"):
         nvfatbin.add_ltoir(handle, LTOIR, len(LTOIR), "75", "inc", "")
