@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.1.0. Do not modify it directly.
 
 from ._internal cimport nvfatbin as _nvfatbin
 
@@ -31,10 +31,6 @@ cdef nvFatbinResult nvFatbinAddLTOIR(nvFatbinHandle handle, const void* code, si
     return _nvfatbin._nvFatbinAddLTOIR(handle, code, size, arch, identifier, optionsCmdLine)
 
 
-cdef nvFatbinResult nvFatbinAddReloc(nvFatbinHandle handle, const void* code, size_t size) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
-    return _nvfatbin._nvFatbinAddReloc(handle, code, size)
-
-
 cdef nvFatbinResult nvFatbinSize(nvFatbinHandle handle, size_t* size) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvfatbin._nvFatbinSize(handle, size)
 
@@ -45,6 +41,15 @@ cdef nvFatbinResult nvFatbinGet(nvFatbinHandle handle, void* buffer) except?_NVF
 
 cdef nvFatbinResult nvFatbinVersion(unsigned int* major, unsigned int* minor) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvfatbin._nvFatbinVersion(major, minor)
+
+
+cdef nvFatbinResult nvFatbinAddReloc(nvFatbinHandle handle, const void* code, size_t size) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+    return _nvfatbin._nvFatbinAddReloc(handle, code, size)
+
+
+cdef nvFatbinResult nvFatbinAddTileIR(nvFatbinHandle handle, const void* code, size_t size, const char* identifier, const char* optionsCmdLine) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+    return _nvfatbin._nvFatbinAddTileIR(handle, code, size, identifier, optionsCmdLine)
+
 
 
 

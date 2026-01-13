@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.1.0. Do not modify it directly.
 
 cimport cython  # NOQA
 
@@ -196,22 +196,6 @@ cpdef add_ltoir(intptr_t handle, code, size_t size, arch, identifier, options_cm
     check_status(__status__)
 
 
-cpdef add_reloc(intptr_t handle, code, size_t size):
-    """nvFatbinAddReloc adds relocatable PTX entries from a host object to the fatbinary.
-
-    Args:
-        handle (intptr_t): nvFatbin handle.
-        code (bytes): The host object image.
-        size (size_t): The size of the host object image code.
-
-    .. seealso:: `nvFatbinAddReloc`
-    """
-    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)
-    with nogil:
-        __status__ = nvFatbinAddReloc(<Handle>handle, <const void*>_code_, size)
-    check_status(__status__)
-
-
 cpdef size_t size(intptr_t handle) except? 0:
     """nvFatbinSize returns the fatbinary's size.
 
@@ -262,6 +246,49 @@ cpdef tuple version():
         __status__ = nvFatbinVersion(&major, &minor)
     check_status(__status__)
     return (major, minor)
+
+
+cpdef add_reloc(intptr_t handle, code, size_t size):
+    """nvFatbinAddReloc adds relocatable PTX entries from a host object to the fatbinary.
+
+    Args:
+        handle (intptr_t): nvFatbin handle.
+        code (bytes): The host object image.
+        size (size_t): The size of the host object image code.
+
+    .. seealso:: `nvFatbinAddReloc`
+    """
+    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)
+    with nogil:
+        __status__ = nvFatbinAddReloc(<Handle>handle, <const void*>_code_, size)
+    check_status(__status__)
+
+
+cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_line):
+    """nvFatbinAddTileIR adds Tile IR to the fatbinary.
+
+    Args:
+        handle (intptr_t): nvFatbin handle.
+        code (bytes): The Tile IR.
+        size (size_t): The size of the Tile IR.
+        identifier (str): Name of the Tile IR, useful when extracting the fatbin with tools like cuobjdump.
+        options_cmd_line (str): Options used during JIT compilation.
+
+    .. seealso:: `nvFatbinAddTileIR`
+    """
+    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)
+    if not isinstance(identifier, str):
+        raise TypeError("identifier must be a Python str")
+    cdef bytes _temp_identifier_ = (<str>identifier).encode()
+    cdef char* _identifier_ = _temp_identifier_
+    if not isinstance(options_cmd_line, str):
+        raise TypeError("options_cmd_line must be a Python str")
+    cdef bytes _temp_options_cmd_line_ = (<str>options_cmd_line).encode()
+    cdef char* _options_cmd_line_ = _temp_options_cmd_line_
+    with nogil:
+        __status__ = nvFatbinAddTileIR(<Handle>handle, <const void*>_code_, size, <const char*>_identifier_, <const char*>_options_cmd_line_)
+    check_status(__status__)
+
 
 
 

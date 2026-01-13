@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated across versions from 12.4.1 to 13.1.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -82,10 +82,11 @@ cdef void* __nvFatbinDestroy = NULL
 cdef void* __nvFatbinAddPTX = NULL
 cdef void* __nvFatbinAddCubin = NULL
 cdef void* __nvFatbinAddLTOIR = NULL
-cdef void* __nvFatbinAddReloc = NULL
 cdef void* __nvFatbinSize = NULL
 cdef void* __nvFatbinGet = NULL
 cdef void* __nvFatbinVersion = NULL
+cdef void* __nvFatbinAddReloc = NULL
+cdef void* __nvFatbinAddTileIR = NULL
 
 
 cdef int _init_nvfatbin() except -1 nogil:
@@ -115,9 +116,6 @@ cdef int _init_nvfatbin() except -1 nogil:
         global __nvFatbinAddLTOIR
         __nvFatbinAddLTOIR = GetProcAddress(handle, 'nvFatbinAddLTOIR')
 
-        global __nvFatbinAddReloc
-        __nvFatbinAddReloc = GetProcAddress(handle, 'nvFatbinAddReloc')
-
         global __nvFatbinSize
         __nvFatbinSize = GetProcAddress(handle, 'nvFatbinSize')
 
@@ -126,6 +124,12 @@ cdef int _init_nvfatbin() except -1 nogil:
 
         global __nvFatbinVersion
         __nvFatbinVersion = GetProcAddress(handle, 'nvFatbinVersion')
+
+        global __nvFatbinAddReloc
+        __nvFatbinAddReloc = GetProcAddress(handle, 'nvFatbinAddReloc')
+
+        global __nvFatbinAddTileIR
+        __nvFatbinAddTileIR = GetProcAddress(handle, 'nvFatbinAddTileIR')
 
         __py_nvfatbin_init = True
         return 0
@@ -164,9 +168,6 @@ cpdef dict _inspect_function_pointers():
     global __nvFatbinAddLTOIR
     data["__nvFatbinAddLTOIR"] = <intptr_t>__nvFatbinAddLTOIR
 
-    global __nvFatbinAddReloc
-    data["__nvFatbinAddReloc"] = <intptr_t>__nvFatbinAddReloc
-
     global __nvFatbinSize
     data["__nvFatbinSize"] = <intptr_t>__nvFatbinSize
 
@@ -175,6 +176,12 @@ cpdef dict _inspect_function_pointers():
 
     global __nvFatbinVersion
     data["__nvFatbinVersion"] = <intptr_t>__nvFatbinVersion
+
+    global __nvFatbinAddReloc
+    data["__nvFatbinAddReloc"] = <intptr_t>__nvFatbinAddReloc
+
+    global __nvFatbinAddTileIR
+    data["__nvFatbinAddTileIR"] = <intptr_t>__nvFatbinAddTileIR
 
     func_ptrs = data
     return data
@@ -241,16 +248,6 @@ cdef nvFatbinResult _nvFatbinAddLTOIR(nvFatbinHandle handle, const void* code, s
         handle, code, size, arch, identifier, optionsCmdLine)
 
 
-cdef nvFatbinResult _nvFatbinAddReloc(nvFatbinHandle handle, const void* code, size_t size) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
-    global __nvFatbinAddReloc
-    _check_or_init_nvfatbin()
-    if __nvFatbinAddReloc == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvFatbinAddReloc is not found")
-    return (<nvFatbinResult (*)(nvFatbinHandle, const void*, size_t) noexcept nogil>__nvFatbinAddReloc)(
-        handle, code, size)
-
-
 cdef nvFatbinResult _nvFatbinSize(nvFatbinHandle handle, size_t* size) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinSize
     _check_or_init_nvfatbin()
@@ -279,6 +276,27 @@ cdef nvFatbinResult _nvFatbinVersion(unsigned int* major, unsigned int* minor) e
             raise FunctionNotFoundError("function nvFatbinVersion is not found")
     return (<nvFatbinResult (*)(unsigned int*, unsigned int*) noexcept nogil>__nvFatbinVersion)(
         major, minor)
+
+
+cdef nvFatbinResult _nvFatbinAddReloc(nvFatbinHandle handle, const void* code, size_t size) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+    global __nvFatbinAddReloc
+    _check_or_init_nvfatbin()
+    if __nvFatbinAddReloc == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvFatbinAddReloc is not found")
+    return (<nvFatbinResult (*)(nvFatbinHandle, const void*, size_t) noexcept nogil>__nvFatbinAddReloc)(
+        handle, code, size)
+
+
+cdef nvFatbinResult _nvFatbinAddTileIR(nvFatbinHandle handle, const void* code, size_t size, const char* identifier, const char* optionsCmdLine) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+    global __nvFatbinAddTileIR
+    _check_or_init_nvfatbin()
+    if __nvFatbinAddTileIR == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvFatbinAddTileIR is not found")
+    return (<nvFatbinResult (*)(nvFatbinHandle, const void*, size_t, const char*, const char*) noexcept nogil>__nvFatbinAddTileIR)(
+        handle, code, size, identifier, optionsCmdLine)
+
 
 
 
