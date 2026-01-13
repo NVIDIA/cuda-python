@@ -11,6 +11,7 @@ __pycache__/
 .pytest_cache/
 .benchmarks/
 *.cpp
+!*_impl.cpp
 !cuda_bindings/cuda/bindings/_lib/param_packer.cpp
 !cuda_bindings/cuda/bindings/_bindings/loader.cpp
 cache_driver
@@ -27,6 +28,7 @@ cuda_bindings/cuda/bindings/_bindings/cyruntime_ptds.pxd
 cuda_bindings/cuda/bindings/_bindings/cyruntime_ptds.pyx
 cuda_bindings/cuda/bindings/_bindings/cynvrtc.pxd
 cuda_bindings/cuda/bindings/_bindings/cynvrtc.pyx
+cuda_bindings/cuda/bindings/_internal/_nvml.pyx
 cuda_bindings/cuda/bindings/_internal/cufile.pyx
 cuda_bindings/cuda/bindings/_internal/nvjitlink.pyx
 cuda_bindings/cuda/bindings/_internal/nvvm.pyx
@@ -47,6 +49,9 @@ cuda_bindings/cuda/bindings/runtime.pyx
 cuda_bindings/cuda/bindings/nvrtc.pxd
 cuda_bindings/cuda/bindings/nvrtc.pyx
 cuda_bindings/cuda/bindings/utils/_get_handle.pyx
+
+# Version files from setuptools_scm
+_version.py
 
 # Distribution / packaging
 .Python
@@ -182,3 +187,9 @@ cython_debug/
 
 # Dont ignore
 !.github/actions/build/
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+
+# Cursor
+.cursorrules

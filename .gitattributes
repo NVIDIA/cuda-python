@@ -1,9 +1,16 @@
 cuda/_version.py export-subst
 
 * text eol=lf
+*.cmd text eol=crlf
 
 # we do not own any headers checked in, don't touch them
 *.h binary
 *.hpp binary
+# Exception: headers we own (cuda_core C++ implementation)
+cuda_core/cuda/core/_cpp/*.h -binary text diff
+cuda_core/cuda/core/_cpp/*.hpp -binary text diff
 # git should not convert line endings in PNG files
 *.png binary
+*.svg binary
+# SCM syntax highlighting & preventing 3-way merges
+pixi.lock merge=binary linguist-language=YAML linguist-generated=true

@@ -6,15 +6,15 @@ try:
 except ImportError:
     from cuda import cuda as driver
     from cuda import cudart as runtime
-import cuda.core.experimental
+import cuda.core
 import pytest
-from cuda.core.experimental import Device
-from cuda.core.experimental._utils.cuda_utils import ComputeCapability, get_binding_version, handle_return
+from cuda.core import Device
+from cuda.core._utils.cuda_utils import ComputeCapability, get_binding_version, handle_return
 
 
 def test_device_init_disabled():
     with pytest.raises(RuntimeError, match=r"^DeviceProperties cannot be instantiated directly\."):
-        cuda.core.experimental._device.DeviceProperties()  # Ensure back door is locked.
+        cuda.core._device.DeviceProperties()  # Ensure back door is locked.
 
 
 @pytest.fixture(scope="module")
@@ -48,7 +48,7 @@ def test_device_alloc(deinit_cuda):
 
 
 def test_device_id(deinit_cuda):
-    for device in cuda.core.experimental.system.devices:
+    for device in Device.get_all_devices():
         device.set_current()
         assert device.device_id == handle_return(runtime.cudaGetDevice())
 
@@ -292,3 +292,108 @@ def test_device_properties_complete():
 
     assert len(filtered_tab_props) == len(cuda_base_properties)  # Ensure no duplicates.
     assert filtered_tab_props == filtered_live_props  # Ensure exact match.
+
+
+# ============================================================================
+# Device Equality Tests
+# ============================================================================
+
+
+def test_device_equality_same_id(init_cuda):
+    """Devices with same device_id should be equal."""
+    dev1 = Device(0)
+    dev2 = Device(0)
+
+    # On same thread, should be same object (singleton)
+    assert dev1 is dev2, "Device is per-thread singleton"
+    assert dev1 == dev2, "Same device_id should be equal"
+
+
+def test_device_equality_reflexive(init_cuda):
+    """Device should equal itself (reflexive property)."""
+    device = Device(0)
+    assert device == device, "Device should equal itself"
+
+
+def test_device_inequality_different_id(init_cuda):
+    """Devices with different device_id should not be equal."""
+    try:
+        dev0 = Device(0)
+        dev1 = Device(1)
+
+        assert dev0 != dev1, "Different devices should not be equal"
+        assert dev0 != dev1, "Different devices should be not-equal"
+    except (ValueError, Exception):
+        pytest.skip("Test requires at least 2 CUDA devices")
+
+
+def test_device_type_safety(init_cuda):
+    """Comparing Device with wrong type should return False."""
+    device = Device(0)
+
+    assert (device == "not a device") is False
+    assert (device == 123) is False
+    assert (device is None) is False
+
+
+# ============================================================================
+# Device Hash Tests
+# ============================================================================
+
+
+def test_device_hash_consistency(init_cuda):
+    """Hash of same Device object should be consistent."""
+    device = Device(0)
+
+    hash1 = hash(device)
+    hash2 = hash(device)
+    assert hash1 == hash2, "Hash should be consistent for same object"
+
+
+def test_device_equality_same_id_hash(init_cuda):
+    """Devices with same device_id should be equal."""
+    dev1 = Device(0)
+    dev2 = Device(0)
+
+    # On same thread, should be same object (singleton)
+    assert dev1 is dev2, "Device is per-thread singleton"
+    assert dev1 == dev2, "Same device_id should be equal"
+    assert hash(dev1) == hash(dev2), "Same device_id should hash equal"
+
+
+def test_device_inequality_different_id_hash(init_cuda):
+    """Devices with different device_id should not be equal."""
+    try:
+        # Only run test when two devices are available.
+        dev0 = Device(0)
+        dev1 = Device(1)
+
+        assert dev0 != dev1, "Different devices should not be equal"
+        assert hash(dev0) != hash(dev1), "Different devices should have different hashes"
+    except (ValueError, Exception):
+        # Test is skipped if only one device available
+        pytest.skip("Test requires at least 2 CUDA devices")
+
+
+def test_device_dict_key(init_cuda):
+    """Devices should be usable as dictionary keys."""
+    dev0 = Device(0)
+
+    device_cache = {dev0: "gpu0_data"}
+    assert device_cache[dev0] == "gpu0_data"
+
+    # Getting device again should find same entry
+    dev0_again = Device(0)
+    assert device_cache[dev0_again] == "gpu0_data"
+
+
+def test_device_set_membership(init_cuda):
+    """Devices should work correctly in sets."""
+    dev0_a = Device(0)
+    dev0_b = Device(0)
+
+    device_set = {dev0_a}
+
+    # Same device_id should not add duplicate
+    device_set.add(dev0_b)
+    assert len(device_set) == 1, "Should not add duplicate device"

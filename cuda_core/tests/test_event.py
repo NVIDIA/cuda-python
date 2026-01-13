@@ -1,47 +1,49 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
-import time
 
-import cuda.core.experimental
+import math
+
+import cuda.core
 import pytest
-from cuda.core.experimental import (
+from cuda.core import (
     Device,
     Event,
     EventOptions,
 )
 from helpers.latch import LatchKernel
-
-from cuda_python_test_helpers import IS_WSL
+from helpers.nanosleep_kernel import NanosleepKernel
 
 
 def test_event_init_disabled():
     with pytest.raises(RuntimeError, match=r"^Event objects cannot be instantiated directly\."):
-        cuda.core.experimental._event.Event()  # Ensure back door is locked.
+        cuda.core._event.Event()  # Ensure back door is locked.
 
 
 def test_timing_success(init_cuda):
     options = EventOptions(enable_timing=True)
-    stream = Device().create_stream()
-    delay_seconds = 0.5
+    device = Device()
+    stream = device.create_stream()
+
+    # Create a nanosleep kernel that sleeps for 20 ms to ensure a measurable delay.
+    # This guarantees elapsed_time_ms > 10 without depending on OS/driver timing characteristics.
+    nanosleep = NanosleepKernel(device, sleep_duration_ms=20)
+
     e1 = stream.record(options=options)
-    time.sleep(delay_seconds)
+    nanosleep.launch(stream)  # Insert a guaranteed delay
     e2 = stream.record(options=options)
     e2.sync()
     elapsed_time_ms = e2 - e1
     assert isinstance(elapsed_time_ms, float)
-    # Using a generous tolerance, to avoid flaky tests:
-    # We only want to exercise the __sub__ method, this test is not meant
-    # to stress-test the CUDA driver or time.sleep().
-    delay_ms = delay_seconds * 1000
-    if os.name == "nt" or IS_WSL:  # noqa: SIM108
-        # For Python <=3.10, the Windows timer resolution is typically limited to 15.6 ms by default.
-        generous_tolerance = 100
-    else:
-        # Most modern Linux kernels have a default timer resolution of 1 ms.
-        generous_tolerance = 20
-    assert delay_ms - generous_tolerance <= elapsed_time_ms < delay_ms + generous_tolerance
+    # Sanity check: cuEventElapsedTime should always return a finite float for two completed
+    # events. This guards against unexpected driver/HW anomalies (e.g. NaN or inf) or general
+    # undefined behavior, without asserting anything about the magnitude of the measured time.
+    assert math.isfinite(elapsed_time_ms)
+    # With the nanosleep kernel between events, the kernel sleeps for 20 ms using clock64(),
+    # so elapsed_time_ms should definitely be larger than 10 ms. This provides a large safety
+    # margin above the ~0.5 microsecond resolution of cudaEventElapsedTime(), which should
+    # make this test deterministic and non-flaky.
+    assert elapsed_time_ms > 10
 
 
 def test_is_sync_busy_waited(init_cuda):
@@ -146,11 +148,111 @@ def test_event_context(init_cuda):
     assert context is not None
 
 
-def test_event_subclassing():
-    class MyEvent(Event):
-        pass
-
+def test_event_creation():
+    """Test Event creation via public API."""
     dev = Device()
     dev.set_current()
-    event = MyEvent._init(dev.device_id, dev.context)
-    assert isinstance(event, MyEvent)
+    event = dev.create_event()
+    assert isinstance(event, Event)
+
+
+# ============================================================================
+# Event Equality Tests
+# ============================================================================
+
+
+def test_event_equality_reflexive(init_cuda):
+    """Event should equal itself (reflexive property)."""
+    device = Device()
+    stream = device.create_stream()
+    event = stream.record()
+
+    assert event == event, "Event should equal itself"
+
+
+def test_event_inequality_different_events(init_cuda):
+    """Different events should not be equal."""
+    device = Device()
+    stream = device.create_stream()
+
+    e1 = stream.record()
+    e2 = stream.record()
+
+    assert e1 != e2, "Different events should not be equal"
+
+
+def test_event_type_safety(init_cuda):
+    """Comparing Event with wrong type should return False."""
+    device = Device()
+    stream = device.create_stream()
+    event = stream.record()
+
+    assert (event == "not an event") is False
+    assert (event == 123) is False
+    assert (event is None) is False
+
+
+# ============================================================================
+# Event Hash Tests
+# ============================================================================
+
+
+def test_event_hash_consistency(init_cuda):
+    """Hash of same Event object should be consistent."""
+    device = Device()
+    stream = device.create_stream()
+    event = stream.record()
+
+    hash1 = hash(event)
+    hash2 = hash(event)
+    assert hash1 == hash2, "Hash should be consistent for same object"
+
+
+def test_event_hash_equality(init_cuda):
+    """Events with same underlying handle should hash equal."""
+    device = Device()
+    stream = device.create_stream()
+
+    # Create events
+    e1 = stream.record()
+    e2 = stream.record()
+
+    # Different events should have different hashes
+    assert e1 != e2
+    assert hash(e1) != hash(e2)
+
+    # Same event should equal itself
+    assert e1 == e1
+    assert hash(e1) == hash(e1)
+
+
+def test_event_dict_key(init_cuda):
+    """Events should be usable as dictionary keys."""
+    device = Device()
+    stream = device.create_stream()
+
+    e1 = stream.record()
+    e2 = stream.record()
+
+    # Use events as keys
+    event_cache = {e1: "timing1", e2: "timing2"}
+
+    assert len(event_cache) == 2
+    assert event_cache[e1] == "timing1"
+    assert event_cache[e2] == "timing2"
+
+
+def test_event_set_membership(init_cuda):
+    """Events should work correctly in sets."""
+    device = Device()
+    stream = device.create_stream()
+
+    e1 = stream.record()
+    e2 = stream.record()
+
+    event_set = {e1, e2}
+    assert len(event_set) == 2
+
+    # Same event should not add duplicate
+    event_set.add(e1)
+    assert len(event_set) == 2

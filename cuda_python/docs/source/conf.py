@@ -47,6 +47,12 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# Include object entries (methods, attributes, etc.) in the table of contents
+# This enables the "On This Page" sidebar to show class methods and properties
+# Requires Sphinx 5.1+
+toc_object_entries = True
+toc_object_entries_show_parents = "domain"
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -63,6 +69,10 @@ html_theme_options = {
         "version-switcher",
         "navbar-nav",
     ],
+    # Use custom secondary sidebar that includes autodoc entries
+    "secondary_sidebar_items": ["page-toc"],
+    # Show more TOC levels by default
+    "show_toc_level": 3,
 }
 if os.environ.get("CI"):
     if int(os.environ.get("BUILD_PREVIEW", 0)):
@@ -87,7 +97,4 @@ rst_epilog = f"""
 .. _cuda.core: {CUDA_PYTHON_DOMAIN}/cuda-core/latest
 .. _cuda.bindings: {CUDA_PYTHON_DOMAIN}/cuda-bindings/latest
 .. _cuda.pathfinder: {CUDA_PYTHON_DOMAIN}/cuda-pathfinder/latest
-.. _cuda.cccl.cooperative: https://nvidia.github.io/cccl/python/cooperative
-.. _cuda.cccl.parallel: https://nvidia.github.io/cccl/python/parallel
-.. _numba.cuda: https://nvidia.github.io/numba-cuda/
 """

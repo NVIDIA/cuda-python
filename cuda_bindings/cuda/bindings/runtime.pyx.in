@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 from typing import Any, Optional
 from enum import IntEnum
 import cython
@@ -1146,6 +1146,13 @@ class cudaError_t(IntEnum):
     #: This error indicates one or more resources are insufficient or non-
     #: applicable for the operation.
     cudaErrorInvalidResourceConfiguration = cyruntime.cudaError.cudaErrorInvalidResourceConfiguration{{endif}}
+    {{if 'cudaErrorStreamDetached' in found_values}}
+
+    #: This error indicates that the requested operation is not permitted
+    #: because the stream is in a detached state. This can occur if the
+    #: green context associated with the stream has been destroyed,
+    #: limiting the stream's operational capabilities.
+    cudaErrorStreamDetached = cyruntime.cudaError.cudaErrorStreamDetached{{endif}}
     {{if 'cudaErrorUnknown' in found_values}}
 
     #: This indicates that an unknown internal error has occurred.
@@ -4170,6 +4177,74 @@ class cudaExternalSemaphoreHandleType(IntEnum):
 
 _dict_cudaExternalSemaphoreHandleType = dict(((int(v), v) for k, v in cudaExternalSemaphoreHandleType.__members__.items()))
 {{endif}}
+{{if 'cudaDevSmResourceGroup_flags' in found_types}}
+
+class cudaDevSmResourceGroup_flags(IntEnum):
+    """
+
+    """
+    {{if 'cudaDevSmResourceGroupDefault' in found_values}}
+    cudaDevSmResourceGroupDefault = cyruntime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupDefault{{endif}}
+    {{if 'cudaDevSmResourceGroupBackfill' in found_values}}
+    cudaDevSmResourceGroupBackfill = cyruntime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill{{endif}}
+
+_dict_cudaDevSmResourceGroup_flags = dict(((int(v), v) for k, v in cudaDevSmResourceGroup_flags.__members__.items()))
+{{endif}}
+{{if 'cudaDevSmResourceSplitByCount_flags' in found_types}}
+
+class cudaDevSmResourceSplitByCount_flags(IntEnum):
+    """
+
+    """
+    {{if 'cudaDevSmResourceSplitIgnoreSmCoscheduling' in found_values}}
+    cudaDevSmResourceSplitIgnoreSmCoscheduling = cyruntime.cudaDevSmResourceSplitByCount_flags.cudaDevSmResourceSplitIgnoreSmCoscheduling{{endif}}
+    {{if 'cudaDevSmResourceSplitMaxPotentialClusterSize' in found_values}}
+    cudaDevSmResourceSplitMaxPotentialClusterSize = cyruntime.cudaDevSmResourceSplitByCount_flags.cudaDevSmResourceSplitMaxPotentialClusterSize{{endif}}
+
+_dict_cudaDevSmResourceSplitByCount_flags = dict(((int(v), v) for k, v in cudaDevSmResourceSplitByCount_flags.__members__.items()))
+{{endif}}
+{{if 'cudaDevResourceType' in found_types}}
+
+class cudaDevResourceType(IntEnum):
+    """
+    Type of resource
+    """
+    {{if 'cudaDevResourceTypeInvalid' in found_values}}
+    cudaDevResourceTypeInvalid = cyruntime.cudaDevResourceType.cudaDevResourceTypeInvalid{{endif}}
+    {{if 'cudaDevResourceTypeSm' in found_values}}
+
+    #: Streaming multiprocessors related information
+    cudaDevResourceTypeSm = cyruntime.cudaDevResourceType.cudaDevResourceTypeSm{{endif}}
+    {{if 'cudaDevResourceTypeWorkqueueConfig' in found_values}}
+
+    #: Workqueue configuration related information
+    cudaDevResourceTypeWorkqueueConfig = cyruntime.cudaDevResourceType.cudaDevResourceTypeWorkqueueConfig{{endif}}
+    {{if 'cudaDevResourceTypeWorkqueue' in found_values}}
+
+    #: Pre-existing workqueue related information
+    cudaDevResourceTypeWorkqueue = cyruntime.cudaDevResourceType.cudaDevResourceTypeWorkqueue{{endif}}
+
+_dict_cudaDevResourceType = dict(((int(v), v) for k, v in cudaDevResourceType.__members__.items()))
+{{endif}}
+{{if 'cudaDevWorkqueueConfigScope' in found_types}}
+
+class cudaDevWorkqueueConfigScope(IntEnum):
+    """
+    Sharing scope for workqueues
+    """
+    {{if 'cudaDevWorkqueueConfigScopeDeviceCtx' in found_values}}
+
+    #: Use all shared workqueue resources on the device. Default driver
+    #: behaviour.
+    cudaDevWorkqueueConfigScopeDeviceCtx = cyruntime.cudaDevWorkqueueConfigScope.cudaDevWorkqueueConfigScopeDeviceCtx{{endif}}
+    {{if 'cudaDevWorkqueueConfigScopeGreenCtxBalanced' in found_values}}
+
+    #: When possible, use non-overlapping workqueue resources with other
+    #: balanced green contexts.
+    cudaDevWorkqueueConfigScopeGreenCtxBalanced = cyruntime.cudaDevWorkqueueConfigScope.cudaDevWorkqueueConfigScopeGreenCtxBalanced{{endif}}
+
+_dict_cudaDevWorkqueueConfigScope = dict(((int(v), v) for k, v in cudaDevWorkqueueConfigScope.__members__.items()))
+{{endif}}
 {{if 'cudaJitOption' in found_types}}
 
 class cudaJitOption(IntEnum):
@@ -5367,6 +5442,80 @@ class cudaKernelNodeAttrID(IntEnum):
 
 _dict_cudaLaunchAttributeID = dict(((int(v), v) for k, v in cudaLaunchAttributeID.__members__.items()))
 {{endif}}
+{{if 'cudaDevResourceDesc_t' in found_types}}
+
+cdef class cudaDevResourceDesc_t:
+    """
+
+    An opaque descriptor handle. The descriptor encapsulates multiple created and configured resources. Created via ::cudaDeviceResourceGenerateDesc
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+            self._pvt_ptr[0] = <cyruntime.cudaDevResourceDesc_t>init_value
+        else:
+            self._pvt_ptr = <cyruntime.cudaDevResourceDesc_t *>_ptr
+    def __init__(self, *args, **kwargs):
+        pass
+    def __repr__(self):
+        return '<cudaDevResourceDesc_t ' + str(hex(self.__int__())) + '>'
+    def __index__(self):
+        return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, cudaDevResourceDesc_t):
+            return False
+        return self._pvt_ptr[0] == (<cudaDevResourceDesc_t>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
+    def __int__(self):
+        return <void_ptr>self._pvt_ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+{{endif}}
+
+{{if 'cudaExecutionContext_t' in found_types}}
+
+cdef class cudaExecutionContext_t:
+    """
+
+    An opaque handle to a CUDA execution context. It represents an execution context created via CUDA Runtime APIs such as cudaGreenCtxCreate.
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+
+    """
+    def __cinit__(self, void_ptr init_value = 0, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+            self._pvt_ptr[0] = <cyruntime.cudaExecutionContext_t>init_value
+        else:
+            self._pvt_ptr = <cyruntime.cudaExecutionContext_t *>_ptr
+    def __init__(self, *args, **kwargs):
+        pass
+    def __repr__(self):
+        return '<cudaExecutionContext_t ' + str(hex(self.__int__())) + '>'
+    def __index__(self):
+        return self.__int__()
+    def __eq__(self, other):
+        if not isinstance(other, cudaExecutionContext_t):
+            return False
+        return self._pvt_ptr[0] == (<cudaExecutionContext_t>other)._pvt_ptr[0]
+    def __hash__(self):
+        return hash(<uintptr_t><void*>(self._pvt_ptr[0]))
+    def __int__(self):
+        return <void_ptr>self._pvt_ptr[0]
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+{{endif}}
+
 {{if 'cudaArray_t' in found_types}}
 
 cdef class cudaArray_t:
@@ -7039,8 +7188,13 @@ cdef class cudaMemcpyNodeParams:
         Must be zero
     {{endif}}
     {{if 'cudaMemcpyNodeParams.reserved' in found_struct}}
-    reserved : list[int]
+    reserved : int
         Must be zero
+    {{endif}}
+    {{if 'cudaMemcpyNodeParams.ctx' in found_struct}}
+    ctx : cudaExecutionContext_t
+        Context in which to run the memcpy. If NULL will try to use the
+        current context.
     {{endif}}
     {{if 'cudaMemcpyNodeParams.copyParams' in found_struct}}
     copyParams : cudaMemcpy3DParms
@@ -7059,6 +7213,9 @@ cdef class cudaMemcpyNodeParams:
             self._pvt_ptr = <cyruntime.cudaMemcpyNodeParams *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
+        {{if 'cudaMemcpyNodeParams.ctx' in found_struct}}
+        self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
+        {{endif}}
         {{if 'cudaMemcpyNodeParams.copyParams' in found_struct}}
         self._copyParams = cudaMemcpy3DParms(_ptr=<void_ptr>&self._pvt_ptr[0].copyParams)
         {{endif}}
@@ -7080,6 +7237,12 @@ cdef class cudaMemcpyNodeParams:
                 str_list += ['reserved : ' + str(self.reserved)]
             except ValueError:
                 str_list += ['reserved : <ValueError>']
+            {{endif}}
+            {{if 'cudaMemcpyNodeParams.ctx' in found_struct}}
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
             {{endif}}
             {{if 'cudaMemcpyNodeParams.copyParams' in found_struct}}
             try:
@@ -7103,8 +7266,25 @@ cdef class cudaMemcpyNodeParams:
     def reserved(self):
         return self._pvt_ptr[0].reserved
     @reserved.setter
-    def reserved(self, reserved):
+    def reserved(self, int reserved):
         self._pvt_ptr[0].reserved = reserved
+    {{endif}}
+    {{if 'cudaMemcpyNodeParams.ctx' in found_struct}}
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cyruntime.cudaExecutionContext_t cyctx
+        if ctx is None:
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>0
+        elif isinstance(ctx, (cudaExecutionContext_t,)):
+            pctx = int(ctx)
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        else:
+            pctx = int(cudaExecutionContext_t(ctx))
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
     {{endif}}
     {{if 'cudaMemcpyNodeParams.copyParams' in found_struct}}
     @property
@@ -7521,6 +7701,11 @@ cdef class cudaMemsetParamsV2:
     height : size_t
         Number of rows
     {{endif}}
+    {{if 'cudaMemsetParamsV2.ctx' in found_struct}}
+    ctx : cudaExecutionContext_t
+        Context in which to run the memset. If NULL will try to use the
+        current context.
+    {{endif}}
 
     Methods
     -------
@@ -7534,6 +7719,9 @@ cdef class cudaMemsetParamsV2:
             self._pvt_ptr = <cyruntime.cudaMemsetParamsV2 *>_ptr
     def __init__(self, void_ptr _ptr = 0):
         pass
+        {{if 'cudaMemsetParamsV2.ctx' in found_struct}}
+        self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
+        {{endif}}
     def __dealloc__(self):
         pass
     def getPtr(self):
@@ -7576,6 +7764,12 @@ cdef class cudaMemsetParamsV2:
                 str_list += ['height : ' + str(self.height)]
             except ValueError:
                 str_list += ['height : <ValueError>']
+            {{endif}}
+            {{if 'cudaMemsetParamsV2.ctx' in found_struct}}
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
             {{endif}}
             return '\n'.join(str_list)
         else:
@@ -7628,6 +7822,23 @@ cdef class cudaMemsetParamsV2:
     @height.setter
     def height(self, size_t height):
         self._pvt_ptr[0].height = height
+    {{endif}}
+    {{if 'cudaMemsetParamsV2.ctx' in found_struct}}
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cyruntime.cudaExecutionContext_t cyctx
+        if ctx is None:
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>0
+        elif isinstance(ctx, (cudaExecutionContext_t,)):
+            pctx = int(ctx)
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        else:
+            pctx = int(cudaExecutionContext_t(ctx))
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
     {{endif}}
 {{endif}}
 {{if 'cudaAccessPolicyWindow' in found_struct}}
@@ -14128,6 +14339,593 @@ cdef class cudaExternalSemaphoreWaitParams:
         self._pvt_ptr[0].reserved = reserved
     {{endif}}
 {{endif}}
+{{if 'cudaDevSmResource' in found_struct}}
+
+cdef class cudaDevSmResource:
+    """
+    Data for SM-related resources All parameters in this structure are
+    OUTPUT only. Do not write to any of the fields in this structure.
+
+    Attributes
+    ----------
+    {{if 'cudaDevSmResource.smCount' in found_struct}}
+    smCount : unsigned int
+        The amount of streaming multiprocessors available in this resource.
+    {{endif}}
+    {{if 'cudaDevSmResource.minSmPartitionSize' in found_struct}}
+    minSmPartitionSize : unsigned int
+        The minimum number of streaming multiprocessors required to
+        partition this resource.
+    {{endif}}
+    {{if 'cudaDevSmResource.smCoscheduledAlignment' in found_struct}}
+    smCoscheduledAlignment : unsigned int
+        The number of streaming multiprocessors in this resource that are
+        guaranteed to be co-scheduled on the same GPU processing cluster.
+        smCount will be a multiple of this value, unless the backfill flag
+        is set.
+    {{endif}}
+    {{if 'cudaDevSmResource.flags' in found_struct}}
+    flags : unsigned int
+        The flags set on this SM resource. For available flags see
+        ::cudaDevSmResourceGroup_flags.
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cyruntime.cudaDevSmResource *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+            {{if 'cudaDevSmResource.smCount' in found_struct}}
+            try:
+                str_list += ['smCount : ' + str(self.smCount)]
+            except ValueError:
+                str_list += ['smCount : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevSmResource.minSmPartitionSize' in found_struct}}
+            try:
+                str_list += ['minSmPartitionSize : ' + str(self.minSmPartitionSize)]
+            except ValueError:
+                str_list += ['minSmPartitionSize : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevSmResource.smCoscheduledAlignment' in found_struct}}
+            try:
+                str_list += ['smCoscheduledAlignment : ' + str(self.smCoscheduledAlignment)]
+            except ValueError:
+                str_list += ['smCoscheduledAlignment : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevSmResource.flags' in found_struct}}
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+            {{endif}}
+            return '\n'.join(str_list)
+        else:
+            return ''
+    {{if 'cudaDevSmResource.smCount' in found_struct}}
+    @property
+    def smCount(self):
+        return self._pvt_ptr[0].smCount
+    @smCount.setter
+    def smCount(self, unsigned int smCount):
+        self._pvt_ptr[0].smCount = smCount
+    {{endif}}
+    {{if 'cudaDevSmResource.minSmPartitionSize' in found_struct}}
+    @property
+    def minSmPartitionSize(self):
+        return self._pvt_ptr[0].minSmPartitionSize
+    @minSmPartitionSize.setter
+    def minSmPartitionSize(self, unsigned int minSmPartitionSize):
+        self._pvt_ptr[0].minSmPartitionSize = minSmPartitionSize
+    {{endif}}
+    {{if 'cudaDevSmResource.smCoscheduledAlignment' in found_struct}}
+    @property
+    def smCoscheduledAlignment(self):
+        return self._pvt_ptr[0].smCoscheduledAlignment
+    @smCoscheduledAlignment.setter
+    def smCoscheduledAlignment(self, unsigned int smCoscheduledAlignment):
+        self._pvt_ptr[0].smCoscheduledAlignment = smCoscheduledAlignment
+    {{endif}}
+    {{if 'cudaDevSmResource.flags' in found_struct}}
+    @property
+    def flags(self):
+        return self._pvt_ptr[0].flags
+    @flags.setter
+    def flags(self, unsigned int flags):
+        self._pvt_ptr[0].flags = flags
+    {{endif}}
+{{endif}}
+{{if 'cudaDevWorkqueueConfigResource' in found_struct}}
+
+cdef class cudaDevWorkqueueConfigResource:
+    """
+    Data for workqueue configuration related resources
+
+    Attributes
+    ----------
+    {{if 'cudaDevWorkqueueConfigResource.device' in found_struct}}
+    device : int
+        The device on which the workqueue resources are available
+    {{endif}}
+    {{if 'cudaDevWorkqueueConfigResource.wqConcurrencyLimit' in found_struct}}
+    wqConcurrencyLimit : unsigned int
+        The expected maximum number of concurrent stream-ordered workloads
+    {{endif}}
+    {{if 'cudaDevWorkqueueConfigResource.sharingScope' in found_struct}}
+    sharingScope : cudaDevWorkqueueConfigScope
+        The sharing scope for the workqueue resources
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cyruntime.cudaDevWorkqueueConfigResource *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+            {{if 'cudaDevWorkqueueConfigResource.device' in found_struct}}
+            try:
+                str_list += ['device : ' + str(self.device)]
+            except ValueError:
+                str_list += ['device : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevWorkqueueConfigResource.wqConcurrencyLimit' in found_struct}}
+            try:
+                str_list += ['wqConcurrencyLimit : ' + str(self.wqConcurrencyLimit)]
+            except ValueError:
+                str_list += ['wqConcurrencyLimit : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevWorkqueueConfigResource.sharingScope' in found_struct}}
+            try:
+                str_list += ['sharingScope : ' + str(self.sharingScope)]
+            except ValueError:
+                str_list += ['sharingScope : <ValueError>']
+            {{endif}}
+            return '\n'.join(str_list)
+        else:
+            return ''
+    {{if 'cudaDevWorkqueueConfigResource.device' in found_struct}}
+    @property
+    def device(self):
+        return self._pvt_ptr[0].device
+    @device.setter
+    def device(self, int device):
+        self._pvt_ptr[0].device = device
+    {{endif}}
+    {{if 'cudaDevWorkqueueConfigResource.wqConcurrencyLimit' in found_struct}}
+    @property
+    def wqConcurrencyLimit(self):
+        return self._pvt_ptr[0].wqConcurrencyLimit
+    @wqConcurrencyLimit.setter
+    def wqConcurrencyLimit(self, unsigned int wqConcurrencyLimit):
+        self._pvt_ptr[0].wqConcurrencyLimit = wqConcurrencyLimit
+    {{endif}}
+    {{if 'cudaDevWorkqueueConfigResource.sharingScope' in found_struct}}
+    @property
+    def sharingScope(self):
+        if self._pvt_ptr[0].sharingScope not in _dict_cudaDevWorkqueueConfigScope:
+            return None
+        return _dict_cudaDevWorkqueueConfigScope[self._pvt_ptr[0].sharingScope]
+    @sharingScope.setter
+    def sharingScope(self, sharingScope not None : cudaDevWorkqueueConfigScope):
+        self._pvt_ptr[0].sharingScope = sharingScope.value
+    {{endif}}
+{{endif}}
+{{if 'cudaDevWorkqueueResource' in found_struct}}
+
+cdef class cudaDevWorkqueueResource:
+    """
+    Handle to a pre-existing workqueue related resource
+
+    Attributes
+    ----------
+    {{if 'cudaDevWorkqueueResource.reserved' in found_struct}}
+    reserved : bytes
+        Reserved for future use
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cyruntime.cudaDevWorkqueueResource *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+            {{if 'cudaDevWorkqueueResource.reserved' in found_struct}}
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
+            {{endif}}
+            return '\n'.join(str_list)
+        else:
+            return ''
+    {{if 'cudaDevWorkqueueResource.reserved' in found_struct}}
+    @property
+    def reserved(self):
+        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0].reserved, 40)
+    @reserved.setter
+    def reserved(self, reserved):
+        if len(reserved) != 40:
+            raise ValueError("reserved length must be 40, is " + str(len(reserved)))
+        for i, b in enumerate(reserved):
+            self._pvt_ptr[0].reserved[i] = b
+    {{endif}}
+{{endif}}
+{{if 'cudaDevSmResourceGroupParams_st' in found_struct}}
+
+cdef class cudaDevSmResourceGroupParams_st:
+    """
+    Input data for splitting SMs
+
+    Attributes
+    ----------
+    {{if 'cudaDevSmResourceGroupParams_st.smCount' in found_struct}}
+    smCount : unsigned int
+        The amount of SMs available in this resource.
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.coscheduledSmCount' in found_struct}}
+    coscheduledSmCount : unsigned int
+        The amount of co-scheduled SMs grouped together for locality
+        purposes.
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.preferredCoscheduledSmCount' in found_struct}}
+    preferredCoscheduledSmCount : unsigned int
+        When possible, combine co-scheduled groups together into larger
+        groups of this size.
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
+    flags : unsigned int
+        Combination of `cudaDevSmResourceGroup_flags` values to indicate
+        this this group is created.
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
+    reserved : list[unsigned int]
+        Reserved for future use - ensure this is is zero initialized.
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._pvt_ptr = &self._pvt_val
+        else:
+            self._pvt_ptr = <cyruntime.cudaDevSmResourceGroupParams_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+    def __dealloc__(self):
+        pass
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+            {{if 'cudaDevSmResourceGroupParams_st.smCount' in found_struct}}
+            try:
+                str_list += ['smCount : ' + str(self.smCount)]
+            except ValueError:
+                str_list += ['smCount : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevSmResourceGroupParams_st.coscheduledSmCount' in found_struct}}
+            try:
+                str_list += ['coscheduledSmCount : ' + str(self.coscheduledSmCount)]
+            except ValueError:
+                str_list += ['coscheduledSmCount : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevSmResourceGroupParams_st.preferredCoscheduledSmCount' in found_struct}}
+            try:
+                str_list += ['preferredCoscheduledSmCount : ' + str(self.preferredCoscheduledSmCount)]
+            except ValueError:
+                str_list += ['preferredCoscheduledSmCount : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
+            try:
+                str_list += ['flags : ' + str(self.flags)]
+            except ValueError:
+                str_list += ['flags : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
+            try:
+                str_list += ['reserved : ' + str(self.reserved)]
+            except ValueError:
+                str_list += ['reserved : <ValueError>']
+            {{endif}}
+            return '\n'.join(str_list)
+        else:
+            return ''
+    {{if 'cudaDevSmResourceGroupParams_st.smCount' in found_struct}}
+    @property
+    def smCount(self):
+        return self._pvt_ptr[0].smCount
+    @smCount.setter
+    def smCount(self, unsigned int smCount):
+        self._pvt_ptr[0].smCount = smCount
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.coscheduledSmCount' in found_struct}}
+    @property
+    def coscheduledSmCount(self):
+        return self._pvt_ptr[0].coscheduledSmCount
+    @coscheduledSmCount.setter
+    def coscheduledSmCount(self, unsigned int coscheduledSmCount):
+        self._pvt_ptr[0].coscheduledSmCount = coscheduledSmCount
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.preferredCoscheduledSmCount' in found_struct}}
+    @property
+    def preferredCoscheduledSmCount(self):
+        return self._pvt_ptr[0].preferredCoscheduledSmCount
+    @preferredCoscheduledSmCount.setter
+    def preferredCoscheduledSmCount(self, unsigned int preferredCoscheduledSmCount):
+        self._pvt_ptr[0].preferredCoscheduledSmCount = preferredCoscheduledSmCount
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.flags' in found_struct}}
+    @property
+    def flags(self):
+        return self._pvt_ptr[0].flags
+    @flags.setter
+    def flags(self, unsigned int flags):
+        self._pvt_ptr[0].flags = flags
+    {{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st.reserved' in found_struct}}
+    @property
+    def reserved(self):
+        return self._pvt_ptr[0].reserved
+    @reserved.setter
+    def reserved(self, reserved):
+        self._pvt_ptr[0].reserved = reserved
+    {{endif}}
+{{endif}}
+{{if 'cudaDevResource_st' in found_struct}}
+
+cdef class cudaDevResource_st:
+    """
+    A tagged union describing different resources identified by the
+    type field. This structure should not be directly modified outside
+    of the API that created it. struct enumcudaDevResourceTypetype;
+    union structcudaDevSmResourcesm;
+    structcudaDevWorkqueueConfigResourcewqConfig;
+    structcudaDevWorkqueueResourcewq; ; ;  - If `typename` is
+    `cudaDevResourceTypeInvalid`, this resoure is not valid and cannot
+    be further accessed.    - If `typename` is `cudaDevResourceTypeSm`,
+    the cudaDevSmResource structure `sm` is filled in. For example,
+    `sm.smCount` will reflect the amount of streaming multiprocessors
+    available in this resource.    - If `typename` is
+    `cudaDevResourceTypeWorkqueueConfig`, the
+    cudaDevWorkqueueConfigResource structure `wqConfig` is filled in.
+    - If `typename` is `cudaDevResourceTypeWorkqueue`, the
+    cudaDevWorkqueueResource structure `wq` is filled in.
+
+    Attributes
+    ----------
+    {{if 'cudaDevResource_st.type' in found_struct}}
+    type : cudaDevResourceType
+        Type of resource, dictates which union field was last set
+    {{endif}}
+    {{if 'cudaDevResource_st._internal_padding' in found_struct}}
+    _internal_padding : bytes
+
+    {{endif}}
+    {{if 'cudaDevResource_st.sm' in found_struct}}
+    sm : cudaDevSmResource
+        Resource corresponding to cudaDevResourceTypeSm `typename`.
+    {{endif}}
+    {{if 'cudaDevResource_st.wqConfig' in found_struct}}
+    wqConfig : cudaDevWorkqueueConfigResource
+        Resource corresponding to cudaDevResourceTypeWorkqueueConfig
+        `typename`.
+    {{endif}}
+    {{if 'cudaDevResource_st.wq' in found_struct}}
+    wq : cudaDevWorkqueueResource
+        Resource corresponding to cudaDevResourceTypeWorkqueue `typename`.
+    {{endif}}
+    {{if 'cudaDevResource_st._oversize' in found_struct}}
+    _oversize : bytes
+
+    {{endif}}
+    {{if 'cudaDevResource_st.nextResource' in found_struct}}
+    nextResource : cudaDevResource_st
+
+    {{endif}}
+
+    Methods
+    -------
+    getPtr()
+        Get memory address of class instance
+    """
+    def __cinit__(self, void_ptr _ptr = 0):
+        if _ptr == 0:
+            self._val_ptr = <cyruntime.cudaDevResource_st *>calloc(1, sizeof(cyruntime.cudaDevResource_st))
+            self._pvt_ptr = self._val_ptr
+        else:
+            self._pvt_ptr = <cyruntime.cudaDevResource_st *>_ptr
+    def __init__(self, void_ptr _ptr = 0):
+        pass
+        {{if 'cudaDevResource_st.sm' in found_struct}}
+        self._sm = cudaDevSmResource(_ptr=<void_ptr>&self._pvt_ptr[0].sm)
+        {{endif}}
+        {{if 'cudaDevResource_st.wqConfig' in found_struct}}
+        self._wqConfig = cudaDevWorkqueueConfigResource(_ptr=<void_ptr>&self._pvt_ptr[0].wqConfig)
+        {{endif}}
+        {{if 'cudaDevResource_st.wq' in found_struct}}
+        self._wq = cudaDevWorkqueueResource(_ptr=<void_ptr>&self._pvt_ptr[0].wq)
+        {{endif}}
+    def __dealloc__(self):
+        if self._val_ptr is not NULL:
+            free(self._val_ptr)
+        {{if 'cudaDevResource_st.nextResource' in found_struct}}
+        if self._nextResource is not NULL:
+            free(self._nextResource)
+        {{endif}}
+    def getPtr(self):
+        return <void_ptr>self._pvt_ptr
+    def __repr__(self):
+        if self._pvt_ptr is not NULL:
+            str_list = []
+            {{if 'cudaDevResource_st.type' in found_struct}}
+            try:
+                str_list += ['type : ' + str(self.type)]
+            except ValueError:
+                str_list += ['type : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevResource_st._internal_padding' in found_struct}}
+            try:
+                str_list += ['_internal_padding : ' + str(self._internal_padding)]
+            except ValueError:
+                str_list += ['_internal_padding : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevResource_st.sm' in found_struct}}
+            try:
+                str_list += ['sm :\n' + '\n'.join(['    ' + line for line in str(self.sm).splitlines()])]
+            except ValueError:
+                str_list += ['sm : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevResource_st.wqConfig' in found_struct}}
+            try:
+                str_list += ['wqConfig :\n' + '\n'.join(['    ' + line for line in str(self.wqConfig).splitlines()])]
+            except ValueError:
+                str_list += ['wqConfig : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevResource_st.wq' in found_struct}}
+            try:
+                str_list += ['wq :\n' + '\n'.join(['    ' + line for line in str(self.wq).splitlines()])]
+            except ValueError:
+                str_list += ['wq : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevResource_st._oversize' in found_struct}}
+            try:
+                str_list += ['_oversize : ' + str(self._oversize)]
+            except ValueError:
+                str_list += ['_oversize : <ValueError>']
+            {{endif}}
+            {{if 'cudaDevResource_st.nextResource' in found_struct}}
+            try:
+                str_list += ['nextResource : ' + str(self.nextResource)]
+            except ValueError:
+                str_list += ['nextResource : <ValueError>']
+            {{endif}}
+            return '\n'.join(str_list)
+        else:
+            return ''
+    {{if 'cudaDevResource_st.type' in found_struct}}
+    @property
+    def type(self):
+        if self._pvt_ptr[0].type not in _dict_cudaDevResourceType:
+            return None
+        return _dict_cudaDevResourceType[self._pvt_ptr[0].type]
+    @type.setter
+    def type(self, type not None : cudaDevResourceType):
+        self._pvt_ptr[0].type = type.value
+    {{endif}}
+    {{if 'cudaDevResource_st._internal_padding' in found_struct}}
+    @property
+    def _internal_padding(self):
+        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0]._internal_padding, 92)
+    @_internal_padding.setter
+    def _internal_padding(self, _internal_padding):
+        if len(_internal_padding) != 92:
+            raise ValueError("_internal_padding length must be 92, is " + str(len(_internal_padding)))
+        for i, b in enumerate(_internal_padding):
+            self._pvt_ptr[0]._internal_padding[i] = b
+    {{endif}}
+    {{if 'cudaDevResource_st.sm' in found_struct}}
+    @property
+    def sm(self):
+        return self._sm
+    @sm.setter
+    def sm(self, sm not None : cudaDevSmResource):
+        string.memcpy(&self._pvt_ptr[0].sm, <cyruntime.cudaDevSmResource*><void_ptr>sm.getPtr(), sizeof(self._pvt_ptr[0].sm))
+    {{endif}}
+    {{if 'cudaDevResource_st.wqConfig' in found_struct}}
+    @property
+    def wqConfig(self):
+        return self._wqConfig
+    @wqConfig.setter
+    def wqConfig(self, wqConfig not None : cudaDevWorkqueueConfigResource):
+        string.memcpy(&self._pvt_ptr[0].wqConfig, <cyruntime.cudaDevWorkqueueConfigResource*><void_ptr>wqConfig.getPtr(), sizeof(self._pvt_ptr[0].wqConfig))
+    {{endif}}
+    {{if 'cudaDevResource_st.wq' in found_struct}}
+    @property
+    def wq(self):
+        return self._wq
+    @wq.setter
+    def wq(self, wq not None : cudaDevWorkqueueResource):
+        string.memcpy(&self._pvt_ptr[0].wq, <cyruntime.cudaDevWorkqueueResource*><void_ptr>wq.getPtr(), sizeof(self._pvt_ptr[0].wq))
+    {{endif}}
+    {{if 'cudaDevResource_st._oversize' in found_struct}}
+    @property
+    def _oversize(self):
+        return PyBytes_FromStringAndSize(<char*>self._pvt_ptr[0]._oversize, 40)
+    @_oversize.setter
+    def _oversize(self, _oversize):
+        if len(_oversize) != 40:
+            raise ValueError("_oversize length must be 40, is " + str(len(_oversize)))
+        for i, b in enumerate(_oversize):
+            self._pvt_ptr[0]._oversize[i] = b
+    {{endif}}
+    {{if 'cudaDevResource_st.nextResource' in found_struct}}
+    @property
+    def nextResource(self):
+        arrs = [<void_ptr>self._pvt_ptr[0].nextResource + x*sizeof(cyruntime.cudaDevResource_st) for x in range(self._nextResource_length)]
+        return [cudaDevResource_st(_ptr=arr) for arr in arrs]
+    @nextResource.setter
+    def nextResource(self, val):
+        if len(val) == 0:
+            free(self._nextResource)
+            self._nextResource_length = 0
+            self._pvt_ptr[0].nextResource = NULL
+        else:
+            if self._nextResource_length != <size_t>len(val):
+                free(self._nextResource)
+                self._nextResource = <cyruntime.cudaDevResource_st*> calloc(len(val), sizeof(cyruntime.cudaDevResource_st))
+                if self._nextResource is NULL:
+                    raise MemoryError('Failed to allocate length x size memory: ' + str(len(val)) + 'x' + str(sizeof(cyruntime.cudaDevResource_st)))
+                self._nextResource_length = <size_t>len(val)
+                self._pvt_ptr[0].nextResource = self._nextResource
+            for idx in range(len(val)):
+                string.memcpy(&self._nextResource[idx], (<cudaDevResource_st>val[idx])._pvt_ptr, sizeof(cyruntime.cudaDevResource_st))
+
+    {{endif}}
+{{endif}}
 {{if 'cudalibraryHostUniversalFunctionAndDataTable' in found_struct}}
 
 cdef class cudalibraryHostUniversalFunctionAndDataTable:
@@ -14412,6 +15210,11 @@ cdef class cudaKernelNodeParamsV2:
     extra : Any
         Pointer to kernel arguments in the "extra" format
     {{endif}}
+    {{if 'cudaKernelNodeParamsV2.ctx' in found_struct}}
+    ctx : cudaExecutionContext_t
+        Context in which to run the kernel. If NULL will try to use the
+        current context.
+    {{endif}}
 
     Methods
     -------
@@ -14430,6 +15233,9 @@ cdef class cudaKernelNodeParamsV2:
         {{endif}}
         {{if 'cudaKernelNodeParamsV2.blockDim' in found_struct}}
         self._blockDim = dim3(_ptr=<void_ptr>&self._pvt_ptr[0].blockDim)
+        {{endif}}
+        {{if 'cudaKernelNodeParamsV2.ctx' in found_struct}}
+        self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
         {{endif}}
     def __dealloc__(self):
         pass
@@ -14473,6 +15279,12 @@ cdef class cudaKernelNodeParamsV2:
                 str_list += ['extra : ' + str(self.extra)]
             except ValueError:
                 str_list += ['extra : <ValueError>']
+            {{endif}}
+            {{if 'cudaKernelNodeParamsV2.ctx' in found_struct}}
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
             {{endif}}
             return '\n'.join(str_list)
         else:
@@ -14526,6 +15338,23 @@ cdef class cudaKernelNodeParamsV2:
     @extra.setter
     def extra(self, void_ptr extra):
         self._pvt_ptr[0].extra = <void**>extra
+    {{endif}}
+    {{if 'cudaKernelNodeParamsV2.ctx' in found_struct}}
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cyruntime.cudaExecutionContext_t cyctx
+        if ctx is None:
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>0
+        elif isinstance(ctx, (cudaExecutionContext_t,)):
+            pctx = int(ctx)
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        else:
+            pctx = int(cudaExecutionContext_t(ctx))
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
     {{endif}}
 {{endif}}
 {{if 'cudaExternalSemaphoreSignalNodeParams' in found_struct}}
@@ -15070,6 +15899,10 @@ cdef class cudaConditionalNodeParams:
         executed when the condition is equal to n. If the condition >=
         `size`, no body graph is executed.
     {{endif}}
+    {{if 'cudaConditionalNodeParams.ctx' in found_struct}}
+    ctx : cudaExecutionContext_t
+        CUDA Execution Context
+    {{endif}}
 
     Methods
     -------
@@ -15085,6 +15918,9 @@ cdef class cudaConditionalNodeParams:
         pass
         {{if 'cudaConditionalNodeParams.handle' in found_struct}}
         self._handle = cudaGraphConditionalHandle(_ptr=<void_ptr>&self._pvt_ptr[0].handle)
+        {{endif}}
+        {{if 'cudaConditionalNodeParams.ctx' in found_struct}}
+        self._ctx = cudaExecutionContext_t(_ptr=<void_ptr>&self._pvt_ptr[0].ctx)
         {{endif}}
     def __dealloc__(self):
         pass
@@ -15116,6 +15952,12 @@ cdef class cudaConditionalNodeParams:
                 str_list += ['phGraph_out : ' + str(self.phGraph_out)]
             except ValueError:
                 str_list += ['phGraph_out : <ValueError>']
+            {{endif}}
+            {{if 'cudaConditionalNodeParams.ctx' in found_struct}}
+            try:
+                str_list += ['ctx : ' + str(self.ctx)]
+            except ValueError:
+                str_list += ['ctx : <ValueError>']
             {{endif}}
             return '\n'.join(str_list)
         else:
@@ -15161,6 +16003,23 @@ cdef class cudaConditionalNodeParams:
     def phGraph_out(self):
         arrs = [<void_ptr>self._pvt_ptr[0].phGraph_out + x*sizeof(cyruntime.cudaGraph_t) for x in range(self.size)]
         return [cudaGraph_t(_ptr=arr) for arr in arrs]
+    {{endif}}
+    {{if 'cudaConditionalNodeParams.ctx' in found_struct}}
+    @property
+    def ctx(self):
+        return self._ctx
+    @ctx.setter
+    def ctx(self, ctx):
+        cdef cyruntime.cudaExecutionContext_t cyctx
+        if ctx is None:
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>0
+        elif isinstance(ctx, (cudaExecutionContext_t,)):
+            pctx = int(ctx)
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        else:
+            pctx = int(cudaExecutionContext_t(ctx))
+            cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+        self._ctx._pvt_ptr[0] = cyctx
     {{endif}}
 {{endif}}
 {{if 'cudaChildGraphNodeParams' in found_struct}}
@@ -16189,7 +17048,7 @@ cdef class anon_struct16:
 {{endif}}
 {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
 
-cdef class anon_union7:
+cdef class anon_union8:
     """
     Attributes
     ----------
@@ -16294,7 +17153,7 @@ cdef class cudaGraphKernelNodeUpdate:
         interpreted
     {{endif}}
     {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
-    updateData : anon_union7
+    updateData : anon_union8
         Update data to apply. Which field is used depends on field's value
     {{endif}}
 
@@ -16315,7 +17174,7 @@ cdef class cudaGraphKernelNodeUpdate:
         self._node = cudaGraphDeviceNode_t(_ptr=<void_ptr>&self._pvt_ptr[0].node)
         {{endif}}
         {{if 'cudaGraphKernelNodeUpdate.updateData' in found_struct}}
-        self._updateData = anon_union7(_ptr=<void_ptr>self._pvt_ptr)
+        self._updateData = anon_union8(_ptr=<void_ptr>self._pvt_ptr)
         {{endif}}
     def __dealloc__(self):
         if self._val_ptr is not NULL:
@@ -16378,8 +17237,8 @@ cdef class cudaGraphKernelNodeUpdate:
     def updateData(self):
         return self._updateData
     @updateData.setter
-    def updateData(self, updateData not None : anon_union7):
-        string.memcpy(&self._pvt_ptr[0].updateData, <cyruntime.anon_union7*><void_ptr>updateData.getPtr(), sizeof(self._pvt_ptr[0].updateData))
+    def updateData(self, updateData not None : anon_union8):
+        string.memcpy(&self._pvt_ptr[0].updateData, <cyruntime.anon_union8*><void_ptr>updateData.getPtr(), sizeof(self._pvt_ptr[0].updateData))
     {{endif}}
 {{endif}}
 {{if 'cudaLaunchMemSyncDomainMap_st' in found_struct}}
@@ -17387,7 +18246,7 @@ cdef class anon_struct22:
 {{endif}}
 {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
 
-cdef class anon_union8:
+cdef class anon_union9:
     """
     Attributes
     ----------
@@ -17447,7 +18306,7 @@ cdef class cudaAsyncNotificationInfo:
         The type of notification being sent
     {{endif}}
     {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
-    info : anon_union8
+    info : anon_union9
         Information about the notification. `typename` must be checked in
         order to interpret this field.
     {{endif}}
@@ -17466,7 +18325,7 @@ cdef class cudaAsyncNotificationInfo:
     def __init__(self, void_ptr _ptr = 0):
         pass
         {{if 'cudaAsyncNotificationInfo.info' in found_struct}}
-        self._info = anon_union8(_ptr=<void_ptr>self._pvt_ptr)
+        self._info = anon_union9(_ptr=<void_ptr>self._pvt_ptr)
         {{endif}}
     def __dealloc__(self):
         if self._val_ptr is not NULL:
@@ -17506,8 +18365,8 @@ cdef class cudaAsyncNotificationInfo:
     def info(self):
         return self._info
     @info.setter
-    def info(self, info not None : anon_union8):
-        string.memcpy(&self._pvt_ptr[0].info, <cyruntime.anon_union8*><void_ptr>info.getPtr(), sizeof(self._pvt_ptr[0].info))
+    def info(self, info not None : anon_union9):
+        string.memcpy(&self._pvt_ptr[0].info, <cyruntime.anon_union9*><void_ptr>info.getPtr(), sizeof(self._pvt_ptr[0].info))
     {{endif}}
 {{endif}}
 {{if 'cudaTextureDesc' in found_struct}}
@@ -17946,7 +18805,7 @@ cdef class cudaEglPlaneDesc_st:
 {{endif}}
 {{if True}}
 
-cdef class anon_union9:
+cdef class anon_union10:
     """
     Attributes
     ----------
@@ -18036,7 +18895,7 @@ cdef class cudaEglFrame_st:
     Attributes
     ----------
     {{if True}}
-    frame : anon_union9
+    frame : anon_union10
 
     {{endif}}
     {{if True}}
@@ -18070,7 +18929,7 @@ cdef class cudaEglFrame_st:
     def __init__(self, void_ptr _ptr = 0):
         pass
         {{if True}}
-        self._frame = anon_union9(_ptr=<void_ptr>self._pvt_ptr)
+        self._frame = anon_union10(_ptr=<void_ptr>self._pvt_ptr)
         {{endif}}
     def __dealloc__(self):
         if self._val_ptr is not NULL:
@@ -18118,8 +18977,8 @@ cdef class cudaEglFrame_st:
     def frame(self):
         return self._frame
     @frame.setter
-    def frame(self, frame not None : anon_union9):
-        string.memcpy(&self._pvt_ptr[0].frame, <cyruntime.anon_union9*><void_ptr>frame.getPtr(), sizeof(self._pvt_ptr[0].frame))
+    def frame(self, frame not None : anon_union10):
+        string.memcpy(&self._pvt_ptr[0].frame, <cyruntime.anon_union10*><void_ptr>frame.getPtr(), sizeof(self._pvt_ptr[0].frame))
     {{endif}}
     {{if True}}
     @property
@@ -18542,7 +19401,7 @@ def cudaDeviceSynchronize():
     Returns
     -------
     cudaError_t
-        :py:obj:`~.cudaSuccess`
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorStreamCaptureUnsupported`
 
     See Also
     --------
@@ -20463,7 +21322,7 @@ def cudaStreamCreate():
 
     See Also
     --------
-    :py:obj:`~.cudaStreamCreateWithPriority`, :py:obj:`~.cudaStreamCreateWithFlags`, :py:obj:`~.cudaStreamGetPriority`, :py:obj:`~.cudaStreamGetFlags`, :py:obj:`~.cudaStreamGetDevice`, :py:obj:`~.cudaStreamQuery`, :py:obj:`~.cudaStreamSynchronize`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaStreamAddCallback`, :py:obj:`~.cudaSetDevice`, :py:obj:`~.cudaStreamDestroy`, :py:obj:`~.cuStreamCreate`
+    :py:obj:`~.cudaStreamCreateWithPriority`, :py:obj:`~.cudaStreamCreateWithFlags`, :py:obj:`~.cudaStreamGetPriority`, :py:obj:`~.cudaStreamGetFlags`, :py:obj:`~.cudaStreamGetDevice`, :py:obj:`~.cudaStreamGetDevResource`, :py:obj:`~.cudaStreamQuery`, :py:obj:`~.cudaStreamSynchronize`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaStreamAddCallback`, :py:obj:`~.cudaSetDevice`, :py:obj:`~.cudaStreamDestroy`, :py:obj:`~.cuStreamCreate`
     """
     cdef cudaStream_t pStream = cudaStream_t()
     with nogil:
@@ -20507,7 +21366,7 @@ def cudaStreamCreateWithFlags(unsigned int flags):
 
     See Also
     --------
-    :py:obj:`~.cudaStreamCreate`, :py:obj:`~.cudaStreamCreateWithPriority`, :py:obj:`~.cudaStreamGetFlags`, :py:obj:`~.cudaStreamGetDevice`, :py:obj:`~.cudaStreamQuery`, :py:obj:`~.cudaStreamSynchronize`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaStreamAddCallback`, :py:obj:`~.cudaSetDevice`, :py:obj:`~.cudaStreamDestroy`, :py:obj:`~.cuStreamCreate`
+    :py:obj:`~.cudaStreamCreate`, :py:obj:`~.cudaStreamCreateWithPriority`, :py:obj:`~.cudaStreamGetFlags`, :py:obj:`~.cudaStreamGetDevice`, :py:obj:`~.cudaStreamGetDevResource`, :py:obj:`~.cudaStreamQuery`, :py:obj:`~.cudaStreamSynchronize`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaStreamAddCallback`, :py:obj:`~.cudaSetDevice`, :py:obj:`~.cudaStreamDestroy`, :py:obj:`~.cuStreamCreate`
     """
     cdef cudaStream_t pStream = cudaStream_t()
     with nogil:
@@ -20606,7 +21465,7 @@ def cudaStreamGetPriority(hStream):
 
     See Also
     --------
-    :py:obj:`~.cudaStreamCreateWithPriority`, :py:obj:`~.cudaDeviceGetStreamPriorityRange`, :py:obj:`~.cudaStreamGetFlags`, :py:obj:`~.cudaStreamGetDevice`, :py:obj:`~.cuStreamGetPriority`
+    :py:obj:`~.cudaStreamCreateWithPriority`, :py:obj:`~.cudaDeviceGetStreamPriorityRange`, :py:obj:`~.cudaStreamGetFlags`, :py:obj:`~.cudaStreamGetDevice`, :py:obj:`~.cudaStreamGetDevResource`, :py:obj:`~.cuStreamGetPriority`
     """
     cdef cyruntime.cudaStream_t cyhStream
     if hStream is None:
@@ -26750,6 +27609,7 @@ def cudaMemPrefetchAsync(devPtr, size_t count, location not None : cudaMemLocati
     bytes to copy. `stream` is the stream in which the operation is
     enqueued. The memory range must refer to managed memory allocated via
     :py:obj:`~.cudaMallocManaged` or declared via managed variables, or it
+    may also refer to memory allocated from a managed memory pool, or it
     may also refer to system-allocated memory on systems with non-zero
     cudaDevAttrPageableMemoryAccess.
 
@@ -28386,6 +29246,22 @@ def cudaMemPoolCreate(poolProps : Optional[cudaMemPoolProps]):
     /proc/devices users can execute the following command: `mknod
     /dev/nvidia-caps-imex-channels/channel0 c <major number> 0`
 
+    To create a managed memory pool, applications must set
+    :py:obj:`~.cudaMemPoolProps`:cudaMemAllocationType to
+    :py:obj:`~.cudaMemAllocationTypeManaged`.
+    :py:obj:`~.cudaMemPoolProps`::cudaMemAllocationHandleType must also be
+    set to :py:obj:`~.cudaMemHandleTypeNone` since IPC is not supported.
+    For managed memory pools, :py:obj:`~.cudaMemPoolProps`::cudaMemLocation
+    will be treated as the preferred location for all allocations created
+    from the pool. An application can also set
+    :py:obj:`~.cudaMemLocationTypeNone` to indicate no preferred location.
+    :py:obj:`~.cudaMemPoolProps.maxSize` must be set to zero for managed
+    memory pools. :py:obj:`~.cudaMemPoolProps.usage` should be zero as
+    decompress for managed memory is not supported. For managed memory
+    pools, all devices on the system must have non-zero
+    :py:obj:`~.concurrentManagedAccess`. If not, this call returns
+    :py:obj:`~.cudaErrorNotSupported`
+
     Parameters
     ----------
     poolProps : :py:obj:`~.cudaMemPoolProps`
@@ -28404,7 +29280,7 @@ def cudaMemPoolCreate(poolProps : Optional[cudaMemPoolProps]):
 
     Notes
     -----
-    Specifying cudaMemHandleTypeNone creates a memory pool that will not support IPC.
+    Specifying :py:obj:`~.cudaMemHandleTypeNone` creates a memory pool that will not support IPC.
     """
     cdef cudaMemPool_t memPool = cudaMemPool_t()
     cdef cyruntime.cudaMemPoolProps* cypoolProps_ptr = poolProps._pvt_ptr if poolProps is not None else NULL
@@ -32690,6 +33566,209 @@ def cudaGraphNodeGetType(node):
     return (_dict_cudaError_t[err], cudaGraphNodeType(pType))
 {{endif}}
 
+{{if 'cudaGraphNodeGetContainingGraph' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphNodeGetContainingGraph(hNode):
+    """ Returns the graph that contains a given graph node.
+
+    Returns the graph that contains `hNode` in `*phGraph`. If hNode is in a
+    child graph, the child graph it is in is returned.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to query
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
+    phGraph : :py:obj:`~.cudaGraph_t`
+        Pointer to return the containing graph
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphGetNodes`, :py:obj:`~.cudaGraphDebugDotPrint` :py:obj:`~.cudaGraphNodeGetLocalId` :py:obj:`~.cudaGraphNodeGetToolsId` :py:obj:`~.cudaGraphGetId` :py:obj:`~.cudaGraphExecGetId`
+    """
+    cdef cyruntime.cudaGraphNode_t cyhNode
+    if hNode is None:
+        phNode = 0
+    elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
+        phNode = int(hNode)
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cdef cudaGraph_t phGraph = cudaGraph_t()
+    with nogil:
+        err = cyruntime.cudaGraphNodeGetContainingGraph(cyhNode, <cyruntime.cudaGraph_t*>phGraph._pvt_ptr)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], phGraph)
+{{endif}}
+
+{{if 'cudaGraphNodeGetLocalId' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphNodeGetLocalId(hNode):
+    """ Returns the node id of a given graph node.
+
+    Returns the node id of `hNode` in `*nodeId`. The nodeId matches that
+    referenced by :py:obj:`~.cudaGraphDebugDotPrint`. The local nodeId and
+    graphId together can uniquely identify the node.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to query
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess` :py:obj:`~.cudaErrorInvalidValue`
+    nodeId : unsigned int
+        Pointer to return the nodeId
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphGetNodes`, :py:obj:`~.cudaGraphDebugDotPrint` :py:obj:`~.cudaGraphNodeGetContainingGraph` :py:obj:`~.cudaGraphNodeGetToolsId` :py:obj:`~.cudaGraphGetId` :py:obj:`~.cudaGraphExecGetId`
+    """
+    cdef cyruntime.cudaGraphNode_t cyhNode
+    if hNode is None:
+        phNode = 0
+    elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
+        phNode = int(hNode)
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cdef unsigned int nodeId = 0
+    with nogil:
+        err = cyruntime.cudaGraphNodeGetLocalId(cyhNode, &nodeId)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], nodeId)
+{{endif}}
+
+{{if 'cudaGraphNodeGetToolsId' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphNodeGetToolsId(hNode):
+    """ Returns an id used by tools to identify a given node.
+
+    Parameters
+    ----------
+    hNode : :py:obj:`~.CUgraphNode` or :py:obj:`~.cudaGraphNode_t`
+        Node to query
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.CUDA_SUCCESS` :py:obj:`~.cudaErrorInvalidValue`
+    *toolsNodeId : unsigned long long
+        Pointer to return the id used by tools
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphGetNodes`, :py:obj:`~.cudaGraphDebugDotPrint` :py:obj:`~.cudaGraphNodeGetContainingGraph` :py:obj:`~.cudaGraphNodeGetLocalId` :py:obj:`~.cudaGraphGetId` :py:obj:`~.cudaGraphExecGetId`
+    """
+    cdef cyruntime.cudaGraphNode_t cyhNode
+    if hNode is None:
+        phNode = 0
+    elif isinstance(hNode, (cudaGraphNode_t,driver.CUgraphNode)):
+        phNode = int(hNode)
+    else:
+        phNode = int(cudaGraphNode_t(hNode))
+    cyhNode = <cyruntime.cudaGraphNode_t><void_ptr>phNode
+    cdef unsigned long long toolsNodeId = 0
+    with nogil:
+        err = cyruntime.cudaGraphNodeGetToolsId(cyhNode, &toolsNodeId)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], toolsNodeId)
+{{endif}}
+
+{{if 'cudaGraphGetId' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphGetId(hGraph):
+    """ Returns the id of a given graph.
+
+    Returns the id of `hGraph` in `*graphId`. The value in `*graphId`
+    matches that referenced by :py:obj:`~.cudaGraphDebugDotPrint`.
+
+    Parameters
+    ----------
+    hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph to query
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    graphId : unsigned int
+        Pointer to return the graphId
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphGetNodes`, :py:obj:`~.cudaGraphDebugDotPrint` :py:obj:`~.cudaGraphNodeGetContainingGraph` :py:obj:`~.cudaGraphNodeGetLocalId` :py:obj:`~.cudaGraphNodeGetToolsId` :py:obj:`~.cudaGraphExecGetId`
+    """
+    cdef cyruntime.cudaGraph_t cyhGraph
+    if hGraph is None:
+        phGraph = 0
+    elif isinstance(hGraph, (cudaGraph_t,driver.CUgraph)):
+        phGraph = int(hGraph)
+    else:
+        phGraph = int(cudaGraph_t(hGraph))
+    cyhGraph = <cyruntime.cudaGraph_t><void_ptr>phGraph
+    cdef unsigned int graphID = 0
+    with nogil:
+        err = cyruntime.cudaGraphGetId(cyhGraph, &graphID)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], graphID)
+{{endif}}
+
+{{if 'cudaGraphExecGetId' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphExecGetId(hGraphExec):
+    """ Returns the id of a given graph exec.
+
+    Returns the id of `hGraphExec` in `*graphId`. The value in `*graphId`
+    matches that referenced by :py:obj:`~.cudaGraphDebugDotPrint`.
+
+    Parameters
+    ----------
+    hGraphExec : :py:obj:`~.CUgraphExec` or :py:obj:`~.cudaGraphExec_t`
+        Graph to query
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`
+    graphId : unsigned int
+        Pointer to return the graphId
+
+    See Also
+    --------
+    :py:obj:`~.cudaGraphGetNodes`, :py:obj:`~.cudaGraphDebugDotPrint` :py:obj:`~.cudaGraphNodeGetContainingGraph` :py:obj:`~.cudaGraphNodeGetLocalId` :py:obj:`~.cudaGraphNodeGetToolsId` :py:obj:`~.cudaGraphGetId`
+    """
+    cdef cyruntime.cudaGraphExec_t cyhGraphExec
+    if hGraphExec is None:
+        phGraphExec = 0
+    elif isinstance(hGraphExec, (cudaGraphExec_t,driver.CUgraphExec)):
+        phGraphExec = int(hGraphExec)
+    else:
+        phGraphExec = int(cudaGraphExec_t(hGraphExec))
+    cyhGraphExec = <cyruntime.cudaGraphExec_t><void_ptr>phGraphExec
+    cdef unsigned int graphID = 0
+    with nogil:
+        err = cyruntime.cudaGraphExecGetId(cyhGraphExec, &graphID)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], graphID)
+{{endif}}
+
 {{if 'cudaGraphGetNodes' in found_functions}}
 
 @cython.embedsignature(True)
@@ -35324,7 +36403,7 @@ def cudaGraphConditionalHandleCreate(graph, unsigned int defaultLaunchValue, uns
 
     Parameters
     ----------
-    hGraph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+    graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
         Graph which will contain the conditional node using this handle.
     defaultLaunchValue : unsigned int
         Optional initial value for the conditional variable. Applied at the
@@ -35355,6 +36434,69 @@ def cudaGraphConditionalHandleCreate(graph, unsigned int defaultLaunchValue, uns
     cdef cudaGraphConditionalHandle pHandle_out = cudaGraphConditionalHandle()
     with nogil:
         err = cyruntime.cudaGraphConditionalHandleCreate(<cyruntime.cudaGraphConditionalHandle*>pHandle_out._pvt_ptr, cygraph, defaultLaunchValue, flags)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], pHandle_out)
+{{endif}}
+
+{{if 'cudaGraphConditionalHandleCreate_v2' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGraphConditionalHandleCreate_v2(graph, ctx, unsigned int defaultLaunchValue, unsigned int flags):
+    """ Create a conditional handle.
+
+    Creates a conditional handle associated with `hGraph`.
+
+    The conditional handle must be associated with a conditional node in
+    this graph or one of its children.
+
+    Handles not associated with a conditional node may cause graph
+    instantiation to fail.
+
+    Parameters
+    ----------
+    graph : :py:obj:`~.CUgraph` or :py:obj:`~.cudaGraph_t`
+        Graph which will contain the conditional node using this handle.
+    ctx : :py:obj:`~.cudaExecutionContext_t`
+        Execution context for the handle and associated conditional node.
+        If NULL, current context will be used.
+    defaultLaunchValue : unsigned int
+        Optional initial value for the conditional variable. Applied at the
+        beginning of each graph execution if cudaGraphCondAssignDefault is
+        set in `flags`.
+    flags : unsigned int
+        Currently must be cudaGraphCondAssignDefault or 0.
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.CUDA_SUCCESS`, :py:obj:`~.CUDA_ERROR_INVALID_VALUE`, :py:obj:`~.CUDA_ERROR_NOT_SUPPORTED`
+    pHandle_out : :py:obj:`~.cudaGraphConditionalHandle`
+        Pointer used to return the handle to the caller.
+
+    See Also
+    --------
+    :py:obj:`~.cuGraphAddNode`,
+    """
+    cdef cyruntime.cudaExecutionContext_t cyctx
+    if ctx is None:
+        pctx = 0
+    elif isinstance(ctx, (cudaExecutionContext_t,)):
+        pctx = int(ctx)
+    else:
+        pctx = int(cudaExecutionContext_t(ctx))
+    cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+    cdef cyruntime.cudaGraph_t cygraph
+    if graph is None:
+        pgraph = 0
+    elif isinstance(graph, (cudaGraph_t,driver.CUgraph)):
+        pgraph = int(graph)
+    else:
+        pgraph = int(cudaGraph_t(graph))
+    cygraph = <cyruntime.cudaGraph_t><void_ptr>pgraph
+    cdef cudaGraphConditionalHandle pHandle_out = cudaGraphConditionalHandle()
+    with nogil:
+        err = cyruntime.cudaGraphConditionalHandleCreate_v2(<cyruntime.cudaGraphConditionalHandle*>pHandle_out._pvt_ptr, cygraph, cyctx, defaultLaunchValue, flags)
     if err != cyruntime.cudaSuccess:
         return (_dict_cudaError_t[err], None)
     return (_dict_cudaError_t[err], pHandle_out)
@@ -35595,9 +36737,9 @@ def cudaLibraryLoadData(code, jitOptions : Optional[tuple[cudaJitOption] | list[
     under the "CUDA environment variables" section.
 
     The `code` may be a `cubin` or `fatbin` as output by nvcc, or a NULL-
-    terminated `PTX`, either as output by nvcc or hand-written. A fatbin
-    should also contain relocatable code when doing separate compilation.
-    Please also see the documentation for nvrtc
+    terminated `PTX`, either as output by nvcc or hand-written, or `Tile`
+    IR data. A fatbin should also contain relocatable code when doing
+    separate compilation. Please also see the documentation for nvrtc
     (https://docs.nvidia.com/cuda/nvrtc/index.html), nvjitlink
     (https://docs.nvidia.com/cuda/nvjitlink/index.html), and nvfatbin
     (https://docs.nvidia.com/cuda/nvfatbin/index.html) for more information
@@ -35695,8 +36837,9 @@ def cudaLibraryLoadFromFile(char* fileName, jitOptions : Optional[tuple[cudaJitO
 
     The file should be a `cubin` file as output by nvcc, or a `PTX` file
     either as output by nvcc or handwritten, or a `fatbin` file as output
-    by nvcc. A fatbin should also contain relocatable code when doing
-    separate compilation. Please also see the documentation for nvrtc
+    by nvcc or hand-written, or `Tile` IR file. A fatbin should also
+    contain relocatable code when doing separate compilation. Please also
+    see the documentation for nvrtc
     (https://docs.nvidia.com/cuda/nvrtc/index.html), nvjitlink
     (https://docs.nvidia.com/cuda/nvjitlink/index.html), and nvfatbin
     (https://docs.nvidia.com/cuda/nvfatbin/index.html) for more information
@@ -36196,6 +37339,966 @@ def cudaKernelSetAttributeForDevice(kernel, attr not None : cudaFuncAttribute, i
     with nogil:
         err = cyruntime.cudaKernelSetAttributeForDevice(cykernel, cyattr, value, device)
     return (_dict_cudaError_t[err],)
+{{endif}}
+
+{{if 'cudaDeviceGetDevResource' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaDeviceGetDevResource(int device, typename not None : cudaDevResourceType):
+    """ Get device resources.
+
+    Get the `typename` resources available to the `device`. This may often
+    be the starting point for further partitioning or configuring of
+    resources.
+
+    Note: The API is not supported on 32-bit platforms.
+
+    Parameters
+    ----------
+    device : int
+        Device to get resource for
+    typename : :py:obj:`~.cudaDevResourceType`
+        Type of resource to retrieve
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotPermitted`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorInvalidResourceType`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`
+    resource : :py:obj:`~.cudaDevResource`
+        Output pointer to a cudaDevResource structure
+
+    See Also
+    --------
+    :py:obj:`~.cuDeviceGetDevResource`, :py:obj:`~.cudaExecutionCtxGetDevResource`, :py:obj:`~.cudaDevSmResourceSplit`, :py:obj:`~.cudaDevResourceGenerateDesc`
+    """
+    cdef cudaDevResource resource = cudaDevResource()
+    cdef cyruntime.cudaDevResourceType cytypename = typename.value
+    with nogil:
+        err = cyruntime.cudaDeviceGetDevResource(device, <cyruntime.cudaDevResource*>resource._pvt_ptr, cytypename)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], resource)
+{{endif}}
+
+{{if 'cudaDevSmResourceSplitByCount' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaDevSmResourceSplitByCount(unsigned int nbGroups, input_ : Optional[cudaDevResource], unsigned int flags, unsigned int minCount):
+    """ Splits `cudaDevResourceTypeSm` resources.
+
+    Splits `cudaDevResourceTypeSm` resources into `nbGroups`, adhering to
+    the minimum SM count specified in `minCount` and the usage flags in
+    `flags`. If `result` is NULL, the API simulates a split and provides
+    the amount of groups that would be created in `nbGroups`. Otherwise,
+    `nbGroups` must point to the amount of elements in `result` and on
+    return, the API will overwrite `nbGroups` with the amount actually
+    created. The groups are written to the array in `result`. `nbGroups`
+    can be less than the total amount if a smaller number of groups is
+    needed.
+
+    This API is used to spatially partition the input resource. The input
+    resource needs to come from one of
+    :py:obj:`~.cudaDeviceGetDevResource`, or
+    :py:obj:`~.cudaExecutionCtxGetDevResource`. A limitation of the API is
+    that the output results cannot be split again without first creating a
+    descriptor and a green context with that descriptor.
+
+    When creating the groups, the API will take into account the
+    performance and functional characteristics of the input resource, and
+    guarantee a split that will create a disjoint set of symmetrical
+    partitions. This may lead to fewer groups created than purely dividing
+    the total SM count by the `minCount` due to cluster requirements or
+    alignment and granularity requirements for the minCount. These
+    requirements can be queried with :py:obj:`~.cudaDeviceGetDevResource`,
+    or :py:obj:`~.cudaExecutionCtxGetDevResource` for
+    :py:obj:`~.cudaDevResourceTypeSm`, using the `minSmPartitionSize` and
+    `smCoscheduledAlignment` fields to determine minimum partition size and
+    alignment granularity, respectively.
+
+    The `remainder` set does not have the same functional or performance
+    guarantees as the groups in `result`. Its use should be carefully
+    planned and future partitions of the `remainder` set are discouraged.
+
+    The following flags are supported:
+
+    - `cudaDevSmResourceSplitIgnoreSmCoscheduling` : Lower the minimum SM
+      count and alignment, and treat each SM independent of its hierarchy.
+      This allows more fine grained partitions but at the cost of advanced
+      features (such as large clusters on compute capability 9.0+).
+
+    - `cudaDevSmResourceSplitMaxPotentialClusterSize` : Compute Capability
+      9.0+ only. Attempt to create groups that may allow for maximally
+      sized thread clusters. This can be queried post green context
+      creation using :py:obj:`~.cudaOccupancyMaxPotentialClusterSize`.
+
+    A successful API call must either have:
+
+    - A valid array of `result` pointers of size passed in `nbGroups`, with
+      `input` of type `cudaDevResourceTypeSm`. Value of `minCount` must be
+      between 0 and the SM count specified in `input`. `remaining` may be
+      NULL.
+
+    - NULL passed in for `result`, with a valid integer pointer in
+      `nbGroups` and `input` of type `cudaDevResourceTypeSm`. Value of
+      `minCount` must be between 0 and the SM count specified in `input`.
+      `remaining` may be NULL. This queries the number of groups that would
+      be created by the API.
+
+    Note: The API is not supported on 32-bit platforms.
+
+    Parameters
+    ----------
+    nbGroups : unsigned int
+        This is a pointer, specifying the number of groups that would be or
+        should be created as described below.
+    input : :py:obj:`~.cudaDevResource`
+        Input SM resource to be split. Must be a valid `None` resource.
+    flags : unsigned int
+        Flags specifying how these partitions are used or which constraints
+        to abide by when splitting the input. Zero is valid for default
+        behavior.
+    minCount : unsigned int
+        Minimum number of SMs required
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotPermitted`, :py:obj:`~.cudaErrorInvalidResourceType`, :py:obj:`~.cudaErrorInvalidResourceConfiguration`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`
+    result : list[:py:obj:`~.cudaDevResource`]
+        Output array of `cudaDevResource` resources. Can be NULL to query
+        the number of groups.
+    nbGroups : unsigned int
+        This is a pointer, specifying the number of groups that would be or
+        should be created as described below.
+    remaining : :py:obj:`~.cudaDevResource`
+        If the input resource cannot be cleanly split among `nbGroups`, the
+        remaining is placed in here. Can be ommitted (NULL) if the user
+        does not need the remaining set.
+
+    See Also
+    --------
+    :py:obj:`~.cuDevSmResourceSplitByCount`, :py:obj:`~.cudaDeviceGetDevResource`, :py:obj:`~.cudaExecutionCtxGetDevResource`, :py:obj:`~.cudaDevResourceGenerateDesc`
+    """
+    cdef cyruntime.cudaDevResource* cyresult = NULL
+    pyresult = [cudaDevResource() for idx in range(nbGroups)]
+    if nbGroups != 0:
+        cyresult = <cyruntime.cudaDevResource*>calloc(nbGroups, sizeof(cyruntime.cudaDevResource))
+        if cyresult is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(nbGroups) + 'x' + str(sizeof(cyruntime.cudaDevResource)))
+    cdef unsigned int cynbGroups = nbGroups
+    cdef cyruntime.cudaDevResource* cyinput__ptr = input_._pvt_ptr if input_ is not None else NULL
+    cdef cudaDevResource remaining = cudaDevResource()
+    with nogil:
+        err = cyruntime.cudaDevSmResourceSplitByCount(cyresult, &cynbGroups, cyinput__ptr, <cyruntime.cudaDevResource*>remaining._pvt_ptr, flags, minCount)
+    if cudaError_t(err) == cudaError_t(0):
+        for idx in range(nbGroups):
+            string.memcpy((<cudaDevResource>pyresult[idx])._pvt_ptr, &cyresult[idx], sizeof(cyruntime.cudaDevResource))
+    if cyresult is not NULL:
+        free(cyresult)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None, None, None)
+    return (_dict_cudaError_t[err], pyresult, cynbGroups, remaining)
+{{endif}}
+
+{{if 'cudaDevSmResourceSplit' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaDevSmResourceSplit(unsigned int nbGroups, input_ : Optional[cudaDevResource], unsigned int flags, groupParams : Optional[cudaDevSmResourceGroupParams]):
+    """ Splits a `cudaDevResourceTypeSm` resource into structured groups.
+
+    This API will split a resource of :py:obj:`~.cudaDevResourceTypeSm`
+    into `nbGroups` structured device resource groups (the `result` array),
+    as well as an optional `remainder`, according to a set of requirements
+    specified in the `groupParams` array. The term “structured” is a trait
+    that specifies the `result` has SMs that are co-scheduled together.
+    This co-scheduling can be specified via the `coscheduledSmCount` field
+    of the `groupParams` structure, while the `smCount` will specify how
+    many SMs are required in total for that result. The remainder is always
+    “unstructured”, it does not have any set guarantees with respect to co-
+    scheduling and those properties will need to either be queried via the
+    occupancy set of APIs or further split into structured groups by this
+    API.
+
+    The API has a discovery mode for use cases where it is difficult to
+    know ahead of time what the SM count should be. Discovery happens when
+    the `smCount` field of a given `groupParams` array entry is set to 0 -
+    the smCount will be filled in by the API with the derived SM count
+    according to the provided `groupParams` fields and constraints.
+    Discovery can be used with both a valid result array and with a NULL
+    `result` pointer value. The latter is useful in situations where the
+    smCount will end up being zero, which is an invalid value to create a
+    result entry with, but allowed for discovery purposes when the `result`
+    is NULL.
+
+    The `groupParams` array is evaluated from index 0 to `nbGroups` - 1.
+    For each index in the `groupParams` array, the API will evaluate which
+    SMs may be a good fit based on constraints and assign those SMs to
+    `result`. This evaluation order is important to consider when using
+    discovery mode, as it helps discover the remaining SMs.
+
+    For a valid call:
+
+    - `result` should point to a `cudaDevResource` array of size
+      `nbGroups`, or alternatively, may be NULL, if the developer wishes
+      for only the groupParams entries to be updated
+
+    - `input` should be a valid :py:obj:`~.cudaDevResourceTypeSm` resource
+      that originates from querying the execution context, or device.
+
+    - The `remainder` group may be NULL.
+
+    - There are no API `flags` at this time, so the value passed in should
+      be 0.
+
+    - A :py:obj:`~.cudaDevSmResourceGroupParams` array of size `nbGroups`.
+      Each entry must be zero-initialized.
+
+      - `smCount:` must be either 0 or in the range of [2,inputSmCount]
+        where inputSmCount is the amount of SMs the `input` resource has.
+        `smCount` must be a multiple of 2, as well as a multiple of
+        `coscheduledSmCount`. When assigning SMs to a group (and if results
+        are expected by having the `result` parameter set), `smCount`
+        cannot end up with 0 or a value less than `coscheduledSmCount`
+        otherwise :py:obj:`~.cudaErrorInvalidResourceConfiguration` will be
+        returned.
+
+      - `coscheduledSmCount:` allows grouping SMs together in order to be
+        able to launch clusters on Compute Architecture 9.0+. The default
+        value may be queried from the device’s
+        :py:obj:`~.cudaDevResourceTypeSm` resource (8 on Compute
+        Architecture 9.0+ and 2 otherwise). The maximum is 32 on Compute
+        Architecture 9.0+ and 2 otherwise.
+
+      - `preferredCoscheduledSmCount:` Attempts to merge
+        `coscheduledSmCount` groups into larger groups, in order to make
+        use of `preferredClusterDimensions` on Compute Architecture 10.0+.
+        The default value is set to `coscheduledSmCount`.
+
+      - `flags:`
+
+    - `cudaDevSmResourceGroupBackfill:` lets `smCount` be a non-multiple of
+    `coscheduledSmCount`, filling the difference between SM count and
+    already assigned co-scheduled groupings with other SMs. This lets any
+    resulting group behave similar to the `remainder` group for example.
+
+    Example params and their effect:
+
+    A groupParams array element is defined in the following order:
+
+    **View CUDA Toolkit Documentation for a C++ code example**
+
+    **View CUDA Toolkit Documentation for a C++ code example**
+
+    **View CUDA Toolkit Documentation for a C++ code example**
+
+    **View CUDA Toolkit Documentation for a C++ code example**
+
+    The difference between a catch-all param group as the last entry and
+    the remainder is in two aspects:
+
+    - The remainder may be NULL / _TYPE_INVALID (if there are no SMs
+      remaining), while a result group must always be valid.
+
+    - The remainder does not have a structure, while the result group will
+      always need to adhere to a structure of coscheduledSmCount (even if
+      its just 2), and therefore must always have enough coscheduled SMs to
+      cover that requirement (even with the
+      `cudaDevSmResourceGroupBackfill` flag enabled).
+
+    Splitting an input into N groups, can be accomplished by repeatedly
+    splitting off 1 group and re-splitting the remainder (a bisect
+    operation). However, it's recommended to accomplish this with a single
+    call wherever possible.
+
+    Parameters
+    ----------
+    nbGroups : unsigned int
+        Specifies the number of groups in `result` and `groupParams`
+    input : :py:obj:`~.cudaDevResource`
+        Input SM resource to be split. Must be a valid
+        `cudaDevResourceTypeSm` resource.
+    flags : unsigned int
+        Flags specifying how the API should behave. The value should be 0
+        for now.
+    groupParams : :py:obj:`~.cudaDevSmResourceGroupParams`
+        Description of how the SMs should be split and assigned to the
+        corresponding result entry.
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotPermitted`, :py:obj:`~.cudaErrorInvalidResourceType`, :py:obj:`~.cudaErrorInvalidResourceConfiguration`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`
+    result : list[:py:obj:`~.cudaDevResource`]
+        Output array of `cudaDevResource` resources. Can be NULL, alongside
+        an smCount of 0, for discovery purpose.
+    remainder : :py:obj:`~.cudaDevResource`
+        If splitting the input resource leaves any SMs, the remainder is
+        placed in here.
+
+    See Also
+    --------
+    :py:obj:`~.cuDevSmResourceSplit`, :py:obj:`~.cudaDeviceGetDevResource`, :py:obj:`~.cudaExecutionCtxGetDevResource`, :py:obj:`~.cudaDevResourceGenerateDesc`
+    """
+    cdef cyruntime.cudaDevResource* cyresult = NULL
+    pyresult = [cudaDevResource() for idx in range(nbGroups)]
+    if nbGroups != 0:
+        cyresult = <cyruntime.cudaDevResource*>calloc(nbGroups, sizeof(cyruntime.cudaDevResource))
+        if cyresult is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(nbGroups) + 'x' + str(sizeof(cyruntime.cudaDevResource)))
+    cdef cyruntime.cudaDevResource* cyinput__ptr = input_._pvt_ptr if input_ is not None else NULL
+    cdef cudaDevResource remainder = cudaDevResource()
+    cdef cyruntime.cudaDevSmResourceGroupParams* cygroupParams_ptr = groupParams._pvt_ptr if groupParams is not None else NULL
+    with nogil:
+        err = cyruntime.cudaDevSmResourceSplit(cyresult, nbGroups, cyinput__ptr, <cyruntime.cudaDevResource*>remainder._pvt_ptr, flags, cygroupParams_ptr)
+    if cudaError_t(err) == cudaError_t(0):
+        for idx in range(nbGroups):
+            string.memcpy((<cudaDevResource>pyresult[idx])._pvt_ptr, &cyresult[idx], sizeof(cyruntime.cudaDevResource))
+    if cyresult is not NULL:
+        free(cyresult)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None, None)
+    return (_dict_cudaError_t[err], pyresult, remainder)
+{{endif}}
+
+{{if 'cudaDevResourceGenerateDesc' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaDevResourceGenerateDesc(resources : Optional[tuple[cudaDevResource] | list[cudaDevResource]], unsigned int nbResources):
+    """ Generate a resource descriptor.
+
+    Generates a single resource descriptor with the set of resources
+    specified in `resources`. The generated resource descriptor is
+    necessary for the creation of green contexts via the
+    :py:obj:`~.cudaGreenCtxCreate` API. Resources of the same type can be
+    passed in, provided they meet the requirements as noted below.
+
+    A successful API call must have:
+
+    - A valid output pointer for the `phDesc` descriptor as well as a valid
+      array of `resources` pointers, with the array size passed in
+      `nbResources`. If multiple resources are provided in `resources`, the
+      device they came from must be the same, otherwise
+      :py:obj:`~.cudaErrorInvalidResourceConfiguration` is returned. If
+      multiple resources are provided in `resources` and they are of type
+      :py:obj:`~.cudaDevResourceTypeSm`, they must be outputs (whether
+      `result` or `remaining`) from the same split API instance and have
+      the same smCoscheduledAlignment values, otherwise
+      :py:obj:`~.cudaErrorInvalidResourceConfiguration` is returned.
+
+    Note: The API is not supported on 32-bit platforms.
+
+    Parameters
+    ----------
+    resources : list[:py:obj:`~.cudaDevResource`]
+        Array of resources to be included in the descriptor
+    nbResources : unsigned int
+        Number of resources passed in `resources`
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotPermitted`, :py:obj:`~.cudaErrorInvalidResourceType`, :py:obj:`~.cudaErrorInvalidResourceConfiguration`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorOutOfMemory`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`
+    phDesc : :py:obj:`~.cudaDevResourceDesc_t`
+        Output descriptor
+
+    See Also
+    --------
+    :py:obj:`~.cuDevResourceGenerateDesc`, :py:obj:`~.cudaDeviceGetDevResource`, :py:obj:`~.cudaExecutionCtxGetDevResource`, :py:obj:`~.cudaDevSmResourceSplit`, :py:obj:`~.cudaGreenCtxCreate`
+    """
+    resources = [] if resources is None else resources
+    if not all(isinstance(_x, (cudaDevResource,)) for _x in resources):
+        raise TypeError("Argument 'resources' is not instance of type (expected tuple[cyruntime.cudaDevResource,] or list[cyruntime.cudaDevResource,]")
+    cdef cudaDevResourceDesc_t phDesc = cudaDevResourceDesc_t()
+    cdef cyruntime.cudaDevResource* cyresources = NULL
+    if len(resources) > 1:
+        cyresources = <cyruntime.cudaDevResource*> calloc(len(resources), sizeof(cyruntime.cudaDevResource))
+        if cyresources is NULL:
+            raise MemoryError('Failed to allocate length x size memory: ' + str(len(resources)) + 'x' + str(sizeof(cyruntime.cudaDevResource)))
+        for idx in range(len(resources)):
+            string.memcpy(&cyresources[idx], (<cudaDevResource>resources[idx])._pvt_ptr, sizeof(cyruntime.cudaDevResource))
+    elif len(resources) == 1:
+        cyresources = (<cudaDevResource>resources[0])._pvt_ptr
+    with nogil:
+        err = cyruntime.cudaDevResourceGenerateDesc(<cyruntime.cudaDevResourceDesc_t*>phDesc._pvt_ptr, cyresources, nbResources)
+    if len(resources) > 1 and cyresources is not NULL:
+        free(cyresources)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], phDesc)
+{{endif}}
+
+{{if 'cudaGreenCtxCreate' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaGreenCtxCreate(desc, int device, unsigned int flags):
+    """ Creates a green context with a specified set of resources.
+
+    This API creates a green context with the resources specified in the
+    descriptor `desc` and returns it in the handle represented by `phCtx`.
+
+    This API retains the device’s primary context for the lifetime of the
+    green context. The primary context will be released when the green
+    context is destroyed. To avoid the overhead of repeated initialization
+    and teardown, it is recommended to explicitly initialize the device's
+    primary context ahead of time using :py:obj:`~.cudaInitDevice`. This
+    ensures that the primary context remains initialized throughout the
+    program’s lifetime, minimizing overhead during green context creation
+    and destruction.
+
+    The API does not create a default stream for the green context.
+    Developers are expected to create streams explicitly using
+    :py:obj:`~.cudaExecutionCtxStreamCreate` to submit work to the green
+    context.
+
+    Note: The API is not supported on 32-bit platforms.
+
+    Parameters
+    ----------
+    desc : :py:obj:`~.cudaDevResourceDesc_t`
+        Descriptor generated via :py:obj:`~.cudaDevResourceGenerateDesc`
+        which contains the set of resources to be used
+    device : int
+        Device on which to create the green context.
+    flags : unsigned int
+        Green context creation flags. Must be 0, currently reserved for
+        future use.
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidDevice`, :py:obj:`~.cudaErrorNotPermitted`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorOutOfMemory`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`
+    phCtx : :py:obj:`~.cudaExecutionContext_t`
+        Pointer for the output handle to the green context
+
+    See Also
+    --------
+    :py:obj:`~.cudaDeviceGetDevResource`, :py:obj:`~.cudaDevSmResourceSplit`, :py:obj:`~.cudaDevResourceGenerateDesc`, :py:obj:`~.cudaExecutionCtxGetDevResource`, :py:obj:`~.cudaExecutionCtxDestroy`, :py:obj:`~.cudaInitDevice`, :py:obj:`~.cudaExecutionCtxStreamCreate`
+    """
+    cdef cyruntime.cudaDevResourceDesc_t cydesc
+    if desc is None:
+        pdesc = 0
+    elif isinstance(desc, (cudaDevResourceDesc_t,)):
+        pdesc = int(desc)
+    else:
+        pdesc = int(cudaDevResourceDesc_t(desc))
+    cydesc = <cyruntime.cudaDevResourceDesc_t><void_ptr>pdesc
+    cdef cudaExecutionContext_t phCtx = cudaExecutionContext_t()
+    with nogil:
+        err = cyruntime.cudaGreenCtxCreate(<cyruntime.cudaExecutionContext_t*>phCtx._pvt_ptr, cydesc, device, flags)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], phCtx)
+{{endif}}
+
+{{if 'cudaExecutionCtxDestroy' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaExecutionCtxDestroy(ctx):
+    """ Destroy a execution context.
+
+    Destroys the specified execution context `ctx`. It is the
+    responsibility of the caller to ensure that no API call issues using
+    `ctx` while :py:obj:`~.cudaExecutionCtxDestroy()` is executing or
+    subsequently.
+
+    If `ctx` is a green context, any resources provisioned for it (that
+    were initially available via the resource descriptor) are released as
+    well.
+
+    The API does not destroy streams created via
+    :py:obj:`~.cudaExecutionCtxStreamCreate`. Users are expected to destroy
+    these streams explicitly using :py:obj:`~.cudaStreamDestroy` to avoid
+    resource leaks. Once the execution context is destroyed, any subsequent
+    API calls involving these streams will return
+    :py:obj:`~.cudaErrorStreamDetached` with the exception of the following
+    APIs:
+
+    - :py:obj:`~.cudaStreamDestroy`. Note this is only supported on CUDA
+      drivers 13.1 and above.
+
+    Additionally, the API will invalidate all active captures on these
+    streams.
+
+    Passing in a `ctx` that was not explicitly created via CUDA Runtime
+    APIs is not allowed and will result in undefined behavior.
+
+    Parameters
+    ----------
+    ctx : :py:obj:`~.cudaExecutionContext_t`
+        Execution context to destroy (required parameter, see note below)
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotPermitted`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`
+
+    See Also
+    --------
+    :py:obj:`~.cudaGreenCtxCreate`
+    """
+    cdef cyruntime.cudaExecutionContext_t cyctx
+    if ctx is None:
+        pctx = 0
+    elif isinstance(ctx, (cudaExecutionContext_t,)):
+        pctx = int(ctx)
+    else:
+        pctx = int(cudaExecutionContext_t(ctx))
+    cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+    with nogil:
+        err = cyruntime.cudaExecutionCtxDestroy(cyctx)
+    return (_dict_cudaError_t[err],)
+{{endif}}
+
+{{if 'cudaExecutionCtxGetDevResource' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaExecutionCtxGetDevResource(ctx, typename not None : cudaDevResourceType):
+    """ Get context resources.
+
+    Get the `typename` resources available to context represented by `ctx`.
+
+    Note: The API is not supported on 32-bit platforms.
+
+    Parameters
+    ----------
+    ctx : :py:obj:`~.cudaExecutionContext_t`
+        Execution context to get resource for (required parameter, see note
+        below)
+    typename : :py:obj:`~.cudaDevResourceType`
+        Type of resource to retrieve
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotSupported`, :py:obj:`~.cudaErrorNotPermitted`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`
+    resource : :py:obj:`~.cudaDevResource`
+        Output pointer to a cudaDevResource structure
+
+    See Also
+    --------
+    :py:obj:`~.cudaDeviceGetDevResource`, :py:obj:`~.cudaDevSmResourceSplit`, :py:obj:`~.cudaDevResourceGenerateDesc`, :py:obj:`~.cudaGreenCtxCreate`
+    """
+    cdef cyruntime.cudaExecutionContext_t cyctx
+    if ctx is None:
+        pctx = 0
+    elif isinstance(ctx, (cudaExecutionContext_t,)):
+        pctx = int(ctx)
+    else:
+        pctx = int(cudaExecutionContext_t(ctx))
+    cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+    cdef cudaDevResource resource = cudaDevResource()
+    cdef cyruntime.cudaDevResourceType cytypename = typename.value
+    with nogil:
+        err = cyruntime.cudaExecutionCtxGetDevResource(cyctx, <cyruntime.cudaDevResource*>resource._pvt_ptr, cytypename)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], resource)
+{{endif}}
+
+{{if 'cudaExecutionCtxGetDevice' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaExecutionCtxGetDevice(ctx):
+    """ Returns the device handle for the execution context.
+
+    Returns in `*device` the handle of the specified execution context's
+    device. The execution context should not be NULL.
+
+    Parameters
+    ----------
+    ctx : :py:obj:`~.cudaExecutionContext_t`
+        Execution context for which to obtain the device (required
+        parameter, see note below)
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotPermitted`
+    device : int
+        Returned device handle for the specified execution context
+
+    See Also
+    --------
+    :py:obj:`~.cudaGreenCtxCreate`, :py:obj:`~.cudaExecutionCtxDestroy`, :py:obj:`~.cuCtxGetDevice`
+    """
+    cdef cyruntime.cudaExecutionContext_t cyctx
+    if ctx is None:
+        pctx = 0
+    elif isinstance(ctx, (cudaExecutionContext_t,)):
+        pctx = int(ctx)
+    else:
+        pctx = int(cudaExecutionContext_t(ctx))
+    cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+    cdef int device = 0
+    with nogil:
+        err = cyruntime.cudaExecutionCtxGetDevice(&device, cyctx)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], device)
+{{endif}}
+
+{{if 'cudaExecutionCtxGetId' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaExecutionCtxGetId(ctx):
+    """ Returns the unique Id associated with the execution context supplied.
+
+    Returns in `ctxId` the unique Id which is associated with a given
+    context. The Id is unique for the life of the program for this instance
+    of CUDA. The execution context should not be NULL.
+
+    Parameters
+    ----------
+    ctx : :py:obj:`~.cudaExecutionContext_t`
+        Context for which to obtain the Id (required parameter, see note
+        below)
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotPermitted`
+    ctxId : unsigned long long
+        Pointer to store the Id of the context
+
+    See Also
+    --------
+    :py:obj:`~.cudaGreenCtxCreate`, :py:obj:`~.cudaExecutionCtxDestroy`, :py:obj:`~.cudaExecutionCtxGetDevice`, :py:obj:`~.cuCtxGetId`
+    """
+    cdef cyruntime.cudaExecutionContext_t cyctx
+    if ctx is None:
+        pctx = 0
+    elif isinstance(ctx, (cudaExecutionContext_t,)):
+        pctx = int(ctx)
+    else:
+        pctx = int(cudaExecutionContext_t(ctx))
+    cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+    cdef unsigned long long ctxId = 0
+    with nogil:
+        err = cyruntime.cudaExecutionCtxGetId(cyctx, &ctxId)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], ctxId)
+{{endif}}
+
+{{if 'cudaExecutionCtxStreamCreate' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaExecutionCtxStreamCreate(ctx, unsigned int flags, int priority):
+    """ Creates a stream and initializes it for the given execution context.
+
+    The API creates a CUDA stream with the specified `flags` and
+    `priority`, initializing it with resources as defined at the time of
+    creating the specified `ctx`. Additionally, the API also enables work
+    submitted to to the stream to be tracked under `ctx`.
+
+    The supported values for `flags` are:
+
+    - :py:obj:`~.cudaStreamDefault`: Default stream creation flag. This
+      would be :py:obj:`~.cudaStreamNonBlocking` for streams created on a
+      green context.
+
+    - :py:obj:`~.cudaStreamNonBlocking`: Specifies that work running in the
+      created stream may run concurrently with work in stream 0 (the NULL
+      stream), and that the created stream should perform no implicit
+      synchronization with stream 0
+
+    Specifying `priority` affects the scheduling priority of work in the
+    stream. Priorities provide a hint to preferentially run work with
+    higher priority when possible, but do not preempt already-running work
+    or provide any other functional guarantee on execution order.
+    `priority` follows a convention where lower numbers represent higher
+    priorities. '0' represents default priority. The range of meaningful
+    numerical priorities can be queried using
+    :py:obj:`~.cudaDeviceGetStreamPriorityRange`. If the specified priority
+    is outside the numerical range returned by
+    :py:obj:`~.cudaDeviceGetStreamPriorityRange`, it will automatically be
+    clamped to the lowest or the highest number in the range.
+
+    Parameters
+    ----------
+    ctx : :py:obj:`~.cudaExecutionContext_t`
+        Execution context to initialize the stream with (required
+        parameter, see note below)
+    flags : unsigned int
+        Flags for stream creation
+    priority : int
+        Stream priority
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorNotPermitted`, :py:obj:`~.cudaErrorOutOfMemory`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`
+    phStream : :py:obj:`~.cudaStream_t`
+        Returned stream handle
+
+    See Also
+    --------
+    :py:obj:`~.cudaStreamDestroy`, :py:obj:`~.cudaGreenCtxCreate`, :py:obj:`~.cudaDeviceGetStreamPriorityRange`, :py:obj:`~.cudaStreamGetFlags`, :py:obj:`~.cudaStreamGetPriority`, :py:obj:`~.cudaStreamGetDevice`, :py:obj:`~.cudaStreamGetDevResource`, :py:obj:`~.cudaLaunchKernel`, :py:obj:`~.cudaEventRecord`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cudaStreamQuery`, :py:obj:`~.cudaStreamSynchronize`, :py:obj:`~.cudaStreamAddCallback`
+
+    Notes
+    -----
+    In the current implementation, only compute kernels launched in priority streams are affected by the stream's priority. Stream priorities have no effect on host-to-device and device-to-host memory operations.
+    """
+    cdef cyruntime.cudaExecutionContext_t cyctx
+    if ctx is None:
+        pctx = 0
+    elif isinstance(ctx, (cudaExecutionContext_t,)):
+        pctx = int(ctx)
+    else:
+        pctx = int(cudaExecutionContext_t(ctx))
+    cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+    cdef cudaStream_t phStream = cudaStream_t()
+    with nogil:
+        err = cyruntime.cudaExecutionCtxStreamCreate(<cyruntime.cudaStream_t*>phStream._pvt_ptr, cyctx, flags, priority)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], phStream)
+{{endif}}
+
+{{if 'cudaExecutionCtxSynchronize' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaExecutionCtxSynchronize(ctx):
+    """ Block for the specified execution context's tasks to complete.
+
+    Blocks until the specified execution context has completed all
+    preceding requested tasks. If the specified execution context is the
+    device (primary) context obtained via
+    :py:obj:`~.cudaDeviceGetExecutionCtx`, green contexts that have been
+    created on the device will also be synchronized.
+
+    The API returns an error if one of the preceding tasks failed.
+
+    Parameters
+    ----------
+    ctx : :py:obj:`~.cudaExecutionContext_t`
+        Execution context to synchronize (required parameter, see note
+        below)
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorDeviceUninitialized`, :py:obj:`~.cudaErrorInvalidValue`
+
+    See Also
+    --------
+    :py:obj:`~.cudaGreenCtxCreate`, :py:obj:`~.cudaExecutionCtxDestroy`, :py:obj:`~.cudaDeviceSynchronize`, :py:obj:`~.cuCtxSynchronize_v2`
+    """
+    cdef cyruntime.cudaExecutionContext_t cyctx
+    if ctx is None:
+        pctx = 0
+    elif isinstance(ctx, (cudaExecutionContext_t,)):
+        pctx = int(ctx)
+    else:
+        pctx = int(cudaExecutionContext_t(ctx))
+    cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+    with nogil:
+        err = cyruntime.cudaExecutionCtxSynchronize(cyctx)
+    return (_dict_cudaError_t[err],)
+{{endif}}
+
+{{if 'cudaStreamGetDevResource' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaStreamGetDevResource(hStream, typename not None : cudaDevResourceType):
+    """ Get stream resources.
+
+    Get the `typename` resources available to the `hStream` and store them
+    in `resource`.
+
+    Note: The API will return :py:obj:`~.cudaErrorInvalidResourceType` is
+    `typename` is `cudaDevResourceTypeWorkqueueConfig` or
+    `cudaDevResourceTypeWorkqueue`.
+
+    Parameters
+    ----------
+    hStream : :py:obj:`~.CUstream` or :py:obj:`~.cudaStream_t`
+        Stream to get resource for
+    typename : :py:obj:`~.cudaDevResourceType`
+        Type of resource to retrieve
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorDeviceUninitialized`, :py:obj:`~.cudaErrorInvalidResourceType`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidHandle`, :py:obj:`~.cudaErrorNotPermitted`, :py:obj:`~.cudaErrorCallRequiresNewerDriver`,
+    resource : :py:obj:`~.cudaDevResource`
+        Output pointer to a cudaDevResource structure
+
+    See Also
+    --------
+    :py:obj:`~.cudaGreenCtxCreate`, :py:obj:`~.cudaExecutionCtxStreamCreate`, :py:obj:`~.cudaStreamCreate`, :py:obj:`~.cudaDevSmResourceSplit`, :py:obj:`~.cudaDevResourceGenerateDesc`, :py:obj:`~.cuStreamGetDevResource`
+    """
+    cdef cyruntime.cudaStream_t cyhStream
+    if hStream is None:
+        phStream = 0
+    elif isinstance(hStream, (cudaStream_t,driver.CUstream)):
+        phStream = int(hStream)
+    else:
+        phStream = int(cudaStream_t(hStream))
+    cyhStream = <cyruntime.cudaStream_t><void_ptr>phStream
+    cdef cudaDevResource resource = cudaDevResource()
+    cdef cyruntime.cudaDevResourceType cytypename = typename.value
+    with nogil:
+        err = cyruntime.cudaStreamGetDevResource(cyhStream, <cyruntime.cudaDevResource*>resource._pvt_ptr, cytypename)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], resource)
+{{endif}}
+
+{{if 'cudaExecutionCtxRecordEvent' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaExecutionCtxRecordEvent(ctx, event):
+    """ Records an event for the specified execution context.
+
+    Captures in `event` all the activities of the execution context `ctx`
+    at the time of this call. `event` and `ctx` must be from the same CUDA
+    device, otherwise :py:obj:`~.cudaErrorInvalidHandle` will be returned.
+    Calls such as :py:obj:`~.cudaEventQuery()` or
+    :py:obj:`~.cudaExecutionCtxWaitEvent()` will then examine or wait for
+    completion of the work that was captured. Uses of `ctx` after this call
+    do not modify `event`. If the execution context passed to `ctx` is the
+    device (primary) context obtained via
+    :py:obj:`~.cudaDeviceGetExecutionCtx()`, `event` will capture all the
+    activities of the green contexts created on the device as well.
+
+    Parameters
+    ----------
+    ctx : :py:obj:`~.cudaExecutionContext_t`
+        Execution context to record event for (required parameter, see note
+        below)
+    event : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+        Event to record
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorInvalidHandle`, :py:obj:`~.cudaErrorStreamCaptureUnsupported`
+
+    See Also
+    --------
+    :py:obj:`~.cudaEventRecord`, :py:obj:`~.cudaExecutionCtxWaitEvent`, :py:obj:`~.cuCtxRecordEvent`, :py:obj:`~.cuGreenCtxRecordEvent`
+
+    Notes
+    -----
+    The API will return :py:obj:`~.cudaErrorStreamCaptureUnsupported` if the specified execution context `ctx` has a stream in the capture mode. In such a case, the call will invalidate all the conflicting captures.
+    """
+    cdef cyruntime.cudaEvent_t cyevent
+    if event is None:
+        pevent = 0
+    elif isinstance(event, (cudaEvent_t,driver.CUevent)):
+        pevent = int(event)
+    else:
+        pevent = int(cudaEvent_t(event))
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cdef cyruntime.cudaExecutionContext_t cyctx
+    if ctx is None:
+        pctx = 0
+    elif isinstance(ctx, (cudaExecutionContext_t,)):
+        pctx = int(ctx)
+    else:
+        pctx = int(cudaExecutionContext_t(ctx))
+    cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+    with nogil:
+        err = cyruntime.cudaExecutionCtxRecordEvent(cyctx, cyevent)
+    return (_dict_cudaError_t[err],)
+{{endif}}
+
+{{if 'cudaExecutionCtxWaitEvent' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaExecutionCtxWaitEvent(ctx, event):
+    """ Make an execution context wait on an event.
+
+    Makes all future work submitted to execution context `ctx` wait for all
+    work captured in `event`. The synchronization will be performed on the
+    device and will not block the calling CPU thread. See
+    :py:obj:`~.cudaExecutionCtxRecordEvent()` for details on what is
+    captured by an event. If the execution context passed to `ctx` is the
+    device (primary) context obtained via
+    :py:obj:`~.cudaDeviceGetExecutionCtx()`, all green contexts created on
+    the device will wait for `event` as well.
+
+    Parameters
+    ----------
+    ctx : :py:obj:`~.cudaExecutionContext_t`
+        Execution context to wait for (required parameter, see note below)
+    event : :py:obj:`~.CUevent` or :py:obj:`~.cudaEvent_t`
+        Event to wait on
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorCudartUnloading`, :py:obj:`~.cudaErrorInitializationError`, :py:obj:`~.cudaErrorInvalidHandle`, :py:obj:`~.cudaErrorStreamCaptureUnsupported`
+
+    See Also
+    --------
+    :py:obj:`~.cudaExecutionCtxRecordEvent`, :py:obj:`~.cudaStreamWaitEvent`, :py:obj:`~.cuCtxWaitEvent`, :py:obj:`~.cuGreenCtxWaitEvent`
+
+    Notes
+    -----
+    `event` may be from a different execution context or device than `ctx`.
+
+    The API will return :py:obj:`~.cudaErrorStreamCaptureUnsupported` and invalidate the capture if the specified event `event` is part of an ongoing capture sequence or if the specified execution context `ctx` has a stream in the capture mode.
+    """
+    cdef cyruntime.cudaEvent_t cyevent
+    if event is None:
+        pevent = 0
+    elif isinstance(event, (cudaEvent_t,driver.CUevent)):
+        pevent = int(event)
+    else:
+        pevent = int(cudaEvent_t(event))
+    cyevent = <cyruntime.cudaEvent_t><void_ptr>pevent
+    cdef cyruntime.cudaExecutionContext_t cyctx
+    if ctx is None:
+        pctx = 0
+    elif isinstance(ctx, (cudaExecutionContext_t,)):
+        pctx = int(ctx)
+    else:
+        pctx = int(cudaExecutionContext_t(ctx))
+    cyctx = <cyruntime.cudaExecutionContext_t><void_ptr>pctx
+    with nogil:
+        err = cyruntime.cudaExecutionCtxWaitEvent(cyctx, cyevent)
+    return (_dict_cudaError_t[err],)
+{{endif}}
+
+{{if 'cudaDeviceGetExecutionCtx' in found_functions}}
+
+@cython.embedsignature(True)
+def cudaDeviceGetExecutionCtx(int device):
+    """ Returns the execution context for a device.
+
+    Returns in `ctx` the execution context for the specified device. This
+    is the device's primary context. The returned context can then be
+    passed to APIs that take in a cudaExecutionContext_t enabling explicit
+    context-based programming without relying on thread-local state.
+
+    Passing the returned execution context to
+    :py:obj:`~.cudaExecutionCtxDestroy()` is not allowed and will result in
+    undefined behavior.
+
+    Parameters
+    ----------
+    device : int
+        Device to get the execution context for
+
+    Returns
+    -------
+    cudaError_t
+        :py:obj:`~.cudaSuccess`, :py:obj:`~.cudaErrorInvalidValue`, :py:obj:`~.cudaErrorInvalidDevice`
+    ctx : :py:obj:`~.cudaExecutionContext_t`
+        Returns the device execution context
+
+    See Also
+    --------
+    :py:obj:`~.cudaExecutionCtxGetDevice`, :py:obj:`~.cudaExecutionCtxGetId`
+    """
+    cdef cudaExecutionContext_t ctx = cudaExecutionContext_t()
+    with nogil:
+        err = cyruntime.cudaDeviceGetExecutionCtx(<cyruntime.cudaExecutionContext_t*>ctx._pvt_ptr, device)
+    if err != cyruntime.cudaSuccess:
+        return (_dict_cudaError_t[err], None)
+    return (_dict_cudaError_t[err], ctx)
 {{endif}}
 
 {{if 'cudaGetExportTable' in found_functions}}
@@ -37590,6 +39693,12 @@ def sizeof(objType):
     {{if 'dim3' in found_struct}}
     if objType == dim3:
         return sizeof(cyruntime.dim3){{endif}}
+    {{if 'cudaDevResourceDesc_t' in found_types}}
+    if objType == cudaDevResourceDesc_t:
+        return sizeof(cyruntime.cudaDevResourceDesc_t){{endif}}
+    {{if 'cudaExecutionContext_t' in found_types}}
+    if objType == cudaExecutionContext_t:
+        return sizeof(cyruntime.cudaExecutionContext_t){{endif}}
     {{if 'cudaChannelFormatDesc' in found_struct}}
     if objType == cudaChannelFormatDesc:
         return sizeof(cyruntime.cudaChannelFormatDesc){{endif}}
@@ -37740,6 +39849,27 @@ def sizeof(objType):
     {{if 'cudaExternalSemaphoreWaitParams' in found_struct}}
     if objType == cudaExternalSemaphoreWaitParams:
         return sizeof(cyruntime.cudaExternalSemaphoreWaitParams){{endif}}
+    {{if 'cudaDevSmResource' in found_struct}}
+    if objType == cudaDevSmResource:
+        return sizeof(cyruntime.cudaDevSmResource){{endif}}
+    {{if 'cudaDevWorkqueueConfigResource' in found_struct}}
+    if objType == cudaDevWorkqueueConfigResource:
+        return sizeof(cyruntime.cudaDevWorkqueueConfigResource){{endif}}
+    {{if 'cudaDevWorkqueueResource' in found_struct}}
+    if objType == cudaDevWorkqueueResource:
+        return sizeof(cyruntime.cudaDevWorkqueueResource){{endif}}
+    {{if 'cudaDevSmResourceGroupParams_st' in found_struct}}
+    if objType == cudaDevSmResourceGroupParams_st:
+        return sizeof(cyruntime.cudaDevSmResourceGroupParams_st){{endif}}
+    {{if 'cudaDevSmResourceGroupParams' in found_types}}
+    if objType == cudaDevSmResourceGroupParams:
+        return sizeof(cyruntime.cudaDevSmResourceGroupParams){{endif}}
+    {{if 'cudaDevResource_st' in found_struct}}
+    if objType == cudaDevResource_st:
+        return sizeof(cyruntime.cudaDevResource_st){{endif}}
+    {{if 'cudaDevResource' in found_types}}
+    if objType == cudaDevResource:
+        return sizeof(cyruntime.cudaDevResource){{endif}}
     {{if 'cudaStream_t' in found_types}}
     if objType == cudaStream_t:
         return sizeof(cyruntime.cudaStream_t){{endif}}
@@ -37945,6 +40075,14 @@ def sizeof(objType):
 
 cdef int _add_native_handle_getters() except?-1:
     from cuda.bindings.utils import _add_cuda_native_handle_getter
+    {{if 'cudaDevResourceDesc_t' in found_types}}
+    def cudaDevResourceDesc_t_getter(cudaDevResourceDesc_t x): return <uintptr_t><void*><cyruntime.cudaDevResourceDesc_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaDevResourceDesc_t, cudaDevResourceDesc_t_getter)
+    {{endif}}
+    {{if 'cudaExecutionContext_t' in found_types}}
+    def cudaExecutionContext_t_getter(cudaExecutionContext_t x): return <uintptr_t><void*><cyruntime.cudaExecutionContext_t>(x._pvt_ptr[0])
+    _add_cuda_native_handle_getter(cudaExecutionContext_t, cudaExecutionContext_t_getter)
+    {{endif}}
     {{if 'cudaArray_t' in found_types}}
     def cudaArray_t_getter(cudaArray_t x): return <uintptr_t><void*><cyruntime.cudaArray_t>(x._pvt_ptr[0])
     _add_cuda_native_handle_getter(cudaArray_t, cudaArray_t_getter)

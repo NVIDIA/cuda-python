@@ -52,7 +52,7 @@ body:
     attributes:
       label: Describe the bug
       description: A clear and concise description of what problem you are running into.
-      placeholder: "Attempting to compile a program via `cuda.core.experimental.Program.compile` throws a `ValueError`."
+      placeholder: "Attempting to compile a program via `cuda.core.Program.compile` throws a `ValueError`."
     validations:
       required: true
 
@@ -62,7 +62,7 @@ body:
       label: How to Reproduce
       description: Steps used to reproduce the bug.
       placeholder: |
-        0. Construct a `cuda.core.experimental.Program` instance
+        0. Construct a `cuda.core.Program` instance
         1. Call the `.compile(...)` method of the instance
         2. The call throws a `ValueError` with the following:
         ```
@@ -76,7 +76,7 @@ body:
     attributes:
       label: Expected behavior
       description: A clear and concise description of what you expected to happen.
-      placeholder: "Using `cuda.core.experimental.Program.compile(...)` should run successfully and not throw a `ValueError`"
+      placeholder: "Using `cuda.core.Program.compile(...)` should run successfully and not throw a `ValueError`"
     validations:
       required: true
 

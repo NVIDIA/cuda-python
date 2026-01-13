@@ -321,6 +321,71 @@ Data types used by CUDA driver
 
         When using stream capture, create an event wait node instead of the default behavior. This flag is invalid when used outside of capture.
 
+.. autoclass:: cuda.bindings.driver.CUatomicOperation
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_ADD
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_MIN
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_MAX
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_INCREMENT
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_DECREMENT
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_AND
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_OR
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_XOR
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_EXCHANGE
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_CAS
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_FLOAT_ADD
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_FLOAT_MIN
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_FLOAT_MAX
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_MAX
+
+.. autoclass:: cuda.bindings.driver.CUatomicOperationCapability
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_SIGNED
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_UNSIGNED
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_REDUCTION
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_SCALAR_32
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_SCALAR_64
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_SCALAR_128
+
+
+    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_VECTOR_32x4
+
 .. autoclass:: cuda.bindings.driver.CUstreamWaitValue_flags
 
     .. autoattribute:: cuda.bindings.driver.CUstreamWaitValue_flags.CU_STREAM_WAIT_VALUE_GEQ
@@ -397,6 +462,12 @@ Data types used by CUDA driver
         Insert a memory barrier of the specified type
 
 
+    .. autoattribute:: cuda.bindings.driver.CUstreamBatchMemOpType.CU_STREAM_MEM_OP_ATOMIC_REDUCTION
+
+
+        Perform a atomic reduction. See :py:obj:`~.CUstreamBatchMemOpParams`::atomicReduction
+
+
     .. autoattribute:: cuda.bindings.driver.CUstreamBatchMemOpType.CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES
 
 
@@ -414,6 +485,32 @@ Data types used by CUDA driver
 
 
         Limit memory barrier scope to the GPU.
+
+.. autoclass:: cuda.bindings.driver.CUstreamAtomicReductionOpType
+
+    .. autoattribute:: cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_OR
+
+
+        Performs an atomic OR: *(address) = *(address) | value
+
+
+    .. autoattribute:: cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_AND
+
+
+        Performs an atomic AND: *(address) = *(address) & value
+
+
+    .. autoattribute:: cuda.bindings.driver.CUstreamAtomicReductionOpType.CU_STREAM_ATOMIC_REDUCTION_OP_ADD
+
+
+        Performs an atomic ADD: *(address) = *(address) + value
+
+.. autoclass:: cuda.bindings.driver.CUstreamAtomicReductionDataType
+
+    .. autoattribute:: cuda.bindings.driver.CUstreamAtomicReductionDataType.CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_32
+
+
+    .. autoattribute:: cuda.bindings.driver.CUstreamAtomicReductionDataType.CU_STREAM_ATOMIC_REDUCTION_UNSIGNED_64
 
 .. autoclass:: cuda.bindings.driver.CUoccupancy_flags
 
@@ -754,6 +851,90 @@ Data types used by CUDA driver
 
 
         4 channel unorm R10G10B10A2 RGB format
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_PACKED_422
+
+
+        4 channel unsigned 8-bit YUV packed format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_PACKED_444
+
+
+        4 channel unsigned 8-bit YUV packed format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_SEMIPLANAR_420
+
+
+        3 channel unsigned 8-bit YUV semi-planar format, with 4:2:0 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT16_SEMIPLANAR_420
+
+
+        3 channel unsigned 16-bit YUV semi-planar format, with 4:2:0 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_SEMIPLANAR_422
+
+
+        3 channel unsigned 8-bit YUV semi-planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT16_SEMIPLANAR_422
+
+
+        3 channel unsigned 16-bit YUV semi-planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_SEMIPLANAR_444
+
+
+        3 channel unsigned 8-bit YUV semi-planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT16_SEMIPLANAR_444
+
+
+        3 channel unsigned 16-bit YUV semi-planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_PLANAR_420
+
+
+        3 channel unsigned 8-bit YUV planar format, with 4:2:0 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT16_PLANAR_420
+
+
+        3 channel unsigned 16-bit YUV planar format, with 4:2:0 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_PLANAR_422
+
+
+        3 channel unsigned 8-bit YUV planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT16_PLANAR_422
+
+
+        3 channel unsigned 16-bit YUV planar format, with 4:2:2 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT8_PLANAR_444
+
+
+        3 channel unsigned 8-bit YUV planar format, with 4:4:4 sampling
+
+
+    .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_UINT16_PLANAR_444
+
+
+        3 channel unsigned 16-bit YUV planar format, with 4:4:4 sampling
 
 
     .. autoattribute:: cuda.bindings.driver.CUarray_format.CU_AD_FORMAT_MAX
@@ -1716,6 +1897,12 @@ Data types used by CUDA driver
         Link between the device and the host supports only some native atomic operations
 
 
+    .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_ATOMIC_REDUCTION_SUPPORTED
+
+
+        Device supports atomic reduction operations in stream batch memory operations
+
+
     .. autoattribute:: cuda.bindings.driver.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX
 
 .. autoclass:: cuda.bindings.driver.CUpointer_attribute
@@ -2520,6 +2707,14 @@ Data types used by CUDA driver
         This option specifies the maximum number of concurrent threads to use when running compiler optimizations. If the specified value is 1, the option will be ignored. If the specified value is 0, the number of threads will match the number of CPUs on the underlying machine. Otherwise, if the option is N, then up to N threads will be used. Option type: unsigned int
 
         Applies to: compiler only
+
+
+    .. autoattribute:: cuda.bindings.driver.CUjit_option.CU_JIT_BINARY_LOADER_THREAD_COUNT
+
+
+        This option specifies the maximum number of concurrent threads to use when compiling device code. If the specified value is 1, the option will be ignored. If the specified value is 0, the number of threads will match the number of CPUs on the underlying machine. Otherwise, if the option is N, then up to N threads will be used. This option is ignored if the env var CUDA_BINARY_LOADER_THREAD_COUNT is set. Option type: unsigned int
+
+        Applies to: compiler and linker
 
 
     .. autoattribute:: cuda.bindings.driver.CUjit_option.CU_JIT_NUM_OPTIONS
@@ -4035,6 +4230,12 @@ Data types used by CUDA driver
         This error indicates that an error happened during the key rotation sequence.
 
 
+    .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_STREAM_DETACHED
+
+
+        This error indicates that the requested operation is not permitted because the stream is in a detached state. This can occur if the green context associated with the stream has been destroyed, limiting the stream's operational capabilities.
+
+
     .. autoattribute:: cuda.bindings.driver.CUresult.CUDA_ERROR_UNKNOWN
 
 
@@ -4076,71 +4277,6 @@ Data types used by CUDA driver
 
 
         Only some CUDA-valid atomic operations over the link are supported.
-
-.. autoclass:: cuda.bindings.driver.CUatomicOperation
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_ADD
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_MIN
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_MAX
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_INCREMENT
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_INTEGER_DECREMENT
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_AND
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_OR
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_XOR
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_EXCHANGE
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_CAS
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_FLOAT_ADD
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_FLOAT_MIN
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_FLOAT_MAX
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperation.CU_ATOMIC_OPERATION_MAX
-
-.. autoclass:: cuda.bindings.driver.CUatomicOperationCapability
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_SIGNED
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_UNSIGNED
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_REDUCTION
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_SCALAR_32
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_SCALAR_64
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_SCALAR_128
-
-
-    .. autoattribute:: cuda.bindings.driver.CUatomicOperationCapability.CU_ATOMIC_CAPABILITY_VECTOR_32x4
 
 .. autoclass:: cuda.bindings.driver.CUresourceViewFormat
 
@@ -6701,7 +6837,7 @@ This section describes the CUDA multicast object operations exposed by the low-l
 
 
 
-A multicast object created via cuMulticastCreate enables certain memory operations to be broadcast to a team of devices. Devices can be added to a multicast object via cuMulticastAddDevice. Memory can be bound on each participating device via either cuMulticastBindMem or cuMulticastBindAddr. Multicast objects can be mapped into a device's virtual address space using the virtual memmory management APIs (see cuMemMap and cuMemSetAccess).
+A multicast object created via cuMulticastCreate enables certain memory operations to be broadcast to a team of devices. Devices can be added to a multicast object via cuMulticastAddDevice. Memory can be bound on each participating device via cuMulticastBindMem, cuMulticastBindMem_v2, cuMulticastBindAddr, or cuMulticastBindAddr_v2. Multicast objects can be mapped into a device's virtual address space using the virtual memmory management APIs (see cuMemMap and cuMemSetAccess).
 
 
 
@@ -6716,7 +6852,9 @@ Support for multicast on a specific device can be queried using the device attri
 .. autofunction:: cuda.bindings.driver.cuMulticastCreate
 .. autofunction:: cuda.bindings.driver.cuMulticastAddDevice
 .. autofunction:: cuda.bindings.driver.cuMulticastBindMem
+.. autofunction:: cuda.bindings.driver.cuMulticastBindMem_v2
 .. autofunction:: cuda.bindings.driver.cuMulticastBindAddr
+.. autofunction:: cuda.bindings.driver.cuMulticastBindAddr_v2
 .. autofunction:: cuda.bindings.driver.cuMulticastUnbind
 .. autofunction:: cuda.bindings.driver.cuMulticastGetGranularity
 
@@ -6974,6 +7112,11 @@ This section describes the graph management functions of the low-level CUDA driv
 .. autofunction:: cuda.bindings.driver.cuGraphClone
 .. autofunction:: cuda.bindings.driver.cuGraphNodeFindInClone
 .. autofunction:: cuda.bindings.driver.cuGraphNodeGetType
+.. autofunction:: cuda.bindings.driver.cuGraphNodeGetContainingGraph
+.. autofunction:: cuda.bindings.driver.cuGraphNodeGetLocalId
+.. autofunction:: cuda.bindings.driver.cuGraphNodeGetToolsId
+.. autofunction:: cuda.bindings.driver.cuGraphGetId
+.. autofunction:: cuda.bindings.driver.cuGraphExecGetId
 .. autofunction:: cuda.bindings.driver.cuGraphGetNodes
 .. autofunction:: cuda.bindings.driver.cuGraphGetRootNodes
 .. autofunction:: cuda.bindings.driver.cuGraphGetEdges
@@ -7142,6 +7285,9 @@ This section describes the coredump attribute control functions of the low-level
     .. autoattribute:: cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_SKIP_CONSTBANK_MEMORY
 
 
+    .. autoattribute:: cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_GZIP_COMPRESS
+
+
     .. autoattribute:: cuda.bindings.driver.CUCoredumpGenerationFlags.CU_COREDUMP_LIGHTWEIGHT_FLAGS
 
 .. autofunction:: cuda.bindings.driver.cuCoredumpGetAttribute
@@ -7152,21 +7298,21 @@ This section describes the coredump attribute control functions of the low-level
 Green Contexts
 --------------
 
-This section describes the APIs for creation and manipulation of green contexts in the CUDA driver. Green contexts are a lightweight alternative to traditional contexts, with the ability to pass in a set of resources that they should be initialized with. This allows the developer to represent distinct spatial partitions of the GPU, provision resources for them, and target them via the same programming model that CUDA exposes (streams, kernel launches, etc.).
+This section describes the APIs for creation and manipulation of green contexts in the CUDA driver. Green contexts are a lightweight alternative to traditional contexts, that can be used to select a subset of device resources. This allows the developer to, for example, select SMs from distinct spatial partitions of the GPU and target them via CUDA stream operations, kernel launches, etc.
 
 
 
-There are 4 main steps to using these new set of APIs.
+Here are the broad initial steps to follow to get started:
 
-- (1) Start with an initial set of resources, for example via cuDeviceGetDevResource. Only SM type is supported today.
-
-
+- (1) Start with an initial set of resources. For SM resources, they can be fetched via cuDeviceGetDevResource. In case of workqueues, a new configuration can be used or an existing one queried via the cuDeviceGetDevResource API.
 
 
 
 
 
-- (2) Partition this set of resources by providing them as input to a partition API, for example: cuDevSmResourceSplitByCount.
+
+
+- (2) Modify these resources by either partitioning them (in case of SMs) or changing the configuration (in case of workqueues). To partition SMs, we recommend cuDevSmResourceSplit. Changing the workqueue configuration can be done directly in place.
 
 
 
@@ -7182,7 +7328,15 @@ There are 4 main steps to using these new set of APIs.
 
 
 
-- (4) Provision the resources and create a green context via cuGreenCtxCreate.
+- (4) Create a green context via cuGreenCtxCreate. This provisions the resource, such as workqueues (until this step it was only a configuration specification).
+
+
+
+
+
+
+
+- (5) Create a stream via cuGreenCtxStreamCreate, and use it throughout your application.
 
 
 
@@ -7194,29 +7348,23 @@ There are 4 main steps to using these new set of APIs.
 
 
 
-For ``CU_DEV_RESOURCE_TYPE_SM``\ , the partitions created have minimum SM count requirements, often rounding up and aligning the minCount provided to cuDevSmResourceSplitByCount. These requirements can be queried with cuDeviceGetDevResource from step (1) above to determine the minimum partition size (``sm.minSmPartitionSize``\ ) and alignment granularity (``sm.smCoscheduledAlignment``\ ).
 
 
-
-While it's recommended to use cuDeviceGetDevResource for accurate information, here is a guideline for each compute architecture:
-
-- On Compute Architecture 6.X: The minimum count is 2 SMs and must be a multiple of 2.
+SMs
 
 
 
 
 
+There are two possible partition operations - with cuDevSmResourceSplitByCount the partitions created have to follow default SM count granularity requirements, so it will often be rounded up and aligned to a default value. On the other hand, cuDevSmResourceSplit is explicit and allows for creation of non-equal groups. It will not round up automatically - instead it is the developer’s responsibility to query and set the correct values. These requirements can be queried with cuDeviceGetDevResource to determine the alignment granularity (sm.smCoscheduledAlignment). A general guideline on the default values for each compute architecture:
 
-
-- On Compute Architecture 7.X: The minimum count is 2 SMs and must be a multiple of 2.
-
-
+- On Compute Architecture 7.X, 8.X, and all Tegra SoC:
 
 
 
 
 
-- On Compute Architecture 8.X: The minimum count is 4 SMs and must be a multiple of 2.
+  - The smCount must be a multiple of 2.
 
 
 
@@ -7224,7 +7372,7 @@ While it's recommended to use cuDeviceGetDevResource for accurate information, h
 
 
 
-- On Compute Architecture 9.0+: The minimum count is 8 SMs and must be a multiple of 8.
+  - The alignment (and default value of coscheduledSmCount) is 2.
 
 
 
@@ -7234,13 +7382,85 @@ While it's recommended to use cuDeviceGetDevResource for accurate information, h
 
 
 
+- On Compute Architecture 9.0+:
 
 
-In the future, flags can be provided to tradeoff functional and performance characteristics versus finer grained SM partitions.
 
 
 
-Even if the green contexts have disjoint SM partitions, it is not guaranteed that the kernels launched in them will run concurrently or have forward progress guarantees. This is due to other resources (like HW connections, see ::CUDA_DEVICE_MAX_CONNECTIONS) that could cause a dependency. Additionally, in certain scenarios, it is possible for the workload to run on more SMs than was provisioned (but never less). The following are two scenarios which can exhibit this behavior:
+  - The smCount must be a multiple of 8, or coscheduledSmCount if provided.
+
+
+
+
+
+
+
+  - The alignment (and default value of coscheduledSmCount) is 8. While the maximum value for coscheduled SM count is 32 on all Compute Architecture 9.0+, it's recommended to follow cluster size requirements. The portable cluster size and the max cluster size should be used in order to benefit from this co-scheduling.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Workqueues
+
+
+
+
+
+For ``CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG``\ , the resource specifies the expected maximum number of concurrent stream-ordered workloads via the ``wqConcurrencyLimit``\  field. The ``sharingScope``\  field determines how workqueue resources are shared:
+
+- ``CU_WORKQUEUE_SCOPE_DEVICE_CTX:``\  Use all shared workqueue resources across all contexts (default driver behavior).
+
+
+
+
+
+
+
+- ``CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED:``\  When possible, use non-overlapping workqueue resources with other balanced green contexts.
+
+
+
+
+
+
+
+
+
+
+
+The maximum concurrency limit depends on ::CUDA_DEVICE_MAX_CONNECTIONS and can be queried from the primary context via cuCtxGetDevResource. Configurations may exceed this concurrency limit, but the driver will not guarantee that work submission remains non-overlapping.
+
+
+
+For ``CU_DEV_RESOURCE_TYPE_WORKQUEUE``\ , the resource represents a pre-existing workqueue that can be retrieved from existing contexts or green contexts. This allows reusing workqueue resources across different green contexts.
+
+
+
+
+
+On Concurrency
+
+
+
+
+
+Even if the green contexts have disjoint SM partitions, it is not guaranteed that the kernels launched in them will run concurrently or have forward progress guarantees. This is due to other resources that could cause a dependency. Using a combination of disjoint SMs and CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED workqueue configurations can provide the best chance of avoiding interference. More resources will be added in the future to provide stronger guarantees.
+
+
+
+Additionally, there are two known scenarios, where its possible for the workload to run on more SMs than was provisioned (but never less).
 
 - On Volta+ MPS: When ``CUDA_MPS_ACTIVE_THREAD_PERCENTAGE``\  is used, the set of SMs that are used for running kernels can be scaled up to the value of SMs used for the MPS client.
 
@@ -7253,8 +7473,14 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 - On Compute Architecture 9.x: When a module with dynamic parallelism (CDP) is loaded, all future kernels running under green contexts may use and share an additional set of 2 SMs.
 
 .. autoclass:: cuda.bindings.driver.CUdevSmResource_st
+.. autoclass:: cuda.bindings.driver.CUdevWorkqueueConfigResource_st
+.. autoclass:: cuda.bindings.driver.CUdevWorkqueueResource_st
+.. autoclass:: cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS_st
 .. autoclass:: cuda.bindings.driver.CUdevResource_st
 .. autoclass:: cuda.bindings.driver.CUdevSmResource
+.. autoclass:: cuda.bindings.driver.CUdevWorkqueueConfigResource
+.. autoclass:: cuda.bindings.driver.CUdevWorkqueueResource
+.. autoclass:: cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS
 .. autoclass:: cuda.bindings.driver.CUdevResource
 .. autoclass:: cuda.bindings.driver.CUgreenCtxCreate_flags
 
@@ -7263,12 +7489,19 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 
         Required. Creates a default stream to use inside the green context
 
-.. autoclass:: cuda.bindings.driver.CUdevSmResourceSplit_flags
+.. autoclass:: cuda.bindings.driver.CUdevSmResourceGroup_flags
 
-    .. autoattribute:: cuda.bindings.driver.CUdevSmResourceSplit_flags.CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING
+    .. autoattribute:: cuda.bindings.driver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_DEFAULT
 
 
-    .. autoattribute:: cuda.bindings.driver.CUdevSmResourceSplit_flags.CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE
+    .. autoattribute:: cuda.bindings.driver.CUdevSmResourceGroup_flags.CU_DEV_SM_RESOURCE_GROUP_BACKFILL
+
+.. autoclass:: cuda.bindings.driver.CUdevSmResourceSplitByCount_flags
+
+    .. autoattribute:: cuda.bindings.driver.CUdevSmResourceSplitByCount_flags.CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevSmResourceSplitByCount_flags.CU_DEV_SM_RESOURCE_SPLIT_MAX_POTENTIAL_CLUSTER_SIZE
 
 .. autoclass:: cuda.bindings.driver.CUdevResourceType
 
@@ -7280,8 +7513,36 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 
         Streaming multiprocessors related information
 
+
+    .. autoattribute:: cuda.bindings.driver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE_CONFIG
+
+
+        Workqueue configuration related information
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevResourceType.CU_DEV_RESOURCE_TYPE_WORKQUEUE
+
+
+        Pre-existing workqueue related information
+
+.. autoclass:: cuda.bindings.driver.CUdevWorkqueueConfigScope
+
+    .. autoattribute:: cuda.bindings.driver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_DEVICE_CTX
+
+
+        Use all shared workqueue resources across all contexts. Default driver behaviour.
+
+
+    .. autoattribute:: cuda.bindings.driver.CUdevWorkqueueConfigScope.CU_WORKQUEUE_SCOPE_GREEN_CTX_BALANCED
+
+
+        When possible, use non-overlapping workqueue resources with other balanced green contexts.
+
 .. autoclass:: cuda.bindings.driver.CUdevResourceDesc
 .. autoclass:: cuda.bindings.driver.CUdevSmResource
+.. autoclass:: cuda.bindings.driver.CUdevWorkqueueConfigResource
+.. autoclass:: cuda.bindings.driver.CUdevWorkqueueResource
+.. autoclass:: cuda.bindings.driver.CU_DEV_SM_RESOURCE_GROUP_PARAMS
 .. autofunction:: cuda.bindings.driver._CONCAT_OUTER
 .. autofunction:: cuda.bindings.driver.cuGreenCtxCreate
 .. autofunction:: cuda.bindings.driver.cuGreenCtxDestroy
@@ -7290,14 +7551,16 @@ Even if the green contexts have disjoint SM partitions, it is not guaranteed tha
 .. autofunction:: cuda.bindings.driver.cuCtxGetDevResource
 .. autofunction:: cuda.bindings.driver.cuGreenCtxGetDevResource
 .. autofunction:: cuda.bindings.driver.cuDevSmResourceSplitByCount
+.. autofunction:: cuda.bindings.driver.cuDevSmResourceSplit
 .. autofunction:: cuda.bindings.driver.cuDevResourceGenerateDesc
 .. autofunction:: cuda.bindings.driver.cuGreenCtxRecordEvent
 .. autofunction:: cuda.bindings.driver.cuGreenCtxWaitEvent
 .. autofunction:: cuda.bindings.driver.cuStreamGetGreenCtx
 .. autofunction:: cuda.bindings.driver.cuGreenCtxStreamCreate
 .. autofunction:: cuda.bindings.driver.cuGreenCtxGetId
+.. autofunction:: cuda.bindings.driver.cuStreamGetDevResource
 .. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_VERSION
-.. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_EXTERNAL_BYTES
+.. autoattribute:: cuda.bindings.driver.RESOURCE_ABI_BYTES
 .. autoattribute:: cuda.bindings.driver._CONCAT_INNER
 .. autoattribute:: cuda.bindings.driver._CONCAT_OUTER
 

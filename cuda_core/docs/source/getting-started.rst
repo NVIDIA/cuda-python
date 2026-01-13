@@ -1,7 +1,7 @@
 .. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 .. SPDX-License-Identifier: Apache-2.0
 
-.. currentmodule:: cuda.core.experimental
+.. currentmodule:: cuda.core
 
 Overview
 ========
@@ -59,7 +59,7 @@ Don't forget to use :meth:`Device.set_current`!
 .. code-block:: python
 
    import cupy as cp
-   from cuda.core.experimental import Device, LaunchConfig, Program, ProgramOptions, launch
+   from cuda.core import Device, LaunchConfig, Program, ProgramOptions, launch
 
    dev = Device()
    dev.set_current()

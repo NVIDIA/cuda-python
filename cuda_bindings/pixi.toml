@@ -1,0 +1,147 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+[workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "win-64"]
+preview = ["pixi-build"]
+
+[workspace.build-variants]
+python = ["3.10.*", "3.11.*", "3.12.*", "3.13.*", "3.14.*"]
+
+[dependencies]
+cuda-bindings = { path = "." }
+
+[feature.test.dependencies]
+pytest = ">=6.2.4"
+pytest-benchmark = ">=3.4.1"
+pytest-randomly = "*"
+pyglet = ">=2.1.9"
+numpy = "*"
+
+[feature.cython-tests.dependencies]
+cython = ">=3.2,<3.3" # for tests that exercise APIs from cython
+setuptools = "*"      # for distutils
+gxx = "*"             # to compile the generated code
+# These are necessary because running the Cython tests requires compiling
+# *after* the package is built, and the Cython tests depend on CUDA headers
+# transitively (through cuda-bindings)
+cuda-cudart-dev = "*"
+cuda-profiler-api = "*"
+
+[feature.cython-tests.target.linux-64.dependencies]
+cuda-crt-dev_linux-64 = "*"
+
+[feature.cython-tests.target.linux-aarch64.dependencies]
+cuda-crt-dev_linux-aarch64 = "*"
+
+[feature.cython-tests.target.win-64.dependencies]
+cuda-crt-dev_win-64 = "*"
+
+# For finding headers when building the Cython tests
+[feature.cython-tests.target.linux-64.activation.env]
+CUDA_HOME = "$CONDA_PREFIX/targets/x86_64-linux"
+
+[feature.cython-tests.target.linux-aarch64.activation.env]
+CUDA_HOME = "$CONDA_PREFIX/targets/sbsa-linux"
+
+[feature.cython-tests.target.win-64.activation.env]
+CUDA_HOME = '%CONDA_PREFIX%\Library'
+
+[feature.cu13.system-requirements]
+cuda = "13"
+
+[feature.cu13.dependencies]
+# TODO: make cuda-version a build-variant
+cuda-version = "13.1.*"
+
+[environments]
+default = { features = ["cu13", "test", "cython-tests"] }
+cu13 = { features = ["cu13", "test", "cython-tests"] }
+
+# TODO: check if these can be extracted from pyproject.toml
+[package]
+name = "cuda-bindings"
+version = "13.1.0"
+
+[package.build]
+backend = { name = "pixi-build-python", version = "*" }
+
+[package.build.config]
+compilers = ["c", "cxx"]
+
+[package.build.config.env]
+CUDA_PYTHON_PARSER_CACHING = "1"
+
+[package.build.target.linux-64.config.env]
+CUDA_HOME = "$PREFIX/targets/x86_64-linux"
+CUDA_PYTHON_PARALLEL_LEVEL = "$(nproc)"
+
+[package.build.target.linux-aarch64.config.env]
+CUDA_HOME = "$PREFIX/targets/sbsa-linux"
+CUDA_PYTHON_PARALLEL_LEVEL = "$(nproc)"
+
+[package.build.target.win-64.config.env]
+CUDA_HOME = '%PREFIX%\Library'
+
+# TODO: revisit this
+# [package.build-dependencies]
+# ccache = "*"
+
+[package.host-dependencies]
+python = "*"
+setuptools = ">=80"
+setuptools-scm = ">=8"
+cython = ">=3.2,<3.3"
+pyclibrary = ">=0.1.7"
+cuda-cudart-static = "*"
+cuda-nvrtc-dev = "*"
+cuda-profiler-api = "*"
+cuda-nvvm = "*"
+
+[package.target.linux.host-dependencies]
+libcufile-dev = "*"
+
+[package.target.linux-64.host-dependencies]
+cuda-crt-dev_linux-64 = "*"
+
+[package.target.linux-aarch64.host-dependencies]
+cuda-crt-dev_linux-aarch64 = "*"
+
+[package.target.win-64.host-dependencies]
+cuda-crt-dev_win-64 = "*"
+
+[package.run-dependencies]
+python = "*"
+cuda-pathfinder = ">=1.1,<2"
+libnvjitlink = "*"
+cuda-nvrtc = "*"
+cuda-nvvm = "*"
+
+[package.target.linux.run-dependencies]
+libcufile = "*"
+
+[target.linux.tasks.build-cython-tests]
+cmd = ["$PIXI_PROJECT_ROOT/tests/cython/build_tests.sh"]
+
+[target.win-64.tasks.build-cython-tests]
+cmd = ['%PIXI_PROJECT_ROOT%\tests\cython\build_tests.bat']
+
+[target.linux.tasks.test]
+cmd = [
+    "pytest",
+    "$PIXI_PROJECT_ROOT",
+    "--override-ini",
+    "norecursedirs=examples", # include cython tests (ignore by default config)
+]
+depends-on = [{ task = "build-cython-tests" }]
+
+[target.win-64.tasks.test]
+cmd = [
+    "pytest",
+    "%PIXI_PROJECT_ROOT%",
+    "--override-ini",
+    "norecursedirs=examples", # include cython tests (ignore by default config)
+]
+depends-on = [{ task = "build-cython-tests" }]

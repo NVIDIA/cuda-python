@@ -3,7 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
-requires = ["setuptools>=77.0.0", "Cython>=3.1"]
+requires = [
+    "setuptools>=80",
+    "setuptools-scm[simple]>=8",
+    "Cython>=3.2,<3.3"
+]
 build-backend = "build_hooks"
 backend-path = ["."]
 
@@ -14,7 +18,7 @@ dynamic = [
     "version",
     "readme",
 ]
-requires-python = '>=3.9'
+requires-python = '>=3.10'
 description = "cuda.core: (experimental) pythonic CUDA module"
 authors = [
     { name = "NVIDIA Corporation" }
@@ -32,11 +36,11 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
     "Environment :: GPU :: NVIDIA CUDA",
     "Environment :: GPU :: NVIDIA CUDA :: 12",
@@ -51,11 +55,12 @@ cu12 = ["cuda-bindings[all]==12.*"]
 cu13 = ["cuda-bindings[all]==13.*"]
 
 [dependency-groups]
-test = ["cython>=3.1", "setuptools", "pytest>=6.2.4"]
+test = ["cython>=3.2,<3.3", "setuptools", "pytest>=6.2.4", "pytest-randomly"]
 test-cu12 = ["cuda-core[test]", "cupy-cuda12x; python_version < '3.14'", "cuda-toolkit[cudart]==12.*"]  # runtime headers needed by CuPy
 test-cu13 = ["cuda-core[test]", "cupy-cuda13x; python_version < '3.14'", "cuda-toolkit[cudart]==13.*"]  # runtime headers needed by CuPy
 # free threaded build, cupy doesn't support free-threaded builds yet, so avoid installing it for now
 # TODO: cupy should support free threaded builds
+test-cu12-ft = ["cuda-core[test]", "cuda-toolkit[cudart]==12.*"]
 test-cu13-ft = ["cuda-core[test]", "cuda-toolkit[cudart]==13.*"]
 
 [project.urls]
@@ -68,11 +73,18 @@ issues = "https://github.com/NVIDIA/cuda-python/issues/"
 include = ["cuda.core*"]
 
 [tool.setuptools.package-data]
-"cuda.core.experimental.include" = ["*.h", "*.hpp", "*.cuh"]
+"cuda.core._include" = ["*.h", "*.hpp", "*.cuh"]
+"cuda.core._cpp" = ["*.cpp", "*.hpp"]
 
 [tool.setuptools.dynamic]
-version = { attr = "cuda.core._version.__version__" }
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
+
+[tool.setuptools_scm]
+root = ".."
+version_file = "cuda/core/_version.py"
+# We deliberately do not want to include the version suffixes (a/b/rc) in cuda-core versioning
+tag_regex = "^cuda-core-(?P<version>v\\d+\\.\\d+\\.\\d+)"
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-core-v*[0-9]*"]
 
 [tool.cibuildwheel]
 skip = "*-musllinux_*"

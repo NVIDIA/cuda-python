@@ -2,13 +2,15 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
+import re
 import warnings
 
 import pytest
-from cuda.core.experimental import _linker
-from cuda.core.experimental._module import Kernel, ObjectCode
-from cuda.core.experimental._program import Program, ProgramOptions
-from cuda.core.experimental._utils.cuda_utils import driver, handle_return
+from cuda.core import _linker
+from cuda.core._device import Device
+from cuda.core._module import Kernel, ObjectCode
+from cuda.core._program import Program, ProgramOptions
+from cuda.core._utils.cuda_utils import CUDAError, driver, handle_return
 
 cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 is_culink_backend = _linker._decide_nvjitlink_or_driver()
@@ -17,7 +19,7 @@ is_culink_backend = _linker._decide_nvjitlink_or_driver()
 def _is_nvvm_available():
     """Check if NVVM is available."""
     try:
-        from cuda.core.experimental._program import _get_nvvm_module
+        from cuda.core._program import _get_nvvm_module
 
         _get_nvvm_module()
         return True
@@ -30,11 +32,28 @@ nvvm_available = pytest.mark.skipif(
 )
 
 try:
-    from cuda.core.experimental._utils.cuda_utils import driver, handle_return
+    from cuda.core._utils.cuda_utils import driver, handle_return, nvrtc
 
     _cuda_driver_version = handle_return(driver.cuDriverGetVersion())
 except Exception:
     _cuda_driver_version = 0
+
+
+def _get_nvrtc_version_for_tests():
+    """
+    Get NVRTC version.
+
+    Returns:
+        int: Version in format major * 1000 + minor * 100 (e.g., 13200 for CUDA 13.2)
+        None: If NVRTC is not available
+    """
+    try:
+        nvrtc_major, nvrtc_minor = handle_return(nvrtc.nvrtcVersion())
+        version = nvrtc_major * 1000 + nvrtc_minor * 100
+        return version
+    except Exception:
+        return None
+
 
 _libnvvm_version = None
 _libnvvm_version_attempted = False
@@ -73,7 +92,7 @@ def _get_libnvvm_version_for_tests():
     _libnvvm_version_attempted = True
 
     try:
-        from cuda.core.experimental._program import _get_nvvm_module
+        from cuda.core._program import _get_nvvm_module
 
         nvvm = _get_nvvm_module()
 
@@ -121,7 +140,7 @@ def nvvm_ir():
     fallback assumes no version metadata will be present in
     the input nvvm ir
     """
-    from cuda.core.experimental._program import _get_nvvm_module
+    from cuda.core._program import _get_nvvm_module
 
     nvvm = _get_nvvm_module()
     major, minor, debug_major, debug_minor = nvvm.ir_version()
@@ -175,6 +194,13 @@ def ptx_code_object():
     [
         ProgramOptions(name="abc"),
         ProgramOptions(device_code_optimize=True, debug=True),
+        pytest.param(
+            ProgramOptions(debug=True, numba_debug=True),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 13200,
+                reason="numba_debug requires NVRTC >= 13.2",
+            ),
+        ),
         ProgramOptions(relocatable_device_code=True, max_register_count=32),
         ProgramOptions(ftz=True, prec_sqrt=False, prec_div=False),
         ProgramOptions(fma=False, use_fast_math=True),
@@ -195,6 +221,61 @@ def ptx_code_object():
         ProgramOptions(diag_warn=1000),
         ProgramOptions(std="c++11", ptxas_options=["-v"]),
         ProgramOptions(std="c++11", ptxas_options=["-v", "-O2"]),
+        ProgramOptions(brief_diagnostics=True),
+        ProgramOptions(builtin_move_forward=False),
+        ProgramOptions(extensible_whole_program=True),
+        ProgramOptions(fdevice_syntax_only=True),
+        ProgramOptions(gen_opt_lto=True),
+        ProgramOptions(minimal=True),
+        ProgramOptions(no_source_include=True),
+        # TODO: Add test for pre_include once we have a suitable header in the test environment
+        # ProgramOptions(pre_include="cuda_runtime.h"),
+        ProgramOptions(no_cache=True),
+        pytest.param(
+            ProgramOptions(arch="sm_100", device_float128=True),
+            marks=pytest.mark.skipif(
+                Device().compute_capability < (100, 0),
+                reason="device_float128 requires sm_100 or later",
+            ),
+        ),
+        ProgramOptions(frandom_seed="12345"),
+        ProgramOptions(ofast_compile="min"),
+        pytest.param(
+            ProgramOptions(pch=True),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 12800,
+                reason="PCH requires NVRTC >= 12.8",
+            ),
+        ),
+        # TODO: pch_dir requires actual PCH directory to exist - needs integration test
+        # pytest.param(
+        #     ProgramOptions(pch_dir="/tmp/pch"),
+        #     marks=pytest.mark.skipif(
+        #         (_get_nvrtc_version_for_tests() or 0) < 12800,
+        #         reason="PCH requires NVRTC >= 12.8",
+        #     ),
+        # ),
+        pytest.param(
+            ProgramOptions(pch_verbose=True),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 12800,
+                reason="PCH requires NVRTC >= 12.8",
+            ),
+        ),
+        pytest.param(
+            ProgramOptions(pch_messages=False),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 12800,
+                reason="PCH requires NVRTC >= 12.8",
+            ),
+        ),
+        pytest.param(
+            ProgramOptions(instantiate_templates_in_pch=True),
+            marks=pytest.mark.skipif(
+                (_get_nvrtc_version_for_tests() or 0) < 12800,
+                reason="PCH requires NVRTC >= 12.8",
+            ),
+        ),
     ],
 )
 def test_cpp_program_with_various_options(init_cuda, options):
@@ -204,6 +285,36 @@ def test_cpp_program_with_various_options(init_cuda, options):
     program.compile("ptx")
     program.close()
     assert program.handle is None
+
+
+@pytest.mark.skipif(
+    (_get_nvrtc_version_for_tests() or 0) < 13000,
+    reason="buggy with NVRTC < 13.0 (File 'trace.json.json' could not be opened)",
+)
+def test_cpp_program_with_trace_option(init_cuda, tmp_path):
+    code = 'extern "C" __global__ void my_kernel() {}'
+    path = tmp_path / "trace"
+    options = ProgramOptions(fdevice_time_trace=path)
+    program = Program(code, "c++", options)
+    assert program.backend == "NVRTC"
+    program.compile("ptx")
+    program.close()
+    assert program.handle is None
+
+
+@pytest.mark.skipif((_get_nvrtc_version_for_tests() or 0) < 12800, reason="PCH requires NVRTC >= 12.8")
+def test_cpp_program_with_pch_options(init_cuda, tmp_path):
+    code = 'extern "C" __global__ void my_kernel() {}'
+
+    path = str(tmp_path / "test.pch")
+
+    for opts in (dict(create_pch=path), dict(use_pch=path)):
+        options = ProgramOptions(**opts)
+        program = Program(code, "c++", options)
+        assert program.backend == "NVRTC"
+        program.compile("ptx")
+        program.close()
+        assert program.handle is None
 
 
 options = [
@@ -304,7 +415,7 @@ def test_program_close():
 @nvvm_available
 def test_nvvm_deferred_import():
     """Test that our deferred NVVM import works correctly"""
-    from cuda.core.experimental._program import _get_nvvm_module
+    from cuda.core._program import _get_nvvm_module
 
     nvvm = _get_nvvm_module()
     assert nvvm is not None
@@ -317,7 +428,12 @@ def test_nvvm_program_creation_compilation(nvvm_ir):
     assert program.backend == "NVVM"
     assert program.handle is not None
     obj = program.compile("ptx")
-    ker = obj.get_kernel("simple")  # noqa: F841
+    try:
+        ker = obj.get_kernel("simple")  # noqa: F841
+    except CUDAError as e:
+        if re.search(r"CUDA_ERROR_UNSUPPORTED_PTX_VERSION", str(e)):
+            pytest.xfail("PTX version not supported by current CUDA Driver")
+        raise
     program.close()
 
 
@@ -381,3 +497,53 @@ def test_nvvm_program_options(init_cuda, nvvm_ir, options):
     assert ".visible .entry simple(" in ptx_text
 
     program.close()
+
+
+def test_program_options_as_bytes_nvrtc():
+    """Test ProgramOptions.as_bytes() for NVRTC backend"""
+    options = ProgramOptions(arch="sm_80", debug=True, lineinfo=True, ftz=True)
+    nvrtc_options = options.as_bytes("nvrtc")
+
+    # Should return list of bytes
+    assert isinstance(nvrtc_options, list)
+    assert all(isinstance(opt, bytes) for opt in nvrtc_options)
+
+    # Decode to check content
+    options_str = [opt.decode() for opt in nvrtc_options]
+    assert "-arch=sm_80" in options_str
+    assert "--device-debug" in options_str
+    assert "--generate-line-info" in options_str
+    assert "--ftz=true" in options_str
+
+
+@nvvm_available
+def test_program_options_as_bytes_nvvm():
+    """Test ProgramOptions.as_bytes() for NVVM backend"""
+    options = ProgramOptions(arch="sm_80", debug=True, ftz=True, device_code_optimize=True)
+    nvvm_options = options.as_bytes("nvvm")
+
+    # Should return list of bytes (same as other backends)
+    assert isinstance(nvvm_options, list)
+    assert all(isinstance(opt, bytes) for opt in nvvm_options)
+
+    # Decode to check content
+    options_str = [opt.decode() for opt in nvvm_options]
+    assert "-arch=compute_80" in options_str
+    assert "-g" in options_str
+    assert "-ftz=1" in options_str
+    assert "-opt=3" in options_str
+
+
+def test_program_options_as_bytes_invalid_backend():
+    """Test ProgramOptions.as_bytes() with invalid backend"""
+    options = ProgramOptions(arch="sm_80")
+    with pytest.raises(ValueError, match="Unknown backend 'invalid'"):
+        options.as_bytes("invalid")
+
+
+@nvvm_available
+def test_program_options_as_bytes_nvvm_unsupported_option():
+    """Test that unsupported options raise CUDAError for NVVM backend"""
+    options = ProgramOptions(arch="sm_80", lineinfo=True)
+    with pytest.raises(CUDAError, match="not supported by NVVM backend"):
+        options.as_bytes("nvvm")

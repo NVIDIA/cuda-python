@@ -39,17 +39,7 @@ def callableBinary(name):
 
 
 def test_cuda_memcpy():
-    # Init CUDA
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
     # Get device
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    # Construct context
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Allocate dev memory
     size = int(1024 * np.uint8().itemsize)
@@ -75,23 +65,13 @@ def test_cuda_memcpy():
     # Cleanup
     (err,) = cuda.cuMemFree(dptr)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
 
 def test_cuda_array():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
     # No context created
     desc = cuda.CUDA_ARRAY_DESCRIPTOR()
     err, arr = cuda.cuArrayCreate(desc)
     assert err == cuda.CUresult.CUDA_ERROR_INVALID_CONTEXT or err == cuda.CUresult.CUDA_ERROR_INVALID_VALUE
-
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
     # Desciption not filled
     err, arr = cuda.cuArrayCreate(desc)
@@ -106,21 +86,12 @@ def test_cuda_array():
 
     (err,) = cuda.cuArrayDestroy(arr)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-def test_cuda_repr_primitive():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+def test_cuda_repr_primitive(device, ctx):
     assert str(device) == "<CUdevice 0>"
     assert int(device) == 0
 
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
     assert str(ctx).startswith("<CUcontext 0x")
     assert int(ctx) > 0
     assert hex(ctx) == hex(int(ctx))
@@ -174,19 +145,9 @@ def test_cuda_repr_primitive():
     assert str(int64) == f"<cuuint64_t {size}>"
     assert int(int64) == size
 
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
-
-def test_cuda_repr_pointer():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
+def test_cuda_repr_pointer(ctx):
     # Test 1: Classes representing pointers
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
     assert str(ctx).startswith("<CUcontext 0x")
     assert int(ctx) > 0
     assert hex(ctx) == hex(int(ctx))
@@ -203,18 +164,8 @@ def test_cuda_repr_pointer():
     assert int(b2d_cb) == func
     assert hex(b2d_cb) == hex(func)
 
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
-
-def test_cuda_uuid_list_access():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
+def test_cuda_uuid_list_access(device):
     err, uuid = cuda.cuDeviceGetUuid(device)
     assert err == cuda.CUresult.CUDA_SUCCESS
     assert len(uuid.bytes) <= 16
@@ -228,18 +179,8 @@ def test_cuda_uuid_list_access():
         jit_option.CU_JIT_LOG_VERBOSE: 5,
     }
 
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
 
 def test_cuda_cuModuleLoadDataEx():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
     option_keys = [
         cuda.CUjit_option.CU_JIT_INFO_LOG_BUFFER,
         cuda.CUjit_option.CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES,
@@ -249,9 +190,6 @@ def test_cuda_cuModuleLoadDataEx():
     ]
     # FIXME: This function call raises CUDA_ERROR_INVALID_VALUE
     err, mod = cuda.cuModuleLoadDataEx(0, 0, option_keys, [])
-
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
 
 def test_cuda_repr():
@@ -323,13 +261,6 @@ def test_cuda_CUstreamBatchMemOpParams():
     driverVersionLessThan(11030) or not supportsMemoryPool(), reason="When new attributes were introduced"
 )
 def test_cuda_memPool_attr():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
     poolProps = cuda.CUmemPoolProps()
     poolProps.allocType = cuda.CUmemAllocationType.CU_MEM_ALLOCATION_TYPE_PINNED
     poolProps.location.id = 0
@@ -386,20 +317,12 @@ def test_cuda_memPool_attr():
 
     (err,) = cuda.cuMemPoolDestroy(pool)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
 
 @pytest.mark.skipif(
     driverVersionLessThan(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
 )
 def test_cuda_pointer_attr():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
     err, ptr = cuda.cuMemAllocManaged(0x1000, cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL.value)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
@@ -445,19 +368,26 @@ def test_cuda_pointer_attr():
 
     (err,) = cuda.cuMemFree(ptr)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(11030) or not supportsManagedMemory(), reason="When new attributes were introduced"
+)
+def test_pointer_get_attributes_device_ordinal():
+    attributes = [
+        cuda.CUpointer_attribute.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
+    ]
+
+    attrs = cuda.cuPointerGetAttributes(len(attributes), attributes, 0)
+
+    # device ordinals are always small numbers.  A large number would indicate
+    # an overflow error.
+
+    assert abs(attrs[1][0]) < 256
 
 
 @pytest.mark.skipif(not supportsManagedMemory(), reason="When new attributes were introduced")
-def test_cuda_mem_range_attr():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
+def test_cuda_mem_range_attr(device):
     size = 0x1000
     location_device = cuda.CUmemLocation()
     location_device.type = cuda.CUmemLocationType.CU_MEM_LOCATION_TYPE_DEVICE
@@ -517,19 +447,10 @@ def test_cuda_mem_range_attr():
 
     (err,) = cuda.cuMemFree(ptr)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
 
 @pytest.mark.skipif(driverVersionLessThan(11040) or not supportsMemoryPool(), reason="Mempool for graphs not supported")
-def test_cuda_graphMem_attr():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
+def test_cuda_graphMem_attr(device):
     err, stream = cuda.cuStreamCreate(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
@@ -577,8 +498,6 @@ def test_cuda_graphMem_attr():
     assert err == cuda.CUresult.CUDA_SUCCESS
     (err,) = cuda.cuStreamDestroy(stream)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
 
 @pytest.mark.skipif(
@@ -588,13 +507,6 @@ def test_cuda_graphMem_attr():
     reason="Coredump API not present",
 )
 def test_cuda_coredump_attr():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
     attr_list = [None] * 6
 
     (err,) = cuda.cuCoredumpSetAttributeGlobal(cuda.CUcoredumpSettings.CU_COREDUMP_TRIGGER_HOST, False)
@@ -623,18 +535,8 @@ def test_cuda_coredump_attr():
     assert attr_list[2] == b"corepipe"
     assert attr_list[3] is True
 
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
 
 def test_get_error_name_and_string():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
     err, device = cuda.cuDeviceGet(0)
     _, s = cuda.cuGetErrorString(err)
     assert s == b"no error"
@@ -646,21 +548,12 @@ def test_get_error_name_and_string():
     assert s == b"invalid device ordinal"
     _, s = cuda.cuGetErrorName(err)
     assert s == b"CUDA_ERROR_INVALID_DEVICE"
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
 
-@pytest.mark.skipif(not callableBinary("nvidia-smi"), reason="Binary existance needed")
-def test_device_get_name():
+@pytest.mark.skipif(not callableBinary("nvidia-smi"), reason="Binary existence needed")
+def test_device_get_name(device):
     # TODO: Refactor this test once we have nvml bindings to avoid the use of subprocess
     import subprocess
-
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
     p = subprocess.check_output(
         ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"],  # noqa: S607
@@ -679,9 +572,6 @@ def test_device_get_name():
     else:
         assert any(got in result for result in expect)
 
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
 
 # TODO: cuStreamGetCaptureInfo_v2
 @pytest.mark.skipif(driverVersionLessThan(11030), reason="Driver too old for cuStreamGetCaptureInfo_v2")
@@ -690,17 +580,9 @@ def test_stream_capture():
 
 
 def test_profiler():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
     (err,) = cuda.cuProfilerStart()
     assert err == cuda.CUresult.CUDA_SUCCESS
     (err,) = cuda.cuProfilerStop()
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCtxDestroy(ctx)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
 
@@ -779,12 +661,6 @@ def test_invalid_repr_attribute():
     reason="Polymorphic graph APIs required",
 )
 def test_graph_poly():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
     err, stream = cuda.cuStreamCreate(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
 
@@ -887,22 +763,14 @@ def test_graph_poly():
     assert err == cuda.CUresult.CUDA_SUCCESS
     (err,) = cuda.cuStreamDestroy(stream)
     assert err == cuda.CUresult.CUDA_SUCCESS
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
 
 @pytest.mark.skipif(
     driverVersionLessThan(12040) or not supportsCudaAPI("cuDeviceGetDevResource"),
     reason="Polymorphic graph APIs required",
 )
-def test_cuDeviceGetDevResource():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
+def test_cuDeviceGetDevResource(device):
     err, resource_in = cuda.cuDeviceGetDevResource(device, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
 
     err, res, count, rem = cuda.cuDevSmResourceSplitByCount(0, resource_in, 0, 2)
     assert err == cuda.CUresult.CUDA_SUCCESS
@@ -916,22 +784,12 @@ def test_cuDeviceGetDevResource():
     assert err == cuda.CUresult.CUDA_SUCCESS
     assert len(res) == 3
 
-    (err,) = cuda.cuCtxDestroy(ctx)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
 
 @pytest.mark.skipif(
     driverVersionLessThan(12030) or not supportsCudaAPI("cuGraphConditionalHandleCreate"),
     reason="Conditional graph APIs required",
 )
-def test_conditional():
-    (err,) = cuda.cuInit(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, device = cuda.cuDeviceGet(0)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-    err, ctx = cuda.cuCtxCreate(None, 0, device)
-    assert err == cuda.CUresult.CUDA_SUCCESS
-
+def test_conditional(ctx):
     err, graph = cuda.cuGraphCreate(0)
     assert err == cuda.CUresult.CUDA_SUCCESS
     err, handle = cuda.cuGraphConditionalHandleCreate(graph, ctx, 0, 0)
@@ -1044,3 +902,239 @@ def test_struct_pointer_comparison(target):
     c = target(456)
     assert a != c
     assert hash(a) != hash(c)
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphGetId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuGraphGetId(device, ctx):
+    """Test cuGraphGetId - get graph ID."""
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, graph_id = cuda.cuGraphGetId(graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert isinstance(graph_id, int)
+    assert graph_id > 0
+
+    # Create another graph and verify it has a different ID
+    err, graph2 = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, graph_id2 = cuda.cuGraphGetId(graph2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert graph_id2 != graph_id
+
+    (err,) = cuda.cuGraphDestroy(graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuGraphDestroy(graph2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphExecGetId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuGraphExecGetId(device, ctx):
+    """Test cuGraphExecGetId - get graph exec ID."""
+    err, stream = cuda.cuStreamCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Add an empty node to make the graph valid
+    err, node = cuda.cuGraphAddEmptyNode(graph, None, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, graphExec = cuda.cuGraphInstantiate(graph, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, graph_exec_id = cuda.cuGraphExecGetId(graphExec)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert isinstance(graph_exec_id, int)
+    assert graph_exec_id > 0
+
+    # Create another graph exec and verify it has a different ID
+    err, graph2 = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, node2 = cuda.cuGraphAddEmptyNode(graph2, None, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, graphExec2 = cuda.cuGraphInstantiate(graph2, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, graph_exec_id2 = cuda.cuGraphExecGetId(graphExec2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert graph_exec_id2 != graph_exec_id
+
+    (err,) = cuda.cuGraphExecDestroy(graphExec)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuGraphExecDestroy(graphExec2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuGraphDestroy(graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuGraphDestroy(graph2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuStreamDestroy(stream)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetLocalId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuGraphNodeGetLocalId(device, ctx):
+    """Test cuGraphNodeGetLocalId - get node local ID."""
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Add multiple nodes
+    err, node1 = cuda.cuGraphAddEmptyNode(graph, None, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, node2 = cuda.cuGraphAddEmptyNode(graph, [node1], 1)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, node3 = cuda.cuGraphAddEmptyNode(graph, [node1, node2], 2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Get local IDs for each node
+    err, node_id1 = cuda.cuGraphNodeGetLocalId(node1)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert isinstance(node_id1, int)
+    assert node_id1 >= 0
+
+    err, node_id2 = cuda.cuGraphNodeGetLocalId(node2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert isinstance(node_id2, int)
+    assert node_id2 >= 0
+    assert node_id2 != node_id1
+
+    err, node_id3 = cuda.cuGraphNodeGetLocalId(node3)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert isinstance(node_id3, int)
+    assert node_id3 >= 0
+    assert node_id3 != node_id1
+    assert node_id3 != node_id2
+
+    (err,) = cuda.cuGraphDestroy(graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetToolsId"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuGraphNodeGetToolsId(device, ctx):
+    """Test cuGraphNodeGetToolsId - get node tools ID."""
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, node = cuda.cuGraphAddEmptyNode(graph, None, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, tools_node_id = cuda.cuGraphNodeGetToolsId(node)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert isinstance(tools_node_id, int)
+    # toolsNodeId is unsigned long long, so it can be any non-negative value
+    assert tools_node_id >= 0
+
+    # Add another node and verify it has a different tools ID
+    err, node2 = cuda.cuGraphAddEmptyNode(graph, [node], 1)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, tools_node_id2 = cuda.cuGraphNodeGetToolsId(node2)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    assert tools_node_id2 != tools_node_id
+
+    (err,) = cuda.cuGraphDestroy(graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuGraphNodeGetContainingGraph"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuGraphNodeGetContainingGraph(device, ctx):
+    """Test cuGraphNodeGetContainingGraph - get graph containing a node."""
+    err, graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    err, node = cuda.cuGraphAddEmptyNode(graph, None, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Get the containing graph
+    err, containing_graph = cuda.cuGraphNodeGetContainingGraph(node)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    # Verify it's the same graph
+    assert int(containing_graph) == int(graph)
+
+    # Test with a child graph node (if supported)
+    # Create a child graph node
+    err, child_graph = cuda.cuGraphCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    err, child_node = cuda.cuGraphAddEmptyNode(child_graph, None, 0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Add child graph node to parent graph
+    childGraphNodeParams = cuda.CUgraphNodeParams()
+    childGraphNodeParams.type = cuda.CUgraphNodeType.CU_GRAPH_NODE_TYPE_GRAPH
+    childGraphNodeParams.graph.graph = child_graph
+    err, child_graph_node = cuda.cuGraphAddNode(graph, None, None, 0, childGraphNodeParams)
+    if err == cuda.CUresult.CUDA_SUCCESS:
+        # Get containing graph for the child graph node
+        err, containing_graph_for_child = cuda.cuGraphNodeGetContainingGraph(child_graph_node)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert int(containing_graph_for_child) == int(graph)
+
+        # Get containing graph for node inside child graph
+        err, containing_graph_for_nested = cuda.cuGraphNodeGetContainingGraph(child_node)
+        assert err == cuda.CUresult.CUDA_SUCCESS
+        assert int(containing_graph_for_nested) == int(child_graph)
+
+    (err,) = cuda.cuGraphDestroy(graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    (err,) = cuda.cuGraphDestroy(child_graph)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuStreamGetDevResource"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuStreamGetDevResource(device, ctx):
+    """Test cuStreamGetDevResource - get device resource from stream."""
+    err, stream = cuda.cuStreamCreate(0)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Get SM resource from stream
+    err, resource = cuda.cuStreamGetDevResource(stream, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    # Verify resource is valid (non-None)
+    assert resource is not None
+
+    (err,) = cuda.cuStreamDestroy(stream)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+
+@pytest.mark.skipif(
+    driverVersionLessThan(13010) or not supportsCudaAPI("cuDevSmResourceSplit"),
+    reason="Requires CUDA 13.1+",
+)
+def test_cuDevSmResourceSplit(device, ctx):
+    """Test cuDevSmResourceSplit - split SM resource into structured groups."""
+    err, resource_in = cuda.cuDeviceGetDevResource(device, cuda.CUdevResourceType.CU_DEV_RESOURCE_TYPE_SM)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+
+    # Create group params for splitting into 1 group (simpler test)
+    nb_groups = 1
+    group_params = cuda.CU_DEV_SM_RESOURCE_GROUP_PARAMS()
+    # Set up group: request 4 SMs with coscheduled count of 2
+    group_params.smCount = 4
+    group_params.coscheduledSmCount = 2
+
+    # Split the resource
+    err, res, rem = cuda.cuDevSmResourceSplit(nb_groups, resource_in, 0, group_params)
+    assert err == cuda.CUresult.CUDA_SUCCESS
+    # Verify we got results
+    assert len(res) == nb_groups
+    # Verify remainder is valid (may be None if no remainder)
+    assert rem is not None or len(res) > 0

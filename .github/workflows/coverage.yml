@@ -1,0 +1,161 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: "CI: Coverage"
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # This runs the workflow every day at 12:00 AM UTC
+  workflow_dispatch: {}
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -xeuo pipefail {0}
+
+env:
+  PY_VER: "3.14"
+  CUDA_VER: "13.1.0"
+  LOCAL_CTK: "1"
+  GPU: "a100"
+  DRIVER: "latest"
+  ARCH: "x86_64"
+  HOST_PLATFORM: "linux-64"
+
+jobs:
+  coverage:
+    name: Coverage
+    runs-on: "linux-amd64-gpu-a100-latest-1"
+    permissions:
+      id-token: write
+      contents: write
+    # Our self-hosted runners require a container
+    # TODO: use a different (nvidia?) container
+    container:
+      options: -u root --security-opt seccomp=unconfined --shm-size 16g
+      image: ubuntu:22.04
+      env:
+        NVIDIA_VISIBLE_DEVICES: ${{ env.NVIDIA_VISIBLE_DEVICES }}
+    steps:
+      - name: Ensure GPU is working
+        run: nvidia-smi
+
+      # We have to install git before checking out the repo (so that we can
+      # deploy the docs at the end). This means we can't use install_unix_deps
+      # action so install the git package.
+      - name: Install git
+        run: |
+          apt-get update
+          apt-get install -y git
+
+      - name: Checkout ${{ github.event.repository.name }}
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+
+      - name: Install dependencies
+        uses: ./.github/actions/install_unix_deps
+        continue-on-error: false
+        with:
+          dependencies: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1"
+          dependent_exes: "tree rsync libsqlite3-0 g++ jq wget libgl1 libegl1"
+
+      - name: Setup proxy cache
+        uses: nv-gha-runners/setup-proxy-cache@main
+        continue-on-error: true
+
+      - name: Set environment variables
+        env:
+          BUILD_CUDA_VER: ${{ env.CUDA_VER }}
+          CUDA_VER: ${{ env.CUDA_VER }}
+          HOST_PLATFORM: ${{ env.HOST_PLATFORM }}
+          LOCAL_CTK: ${{ env.LOCAL_CTK }}
+          PY_VER: ${{ env.PY_VER }}
+          SHA: ${{ github.sha }}
+        run: |
+          ./ci/tools/env-vars test
+          echo "CUDA_PYTHON_COVERAGE=1" >> $GITHUB_ENV
+
+      - name: Set up Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548  # v6.1.0
+        with:
+          python-version: ${{ env.PY_VER }}
+        env:
+          # we use self-hosted runners on which setup-python behaves weirdly...
+          AGENT_TOOLSDIRECTORY: "/opt/hostedtoolcache"
+
+      - name: Set up mini CTK
+        if: ${{ env.LOCAL_CTK == '1' }}
+        uses: ./.github/actions/fetch_ctk
+        continue-on-error: false
+        with:
+          host-platform: ${{ env.HOST_PLATFORM }}
+          cuda-version: ${{ env.CUDA_VER }}
+
+      - name: Create venv
+        run: |
+          python -m venv .venv
+
+      - name: Build cuda-pathfinder
+        run: |
+          .venv/bin/pip install -v ./cuda_pathfinder
+
+      - name: Build cuda-python-test-helpers
+        run: |
+          .venv/bin/pip install -v ./cuda_python_test_helpers
+
+      - name: Build cuda-bindings
+        run: |
+          cd cuda_bindings
+          ../.venv/bin/pip install -v . --group test
+
+      - name: Build cuda-core
+        run: |
+          cd cuda_core
+          ../.venv/bin/pip install -v . --group test
+
+      - name: Install coverage tools
+        run: |
+          .venv/bin/pip install coverage pytest-cov
+
+      - name: Set cuda package install root
+        run: |
+          echo "INSTALL_ROOT=$(.venv/bin/python -c 'import cuda; print(cuda.__path__[0])')/.." >> $GITHUB_ENV
+          echo "REPO_ROOT=$(pwd)" >> $GITHUB_ENV
+
+      - name: Run cuda.pathfinder tests
+        run: |
+          cd $INSTALL_ROOT
+          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_pathfinder/tests
+
+      - name: Run cuda.bindings tests
+        run: |
+          cd $INSTALL_ROOT
+          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_bindings/tests
+
+      - name: Run cuda.core tests
+        run: |
+          cd $INSTALL_ROOT
+          $REPO_ROOT/.venv/bin/pytest -v --cov=./cuda --cov-append --cov-config=$REPO_ROOT/.coveragerc $REPO_ROOT/cuda_core/tests
+
+      - name: Generate coverage report
+        run: |
+          cd $INSTALL_ROOT
+          $REPO_ROOT/.venv/bin/coverage html --rcfile=$REPO_ROOT/.coveragerc
+          $REPO_ROOT/.venv/bin/coverage xml --rcfile=$REPO_ROOT/.coveragerc -o htmlcov/coverage.xml
+          mkdir $REPO_ROOT/docs
+          mv htmlcov $REPO_ROOT/docs/coverage
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: coverage
+          path: docs/coverage/
+
+      - name: Deploy to gh-pages
+        uses: JamesIves/github-pages-deploy-action@9d877eea73427180ae43cf98e8914934fe157a1a  # v4.7.6
+        with:
+          git-config-name: cuda-python-bot
+          git-config-email: cuda-python-bot@users.noreply.github.com
+          folder: docs/
+          target-folder: docs/
+          commit-message: "Deploy coverage: ${{ env.COMMIT_HASH }}"
+          clean: false

@@ -6,7 +6,7 @@ name = "cuda-pathfinder"
 description = "Pathfinder for CUDA components"
 authors = [{ name = "NVIDIA Corporation", email = "cuda-python-conduct@nvidia.com" }]
 license = "Apache-2.0"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dynamic = ["version", "readme"]
 dependencies = []
 
@@ -18,9 +18,11 @@ test = [
 cu12 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl]==12.*",
     "cuda-toolkit[cufile]==12.*; sys_platform != 'win32'",
+    "cutensor-cu12",
     "nvidia-cublasmp-cu12; sys_platform != 'win32'",
     "nvidia-cudss-cu12",
     "nvidia-cufftmp-cu12; sys_platform != 'win32'",
+    "nvidia-cusparselt-cu12",
     "nvidia-libmathdx-cu12",
     "nvidia-nccl-cu12; sys_platform != 'win32'",
     "nvidia-nvshmem-cu12; sys_platform != 'win32'",
@@ -28,8 +30,11 @@ cu12 = [
 cu13 = [
     "cuda-toolkit[nvcc,cublas,nvrtc,cudart,cufft,curand,cusolver,cusparse,npp,nvfatbin,nvjitlink,nvjpeg,cccl,nvvm]==13.*",
     "cuda-toolkit[cufile]==13.*; sys_platform != 'win32'",
+    "cutensor-cu13",
     "nvidia-cublasmp-cu13; sys_platform != 'win32'",
     "nvidia-cudss-cu13",
+    "nvidia-cufftmp-cu13; sys_platform != 'win32'",
+    "nvidia-cusparselt-cu13",
     "nvidia-nccl-cu13; sys_platform != 'win32'",
     "nvidia-nvshmem-cu13; sys_platform != 'win32'",
 ]
@@ -57,12 +62,25 @@ Documentation = "https://nvidia.github.io/cuda-python/"
 packages = { find = { include = ["cuda*"] } }
 
 [tool.setuptools.dynamic]
-version = { attr = "cuda.pathfinder._version.__version__" }
 readme = { file = ["DESCRIPTION.rst"], content-type = "text/x-rst" }
 
 [build-system]
-requires = ["setuptools>=64", "wheel"]
+requires = [
+    "setuptools>=80.0.0",
+    "setuptools_scm[simple]>=8",
+    "wheel"
+]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+root = ".."
+version_file = "cuda/pathfinder/_version.py"
+# We deliberately do not want to include the version suffixes (a/b/rc) in cuda-pathfinder versioning
+tag_regex = "^cuda-pathfinder-(?P<version>v\\d+\\.\\d+\\.\\d+)"
+git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "cuda-pathfinder-v*[0-9]*" ]
+
+[tool.pytest.ini_options]
+addopts = "--showlocals"
 
 [tool.ruff]
 line-length = 120
@@ -107,7 +125,7 @@ inline-quotes = "double"
 
 [tool.mypy]
 # Basic settings
-python_version = "3.9"
+python_version = "3.10"
 explicit_package_bases = true
 warn_return_any = true
 warn_unused_configs = true

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021-2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-# This code was automatically generated with version 13.0.0. Do not modify it directly.
+# This code was automatically generated with version 13.1.0. Do not modify it directly.
 {{if 'Windows' == platform.system()}}
 import os
 cimport cuda.bindings._lib.windll as windll
@@ -212,7 +212,9 @@ cdef bint __cuPythonInit = False
 {{if 'cuMulticastCreate' in found_functions}}cdef void *__cuMulticastCreate = NULL{{endif}}
 {{if 'cuMulticastAddDevice' in found_functions}}cdef void *__cuMulticastAddDevice = NULL{{endif}}
 {{if 'cuMulticastBindMem' in found_functions}}cdef void *__cuMulticastBindMem = NULL{{endif}}
+{{if 'cuMulticastBindMem_v2' in found_functions}}cdef void *__cuMulticastBindMem_v2 = NULL{{endif}}
 {{if 'cuMulticastBindAddr' in found_functions}}cdef void *__cuMulticastBindAddr = NULL{{endif}}
+{{if 'cuMulticastBindAddr_v2' in found_functions}}cdef void *__cuMulticastBindAddr_v2 = NULL{{endif}}
 {{if 'cuMulticastUnbind' in found_functions}}cdef void *__cuMulticastUnbind = NULL{{endif}}
 {{if 'cuMulticastGetGranularity' in found_functions}}cdef void *__cuMulticastGetGranularity = NULL{{endif}}
 {{if 'cuPointerGetAttribute' in found_functions}}cdef void *__cuPointerGetAttribute = NULL{{endif}}
@@ -335,6 +337,11 @@ cdef bint __cuPythonInit = False
 {{if 'cuGraphClone' in found_functions}}cdef void *__cuGraphClone = NULL{{endif}}
 {{if 'cuGraphNodeFindInClone' in found_functions}}cdef void *__cuGraphNodeFindInClone = NULL{{endif}}
 {{if 'cuGraphNodeGetType' in found_functions}}cdef void *__cuGraphNodeGetType = NULL{{endif}}
+{{if 'cuGraphNodeGetContainingGraph' in found_functions}}cdef void *__cuGraphNodeGetContainingGraph = NULL{{endif}}
+{{if 'cuGraphNodeGetLocalId' in found_functions}}cdef void *__cuGraphNodeGetLocalId = NULL{{endif}}
+{{if 'cuGraphNodeGetToolsId' in found_functions}}cdef void *__cuGraphNodeGetToolsId = NULL{{endif}}
+{{if 'cuGraphGetId' in found_functions}}cdef void *__cuGraphGetId = NULL{{endif}}
+{{if 'cuGraphExecGetId' in found_functions}}cdef void *__cuGraphExecGetId = NULL{{endif}}
 {{if 'cuGraphGetNodes' in found_functions}}cdef void *__cuGraphGetNodes = NULL{{endif}}
 {{if 'cuGraphGetRootNodes' in found_functions}}cdef void *__cuGraphGetRootNodes = NULL{{endif}}
 {{if 'cuGraphGetEdges_v2' in found_functions}}cdef void *__cuGraphGetEdges_v2 = NULL{{endif}}
@@ -448,12 +455,14 @@ cdef bint __cuPythonInit = False
 {{if 'cuCtxGetDevResource' in found_functions}}cdef void *__cuCtxGetDevResource = NULL{{endif}}
 {{if 'cuGreenCtxGetDevResource' in found_functions}}cdef void *__cuGreenCtxGetDevResource = NULL{{endif}}
 {{if 'cuDevSmResourceSplitByCount' in found_functions}}cdef void *__cuDevSmResourceSplitByCount = NULL{{endif}}
+{{if 'cuDevSmResourceSplit' in found_functions}}cdef void *__cuDevSmResourceSplit = NULL{{endif}}
 {{if 'cuDevResourceGenerateDesc' in found_functions}}cdef void *__cuDevResourceGenerateDesc = NULL{{endif}}
 {{if 'cuGreenCtxRecordEvent' in found_functions}}cdef void *__cuGreenCtxRecordEvent = NULL{{endif}}
 {{if 'cuGreenCtxWaitEvent' in found_functions}}cdef void *__cuGreenCtxWaitEvent = NULL{{endif}}
 {{if 'cuStreamGetGreenCtx' in found_functions}}cdef void *__cuStreamGetGreenCtx = NULL{{endif}}
 {{if 'cuGreenCtxStreamCreate' in found_functions}}cdef void *__cuGreenCtxStreamCreate = NULL{{endif}}
 {{if 'cuGreenCtxGetId' in found_functions}}cdef void *__cuGreenCtxGetId = NULL{{endif}}
+{{if 'cuStreamGetDevResource' in found_functions}}cdef void *__cuStreamGetDevResource = NULL{{endif}}
 {{if 'cuLogsRegisterCallback' in found_functions}}cdef void *__cuLogsRegisterCallback = NULL{{endif}}
 {{if 'cuLogsUnregisterCallback' in found_functions}}cdef void *__cuLogsUnregisterCallback = NULL{{endif}}
 {{if 'cuLogsCurrent' in found_functions}}cdef void *__cuLogsCurrent = NULL{{endif}}
@@ -876,6 +885,10 @@ cdef int _cuPythonInit() except -1 nogil:
                 global __cuGraphicsUnmapResources
                 _F_cuGetProcAddress_v2('cuGraphicsUnmapResources', &__cuGraphicsUnmapResources, 7000, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
                 {{endif}}
+                {{if 'cuStreamGetDevResource' in found_functions}}
+                global __cuStreamGetDevResource
+                _F_cuGetProcAddress_v2('cuStreamGetDevResource', &__cuStreamGetDevResource, 13010, CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM, NULL)
+                {{endif}}
             else:
                 # Else get the regular version
                 pass
@@ -1218,6 +1231,10 @@ cdef int _cuPythonInit() except -1 nogil:
                 {{if 'cuGraphicsUnmapResources' in found_functions}}
                 global __cuGraphicsUnmapResources
                 _F_cuGetProcAddress_v2('cuGraphicsUnmapResources', &__cuGraphicsUnmapResources, 3000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+                {{endif}}
+                {{if 'cuStreamGetDevResource' in found_functions}}
+                global __cuStreamGetDevResource
+                _F_cuGetProcAddress_v2('cuStreamGetDevResource', &__cuStreamGetDevResource, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
                 {{endif}}
             # Get remaining functions
             {{if 'cuGetErrorString' in found_functions}}
@@ -1832,9 +1849,17 @@ cdef int _cuPythonInit() except -1 nogil:
             global __cuMulticastBindMem
             _F_cuGetProcAddress_v2('cuMulticastBindMem', &__cuMulticastBindMem, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
+            {{if 'cuMulticastBindMem_v2' in found_functions}}
+            global __cuMulticastBindMem_v2
+            _F_cuGetProcAddress_v2('cuMulticastBindMem', &__cuMulticastBindMem_v2, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
             {{if 'cuMulticastBindAddr' in found_functions}}
             global __cuMulticastBindAddr
             _F_cuGetProcAddress_v2('cuMulticastBindAddr', &__cuMulticastBindAddr, 12010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuMulticastBindAddr_v2' in found_functions}}
+            global __cuMulticastBindAddr_v2
+            _F_cuGetProcAddress_v2('cuMulticastBindAddr', &__cuMulticastBindAddr_v2, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
             {{if 'cuMulticastUnbind' in found_functions}}
             global __cuMulticastUnbind
@@ -2175,6 +2200,26 @@ cdef int _cuPythonInit() except -1 nogil:
             {{if 'cuGraphNodeGetType' in found_functions}}
             global __cuGraphNodeGetType
             _F_cuGetProcAddress_v2('cuGraphNodeGetType', &__cuGraphNodeGetType, 10000, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuGraphNodeGetContainingGraph' in found_functions}}
+            global __cuGraphNodeGetContainingGraph
+            _F_cuGetProcAddress_v2('cuGraphNodeGetContainingGraph', &__cuGraphNodeGetContainingGraph, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuGraphNodeGetLocalId' in found_functions}}
+            global __cuGraphNodeGetLocalId
+            _F_cuGetProcAddress_v2('cuGraphNodeGetLocalId', &__cuGraphNodeGetLocalId, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuGraphNodeGetToolsId' in found_functions}}
+            global __cuGraphNodeGetToolsId
+            _F_cuGetProcAddress_v2('cuGraphNodeGetToolsId', &__cuGraphNodeGetToolsId, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuGraphGetId' in found_functions}}
+            global __cuGraphGetId
+            _F_cuGetProcAddress_v2('cuGraphGetId', &__cuGraphGetId, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuGraphExecGetId' in found_functions}}
+            global __cuGraphExecGetId
+            _F_cuGetProcAddress_v2('cuGraphExecGetId', &__cuGraphExecGetId, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
             {{if 'cuGraphGetNodes' in found_functions}}
             global __cuGraphGetNodes
@@ -2607,6 +2652,10 @@ cdef int _cuPythonInit() except -1 nogil:
             {{if 'cuDevSmResourceSplitByCount' in found_functions}}
             global __cuDevSmResourceSplitByCount
             _F_cuGetProcAddress_v2('cuDevSmResourceSplitByCount', &__cuDevSmResourceSplitByCount, 12040, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
+            {{endif}}
+            {{if 'cuDevSmResourceSplit' in found_functions}}
+            global __cuDevSmResourceSplit
+            _F_cuGetProcAddress_v2('cuDevSmResourceSplit', &__cuDevSmResourceSplit, 13010, CU_GET_PROC_ADDRESS_DEFAULT, NULL)
             {{endif}}
             {{if 'cuDevResourceGenerateDesc' in found_functions}}
             global __cuDevResourceGenerateDesc
@@ -3108,6 +3157,10 @@ cdef int _cuPythonInit() except -1 nogil:
             global __cuGraphicsUnmapResources
             __cuGraphicsUnmapResources = windll.GetProcAddress(handle, 'cuGraphicsUnmapResources_ptsz')
             {{endif}}
+            {{if 'cuStreamGetDevResource' in found_functions}}
+            global __cuStreamGetDevResource
+            __cuStreamGetDevResource = windll.GetProcAddress(handle, 'cuStreamGetDevResource_ptsz')
+            {{endif}}
         else:
             # Else get the regular version
             pass
@@ -3450,6 +3503,10 @@ cdef int _cuPythonInit() except -1 nogil:
             {{if 'cuGraphicsUnmapResources' in found_functions}}
             global __cuGraphicsUnmapResources
             __cuGraphicsUnmapResources = windll.GetProcAddress(handle, 'cuGraphicsUnmapResources')
+            {{endif}}
+            {{if 'cuStreamGetDevResource' in found_functions}}
+            global __cuStreamGetDevResource
+            __cuStreamGetDevResource = windll.GetProcAddress(handle, 'cuStreamGetDevResource')
             {{endif}}
         # Get remaining functions
         {{if 'cuGetErrorString' in found_functions}}
@@ -4064,9 +4121,17 @@ cdef int _cuPythonInit() except -1 nogil:
         global __cuMulticastBindMem
         __cuMulticastBindMem = windll.GetProcAddress(handle, 'cuMulticastBindMem')
         {{endif}}
+        {{if 'cuMulticastBindMem_v2' in found_functions}}
+        global __cuMulticastBindMem_v2
+        __cuMulticastBindMem_v2 = windll.GetProcAddress(handle, 'cuMulticastBindMem_v2')
+        {{endif}}
         {{if 'cuMulticastBindAddr' in found_functions}}
         global __cuMulticastBindAddr
         __cuMulticastBindAddr = windll.GetProcAddress(handle, 'cuMulticastBindAddr')
+        {{endif}}
+        {{if 'cuMulticastBindAddr_v2' in found_functions}}
+        global __cuMulticastBindAddr_v2
+        __cuMulticastBindAddr_v2 = windll.GetProcAddress(handle, 'cuMulticastBindAddr_v2')
         {{endif}}
         {{if 'cuMulticastUnbind' in found_functions}}
         global __cuMulticastUnbind
@@ -4407,6 +4472,26 @@ cdef int _cuPythonInit() except -1 nogil:
         {{if 'cuGraphNodeGetType' in found_functions}}
         global __cuGraphNodeGetType
         __cuGraphNodeGetType = windll.GetProcAddress(handle, 'cuGraphNodeGetType')
+        {{endif}}
+        {{if 'cuGraphNodeGetContainingGraph' in found_functions}}
+        global __cuGraphNodeGetContainingGraph
+        __cuGraphNodeGetContainingGraph = windll.GetProcAddress(handle, 'cuGraphNodeGetContainingGraph')
+        {{endif}}
+        {{if 'cuGraphNodeGetLocalId' in found_functions}}
+        global __cuGraphNodeGetLocalId
+        __cuGraphNodeGetLocalId = windll.GetProcAddress(handle, 'cuGraphNodeGetLocalId')
+        {{endif}}
+        {{if 'cuGraphNodeGetToolsId' in found_functions}}
+        global __cuGraphNodeGetToolsId
+        __cuGraphNodeGetToolsId = windll.GetProcAddress(handle, 'cuGraphNodeGetToolsId')
+        {{endif}}
+        {{if 'cuGraphGetId' in found_functions}}
+        global __cuGraphGetId
+        __cuGraphGetId = windll.GetProcAddress(handle, 'cuGraphGetId')
+        {{endif}}
+        {{if 'cuGraphExecGetId' in found_functions}}
+        global __cuGraphExecGetId
+        __cuGraphExecGetId = windll.GetProcAddress(handle, 'cuGraphExecGetId')
         {{endif}}
         {{if 'cuGraphGetNodes' in found_functions}}
         global __cuGraphGetNodes
@@ -4839,6 +4924,10 @@ cdef int _cuPythonInit() except -1 nogil:
         {{if 'cuDevSmResourceSplitByCount' in found_functions}}
         global __cuDevSmResourceSplitByCount
         __cuDevSmResourceSplitByCount = windll.GetProcAddress(handle, 'cuDevSmResourceSplitByCount')
+        {{endif}}
+        {{if 'cuDevSmResourceSplit' in found_functions}}
+        global __cuDevSmResourceSplit
+        __cuDevSmResourceSplit = windll.GetProcAddress(handle, 'cuDevSmResourceSplit')
         {{endif}}
         {{if 'cuDevResourceGenerateDesc' in found_functions}}
         global __cuDevResourceGenerateDesc
@@ -5337,6 +5426,10 @@ cdef int _cuPythonInit() except -1 nogil:
             global __cuGraphicsUnmapResources
             __cuGraphicsUnmapResources = dlfcn.dlsym(handle, 'cuGraphicsUnmapResources_ptsz')
             {{endif}}
+            {{if 'cuStreamGetDevResource' in found_functions}}
+            global __cuStreamGetDevResource
+            __cuStreamGetDevResource = dlfcn.dlsym(handle, 'cuStreamGetDevResource_ptsz')
+            {{endif}}
         else:
             # Else get the regular version
             pass
@@ -5679,6 +5772,10 @@ cdef int _cuPythonInit() except -1 nogil:
             {{if 'cuGraphicsUnmapResources' in found_functions}}
             global __cuGraphicsUnmapResources
             __cuGraphicsUnmapResources = dlfcn.dlsym(handle, 'cuGraphicsUnmapResources')
+            {{endif}}
+            {{if 'cuStreamGetDevResource' in found_functions}}
+            global __cuStreamGetDevResource
+            __cuStreamGetDevResource = dlfcn.dlsym(handle, 'cuStreamGetDevResource')
             {{endif}}
         # Get remaining functions
         {{if 'cuGetErrorString' in found_functions}}
@@ -6293,9 +6390,17 @@ cdef int _cuPythonInit() except -1 nogil:
         global __cuMulticastBindMem
         __cuMulticastBindMem = dlfcn.dlsym(handle, 'cuMulticastBindMem')
         {{endif}}
+        {{if 'cuMulticastBindMem_v2' in found_functions}}
+        global __cuMulticastBindMem_v2
+        __cuMulticastBindMem_v2 = dlfcn.dlsym(handle, 'cuMulticastBindMem_v2')
+        {{endif}}
         {{if 'cuMulticastBindAddr' in found_functions}}
         global __cuMulticastBindAddr
         __cuMulticastBindAddr = dlfcn.dlsym(handle, 'cuMulticastBindAddr')
+        {{endif}}
+        {{if 'cuMulticastBindAddr_v2' in found_functions}}
+        global __cuMulticastBindAddr_v2
+        __cuMulticastBindAddr_v2 = dlfcn.dlsym(handle, 'cuMulticastBindAddr_v2')
         {{endif}}
         {{if 'cuMulticastUnbind' in found_functions}}
         global __cuMulticastUnbind
@@ -6636,6 +6741,26 @@ cdef int _cuPythonInit() except -1 nogil:
         {{if 'cuGraphNodeGetType' in found_functions}}
         global __cuGraphNodeGetType
         __cuGraphNodeGetType = dlfcn.dlsym(handle, 'cuGraphNodeGetType')
+        {{endif}}
+        {{if 'cuGraphNodeGetContainingGraph' in found_functions}}
+        global __cuGraphNodeGetContainingGraph
+        __cuGraphNodeGetContainingGraph = dlfcn.dlsym(handle, 'cuGraphNodeGetContainingGraph')
+        {{endif}}
+        {{if 'cuGraphNodeGetLocalId' in found_functions}}
+        global __cuGraphNodeGetLocalId
+        __cuGraphNodeGetLocalId = dlfcn.dlsym(handle, 'cuGraphNodeGetLocalId')
+        {{endif}}
+        {{if 'cuGraphNodeGetToolsId' in found_functions}}
+        global __cuGraphNodeGetToolsId
+        __cuGraphNodeGetToolsId = dlfcn.dlsym(handle, 'cuGraphNodeGetToolsId')
+        {{endif}}
+        {{if 'cuGraphGetId' in found_functions}}
+        global __cuGraphGetId
+        __cuGraphGetId = dlfcn.dlsym(handle, 'cuGraphGetId')
+        {{endif}}
+        {{if 'cuGraphExecGetId' in found_functions}}
+        global __cuGraphExecGetId
+        __cuGraphExecGetId = dlfcn.dlsym(handle, 'cuGraphExecGetId')
         {{endif}}
         {{if 'cuGraphGetNodes' in found_functions}}
         global __cuGraphGetNodes
@@ -7068,6 +7193,10 @@ cdef int _cuPythonInit() except -1 nogil:
         {{if 'cuDevSmResourceSplitByCount' in found_functions}}
         global __cuDevSmResourceSplitByCount
         __cuDevSmResourceSplitByCount = dlfcn.dlsym(handle, 'cuDevSmResourceSplitByCount')
+        {{endif}}
+        {{if 'cuDevSmResourceSplit' in found_functions}}
+        global __cuDevSmResourceSplit
+        __cuDevSmResourceSplit = dlfcn.dlsym(handle, 'cuDevSmResourceSplit')
         {{endif}}
         {{if 'cuDevResourceGenerateDesc' in found_functions}}
         global __cuDevResourceGenerateDesc
@@ -9584,6 +9713,18 @@ cdef CUresult _cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle, size_t 
     return err
 {{endif}}
 
+{{if 'cuMulticastBindMem_v2' in found_functions}}
+
+cdef CUresult _cuMulticastBindMem_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuMulticastBindMem_v2
+    cuPythonInit()
+    if __cuMulticastBindMem_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMulticastBindMem_v2" not found')
+    err = (<CUresult (*)(CUmemGenericAllocationHandle, CUdevice, size_t, CUmemGenericAllocationHandle, size_t, size_t, unsigned long long) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMulticastBindMem_v2)(mcHandle, dev, mcOffset, memHandle, memOffset, size, flags)
+    return err
+{{endif}}
+
 {{if 'cuMulticastBindAddr' in found_functions}}
 
 cdef CUresult _cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -9593,6 +9734,18 @@ cdef CUresult _cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t
         with gil:
             raise RuntimeError('Function "cuMulticastBindAddr" not found')
     err = (<CUresult (*)(CUmemGenericAllocationHandle, size_t, CUdeviceptr, size_t, unsigned long long) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMulticastBindAddr)(mcHandle, mcOffset, memptr, size, flags)
+    return err
+{{endif}}
+
+{{if 'cuMulticastBindAddr_v2' in found_functions}}
+
+cdef CUresult _cuMulticastBindAddr_v2(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuMulticastBindAddr_v2
+    cuPythonInit()
+    if __cuMulticastBindAddr_v2 == NULL:
+        with gil:
+            raise RuntimeError('Function "cuMulticastBindAddr_v2" not found')
+    err = (<CUresult (*)(CUmemGenericAllocationHandle, CUdevice, size_t, CUdeviceptr, size_t, unsigned long long) except ?CUDA_ERROR_NOT_FOUND nogil> __cuMulticastBindAddr_v2)(mcHandle, dev, mcOffset, memptr, size, flags)
     return err
 {{endif}}
 
@@ -11060,6 +11213,66 @@ cdef CUresult _cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType* typename) 
     return err
 {{endif}}
 
+{{if 'cuGraphNodeGetContainingGraph' in found_functions}}
+
+cdef CUresult _cuGraphNodeGetContainingGraph(CUgraphNode hNode, CUgraph* phGraph) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphNodeGetContainingGraph
+    cuPythonInit()
+    if __cuGraphNodeGetContainingGraph == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphNodeGetContainingGraph" not found')
+    err = (<CUresult (*)(CUgraphNode, CUgraph*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuGraphNodeGetContainingGraph)(hNode, phGraph)
+    return err
+{{endif}}
+
+{{if 'cuGraphNodeGetLocalId' in found_functions}}
+
+cdef CUresult _cuGraphNodeGetLocalId(CUgraphNode hNode, unsigned int* nodeId) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphNodeGetLocalId
+    cuPythonInit()
+    if __cuGraphNodeGetLocalId == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphNodeGetLocalId" not found')
+    err = (<CUresult (*)(CUgraphNode, unsigned int*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuGraphNodeGetLocalId)(hNode, nodeId)
+    return err
+{{endif}}
+
+{{if 'cuGraphNodeGetToolsId' in found_functions}}
+
+cdef CUresult _cuGraphNodeGetToolsId(CUgraphNode hNode, unsigned long long* toolsNodeId) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphNodeGetToolsId
+    cuPythonInit()
+    if __cuGraphNodeGetToolsId == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphNodeGetToolsId" not found')
+    err = (<CUresult (*)(CUgraphNode, unsigned long long*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuGraphNodeGetToolsId)(hNode, toolsNodeId)
+    return err
+{{endif}}
+
+{{if 'cuGraphGetId' in found_functions}}
+
+cdef CUresult _cuGraphGetId(CUgraph hGraph, unsigned int* graphId) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphGetId
+    cuPythonInit()
+    if __cuGraphGetId == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphGetId" not found')
+    err = (<CUresult (*)(CUgraph, unsigned int*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuGraphGetId)(hGraph, graphId)
+    return err
+{{endif}}
+
+{{if 'cuGraphExecGetId' in found_functions}}
+
+cdef CUresult _cuGraphExecGetId(CUgraphExec hGraphExec, unsigned int* graphId) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuGraphExecGetId
+    cuPythonInit()
+    if __cuGraphExecGetId == NULL:
+        with gil:
+            raise RuntimeError('Function "cuGraphExecGetId" not found')
+    err = (<CUresult (*)(CUgraphExec, unsigned int*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuGraphExecGetId)(hGraphExec, graphId)
+    return err
+{{endif}}
+
 {{if 'cuGraphGetNodes' in found_functions}}
 
 cdef CUresult _cuGraphGetNodes(CUgraph hGraph, CUgraphNode* nodes, size_t* numNodes) except ?CUDA_ERROR_NOT_FOUND nogil:
@@ -12406,13 +12619,25 @@ cdef CUresult _cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource* resource
 
 {{if 'cuDevSmResourceSplitByCount' in found_functions}}
 
-cdef CUresult _cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remaining, unsigned int useFlags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil:
+cdef CUresult _cuDevSmResourceSplitByCount(CUdevResource* result, unsigned int* nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, unsigned int minCount) except ?CUDA_ERROR_NOT_FOUND nogil:
     global __cuDevSmResourceSplitByCount
     cuPythonInit()
     if __cuDevSmResourceSplitByCount == NULL:
         with gil:
             raise RuntimeError('Function "cuDevSmResourceSplitByCount" not found')
-    err = (<CUresult (*)(CUdevResource*, unsigned int*, const CUdevResource*, CUdevResource*, unsigned int, unsigned int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuDevSmResourceSplitByCount)(result, nbGroups, input, remaining, useFlags, minCount)
+    err = (<CUresult (*)(CUdevResource*, unsigned int*, const CUdevResource*, CUdevResource*, unsigned int, unsigned int) except ?CUDA_ERROR_NOT_FOUND nogil> __cuDevSmResourceSplitByCount)(result, nbGroups, input, remainder, flags, minCount)
+    return err
+{{endif}}
+
+{{if 'cuDevSmResourceSplit' in found_functions}}
+
+cdef CUresult _cuDevSmResourceSplit(CUdevResource* result, unsigned int nbGroups, const CUdevResource* input, CUdevResource* remainder, unsigned int flags, CU_DEV_SM_RESOURCE_GROUP_PARAMS* groupParams) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuDevSmResourceSplit
+    cuPythonInit()
+    if __cuDevSmResourceSplit == NULL:
+        with gil:
+            raise RuntimeError('Function "cuDevSmResourceSplit" not found')
+    err = (<CUresult (*)(CUdevResource*, unsigned int, const CUdevResource*, CUdevResource*, unsigned int, CU_DEV_SM_RESOURCE_GROUP_PARAMS*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuDevSmResourceSplit)(result, nbGroups, input, remainder, flags, groupParams)
     return err
 {{endif}}
 
@@ -12485,6 +12710,18 @@ cdef CUresult _cuGreenCtxGetId(CUgreenCtx greenCtx, unsigned long long* greenCtx
         with gil:
             raise RuntimeError('Function "cuGreenCtxGetId" not found')
     err = (<CUresult (*)(CUgreenCtx, unsigned long long*) except ?CUDA_ERROR_NOT_FOUND nogil> __cuGreenCtxGetId)(greenCtx, greenCtxId)
+    return err
+{{endif}}
+
+{{if 'cuStreamGetDevResource' in found_functions}}
+
+cdef CUresult _cuStreamGetDevResource(CUstream hStream, CUdevResource* resource, CUdevResourceType typename) except ?CUDA_ERROR_NOT_FOUND nogil:
+    global __cuStreamGetDevResource
+    cuPythonInit()
+    if __cuStreamGetDevResource == NULL:
+        with gil:
+            raise RuntimeError('Function "cuStreamGetDevResource" not found')
+    err = (<CUresult (*)(CUstream, CUdevResource*, CUdevResourceType) except ?CUDA_ERROR_NOT_FOUND nogil> __cuStreamGetDevResource)(hStream, resource, typename)
     return err
 {{endif}}
 
@@ -14254,11 +14491,25 @@ cpdef dict _inspect_function_pointers():
     data["__cuMulticastBindMem"] = <intptr_t>0
     {{endif}}
 
+    {{if 'cuMulticastBindMem_v2' in found_functions}}
+    global __cuMulticastBindMem_v2
+    data["__cuMulticastBindMem_v2"] = <intptr_t>__cuMulticastBindMem_v2
+    {{else}}
+    data["__cuMulticastBindMem_v2"] = <intptr_t>0
+    {{endif}}
+
     {{if 'cuMulticastBindAddr' in found_functions}}
     global __cuMulticastBindAddr
     data["__cuMulticastBindAddr"] = <intptr_t>__cuMulticastBindAddr
     {{else}}
     data["__cuMulticastBindAddr"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuMulticastBindAddr_v2' in found_functions}}
+    global __cuMulticastBindAddr_v2
+    data["__cuMulticastBindAddr_v2"] = <intptr_t>__cuMulticastBindAddr_v2
+    {{else}}
+    data["__cuMulticastBindAddr_v2"] = <intptr_t>0
     {{endif}}
 
     {{if 'cuMulticastUnbind' in found_functions}}
@@ -15115,6 +15366,41 @@ cpdef dict _inspect_function_pointers():
     data["__cuGraphNodeGetType"] = <intptr_t>0
     {{endif}}
 
+    {{if 'cuGraphNodeGetContainingGraph' in found_functions}}
+    global __cuGraphNodeGetContainingGraph
+    data["__cuGraphNodeGetContainingGraph"] = <intptr_t>__cuGraphNodeGetContainingGraph
+    {{else}}
+    data["__cuGraphNodeGetContainingGraph"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphNodeGetLocalId' in found_functions}}
+    global __cuGraphNodeGetLocalId
+    data["__cuGraphNodeGetLocalId"] = <intptr_t>__cuGraphNodeGetLocalId
+    {{else}}
+    data["__cuGraphNodeGetLocalId"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphNodeGetToolsId' in found_functions}}
+    global __cuGraphNodeGetToolsId
+    data["__cuGraphNodeGetToolsId"] = <intptr_t>__cuGraphNodeGetToolsId
+    {{else}}
+    data["__cuGraphNodeGetToolsId"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphGetId' in found_functions}}
+    global __cuGraphGetId
+    data["__cuGraphGetId"] = <intptr_t>__cuGraphGetId
+    {{else}}
+    data["__cuGraphGetId"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuGraphExecGetId' in found_functions}}
+    global __cuGraphExecGetId
+    data["__cuGraphExecGetId"] = <intptr_t>__cuGraphExecGetId
+    {{else}}
+    data["__cuGraphExecGetId"] = <intptr_t>0
+    {{endif}}
+
     {{if 'cuGraphGetNodes' in found_functions}}
     global __cuGraphGetNodes
     data["__cuGraphGetNodes"] = <intptr_t>__cuGraphGetNodes
@@ -15906,6 +16192,13 @@ cpdef dict _inspect_function_pointers():
     data["__cuDevSmResourceSplitByCount"] = <intptr_t>0
     {{endif}}
 
+    {{if 'cuDevSmResourceSplit' in found_functions}}
+    global __cuDevSmResourceSplit
+    data["__cuDevSmResourceSplit"] = <intptr_t>__cuDevSmResourceSplit
+    {{else}}
+    data["__cuDevSmResourceSplit"] = <intptr_t>0
+    {{endif}}
+
     {{if 'cuDevResourceGenerateDesc' in found_functions}}
     global __cuDevResourceGenerateDesc
     data["__cuDevResourceGenerateDesc"] = <intptr_t>__cuDevResourceGenerateDesc
@@ -15946,6 +16239,13 @@ cpdef dict _inspect_function_pointers():
     data["__cuGreenCtxGetId"] = <intptr_t>__cuGreenCtxGetId
     {{else}}
     data["__cuGreenCtxGetId"] = <intptr_t>0
+    {{endif}}
+
+    {{if 'cuStreamGetDevResource' in found_functions}}
+    global __cuStreamGetDevResource
+    data["__cuStreamGetDevResource"] = <intptr_t>__cuStreamGetDevResource
+    {{else}}
+    data["__cuStreamGetDevResource"] = <intptr_t>0
     {{endif}}
 
     {{if 'cuLogsRegisterCallback' in found_functions}}

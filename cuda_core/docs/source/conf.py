@@ -51,6 +51,12 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# Include object entries (methods, attributes, etc.) in the table of contents
+# This enables the "On This Page" sidebar to show class methods and properties
+# Requires Sphinx 5.1+
+toc_object_entries = True
+toc_object_entries_show_parents = "domain"
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -67,6 +73,10 @@ html_theme_options = {
         "version-switcher",
         "navbar-nav",
     ],
+    # Use custom secondary sidebar that includes autodoc entries
+    "secondary_sidebar_items": ["page-toc"],
+    # Show more TOC levels by default
+    "show_toc_level": 3,
 }
 if os.environ.get("CI"):
     if int(os.environ.get("BUILD_PREVIEW", 0)):
@@ -99,14 +109,14 @@ section_titles = ["Returns"]
 
 
 def autodoc_process_docstring(app, what, name, obj, options, lines):
-    if name.startswith("cuda.core.experimental._system.System"):
+    if name.startswith("cuda.core._system.System"):
         name = name.replace("._system.System", ".system")
         # patch the docstring (in lines) *in-place*. Should docstrings include section titles other than "Returns",
         # this will need to be modified to handle them.
         while lines:
             lines.pop()
         attr = name.split(".")[-1]
-        from cuda.core.experimental._system import System
+        from cuda.core._system import System
 
         original_lines = getattr(System, attr).__doc__.split("\n")
         new_lines = []
@@ -123,5 +133,23 @@ def autodoc_process_docstring(app, what, name, obj, options, lines):
         lines.extend(new_lines)
 
 
+def skip_member(app, what, name, obj, skip, options):
+    # skip undocumented attributes for modules documented
+    # with cyclass.rst template where attributes
+    # are assumed to be properties (because cythonized
+    # properties are not recognized as such by autodoc)
+    excluded_dirs = [
+        "cuda.core._layout",
+        "cuda.core._memoryview",
+    ]
+    if what == "attribute" and getattr(obj, "__doc__", None) is None:
+        obj_module = getattr(getattr(obj, "__objclass__", None), "__module__", None)
+        if obj_module in excluded_dirs:
+            print(f"Skipping undocumented attribute {name} in {obj_module}")
+            return True
+    return None
+
+
 def setup(app):
     app.connect("autodoc-process-docstring", autodoc_process_docstring)
+    app.connect("autodoc-skip-member", skip_member)

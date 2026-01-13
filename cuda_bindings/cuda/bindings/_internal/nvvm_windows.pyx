@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
-# This code was automatically generated across versions from 12.0.1 to 13.0.2. Do not modify it directly.
+# This code was automatically generated across versions from 12.0.1 to 13.1.0. Do not modify it directly.
 
 from libc.stdint cimport intptr_t
 
@@ -92,10 +92,14 @@ cdef void* __nvvmGetProgramLogSize = NULL
 cdef void* __nvvmGetProgramLog = NULL
 
 
-cdef int __check_or_init_nvvm() except -1 nogil:
+cdef int _init_nvvm() except -1 nogil:
     global __py_nvvm_init
 
     with gil, __symbol_lock:
+        # Recheck the flag after obtaining the locks
+        if __py_nvvm_init:
+            return 0
+
         # Load library
         handle = load_nvidia_dynamic_lib("nvvm")._handle_uint
 
@@ -147,7 +151,7 @@ cdef inline int _check_or_init_nvvm() except -1 nogil:
     if __py_nvvm_init:
         return 0
 
-    return __check_or_init_nvvm()
+    return _init_nvvm()
 
 
 cdef dict func_ptrs = None

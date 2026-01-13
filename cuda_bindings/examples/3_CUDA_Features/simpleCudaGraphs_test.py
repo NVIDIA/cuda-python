@@ -5,7 +5,6 @@ import ctypes
 import random as rnd
 
 import numpy as np
-import pytest
 from common import common
 from common.helper_cuda import checkCudaErrors, findCudaDevice
 from cuda.bindings import driver as cuda
@@ -362,23 +361,6 @@ def cudaGraphsUsingStreamCapture(inputVec_h, inputVec_d, outputVec_d, result_d, 
     checkCudaErrors(cudart.cudaStreamDestroy(streamForGraph))
 
 
-def checkKernelCompiles():
-    kernel_headers = """\
-    #include <cooperative_groups.h>
-    """
-    try:
-        common.KernelHelper(kernel_headers, findCudaDevice())
-    except:
-        # Filters out test from automation when CG header has issues compiling
-        # Automation issue is observed when CG headers are obtained through PYPI packages
-        # The problem is that these headers and their dependencies are segmented between
-        # multiple packages, and NVRTC requires that you specify the path to each segemented
-        # include path.
-        return False
-    return True
-
-
-@pytest.mark.skipif(not checkKernelCompiles(), reason="Automation filter against incompatible kernel")
 def main():
     size = 1 << 24  # number of elements to reduce
     maxBlocks = 512

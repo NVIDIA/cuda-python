@@ -113,7 +113,7 @@ flowchart TD
             B2["linux-aarch64<br/>(Self-hosted)"]
             B3["win-64<br/>(GitHub-hosted)"]
         end
-        BUILD_DETAILS["• Python versions: 3.9, 3.10, 3.11, 3.12, 3.13<br/>• CUDA version: 13.0.0 (build-time)<br/>• Components: cuda-core, cuda-bindings,<br/>  cuda-pathfinder, cuda-python"]
+        BUILD_DETAILS["• Python versions: 3.10, 3.11, 3.12, 3.13, 3.14<br/>• CUDA version: 13.0.0 (build-time)<br/>• Components: cuda-core, cuda-bindings,<br/>  cuda-pathfinder, cuda-python"]
     end
 
     %% Artifact Storage
@@ -206,6 +206,12 @@ flowchart TD
 - **Security**: All commits must be signed, untrusted code blocked
 - **Parallel execution**: Matrix builds across Python versions and platforms
 - **Component isolation**: Each component (core, bindings, pathfinder, python) can be built/released independently
+
+## Code coverage
+
+Code coverage reports are produced nightly and posted to [GitHub Pages](https://nvidia.github.io/cuda-python/coverage).
+
+Known limitations: Code coverage is only run on Linux x86_64 with an a100 GPU.  We plan to add more platform and GPU coverage in the future.
 
 ---
 

@@ -4,6 +4,7 @@
 import ctypes
 
 import helpers
+from helpers.misc import StreamWrapper
 
 try:
     import cupy as cp
@@ -11,7 +12,7 @@ except ImportError:
     cp = None
 import numpy as np
 import pytest
-from cuda.core.experimental import (
+from cuda.core import (
     Device,
     DeviceMemoryResource,
     LaunchConfig,
@@ -20,8 +21,8 @@ from cuda.core.experimental import (
     ProgramOptions,
     launch,
 )
-from cuda.core.experimental._memory import _SynchronousMemoryResource
-from cuda.core.experimental._utils.cuda_utils import CUDAError
+from cuda.core._memory import _SynchronousMemoryResource
+from cuda.core._utils.cuda_utils import CUDAError
 
 from conftest import skipif_need_cuda_headers
 
@@ -94,7 +95,7 @@ def test_launch_config_cluster_grid_conversion(init_cuda):
 
 def test_launch_config_native_conversion(init_cuda):
     """Test that _to_native_launch_config correctly converts grid from cluster units to block units."""
-    from cuda.core.experimental._launch_config import _to_native_launch_config
+    from cuda.core._launch_config import _to_native_launch_config
 
     try:
         # Test case 1: 1D - Issue #867 example
@@ -131,7 +132,7 @@ def test_launch_invalid_values(init_cuda):
     ker = mod.get_kernel("my_kernel")
     config = LaunchConfig(grid=(1, 1, 1), block=(1, 1, 1), shmem_size=0)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         launch(None, ker, config)
 
     with pytest.raises(TypeError):
@@ -139,6 +140,14 @@ def test_launch_invalid_values(init_cuda):
 
     with pytest.raises(TypeError):
         launch(stream, ker, None)
+
+    msg = (
+        r"Passing foreign stream objects to this function via the stream "
+        r"protocol is deprecated\. Convert the object explicitly using "
+        r"Stream\(obj\) instead\."
+    )
+    with pytest.warns(DeprecationWarning, match=msg):
+        launch(StreamWrapper(stream), config, ker)
 
     launch(stream, config, ker)
 
@@ -219,9 +228,10 @@ def test_launch_scalar_argument(python_type, cpp_type, init_value):
     ker = mod.get_kernel(ker_name)
 
     # Launch with 1 thread
+    stream = dev.default_stream
     config = LaunchConfig(grid=1, block=1)
-    launch(dev.default_stream, config, ker, arr.ctypes.data, scalar)
-    dev.default_stream.sync()
+    launch(stream, config, ker, arr.ctypes.data, scalar)
+    stream.sync()
 
     # Check result
     assert arr[0] == init_value, f"Expected {init_value}, got {arr[0]}"
@@ -254,7 +264,7 @@ def test_cooperative_launch():
     # # Commented out as this seems to be a sticky error...
     # config = LaunchConfig(grid=1, block=1)
     # launch(s, config, ker)
-    # from cuda.core.experimental._utils.cuda_utils import CUDAError
+    # from cuda.core._utils.cuda_utils import CUDAError
     # with pytest.raises(CUDAError) as e:
     #     s.sync()
     # assert "CUDA_ERROR_LAUNCH_FAILED" in str(e)

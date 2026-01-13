@@ -2,67 +2,74 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-try:
-    import cuda.bindings
-except ImportError:
-    raise ImportError("cuda.bindings 12.x or 13.x must be installed") from None
-else:
-    cuda_major, cuda_minor = cuda.bindings.__version__.split(".")[:2]
-    if cuda_major not in ("12", "13"):
-        raise ImportError("cuda.bindings 12.x or 13.x must be installed")
+"""
+Backward compatibility stubs for cuda.core.experimental namespace.
 
-import importlib
+This module provides forwarding stubs that import from the new cuda.core.*
+locations and emit deprecation warnings. Users should migrate to importing
+directly from cuda.core instead of cuda.core.experimental.
 
-subdir = f"cu{cuda_major}"
-try:
-    versioned_mod = importlib.import_module(f".{subdir}", __package__)
-    # Import all symbols from the module
-    globals().update(versioned_mod.__dict__)
-except ImportError:
-    # This is not a wheel build, but a conda or local build, do nothing
-    pass
-else:
-    del versioned_mod
-finally:
-    del cuda.bindings, importlib, subdir, cuda_major, cuda_minor
+The experimental namespace will be removed in v1.0.0.
 
-import sys  # noqa: E402
-import warnings  # noqa: E402
+"""
 
-if sys.version_info < (3, 10):
+
+def _warn_deprecated():
+    """Emit a deprecation warning for using the experimental namespace.
+
+    Note: This warning is only when the experimental module is first imported.
+    Subsequent accesses to attributes (like utils, Device, etc.) do not trigger
+    additional warnings since they are already set in the module namespace.
+    """
+    import warnings
+
     warnings.warn(
-        "support for Python 3.9 and below is deprecated and subject to future removal",
-        category=FutureWarning,
-        stacklevel=1,
+        "The cuda.core.experimental namespace is deprecated. "
+        "Please import directly from cuda.core instead. "
+        "For example, use 'from cuda.core import Device' instead of "
+        "'from cuda.core.experimental import Device'. "
+        "The experimental namespace will be removed in v1.0.0.",
+        DeprecationWarning,
+        stacklevel=3,
     )
-del sys, warnings
 
-from cuda.core.experimental import utils  # noqa: E402
-from cuda.core.experimental._device import Device  # noqa: E402
-from cuda.core.experimental._event import Event, EventOptions  # noqa: E402
-from cuda.core.experimental._graph import (  # noqa: E402
+
+# Import from new locations and re-export
+_warn_deprecated()
+
+
+from cuda.core import system, utils  # noqa: E402
+
+# Make utils accessible as a submodule for backward compatibility
+__import__("sys").modules[__spec__.name + ".utils"] = utils
+
+
+from cuda.core._device import Device  # noqa: E402
+from cuda.core._event import Event, EventOptions  # noqa: E402
+from cuda.core._graph import (  # noqa: E402
     Graph,
     GraphBuilder,
     GraphCompleteOptions,
     GraphDebugPrintOptions,
 )
-from cuda.core.experimental._launch_config import LaunchConfig  # noqa: E402
-from cuda.core.experimental._launcher import launch  # noqa: E402
-from cuda.core.experimental._linker import Linker, LinkerOptions  # noqa: E402
-from cuda.core.experimental._memory import (  # noqa: E402
+from cuda.core._launch_config import LaunchConfig  # noqa: E402
+from cuda.core._launcher import launch  # noqa: E402
+from cuda.core._layout import _StridedLayout  # noqa: E402
+from cuda.core._linker import Linker, LinkerOptions  # noqa: E402
+from cuda.core._memory import (  # noqa: E402
     Buffer,
     DeviceMemoryResource,
     DeviceMemoryResourceOptions,
+    GraphMemoryResource,
     LegacyPinnedMemoryResource,
+    ManagedMemoryResource,
+    ManagedMemoryResourceOptions,
     MemoryResource,
+    PinnedMemoryResource,
+    PinnedMemoryResourceOptions,
     VirtualMemoryResource,
     VirtualMemoryResourceOptions,
 )
-from cuda.core.experimental._module import Kernel, ObjectCode  # noqa: E402
-from cuda.core.experimental._program import Program, ProgramOptions  # noqa: E402
-from cuda.core.experimental._stream import Stream, StreamOptions  # noqa: E402
-from cuda.core.experimental._system import System  # noqa: E402
-
-system = System()
-__import__("sys").modules[__spec__.name + ".system"] = system
-del System
+from cuda.core._module import Kernel, ObjectCode  # noqa: E402
+from cuda.core._program import Program, ProgramOptions  # noqa: E402
+from cuda.core._stream import Stream, StreamOptions  # noqa: E402
