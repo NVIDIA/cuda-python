@@ -612,7 +612,7 @@ cdef class Device:
             An iterator over available devices.
         """
         for handle in nvml.system_get_topology_gpu_set(cpu_index):
-            device = Device.__new__()
+            device = Device.__new__(Device)
             device._handle = handle
             return device
 
@@ -841,6 +841,7 @@ cdef class Device:
         for handle in nvml.device_get_topology_nearest_gpus(self._handle, level):
             yield Device(handle=handle)
 
+    @property
     def attributes(self) -> DeviceAttributes:
         """
         Get various device attributes.

@@ -247,7 +247,6 @@ def test_device_attributes():
         except system.NotSupportedError:
             skip_reasons.append(f"Device attributes not supported on '{device.name}'")
             continue
-        print("Attribute type:", type(attributes))
         assert isinstance(attributes, system.DeviceAttributes)
 
         assert isinstance(attributes.multiprocessor_count, int)
