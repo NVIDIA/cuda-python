@@ -7,7 +7,7 @@ import warnings
 
 import cuda.core
 import pytest
-from cuda.core import Device, ObjectCode, Program, ProgramOptions, Kernel
+from cuda.core import Device, Kernel, ObjectCode, Program, ProgramOptions
 from cuda.core._module import _is_cuda_12_plus_backend
 from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 

@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import functools
 import threading
 import weakref
 from collections import namedtuple
 from typing import Union
 from warnings import warn
-import functools
 
 from cuda.core._device import Device
 from cuda.core._launch_config import LaunchConfig, _to_native_launch_config
