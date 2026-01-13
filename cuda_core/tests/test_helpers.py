@@ -48,10 +48,6 @@ def test_latchkernel():
 
 
 @pytest.mark.skipif(
-    IS_WINDOWS,
-    reason="Extremely slow on Windows (issue #1455).",
-)
-@pytest.mark.skipif(
     under_compute_sanitizer(),
     reason="Too slow under compute-sanitizer (UVM-heavy test).",
 )
@@ -62,11 +58,13 @@ def test_patterngen_seeds():
     buffer = make_scratch_buffer(device, 0, NBYTES)
 
     # All seeds are pairwise different.
+    # We test a sampling of values because exhaustive testing is too slow,
+    # especially on Windows. See https://github.com/NVIDIA/cuda-python/issues/1455
     pgen = PatternGen(device, NBYTES)
-    for i in range(256):
+    for i in (ii for ii in range(0, 256) if ii < 5 or ii % 17 == 0):
         pgen.fill_buffer(buffer, seed=i)
         pgen.verify_buffer(buffer, seed=i)
-        for j in range(i + 1, 256):
+        for j in (jj for jj in range(i + 1, 256) if jj < 5 or jj % 19 == 0):
             with pytest.raises(AssertionError):
                 pgen.verify_buffer(buffer, seed=j)
 
