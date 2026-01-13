@@ -9,6 +9,8 @@
 Highlights
 ----------
 
+* Updated the ``cuda.bindings.runtime`` module to statically link against the CUDA Runtime library from CUDA Toolkit 13.1.1.
+
 Experimental
 ------------
 
