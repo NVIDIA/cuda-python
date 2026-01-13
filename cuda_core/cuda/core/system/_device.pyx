@@ -839,8 +839,11 @@ cdef class Device:
         Iterable of :class:`Device`
             The nearest devices at the given topology level.
         """
+        cdef Device device
         for handle in nvml.device_get_topology_nearest_gpus(self._handle, level):
-            yield Device(handle=handle)
+            device = Device.__new__(Device)
+            device._handle = handle
+            yield device
 
     @property
     def attributes(self) -> DeviceAttributes:
