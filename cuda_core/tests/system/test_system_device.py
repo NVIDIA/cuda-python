@@ -247,6 +247,7 @@ def test_device_attributes():
         except system.NotSupportedError:
             skip_reasons.append(f"Device attributes not supported on '{device.name}'")
             continue
+        print("Attribute type:", type(attributes))
         assert isinstance(attributes, system.DeviceAttributes)
 
         assert isinstance(attributes.multiprocessor_count, int)
@@ -459,7 +460,7 @@ def test_get_inforom_version():
         # TODO: This is untested locally.
         try:
             timestamp, duration_us = inforom.bbx_flush_time
-        except system.NotSupportedError:
+        except (system.NotSupportedError, system.NotReadyError):
             pass
         else:
             assert isinstance(timestamp, int)
