@@ -15,6 +15,7 @@ on:
     branches:
       - "pull-request/[0-9]+"
       - "main"
+      - "release/*"
 
 jobs:
   ci-vars:
