@@ -611,6 +611,7 @@ cdef class Device:
         Iterator of Device
             An iterator over available devices.
         """
+        cdef Device device
         for handle in nvml.system_get_topology_gpu_set(cpu_index):
             device = Device.__new__(Device)
             device._handle = handle
