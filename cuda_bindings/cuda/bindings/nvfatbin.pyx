@@ -43,13 +43,13 @@ class Result(_IntEnum):
 # Error handling
 ###############################################################################
 
-class nvfatbinError(Exception):
+class nvFatbinError(Exception):
 
     def __init__(self, status):
         self.status = status
         s = Result(status)
         cdef str err = f"{s.name} ({s.value})"
-        super(nvfatbinError, self).__init__(err)
+        super(nvFatbinError, self).__init__(err)
 
     def __reduce__(self):
         return (type(self), (self.status,))
@@ -59,7 +59,7 @@ class nvfatbinError(Exception):
 cdef int check_status(int status) except 1 nogil:
     if status != 0:
         with gil:
-            raise nvfatbinError(status)
+            raise nvFatbinError(status)
     return status
 
 
