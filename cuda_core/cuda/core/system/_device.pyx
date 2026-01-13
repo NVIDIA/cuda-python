@@ -15,6 +15,7 @@ from ._nvml_context cimport initialize
 include "_device_utils.pxi"
 
 
+BrandType = nvml.BrandType
 FieldId = nvml.FieldId
 
 
@@ -174,6 +175,77 @@ cdef class PciInfo:
         return self._pci_info.pci_device_id >> 16
 
 
+cdef class DeviceAttributes:
+    """
+    Various device attributes.
+    """
+    def __init__(self, attributes: nvml.DeviceAttributes):
+        self._attributes = attributes
+
+    @property
+    def multiprocessor_count(self) -> int:
+        """
+        The streaming multiprocessor count
+        """
+        return self._attributes.multiprocessor_count
+
+    @property
+    def shared_copy_engine_count(self) -> int:
+        """
+        The shared copy engine count
+        """
+        return self._attributes.shared_copy_engine_count
+
+    @property
+    def shared_decoder_count(self) -> int:
+        """
+        The shared decoder engine count
+        """
+        return self._attributes.shared_decoder_count
+
+    @property
+    def shared_encoder_count(self) -> int:
+        """
+        The shared encoder engine count
+        """
+        return self._attributes.shared_encoder_count
+
+    @property
+    def shared_jpeg_count(self) -> int:
+        """
+        The shared JPEG engine count
+        """
+        return self._attributes.shared_jpeg_count
+
+    @property
+    def shared_ofa_count(self) -> int:
+        """
+        The shared optical flow accelerator (OFA) engine count
+        """
+        return self._attributes.shared_ofa_count
+
+    @property
+    def gpu_instance_slice_count(self) -> int:
+        """
+        The GPU instance slice count
+        """
+        return self._attributes.gpu_instance_slice_count
+
+    @property
+    def compute_instance_slice_count(self) -> int:
+        """
+        The compute instance slice count
+        """
+        return self._attributes.compute_instance_slice_count
+
+    @property
+    def memory_size_mb(self) -> int:
+        """
+        Device memory size in MiB
+        """
+        return self._attributes.memory_size_mb
+
+
 cdef class FieldValue:
     """
     Represents the data from a single field value.
@@ -317,39 +389,56 @@ cdef class Device:
     about devices and their topology, as provided by the NVIDIA Management
     Library (NVML).  To use CUDA with a device, use :class:`cuda.core.Device`.
 
+    Creating a device instance causes NVML to initialize the target GPU.
+    NVML may initialize additional GPUs if the target GPU is an SLI slave.
+
     Parameters
     ----------
     index: int, optional
-        Integer representing the CUDA device index to get a handle to.
+        Integer representing the CUDA device index to get a handle to.  Valid
+        values are between ``0`` and ``cuda.core.system.get_num_devices() - 1``.
+
+        The order in which devices are enumerated has no guarantees of
+        consistency between reboots.  For that reason, it is recommended that
+        devices are looked up by their PCI ids or UUID.
+
     uuid: bytes or str, optional
         UUID of a CUDA device to get a handle to.
+
+    pci_bus_id: bytes or str, optional
+        PCI bus ID of a CUDA device to get a handle to.
 
     Raises
     ------
     ValueError
-        If neither `index` nor `uuid` are specified or if both are specified.
+        If anything other than a single `index`, `uuid` or `pci_bus_id` are specified.
     """
 
     cdef intptr_t _handle
 
-    def __init__(self, index: int | None = None, uuid: bytes | str | None = None):
+    def __init__(self, index: int | None = None, uuid: bytes | str | None = None, pci_bus_id: bytes | str | None = None):
         initialize()
 
-        if index is not None and uuid is not None:
-            raise ValueError("Handle requires only one of either device `index` or `uuid`.")
-        if index is None and uuid is None:
-            raise ValueError("Handle requires either a device `index` or `uuid`.")
+        args = [index, uuid, pci_bus_id]
+        arg_count = sum(x is not None for x in args)
+
+        if arg_count > 1:
+            raise ValueError("Handle requires only one of either device `index`, `uuid` or `pci_bus_id`.")
+        if arg_count == 0:
+            raise ValueError("Handle requires either a device `index`, `uuid` or `pci_bus_id`.")
 
         if index is not None:
             self._handle = nvml.device_get_handle_by_index_v2(index)
-        else:
+        elif uuid is not None:
             if isinstance(uuid, bytes):
                 uuid = uuid.decode("ascii")
             self._handle = nvml.device_get_handle_by_uuid(uuid)
-
-    @property
-    def handle(self) -> int:
-        return self._handle
+        elif pci_bus_id is not None:
+            if isinstance(pci_bus_id, bytes):
+                pci_bus_id = pci_bus_id.decode("ascii")
+            self._handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
+        else:
+            raise ValueError("Error parsing arguments")
 
     @classmethod
     def get_all_devices(cls) -> Iterable[Device]:
@@ -428,6 +517,24 @@ cdef class Device:
         return nvml.device_get_name(self._handle)
 
     @property
+    def brand(self) -> BrandType:
+        """
+        Brand of the device
+        """
+        return BrandType(nvml.device_get_brand(self._handle))
+
+    @property
+    def index(self) -> int:
+        """
+        The NVML index of this device.
+
+        The order in which NVML enumerates devices has no guarantees of
+        consistency between reboots. For that reason it is recommended that
+        devices be looked up by their PCI ids or GPU UUID.
+        """
+        return nvml.device_get_index(self._handle)
+
+    @property
     def pci_info(self) -> PciInfo:
         """
         The PCI attributes of this device.
@@ -450,6 +557,39 @@ cdef class Device:
         board serial identifier.
         """
         return nvml.device_get_uuid(self._handle)
+
+    @property
+    def attributes(self) -> DeviceAttributes:
+        """
+        Get various device attributes.
+
+        For Ampere™ or newer fully supported devices.  Only available on Linux
+        systems.
+        """
+        return DeviceAttributes(nvml.device_get_attributes_v2(self._handle))
+
+    @property
+    def is_c2c_mode_enabled(self) -> bool:
+        """
+        Whether the C2C (Chip-to-Chip) mode is enabled for this device.
+        """
+        return bool(nvml.device_get_c2c_mode_info_v(self._handle).is_c2c_enabled)
+
+    @property
+    def persistence_mode_enabled(self) -> bool:
+        """
+        Whether persistence mode is enabled for this device.
+
+        For Linux only.
+        """
+        return nvml.device_get_persistence_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED
+
+    @persistence_mode_enabled.setter
+    def persistence_mode_enabled(self, enabled: bool) -> None:
+        nvml.device_set_persistence_mode(
+            self._handle,
+            nvml.EnableState.FEATURE_ENABLED if enabled else nvml.EnableState.FEATURE_DISABLED
+        )
 
     def get_field_values(self, field_ids: list[int | tuple[int, int]]) -> FieldValues:
         """
@@ -494,8 +634,10 @@ cdef class Device:
 
 __all__ = [
     "BAR1MemoryInfo",
+    "BrandType",
     "Device",
     "DeviceArchitecture",
+    "DeviceAttributes",
     "FieldId",
     "FieldValue",
     "FieldValues",
