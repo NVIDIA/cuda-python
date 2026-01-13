@@ -7,6 +7,7 @@ import weakref
 from collections import namedtuple
 from typing import Union
 from warnings import warn
+import functools
 
 from cuda.core._device import Device
 from cuda.core._launch_config import LaunchConfig, _to_native_launch_config
@@ -99,6 +100,7 @@ def _get_kernel_ctypes():
     return _kernel_ctypes
 
 
+@functools.cache
 def _get_backend_version():
     """Get the backend version ("new" or "old") based on CUDA version.
 
