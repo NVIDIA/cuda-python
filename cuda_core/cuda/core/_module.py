@@ -17,7 +17,7 @@ from cuda.core._utils.clear_error_support import (
     assert_type_str_or_bytes_like,
     raise_code_path_meant_to_be_unreachable,
 )
-from cuda.core._utils.cuda_utils import driver, get_binding_version, handle_return, precondition
+from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return, precondition
 
 # Lazy initialization state and synchronization
 # For Python 3.13t (free-threaded builds), we use a lock to ensure thread-safe initialization.
@@ -25,6 +25,7 @@ from cuda.core._utils.cuda_utils import driver, get_binding_version, handle_retu
 _init_lock = threading.Lock()
 _inited = False
 _py_major_ver = None
+_py_minor_ver = None
 _driver_ver = None
 _kernel_ctypes = None
 _backend = {
@@ -60,9 +61,9 @@ def _lazy_init():
         if _inited:
             return
 
-        global _py_major_ver, _driver_ver, _kernel_ctypes
+        global _py_major_ver, _py_minor_ver, _driver_ver, _kernel_ctypes
         # binding availability depends on cuda-python version
-        _py_major_ver, _ = get_binding_version()
+        _py_major_ver, _py_minor_ver = get_binding_version()
         if _py_major_ver >= 12:
             _backend["new"] = {
                 "file": driver.cuLibraryLoadFromFile,
@@ -88,6 +89,12 @@ def _get_py_major_ver():
     return _py_major_ver
 
 
+def _get_py_minor_ver():
+    """Get the Python binding minor version, initializing if needed."""
+    _lazy_init()
+    return _py_minor_ver
+
+
 def _get_driver_ver():
     """Get the CUDA driver version, initializing if needed."""
     _lazy_init()
@@ -101,12 +108,36 @@ def _get_kernel_ctypes():
 
 
 @functools.cache
+def _is_cuda_12_plus_backend() -> bool:
+    """Return True when the CUDA 12+ (cuLibrary) backend is available/active."""
+    return _get_py_major_ver() >= 12 and _get_driver_ver() >= 12000
+
+
+@functools.cache
 def _get_backend_version():
     """Get the backend version ("new" or "old") based on CUDA version.
 
     Returns "new" for CUDA 12.0+ (uses cuLibrary API), "old" otherwise (uses cuModule API).
     """
-    return "new" if (_get_py_major_ver() >= 12 and _get_driver_ver() >= 12000) else "old"
+    return "new" if _is_cuda_12_plus_backend() else "old"
+
+
+@functools.cache
+def _is_cukernel_get_library_supported() -> bool:
+    """Return True when cuKernelGetLibrary is available for inverse kernel-to-library lookup.
+
+    Requires cuda-python bindings >= 12.5 and driver >= 12.5.
+    """
+    return (
+        (_get_py_major_ver(), _get_py_minor_ver()) >= (12, 5)
+        and _get_driver_ver() >= 12050
+        and hasattr(driver, "cuKernelGetLibrary")
+    )
+
+
+def _make_dummy_library_handle():
+    """Create a non-null placeholder CUlibrary handle to disable lazy loading."""
+    return driver.CUlibrary(1) if hasattr(driver, "CUlibrary") else 1
 
 
 class KernelAttributes:
@@ -511,20 +542,36 @@ class Kernel:
         if not isinstance(handle, int):
             raise TypeError(f"handle must be an integer, got {type(handle).__name__}")
 
-        # Convert the integer handle to the appropriate driver type
-        if _get_py_major_ver() >= 12 and _get_driver_ver() >= 12000:
-            # Try CUkernel first for newer CUDA versions
+        # Convert the integer handle to the appropriate driver type.
+        #
+        # - For the CUDA 12+ "new" backend, kernels are CUkernel handles.
+        # - For the legacy "old" backend, kernels are CUfunction handles.
+        if _is_cuda_12_plus_backend():
             kernel_obj = driver.CUkernel(handle)
         else:
-            # Use CUfunction for older versions
             kernel_obj = driver.CUfunction(handle)
 
         # If no module provided, create a placeholder
         if mod is None:
-            # Create a placeholder ObjectCode that won't try to load anything
+            if not _is_cuda_12_plus_backend():
+                raise NotImplementedError(
+                    "Kernel.from_handle(..., mod=None) is only supported for CUkernel handles "
+                    "(CUDA 12 'new' backend). For CUfunction handles, please pass the owning "
+                    "ObjectCode explicitly via the 'mod' argument."
+                )
+
+            # For CUkernel, we can (optionally) inverse-lookup the owning CUlibrary via
+            # cuKernelGetLibrary (added in CUDA 12.5). If the API is not available, we fall
+            # back to a non-null dummy handle purely to disable lazy loading.
             mod = ObjectCode._init(b"", "cubin")
-            # Set a dummy handle to prevent lazy loading
-            mod._handle = 1  # Non-null placeholder
+            if _is_cukernel_get_library_supported():
+                try:
+                    mod._handle = handle_return(driver.cuKernelGetLibrary(kernel_obj))
+                except (CUDAError, RuntimeError):
+                    # Best-effort: don't fail construction if inverse lookup fails.
+                    mod._handle = _make_dummy_library_handle()
+            else:
+                mod._handle = _make_dummy_library_handle()
 
         return Kernel._from_obj(kernel_obj, mod)
 
