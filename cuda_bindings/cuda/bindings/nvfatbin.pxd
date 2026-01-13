@@ -29,9 +29,14 @@ ctypedef nvFatbinResult _Result
 
 cpdef intptr_t create(options, size_t options_count) except -1
 cpdef add_ptx(intptr_t handle, code, size_t size, arch, identifier, options_cmd_line)
+cpdef add_cubin(intptr_t handle, code, size_t size, arch, identifier)
+cpdef add_ltoir(intptr_t handle, code, size_t size, arch, identifier, options_cmd_line)
+cpdef add_reloc(intptr_t handle, code, size_t size)
 cpdef size_t size(intptr_t handle) except? 0
 cpdef get(intptr_t handle, buffer)
 cpdef tuple version()
+
+
 
 
 

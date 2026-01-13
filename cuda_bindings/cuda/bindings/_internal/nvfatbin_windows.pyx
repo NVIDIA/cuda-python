@@ -80,6 +80,9 @@ cdef bint __py_nvfatbin_init = False
 cdef void* __nvFatbinCreate = NULL
 cdef void* __nvFatbinDestroy = NULL
 cdef void* __nvFatbinAddPTX = NULL
+cdef void* __nvFatbinAddCubin = NULL
+cdef void* __nvFatbinAddLTOIR = NULL
+cdef void* __nvFatbinAddReloc = NULL
 cdef void* __nvFatbinSize = NULL
 cdef void* __nvFatbinGet = NULL
 cdef void* __nvFatbinVersion = NULL
@@ -105,6 +108,15 @@ cdef int _init_nvfatbin() except -1 nogil:
 
         global __nvFatbinAddPTX
         __nvFatbinAddPTX = GetProcAddress(handle, 'nvFatbinAddPTX')
+
+        global __nvFatbinAddCubin
+        __nvFatbinAddCubin = GetProcAddress(handle, 'nvFatbinAddCubin')
+
+        global __nvFatbinAddLTOIR
+        __nvFatbinAddLTOIR = GetProcAddress(handle, 'nvFatbinAddLTOIR')
+
+        global __nvFatbinAddReloc
+        __nvFatbinAddReloc = GetProcAddress(handle, 'nvFatbinAddReloc')
 
         global __nvFatbinSize
         __nvFatbinSize = GetProcAddress(handle, 'nvFatbinSize')
@@ -145,6 +157,15 @@ cpdef dict _inspect_function_pointers():
 
     global __nvFatbinAddPTX
     data["__nvFatbinAddPTX"] = <intptr_t>__nvFatbinAddPTX
+
+    global __nvFatbinAddCubin
+    data["__nvFatbinAddCubin"] = <intptr_t>__nvFatbinAddCubin
+
+    global __nvFatbinAddLTOIR
+    data["__nvFatbinAddLTOIR"] = <intptr_t>__nvFatbinAddLTOIR
+
+    global __nvFatbinAddReloc
+    data["__nvFatbinAddReloc"] = <intptr_t>__nvFatbinAddReloc
 
     global __nvFatbinSize
     data["__nvFatbinSize"] = <intptr_t>__nvFatbinSize
@@ -200,6 +221,36 @@ cdef nvFatbinResult _nvFatbinAddPTX(nvFatbinHandle handle, const char* code, siz
         handle, code, size, arch, identifier, optionsCmdLine)
 
 
+cdef nvFatbinResult _nvFatbinAddCubin(nvFatbinHandle handle, const void* code, size_t size, const char* arch, const char* identifier) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+    global __nvFatbinAddCubin
+    _check_or_init_nvfatbin()
+    if __nvFatbinAddCubin == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvFatbinAddCubin is not found")
+    return (<nvFatbinResult (*)(nvFatbinHandle, const void*, size_t, const char*, const char*) noexcept nogil>__nvFatbinAddCubin)(
+        handle, code, size, arch, identifier)
+
+
+cdef nvFatbinResult _nvFatbinAddLTOIR(nvFatbinHandle handle, const void* code, size_t size, const char* arch, const char* identifier, const char* optionsCmdLine) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+    global __nvFatbinAddLTOIR
+    _check_or_init_nvfatbin()
+    if __nvFatbinAddLTOIR == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvFatbinAddLTOIR is not found")
+    return (<nvFatbinResult (*)(nvFatbinHandle, const void*, size_t, const char*, const char*, const char*) noexcept nogil>__nvFatbinAddLTOIR)(
+        handle, code, size, arch, identifier, optionsCmdLine)
+
+
+cdef nvFatbinResult _nvFatbinAddReloc(nvFatbinHandle handle, const void* code, size_t size) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
+    global __nvFatbinAddReloc
+    _check_or_init_nvfatbin()
+    if __nvFatbinAddReloc == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvFatbinAddReloc is not found")
+    return (<nvFatbinResult (*)(nvFatbinHandle, const void*, size_t) noexcept nogil>__nvFatbinAddReloc)(
+        handle, code, size)
+
+
 cdef nvFatbinResult _nvFatbinSize(nvFatbinHandle handle, size_t* size) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinSize
     _check_or_init_nvfatbin()
@@ -228,6 +279,8 @@ cdef nvFatbinResult _nvFatbinVersion(unsigned int* major, unsigned int* minor) e
             raise FunctionNotFoundError("function nvFatbinVersion is not found")
     return (<nvFatbinResult (*)(unsigned int*, unsigned int*) noexcept nogil>__nvFatbinVersion)(
         major, minor)
+
+
 
 
 

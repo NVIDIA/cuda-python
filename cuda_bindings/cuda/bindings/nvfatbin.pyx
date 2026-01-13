@@ -139,6 +139,79 @@ cpdef add_ptx(intptr_t handle, code, size_t size, arch, identifier, options_cmd_
     check_status(__status__)
 
 
+cpdef add_cubin(intptr_t handle, code, size_t size, arch, identifier):
+    """nvFatbinAddCubin adds a CUDA binary to the fatbinary.
+
+    Args:
+        handle (intptr_t): nvFatbin handle.
+        code (bytes): The cubin.
+        size (size_t): The size of the cubin.
+        arch (str): The numerical architecture that this cubin is for (the XX of any sm_XX, lto_XX, or compute_XX).
+        identifier (str): Name of the cubin, useful when extracting the fatbin with tools like cuobjdump.
+
+    .. seealso:: `nvFatbinAddCubin`
+    """
+    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)
+    if not isinstance(arch, str):
+        raise TypeError("arch must be a Python str")
+    cdef bytes _temp_arch_ = (<str>arch).encode()
+    cdef char* _arch_ = _temp_arch_
+    if not isinstance(identifier, str):
+        raise TypeError("identifier must be a Python str")
+    cdef bytes _temp_identifier_ = (<str>identifier).encode()
+    cdef char* _identifier_ = _temp_identifier_
+    with nogil:
+        __status__ = nvFatbinAddCubin(<Handle>handle, <const void*>_code_, size, <const char*>_arch_, <const char*>_identifier_)
+    check_status(__status__)
+
+
+cpdef add_ltoir(intptr_t handle, code, size_t size, arch, identifier, options_cmd_line):
+    """nvFatbinAddLTOIR adds LTOIR to the fatbinary.
+
+    Args:
+        handle (intptr_t): nvFatbin handle.
+        code (bytes): The LTOIR code.
+        size (size_t): The size of the LTOIR code.
+        arch (str): The numerical architecture that this LTOIR is for (the XX of any sm_XX, lto_XX, or compute_XX).
+        identifier (str): Name of the LTOIR, useful when extracting the fatbin with tools like cuobjdump.
+        options_cmd_line (str): Options used during JIT compilation.
+
+    .. seealso:: `nvFatbinAddLTOIR`
+    """
+    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)
+    if not isinstance(arch, str):
+        raise TypeError("arch must be a Python str")
+    cdef bytes _temp_arch_ = (<str>arch).encode()
+    cdef char* _arch_ = _temp_arch_
+    if not isinstance(identifier, str):
+        raise TypeError("identifier must be a Python str")
+    cdef bytes _temp_identifier_ = (<str>identifier).encode()
+    cdef char* _identifier_ = _temp_identifier_
+    if not isinstance(options_cmd_line, str):
+        raise TypeError("options_cmd_line must be a Python str")
+    cdef bytes _temp_options_cmd_line_ = (<str>options_cmd_line).encode()
+    cdef char* _options_cmd_line_ = _temp_options_cmd_line_
+    with nogil:
+        __status__ = nvFatbinAddLTOIR(<Handle>handle, <const void*>_code_, size, <const char*>_arch_, <const char*>_identifier_, <const char*>_options_cmd_line_)
+    check_status(__status__)
+
+
+cpdef add_reloc(intptr_t handle, code, size_t size):
+    """nvFatbinAddReloc adds relocatable PTX entries from a host object to the fatbinary.
+
+    Args:
+        handle (intptr_t): nvFatbin handle.
+        code (bytes): The host object image.
+        size (size_t): The size of the host object image code.
+
+    .. seealso:: `nvFatbinAddReloc`
+    """
+    cdef void* _code_ = get_buffer_pointer(code, size, readonly=True)
+    with nogil:
+        __status__ = nvFatbinAddReloc(<Handle>handle, <const void*>_code_, size)
+    check_status(__status__)
+
+
 cpdef size_t size(intptr_t handle) except? 0:
     """nvFatbinSize returns the fatbinary's size.
 
@@ -189,6 +262,8 @@ cpdef tuple version():
         __status__ = nvFatbinVersion(&major, &minor)
     check_status(__status__)
     return (major, minor)
+
+
 
 
 
