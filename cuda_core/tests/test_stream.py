@@ -116,18 +116,28 @@ def test_stream_subclassing(init_cuda):
 def test_stream_legacy_default_subclassing():
     class MyStream(Stream):
         pass
-
-    stream = MyStream._legacy_default()
+    stream = MyStream.legacy_default()
     assert isinstance(stream, MyStream)
-
 
 def test_stream_per_thread_default_subclassing():
     class MyStream(Stream):
         pass
-
-    stream = MyStream._per_thread_default()
+    stream = MyStream.per_thread_default()
     assert isinstance(stream, MyStream)
 
+def test_stream_legacy_default_public_api():
+    """Test public legacy_default() method."""
+    stream = Stream.legacy_default()
+    assert isinstance(stream, Stream)
+    # Verify it's the same as LEGACY_DEFAULT_STREAM
+    assert stream == LEGACY_DEFAULT_STREAM
+
+def test_stream_per_thread_default_public_api():
+    """Test public per_thread_default() method."""
+    stream = Stream.per_thread_default()
+    assert isinstance(stream, Stream)
+    # Verify it's the same as PER_THREAD_DEFAULT_STREAM
+    assert stream == PER_THREAD_DEFAULT_STREAM
 
 # ============================================================================
 # Stream Equality Tests
