@@ -21,6 +21,7 @@ ClocksEventReasons = nvml.ClocksEventReasons
 ClockType = nvml.ClockType
 CoolerControl = nvml.CoolerControl
 CoolerTarget = nvml.CoolerTarget
+FanControlPolicy = nvml.FanControlPolicy
 FieldId = nvml.FieldId
 GpuP2PCapsIndex = nvml.GpuP2PCapsIndex
 GpuP2PStatus = nvml.GpuP2PStatus
@@ -723,7 +724,7 @@ cdef class Device:
 
         On Pascal™ and newer hardware, Auto Boosted clocks are controlled
         through application clocks. Use :meth:`set_application_clocks` and
-        :methd:`reset_application_clocks` to control Auto Boost behavior.
+        :meth:`reset_application_clocks` to control Auto Boost behavior.
 
         Returns
         -------
@@ -1170,6 +1171,7 @@ __all__ = [
     "Device",
     "DeviceArchitecture",
     "DeviceAttributes",
+    "FanControlPolicy",
     "FanInfo",
     "FieldId",
     "FieldValue",

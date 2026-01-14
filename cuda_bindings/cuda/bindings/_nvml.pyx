@@ -26829,7 +26829,7 @@ cpdef object device_get_topology_nearest_gpus(intptr_t device, unsigned int leve
     check_status_size(__status__)
     if count[0] == 0:
         return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
+    cdef view.array deviceArray = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
     with nogil:
         __status__ = nvmlDeviceGetTopologyNearestGpus(
             <Device>device,

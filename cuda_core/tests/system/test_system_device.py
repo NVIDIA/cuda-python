@@ -529,47 +529,45 @@ def test_clock():
             clock = device.clock(clock_type)
             assert isinstance(clock, system.ClockInfo)
 
-            for clock_type in system.ClockType:
-                try:
-                    current_mhz = clock.get_current_mhz()
-                except system.NotSupportedError:
-                    continue
-                assert isinstance(current_mhz, int)
-                assert current_mhz >= 0
+            try:
+                current_mhz = clock.get_current_mhz()
+            except system.NotSupportedError:
+                continue
+            assert isinstance(current_mhz, int)
+            assert current_mhz >= 0
 
-                current_mhz = clock.get_current_mhz(system.ClockId.CURRENT)
-                assert isinstance(current_mhz, int)
-                assert current_mhz >= 0
+            current_mhz = clock.get_current_mhz(system.ClockId.CURRENT)
+            assert isinstance(current_mhz, int)
+            assert current_mhz >= 0
 
-                max_mhz = clock.get_max_mhz()
-                assert isinstance(max_mhz, int)
-                assert max_mhz >= 0
+            max_mhz = clock.get_max_mhz()
+            assert isinstance(max_mhz, int)
+            assert max_mhz >= 0
 
-                try:
-                    max_customer_boost = clock.get_max_customer_boost_mhz()
-                except system.NotSupportedError:
-                    pass
-                else:
-                    assert isinstance(max_customer_boost, int)
-                    assert max_customer_boost >= 0
+            try:
+                max_customer_boost = clock.get_max_customer_boost_mhz()
+            except system.NotSupportedError:
+                pass
+            else:
+                assert isinstance(max_customer_boost, int)
+                assert max_customer_boost >= 0
 
-                pstate = device.performance_state
+            pstate = device.performance_state
 
-                min_, max_ = clock.get_min_max_clock_of_pstate_mhz(pstate)
-                assert isinstance(min_, int)
-                assert min_ >= 0
-                assert isinstance(max_, int)
-                assert max_ >= 0
+            min_, max_ = clock.get_min_max_clock_of_pstate_mhz(pstate)
+            assert isinstance(min_, int)
+            assert min_ >= 0
+            assert isinstance(max_, int)
+            assert max_ >= 0
 
-                try:
-                    offsets = clock.get_offsets(pstate)
-                except system.InvalidArgumentError:
-                    offsets = system.ClockOffsets(nvml.ClockOffset_v1())
-                else:
-                    assert isinstance(offsets, system.ClockOffsets)
-                    assert isinstance(offsets.clock_offset_mhz, int)
-                    assert isinstance(offsets.max_offset_mhz, int)
-                    assert isinstance(offsets.min_offset_mhz, int)
+            try:
+                offsets = clock.get_offsets(pstate)
+            except system.InvalidArgumentError:
+                offsets = system.ClockOffsets(nvml.ClockOffset_v1())
+            assert isinstance(offsets, system.ClockOffsets)
+            assert isinstance(offsets.clock_offset_mhz, int)
+            assert isinstance(offsets.max_offset_mhz, int)
+            assert isinstance(offsets.min_offset_mhz, int)
 
 
 def test_clock_event_reasons():
@@ -624,7 +622,7 @@ def test_cooler():
         assert isinstance(cooler_info, system.CoolerInfo)
 
         signal_type = cooler_info.signal_type
-        assert isinstance(signal_type, system.CoolerSignalType)
+        assert isinstance(signal_type, system.CoolerControl)
 
         target = cooler_info.target
         assert all(isinstance(t, system.CoolerTarget) for t in target)
