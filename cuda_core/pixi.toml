@@ -68,7 +68,7 @@ cu12 = { features = ["cu12", "test", "cython-tests"], solve-group = "cu12" }
 # TODO: check if these can be extracted from pyproject.toml
 [package]
 name = "cuda-core"
-version = "0.5.0"
+version = "0.5.1"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }
