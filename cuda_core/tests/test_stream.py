@@ -129,7 +129,7 @@ def test_stream_per_thread_default_subclassing():
     assert isinstance(stream, MyStream)
 
 
-def test_stream_legacy_default_public_api():
+def test_stream_legacy_default_public_api(init_cuda):
     """Test public legacy_default() method."""
     stream = Stream.legacy_default()
     assert isinstance(stream, Stream)
@@ -137,7 +137,7 @@ def test_stream_legacy_default_public_api():
     assert stream == LEGACY_DEFAULT_STREAM
 
 
-def test_stream_per_thread_default_public_api():
+def test_stream_per_thread_default_public_api(init_cuda):
     """Test public per_thread_default() method."""
     stream = Stream.per_thread_default()
     assert isinstance(stream, Stream)
