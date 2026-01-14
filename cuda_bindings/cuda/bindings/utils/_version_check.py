@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 import os
+import threading
 import warnings
 
 # Track whether we've already checked major version compatibility
 _major_version_compatibility_checked = False
+_lock = threading.Lock()
 
 
 def warn_if_cuda_major_version_mismatch():
@@ -24,7 +26,10 @@ def warn_if_cuda_major_version_mismatch():
     global _major_version_compatibility_checked
     if _major_version_compatibility_checked:
         return
-    _major_version_compatibility_checked = True
+    with _lock:
+        if _major_version_compatibility_checked:
+            return
+        _major_version_compatibility_checked = True
 
     # Allow users to suppress the warning
     if os.environ.get("CUDA_PYTHON_DISABLE_MAJOR_VERSION_WARNING"):

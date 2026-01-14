@@ -13,13 +13,10 @@ from cuda.bindings.utils import _version_check, warn_if_cuda_major_version_misma
 class TestVersionCompatibilityCheck:
     """Tests for CUDA major version mismatch warning function."""
 
-    def setup_method(self):
-        """Reset the version compatibility check flag before each test."""
-        _version_check._major_version_compatibility_checked = False
-
-    def teardown_method(self):
-        """Reset the version compatibility check flag after each test."""
-        _version_check._major_version_compatibility_checked = False
+    @pytest.fixture(autouse=True)
+    def reset_version_check(self, monkeypatch):
+        """Reset the version compatibility check flag for each test, restoring after."""
+        monkeypatch.setattr(_version_check, "_major_version_compatibility_checked", False)
 
     def test_no_warning_when_driver_newer(self):
         """No warning should be issued when driver version >= compile version."""

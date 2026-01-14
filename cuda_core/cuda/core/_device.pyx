@@ -1354,7 +1354,7 @@ class Device:
         return GraphBuilder._init(stream=self.create_stream(), is_stream_owner=True)
 
 
-cdef inline void Device_ensure_cuda_initialized() except *:
+cdef inline int Device_ensure_cuda_initialized() except? -1:
     """Initialize CUDA driver and check version compatibility (once per process)."""
     global _is_cuInit
     if _is_cuInit is False:
@@ -1367,6 +1367,7 @@ cdef inline void Device_ensure_cuda_initialized() except *:
             pass
         else:
             warn_if_cuda_major_version_mismatch()
+    return 0
 
 
 cdef inline int Device_resolve_device_id(device_id) except? -1:
