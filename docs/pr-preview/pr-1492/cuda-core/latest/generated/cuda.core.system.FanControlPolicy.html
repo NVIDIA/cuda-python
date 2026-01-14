@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT &#8212; cuda.core</title>
+    <title>cuda.core.system.FanControlPolicy &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/cuda.core.system.FanControlPolicy';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,11 +58,13 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT.html" />
+    <link rel="canonical" href="docs/generated/cuda.core.system.FanControlPolicy.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="cuda.core.system.FanInfo" href="cuda.core.system.FanInfo.html" />
+    <link rel="prev" title="cuda.core.system.DeviceAttributes" href="cuda.core.system.DeviceAttributes.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -202,7 +204,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
   </a>
@@ -391,7 +393,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api.html">
     cuda.core API Reference
   </a>
@@ -456,11 +458,11 @@
      aria-label="Table of Contents">
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../interoperability.html">Interoperability</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Device.html">cuda.core.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.Graph.html">cuda.core.Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.GraphBuilder.html">cuda.core.GraphBuilder</a></li>
@@ -513,7 +515,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.CoolerTarget.html">cuda.core.system.CoolerTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceAttributes.html">cuda.core.system.DeviceAttributes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FanControlPolicy.html">cuda.core.system.FanControlPolicy</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.FanControlPolicy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FanInfo.html">cuda.core.system.FanInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldValue.html">cuda.core.system.FieldValue</a></li>
@@ -595,7 +597,10 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT</span></li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuda.core.system.FanControlPolicy</span></li>
   </ul>
 </nav>
 </div>
@@ -612,13 +617,25 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-memory-virtual-memory-resource-virtualmemoryaccesstypet">
-<h1>cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT<a class="headerlink" href="#cuda-core-memory-virtual-memory-resource-virtualmemoryaccesstypet" title="Link to this heading">#</a></h1>
-<dl class="py data">
-<dt class="sig sig-object py" id="cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT">
-<span class="sig-prename descclassname"><span class="pre">cuda.core._memory._virtual_memory_resource.</span></span><span class="sig-name descname"><span class="pre">VirtualMemoryAccessTypeT</span></span><a class="headerlink" href="#cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT" title="Link to this definition">#</a></dt>
-<dd><p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Literal</span></code></a>[‘rw’, ‘r’] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
-</dd></dl>
+  <section id="cuda-core-system-fancontrolpolicy">
+<h1>cuda.core.system.FanControlPolicy<a class="headerlink" href="#cuda-core-system-fancontrolpolicy" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuda.core.system.FanControlPolicy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core.system.</span></span><span class="sig-name descname"><span class="pre">FanControlPolicy</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.system.FanControlPolicy" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 </section>
 
@@ -632,6 +649,24 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="cuda.core.system.DeviceAttributes.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">cuda.core.system.DeviceAttributes</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="cuda.core.system.FanInfo.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">cuda.core.system.FanInfo</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -653,7 +688,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT"><code class="docutils literal notranslate"><span class="pre">VirtualMemoryAccessTypeT</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.FanControlPolicy"><code class="docutils literal notranslate"><span class="pre">FanControlPolicy</span></code></a></li>
 </ul>
   </nav></div>
 

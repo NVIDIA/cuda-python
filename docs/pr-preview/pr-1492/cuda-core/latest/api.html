@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=ed6b127d"></script>
+    <script src="_static/documentation_options.js?v=49139664"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev38';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev39';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -515,6 +515,7 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.CoolerTarget.html">cuda.core.system.CoolerTarget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.DeviceAttributes.html">cuda.core.system.DeviceAttributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FanControlPolicy.html">cuda.core.system.FanControlPolicy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FanInfo.html">cuda.core.system.FanInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldValue.html">cuda.core.system.FieldValue</a></li>
@@ -796,73 +797,76 @@ deprecation periods for breaking changes.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.DeviceAttributes.html#cuda.core.system.DeviceAttributes" title="cuda.core.system.DeviceAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.DeviceAttributes</span></code></a>(attributes)</p></td>
 <td><p>Various device attributes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.FanInfo.html#cuda.core.system.FanInfo" title="cuda.core.system.FanInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FanInfo</span></code></a>(int handle, int fan)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.FanControlPolicy.html#cuda.core.system.FanControlPolicy" title="cuda.core.system.FanControlPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FanControlPolicy</span></code></a>(value[, names, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.FanInfo.html#cuda.core.system.FanInfo" title="cuda.core.system.FanInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FanInfo</span></code></a>(int handle, int fan)</p></td>
 <td><p>Manages information related to a specific fan on a specific device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.FieldId.html#cuda.core.system.FieldId" title="cuda.core.system.FieldId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FieldId</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.FieldId.html#cuda.core.system.FieldId" title="cuda.core.system.FieldId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FieldId</span></code></a>(value[, names, module, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.FieldValue.html#cuda.core.system.FieldValue" title="cuda.core.system.FieldValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FieldValue</span></code></a>(field_value)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.FieldValue.html#cuda.core.system.FieldValue" title="cuda.core.system.FieldValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FieldValue</span></code></a>(field_value)</p></td>
 <td><p>Represents the data from a single field value.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.FieldValues.html#cuda.core.system.FieldValues" title="cuda.core.system.FieldValues"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FieldValues</span></code></a>(field_values)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.FieldValues.html#cuda.core.system.FieldValues" title="cuda.core.system.FieldValues"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FieldValues</span></code></a>(field_values)</p></td>
 <td><p>Container of multiple field values.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.GpuDynamicPstatesInfo.html#cuda.core.system.GpuDynamicPstatesInfo" title="cuda.core.system.GpuDynamicPstatesInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.GpuDynamicPstatesInfo</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.GpuDynamicPstatesInfo.html#cuda.core.system.GpuDynamicPstatesInfo" title="cuda.core.system.GpuDynamicPstatesInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.GpuDynamicPstatesInfo</span></code></a>(...)</p></td>
 <td><p>Handles performance monitor samples from the device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.GpuDynamicPstatesUtilization.html#cuda.core.system.GpuDynamicPstatesUtilization" title="cuda.core.system.GpuDynamicPstatesUtilization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.GpuDynamicPstatesUtilization</span></code></a>(int ptr, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.GpuDynamicPstatesUtilization.html#cuda.core.system.GpuDynamicPstatesUtilization" title="cuda.core.system.GpuDynamicPstatesUtilization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.GpuDynamicPstatesUtilization</span></code></a>(int ptr, ...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.GpuP2PCapsIndex.html#cuda.core.system.GpuP2PCapsIndex" title="cuda.core.system.GpuP2PCapsIndex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.GpuP2PCapsIndex</span></code></a>(value[, names, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.GpuP2PCapsIndex.html#cuda.core.system.GpuP2PCapsIndex" title="cuda.core.system.GpuP2PCapsIndex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.GpuP2PCapsIndex</span></code></a>(value[, names, ...])</p></td>
 <td><p>See <cite>nvmlGpuP2PCapsIndex_t</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.GpuP2PStatus.html#cuda.core.system.GpuP2PStatus" title="cuda.core.system.GpuP2PStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.GpuP2PStatus</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.GpuP2PStatus.html#cuda.core.system.GpuP2PStatus" title="cuda.core.system.GpuP2PStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.GpuP2PStatus</span></code></a>(value[, names, module, ...])</p></td>
 <td><p>See <cite>nvmlGpuP2PStatus_t</cite>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.GpuTopologyLevel.html#cuda.core.system.GpuTopologyLevel" title="cuda.core.system.GpuTopologyLevel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.GpuTopologyLevel</span></code></a>(value[, names, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.GpuTopologyLevel.html#cuda.core.system.GpuTopologyLevel" title="cuda.core.system.GpuTopologyLevel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.GpuTopologyLevel</span></code></a>(value[, names, ...])</p></td>
 <td><p>See <cite>nvmlGpuTopologyLevel_t</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.InforomInfo.html#cuda.core.system.InforomInfo" title="cuda.core.system.InforomInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.InforomInfo</span></code></a>(Device device)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.InforomInfo.html#cuda.core.system.InforomInfo" title="cuda.core.system.InforomInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.InforomInfo</span></code></a>(Device device)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.InforomObject.html#cuda.core.system.InforomObject" title="cuda.core.system.InforomObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.InforomObject</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.InforomObject.html#cuda.core.system.InforomObject" title="cuda.core.system.InforomObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.InforomObject</span></code></a>(value[, names, module, ...])</p></td>
 <td><p>See <cite>nvmlInforomObject_t</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.MemoryInfo.html#cuda.core.system.MemoryInfo" title="cuda.core.system.MemoryInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.MemoryInfo</span></code></a>(memory_info)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.MemoryInfo.html#cuda.core.system.MemoryInfo" title="cuda.core.system.MemoryInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.MemoryInfo</span></code></a>(memory_info)</p></td>
 <td><p>Memory allocation information for a device.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.PcieUtilCounter.html#cuda.core.system.PcieUtilCounter" title="cuda.core.system.PcieUtilCounter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.PcieUtilCounter</span></code></a>(value[, names, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.PcieUtilCounter.html#cuda.core.system.PcieUtilCounter" title="cuda.core.system.PcieUtilCounter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.PcieUtilCounter</span></code></a>(value[, names, ...])</p></td>
 <td><p>See <cite>nvmlPcieUtilCounter_t</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo" title="cuda.core.system.PciInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.PciInfo</span></code></a>(pci_info_ext, int handle)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo" title="cuda.core.system.PciInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.PciInfo</span></code></a>(pci_info_ext, int handle)</p></td>
 <td><p>PCI information about a GPU device.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.Pstates.html#cuda.core.system.Pstates" title="cuda.core.system.Pstates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.Pstates</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.Pstates.html#cuda.core.system.Pstates" title="cuda.core.system.Pstates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.Pstates</span></code></a>(value[, names, module, ...])</p></td>
 <td><p>See <cite>nvmlPstates_t</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.RepairStatus.html#cuda.core.system.RepairStatus" title="cuda.core.system.RepairStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.RepairStatus</span></code></a>(int handle)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.RepairStatus.html#cuda.core.system.RepairStatus" title="cuda.core.system.RepairStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.RepairStatus</span></code></a>(int handle)</p></td>
 <td><p>Repair status for TPC/Channel repair.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.Temperature.html#cuda.core.system.Temperature" title="cuda.core.system.Temperature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.Temperature</span></code></a>(int handle)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.Temperature.html#cuda.core.system.Temperature" title="cuda.core.system.Temperature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.Temperature</span></code></a>(int handle)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.TemperatureSensors.html#cuda.core.system.TemperatureSensors" title="cuda.core.system.TemperatureSensors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.TemperatureSensors</span></code></a>(value[, names, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.TemperatureSensors.html#cuda.core.system.TemperatureSensors" title="cuda.core.system.TemperatureSensors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.TemperatureSensors</span></code></a>(value[, names, ...])</p></td>
 <td><p>See <cite>nvmlTemperatureSensors_t</cite>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.TemperatureThresholds.html#cuda.core.system.TemperatureThresholds" title="cuda.core.system.TemperatureThresholds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.TemperatureThresholds</span></code></a>(value[, names, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.TemperatureThresholds.html#cuda.core.system.TemperatureThresholds" title="cuda.core.system.TemperatureThresholds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.TemperatureThresholds</span></code></a>(value[, names, ...])</p></td>
 <td><p>See <cite>nvmlTemperatureThresholds_t</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.ThermalController.html#cuda.core.system.ThermalController" title="cuda.core.system.ThermalController"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ThermalController</span></code></a>(value[, names, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.ThermalController.html#cuda.core.system.ThermalController" title="cuda.core.system.ThermalController"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ThermalController</span></code></a>(value[, names, ...])</p></td>
 <td><p>See <cite>nvmlThermalController_t</cite>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.ThermalSensor.html#cuda.core.system.ThermalSensor" title="cuda.core.system.ThermalSensor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ThermalSensor</span></code></a>(int ptr, owner)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.ThermalSensor.html#cuda.core.system.ThermalSensor" title="cuda.core.system.ThermalSensor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ThermalSensor</span></code></a>(int ptr, owner)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.ThermalSettings.html#cuda.core.system.ThermalSettings" title="cuda.core.system.ThermalSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ThermalSettings</span></code></a>(thermal_settings)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.ThermalSettings.html#cuda.core.system.ThermalSettings" title="cuda.core.system.ThermalSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ThermalSettings</span></code></a>(thermal_settings)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.ThermalTarget.html#cuda.core.system.ThermalTarget" title="cuda.core.system.ThermalTarget"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ThermalTarget</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.ThermalTarget.html#cuda.core.system.ThermalTarget" title="cuda.core.system.ThermalTarget"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.ThermalTarget</span></code></a>(value[, names, module, ...])</p></td>
 <td><p>See <cite>nvmlThermalTarget_t</cite>.</p></td>
 </tr>
 </tbody>

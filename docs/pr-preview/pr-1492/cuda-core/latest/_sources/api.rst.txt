@@ -99,6 +99,7 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.CoolerTarget
    system.DeviceArchitecture
    system.DeviceAttributes
+   system.FanControlPolicy
    system.FanInfo
    system.FieldId
    system.FieldValue
