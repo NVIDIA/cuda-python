@@ -29,7 +29,6 @@ from cuda.core._resource_handles cimport (
     ContextHandle,
     EventHandle,
     StreamHandle,
-    _init_handles_table,
     create_context_handle_ref,
     create_event_handle_noctx,
     create_stream_handle,
@@ -41,9 +40,6 @@ from cuda.core._resource_handles cimport (
     as_cu,
     as_py,
 )
-
-# Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
-_init_handles_table()
 
 from cuda.core._graph import GraphBuilder
 

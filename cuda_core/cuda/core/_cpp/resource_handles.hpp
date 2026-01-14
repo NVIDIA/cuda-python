@@ -75,7 +75,7 @@ using MemoryPoolHandle = std::shared_ptr<const CUmemoryPool>;
 // ============================================================================
 
 // Function to create a non-owning context handle (references existing context).
-ContextHandle create_context_handle_ref(CUcontext ctx);
+ContextHandle create_context_handle_ref(CUcontext ctx) noexcept;
 
 // Get handle to the primary context for a device (with thread-local caching)
 // Returns empty handle on error (caller must check)
@@ -93,18 +93,18 @@ ContextHandle get_current_context() noexcept;
 // The stream structurally depends on the provided context handle.
 // When the last reference is released, cuStreamDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority);
+StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) noexcept;
 
 // Create a non-owning stream handle (references existing stream).
 // Use for borrowed streams (from foreign code) or built-in streams.
 // The stream will NOT be destroyed when the handle is released.
 // Caller is responsible for keeping the stream's context alive.
-StreamHandle create_stream_handle_ref(CUstream stream);
+StreamHandle create_stream_handle_ref(CUstream stream) noexcept;
 
 // Create a non-owning stream handle that prevents a Python owner from being GC'd.
 // The owner's refcount is incremented; decremented when handle is released.
 // The owner is responsible for keeping the stream's context alive.
-StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner);
+StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) noexcept;
 
 // Get non-owning handle to the legacy default stream (CU_STREAM_LEGACY)
 // Note: Legacy stream has no specific context dependency.
@@ -122,19 +122,19 @@ StreamHandle get_per_thread_stream() noexcept;
 // The event structurally depends on the provided context handle.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags);
+EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) noexcept;
 
 // Create an owning event handle without context dependency.
 // Use for temporary events that are created and destroyed in the same scope.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle(unsigned int flags);
+EventHandle create_event_handle_noctx(unsigned int flags) noexcept;
 
 // Create an owning event handle from an IPC handle.
 // The originating process owns the event and its context.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle);
+EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) noexcept;
 
 // ============================================================================
 // Memory pool handle functions
@@ -144,12 +144,12 @@ EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle);
 // Memory pools are device-scoped (not context-scoped).
 // When the last reference is released, cuMemPoolDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props);
+MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) noexcept;
 
 // Create a non-owning memory pool handle (references existing pool).
 // Use for device default/current pools that are managed by the driver.
 // The pool will NOT be destroyed when the handle is released.
-MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool);
+MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) noexcept;
 
 // Get non-owning handle to the current memory pool for a device.
 // Returns empty handle on error (caller must check).
@@ -159,7 +159,7 @@ MemoryPoolHandle get_device_mempool(int device_id) noexcept;
 // The file descriptor is NOT owned by this handle (caller manages FD separately).
 // When the last reference is released, cuMemPoolDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type);
+MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type) noexcept;
 
 // ============================================================================
 // Device pointer handle functions
@@ -174,33 +174,33 @@ using DevicePtrHandle = std::shared_ptr<const CUdeviceptr>;
 DevicePtrHandle deviceptr_alloc_from_pool(
     size_t size,
     MemoryPoolHandle h_pool,
-    StreamHandle h_stream);
+    StreamHandle h_stream) noexcept;
 
 // Allocate device memory asynchronously via cuMemAllocAsync.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
 // Returns empty handle on error (caller must check).
-DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream);
+DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) noexcept;
 
 // Allocate device memory synchronously via cuMemAlloc.
 // When the last reference is released, cuMemFree is called.
 // Returns empty handle on error (caller must check).
-DevicePtrHandle deviceptr_alloc(size_t size);
+DevicePtrHandle deviceptr_alloc(size_t size) noexcept;
 
 // Allocate pinned host memory via cuMemAllocHost.
 // When the last reference is released, cuMemFreeHost is called.
 // Returns empty handle on error (caller must check).
-DevicePtrHandle deviceptr_alloc_host(size_t size);
+DevicePtrHandle deviceptr_alloc_host(size_t size) noexcept;
 
 // Create a non-owning device pointer handle (references existing pointer).
 // Use for foreign pointers (e.g., from external libraries).
 // The pointer will NOT be freed when the handle is released.
-DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr);
+DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) noexcept;
 
 // Create a non-owning device pointer handle that prevents a Python owner from being GC'd.
 // The owner's refcount is incremented; decremented when handle is released.
 // The pointer will NOT be freed when the handle is released.
 // If owner is nullptr, equivalent to deviceptr_create_ref.
-DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner);
+DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) noexcept;
 
 // Import a device pointer from IPC via cuMemPoolImportPointer.
 // When the last reference is released, cuMemFreeAsync is called on the stored stream.
@@ -209,14 +209,14 @@ DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner);
 DevicePtrHandle deviceptr_import_ipc(
     MemoryPoolHandle h_pool,
     const void* export_data,
-    StreamHandle h_stream);
+    StreamHandle h_stream) noexcept;
 
 // Access the deallocation stream for a device pointer handle (read-only).
 // For non-owning handles, the stream is not used but can still be accessed.
-StreamHandle deallocation_stream(const DevicePtrHandle& h);
+StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
 
 // Set the deallocation stream for a device pointer handle.
-void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream);
+void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) noexcept;
 
 // ============================================================================
 // Overloaded helper functions to extract raw resources from handles
@@ -268,7 +268,7 @@ inline std::intptr_t as_intptr(const DevicePtrHandle& h) noexcept {
 // as_py() - convert handle to Python driver wrapper object (returns new reference)
 namespace detail {
 // n.b. class lookup is not cached to avoid deadlock hazard, see DESIGN.md
-inline PyObject* make_py(const char* class_name, std::intptr_t value) {
+inline PyObject* make_py(const char* class_name, std::intptr_t value) noexcept {
     PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
     if (!mod) return nullptr;
     PyObject* cls = PyObject_GetAttrString(mod, class_name);
@@ -280,23 +280,23 @@ inline PyObject* make_py(const char* class_name, std::intptr_t value) {
 }
 }  // namespace detail
 
-inline PyObject* as_py(const ContextHandle& h) {
+inline PyObject* as_py(const ContextHandle& h) noexcept {
     return detail::make_py("CUcontext", as_intptr(h));
 }
 
-inline PyObject* as_py(const StreamHandle& h) {
+inline PyObject* as_py(const StreamHandle& h) noexcept {
     return detail::make_py("CUstream", as_intptr(h));
 }
 
-inline PyObject* as_py(const EventHandle& h) {
+inline PyObject* as_py(const EventHandle& h) noexcept {
     return detail::make_py("CUevent", as_intptr(h));
 }
 
-inline PyObject* as_py(const MemoryPoolHandle& h) {
+inline PyObject* as_py(const MemoryPoolHandle& h) noexcept {
     return detail::make_py("CUmemoryPool", as_intptr(h));
 }
 
-inline PyObject* as_py(const DevicePtrHandle& h) {
+inline PyObject* as_py(const DevicePtrHandle& h) noexcept {
     return detail::make_py("CUdeviceptr", as_intptr(h));
 }
 
