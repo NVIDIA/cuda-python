@@ -125,7 +125,7 @@ def register_events(events: SystemEventType | int | list[SystemEventType | int])
     For Linux only.
 
     All events that occurred before this call are not recorded.  Wait for events
-    using the :meth:`SystemEvents.wait` method on the result.
+    using the :meth:`RegisteredSystemEvents.wait` method on the result.
 
     Examples
     --------
@@ -138,14 +138,14 @@ def register_events(events: SystemEventType | int | list[SystemEventType | int])
 
     Parameters
     ----------
-    events: SystemEventType, int, or list of SsystemEventType or int
+    events: SystemEventType, int, or list of SystemEventType or int
         The event type or list of event types to register for this device.
 
     Returns
     -------
-    :class:`SystemEvents`
+    :class:`RegisteredSystemEvents`
         An object representing the registered events.  Call
-        :meth:`SystemEvents.wait` on this object to wait for events.
+        :meth:`RegisteredSystemEvents.wait` on this object to wait for events.
 
     Raises
     ------
