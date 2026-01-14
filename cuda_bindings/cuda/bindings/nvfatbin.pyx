@@ -81,6 +81,25 @@ cpdef destroy(intptr_t handle):
     check_status(status)
 
 
+cpdef str get_error_string(int result):
+    """nvFatbinGetErrorString returns an error description string for each error code.
+
+    Args:
+        result (Result): error code.
+
+    .. seealso:: `nvFatbinGetErrorString`
+    """
+    cdef char* _output_
+    cdef bytes _output_bytes_
+    _output_ = nvFatbinGetErrorString(<_Result>result)
+
+    if _output_ == NULL:
+        return ""
+
+    _output_bytes_ = <bytes>_output_
+    return _output_bytes_.decode()
+
+
 cpdef intptr_t create(options, size_t options_count) except -1:
     """nvFatbinCreate creates a new handle.
 
@@ -288,9 +307,3 @@ cpdef add_tile_ir(intptr_t handle, code, size_t size, identifier, options_cmd_li
     with nogil:
         __status__ = nvFatbinAddTileIR(<Handle>handle, <const void*>_code_, size, <const char*>_identifier_, <const char*>_options_cmd_line_)
     check_status(__status__)
-
-
-
-
-
-

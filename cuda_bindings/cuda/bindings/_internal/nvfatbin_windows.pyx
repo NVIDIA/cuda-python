@@ -77,6 +77,7 @@ cdef int get_cuda_version():
 cdef object __symbol_lock = threading.Lock()
 cdef bint __py_nvfatbin_init = False
 
+cdef void* __nvFatbinGetErrorString = NULL
 cdef void* __nvFatbinCreate = NULL
 cdef void* __nvFatbinDestroy = NULL
 cdef void* __nvFatbinAddPTX = NULL
@@ -101,6 +102,9 @@ cdef int _init_nvfatbin() except -1 nogil:
         handle = load_nvidia_dynamic_lib("nvfatbin")._handle_uint
 
         # Load function
+        global __nvFatbinGetErrorString
+        __nvFatbinGetErrorString = GetProcAddress(handle, 'nvFatbinGetErrorString')
+
         global __nvFatbinCreate
         __nvFatbinCreate = GetProcAddress(handle, 'nvFatbinCreate')
 
@@ -153,6 +157,9 @@ cpdef dict _inspect_function_pointers():
     _check_or_init_nvfatbin()
     cdef dict data = {}
 
+    global __nvFatbinGetErrorString
+    data["__nvFatbinGetErrorString"] = <intptr_t>__nvFatbinGetErrorString
+
     global __nvFatbinCreate
     data["__nvFatbinCreate"] = <intptr_t>__nvFatbinCreate
 
@@ -197,6 +204,16 @@ cpdef _inspect_function_pointer(str name):
 ###############################################################################
 # Wrapper functions
 ###############################################################################
+
+cdef const char* _nvFatbinGetErrorString(nvFatbinResult result) except?NULL nogil:
+    global __nvFatbinGetErrorString
+    _check_or_init_nvfatbin()
+    if __nvFatbinGetErrorString == NULL:
+        with gil:
+            raise FunctionNotFoundError("function nvFatbinGetErrorString is not found")
+    return (<const char* (*)(nvFatbinResult) noexcept nogil>__nvFatbinGetErrorString)(
+        result)
+
 
 cdef nvFatbinResult _nvFatbinCreate(nvFatbinHandle* handle_indirect, const char** options, size_t optionsCount) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     global __nvFatbinCreate
@@ -296,9 +313,3 @@ cdef nvFatbinResult _nvFatbinAddTileIR(nvFatbinHandle handle, const void* code, 
             raise FunctionNotFoundError("function nvFatbinAddTileIR is not found")
     return (<nvFatbinResult (*)(nvFatbinHandle, const void*, size_t, const char*, const char*) noexcept nogil>__nvFatbinAddTileIR)(
         handle, code, size, identifier, optionsCmdLine)
-
-
-
-
-
-

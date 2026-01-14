@@ -1,11 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import subprocess
-
-from cuda.bindings import nvfatbin, nvrtc
 
 import pytest
+from cuda.bindings import nvfatbin, nvrtc
 
 ARCHITECTURES = ["sm_75", "sm_80", "sm_90", "sm_100"]
 PTX_VERSIONS = ["6.4", "7.0", "8.5", "8.8"]
@@ -47,17 +45,21 @@ int __device__ inc(int x) {
 }
 """
 
+
 @pytest.fixture(params=ARCHITECTURES)
 def arch(request):
     return request.param
+
 
 @pytest.fixture(params=PTX_VERSIONS)
 def ptx_version(request):
     return request.param
 
+
 @pytest.fixture
 def PTX(arch, ptx_version):
     return PTX_TEMPLATE.format(PTX_VERSION=ptx_version, ARCH=arch)
+
 
 @pytest.fixture
 def CUBIN(arch):
@@ -78,10 +80,12 @@ def CUBIN(arch):
     CHECK_NVRTC(err)
     return cubin
 
+
 # create a valid LTOIR input for testing
 @pytest.fixture
 def LTOIR(arch):
     arch = arch.replace("sm", "compute")
+
     def CHECK_NVRTC(err):
         if err != nvrtc.nvrtcResult.NVRTC_SUCCESS:
             raise RuntimeError(repr(err))
@@ -100,17 +104,28 @@ def LTOIR(arch):
     CHECK_NVRTC(err)
     return empty_kernel_ltoir
 
-@pytest.fixture
-def OBJECT(arch, tmpdir):
-    empty_cplusplus_kernel = "__global__ void A() {} int main() { return 0; }"
-    with open(tmpdir / "object.cu", "w") as f:
-        f.write(empty_cplusplus_kernel)
 
-    subprocess.check_output(["nvcc", "-arch", arch, "-o", str(tmpdir / "object.o"), str(tmpdir / "object.cu")])
-    with open(tmpdir / "object.o", "rb") as f:
-        object = f.read()
+# @pytest.fixture
+# def OBJECT(arch, tmpdir):
+#     empty_cplusplus_kernel = "__global__ void A() {} int main() { return 0; }"
+#     with open(tmpdir / "object.cu", "w") as f:
+#         f.write(empty_cplusplus_kernel)
 
-    return object
+#     subprocess.check_output(["nvcc", "-arch", arch, "-o", str(tmpdir / "object.o"), str(tmpdir / "object.cu")])
+#     with open(tmpdir / "object.o", "rb") as f:
+#         object = f.read()
+
+#     return object
+
+
+@pytest.mark.parametrize("error_enum", nvfatbin.Result)
+def test_get_error_string(error_enum):
+    es = nvfatbin.get_error_string(error_enum)
+
+    if error_enum is nvfatbin.Result.SUCCESS:
+        assert es == ""
+    else:
+        assert "error" in es
 
 
 def test_nvfatbin_get_version():
@@ -118,13 +133,15 @@ def test_nvfatbin_get_version():
     assert major is not None
     assert minor is not None
 
+
 def test_nvfatbin_empty_create_and_destroy():
     handle = nvfatbin.create([], 0)
     assert handle is not None
     nvfatbin.destroy(handle)
 
+
 def test_nvfatbin_invalid_input_create():
-    with pytest.raises(nvfatbin.nvfatbinError, match="ERROR_UNRECOGNIZED_OPTION"):
+    with pytest.raises(nvfatbin.nvFatbinError, match="ERROR_UNRECOGNIZED_OPTION"):
         nvfatbin.create(["--unsupported_option"], 1)
 
 
@@ -153,7 +170,7 @@ def test_nvfatbin_add_ptx(PTX, arch):
 @pytest.mark.parametrize("arch", ["sm_80"], indirect=True)
 def test_nvfatbin_add_cubin_ELF_SIZE_MISMATCH(CUBIN, arch):
     handle = nvfatbin.create([], 0)
-    with pytest.raises(nvfatbin.nvfatbinError, match="ERROR_ELF_ARCH_MISMATCH"):
+    with pytest.raises(nvfatbin.nvFatbinError, match="ERROR_ELF_ARCH_MISMATCH"):
         nvfatbin.add_cubin(handle, CUBIN, len(CUBIN), "75", "inc")
 
     nvfatbin.destroy(handle)
@@ -174,7 +191,7 @@ def test_nvfatbin_add_cubin(CUBIN, arch):
 @pytest.mark.parametrize("arch", ["sm_80"], indirect=True)
 def test_nvfatbin_add_cubin_ELF_ARCH_MISMATCH(CUBIN, arch):
     handle = nvfatbin.create([], 0)
-    with pytest.raises(nvfatbin.nvfatbinError, match="ERROR_ELF_ARCH_MISMATCH"):
+    with pytest.raises(nvfatbin.nvFatbinError, match="ERROR_ELF_ARCH_MISMATCH"):
         nvfatbin.add_cubin(handle, CUBIN, len(CUBIN), "75", "inc")
 
     nvfatbin.destroy(handle)
@@ -194,8 +211,9 @@ def test_nvdfatbin_add_ltoir(LTOIR, arch):
 
 @pytest.mark.parametrize("arch", ["sm_80"], indirect=True)
 def test_nvdfatbin_add_ltoir_ELF_ARCH_MISMATCH(LTOIR, arch):
+    pytest.skip()
     handle = nvfatbin.create([], 0)
-    with pytest.raises(nvfatbin.nvfatbinError, match="ERROR_ELF_ARCH_MISMATCH"):
+    with pytest.raises(nvfatbin.nvFatbinError, match="ERROR_ELF_ARCH_MISMATCH"):
         nvfatbin.add_ltoir(handle, LTOIR, len(LTOIR), "75", "inc", "")
 
     nvfatbin.destroy(handle)

@@ -11,6 +11,10 @@ from ._internal cimport nvfatbin as _nvfatbin
 # Wrapper functions
 ###############################################################################
 
+cdef const char* nvFatbinGetErrorString(nvFatbinResult result) except?NULL nogil:
+    return _nvfatbin._nvFatbinGetErrorString(result)
+
+
 cdef nvFatbinResult nvFatbinCreate(nvFatbinHandle* handle_indirect, const char** options, size_t optionsCount) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvfatbin._nvFatbinCreate(handle_indirect, options, optionsCount)
 
@@ -49,9 +53,3 @@ cdef nvFatbinResult nvFatbinAddReloc(nvFatbinHandle handle, const void* code, si
 
 cdef nvFatbinResult nvFatbinAddTileIR(nvFatbinHandle handle, const void* code, size_t size, const char* identifier, const char* optionsCmdLine) except?_NVFATBINRESULT_INTERNAL_LOADING_ERROR nogil:
     return _nvfatbin._nvFatbinAddTileIR(handle, code, size, identifier, optionsCmdLine)
-
-
-
-
-
-
