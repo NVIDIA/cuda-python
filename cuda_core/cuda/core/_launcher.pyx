@@ -78,14 +78,14 @@ def launch(stream: Stream | GraphBuilder | IsStreamT, config: LaunchConfig, kern
     cdef void** args_ptr = <void**><uintptr_t>(ker_args.ptr)
 
     # TODO: cythonize Module/Kernel/...
-    # Note: CUfunction and CUkernel are interchangeable
+    # Note: We now use CUkernel handles exclusively (CUDA 12+), but they can be cast to
+    # CUfunction for use with cuLaunchKernel, as both handle types are interchangeable
+    # for kernel launch purposes.
     cdef cydriver.CUfunction func_handle = <cydriver.CUfunction>(<uintptr_t>(kernel._handle))
 
-    # Note: CUkernel can still be launched via the old cuLaunchKernel and we do not care
-    # about the CUfunction/CUkernel difference (which depends on whether the "old" or
-    # "new" module loading APIs are in use). We check both binding & driver versions here
-    # mainly to see if the "Ex" API is available and if so we use it, as it's more feature
-    # rich.
+    # Note: CUkernel can still be launched via cuLaunchKernel (not just cuLaunchKernelEx).
+    # We check both binding & driver versions here mainly to see if the "Ex" API is
+    # available and if so we use it, as it's more feature rich.
     if _use_ex:
         drv_cfg = conf._to_native_launch_config()
         drv_cfg.hStream = as_cu(s._h_stream)
