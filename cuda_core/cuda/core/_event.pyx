@@ -11,16 +11,12 @@ from cuda.core._context cimport Context
 from cuda.core._resource_handles cimport (
     ContextHandle,
     EventHandle,
-    _init_handles_table,
     create_event_handle,
     create_event_handle_ipc,
     as_intptr,
     as_cu,
     as_py,
 )
-
-# Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
-_init_handles_table()
 
 from cuda.core._utils.cuda_utils cimport (
     check_or_create_options,
