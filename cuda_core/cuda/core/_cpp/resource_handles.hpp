@@ -25,6 +25,43 @@ CUresult peek_last_error() noexcept;
 void clear_last_error() noexcept;
 
 // ============================================================================
+// CUDA driver function pointers
+//
+// These are populated by _resource_handles.pyx at module import time using
+// function pointers extracted from cuda.bindings.cydriver.__pyx_capi__.
+// ============================================================================
+
+extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
+extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
+extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
+
+extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
+extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
+
+extern decltype(&cuEventCreate) p_cuEventCreate;
+extern decltype(&cuEventDestroy) p_cuEventDestroy;
+extern decltype(&cuIpcOpenEventHandle) p_cuIpcOpenEventHandle;
+
+extern decltype(&cuDeviceGetCount) p_cuDeviceGetCount;
+
+extern decltype(&cuMemPoolSetAccess) p_cuMemPoolSetAccess;
+extern decltype(&cuMemPoolDestroy) p_cuMemPoolDestroy;
+extern decltype(&cuMemPoolCreate) p_cuMemPoolCreate;
+extern decltype(&cuDeviceGetMemPool) p_cuDeviceGetMemPool;
+extern decltype(&cuMemPoolImportFromShareableHandle) p_cuMemPoolImportFromShareableHandle;
+
+extern decltype(&cuMemAllocFromPoolAsync) p_cuMemAllocFromPoolAsync;
+extern decltype(&cuMemAllocAsync) p_cuMemAllocAsync;
+extern decltype(&cuMemAlloc) p_cuMemAlloc;
+extern decltype(&cuMemAllocHost) p_cuMemAllocHost;
+
+extern decltype(&cuMemFreeAsync) p_cuMemFreeAsync;
+extern decltype(&cuMemFree) p_cuMemFree;
+extern decltype(&cuMemFreeHost) p_cuMemFreeHost;
+
+extern decltype(&cuMemPoolImportPointer) p_cuMemPoolImportPointer;
+
+// ============================================================================
 // Handle type aliases - expose only the raw CUDA resource
 // ============================================================================
 

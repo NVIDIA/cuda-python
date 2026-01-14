@@ -10,9 +10,8 @@
 # The cdef extern from declarations below satisfy the .pxd declarations directly,
 # without needing separate wrapper functions.
 
-from cpython.pycapsule cimport PyCapsule_New
+from cpython.pycapsule cimport PyCapsule_GetName, PyCapsule_GetPointer
 from libc.stddef cimport size_t
-from libc.stdint cimport uint32_t, uint64_t, uintptr_t
 
 from cuda.bindings cimport cydriver
 
@@ -24,8 +23,7 @@ from ._resource_handles cimport (
     DevicePtrHandle,
 )
 
-import cython
-
+import cuda.bindings.cydriver as cydriver
 
 # =============================================================================
 # C++ function declarations (non-inline, implemented in resource_handles.cpp)
@@ -103,107 +101,97 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
 cdef const char* _CUDA_DRIVER_API_V1_NAME = b"cuda.core._resource_handles._CUDA_DRIVER_API_V1"
 
 
-cdef struct CudaDriverApiV1:
-    uint32_t abi_version
-    uint32_t struct_size
+# =============================================================================
+# CUDA driver function pointer initialization
+#
+# The C++ code declares extern function pointers (p_cuXxx) that need to be
+# populated before any handle creation functions are called. We extract these
+# from cuda.bindings.cydriver.__pyx_capi__ at module import time.
+#
+# The Cython string substitution (e.g., "reinterpret_cast<void*&>(...)")
+# allows us to assign void* values to typed function pointer variables.
+# =============================================================================
 
-    uintptr_t cuDevicePrimaryCtxRetain
-    uintptr_t cuDevicePrimaryCtxRelease
-    uintptr_t cuCtxGetCurrent
+# Declare extern variables with reinterpret_cast to allow void* assignment
+cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
+    # Context
+    void* p_cuDevicePrimaryCtxRetain "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRetain)"
+    void* p_cuDevicePrimaryCtxRelease "reinterpret_cast<void*&>(cuda_core::p_cuDevicePrimaryCtxRelease)"
+    void* p_cuCtxGetCurrent "reinterpret_cast<void*&>(cuda_core::p_cuCtxGetCurrent)"
 
-    uintptr_t cuStreamCreateWithPriority
-    uintptr_t cuStreamDestroy
+    # Stream
+    void* p_cuStreamCreateWithPriority "reinterpret_cast<void*&>(cuda_core::p_cuStreamCreateWithPriority)"
+    void* p_cuStreamDestroy "reinterpret_cast<void*&>(cuda_core::p_cuStreamDestroy)"
 
-    uintptr_t cuEventCreate
-    uintptr_t cuEventDestroy
-    uintptr_t cuIpcOpenEventHandle
+    # Event
+    void* p_cuEventCreate "reinterpret_cast<void*&>(cuda_core::p_cuEventCreate)"
+    void* p_cuEventDestroy "reinterpret_cast<void*&>(cuda_core::p_cuEventDestroy)"
+    void* p_cuIpcOpenEventHandle "reinterpret_cast<void*&>(cuda_core::p_cuIpcOpenEventHandle)"
 
-    uintptr_t cuDeviceGetCount
+    # Device
+    void* p_cuDeviceGetCount "reinterpret_cast<void*&>(cuda_core::p_cuDeviceGetCount)"
 
-    uintptr_t cuMemPoolSetAccess
-    uintptr_t cuMemPoolDestroy
-    uintptr_t cuMemPoolCreate
-    uintptr_t cuDeviceGetMemPool
-    uintptr_t cuMemPoolImportFromShareableHandle
+    # Memory pool
+    void* p_cuMemPoolSetAccess "reinterpret_cast<void*&>(cuda_core::p_cuMemPoolSetAccess)"
+    void* p_cuMemPoolDestroy "reinterpret_cast<void*&>(cuda_core::p_cuMemPoolDestroy)"
+    void* p_cuMemPoolCreate "reinterpret_cast<void*&>(cuda_core::p_cuMemPoolCreate)"
+    void* p_cuDeviceGetMemPool "reinterpret_cast<void*&>(cuda_core::p_cuDeviceGetMemPool)"
+    void* p_cuMemPoolImportFromShareableHandle "reinterpret_cast<void*&>(cuda_core::p_cuMemPoolImportFromShareableHandle)"
 
-    uintptr_t cuMemAllocFromPoolAsync
-    uintptr_t cuMemAllocAsync
-    uintptr_t cuMemAlloc
-    uintptr_t cuMemAllocHost
+    # Memory allocation
+    void* p_cuMemAllocFromPoolAsync "reinterpret_cast<void*&>(cuda_core::p_cuMemAllocFromPoolAsync)"
+    void* p_cuMemAllocAsync "reinterpret_cast<void*&>(cuda_core::p_cuMemAllocAsync)"
+    void* p_cuMemAlloc "reinterpret_cast<void*&>(cuda_core::p_cuMemAlloc)"
+    void* p_cuMemAllocHost "reinterpret_cast<void*&>(cuda_core::p_cuMemAllocHost)"
 
-    uintptr_t cuMemFreeAsync
-    uintptr_t cuMemFree
-    uintptr_t cuMemFreeHost
+    # Memory deallocation
+    void* p_cuMemFreeAsync "reinterpret_cast<void*&>(cuda_core::p_cuMemFreeAsync)"
+    void* p_cuMemFree "reinterpret_cast<void*&>(cuda_core::p_cuMemFree)"
+    void* p_cuMemFreeHost "reinterpret_cast<void*&>(cuda_core::p_cuMemFreeHost)"
 
-    uintptr_t cuMemPoolImportPointer
-
-
-cdef CudaDriverApiV1 _cuda_driver_api_v1
-cdef bint _cuda_driver_api_v1_inited = False
-
-
-cdef inline uintptr_t _as_addr(object pfn) except 0:
-    return <uintptr_t>int(pfn)
-
-
-cdef inline uintptr_t _resolve(object d, int driver_ver, uint64_t flags, bytes sym) except 0:
-    err, pfn, status = d.cuGetProcAddress(sym, driver_ver, flags)
-    if int(err) != 0 or pfn is None:
-        raise RuntimeError(f"cuGetProcAddress failed for {sym!r}, err={err}, status={status}")
-    return _as_addr(pfn)
+    # IPC
+    void* p_cuMemPoolImportPointer "reinterpret_cast<void*&>(cuda_core::p_cuMemPoolImportPointer)"
 
 
-def _get_cuda_driver_api_v1_capsule():
-    """Return a PyCapsule containing cached CUDA driver entrypoints.
+# Initialize driver function pointers from cydriver.__pyx_capi__ at module load
+cdef void* _get_driver_fn(str name):
+    capsule = cydriver.__pyx_capi__[name]
+    return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
 
-    This is evaluated lazily on first use so cuda-core remains importable on
-    CPU-only machines.
-    """
-    global _cuda_driver_api_v1_inited, _cuda_driver_api_v1
-    if not _cuda_driver_api_v1_inited:
-        import cuda.bindings.driver as d
+# Context
+p_cuDevicePrimaryCtxRetain = _get_driver_fn("cuDevicePrimaryCtxRetain")
+p_cuDevicePrimaryCtxRelease = _get_driver_fn("cuDevicePrimaryCtxRelease")
+p_cuCtxGetCurrent = _get_driver_fn("cuCtxGetCurrent")
 
-        err, ver = d.cuDriverGetVersion()
-        if int(err) != 0:
-            raise RuntimeError(f"cuDriverGetVersion failed: {err}")
-        driver_ver = int(ver)
+# Stream
+p_cuStreamCreateWithPriority = _get_driver_fn("cuStreamCreateWithPriority")
+p_cuStreamDestroy = _get_driver_fn("cuStreamDestroy")
 
-        flags = 0  # CU_GET_PROC_ADDRESS_DEFAULT
+# Event
+p_cuEventCreate = _get_driver_fn("cuEventCreate")
+p_cuEventDestroy = _get_driver_fn("cuEventDestroy")
+p_cuIpcOpenEventHandle = _get_driver_fn("cuIpcOpenEventHandle")
 
-        _cuda_driver_api_v1.cuDevicePrimaryCtxRetain = _resolve(d, driver_ver, flags, b"cuDevicePrimaryCtxRetain")
-        _cuda_driver_api_v1.cuDevicePrimaryCtxRelease = _resolve(d, driver_ver, flags, b"cuDevicePrimaryCtxRelease")
-        _cuda_driver_api_v1.cuCtxGetCurrent = _resolve(d, driver_ver, flags, b"cuCtxGetCurrent")
+# Device
+p_cuDeviceGetCount = _get_driver_fn("cuDeviceGetCount")
 
-        _cuda_driver_api_v1.cuStreamCreateWithPriority = _resolve(d, driver_ver, flags, b"cuStreamCreateWithPriority")
-        _cuda_driver_api_v1.cuStreamDestroy = _resolve(d, driver_ver, flags, b"cuStreamDestroy")
+# Memory pool
+p_cuMemPoolSetAccess = _get_driver_fn("cuMemPoolSetAccess")
+p_cuMemPoolDestroy = _get_driver_fn("cuMemPoolDestroy")
+p_cuMemPoolCreate = _get_driver_fn("cuMemPoolCreate")
+p_cuDeviceGetMemPool = _get_driver_fn("cuDeviceGetMemPool")
+p_cuMemPoolImportFromShareableHandle = _get_driver_fn("cuMemPoolImportFromShareableHandle")
 
-        _cuda_driver_api_v1.cuEventCreate = _resolve(d, driver_ver, flags, b"cuEventCreate")
-        _cuda_driver_api_v1.cuEventDestroy = _resolve(d, driver_ver, flags, b"cuEventDestroy")
-        _cuda_driver_api_v1.cuIpcOpenEventHandle = _resolve(d, driver_ver, flags, b"cuIpcOpenEventHandle")
+# Memory allocation
+p_cuMemAllocFromPoolAsync = _get_driver_fn("cuMemAllocFromPoolAsync")
+p_cuMemAllocAsync = _get_driver_fn("cuMemAllocAsync")
+p_cuMemAlloc = _get_driver_fn("cuMemAlloc")
+p_cuMemAllocHost = _get_driver_fn("cuMemAllocHost")
 
-        _cuda_driver_api_v1.cuDeviceGetCount = _resolve(d, driver_ver, flags, b"cuDeviceGetCount")
+# Memory deallocation
+p_cuMemFreeAsync = _get_driver_fn("cuMemFreeAsync")
+p_cuMemFree = _get_driver_fn("cuMemFree")
+p_cuMemFreeHost = _get_driver_fn("cuMemFreeHost")
 
-        _cuda_driver_api_v1.cuMemPoolSetAccess = _resolve(d, driver_ver, flags, b"cuMemPoolSetAccess")
-        _cuda_driver_api_v1.cuMemPoolDestroy = _resolve(d, driver_ver, flags, b"cuMemPoolDestroy")
-        _cuda_driver_api_v1.cuMemPoolCreate = _resolve(d, driver_ver, flags, b"cuMemPoolCreate")
-        _cuda_driver_api_v1.cuDeviceGetMemPool = _resolve(d, driver_ver, flags, b"cuDeviceGetMemPool")
-        _cuda_driver_api_v1.cuMemPoolImportFromShareableHandle = _resolve(
-            d, driver_ver, flags, b"cuMemPoolImportFromShareableHandle"
-        )
-
-        _cuda_driver_api_v1.cuMemAllocFromPoolAsync = _resolve(d, driver_ver, flags, b"cuMemAllocFromPoolAsync")
-        _cuda_driver_api_v1.cuMemAllocAsync = _resolve(d, driver_ver, flags, b"cuMemAllocAsync")
-        _cuda_driver_api_v1.cuMemAlloc = _resolve(d, driver_ver, flags, b"cuMemAlloc")
-        _cuda_driver_api_v1.cuMemAllocHost = _resolve(d, driver_ver, flags, b"cuMemAllocHost")
-
-        _cuda_driver_api_v1.cuMemFreeAsync = _resolve(d, driver_ver, flags, b"cuMemFreeAsync")
-        _cuda_driver_api_v1.cuMemFree = _resolve(d, driver_ver, flags, b"cuMemFree")
-        _cuda_driver_api_v1.cuMemFreeHost = _resolve(d, driver_ver, flags, b"cuMemFreeHost")
-
-        _cuda_driver_api_v1.cuMemPoolImportPointer = _resolve(d, driver_ver, flags, b"cuMemPoolImportPointer")
-
-        _cuda_driver_api_v1.abi_version = 1
-        _cuda_driver_api_v1.struct_size = cython.sizeof(CudaDriverApiV1)
-        _cuda_driver_api_v1_inited = True
-
-    return <object>PyCapsule_New(<void*>&_cuda_driver_api_v1, _CUDA_DRIVER_API_V1_NAME, NULL)
+# IPC
+p_cuMemPoolImportPointer = _get_driver_fn("cuMemPoolImportPointer")

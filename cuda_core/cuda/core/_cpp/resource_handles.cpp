@@ -8,7 +8,6 @@
 #include <cuda.h>
 #include <cstdint>
 #include <cstring>
-#include <atomic>
 #include <mutex>
 #include <unordered_map>
 #include <vector>
@@ -16,13 +15,47 @@
 namespace cuda_core {
 
 // ============================================================================
-// CUDA driver lazy resolution via cuda-bindings (CPU-only import + MVC)
+// CUDA driver function pointers
+//
+// These are populated by _resource_handles.pyx at module import time using
+// function pointers extracted from cuda.bindings.cydriver.__pyx_capi__.
+// ============================================================================
+
+decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain = nullptr;
+decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease = nullptr;
+decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent = nullptr;
+
+decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority = nullptr;
+decltype(&cuStreamDestroy) p_cuStreamDestroy = nullptr;
+
+decltype(&cuEventCreate) p_cuEventCreate = nullptr;
+decltype(&cuEventDestroy) p_cuEventDestroy = nullptr;
+decltype(&cuIpcOpenEventHandle) p_cuIpcOpenEventHandle = nullptr;
+
+decltype(&cuDeviceGetCount) p_cuDeviceGetCount = nullptr;
+
+decltype(&cuMemPoolSetAccess) p_cuMemPoolSetAccess = nullptr;
+decltype(&cuMemPoolDestroy) p_cuMemPoolDestroy = nullptr;
+decltype(&cuMemPoolCreate) p_cuMemPoolCreate = nullptr;
+decltype(&cuDeviceGetMemPool) p_cuDeviceGetMemPool = nullptr;
+decltype(&cuMemPoolImportFromShareableHandle) p_cuMemPoolImportFromShareableHandle = nullptr;
+
+decltype(&cuMemAllocFromPoolAsync) p_cuMemAllocFromPoolAsync = nullptr;
+decltype(&cuMemAllocAsync) p_cuMemAllocAsync = nullptr;
+decltype(&cuMemAlloc) p_cuMemAlloc = nullptr;
+decltype(&cuMemAllocHost) p_cuMemAllocHost = nullptr;
+
+decltype(&cuMemFreeAsync) p_cuMemFreeAsync = nullptr;
+decltype(&cuMemFree) p_cuMemFree = nullptr;
+decltype(&cuMemFreeHost) p_cuMemFreeHost = nullptr;
+
+decltype(&cuMemPoolImportPointer) p_cuMemPoolImportPointer = nullptr;
+
+// ============================================================================
+// GIL management helpers
 // ============================================================================
 
 namespace {
-
-std::once_flag driver_load_once;
-std::atomic<bool> driver_loaded{false};
 
 #if PY_VERSION_HEX < 0x030D0000
 extern "C" int _Py_IsFinalizing(void);
@@ -37,10 +70,6 @@ inline bool py_is_finalizing() noexcept {
     return _Py_IsFinalizing() != 0;
 #endif
 }
-
-// ============================================================================
-// GIL management helpers
-// ============================================================================
 
 // Helper to release the GIL while calling into the CUDA driver.
 // This guard is *conditional*: if the caller already dropped the GIL,
@@ -109,178 +138,6 @@ private:
     bool acquired_;
 };
 
-
-#define DECLARE_DRIVER_FN(name) using name##_t = decltype(&name); name##_t p_##name = nullptr
-
-DECLARE_DRIVER_FN(cuDevicePrimaryCtxRetain);
-DECLARE_DRIVER_FN(cuDevicePrimaryCtxRelease);
-DECLARE_DRIVER_FN(cuCtxGetCurrent);
-
-DECLARE_DRIVER_FN(cuStreamCreateWithPriority);
-DECLARE_DRIVER_FN(cuStreamDestroy);
-
-DECLARE_DRIVER_FN(cuEventCreate);
-DECLARE_DRIVER_FN(cuEventDestroy);
-DECLARE_DRIVER_FN(cuIpcOpenEventHandle);
-
-DECLARE_DRIVER_FN(cuDeviceGetCount);
-
-DECLARE_DRIVER_FN(cuMemPoolSetAccess);
-DECLARE_DRIVER_FN(cuMemPoolDestroy);
-DECLARE_DRIVER_FN(cuMemPoolCreate);
-DECLARE_DRIVER_FN(cuDeviceGetMemPool);
-DECLARE_DRIVER_FN(cuMemPoolImportFromShareableHandle);
-
-DECLARE_DRIVER_FN(cuMemAllocFromPoolAsync);
-DECLARE_DRIVER_FN(cuMemAllocAsync);
-DECLARE_DRIVER_FN(cuMemAlloc);
-DECLARE_DRIVER_FN(cuMemAllocHost);
-
-DECLARE_DRIVER_FN(cuMemFreeAsync);
-DECLARE_DRIVER_FN(cuMemFree);
-DECLARE_DRIVER_FN(cuMemFreeHost);
-
-DECLARE_DRIVER_FN(cuMemPoolImportPointer);
-
-#undef DECLARE_DRIVER_FN
-
-bool load_driver_api() noexcept {
-    struct CudaDriverApiV1 {
-        std::uint32_t abi_version;
-        std::uint32_t struct_size;
-
-        std::uintptr_t cuDevicePrimaryCtxRetain;
-        std::uintptr_t cuDevicePrimaryCtxRelease;
-        std::uintptr_t cuCtxGetCurrent;
-
-        std::uintptr_t cuStreamCreateWithPriority;
-        std::uintptr_t cuStreamDestroy;
-
-        std::uintptr_t cuEventCreate;
-        std::uintptr_t cuEventDestroy;
-        std::uintptr_t cuIpcOpenEventHandle;
-
-        std::uintptr_t cuDeviceGetCount;
-
-        std::uintptr_t cuMemPoolSetAccess;
-        std::uintptr_t cuMemPoolDestroy;
-        std::uintptr_t cuMemPoolCreate;
-        std::uintptr_t cuDeviceGetMemPool;
-        std::uintptr_t cuMemPoolImportFromShareableHandle;
-
-        std::uintptr_t cuMemAllocFromPoolAsync;
-        std::uintptr_t cuMemAllocAsync;
-        std::uintptr_t cuMemAlloc;
-        std::uintptr_t cuMemAllocHost;
-
-        std::uintptr_t cuMemFreeAsync;
-        std::uintptr_t cuMemFree;
-        std::uintptr_t cuMemFreeHost;
-
-        std::uintptr_t cuMemPoolImportPointer;
-    };
-
-    static constexpr const char* capsule_name =
-        "cuda.core._resource_handles._CUDA_DRIVER_API_V1";
-
-    GILAcquireGuard gil;
-    if (!gil.acquired()) {
-        return false;
-    }
-
-    // `_resource_handles` is already loaded (it exports the handle API capsule),
-    // so avoid import machinery and just grab the module object.
-    PyObject* mod = PyImport_AddModule("cuda.core._resource_handles");  // borrowed
-    if (!mod) {
-        PyErr_Clear();
-        return false;
-    }
-
-    PyObject* fn = PyObject_GetAttrString(mod, "_get_cuda_driver_api_v1_capsule");  // new ref
-    if (!fn) {
-        PyErr_Clear();
-        return false;
-    }
-
-    PyObject* cap = PyObject_CallFunctionObjArgs(fn, nullptr);
-    Py_DECREF(fn);
-    if (!cap) {
-        PyErr_Clear();
-        return false;
-    }
-
-    const auto* api = static_cast<const CudaDriverApiV1*>(PyCapsule_GetPointer(cap, capsule_name));
-    Py_DECREF(cap);
-
-    if (!api) {
-        PyErr_Clear();
-        return false;
-    }
-    if (api->abi_version != 1 || api->struct_size < sizeof(CudaDriverApiV1)) {
-        return false;
-    }
-
-#define LOAD_ADDR(name)                                             \
-    do {                                                            \
-        if (api->name == 0) {                                       \
-            return false;                                           \
-        }                                                           \
-        p_##name = reinterpret_cast<decltype(p_##name)>(api->name); \
-    } while (0)
-
-    LOAD_ADDR(cuDevicePrimaryCtxRetain);
-    LOAD_ADDR(cuDevicePrimaryCtxRelease);
-    LOAD_ADDR(cuCtxGetCurrent);
-
-    LOAD_ADDR(cuStreamCreateWithPriority);
-    LOAD_ADDR(cuStreamDestroy);
-
-    LOAD_ADDR(cuEventCreate);
-    LOAD_ADDR(cuEventDestroy);
-    LOAD_ADDR(cuIpcOpenEventHandle);
-
-    LOAD_ADDR(cuDeviceGetCount);
-
-    LOAD_ADDR(cuMemPoolSetAccess);
-    LOAD_ADDR(cuMemPoolDestroy);
-    LOAD_ADDR(cuMemPoolCreate);
-    LOAD_ADDR(cuDeviceGetMemPool);
-    LOAD_ADDR(cuMemPoolImportFromShareableHandle);
-
-    LOAD_ADDR(cuMemAllocFromPoolAsync);
-    LOAD_ADDR(cuMemAllocAsync);
-    LOAD_ADDR(cuMemAlloc);
-    LOAD_ADDR(cuMemAllocHost);
-
-    LOAD_ADDR(cuMemFreeAsync);
-    LOAD_ADDR(cuMemFree);
-    LOAD_ADDR(cuMemFreeHost);
-
-    LOAD_ADDR(cuMemPoolImportPointer);
-
-#undef LOAD_ADDR
-
-    return true;
-}
-
-bool ensure_driver_loaded() noexcept {
-    // Fast path: already loaded (no locking needed)
-    if (driver_loaded.load(std::memory_order_acquire)) {
-        return true;
-    }
-
-    // Slow path: release GIL before acquiring call_once guard.
-    // This ensures lock order is always: guard mutex -> GIL, preventing deadlock.
-    // See DESIGN.md "Static Initialization and Deadlock Hazards".
-    GILReleaseGuard release_gil;
-    std::call_once(driver_load_once, []() {
-        // Inside call_once, safe to acquire GIL (correct lock order).
-        // load_driver_api() acquires GIL internally via GILAcquireGuard.
-        driver_loaded.store(load_driver_api(), std::memory_order_release);
-    });
-    return driver_loaded.load(std::memory_order_acquire);
-}
-
 }  // namespace
 
 // ============================================================================
@@ -323,10 +180,6 @@ ContextHandle create_context_handle_ref(CUcontext ctx) noexcept {
 static thread_local std::vector<ContextHandle> primary_context_cache;
 
 ContextHandle get_primary_context(int device_id) noexcept {
-    if (!ensure_driver_loaded()) {
-        err = CUDA_ERROR_NOT_INITIALIZED;
-        return {};
-    }
     // Check thread-local cache
     if (static_cast<size_t>(device_id) < primary_context_cache.size()) {
         if (auto cached = primary_context_cache[device_id]) {
@@ -360,10 +213,6 @@ ContextHandle get_primary_context(int device_id) noexcept {
 }
 
 ContextHandle get_current_context() noexcept {
-    if (!ensure_driver_loaded()) {
-        err = CUDA_ERROR_NOT_INITIALIZED;
-        return {};
-    }
     GILReleaseGuard gil;
     CUcontext ctx = nullptr;
     if (CUDA_SUCCESS != (err = p_cuCtxGetCurrent(&ctx))) {
@@ -386,10 +235,6 @@ struct StreamBox {
 }  // namespace
 
 StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) noexcept {
-    if (!ensure_driver_loaded()) {
-        err = CUDA_ERROR_NOT_INITIALIZED;
-        return {};
-    }
     GILReleaseGuard gil;
     CUstream stream;
     if (CUDA_SUCCESS != (err = p_cuStreamCreateWithPriority(&stream, flags, priority))) {
@@ -457,10 +302,6 @@ struct EventBox {
 }  // namespace
 
 EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) noexcept {
-    if (!ensure_driver_loaded()) {
-        err = CUDA_ERROR_NOT_INITIALIZED;
-        return {};
-    }
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuEventCreate(&event, flags))) {
@@ -483,10 +324,6 @@ EventHandle create_event_handle_noctx(unsigned int flags) noexcept {
 }
 
 EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) noexcept {
-    if (!ensure_driver_loaded()) {
-        err = CUDA_ERROR_NOT_INITIALIZED;
-        return {};
-    }
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuIpcOpenEventHandle(&event, ipc_handle))) {
@@ -545,10 +382,6 @@ static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool) {
 }
 
 MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) noexcept {
-    if (!ensure_driver_loaded()) {
-        err = CUDA_ERROR_NOT_INITIALIZED;
-        return {};
-    }
     GILReleaseGuard gil;
     CUmemoryPool pool;
     if (CUDA_SUCCESS != (err = p_cuMemPoolCreate(&pool, &props))) {
@@ -563,10 +396,6 @@ MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) noexcept {
 }
 
 MemoryPoolHandle get_device_mempool(int device_id) noexcept {
-    if (!ensure_driver_loaded()) {
-        err = CUDA_ERROR_NOT_INITIALIZED;
-        return {};
-    }
     GILReleaseGuard gil;
     CUmemoryPool pool;
     if (CUDA_SUCCESS != (err = p_cuDeviceGetMemPool(&pool, device_id))) {
@@ -576,10 +405,6 @@ MemoryPoolHandle get_device_mempool(int device_id) noexcept {
 }
 
 MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type) noexcept {
-    if (!ensure_driver_loaded()) {
-        err = CUDA_ERROR_NOT_INITIALIZED;
-        return {};
-    }
     GILReleaseGuard gil;
     CUmemoryPool pool;
     auto handle_ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(fd));
@@ -624,10 +449,6 @@ void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) no
 }
 
 DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) noexcept {
-    if (!ensure_driver_loaded()) {
-        err = CUDA_ERROR_NOT_INITIALIZED;
-        return {};
-    }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocFromPoolAsync(&ptr, size, *h_pool, as_cu(h_stream)))) {
@@ -646,10 +467,6 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, 
 }
 
 DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) noexcept {
-    if (!ensure_driver_loaded()) {
-        err = CUDA_ERROR_NOT_INITIALIZED;
-        return {};
-    }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocAsync(&ptr, size, as_cu(h_stream)))) {
@@ -668,10 +485,6 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) noexce
 }
 
 DevicePtrHandle deviceptr_alloc(size_t size) noexcept {
-    if (!ensure_driver_loaded()) {
-        err = CUDA_ERROR_NOT_INITIALIZED;
-        return {};
-    }
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAlloc(&ptr, size))) {
@@ -690,10 +503,6 @@ DevicePtrHandle deviceptr_alloc(size_t size) noexcept {
 }
 
 DevicePtrHandle deviceptr_alloc_host(size_t size) noexcept {
-    if (!ensure_driver_loaded()) {
-        err = CUDA_ERROR_NOT_INITIALIZED;
-        return {};
-    }
     GILReleaseGuard gil;
     void* ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocHost(&ptr, size))) {
@@ -799,11 +608,6 @@ static std::mutex ipc_ptr_cache_mutex;
 static std::unordered_map<ExportDataKey, std::weak_ptr<DevicePtrBox>, ExportDataKeyHash> ipc_ptr_cache;
 
 DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) noexcept {
-    if (!ensure_driver_loaded()) {
-        err = CUDA_ERROR_NOT_INITIALIZED;
-        return {};
-    }
-
     auto data = const_cast<CUmemPoolPtrExportData*>(
         reinterpret_cast<const CUmemPoolPtrExportData*>(export_data));
 
