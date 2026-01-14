@@ -109,54 +109,46 @@ cdef class Stream:
     @classmethod
     def legacy_default(cls):
         """Return the legacy default stream.
-        
-        The legacy default stream is an implicit stream which synchronizes 
-        with all other streams in the same CUDA context except for non-blocking 
-        streams. When any operation is launched on the legacy default stream, 
-        it waits for all previously launched operations in blocking streams to 
-        complete, and all subsequent operations in blocking streams wait for 
+
+        The legacy default stream is an implicit stream which synchronizes
+        with all other streams in the same CUDA context except for non-blocking
+        streams. When any operation is launched on the legacy default stream,
+        it waits for all previously launched operations in blocking streams to
+        complete, and all subsequent operations in blocking streams wait for
         the legacy default stream operation to complete.
-        
+
         Returns
         -------
         Stream
             The legacy default stream instance for the current context.
-            
+
         See Also
         --------
         per_thread_default : Per-thread default stream alternative.
-        
-        Examples
-        --------
-        >>> stream = Stream.legacy_default()
-        >>> stream.sync()  # Synchronize all operations
+
         """
         return Stream._from_handle(cls, get_legacy_stream())
 
     @classmethod
     def per_thread_default(cls):
         """Return the per-thread default stream.
-        
-        The per-thread default stream is local to both the calling thread and 
-        the CUDA context. Unlike the legacy default stream, it does not 
-        synchronize with other streams and behaves like an explicitly created 
-        non-blocking stream. This allows for better concurrency in multi-threaded 
+
+        The per-thread default stream is local to both the calling thread and
+        the CUDA context. Unlike the legacy default stream, it does not
+        synchronize with other streams and behaves like an explicitly created
+        non-blocking stream. This allows for better concurrency in multi-threaded
         applications.
-        
+
         Returns
         -------
         Stream
-            The per-thread default stream instance for the current thread 
+            The per-thread default stream instance for the current thread
             and context.
-            
+
         See Also
         --------
         legacy_default : Legacy default stream alternative.
-        
-        Examples
-        --------
-        >>> stream = Stream.per_thread_default()
-        >>> stream.sync()  # Synchronize only this thread's operations
+
         """
         return Stream._from_handle(cls, get_per_thread_stream())
 
