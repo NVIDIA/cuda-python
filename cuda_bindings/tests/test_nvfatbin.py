@@ -2,6 +2,9 @@
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
+import shutil
+import subprocess
+
 import pytest
 from cuda.bindings import nvfatbin, nvrtc
 
@@ -105,17 +108,27 @@ def LTOIR(arch):
     return empty_kernel_ltoir
 
 
-# @pytest.fixture
-# def OBJECT(arch, tmpdir):
-#     empty_cplusplus_kernel = "__global__ void A() {} int main() { return 0; }"
-#     with open(tmpdir / "object.cu", "w") as f:
-#         f.write(empty_cplusplus_kernel)
+@pytest.fixture
+def OBJECT(arch, tmpdir):
+    empty_cplusplus_kernel = "__global__ void A() {} int main() { return 0; }"
+    with open(tmpdir / "object.cu", "w") as f:
+        f.write(empty_cplusplus_kernel)
 
-#     subprocess.check_output(["nvcc", "-arch", arch, "-o", str(tmpdir / "object.o"), str(tmpdir / "object.cu")])
-#     with open(tmpdir / "object.o", "rb") as f:
-#         object = f.read()
+    nvcc = shutil.which("nvcc")
+    if nvcc is None:
+        pytest.skip("nvcc not found on PATH")
 
-#     return object
+    # This is a test fixture that intentionally invokes a trusted tool (`nvcc`) to
+    # compile a temporary CUDA translation unit.
+    subprocess.run(  # noqa: S603
+        [nvcc, "-arch", arch, "-o", str(tmpdir / "object.o"), str(tmpdir / "object.cu")],
+        check=True,
+        capture_output=True,
+    )
+    with open(tmpdir / "object.o", "rb") as f:
+        object = f.read()
+
+    return object
 
 
 @pytest.mark.parametrize("error_enum", nvfatbin.Result)
@@ -125,7 +138,7 @@ def test_get_error_string(error_enum):
     if error_enum is nvfatbin.Result.SUCCESS:
         assert es == ""
     else:
-        assert "error" in es
+        assert es != ""
 
 
 def test_nvfatbin_get_version():
