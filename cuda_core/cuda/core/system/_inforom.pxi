@@ -3,6 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+InforomObject = nvml.InforomObject
+
+
 cdef class InforomInfo:
     cdef Device _device
 

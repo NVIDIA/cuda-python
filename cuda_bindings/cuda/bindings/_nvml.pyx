@@ -1361,10 +1361,9 @@ class SystemEventType(_IntEnum):
     SYSTEM_EVENT_TYPE_GPU_DRIVER_BIND = 0x0000000000000002
 
 
-class ClocksEvent(_IntEnum):
+class ClocksEventReasons(_IntEnum):
     CLOCKS_EVENT_REASON_GPU_IDLE = 0x0000000000000001
     CLOCKS_EVENT_REASON_APPLICATIONS_CLOCKS_SETTING = 0x0000000000000002
-    CLOCKS_THROTTLE_REASON_USER_DEFINED_CLOCKS = 0x0000000000000002
     CLOCKS_EVENT_REASON_SW_POWER_CAP = 0x0000000000000004
     CLOCKS_THROTTLE_REASON_HW_SLOWDOWN = 0x0000000000000008
     CLOCKS_EVENT_REASON_SYNC_BOOST = 0x0000000000000010
@@ -1373,13 +1372,6 @@ class ClocksEvent(_IntEnum):
     CLOCKS_THROTTLE_REASON_HW_POWER_BRAKE_SLOWDOWN = 0x0000000000000080
     CLOCKS_EVENT_REASON_DISPLAY_CLOCK_SETTING = 0x0000000000000100
     CLOCKS_EVENT_REASON_NONE = 0x0000000000000000
-    CLOCKS_THROTTLE_REASON_GPU_IDLE = 0x0000000000000001
-    CLOCKS_THROTTLE_REASON_APPLICATIONS_CLOCKS_SETTING = 0x0000000000002
-    CLOCKS_THROTTLE_REASON_SYNC_BOOST = 0x00000000000010
-    CLOCKS_THROTTLE_REASON_SW_POWER_CAP = 0x00000000000004
-    CLOCKS_THROTTLE_REASON_SW_THERMAL_SLOWDOWN = 0x00000000000020
-    CLOCKS_THROTTLE_REASON_DISPLAY_CLOCK_SETTING = 0x00000000000100
-    CLOCKS_THROTTLE_REASON_NONE = 0x0000000000000000
 
 
 class EncoderQuery(_IntEnum):
@@ -4295,138 +4287,6 @@ cdef class CoolerInfo_v1:
         return obj
 
 
-cdef _get_margin_temperature_v1_dtype_offsets():
-    cdef nvmlMarginTemperature_v1_t pod = nvmlMarginTemperature_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'margin_temperature'],
-        'formats': [_numpy.uint32, _numpy.int32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.marginTemperature)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlMarginTemperature_v1_t),
-    })
-
-margin_temperature_v1_dtype = _get_margin_temperature_v1_dtype_offsets()
-
-cdef class MarginTemperature_v1:
-    """Empty-initialize an instance of `nvmlMarginTemperature_v1_t`.
-
-
-    .. seealso:: `nvmlMarginTemperature_v1_t`
-    """
-    cdef:
-        nvmlMarginTemperature_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlMarginTemperature_v1_t *>calloc(1, sizeof(nvmlMarginTemperature_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating MarginTemperature_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlMarginTemperature_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.MarginTemperature_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef MarginTemperature_v1 other_
-        if not isinstance(other, MarginTemperature_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlMarginTemperature_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlMarginTemperature_v1_t *>malloc(sizeof(nvmlMarginTemperature_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating MarginTemperature_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlMarginTemperature_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: The version number of this struct."""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This MarginTemperature_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def margin_temperature(self):
-        """int: The margin temperature value."""
-        return self._ptr[0].marginTemperature
-
-    @margin_temperature.setter
-    def margin_temperature(self, val):
-        if self._readonly:
-            raise ValueError("This MarginTemperature_v1 instance is read-only")
-        self._ptr[0].marginTemperature = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an MarginTemperature_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `margin_temperature_v1_dtype` holding the data.
-        """
-        return __from_data(data, "margin_temperature_v1_dtype", margin_temperature_v1_dtype, MarginTemperature_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an MarginTemperature_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef MarginTemperature_v1 obj = MarginTemperature_v1.__new__(MarginTemperature_v1)
-        if owner is None:
-            obj._ptr = <nvmlMarginTemperature_v1_t *>malloc(sizeof(nvmlMarginTemperature_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating MarginTemperature_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlMarginTemperature_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlMarginTemperature_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
 cdef _get_clk_mon_fault_info_dtype_offsets():
     cdef nvmlClkMonFaultInfo_t pod = nvmlClkMonFaultInfo_t()
     return _numpy.dtype({
@@ -4747,150 +4607,6 @@ cdef class ClockOffset_v1:
             obj._owned = True
         else:
             obj._ptr = <nvmlClockOffset_v1_t *>ptr
-            obj._owner = owner
-            obj._owned = False
-        obj._readonly = readonly
-        return obj
-
-
-cdef _get_fan_speed_info_v1_dtype_offsets():
-    cdef nvmlFanSpeedInfo_v1_t pod = nvmlFanSpeedInfo_v1_t()
-    return _numpy.dtype({
-        'names': ['version', 'fan', 'speed'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint32],
-        'offsets': [
-            (<intptr_t>&(pod.version)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.fan)) - (<intptr_t>&pod),
-            (<intptr_t>&(pod.speed)) - (<intptr_t>&pod),
-        ],
-        'itemsize': sizeof(nvmlFanSpeedInfo_v1_t),
-    })
-
-fan_speed_info_v1_dtype = _get_fan_speed_info_v1_dtype_offsets()
-
-cdef class FanSpeedInfo_v1:
-    """Empty-initialize an instance of `nvmlFanSpeedInfo_v1_t`.
-
-
-    .. seealso:: `nvmlFanSpeedInfo_v1_t`
-    """
-    cdef:
-        nvmlFanSpeedInfo_v1_t *_ptr
-        object _owner
-        bint _owned
-        bint _readonly
-
-    def __init__(self):
-        self._ptr = <nvmlFanSpeedInfo_v1_t *>calloc(1, sizeof(nvmlFanSpeedInfo_v1_t))
-        if self._ptr == NULL:
-            raise MemoryError("Error allocating FanSpeedInfo_v1")
-        self._owner = None
-        self._owned = True
-        self._readonly = False
-
-    def __dealloc__(self):
-        cdef nvmlFanSpeedInfo_v1_t *ptr
-        if self._owned and self._ptr != NULL:
-            ptr = self._ptr
-            self._ptr = NULL
-            free(ptr)
-
-    def __repr__(self):
-        return f"<{__name__}.FanSpeedInfo_v1 object at {hex(id(self))}>"
-
-    @property
-    def ptr(self):
-        """Get the pointer address to the data as Python :class:`int`."""
-        return <intptr_t>(self._ptr)
-
-    cdef intptr_t _get_ptr(self):
-        return <intptr_t>(self._ptr)
-
-    def __int__(self):
-        return <intptr_t>(self._ptr)
-
-    def __eq__(self, other):
-        cdef FanSpeedInfo_v1 other_
-        if not isinstance(other, FanSpeedInfo_v1):
-            return False
-        other_ = other
-        return (memcmp(<void *><intptr_t>(self._ptr), <void *><intptr_t>(other_._ptr), sizeof(nvmlFanSpeedInfo_v1_t)) == 0)
-
-    def __setitem__(self, key, val):
-        if key == 0 and isinstance(val, _numpy.ndarray):
-            self._ptr = <nvmlFanSpeedInfo_v1_t *>malloc(sizeof(nvmlFanSpeedInfo_v1_t))
-            if self._ptr == NULL:
-                raise MemoryError("Error allocating FanSpeedInfo_v1")
-            memcpy(<void*>self._ptr, <void*><intptr_t>val.ctypes.data, sizeof(nvmlFanSpeedInfo_v1_t))
-            self._owner = None
-            self._owned = True
-            self._readonly = not val.flags.writeable
-        else:
-            setattr(self, key, val)
-
-    @property
-    def version(self):
-        """int: the API version number"""
-        return self._ptr[0].version
-
-    @version.setter
-    def version(self, val):
-        if self._readonly:
-            raise ValueError("This FanSpeedInfo_v1 instance is read-only")
-        self._ptr[0].version = val
-
-    @property
-    def fan(self):
-        """int: the fan index"""
-        return self._ptr[0].fan
-
-    @fan.setter
-    def fan(self, val):
-        if self._readonly:
-            raise ValueError("This FanSpeedInfo_v1 instance is read-only")
-        self._ptr[0].fan = val
-
-    @property
-    def speed(self):
-        """int: OUT: the fan speed in RPM."""
-        return self._ptr[0].speed
-
-    @speed.setter
-    def speed(self, val):
-        if self._readonly:
-            raise ValueError("This FanSpeedInfo_v1 instance is read-only")
-        self._ptr[0].speed = val
-
-    @staticmethod
-    def from_data(data):
-        """Create an FanSpeedInfo_v1 instance wrapping the given NumPy array.
-
-        Args:
-            data (_numpy.ndarray): a single-element array of dtype `fan_speed_info_v1_dtype` holding the data.
-        """
-        return __from_data(data, "fan_speed_info_v1_dtype", fan_speed_info_v1_dtype, FanSpeedInfo_v1)
-
-    @staticmethod
-    def from_ptr(intptr_t ptr, bint readonly=False, object owner=None):
-        """Create an FanSpeedInfo_v1 instance wrapping the given pointer.
-
-        Args:
-            ptr (intptr_t): pointer address as Python :class:`int` to the data.
-            owner (object): The Python object that owns the pointer. If not provided, data will be copied.
-            readonly (bool): whether the data is read-only (to the user). default is `False`.
-        """
-        if ptr == 0:
-            raise ValueError("ptr must not be null (0)")
-        cdef FanSpeedInfo_v1 obj = FanSpeedInfo_v1.__new__(FanSpeedInfo_v1)
-        if owner is None:
-            obj._ptr = <nvmlFanSpeedInfo_v1_t *>malloc(sizeof(nvmlFanSpeedInfo_v1_t))
-            if obj._ptr == NULL:
-                raise MemoryError("Error allocating FanSpeedInfo_v1")
-            memcpy(<void*>(obj._ptr), <void*>ptr, sizeof(nvmlFanSpeedInfo_v1_t))
-            obj._owner = None
-            obj._owned = True
-        else:
-            obj._ptr = <nvmlFanSpeedInfo_v1_t *>ptr
             obj._owner = owner
             obj._owned = False
         obj._readonly = readonly
@@ -22669,26 +22385,6 @@ cpdef unsigned int device_get_fan_speed_v2(intptr_t device, unsigned int fan) ex
     return speed
 
 
-cpdef object device_get_fan_speed_rpm(intptr_t device):
-    """Retrieves the intended operating speed in rotations per minute (RPM) of the device's specified fan.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlFanSpeedInfo_v1_t: Structure specifying the index of the target fan (input) and retrieved fan speed value (output).
-
-    .. seealso:: `nvmlDeviceGetFanSpeedRPM`
-    """
-    cdef FanSpeedInfo_v1 fan_speed_py = FanSpeedInfo_v1()
-    cdef nvmlFanSpeedInfo_t *fan_speed = <nvmlFanSpeedInfo_t *><intptr_t>(fan_speed_py._get_ptr())
-    fan_speed.version = sizeof(nvmlFanSpeedInfo_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetFanSpeedRPM(<Device>device, fan_speed)
-    check_status(__status__)
-    return fan_speed_py
-
-
 cpdef unsigned int device_get_target_fan_speed(intptr_t device, unsigned int fan) except? 0:
     """Retrieves the intended target speed of the device's specified fan.
 
@@ -22804,26 +22500,6 @@ cpdef unsigned int device_get_temperature_threshold(intptr_t device, int thresho
         __status__ = nvmlDeviceGetTemperatureThreshold(<Device>device, <_TemperatureThresholds>threshold_type, &temp)
     check_status(__status__)
     return temp
-
-
-cpdef object device_get_margin_temperature(intptr_t device):
-    """Retrieves the thermal margin temperature (distance to nearest slowdown threshold).
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlMarginTemperature_v1_t: Versioned structure in which to return the temperature reading.
-
-    .. seealso:: `nvmlDeviceGetMarginTemperature`
-    """
-    cdef MarginTemperature_v1 margin_temp_info_py = MarginTemperature_v1()
-    cdef nvmlMarginTemperature_t *margin_temp_info = <nvmlMarginTemperature_t *><intptr_t>(margin_temp_info_py._get_ptr())
-    margin_temp_info.version = sizeof(nvmlMarginTemperature_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetMarginTemperature(<Device>device, margin_temp_info)
-    check_status(__status__)
-    return margin_temp_info_py
 
 
 cpdef object device_get_thermal_settings(intptr_t device, unsigned int sensor_ind_ex):
@@ -23021,26 +22697,6 @@ cpdef tuple device_get_mem_clk_min_max_vf_offset(intptr_t device):
         __status__ = nvmlDeviceGetMemClkMinMaxVfOffset(<Device>device, &min_offset, &max_offset)
     check_status(__status__)
     return (min_offset, max_offset)
-
-
-cpdef object device_get_clock_offsets(intptr_t device):
-    """Retrieve min, max and current clock offset of some clock domain for a given PState.
-
-    Args:
-        device (intptr_t): The identifier of the target device.
-
-    Returns:
-        nvmlClockOffset_v1_t: Structure specifying the clock type (input) and the pstate (input) retrieved clock offset value (output), min clock offset (output) and max clock offset (output).
-
-    .. seealso:: `nvmlDeviceGetClockOffsets`
-    """
-    cdef ClockOffset_v1 info_py = ClockOffset_v1()
-    cdef nvmlClockOffset_t *info = <nvmlClockOffset_t *><intptr_t>(info_py._get_ptr())
-    info.version = sizeof(nvmlClockOffset_v1_t) | (1 << 24)
-    with nogil:
-        __status__ = nvmlDeviceGetClockOffsets(<Device>device, info)
-    check_status(__status__)
-    return info_py
 
 
 cpdef device_set_clock_offsets(intptr_t device, intptr_t info):
@@ -27206,15 +26862,13 @@ cpdef object device_get_temperature_v(intptr_t device, nvmlTemperatureSensors_t 
     return temperature.temperature
 
 
-cpdef object device_get_supported_performance_states(intptr_t device, unsigned int size):
+cpdef object device_get_supported_performance_states(intptr_t device):
     """Get all supported Performance States (P-States) for the device.
 
     Args:
         device (Device): The identifier of the target device.
-        size (unsigned int): The number of states to return.
     """
-    if size == 0:
-        return view.array(shape=(1,), itemsize=sizeof(unsigned int), format="I", mode="c")[:0]
+    cdef int size = 16  # NVML_MAX_GPU_PERF_STATES
     cdef view.array pstates = view.array(shape=(size,), itemsize=sizeof(unsigned int), format="I", mode="c")
 
     # The header says "size is the size of the pstates array in bytes".
@@ -28066,3 +27720,65 @@ cpdef object system_event_set_wait(intptr_t event_set, unsigned int timeout_ms, 
     check_status(__status__)
     event_data._data.resize((request[0].numEvent,))
     return event_data
+
+
+cpdef unsigned int device_get_fan_speed_rpm(intptr_t device, unsigned int fan):
+    """Retrieves the intended operating speed in rotations per minute (RPM) of the device's specified fan.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+        fan (unsigned int): The index of the fan to query.
+
+    Returns:
+        rpm (unsigned int): The fan speed in RPM.
+
+    .. seealso:: `nvmlDeviceGetFanSpeedRPM`
+    """
+    cdef nvmlFanSpeedInfo_v1_t[1] fan_speed
+    fan_speed[0].version = sizeof(nvmlFanSpeedInfo_v1_t) | (1 << 24)
+    fan_speed[0].fan = fan
+    with nogil:
+        __status__ = nvmlDeviceGetFanSpeedRPM(<Device>device, fan_speed)
+    check_status(__status__)
+    return fan_speed[0].speed
+
+
+cpdef int device_get_margin_temperature(intptr_t device):
+    """Retrieves the thermal margin temperature (distance to nearest slowdown threshold).
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        margin_temperature (int): The margin temperature value.
+
+    .. seealso:: `nvmlDeviceGetMarginTemperature`
+    """
+    cdef nvmlMarginTemperature_v1_t[1] margin_temp_info
+    margin_temp_info[0].version = sizeof(nvmlMarginTemperature_v1_t) | (1 << 24)
+    with nogil:
+        __status__ = nvmlDeviceGetMarginTemperature(<Device>device, margin_temp_info)
+    check_status(__status__)
+    return margin_temp_info[0].marginTemperature
+
+
+cpdef object device_get_clock_offsets(intptr_t device, nvmlClockType_t clock_type, nvmlPstates_t pstate):
+    """Retrieve min, max and current clock offset of some clock domain for a given PState.
+
+    Args:
+        device (intptr_t): The identifier of the target device.
+
+    Returns:
+        nvmlClockOffset_v1_t: Structure specifying the clock type (input) and the pstate (input) retrieved clock offset value (output), min clock offset (output) and max clock offset (output).
+
+    .. seealso:: `nvmlDeviceGetClockOffsets`
+    """
+    cdef ClockOffset_v1 info_py = ClockOffset_v1()
+    cdef nvmlClockOffset_v1_t *info = <nvmlClockOffset_v1_t *><intptr_t>(info_py._get_ptr())
+    info.version = sizeof(nvmlClockOffset_v1_t) | (1 << 24)
+    info.type = clock_type
+    info.pstate = pstate
+    with nogil:
+        __status__ = nvmlDeviceGetClockOffsets(<Device>device, info)
+    check_status(__status__)
+    return info_py
