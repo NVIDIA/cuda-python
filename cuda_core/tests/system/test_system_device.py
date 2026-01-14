@@ -286,6 +286,9 @@ def test_persistence_mode_enabled():
         assert isinstance(is_enabled, bool)
         try:
             device.persistence_mode_enabled = False
+        except nvml.NoPermissionError as e:
+            pytest.xfail(f"nvml.NoPermissionError: {e}")
+        try:
             assert device.persistence_mode_enabled is False
         finally:
             device.persistence_mode_enabled = is_enabled

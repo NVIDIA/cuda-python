@@ -10,13 +10,9 @@ from cuda.bindings cimport cydriver
 from cuda.core._memory._buffer cimport Buffer, Buffer_from_deviceptr_handle, MemoryResource
 from cuda.core._resource_handles cimport (
     DevicePtrHandle,
-    _init_handles_table,
     deviceptr_alloc_async,
     as_cu,
 )
-
-# Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
-_init_handles_table()
 
 from cuda.core._stream cimport default_stream, Stream_accept, Stream
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
