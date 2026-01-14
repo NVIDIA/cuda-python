@@ -105,6 +105,7 @@ def _build_cuda_core():
         sources = [f"cuda/core/{mod_name}.pyx"]
 
         # Add module-specific .cpp file from _cpp/ directory if it exists
+        # Example: _resource_handles.pyx finds _cpp/resource_handles.cpp.
         cpp_file = f"cuda/core/_cpp/{mod_name.lstrip('_')}.cpp"
         if os.path.exists(cpp_file):
             sources.append(cpp_file)

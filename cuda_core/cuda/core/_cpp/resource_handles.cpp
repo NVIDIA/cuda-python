@@ -5,7 +5,6 @@
 #include <Python.h>
 
 #include "resource_handles.hpp"
-#include "resource_handles_cxx_api.hpp"
 #include <cuda.h>
 #include <cstdint>
 #include <cstring>
@@ -172,7 +171,7 @@ struct ContextBox {
 };
 }  // namespace
 
-ContextHandle create_context_handle_ref(CUcontext ctx) {
+ContextHandle create_context_handle_ref(CUcontext ctx) noexcept {
     auto box = std::make_shared<const ContextBox>(ContextBox{ctx});
     return ContextHandle(box, &box->resource);
 }
@@ -235,7 +234,7 @@ struct StreamBox {
 };
 }  // namespace
 
-StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) {
+StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) noexcept {
     GILReleaseGuard gil;
     CUstream stream;
     if (CUDA_SUCCESS != (err = p_cuStreamCreateWithPriority(&stream, flags, priority))) {
@@ -253,19 +252,28 @@ StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int p
     return StreamHandle(box, &box->resource);
 }
 
-StreamHandle create_stream_handle_ref(CUstream stream) {
+StreamHandle create_stream_handle_ref(CUstream stream) noexcept {
     auto box = std::make_shared<const StreamBox>(StreamBox{stream});
     return StreamHandle(box, &box->resource);
 }
 
-StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
-    Py_XINCREF(owner);
+StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) noexcept {
+    if (!owner) {
+        return create_stream_handle_ref(stream);
+    }
+    // GIL required when owner is provided
+    GILAcquireGuard gil;
+    if (!gil.acquired()) {
+        // Python finalizing - fall back to ref version (no owner tracking)
+        return create_stream_handle_ref(stream);
+    }
+    Py_INCREF(owner);
     auto box = std::shared_ptr<const StreamBox>(
         new StreamBox{stream},
         [owner](const StreamBox* b) {
             GILAcquireGuard gil;
             if (gil.acquired()) {
-                Py_XDECREF(owner);
+                Py_DECREF(owner);
             }
             delete b;
         }
@@ -293,7 +301,7 @@ struct EventBox {
 };
 }  // namespace
 
-EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
+EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) noexcept {
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuEventCreate(&event, flags))) {
@@ -311,11 +319,11 @@ EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
     return EventHandle(box, &box->resource);
 }
 
-EventHandle create_event_handle(unsigned int flags) {
+EventHandle create_event_handle_noctx(unsigned int flags) noexcept {
     return create_event_handle(ContextHandle{}, flags);
 }
 
-EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
+EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) noexcept {
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuIpcOpenEventHandle(&event, ipc_handle))) {
@@ -373,7 +381,7 @@ static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool) {
     return MemoryPoolHandle(box, &box->resource);
 }
 
-MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) {
+MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) noexcept {
     GILReleaseGuard gil;
     CUmemoryPool pool;
     if (CUDA_SUCCESS != (err = p_cuMemPoolCreate(&pool, &props))) {
@@ -382,7 +390,7 @@ MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) {
     return wrap_mempool_owned(pool);
 }
 
-MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) {
+MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) noexcept {
     auto box = std::make_shared<const MemoryPoolBox>(MemoryPoolBox{pool});
     return MemoryPoolHandle(box, &box->resource);
 }
@@ -396,7 +404,7 @@ MemoryPoolHandle get_device_mempool(int device_id) noexcept {
     return create_mempool_handle_ref(pool);
 }
 
-MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type) {
+MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type) noexcept {
     GILReleaseGuard gil;
     CUmemoryPool pool;
     auto handle_ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(fd));
@@ -432,15 +440,15 @@ static DevicePtrBox* get_box(const DevicePtrHandle& h) {
     );
 }
 
-StreamHandle deallocation_stream(const DevicePtrHandle& h) {
+StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept {
     return get_box(h)->h_stream;
 }
 
-void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) {
+void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) noexcept {
     get_box(h)->h_stream = std::move(h_stream);
 }
 
-DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) {
+DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) noexcept {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocFromPoolAsync(&ptr, size, *h_pool, as_cu(h_stream)))) {
@@ -458,7 +466,7 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, 
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
+DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) noexcept {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocAsync(&ptr, size, as_cu(h_stream)))) {
@@ -476,7 +484,7 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_alloc(size_t size) {
+DevicePtrHandle deviceptr_alloc(size_t size) noexcept {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAlloc(&ptr, size))) {
@@ -494,7 +502,7 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_alloc_host(size_t size) {
+DevicePtrHandle deviceptr_alloc_host(size_t size) noexcept {
     GILReleaseGuard gil;
     void* ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocHost(&ptr, size))) {
@@ -512,13 +520,19 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) {
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) {
+DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) noexcept {
     auto box = std::make_shared<DevicePtrBox>(DevicePtrBox{ptr, StreamHandle{}});
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
+DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) noexcept {
     if (!owner) {
+        return deviceptr_create_ref(ptr);
+    }
+    // GIL required when owner is provided
+    GILAcquireGuard gil;
+    if (!gil.acquired()) {
+        // Python finalizing - fall back to ref version (no owner tracking)
         return deviceptr_create_ref(ptr);
     }
     Py_INCREF(owner);
@@ -593,7 +607,7 @@ struct ExportDataKeyHash {
 static std::mutex ipc_ptr_cache_mutex;
 static std::unordered_map<ExportDataKey, std::weak_ptr<DevicePtrBox>, ExportDataKeyHash> ipc_ptr_cache;
 
-DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) {
+DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) noexcept {
     auto data = const_cast<CUmemPoolPtrExportData*>(
         reinterpret_cast<const CUmemPoolPtrExportData*>(export_data));
 
@@ -659,62 +673,6 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
         );
         return DevicePtrHandle(box, &box->resource);
     }
-}
-
-// ============================================================================
-// Capsule C++ API table
-// ============================================================================
-
-const ResourceHandlesCxxApiV1* get_resource_handles_cxx_api_v1() noexcept {
-    static const ResourceHandlesCxxApiV1 table = []() {
-        ResourceHandlesCxxApiV1 t{};
-        t.abi_version = RESOURCE_HANDLES_CXX_API_VERSION;
-        t.struct_size = static_cast<std::uint32_t>(sizeof(ResourceHandlesCxxApiV1));
-
-        // Error handling
-        t.get_last_error = &get_last_error;
-        t.peek_last_error = &peek_last_error;
-        t.clear_last_error = &clear_last_error;
-
-        // Context
-        t.create_context_handle_ref = &create_context_handle_ref;
-        t.get_primary_context = &get_primary_context;
-        t.get_current_context = &get_current_context;
-
-        // Stream
-        t.create_stream_handle = &create_stream_handle;
-        t.create_stream_handle_ref = &create_stream_handle_ref;
-        t.create_stream_handle_with_owner = &create_stream_handle_with_owner;
-        t.get_legacy_stream = &get_legacy_stream;
-        t.get_per_thread_stream = &get_per_thread_stream;
-
-        // Event (resolve overloads explicitly)
-        t.create_event_handle =
-            static_cast<EventHandle (*)(ContextHandle, unsigned int)>(&create_event_handle);
-        t.create_event_handle_noctx =
-            static_cast<EventHandle (*)(unsigned int)>(&create_event_handle);
-        t.create_event_handle_ipc = &create_event_handle_ipc;
-
-        // Memory pool
-        t.create_mempool_handle = &create_mempool_handle;
-        t.create_mempool_handle_ref = &create_mempool_handle_ref;
-        t.get_device_mempool = &get_device_mempool;
-        t.create_mempool_handle_ipc = &create_mempool_handle_ipc;
-
-        // Device pointer
-        t.deviceptr_alloc_from_pool = &deviceptr_alloc_from_pool;
-        t.deviceptr_alloc_async = &deviceptr_alloc_async;
-        t.deviceptr_alloc = &deviceptr_alloc;
-        t.deviceptr_alloc_host = &deviceptr_alloc_host;
-        t.deviceptr_create_ref = &deviceptr_create_ref;
-        t.deviceptr_create_with_owner = &deviceptr_create_with_owner;
-        t.deviceptr_import_ipc = &deviceptr_import_ipc;
-        t.deallocation_stream = &deallocation_stream;
-        t.set_deallocation_stream = &set_deallocation_stream;
-
-        return t;
-    }();
-    return &table;
 }
 
 }  // namespace cuda_core
