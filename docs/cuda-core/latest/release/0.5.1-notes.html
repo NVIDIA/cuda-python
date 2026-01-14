@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>cuda.core 0.1.0 Release Notes &#8212; cuda.core</title>
+    <title>cuda.core 0.5.1 Release Notes &#8212; cuda.core</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=35a8b989"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'release/0.1.0-notes';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release/0.5.1-notes';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
@@ -58,13 +58,12 @@
             false;
         </script>
 
-    <link rel="canonical" href="docs/release/0.1.0-notes.html" />
+    <link rel="canonical" href="docs/release/0.5.1-notes.html" />
     <link rel="icon" href="../_static/favicon.png"/>
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core 0.1.1 Release Notes" href="0.1.1-notes.html" />
-    <link rel="prev" title="Release Notes" href="../release.html" />
+    <link rel="prev" title="cuda.core 0.5.0 Release Notes" href="0.5.0-notes.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -520,7 +519,7 @@
 </ul>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../release.html">Release Notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="0.5.1-notes.html">0.5.1</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.5.0-notes.html">0.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.4.2-notes.html">0.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.4.1-notes.html">0.4.1</a></li>
@@ -530,7 +529,7 @@
 <li class="toctree-l2"><a class="reference internal" href="0.3.0-notes.html">0.3.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.2.0-notes.html">0.2.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.1.1-notes.html">0.1.1</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">0.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="0.1.0-notes.html">0.1.0</a></li>
 </ul>
 </details></li>
 </ul>
@@ -570,7 +569,7 @@
     
     <li class="breadcrumb-item"><a href="../release.html" class="nav-link">Release Notes</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.5.1 Release Notes</span></li>
   </ul>
 </nav>
 </div>
@@ -587,26 +586,19 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="cuda-core-0-1-0-release-notes">
-<h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.0 Release Notes<a class="headerlink" href="#cuda-core-0-1-0-release-notes" title="Link to this heading">#</a></h1>
-<p>Released on Nov 8, 2024</p>
-<section id="highlights">
-<h2>Highlights<a class="headerlink" href="#highlights" title="Link to this heading">#</a></h2>
+  <section id="cuda-core-0-5-1-release-notes">
+<h1><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.5.1 Release Notes<a class="headerlink" href="#cuda-core-0-5-1-release-notes" title="Link to this heading">#</a></h1>
+<section id="new-features">
+<h2>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Initial beta release</p></li>
-<li><p>Supports all platforms that CUDA is supported</p></li>
-<li><p>Supports all CUDA 11.x/12.x drivers</p></li>
-<li><p>Supports all CUDA 11.x/12.x Toolkits</p></li>
-<li><p>Pythonic CUDA runtime and other core functionalities</p></li>
+<li><p>Added the ability to construct <code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code> from numpy arrays using <code class="docutils literal notranslate"><span class="pre">StridedMemoryView.from_array_interface</span></code></p></li>
 </ul>
 </section>
-<section id="limitations">
-<h2>Limitations<a class="headerlink" href="#limitations" title="Link to this heading">#</a></h2>
+<section id="fixes-and-enhancements">
+<h2>Fixes and enhancements<a class="headerlink" href="#fixes-and-enhancements" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>All APIs are currently <em>experimental</em> and subject to change without deprecation notice.
-Please kindly share your feedback with us so that we can make <code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> better!</p></li>
-<li><p>Source code release only; <code class="docutils literal notranslate"><span class="pre">pip</span></code>/<code class="docutils literal notranslate"><span class="pre">conda</span></code> support is coming in a future release</p></li>
-<li><p>Windows TCC mode is <a class="reference external" href="https://github.com/NVIDIA/cuda-python/issues/206">not yet supported</a></p></li>
+<li><p>Better structured dtype support for <code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></p></li>
+<li><p>Remove warning module overhead when constructing <code class="docutils literal notranslate"><span class="pre">StridedMemoryView</span></code></p></li>
 </ul>
 </section>
 </section>
@@ -622,22 +614,13 @@ Please kindly share your feedback with us so that we can make <code class="docut
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../release.html"
+       href="0.5.0-notes.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Release Notes</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.5.0 Release Notes</p>
       </div>
-    </a>
-    <a class="right-next"
-       href="0.1.1-notes.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">cuda.core</span></code> 0.1.1 Release Notes</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>
@@ -660,8 +643,8 @@ Please kindly share your feedback with us so that we can make <code class="docut
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#highlights">Highlights</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limitations">Limitations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixes-and-enhancements">Fixes and enhancements</a></li>
 </ul>
   </nav></div>
 
