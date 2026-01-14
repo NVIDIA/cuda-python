@@ -171,7 +171,7 @@ struct ContextBox {
 };
 }  // namespace
 
-ContextHandle create_context_handle_ref(CUcontext ctx) noexcept {
+ContextHandle create_context_handle_ref(CUcontext ctx) {
     auto box = std::make_shared<const ContextBox>(ContextBox{ctx});
     return ContextHandle(box, &box->resource);
 }
@@ -179,7 +179,7 @@ ContextHandle create_context_handle_ref(CUcontext ctx) noexcept {
 // Thread-local cache of primary contexts indexed by device ID
 static thread_local std::vector<ContextHandle> primary_context_cache;
 
-ContextHandle get_primary_context(int device_id) noexcept {
+ContextHandle get_primary_context(int device_id) {
     // Check thread-local cache
     if (static_cast<size_t>(device_id) < primary_context_cache.size()) {
         if (auto cached = primary_context_cache[device_id]) {
@@ -212,7 +212,7 @@ ContextHandle get_primary_context(int device_id) noexcept {
     return h;
 }
 
-ContextHandle get_current_context() noexcept {
+ContextHandle get_current_context() {
     GILReleaseGuard gil;
     CUcontext ctx = nullptr;
     if (CUDA_SUCCESS != (err = p_cuCtxGetCurrent(&ctx))) {
@@ -234,7 +234,7 @@ struct StreamBox {
 };
 }  // namespace
 
-StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) noexcept {
+StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int priority) {
     GILReleaseGuard gil;
     CUstream stream;
     if (CUDA_SUCCESS != (err = p_cuStreamCreateWithPriority(&stream, flags, priority))) {
@@ -252,12 +252,12 @@ StreamHandle create_stream_handle(ContextHandle h_ctx, unsigned int flags, int p
     return StreamHandle(box, &box->resource);
 }
 
-StreamHandle create_stream_handle_ref(CUstream stream) noexcept {
+StreamHandle create_stream_handle_ref(CUstream stream) {
     auto box = std::make_shared<const StreamBox>(StreamBox{stream});
     return StreamHandle(box, &box->resource);
 }
 
-StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) noexcept {
+StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) {
     if (!owner) {
         return create_stream_handle_ref(stream);
     }
@@ -281,12 +281,12 @@ StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner) n
     return StreamHandle(box, &box->resource);
 }
 
-StreamHandle get_legacy_stream() noexcept {
+StreamHandle get_legacy_stream() {
     static StreamHandle handle = create_stream_handle_ref(CU_STREAM_LEGACY);
     return handle;
 }
 
-StreamHandle get_per_thread_stream() noexcept {
+StreamHandle get_per_thread_stream() {
     static StreamHandle handle = create_stream_handle_ref(CU_STREAM_PER_THREAD);
     return handle;
 }
@@ -301,7 +301,7 @@ struct EventBox {
 };
 }  // namespace
 
-EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) noexcept {
+EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) {
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuEventCreate(&event, flags))) {
@@ -319,11 +319,11 @@ EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) noexcep
     return EventHandle(box, &box->resource);
 }
 
-EventHandle create_event_handle_noctx(unsigned int flags) noexcept {
+EventHandle create_event_handle_noctx(unsigned int flags) {
     return create_event_handle(ContextHandle{}, flags);
 }
 
-EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) noexcept {
+EventHandle create_event_handle_ipc(const CUipcEventHandle& ipc_handle) {
     GILReleaseGuard gil;
     CUevent event;
     if (CUDA_SUCCESS != (err = p_cuIpcOpenEventHandle(&event, ipc_handle))) {
@@ -353,19 +353,24 @@ struct MemoryPoolBox {
 
 // Helper to clear peer access before destroying a memory pool.
 // Works around nvbug 5698116: recycled pool handles inherit peer access state.
-static void clear_mempool_peer_access(CUmemoryPool pool) {
-    int device_count = 0;
-    if (p_cuDeviceGetCount(&device_count) != CUDA_SUCCESS || device_count <= 0) {
-        return;
-    }
+// Must be noexcept since it's called from a shared_ptr deleter.
+static void clear_mempool_peer_access(CUmemoryPool pool) noexcept {
+    try {
+        int device_count = 0;
+        if (p_cuDeviceGetCount(&device_count) != CUDA_SUCCESS || device_count <= 0) {
+            return;
+        }
 
-    std::vector<CUmemAccessDesc> clear_access(device_count);
-    for (int i = 0; i < device_count; ++i) {
-        clear_access[i].location.type = CU_MEM_LOCATION_TYPE_DEVICE;
-        clear_access[i].location.id = i;
-        clear_access[i].flags = CU_MEM_ACCESS_FLAGS_PROT_NONE;
+        std::vector<CUmemAccessDesc> clear_access(device_count);
+        for (int i = 0; i < device_count; ++i) {
+            clear_access[i].location.type = CU_MEM_LOCATION_TYPE_DEVICE;
+            clear_access[i].location.id = i;
+            clear_access[i].flags = CU_MEM_ACCESS_FLAGS_PROT_NONE;
+        }
+        p_cuMemPoolSetAccess(pool, clear_access.data(), device_count);  // Best effort
+    } catch (...) {
+        // Swallow exceptions - this is best-effort cleanup in destructor context
     }
-    p_cuMemPoolSetAccess(pool, clear_access.data(), device_count);  // Best effort
 }
 
 static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool) {
@@ -381,7 +386,7 @@ static MemoryPoolHandle wrap_mempool_owned(CUmemoryPool pool) {
     return MemoryPoolHandle(box, &box->resource);
 }
 
-MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) noexcept {
+MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) {
     GILReleaseGuard gil;
     CUmemoryPool pool;
     if (CUDA_SUCCESS != (err = p_cuMemPoolCreate(&pool, &props))) {
@@ -390,12 +395,12 @@ MemoryPoolHandle create_mempool_handle(const CUmemPoolProps& props) noexcept {
     return wrap_mempool_owned(pool);
 }
 
-MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) noexcept {
+MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool) {
     auto box = std::make_shared<const MemoryPoolBox>(MemoryPoolBox{pool});
     return MemoryPoolHandle(box, &box->resource);
 }
 
-MemoryPoolHandle get_device_mempool(int device_id) noexcept {
+MemoryPoolHandle get_device_mempool(int device_id) {
     GILReleaseGuard gil;
     CUmemoryPool pool;
     if (CUDA_SUCCESS != (err = p_cuDeviceGetMemPool(&pool, device_id))) {
@@ -404,7 +409,7 @@ MemoryPoolHandle get_device_mempool(int device_id) noexcept {
     return create_mempool_handle_ref(pool);
 }
 
-MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type) noexcept {
+MemoryPoolHandle create_mempool_handle_ipc(int fd, CUmemAllocationHandleType handle_type) {
     GILReleaseGuard gil;
     CUmemoryPool pool;
     auto handle_ptr = reinterpret_cast<void*>(static_cast<uintptr_t>(fd));
@@ -448,7 +453,7 @@ void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) no
     get_box(h)->h_stream = std::move(h_stream);
 }
 
-DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) noexcept {
+DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocFromPoolAsync(&ptr, size, *h_pool, as_cu(h_stream)))) {
@@ -466,7 +471,7 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, 
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) noexcept {
+DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocAsync(&ptr, size, as_cu(h_stream)))) {
@@ -484,7 +489,7 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) noexce
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_alloc(size_t size) noexcept {
+DevicePtrHandle deviceptr_alloc(size_t size) {
     GILReleaseGuard gil;
     CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAlloc(&ptr, size))) {
@@ -502,7 +507,7 @@ DevicePtrHandle deviceptr_alloc(size_t size) noexcept {
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_alloc_host(size_t size) noexcept {
+DevicePtrHandle deviceptr_alloc_host(size_t size) {
     GILReleaseGuard gil;
     void* ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocHost(&ptr, size))) {
@@ -520,12 +525,12 @@ DevicePtrHandle deviceptr_alloc_host(size_t size) noexcept {
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) noexcept {
+DevicePtrHandle deviceptr_create_ref(CUdeviceptr ptr) {
     auto box = std::make_shared<DevicePtrBox>(DevicePtrBox{ptr, StreamHandle{}});
     return DevicePtrHandle(box, &box->resource);
 }
 
-DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) noexcept {
+DevicePtrHandle deviceptr_create_with_owner(CUdeviceptr ptr, PyObject* owner) {
     if (!owner) {
         return deviceptr_create_ref(ptr);
     }
@@ -607,7 +612,7 @@ struct ExportDataKeyHash {
 static std::mutex ipc_ptr_cache_mutex;
 static std::unordered_map<ExportDataKey, std::weak_ptr<DevicePtrBox>, ExportDataKeyHash> ipc_ptr_cache;
 
-DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) noexcept {
+DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) {
     auto data = const_cast<CUmemPoolPtrExportData*>(
         reinterpret_cast<const CUmemPoolPtrExportData*>(export_data));
 
@@ -639,7 +644,7 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
             new DevicePtrBox{ptr, h_stream},
             [h_pool, key](DevicePtrBox* b) {
                 GILReleaseGuard gil;
-                {
+                try {
                     std::lock_guard<std::mutex> lock(ipc_ptr_cache_mutex);
                     // Only erase if expired - avoids race where another thread
                     // replaced the entry with a new import before we acquired the lock.
@@ -647,6 +652,8 @@ DevicePtrHandle deviceptr_import_ipc(MemoryPoolHandle h_pool, const void* export
                     if (it != ipc_ptr_cache.end() && it->second.expired()) {
                         ipc_ptr_cache.erase(it);
                     }
+                } catch (...) {
+                    // Cache cleanup is best-effort - swallow exceptions in destructor context
                 }
                 p_cuMemFreeAsync(b->resource, as_cu(b->h_stream));
                 delete b;
