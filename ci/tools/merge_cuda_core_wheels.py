@@ -150,14 +150,20 @@ def merge_wheels(wheels: List[Path], output_dir: Path, show_wheel_contents: bool
             "__init__.py",
             "_version.py",
             "_include",
+            "_cpp",  # Headers for Cython development
             "cu12",
             "cu13",
         )
+        # _resource_handles is shared (not CUDA-version-specific) and must stay
+        # at top level. It's imported early in __init__.py before versioned code.
+        items_to_keep_prefix = ("_resource_handles",)
         all_items = os.scandir(base_wheel / base_dir)
         removed_count = 0
         for f in all_items:
             f_abspath = f.path
             if f.name in items_to_keep:
+                continue
+            if any(f.name.startswith(prefix) for prefix in items_to_keep_prefix):
                 continue
             if f.is_dir():
                 print(f"  Removing directory: {f.name}", file=sys.stderr)

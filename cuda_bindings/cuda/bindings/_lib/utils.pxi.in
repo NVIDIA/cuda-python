@@ -247,12 +247,14 @@ cdef class _HelperCUpointer_attribute:
             else:
                 self._cptr = <void*><void_ptr>init_value.getPtr()
         elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_MEMORY_TYPE'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_MEMORY_TYPE,{{endif}}
-                            {{if 'CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,{{endif}}
                             {{if 'CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES,{{endif}}
                             {{if 'CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE,{{endif}}
                             {{if 'CU_POINTER_ATTRIBUTE_ACCESS_FLAGS'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_ACCESS_FLAGS,{{endif}}):
             self._uint = init_value
             self._cptr = <void*>&self._uint
+        elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,{{endif}}):
+            self._int = init_value
+            self._cptr = <void*>&self._int
         elif self._attr in ({{if 'CU_POINTER_ATTRIBUTE_DEVICE_POINTER'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_DEVICE_POINTER,{{endif}}
                             {{if 'CU_POINTER_ATTRIBUTE_RANGE_START_ADDR'}}cydriver.CUpointer_attribute_enum.CU_POINTER_ATTRIBUTE_RANGE_START_ADDR,{{endif}}):
             if self._is_getter:

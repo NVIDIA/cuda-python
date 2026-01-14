@@ -25,6 +25,8 @@ from cuda.pathfinder._utils.toolchain_tracker import (
     reset_default_context as reset_default_context,
 )
 
+from cuda.pathfinder._version import __version__  # isort: skip  # noqa: F401
+
 # Indirections to help Sphinx find the docstrings.
 #: Mapping from short CUDA Toolkit (CTK) library names to their canonical
 #: header basenames (used to validate a discovered include directory).
