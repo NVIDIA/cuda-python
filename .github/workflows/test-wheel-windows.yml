@@ -236,16 +236,16 @@ jobs:
       - name: Ensure cuda-python installable
         run: |
           if ('${{ matrix.LOCAL_CTK }}' -eq '1') {
-            pip install (Get-ChildItem -Filter cuda_python*.whl).FullName
+            pip install --only-binary=:all: (Get-ChildItem -Filter cuda_python*.whl).FullName
           } else {
-            pip install "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
+            pip install --only-binary=:all: "$((Get-ChildItem -Filter cuda_python*.whl).FullName)[all]"
           }
 
       - name: Install cuda.pathfinder extra wheels for testing
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_pathfinder
-          pip install --only-binary=:all: -v . --group "test-cu${TEST_CUDA_MAJOR}"
+          pip install --only-binary=:all: -v ./*.whl --group "test-cu${TEST_CUDA_MAJOR}"
           pip list
           popd
 
