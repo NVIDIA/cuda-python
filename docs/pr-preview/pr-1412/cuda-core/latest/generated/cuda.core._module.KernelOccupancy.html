@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=b866189c"></script>
+    <script src="../_static/documentation_options.js?v=e06f8622"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev42';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev47';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -518,6 +518,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.0-notes.html">0.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.4.2-notes.html">0.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.4.1-notes.html">0.4.1</a></li>
@@ -586,7 +587,9 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="cuda.core._module.KernelOccupancy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuda.core._module.</span></span><span class="sig-name descname"><span class="pre">KernelOccupancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._module.KernelOccupancy" title="Link to this definition">#</a></dt>
-<dd><p class="rubric">Methods</p>
+<dd><p>This class offers methods to query occupancy metrics that help determine optimal
+launch parameters such as block size, grid size, and shared memory usage.</p>
+<p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="cuda.core._module.KernelOccupancy.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core._module.KernelOccupancy.__init__" title="Link to this definition">#</a></dt>
