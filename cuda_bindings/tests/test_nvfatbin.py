@@ -68,6 +68,10 @@ TILEIR_b64 = (
 )
 
 
+def get_version() -> tuple[int, int]:
+    return nvfatbin.version()
+
+
 @pytest.fixture(params=ARCHITECTURES)
 def arch(request):
     return request.param
@@ -264,6 +268,7 @@ def test_nvfatbin_add_reloc(OBJECT):
     nvfatbin.destroy(handle)
 
 
+@pytest.skipIf(get_version() < (13, 1), reason="TileIR API is not supported in CUDA < 13.1")
 def test_nvfatbin_add_tile_ir(TILEIR):
     handle = nvfatbin.create([], 0)
     nvfatbin.add_tile_ir(handle, TILEIR, len(TILEIR), "VectorAdd", "")
