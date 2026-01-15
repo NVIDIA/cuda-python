@@ -10,7 +10,7 @@ from cuda.pathfinder._static_libs.supported_nvidia_static_libs import SUPPORTED_
 
 
 def test_unknown_artifact():
-    with pytest.raises(RuntimeError, match=r"^UNKNOWN artifact_name='unknown-artifact'$"):
+    with pytest.raises(ValueError, match=r"Unknown artifact: 'unknown-artifact'"):
         find_nvidia_static_lib("unknown-artifact")
 
 

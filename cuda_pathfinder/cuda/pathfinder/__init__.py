@@ -19,11 +19,6 @@ from cuda.pathfinder._static_libs.find_nvidia_static_libs import find_nvidia_sta
 from cuda.pathfinder._static_libs.supported_nvidia_static_libs import (
     SUPPORTED_STATIC_LIBS as SUPPORTED_NVIDIA_STATIC_LIBS,
 )
-from cuda.pathfinder._utils.toolchain_tracker import (
-    SearchContext as SearchContext,
-    ToolchainMismatchError as ToolchainMismatchError,
-    reset_default_context as reset_default_context,
-)
 
 from cuda.pathfinder._version import __version__  # isort: skip  # noqa: F401
 

@@ -4,72 +4,32 @@
 """Find CUDA binary executables across different installation sources."""
 
 import functools
+import os
 from typing import Optional
 
 from cuda.pathfinder._binaries.supported_nvidia_binaries import SITE_PACKAGES_BINDIRS, SUPPORTED_BINARIES
-from cuda.pathfinder._utils.filename_resolver import FilenameResolver
-from cuda.pathfinder._utils.path_utils import _abs_norm
-from cuda.pathfinder._utils.search_factory import create_binary_search_locations
-from cuda.pathfinder._utils.toolchain_tracker import SearchContext, get_default_context
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
+from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
 
 
 @functools.cache
-def _find_nvidia_binary_default(binary_name: str) -> Optional[str]:
-    """Internal cached version using default context.
-    
-    Args:
-        binary_name: Name of the binary to find.
-        
-    Returns:
-        Absolute path to the binary, or None if not found.
-    """
-    return _find_nvidia_binary_impl(binary_name, get_default_context())
-
-
-def _find_nvidia_binary_impl(binary_name: str, context: SearchContext) -> Optional[str]:
-    """Implementation of binary finding logic.
-    
-    Args:
-        binary_name: Name of the binary to find.
-        context: SearchContext for toolchain consistency.
-        
-    Returns:
-        Absolute path to the binary, or None if not found.
-    """
-    if binary_name not in SUPPORTED_BINARIES:
-        raise RuntimeError(f"UNKNOWN {binary_name=}")
-
-    locations = create_binary_search_locations(
-        binary_name=binary_name,
-        site_packages_bindirs=SITE_PACKAGES_BINDIRS,
-        filename_variants_func=FilenameResolver.for_binary,
-    )
-
-    path = context.find(binary_name, locations)
-    return _abs_norm(path) if path else None
-
-
-def find_nvidia_binary(binary_name: str, *, context: Optional[SearchContext] = None) -> Optional[str]:
+def find_nvidia_binary(binary_name: str) -> Optional[str]:
     """Locate a CUDA binary executable.
 
     This function searches for CUDA binaries across multiple installation
-    sources, ensuring toolchain consistency when multiple artifacts are found.
+    sources in priority order.
 
     Args:
         binary_name: The name of the binary to find (e.g., ``"nvdisasm"``,
             ``"cuobjdump"``).
-        context: Optional SearchContext for toolchain consistency tracking.
-            If None, uses the default module-level context which provides
-            caching and consistency across multiple calls.
 
     Returns:
         Absolute path to the discovered binary, or ``None`` if the
         binary cannot be found.
 
     Raises:
-        RuntimeError: If ``binary_name`` is not in the supported set.
-        ToolchainMismatchError: If binary found in different source than
-            the context's preferred source.
+        ValueError: If ``binary_name`` is not in the supported set.
 
     Search order:
         1. **NVIDIA Python wheels**
@@ -88,29 +48,45 @@ def find_nvidia_binary(binary_name: str, *, context: Optional[SearchContext] = N
              ``bin`` subdirectory.
 
     Examples:
-        Basic usage (uses default context with caching):
+        Basic usage:
 
         >>> from cuda.pathfinder import find_nvidia_binary
         >>> path = find_nvidia_binary("nvcc")
         >>> if path:
         ...     print(f"Found nvcc at {path}")
 
-        Using explicit context for isolated search:
-
-        >>> from cuda.pathfinder import SearchContext, find_nvidia_binary
-        >>> ctx = SearchContext()
-        >>> nvcc = find_nvidia_binary("nvcc", context=ctx)
-        >>> nvdisasm = find_nvidia_binary("nvdisasm", context=ctx)
-        >>> # Both from same source, or ToolchainMismatchError raised
-
     Note:
-        When using the default context (context=None), results are cached.
-        When providing an explicit context, caching is bypassed to allow
-        for isolated searches with different consistency requirements.
+        Results are cached via ``functools.cache`` for performance.
     """
-    if context is None:
-        # Use cached version with default context
-        return _find_nvidia_binary_default(binary_name)
-    else:
-        # Bypass cache for explicit context
-        return _find_nvidia_binary_impl(binary_name, context)
+    if binary_name not in SUPPORTED_BINARIES:
+        raise ValueError(f"Unknown binary: {binary_name!r}")
+
+    # Filename variants (try both with and without .exe for cross-platform support)
+    variants = (binary_name, f"{binary_name}.exe")
+
+    # 1. Search site-packages (NVIDIA Python wheels)
+    if site_dirs := SITE_PACKAGES_BINDIRS.get(binary_name):
+        for rel_path in site_dirs:
+            for abs_dir in find_sub_dirs_all_sitepackages(tuple(rel_path.split("/"))):
+                for variant in variants:
+                    path = os.path.join(abs_dir, variant)
+                    if os.path.isfile(path):
+                        return os.path.abspath(path)
+
+    # 2. Search Conda environment
+    if conda_prefix := os.environ.get("CONDA_PREFIX"):
+        subdirs = ("Library/bin", "bin") if IS_WINDOWS else ("bin",)
+        for subdir in subdirs:
+            for variant in variants:
+                path = os.path.join(conda_prefix, subdir, variant)
+                if os.path.isfile(path):
+                    return os.path.abspath(path)
+
+    # 3. Search CUDA_HOME/CUDA_PATH
+    if cuda_home := get_cuda_home_or_path():
+        for variant in variants:
+            path = os.path.join(cuda_home, "bin", variant)
+            if os.path.isfile(path):
+                return os.path.abspath(path)
+
+    return None

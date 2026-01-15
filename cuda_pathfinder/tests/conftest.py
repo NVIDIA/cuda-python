@@ -29,13 +29,3 @@ def info_summary_append(request):
         request.config.custom_info.append(f"{request.node.name}: {message}")
 
     return _append
-
-
-@pytest.fixture(autouse=True)
-def reset_search_context():
-    """Reset the default search context between tests."""
-    from cuda.pathfinder._utils.toolchain_tracker import reset_default_context
-
-    reset_default_context()
-    yield
-    reset_default_context()

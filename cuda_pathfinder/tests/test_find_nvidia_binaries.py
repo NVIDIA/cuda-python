@@ -10,7 +10,7 @@ from cuda.pathfinder._binaries.supported_nvidia_binaries import SUPPORTED_BINARI
 
 
 def test_unknown_binary():
-    with pytest.raises(RuntimeError, match=r"^UNKNOWN binary_name='unknown-binary'$"):
+    with pytest.raises(ValueError, match=r"Unknown binary: 'unknown-binary'"):
         find_nvidia_binary("unknown-binary")
 
 
@@ -22,19 +22,3 @@ def test_find_binaries(info_summary_append, binary_name):
         assert os.path.isfile(binary_path)
         # Verify the binary name is in the path
         assert binary_name in os.path.basename(binary_path)
-
-
-def test_nvdisasm_specific(info_summary_append):
-    """Specific test for nvdisasm to ensure it's working."""
-    binary_path = find_nvidia_binary("nvdisasm")
-    info_summary_append(f"nvdisasm path: {binary_path!r}")
-    if binary_path:
-        assert os.path.isfile(binary_path)
-
-
-def test_cuobjdump_specific(info_summary_append):
-    """Specific test for cuobjdump to ensure it's working."""
-    binary_path = find_nvidia_binary("cuobjdump")
-    info_summary_append(f"cuobjdump path: {binary_path!r}")
-    if binary_path:
-        assert os.path.isfile(binary_path)
