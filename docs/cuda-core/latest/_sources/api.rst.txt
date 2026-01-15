@@ -80,6 +80,12 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.get_nvml_version
    system.get_process_name
 
+   system.register_events
+   system.RegisteredSystemEvents
+   system.SystemEvent
+   system.SystemEvents
+   system.SystemEventType
+
    :template: autosummary/cyclass.rst
 
    system.Device
@@ -87,6 +93,9 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.BrandType
    system.DeviceArchitecture
    system.DeviceAttributes
+   system.DeviceEvents
+   system.EventData
+   system.EventType
    system.FieldId
    system.FieldValue
    system.FieldValues

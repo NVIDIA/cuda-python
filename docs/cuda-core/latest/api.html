@@ -44,7 +44,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=73ef8851"></script>
+    <script src="_static/documentation_options.js?v=4417023b"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev45';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev46';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -498,11 +498,19 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.RegisteredSystemEvents.html">cuda.core.system.RegisteredSystemEvents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.SystemEvent.html">cuda.core.system.SystemEvent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.SystemEvents.html">cuda.core.system.SystemEvents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.DeviceAttributes.html">cuda.core.system.DeviceAttributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.DeviceEvents.html">cuda.core.system.DeviceEvents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.EventData.html">cuda.core.system.EventData</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.EventType.html">cuda.core.system.EventType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldValue.html">cuda.core.system.FieldValue</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldValues.html">cuda.core.system.FieldValues</a></li>
@@ -716,20 +724,44 @@ deprecation periods for breaking changes.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.get_process_name.html#cuda.core.system.get_process_name" title="cuda.core.system.get_process_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.get_process_name</span></code></a>(int pid)</p></td>
 <td><p>The name of process with given PID.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.Device</span></code></a>(int index, uuid, pci_bus_id)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.register_events.html#cuda.core.system.register_events" title="cuda.core.system.register_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.register_events</span></code></a>(events)</p></td>
+<td><p>Starts recording of events on test system.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.RegisteredSystemEvents.html#cuda.core.system.RegisteredSystemEvents" title="cuda.core.system.RegisteredSystemEvents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.RegisteredSystemEvents</span></code></a>(events)</p></td>
+<td><p>Represents a set of events that can be waited on for a specific device.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.SystemEvent.html#cuda.core.system.SystemEvent" title="cuda.core.system.SystemEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.SystemEvent</span></code></a>(event_data)</p></td>
+<td><p>Data about a collection of system events.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.SystemEvents.html#cuda.core.system.SystemEvents" title="cuda.core.system.SystemEvents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.SystemEvents</span></code></a>(event_data)</p></td>
+<td><p>Data about a collection of system events.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.SystemEventType.html#cuda.core.system.SystemEventType" title="cuda.core.system.SystemEventType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.SystemEventType</span></code></a>(value[, names, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.Device.html#cuda.core.system.Device" title="cuda.core.system.Device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.Device</span></code></a>(int index, *, uuid, pci_bus_id)</p></td>
 <td><p>Representation of a device.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.BAR1MemoryInfo.html#cuda.core.system.BAR1MemoryInfo" title="cuda.core.system.BAR1MemoryInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.BAR1MemoryInfo</span></code></a>(memory_info)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.BAR1MemoryInfo.html#cuda.core.system.BAR1MemoryInfo" title="cuda.core.system.BAR1MemoryInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.BAR1MemoryInfo</span></code></a>(memory_info)</p></td>
 <td><p>BAR1 Memory allocation information for a device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.BrandType.html#cuda.core.system.BrandType" title="cuda.core.system.BrandType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.BrandType</span></code></a>(value[, names, module, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.BrandType.html#cuda.core.system.BrandType" title="cuda.core.system.BrandType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.BrandType</span></code></a>(value[, names, module, ...])</p></td>
 <td><p>See <cite>nvmlBrandType_t</cite>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.DeviceArchitecture.html#cuda.core.system.DeviceArchitecture" title="cuda.core.system.DeviceArchitecture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.DeviceArchitecture</span></code></a>(architecture)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.DeviceArchitecture.html#cuda.core.system.DeviceArchitecture" title="cuda.core.system.DeviceArchitecture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.DeviceArchitecture</span></code></a>(architecture)</p></td>
 <td><p>Device architecture enumeration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.DeviceAttributes.html#cuda.core.system.DeviceAttributes" title="cuda.core.system.DeviceAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.DeviceAttributes</span></code></a>(attributes)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.DeviceAttributes.html#cuda.core.system.DeviceAttributes" title="cuda.core.system.DeviceAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.DeviceAttributes</span></code></a>(attributes)</p></td>
 <td><p>Various device attributes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.DeviceEvents.html#cuda.core.system.DeviceEvents" title="cuda.core.system.DeviceEvents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.DeviceEvents</span></code></a>(intptr_t device_handle, ...)</p></td>
+<td><p>Represents a set of events that can be waited on for a specific device.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.EventData.html#cuda.core.system.EventData" title="cuda.core.system.EventData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.EventData</span></code></a>(event_data)</p></td>
+<td><p>Data about a single event.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/cuda.core.system.EventType.html#cuda.core.system.EventType" title="cuda.core.system.EventType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.EventType</span></code></a>(value[, names, module, ...])</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/cuda.core.system.FieldId.html#cuda.core.system.FieldId" title="cuda.core.system.FieldId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">system.FieldId</span></code></a>(value[, names, module, ...])</p></td>
 <td><p></p></td>

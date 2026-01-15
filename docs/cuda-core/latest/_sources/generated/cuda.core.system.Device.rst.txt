@@ -17,6 +17,8 @@ cuda.core.system.Device
    .. automethod:: clear_field_values
    .. automethod:: get_all_devices
    .. automethod:: get_field_values
+   .. automethod:: get_supported_event_types
+   .. automethod:: register_events
 
    
    
