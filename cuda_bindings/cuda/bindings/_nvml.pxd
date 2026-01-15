@@ -34,7 +34,6 @@ ctypedef nvmlViolationTime_t ViolationTime
 ctypedef nvmlUUIDValue_t UUIDValue
 ctypedef nvmlVgpuPlacementList_v1_t VgpuPlacementList_v1
 ctypedef nvmlNvLinkPowerThres_t NvLinkPowerThres
-ctypedef nvmlSystemEventData_v1_t SystemEventData_v1
 ctypedef nvmlGpuInstanceProfileInfo_t GpuInstanceProfileInfo
 ctypedef nvmlComputeInstanceProfileInfo_t ComputeInstanceProfileInfo
 ctypedef nvmlMask255_t Mask255
@@ -329,10 +328,6 @@ cpdef device_register_events(intptr_t device, unsigned long long event_types, in
 cpdef unsigned long long device_get_supported_event_types(intptr_t device) except? 0
 cpdef object event_set_wait_v2(intptr_t set, unsigned int timeoutms)
 cpdef event_set_free(intptr_t set)
-cpdef system_event_set_create(intptr_t request)
-cpdef system_event_set_free(intptr_t request)
-cpdef system_register_events(intptr_t request)
-cpdef system_event_set_wait(intptr_t request)
 cpdef device_modify_drain_state(intptr_t pci_info, int new_state)
 cpdef int device_query_drain_state(intptr_t pci_info) except? -1
 cpdef device_remove_gpu_v2(intptr_t pci_info, int gpu_state, int link_state)
