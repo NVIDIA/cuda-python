@@ -89,7 +89,7 @@ cpdef str get_error_string(int result):
 
     .. seealso:: `nvFatbinGetErrorString`
     """
-    cdef char* _output_
+    cdef const char* _output_
     cdef bytes _output_bytes_
     _output_ = nvFatbinGetErrorString(<_Result>result)
 
