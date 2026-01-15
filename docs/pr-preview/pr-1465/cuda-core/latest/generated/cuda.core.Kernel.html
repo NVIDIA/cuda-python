@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=0571b1bf"></script>
+    <script src="../_static/documentation_options.js?v=20d8d27f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev37';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev56';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -530,6 +530,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.0-notes.html">0.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.4.2-notes.html">0.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.4.1-notes.html">0.4.1</a></li>
@@ -611,6 +612,31 @@ should instead be created through a <a class="reference internal" href="cuda.cor
 <dt class="sig sig-object py" id="cuda.core.Kernel.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Kernel.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Kernel.from_handle">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_handle</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">handle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core._module.ObjectCode"><span class="pre">ObjectCode</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cuda.core.Kernel" title="cuda.core._module.Kernel"><span class="pre">Kernel</span></a></span></span><a class="headerlink" href="#cuda.core.Kernel.from_handle" title="Link to this definition">#</a></dt>
+<dd><p>Creates a new <a class="reference internal" href="#cuda.core.Kernel" title="cuda.core.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> object from a foreign kernel handle.</p>
+<p>Uses a CUkernel pointer address to create a new <a class="reference internal" href="#cuda.core.Kernel" title="cuda.core.Kernel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Kernel</span></code></a> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>handle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Kernel handle representing the address of a foreign
+kernel object (CUkernel).</p></li>
+<li><p><strong>mod</strong> (<a class="reference internal" href="cuda.core.ObjectCode.html#cuda.core.ObjectCode" title="cuda.core.ObjectCode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectCode</span></code></a>, optional) – The ObjectCode object associated with this kernel. If not provided,
+a placeholder ObjectCode will be created. Note that without a proper
+ObjectCode, certain operations may be limited.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <p class="rubric">Attributes</p>
 <dl class="py property">
@@ -702,6 +728,7 @@ should instead be created through a <a class="reference internal" href="cuda.cor
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel"><code class="docutils literal notranslate"><span class="pre">Kernel</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.__init__"><code class="docutils literal notranslate"><span class="pre">Kernel.__init__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.from_handle"><code class="docutils literal notranslate"><span class="pre">Kernel.from_handle()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.arguments_info"><code class="docutils literal notranslate"><span class="pre">Kernel.arguments_info</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.attributes"><code class="docutils literal notranslate"><span class="pre">Kernel.attributes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Kernel.num_arguments"><code class="docutils literal notranslate"><span class="pre">Kernel.num_arguments</span></code></a></li>

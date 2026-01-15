@@ -14,6 +14,7 @@ cuda.core.Kernel
 
    
    .. automethod:: __init__
+   .. automethod:: from_handle
 
    
    

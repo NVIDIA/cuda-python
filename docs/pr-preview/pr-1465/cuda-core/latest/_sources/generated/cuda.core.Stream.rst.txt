@@ -17,6 +17,8 @@ cuda.core.Stream
    .. automethod:: close
    .. automethod:: create_graph_builder
    .. automethod:: from_handle
+   .. automethod:: legacy_default
+   .. automethod:: per_thread_default
    .. automethod:: record
    .. automethod:: sync
    .. automethod:: wait
