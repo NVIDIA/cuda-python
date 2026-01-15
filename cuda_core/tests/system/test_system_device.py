@@ -262,6 +262,8 @@ def test_persistence_mode_enabled():
 
 
 def test_field_values():
+    skip_reasons = set()
+
     for device in system.Device.get_all_devices():
         # TODO: Are there any fields that return double's?  It would be good to
         # test those.
@@ -271,7 +273,12 @@ def test_field_values():
             system.FieldId.DEV_PCIE_COUNT_TX_BYTES,
         ]
         field_values = device.get_field_values(field_ids)
-        field_values.validate()
+
+        try:
+            field_values.validate()
+        except system.NotSupportedError:
+            skip_reasons.add(f"Field values {field_ids} not supported on '{device.name}'")
+            continue
 
         with pytest.raises(TypeError):
             field_values["invalid_index"]
@@ -307,3 +314,6 @@ def test_field_values():
         field_values.validate()
         assert len(field_values) == 1
         assert field_values[0].value <= old_value
+
+    if skip_reasons:
+        pytest.skip(" ; ".join(skip_reasons))
