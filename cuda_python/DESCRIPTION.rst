@@ -18,6 +18,7 @@ CUDA Python is the home for accessing NVIDIA's CUDA platform from Python. It con
 * `nvshmem4py <https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html>`_: Pythonic interface to the NVSHMEM library, enabling Python applications to leverage NVSHMEM's high-performance PGAS (Partitioned Global Address Space) programming model for GPU-accelerated computing
 * `Nsight Python <https://docs.nvidia.com/nsight-python/index.html>`_: Python kernel profiling interface that automates performance analysis across multiple kernel configurations using NVIDIA Nsight Tools
 * `CUPTI Python <https://docs.nvidia.com/cupti-python/>`_: Python APIs for creation of profiling tools that target CUDA Python applications via the CUDA Profiling Tools Interface (CUPTI)
+* `Accelerated Computing Hub <https://github.com/NVIDIA/accelerated-computing-hub>`_: Open-source learning materials related to GPU computing. You will find user guides, tutorials, and other works freely available for all learners interested in GPU computing.
 
 CUDA Python is currently undergoing an overhaul to improve existing and introduce new components. All of the previously available functionality from the ``cuda-python`` package will continue to be available, please refer to the `cuda.bindings <https://nvidia.github.io/cuda-python/cuda-bindings/latest>`_ documentation for installation guide and further detail.
 

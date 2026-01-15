@@ -18,6 +18,7 @@ multiple components:
 - `nvshmem4py`_: Pythonic interface to the NVSHMEM library, enabling Python applications to leverage NVSHMEM's high-performance PGAS (Partitioned Global Address Space) programming model for GPU-accelerated computing
 - `Nsight Python`_: Python kernel profiling interface that automates performance analysis across multiple kernel configurations using NVIDIA Nsight Tools
 - `CUPTI Python`_: Python APIs for creation of profiling tools that target CUDA Python applications via the CUDA Profiling Tools Interface (CUPTI)
+- `Accelerated Computing Hub`_: Open-source learning materials related to GPU computing. You will find user guides, tutorials, and other works freely available for all learners interested in GPU computing.
 
 .. _cuda.coop: https://nvidia.github.io/cccl/python/coop
 .. _cuda.compute: https://nvidia.github.io/cccl/python/compute
@@ -31,6 +32,7 @@ multiple components:
 .. _nvshmem4py: https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html
 .. _Nsight Python: https://docs.nvidia.com/nsight-python/index.html
 .. _CUPTI Python: https://docs.nvidia.com/cupti-python/
+.. _Accelerated Computing Hub: https://github.com/NVIDIA/accelerated-computing-hub
 
 CUDA Python is currently undergoing an overhaul to improve existing and introduce new components.
 All of the previously available functionality from the ``cuda-python`` package will continue to
@@ -56,3 +58,4 @@ be available, please refer to the `cuda.bindings`_ documentation for installatio
    nvshmem4py <https://docs.nvidia.com/nvshmem/api/api/language_bindings/python/index.html>
    Nsight Python <https://docs.nvidia.com/nsight-python/index.html>
    CUPTI Python <https://docs.nvidia.com/cupti-python/>
+   Accelerated Computing Hub <https://github.com/NVIDIA/accelerated-computing-hub>

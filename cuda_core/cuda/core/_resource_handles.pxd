@@ -56,41 +56,41 @@ cdef cydriver.CUresult peek_last_error() noexcept nogil
 cdef void clear_last_error() noexcept nogil
 
 # Context handles
-cdef ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) noexcept nogil
-cdef ContextHandle get_primary_context(int device_id) noexcept nogil
-cdef ContextHandle get_current_context() noexcept nogil
+cdef ContextHandle create_context_handle_ref(cydriver.CUcontext ctx) nogil except+
+cdef ContextHandle get_primary_context(int device_id) nogil except+
+cdef ContextHandle get_current_context() nogil except+
 
 # Stream handles
 cdef StreamHandle create_stream_handle(
-    ContextHandle h_ctx, unsigned int flags, int priority) noexcept nogil
-cdef StreamHandle create_stream_handle_ref(cydriver.CUstream stream) noexcept nogil
-cdef StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner) noexcept nogil
-cdef StreamHandle get_legacy_stream() noexcept nogil
-cdef StreamHandle get_per_thread_stream() noexcept nogil
+    ContextHandle h_ctx, unsigned int flags, int priority) nogil except+
+cdef StreamHandle create_stream_handle_ref(cydriver.CUstream stream) nogil except+
+cdef StreamHandle create_stream_handle_with_owner(cydriver.CUstream stream, object owner) nogil except+
+cdef StreamHandle get_legacy_stream() nogil except+
+cdef StreamHandle get_per_thread_stream() nogil except+
 
 # Event handles
-cdef EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) noexcept nogil
-cdef EventHandle create_event_handle_noctx(unsigned int flags) noexcept nogil
+cdef EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags) nogil except+
+cdef EventHandle create_event_handle_noctx(unsigned int flags) nogil except+
 cdef EventHandle create_event_handle_ipc(
-    const cydriver.CUipcEventHandle& ipc_handle) noexcept nogil
+    const cydriver.CUipcEventHandle& ipc_handle) nogil except+
 
 # Memory pool handles
 cdef MemoryPoolHandle create_mempool_handle(
-    const cydriver.CUmemPoolProps& props) noexcept nogil
-cdef MemoryPoolHandle create_mempool_handle_ref(cydriver.CUmemoryPool pool) noexcept nogil
-cdef MemoryPoolHandle get_device_mempool(int device_id) noexcept nogil
+    const cydriver.CUmemPoolProps& props) nogil except+
+cdef MemoryPoolHandle create_mempool_handle_ref(cydriver.CUmemoryPool pool) nogil except+
+cdef MemoryPoolHandle get_device_mempool(int device_id) nogil except+
 cdef MemoryPoolHandle create_mempool_handle_ipc(
-    int fd, cydriver.CUmemAllocationHandleType handle_type) noexcept nogil
+    int fd, cydriver.CUmemAllocationHandleType handle_type) nogil except+
 
 # Device pointer handles
 cdef DevicePtrHandle deviceptr_alloc_from_pool(
-    size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) noexcept nogil
-cdef DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) noexcept nogil
-cdef DevicePtrHandle deviceptr_alloc(size_t size) noexcept nogil
-cdef DevicePtrHandle deviceptr_alloc_host(size_t size) noexcept nogil
-cdef DevicePtrHandle deviceptr_create_ref(cydriver.CUdeviceptr ptr) noexcept nogil
-cdef DevicePtrHandle deviceptr_create_with_owner(cydriver.CUdeviceptr ptr, object owner) noexcept nogil
+    size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) nogil except+
+cdef DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) nogil except+
+cdef DevicePtrHandle deviceptr_alloc(size_t size) nogil except+
+cdef DevicePtrHandle deviceptr_alloc_host(size_t size) nogil except+
+cdef DevicePtrHandle deviceptr_create_ref(cydriver.CUdeviceptr ptr) nogil except+
+cdef DevicePtrHandle deviceptr_create_with_owner(cydriver.CUdeviceptr ptr, object owner) nogil except+
 cdef DevicePtrHandle deviceptr_import_ipc(
-    MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) noexcept nogil
+    MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) nogil except+
 cdef StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept nogil
 cdef void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) noexcept nogil
