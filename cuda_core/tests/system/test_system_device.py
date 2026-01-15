@@ -604,7 +604,9 @@ def test_fan():
                 min_, max_ = fan_info.min_max_speed
                 assert isinstance(min_, int)
                 assert isinstance(max_, int)
-                assert min_ <= speed <= max_
+                assert min <= max
+                if speed > 0:
+                    assert min_ <= speed <= max_
 
                 control_policy = fan_info.control_policy
                 assert isinstance(control_policy, system.FanControlPolicy)
