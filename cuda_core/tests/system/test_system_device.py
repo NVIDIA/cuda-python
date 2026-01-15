@@ -617,7 +617,7 @@ def test_fan():
                 min_, max_ = fan_info.min_max_speed
                 assert isinstance(min_, int)
                 assert isinstance(max_, int)
-                assert min <= max
+                assert min_ <= max_
                 if speed > 0:
                     assert min_ <= speed <= max_
 
