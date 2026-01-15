@@ -48,6 +48,14 @@ int __device__ inc(int x) {
 }
 """
 
+TILEIR = """
+cuda_tile.module @hello_world_module {
+    entry @hello_world_kernel() {
+        print "Hello World!\n"
+    }
+}
+"""
+
 
 @pytest.fixture(params=ARCHITECTURES)
 def arch(request):
@@ -222,19 +230,20 @@ def test_nvdfatbin_add_ltoir(LTOIR, arch):
     nvfatbin.destroy(handle)
 
 
-@pytest.mark.parametrize("arch", ["sm_80"], indirect=True)
-def test_nvdfatbin_add_ltoir_ELF_ARCH_MISMATCH(LTOIR, arch):
-    pytest.skip()
-    handle = nvfatbin.create([], 0)
-    with pytest.raises(nvfatbin.nvFatbinError, match="ERROR_ELF_ARCH_MISMATCH"):
-        nvfatbin.add_ltoir(handle, LTOIR, len(LTOIR), "75", "inc", "")
-
-    nvfatbin.destroy(handle)
-
-
 def test_nvfatbin_add_reloc(OBJECT):
     handle = nvfatbin.create([], 0)
     nvfatbin.add_reloc(handle, OBJECT, len(OBJECT))
+
+    buffer = bytearray(nvfatbin.size(handle))
+
+    nvfatbin.get(handle, buffer)
+    nvfatbin.destroy(handle)
+
+
+def test_nvfatbin_add_tile_ir():
+    pytest.skip()
+    handle = nvfatbin.create([], 0)
+    nvfatbin.add_tile_ir(handle, TILEIR.encode(), len(TILEIR), "hello_world_module", "")
 
     buffer = bytearray(nvfatbin.size(handle))
 
