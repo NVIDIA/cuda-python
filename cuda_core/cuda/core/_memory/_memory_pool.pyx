@@ -16,7 +16,6 @@ from cuda.core._stream cimport default_stream, Stream_accept, Stream
 from cuda.core._resource_handles cimport (
     MemoryPoolHandle,
     DevicePtrHandle,
-    _init_handles_table,
     create_mempool_handle,
     create_mempool_handle_ref,
     get_device_mempool,
@@ -24,9 +23,6 @@ from cuda.core._resource_handles cimport (
     as_cu,
     as_py,
 )
-
-# Prerequisite before calling handle API functions (see _cpp/DESIGN.md)
-_init_handles_table()
 
 from cuda.core._utils.cuda_utils cimport (
     HANDLE_RETURN,
