@@ -88,6 +88,39 @@ def PTX(arch, ptx_version):
 
 
 @pytest.fixture
+def nvcc_smoke(tmpdir) -> str:
+    # TODO: Use cuda-pathfinder to locate nvcc on system.
+    nvcc = shutil.which("nvcc")
+    if nvcc is None:
+        pytest.skip("nvcc not found on PATH")
+
+    # Smoke test: make sure nvcc is actually usable (toolkit + host compiler are set up),
+    # not merely present on PATH.
+    src = tmpdir / "nvcc_smoke.cu"
+    out = tmpdir / "nvcc_smoke.o"
+    with open(src, "w") as f:
+        f.write("")
+    try:
+        subprocess.run(  # noqa: S603
+            [nvcc, "-c", str(src), "-o", str(out)],
+            check=True,
+            capture_output=True,
+        )
+    except subprocess.CalledProcessError as e:
+        stdout = (e.stdout or b"").decode(errors="replace")
+        stderr = (e.stderr or b"").decode(errors="replace")
+        pytest.skip(
+            "nvcc found on PATH but failed to compile a trivial input.\n"
+            f"command: {[nvcc, '-c', str(src), '-o', str(out)]!r}\n"
+            f"exit_code: {e.returncode}\n"
+            f"stdout:\n{stdout}\n"
+            f"stderr:\n{stderr}\n"
+        )
+
+    return nvcc
+
+
+@pytest.fixture
 def CUBIN(arch):
     def CHECK_NVRTC(err):
         if err != nvrtc.nvrtcResult.NVRTC_SUCCESS:
@@ -132,23 +165,32 @@ def LTOIR(arch):
 
 
 @pytest.fixture
-def OBJECT(arch, tmpdir):
-    empty_cplusplus_kernel = "__global__ void A() {} int main() { return 0; }"
+def OBJECT(arch, tmpdir, nvcc_smoke):
+    empty_cplusplus_kernel = "__global__ void A() {}"
     with open(tmpdir / "object.cu", "w") as f:
         f.write(empty_cplusplus_kernel)
 
-    # TODO: Use cuda-pathfinder to locate nvcc on system.
-    nvcc = shutil.which("nvcc")
-    if nvcc is None:
-        pytest.skip("nvcc not found on PATH")
+    nvcc = nvcc_smoke
 
     # This is a test fixture that intentionally invokes a trusted tool (`nvcc`) to
     # compile a temporary CUDA translation unit.
-    subprocess.run(  # noqa: S603
-        [nvcc, "-arch", arch, "-o", str(tmpdir / "object.o"), str(tmpdir / "object.cu")],
-        check=True,
-        capture_output=True,
-    )
+    cmd = [nvcc, "-c", "-arch", arch, "-o", str(tmpdir / "object.o"), str(tmpdir / "object.cu")]
+    try:
+        subprocess.run(  # noqa: S603
+            cmd,
+            check=True,
+            capture_output=True,
+        )
+    except subprocess.CalledProcessError as e:
+        stdout = (e.stdout or b"").decode(errors="replace")
+        stderr = (e.stderr or b"").decode(errors="replace")
+        raise RuntimeError(
+            "nvcc smoke test passed, but nvcc failed while compiling the test object.\n"
+            f"command: {cmd!r}\n"
+            f"exit_code: {e.returncode}\n"
+            f"stdout:\n{stdout}\n"
+            f"stderr:\n{stderr}\n"
+        ) from e
     with open(tmpdir / "object.o", "rb") as f:
         object = f.read()
 
