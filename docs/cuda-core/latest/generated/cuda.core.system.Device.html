@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e06f8622"></script>
+    <script src="../_static/documentation_options.js?v=087525e0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev47';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev48';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -63,7 +63,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cuda.core.system.BAR1MemoryInfo" href="cuda.core.system.BAR1MemoryInfo.html" />
+    <link rel="next" title="cuda.core.system.AddressingMode" href="cuda.core.system.AddressingMode.html" />
     <link rel="prev" title="cuda.core.system.SystemEventType" href="cuda.core.system.SystemEventType.html" />
 
 
@@ -498,12 +498,15 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_topology_common_ancestor.html">cuda.core.system.get_topology_common_ancestor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.RegisteredSystemEvents.html">cuda.core.system.RegisteredSystemEvents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEvent.html">cuda.core.system.SystemEvent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEvents.html">cuda.core.system.SystemEvents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.AddressingMode.html">cuda.core.system.AddressingMode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
@@ -514,8 +517,15 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldValue.html">cuda.core.system.FieldValue</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldValues.html">cuda.core.system.FieldValues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.GpuP2PCapsIndex.html">cuda.core.system.GpuP2PCapsIndex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.GpuP2PStatus.html">cuda.core.system.GpuP2PStatus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.GpuTopologyLevel.html">cuda.core.system.GpuTopologyLevel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.InforomInfo.html">cuda.core.system.InforomInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.InforomObject.html">cuda.core.system.InforomObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.MemoryInfo.html">cuda.core.system.MemoryInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.PcieUtilCounter.html">cuda.core.system.PcieUtilCounter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.PciInfo.html">cuda.core.system.PciInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.RepairStatus.html">cuda.core.system.RepairStatus</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
@@ -667,6 +677,45 @@ enum, or a pair of (<a class="reference internal" href="cuda.core.system.FieldId
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.Device.get_all_devices_with_cpu_affinity">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_all_devices_with_cpu_affinity</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">int</span> <span class="pre">cpu_index:</span> <span class="pre">int</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cuda.core.system.Device" title="cuda.core.system.Device"><span class="pre">Device</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_all_devices_with_cpu_affinity" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve the set of GPUs that have a CPU affinity with the given CPU number.</p>
+<p>Supported on Linux only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cpu_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The CPU index.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An iterator over available devices.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Iterator of <a class="reference internal" href="#cuda.core.system.Device" title="cuda.core.system.Device">Device</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.Device.get_device_count">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_device_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.get_device_count" title="Link to this definition">#</a></dt>
+<dd><p>Get the number of available devices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of available devices.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.Device.get_field_values">
 <span class="sig-name descname"><span class="pre">get_field_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">self,</span> <span class="pre">list</span> <span class="pre">field_ids:</span> <span class="pre">list[int</span> <span class="pre">|</span> <span class="pre">tuple[int,</span> <span class="pre">int]]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.system.FieldValues.html#cuda.core.system.FieldValues" title="cuda.core.system.FieldValues"><span class="pre">FieldValues</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.get_field_values" title="Link to this definition">#</a></dt>
 <dd><p>Get multiple field values from the device.</p>
@@ -703,6 +752,31 @@ empty list on Windows).</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="cuda.core.system.EventType.html#cuda.core.system.EventType" title="cuda.core.system.EventType">EventType</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.Device.get_topology_nearest_gpus">
+<span class="sig-name descname"><span class="pre">get_topology_nearest_gpus</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.GpuTopologyLevel.html#cuda.core.system.GpuTopologyLevel" title="cuda.core.system.GpuTopologyLevel"><span class="pre">GpuTopologyLevel</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cuda.core.system.Device" title="cuda.core.system.Device"><span class="pre">Device</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_topology_nearest_gpus" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve the GPUs that are nearest to this device at a specific interconnectivity level.</p>
+<p>Supported on Linux only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>level</strong> (<a class="reference internal" href="cuda.core.system.GpuTopologyLevel.html#cuda.core.system.GpuTopologyLevel" title="cuda.core.system.GpuTopologyLevel"><code class="xref py py-class docutils literal notranslate"><span class="pre">GpuTopologyLevel</span></code></a>) – The topology level.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The nearest devices at the given topology level.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Iterable of <a class="reference internal" href="#cuda.core.system.Device" title="cuda.core.system.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -753,6 +827,30 @@ the <a class="reference internal" href="cuda.core.system.DeviceEvents.html#cuda.
 </dd></dl>
 
 <p class="rubric">Attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.Device.addressing_mode">
+<span class="sig-name descname"><span class="pre">addressing_mode</span></span><a class="headerlink" href="#cuda.core.system.Device.addressing_mode" title="Link to this definition">#</a></dt>
+<dd><p>AddressingMode</p>
+<p>Get the addressing mode of the device.</p>
+<p>Addressing modes can be one of:</p>
+<ul class="simple">
+<li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">AddressingMode.DEVICE_ADDRESSING_MODE_HMM</span></code>: System allocated
+memory (<code class="docutils literal notranslate"><span class="pre">malloc</span></code>, <code class="docutils literal notranslate"><span class="pre">mmap</span></code>) is addressable from the device (GPU), via
+software-based mirroring of the CPU’s page tables, on the GPU.</p></li>
+<li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">AddressingMode.DEVICE_ADDRESSING_MODE_ATS</span></code>: System allocated
+memory (<code class="docutils literal notranslate"><span class="pre">malloc</span></code>, <code class="docutils literal notranslate"><span class="pre">mmap</span></code>) is addressable from the device (GPU), via
+Address Translation Services. This means that there is (effectively) a
+single set of page tables, and the CPU and GPU both use them.</p></li>
+<li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">AddressingMode.DEVICE_ADDRESSING_MODE_NONE</span></code>: Neither HMM nor ATS
+is active.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Device.addressing_mode</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.architecture">
 <span class="sig-name descname"><span class="pre">architecture</span></span><a class="headerlink" href="#cuda.core.system.Device.architecture" title="Link to this definition">#</a></dt>
@@ -843,16 +941,65 @@ bus).</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.Device.display_active">
+<span class="sig-name descname"><span class="pre">display_active</span></span><a class="headerlink" href="#cuda.core.system.Device.display_active" title="Link to this definition">#</a></dt>
+<dd><p>bool</p>
+<p>The display active status for this device.</p>
+<p>Indicates whether a display is initialized on the device.  For example,
+whether X Server is attached to this device and has allocated memory for
+the screen.</p>
+<p>Display can be active even when no monitor is physically attached.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Device.display_active</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.Device.display_mode">
+<span class="sig-name descname"><span class="pre">display_mode</span></span><a class="headerlink" href="#cuda.core.system.Device.display_mode" title="Link to this definition">#</a></dt>
+<dd><p>bool</p>
+<p>The display mode for this device.</p>
+<p>Indicates whether a physical display (e.g. monitor) is currently connected to
+any of the device’s connectors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Device.display_mode</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.index">
 <span class="sig-name descname"><span class="pre">index</span></span><a class="headerlink" href="#cuda.core.system.Device.index" title="Link to this definition">#</a></dt>
 <dd><p>int</p>
 <p>The NVML index of this device.</p>
+<p>Valid indices are derived from the count returned by
+<a class="reference internal" href="#cuda.core.system.Device.get_device_count" title="cuda.core.system.Device.get_device_count"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.get_device_count()</span></code></a>.  For example, if <code class="docutils literal notranslate"><span class="pre">get_device_count()</span></code>
+returns 2, the valid indices are 0 and 1, corresponding to GPU 0 and GPU
+1.</p>
 <p>The order in which NVML enumerates devices has no guarantees of
-consistency between reboots. For that reason it is recommended that
+consistency between reboots. For that reason, it is recommended that
 devices be looked up by their PCI ids or GPU UUID.</p>
+<p>Note: The NVML index may not correlate with other APIs, such as the CUDA
+device index.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Device.index</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.Device.inforom">
+<span class="sig-name descname"><span class="pre">inforom</span></span><a class="headerlink" href="#cuda.core.system.Device.inforom" title="Link to this definition">#</a></dt>
+<dd><p>InforomInfo</p>
+<p>Accessor for InfoROM information.</p>
+<p>For all products with an InfoROM.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Device.inforom</p>
 </dd>
 </dl>
 </dd></dl>
@@ -877,6 +1024,36 @@ devices be looked up by their PCI ids or GPU UUID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Device.memory_info</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.Device.minor_number">
+<span class="sig-name descname"><span class="pre">minor_number</span></span><a class="headerlink" href="#cuda.core.system.Device.minor_number" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>The minor number of this device.</p>
+<p>For Linux only.</p>
+<p>The minor number is used by the Linux device driver to identify the
+device node in <code class="docutils literal notranslate"><span class="pre">/dev/nvidiaX</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Device.minor_number</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.Device.module_id">
+<span class="sig-name descname"><span class="pre">module_id</span></span><a class="headerlink" href="#cuda.core.system.Device.module_id" title="Link to this definition">#</a></dt>
+<dd><p>int</p>
+<p>Get a unique identifier for the device module on the baseboard.</p>
+<p>This API retrieves a unique identifier for each GPU module that exists
+on a given baseboard.  For non-baseboard products, this ID would always
+be 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Device.module_id</p>
 </dd>
 </dl>
 </dd></dl>
@@ -914,6 +1091,19 @@ devices be looked up by their PCI ids or GPU UUID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Device.persistence_mode_enabled</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuda.core.system.Device.repair_status">
+<span class="sig-name descname"><span class="pre">repair_status</span></span><a class="headerlink" href="#cuda.core.system.Device.repair_status" title="Link to this definition">#</a></dt>
+<dd><p>RepairStatus</p>
+<p>Get the repair status for TPC/Channel repair.</p>
+<p>For Ampere™ or newer fully supported devices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Device.repair_status</p>
 </dd>
 </dl>
 </dd></dl>
@@ -969,11 +1159,11 @@ board serial identifier.</p>
       </div>
     </a>
     <a class="right-next"
-       href="cuda.core.system.BAR1MemoryInfo.html"
+       href="cuda.core.system.AddressingMode.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cuda.core.system.BAR1MemoryInfo</p>
+        <p class="prev-next-title">cuda.core.system.AddressingMode</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1002,21 +1192,31 @@ board serial identifier.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.__init__"><code class="docutils literal notranslate"><span class="pre">Device.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.clear_field_values"><code class="docutils literal notranslate"><span class="pre">Device.clear_field_values()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_all_devices"><code class="docutils literal notranslate"><span class="pre">Device.get_all_devices()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_all_devices_with_cpu_affinity"><code class="docutils literal notranslate"><span class="pre">Device.get_all_devices_with_cpu_affinity()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_device_count"><code class="docutils literal notranslate"><span class="pre">Device.get_device_count()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_field_values"><code class="docutils literal notranslate"><span class="pre">Device.get_field_values()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_supported_event_types"><code class="docutils literal notranslate"><span class="pre">Device.get_supported_event_types()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_topology_nearest_gpus"><code class="docutils literal notranslate"><span class="pre">Device.get_topology_nearest_gpus()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.register_events"><code class="docutils literal notranslate"><span class="pre">Device.register_events()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.addressing_mode"><code class="docutils literal notranslate"><span class="pre">Device.addressing_mode</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.architecture"><code class="docutils literal notranslate"><span class="pre">Device.architecture</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.attributes"><code class="docutils literal notranslate"><span class="pre">Device.attributes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.bar1_memory_info"><code class="docutils literal notranslate"><span class="pre">Device.bar1_memory_info</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.brand"><code class="docutils literal notranslate"><span class="pre">Device.brand</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.cpu_affinity"><code class="docutils literal notranslate"><span class="pre">Device.cpu_affinity</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.cuda_compute_capability"><code class="docutils literal notranslate"><span class="pre">Device.cuda_compute_capability</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.display_active"><code class="docutils literal notranslate"><span class="pre">Device.display_active</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.display_mode"><code class="docutils literal notranslate"><span class="pre">Device.display_mode</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.index"><code class="docutils literal notranslate"><span class="pre">Device.index</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.inforom"><code class="docutils literal notranslate"><span class="pre">Device.inforom</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.is_c2c_mode_enabled"><code class="docutils literal notranslate"><span class="pre">Device.is_c2c_mode_enabled</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.memory_info"><code class="docutils literal notranslate"><span class="pre">Device.memory_info</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.minor_number"><code class="docutils literal notranslate"><span class="pre">Device.minor_number</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.module_id"><code class="docutils literal notranslate"><span class="pre">Device.module_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.name"><code class="docutils literal notranslate"><span class="pre">Device.name</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.pci_info"><code class="docutils literal notranslate"><span class="pre">Device.pci_info</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.persistence_mode_enabled"><code class="docutils literal notranslate"><span class="pre">Device.persistence_mode_enabled</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.repair_status"><code class="docutils literal notranslate"><span class="pre">Device.repair_status</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.serial"><code class="docutils literal notranslate"><span class="pre">Device.serial</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.uuid"><code class="docutils literal notranslate"><span class="pre">Device.uuid</span></code></a></li>
 </ul>

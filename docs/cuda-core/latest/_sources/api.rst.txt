@@ -79,6 +79,8 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.get_num_devices
    system.get_nvml_version
    system.get_process_name
+   system.get_topology_common_ancestor
+   system.get_p2p_status
 
    system.register_events
    system.RegisteredSystemEvents
@@ -89,6 +91,7 @@ CUDA system information and NVIDIA Management Library (NVML)
    :template: autosummary/cyclass.rst
 
    system.Device
+   system.AddressingMode
    system.BAR1MemoryInfo
    system.BrandType
    system.DeviceArchitecture
@@ -99,8 +102,15 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.FieldId
    system.FieldValue
    system.FieldValues
+   system.GpuP2PCapsIndex
+   system.GpuP2PStatus
+   system.GpuTopologyLevel
+   system.InforomInfo
+   system.InforomObject
    system.MemoryInfo
+   system.PcieUtilCounter
    system.PciInfo
+   system.RepairStatus
 
 .. module:: cuda.core.utils
 

@@ -16,8 +16,11 @@ cuda.core.system.Device
    .. automethod:: __init__
    .. automethod:: clear_field_values
    .. automethod:: get_all_devices
+   .. automethod:: get_all_devices_with_cpu_affinity
+   .. automethod:: get_device_count
    .. automethod:: get_field_values
    .. automethod:: get_supported_event_types
+   .. automethod:: get_topology_nearest_gpus
    .. automethod:: register_events
 
    
@@ -28,18 +31,25 @@ cuda.core.system.Device
    .. rubric:: Attributes
 
    
+   .. autoattribute:: addressing_mode
    .. autoattribute:: architecture
    .. autoattribute:: attributes
    .. autoattribute:: bar1_memory_info
    .. autoattribute:: brand
    .. autoattribute:: cpu_affinity
    .. autoattribute:: cuda_compute_capability
+   .. autoattribute:: display_active
+   .. autoattribute:: display_mode
    .. autoattribute:: index
+   .. autoattribute:: inforom
    .. autoattribute:: is_c2c_mode_enabled
    .. autoattribute:: memory_info
+   .. autoattribute:: minor_number
+   .. autoattribute:: module_id
    .. autoattribute:: name
    .. autoattribute:: pci_info
    .. autoattribute:: persistence_mode_enabled
+   .. autoattribute:: repair_status
    .. autoattribute:: serial
    .. autoattribute:: uuid
    

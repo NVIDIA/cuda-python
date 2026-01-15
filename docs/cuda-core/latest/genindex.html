@@ -43,7 +43,7 @@
 
 
 
-    <script src="_static/documentation_options.js?v=e06f8622"></script>
+    <script src="_static/documentation_options.js?v=087525e0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev47';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev48';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -491,12 +491,15 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_num_devices.html">cuda.core.system.get_num_devices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_nvml_version.html">cuda.core.system.get_nvml_version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_topology_common_ancestor.html">cuda.core.system.get_topology_common_ancestor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.RegisteredSystemEvents.html">cuda.core.system.RegisteredSystemEvents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.SystemEvent.html">cuda.core.system.SystemEvent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.SystemEvents.html">cuda.core.system.SystemEvents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.Device.html">cuda.core.system.Device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.AddressingMode.html">cuda.core.system.AddressingMode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
@@ -507,8 +510,15 @@
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldValue.html">cuda.core.system.FieldValue</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.FieldValues.html">cuda.core.system.FieldValues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.GpuP2PCapsIndex.html">cuda.core.system.GpuP2PCapsIndex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.GpuP2PStatus.html">cuda.core.system.GpuP2PStatus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.GpuTopologyLevel.html">cuda.core.system.GpuTopologyLevel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.InforomInfo.html">cuda.core.system.InforomInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.InforomObject.html">cuda.core.system.InforomObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.MemoryInfo.html">cuda.core.system.MemoryInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.PcieUtilCounter.html">cuda.core.system.PcieUtilCounter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.PciInfo.html">cuda.core.system.PciInfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.system.RepairStatus.html">cuda.core.system.RepairStatus</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.args_viewable_as_strided_memory.html">cuda.core.utils.args_viewable_as_strided_memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/cuda.core.utils.StridedMemoryView.html">cuda.core.utils.StridedMemoryView</a></li>
 </ul>
@@ -656,11 +666,15 @@
 </li>
         <li><a href="generated/cuda.core.system.FieldValues.html#cuda.core.system.FieldValues.__init__">(cuda.core.system.FieldValues method)</a>
 </li>
+        <li><a href="generated/cuda.core.system.InforomInfo.html#cuda.core.system.InforomInfo.__init__">(cuda.core.system.InforomInfo method)</a>
+</li>
         <li><a href="generated/cuda.core.system.MemoryInfo.html#cuda.core.system.MemoryInfo.__init__">(cuda.core.system.MemoryInfo method)</a>
 </li>
         <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.__init__">(cuda.core.system.PciInfo method)</a>
 </li>
         <li><a href="generated/cuda.core.system.RegisteredSystemEvents.html#cuda.core.system.RegisteredSystemEvents.__init__">(cuda.core.system.RegisteredSystemEvents method)</a>
+</li>
+        <li><a href="generated/cuda.core.system.RepairStatus.html#cuda.core.system.RepairStatus.__init__">(cuda.core.system.RepairStatus method)</a>
 </li>
         <li><a href="generated/cuda.core.system.SystemEvent.html#cuda.core.system.SystemEvent.__init__">(cuda.core.system.SystemEvent method)</a>
 </li>
@@ -683,6 +697,10 @@
 </li>
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.addr_hint">addr_hint (cuda.core.VirtualMemoryResourceOptions attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.addressing_mode">addressing_mode (cuda.core.system.Device attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.system.AddressingMode.html#cuda.core.system.AddressingMode">AddressingMode (in module cuda.core.system)</a>
+</li>
       <li><a href="generated/cuda.core.Device.html#cuda.core.Device.allocate">allocate() (cuda.core.Device method)</a>
 
       <ul>
@@ -703,6 +721,8 @@
       </ul></li>
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.allocation_type">allocation_type (cuda.core.VirtualMemoryResourceOptions attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.Device.html#cuda.core.Device.arch">arch (cuda.core.Device property)</a>
 
       <ul>
@@ -711,8 +731,6 @@
         <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.arch">(cuda.core.ProgramOptions attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.architecture">architecture (cuda.core.system.Device attribute)</a>
 </li>
       <li><a href="generated/cuda.core.utils.args_viewable_as_strided_memory.html#cuda.core.utils.args_viewable_as_strided_memory">args_viewable_as_strided_memory() (in module cuda.core.utils)</a>
@@ -755,7 +773,11 @@
 </li>
       <li><a href="generated/cuda.core.system.BAR1MemoryInfo.html#cuda.core.system.BAR1MemoryInfo">BAR1MemoryInfo (class in cuda.core.system)</a>
 </li>
+      <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.base_class">base_class (cuda.core.system.PciInfo attribute)</a>
+</li>
       <li><a href="generated/cuda.core.GraphDebugPrintOptions.html#cuda.core.GraphDebugPrintOptions.batch_mem_op_node_params">batch_mem_op_node_params (cuda.core.GraphDebugPrintOptions attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.system.InforomInfo.html#cuda.core.system.InforomInfo.bbx_flush_time">bbx_flush_time (cuda.core.system.InforomInfo attribute)</a>
 </li>
       <li><a href="generated/cuda.core.GraphBuilder.html#cuda.core.GraphBuilder.begin_building">begin_building() (cuda.core.GraphBuilder method)</a>
 </li>
@@ -765,6 +787,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.system.InforomInfo.html#cuda.core.system.InforomInfo.board_part_number">board_part_number (cuda.core.system.InforomInfo attribute)</a>
+</li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.brand">brand (cuda.core.system.Device attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system.BrandType.html#cuda.core.system.BrandType">BrandType (class in cuda.core.system)</a>
@@ -804,6 +828,8 @@
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.can_use_host_pointer_for_registered_mem">can_use_host_pointer_for_registered_mem (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.can_use_stream_wait_value_nor">can_use_stream_wait_value_nor (cuda.core._device.DeviceProperties attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.system.RepairStatus.html#cuda.core.system.RepairStatus.channel_repair_pending">channel_repair_pending (cuda.core.system.RepairStatus attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.clear_field_values">clear_field_values() (cuda.core.system.Device method)</a>
 </li>
@@ -872,6 +898,8 @@
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.concurrent_managed_access">concurrent_managed_access (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core.GraphDebugPrintOptions.html#cuda.core.GraphDebugPrintOptions.conditional_node_params">conditional_node_params (cuda.core.GraphDebugPrintOptions attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.system.InforomInfo.html#cuda.core.system.InforomInfo.configuration_checksum">configuration_checksum (cuda.core.system.InforomInfo attribute)</a>
 </li>
       <li><a href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes.const_size_bytes">const_size_bytes() (cuda.core._module.KernelAttributes method)</a>
 </li>
@@ -1051,6 +1079,10 @@
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.disable_warnings">disable_warnings (cuda.core.ProgramOptions attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.display_active">display_active (cuda.core.system.Device attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.display_mode">display_mode (cuda.core.system.Device attribute)</a>
+</li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.dma_buf_supported">dma_buf_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.domain">domain (cuda.core.system.PciInfo attribute)</a>
@@ -1203,6 +1235,8 @@
         <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.get_all_devices">(cuda.core.system.Device class method)</a>
 </li>
       </ul></li>
+      <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.get_all_devices_with_cpu_affinity">get_all_devices_with_cpu_affinity() (cuda.core.system.Device class method)</a>
+</li>
       <li><a href="generated/cuda.core.system.FieldValues.html#cuda.core.system.FieldValues.get_all_values">get_all_values() (cuda.core.system.FieldValues method)</a>
 </li>
       <li><a href="generated/cuda.core.DeviceMemoryResource.html#cuda.core.DeviceMemoryResource.get_allocation_handle">get_allocation_handle() (cuda.core.DeviceMemoryResource method)</a>
@@ -1211,6 +1245,12 @@
         <li><a href="generated/cuda.core.PinnedMemoryResource.html#cuda.core.PinnedMemoryResource.get_allocation_handle">(cuda.core.PinnedMemoryResource method)</a>
 </li>
       </ul></li>
+      <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.get_current_pcie_link_generation">get_current_pcie_link_generation() (cuda.core.system.PciInfo method)</a>
+</li>
+      <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.get_current_pcie_link_width">get_current_pcie_link_width() (cuda.core.system.PciInfo method)</a>
+</li>
+      <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.get_device_count">get_device_count() (cuda.core.system.Device class method)</a>
+</li>
       <li><a href="generated/cuda.core.system.get_driver_branch.html#cuda.core.system.get_driver_branch">get_driver_branch() (in module cuda.core.system)</a>
 </li>
       <li><a href="generated/cuda.core.system.get_driver_version.html#cuda.core.system.get_driver_version">get_driver_version() (in module cuda.core.system)</a>
@@ -1220,6 +1260,8 @@
       <li><a href="generated/cuda.core.Linker.html#cuda.core.Linker.get_error_log">get_error_log() (cuda.core.Linker method)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.get_field_values">get_field_values() (cuda.core.system.Device method)</a>
+</li>
+      <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.get_gpu_max_pcie_link_generation">get_gpu_max_pcie_link_generation() (cuda.core.system.PciInfo method)</a>
 </li>
       <li><a href="generated/cuda.core.Linker.html#cuda.core.Linker.get_info_log">get_info_log() (cuda.core.Linker method)</a>
 </li>
@@ -1231,15 +1273,31 @@
       </ul></li>
       <li><a href="generated/cuda.core.ObjectCode.html#cuda.core.ObjectCode.get_kernel">get_kernel() (cuda.core.ObjectCode method)</a>
 </li>
+      <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.get_max_pcie_link_generation">get_max_pcie_link_generation() (cuda.core.system.PciInfo method)</a>
+</li>
+      <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.get_max_pcie_link_width">get_max_pcie_link_width() (cuda.core.system.PciInfo method)</a>
+</li>
       <li><a href="generated/cuda.core.system.get_num_devices.html#cuda.core.system.get_num_devices">get_num_devices() (in module cuda.core.system)</a>
 </li>
       <li><a href="generated/cuda.core.system.get_nvml_version.html#cuda.core.system.get_nvml_version">get_nvml_version() (in module cuda.core.system)</a>
 </li>
-      <li><a href="generated/cuda.core.system.get_process_name.html#cuda.core.system.get_process_name">get_process_name() (in module cuda.core.system)</a>
+      <li><a href="generated/cuda.core.system.get_p2p_status.html#cuda.core.system.get_p2p_status">get_p2p_status() (in module cuda.core.system)</a>
+</li>
+      <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.get_pcie_replay_counter">get_pcie_replay_counter() (cuda.core.system.PciInfo method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.get_pcie_throughput">get_pcie_throughput() (cuda.core.system.PciInfo method)</a>
+</li>
+      <li><a href="generated/cuda.core.system.get_process_name.html#cuda.core.system.get_process_name">get_process_name() (in module cuda.core.system)</a>
+</li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.get_supported_event_types">get_supported_event_types() (cuda.core.system.Device method)</a>
+</li>
+      <li><a href="generated/cuda.core.system.get_topology_common_ancestor.html#cuda.core.system.get_topology_common_ancestor">get_topology_common_ancestor() (in module cuda.core.system)</a>
+</li>
+      <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.get_topology_nearest_gpus">get_topology_nearest_gpus() (cuda.core.system.Device method)</a>
+</li>
+      <li><a href="generated/cuda.core.system.InforomInfo.html#cuda.core.system.InforomInfo.get_version">get_version() (cuda.core.system.InforomInfo method)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.global_l1_cache_supported">global_l1_cache_supported (cuda.core._device.DeviceProperties attribute)</a>
 </li>
@@ -1264,6 +1322,12 @@
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.gpu_pci_device_id">gpu_pci_device_id (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.gpu_pci_subsystem_id">gpu_pci_subsystem_id (cuda.core._device.DeviceProperties attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.system.GpuP2PCapsIndex.html#cuda.core.system.GpuP2PCapsIndex">GpuP2PCapsIndex (class in cuda.core.system)</a>
+</li>
+      <li><a href="generated/cuda.core.system.GpuP2PStatus.html#cuda.core.system.GpuP2PStatus">GpuP2PStatus (class in cuda.core.system)</a>
+</li>
+      <li><a href="generated/cuda.core.system.GpuTopologyLevel.html#cuda.core.system.GpuTopologyLevel">GpuTopologyLevel (class in cuda.core.system)</a>
 </li>
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.granularity">granularity (cuda.core.VirtualMemoryResourceOptions attribute)</a>
 </li>
@@ -1353,11 +1417,19 @@
 </li>
       <li><a href="generated/cuda.core.GraphBuilder.html#cuda.core.GraphBuilder.if_else">if_else() (cuda.core.GraphBuilder method)</a>
 </li>
+      <li><a href="generated/cuda.core.system.InforomInfo.html#cuda.core.system.InforomInfo.image_version">image_version (cuda.core.system.InforomInfo attribute)</a>
+</li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.include_path">include_path (cuda.core.ProgramOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.index">index (cuda.core.system.Device attribute)</a>
 </li>
       <li><a href="generated/cuda.core._module.ParamInfo.html#cuda.core._module.ParamInfo.index">index() (cuda.core._module.ParamInfo method)</a>
+</li>
+      <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.inforom">inforom (cuda.core.system.Device attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.system.InforomInfo.html#cuda.core.system.InforomInfo">InforomInfo (class in cuda.core.system)</a>
+</li>
+      <li><a href="generated/cuda.core.system.InforomObject.html#cuda.core.system.InforomObject">InforomObject (class in cuda.core.system)</a>
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.instantiate_templates_in_pch">instantiate_templates_in_pch (cuda.core.ProgramOptions attribute)</a>
 </li>
@@ -1647,10 +1719,10 @@
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.maximum_texture1d_width">maximum_texture1d_width (cuda.core._device.DeviceProperties attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.maximum_texture2d_gather_height">maximum_texture2d_gather_height (cuda.core._device.DeviceProperties attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.maximum_texture2d_gather_width">maximum_texture2d_gather_width (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.maximum_texture2d_height">maximum_texture2d_height (cuda.core._device.DeviceProperties attribute)</a>
@@ -1729,6 +1801,8 @@
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.minimal">minimal (cuda.core.ProgramOptions attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.minor_number">minor_number (cuda.core.system.Device attribute)</a>
+</li>
       <li><a href="generated/cuda.core.VirtualMemoryResource.html#cuda.core.VirtualMemoryResource.modify_allocation">modify_allocation() (cuda.core.VirtualMemoryResource method)</a>
 </li>
       <li>
@@ -1740,6 +1814,8 @@
         <li><a href="api.html#module-cuda.core.utils">cuda.core.utils</a>
 </li>
       </ul></li>
+      <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.module_id">module_id (cuda.core.system.Device attribute)</a>
+</li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.mps_enabled">mps_enabled (cuda.core._device.DeviceProperties attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.multi_gpu_board">multi_gpu_board (cuda.core._device.DeviceProperties attribute)</a>
@@ -1854,6 +1930,8 @@
 </li>
       <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.pci_info">pci_info (cuda.core.system.Device attribute)</a>
 </li>
+      <li><a href="generated/cuda.core.system.PcieUtilCounter.html#cuda.core.system.PcieUtilCounter">PcieUtilCounter (class in cuda.core.system)</a>
+</li>
       <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo">PciInfo (class in cuda.core.system)</a>
 </li>
       <li><a href="generated/cuda.core.VirtualMemoryResourceOptions.html#cuda.core.VirtualMemoryResourceOptions.peer_access">peer_access (cuda.core.VirtualMemoryResourceOptions attribute)</a>
@@ -1946,9 +2024,13 @@
       </ul></li>
       <li><a href="generated/cuda.core.system.RegisteredSystemEvents.html#cuda.core.system.RegisteredSystemEvents">RegisteredSystemEvents (class in cuda.core.system)</a>
 </li>
+      <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.relocatable_device_code">relocatable_device_code (cuda.core.ProgramOptions attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.relocatable_device_code">relocatable_device_code (cuda.core.ProgramOptions attribute)</a>
+      <li><a href="generated/cuda.core.system.Device.html#cuda.core.system.Device.repair_status">repair_status (cuda.core.system.Device attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.system.RepairStatus.html#cuda.core.system.RepairStatus">RepairStatus (class in cuda.core.system)</a>
 </li>
       <li><a href="generated/cuda.core._module.KernelAttributes.html#cuda.core._module.KernelAttributes.required_cluster_depth">required_cluster_depth() (cuda.core._module.KernelAttributes method)</a>
 </li>
@@ -2012,14 +2094,14 @@
 </li>
       <li><a href="generated/cuda.core.GraphBuilder.html#cuda.core.GraphBuilder.split">split() (cuda.core.GraphBuilder method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.LinkerOptions.html#cuda.core.LinkerOptions.split_compile">split_compile (cuda.core.LinkerOptions attribute)</a>
 
       <ul>
         <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.split_compile">(cuda.core.ProgramOptions attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.LinkerOptions.html#cuda.core.LinkerOptions.split_compile_extended">split_compile_extended (cuda.core.LinkerOptions attribute)</a>
 </li>
       <li><a href="generated/cuda.core.ProgramOptions.html#cuda.core.ProgramOptions.std">std (cuda.core.ProgramOptions attribute)</a>
@@ -2035,6 +2117,10 @@
       <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView">StridedMemoryView (class in cuda.core.utils)</a>
 </li>
       <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.strides">strides (cuda.core.utils.StridedMemoryView attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.sub_class">sub_class (cuda.core.system.PciInfo attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.system.PciInfo.html#cuda.core.system.PciInfo.subsystem_id">subsystem_id (cuda.core.system.PciInfo attribute)</a>
 </li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.surface_alignment">surface_alignment (cuda.core._device.DeviceProperties attribute)</a>
 </li>
@@ -2089,6 +2175,8 @@
 </li>
       </ul></li>
       <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.total_constant_memory">total_constant_memory (cuda.core._device.DeviceProperties attribute)</a>
+</li>
+      <li><a href="generated/cuda.core.system.RepairStatus.html#cuda.core.system.RepairStatus.tpc_repair_pending">tpc_repair_pending (cuda.core.system.RepairStatus attribute)</a>
 </li>
       <li><a href="generated/cuda.core.GraphMemoryResource.html#cuda.core.GraphMemoryResource.trim">trim() (cuda.core.GraphMemoryResource method)</a>
 </li>
@@ -2145,7 +2233,11 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="generated/cuda.core.system.FieldValues.html#cuda.core.system.FieldValues.validate">validate() (cuda.core.system.FieldValues method)</a>
+
+      <ul>
+        <li><a href="generated/cuda.core.system.InforomInfo.html#cuda.core.system.InforomInfo.validate">(cuda.core.system.InforomInfo method)</a>
 </li>
+      </ul></li>
       <li><a href="generated/cuda.core.system.FieldValue.html#cuda.core.system.FieldValue.value">value (cuda.core.system.FieldValue attribute)</a>
 </li>
       <li><a href="generated/cuda.core.LinkerOptions.html#cuda.core.LinkerOptions.variables_used">variables_used (cuda.core.LinkerOptions attribute)</a>
@@ -2160,10 +2252,10 @@
       </ul></li>
       <li><a href="generated/cuda.core.utils.StridedMemoryView.html#cuda.core.utils.StridedMemoryView.view">view() (cuda.core.utils.StridedMemoryView method)</a>
 </li>
-      <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.virtual_memory_management_supported">virtual_memory_management_supported (cuda.core._device.DeviceProperties attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/cuda.core._device.DeviceProperties.html#cuda.core._device.DeviceProperties.virtual_memory_management_supported">virtual_memory_management_supported (cuda.core._device.DeviceProperties attribute)</a>
+</li>
       <li><a href="generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT.html#cuda.core._memory._virtual_memory_resource.VirtualMemoryAccessTypeT">VirtualMemoryAccessTypeT (in module cuda.core._memory._virtual_memory_resource)</a>
 </li>
       <li><a href="generated/cuda.core._memory._virtual_memory_resource.VirtualMemoryAllocationTypeT.html#cuda.core._memory._virtual_memory_resource.VirtualMemoryAllocationTypeT">VirtualMemoryAllocationTypeT (in module cuda.core._memory._virtual_memory_resource)</a>
