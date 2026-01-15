@@ -173,7 +173,7 @@ cpdef str device_get_inforom_version(intptr_t device, int object)
 cpdef str device_get_inforom_image_version(intptr_t device)
 cpdef unsigned int device_get_inforom_configuration_checksum(intptr_t device) except? 0
 cpdef device_validate_inforom(intptr_t device)
-cpdef unsigned long device_get_last_bbx_flush_time(intptr_t device, intptr_t timestamp) except? 0
+cpdef tuple device_get_last_bbx_flush_time(intptr_t device)
 cpdef int device_get_display_mode(intptr_t device) except? -1
 cpdef int device_get_display_active(intptr_t device) except? -1
 cpdef int device_get_persistence_mode(intptr_t device) except? -1

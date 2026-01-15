@@ -22228,23 +22228,26 @@ cpdef device_validate_inforom(intptr_t device):
     check_status(__status__)
 
 
-cpdef unsigned long device_get_last_bbx_flush_time(intptr_t device, intptr_t timestamp) except? 0:
+cpdef tuple device_get_last_bbx_flush_time(intptr_t device):
     """Retrieves the timestamp and the duration of the last flush of the BBX (blackbox) infoROM object during the current run.
 
     Args:
         device (intptr_t): The identifier of the target device.
-        timestamp (intptr_t): The start timestamp of the last BBX Flush.
 
     Returns:
-        unsigned long: The duration (us) of the last BBX Flush.
+        A 2-tuple containing:
+
+        - unsigned long long: The start timestamp of the last BBX Flush.
+        - unsigned long: The duration (us) of the last BBX Flush.
 
     .. seealso:: `nvmlDeviceGetLastBBXFlushTime`
     """
+    cdef unsigned long long timestamp
     cdef unsigned long duration_us
     with nogil:
-        __status__ = nvmlDeviceGetLastBBXFlushTime(<Device>device, <unsigned long long*>timestamp, &duration_us)
+        __status__ = nvmlDeviceGetLastBBXFlushTime(<Device>device, &timestamp, &duration_us)
     check_status(__status__)
-    return duration_us
+    return (timestamp, duration_us)
 
 
 cpdef int device_get_display_mode(intptr_t device) except? -1:
@@ -27101,8 +27104,8 @@ cpdef object system_get_topology_gpu_set(unsigned int cpuNumber):
         __status__ = nvmlSystemGetTopologyGpuSet(cpuNumber, <unsigned int*>count, NULL)
     check_status_size(__status__)
     if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="i", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="i", mode="c")
+        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
+    cdef view.array deviceArray = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
     with nogil:
         __status__ = nvmlSystemGetTopologyGpuSet(cpuNumber, <unsigned int*>count, <nvmlDevice_t *>deviceArray.data)
     check_status(__status__)
@@ -27141,8 +27144,8 @@ cpdef object unit_get_devices(intptr_t unit):
         __status__ = nvmlUnitGetDevices(<nvmlUnit_t *>unit, <unsigned int*>deviceCount, NULL)
     check_status_size(__status__)
     if deviceCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="i", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="i", mode="c")
+        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
+    cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
     with nogil:
         __status__ = nvmlUnitGetDevices(<nvmlUnit_t *>unit, <unsigned int*>deviceCount, <nvmlDevice_t *>deviceArray.data)
     check_status(__status__)
@@ -27169,8 +27172,8 @@ cpdef object device_get_topology_nearest_gpus(intptr_t device, unsigned int leve
         )
     check_status_size(__status__)
     if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="i", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="i", mode="c")
+        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
+    cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
     with nogil:
         __status__ = nvmlDeviceGetTopologyNearestGpus(
             <Device>device,
@@ -27834,9 +27837,9 @@ cpdef object device_get_gpu_instances(intptr_t device, unsigned int profile_id):
     check_status_size(__status__)
 
     if count[0] == 0:
-        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="i", mode="c")[:0]
+        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
 
-    cdef view.array gpuInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="i", mode="c")
+    cdef view.array gpuInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
     with nogil:
         __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, <nvmlGpuInstance_t *>gpuInstances.data, count)
     check_status(__status__)
@@ -27860,9 +27863,9 @@ cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned 
     check_status_size(__status__)
 
     if count[0] == 0:
-        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="i", mode="c")[:0]
+        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
 
-    cdef view.array computeInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="i", mode="c")
+    cdef view.array computeInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
     with nogil:
         __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, <nvmlComputeInstance_t *>computeInstances.data, count)
     check_status(__status__)
