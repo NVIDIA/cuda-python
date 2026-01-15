@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=087525e0"></script>
+    <script src="../_static/documentation_options.js?v=c8c271bd"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev48';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev59';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -528,6 +528,7 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../release.html">Release Notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release/0.5.1-notes.html">0.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.5.0-notes.html">0.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.4.2-notes.html">0.4.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../release/0.4.1-notes.html">0.4.1</a></li>
@@ -663,6 +664,60 @@ stream object.</p>
 <dd class="field-odd"><p><a class="reference internal" href="#cuda.core.Stream" title="cuda.core._stream.Stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Stream</span></code></a></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Stream.legacy_default">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">legacy_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Stream.legacy_default" title="Link to this definition">#</a></dt>
+<dd><p>Return the legacy default stream.</p>
+<p>The legacy default stream is an implicit stream which synchronizes
+with all other streams in the same CUDA context except for non-blocking
+streams. When any operation is launched on the legacy default stream,
+it waits for all previously launched operations in blocking streams to
+complete, and all subsequent operations in blocking streams wait for
+the legacy default stream operation to complete.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The legacy default stream instance for the current context.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#cuda.core.Stream" title="cuda.core.Stream">Stream</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.core.Stream.per_thread_default" title="cuda.core.Stream.per_thread_default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">per_thread_default</span></code></a></dt><dd><p>Per-thread default stream alternative.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.Stream.per_thread_default">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">per_thread_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuda.core.Stream.per_thread_default" title="Link to this definition">#</a></dt>
+<dd><p>Return the per-thread default stream.</p>
+<p>The per-thread default stream is local to both the calling thread and
+the CUDA context. Unlike the legacy default stream, it does not
+synchronize with other streams and behaves like an explicitly created
+non-blocking stream. This allows for better concurrency in multi-threaded
+applications.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The per-thread default stream instance for the current thread
+and context.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#cuda.core.Stream" title="cuda.core.Stream">Stream</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#cuda.core.Stream.legacy_default" title="cuda.core.Stream.legacy_default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">legacy_default</span></code></a></dt><dd><p>Legacy default stream alternative.</p>
+</dd>
+</dl>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -841,6 +896,8 @@ handle, call <code class="docutils literal notranslate"><span class="pre">int(St
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.close"><code class="docutils literal notranslate"><span class="pre">Stream.close()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.create_graph_builder"><code class="docutils literal notranslate"><span class="pre">Stream.create_graph_builder()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.from_handle"><code class="docutils literal notranslate"><span class="pre">Stream.from_handle()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.legacy_default"><code class="docutils literal notranslate"><span class="pre">Stream.legacy_default()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.per_thread_default"><code class="docutils literal notranslate"><span class="pre">Stream.per_thread_default()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.record"><code class="docutils literal notranslate"><span class="pre">Stream.record()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.sync"><code class="docutils literal notranslate"><span class="pre">Stream.sync()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.Stream.wait"><code class="docutils literal notranslate"><span class="pre">Stream.wait()</span></code></a></li>
