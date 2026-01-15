@@ -28,9 +28,6 @@ on:
         required: false
         type: string
         default: ""
-      build-ctk-ver:
-        type: string
-        required: true
       wheel-dst:
         description: "Which wheel index to publish to?"
         required: true
@@ -122,7 +119,6 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/build-docs.yml
     with:
-      build-ctk-ver: ${{ inputs.build-ctk-ver }}
       component: ${{ inputs.component }}
       git-tag: ${{ inputs.git-tag }}
       run-id: ${{ needs.determine-run-id.outputs.run-id }}
@@ -135,7 +131,6 @@ jobs:
     needs:
       - check-tag
       - determine-run-id
-      - doc
     secrets: inherit
     uses: ./.github/workflows/release-upload.yml
     with:
@@ -149,7 +144,6 @@ jobs:
     needs:
       - check-tag
       - determine-run-id
-      - doc
     environment:
       name: ${{ inputs.wheel-dst }}
       url: https://${{ (inputs.wheel-dst == 'testpypi' && 'test.') || '' }}pypi.org/p/${{ inputs.component }}/
