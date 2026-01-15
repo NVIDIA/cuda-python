@@ -6,7 +6,6 @@
 import pytest
 
 from cuda.pathfinder._utils.toolchain_tracker import (
-    ArtifactRecord,
     SearchContext,
     SearchLocation,
     ToolchainMismatchError,
@@ -49,6 +48,9 @@ def test_context_rejects_different_source():
     assert exc_info.value.artifact_name == "nvdisasm"
     assert exc_info.value.attempted_source == ToolchainSource.CUDA_HOME
     assert exc_info.value.preferred_source == ToolchainSource.CONDA
+    # Check that the improved error message includes helpful text
+    assert "reset_default_context()" in str(exc_info.value)
+    assert "explicit SearchContext" in str(exc_info.value)
 
 
 def test_find_prefers_established_source(tmp_path):
