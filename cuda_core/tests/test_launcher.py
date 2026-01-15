@@ -348,11 +348,13 @@ def test_launch_with_buffers_allocated_by_memory_resource(init_cuda, memory_reso
     else:
         array = cp.from_dlpack(buffer).view(dtype=dtype)
 
-    # Initialize data with arbitrary values
+    # Initialize data with random values
     if mr.is_host_accessible:
-        array[:] = np.arange(size, dtype=dtype) + 1.0
+        rng = np.random.default_rng()
+        array[:] = rng.random(size, dtype=dtype)
     else:
-        array[:] = cp.arange(size, dtype=dtype) + 1.0
+        rng = cp.random.default_rng()
+        array[:] = rng.random(size, dtype=dtype)
 
     # Store original values for verification
     original = array.copy()
