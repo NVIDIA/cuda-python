@@ -25,6 +25,43 @@ CUresult peek_last_error() noexcept;
 void clear_last_error() noexcept;
 
 // ============================================================================
+// CUDA driver function pointers
+//
+// These are populated by _resource_handles.pyx at module import time using
+// function pointers extracted from cuda.bindings.cydriver.__pyx_capi__.
+// ============================================================================
+
+extern decltype(&cuDevicePrimaryCtxRetain) p_cuDevicePrimaryCtxRetain;
+extern decltype(&cuDevicePrimaryCtxRelease) p_cuDevicePrimaryCtxRelease;
+extern decltype(&cuCtxGetCurrent) p_cuCtxGetCurrent;
+
+extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
+extern decltype(&cuStreamDestroy) p_cuStreamDestroy;
+
+extern decltype(&cuEventCreate) p_cuEventCreate;
+extern decltype(&cuEventDestroy) p_cuEventDestroy;
+extern decltype(&cuIpcOpenEventHandle) p_cuIpcOpenEventHandle;
+
+extern decltype(&cuDeviceGetCount) p_cuDeviceGetCount;
+
+extern decltype(&cuMemPoolSetAccess) p_cuMemPoolSetAccess;
+extern decltype(&cuMemPoolDestroy) p_cuMemPoolDestroy;
+extern decltype(&cuMemPoolCreate) p_cuMemPoolCreate;
+extern decltype(&cuDeviceGetMemPool) p_cuDeviceGetMemPool;
+extern decltype(&cuMemPoolImportFromShareableHandle) p_cuMemPoolImportFromShareableHandle;
+
+extern decltype(&cuMemAllocFromPoolAsync) p_cuMemAllocFromPoolAsync;
+extern decltype(&cuMemAllocAsync) p_cuMemAllocAsync;
+extern decltype(&cuMemAlloc) p_cuMemAlloc;
+extern decltype(&cuMemAllocHost) p_cuMemAllocHost;
+
+extern decltype(&cuMemFreeAsync) p_cuMemFreeAsync;
+extern decltype(&cuMemFree) p_cuMemFree;
+extern decltype(&cuMemFreeHost) p_cuMemFreeHost;
+
+extern decltype(&cuMemPoolImportPointer) p_cuMemPoolImportPointer;
+
+// ============================================================================
 // Handle type aliases - expose only the raw CUDA resource
 // ============================================================================
 
@@ -42,11 +79,11 @@ ContextHandle create_context_handle_ref(CUcontext ctx);
 
 // Get handle to the primary context for a device (with thread-local caching)
 // Returns empty handle on error (caller must check)
-ContextHandle get_primary_context(int device_id) noexcept;
+ContextHandle get_primary_context(int device_id);
 
 // Get handle to the current CUDA context
 // Returns empty handle if no context is current (caller must check)
-ContextHandle get_current_context() noexcept;
+ContextHandle get_current_context();
 
 // ============================================================================
 // Stream handle functions
@@ -71,11 +108,11 @@ StreamHandle create_stream_handle_with_owner(CUstream stream, PyObject* owner);
 
 // Get non-owning handle to the legacy default stream (CU_STREAM_LEGACY)
 // Note: Legacy stream has no specific context dependency.
-StreamHandle get_legacy_stream() noexcept;
+StreamHandle get_legacy_stream();
 
 // Get non-owning handle to the per-thread default stream (CU_STREAM_PER_THREAD)
 // Note: Per-thread stream has no specific context dependency.
-StreamHandle get_per_thread_stream() noexcept;
+StreamHandle get_per_thread_stream();
 
 // ============================================================================
 // Event handle functions
@@ -91,7 +128,7 @@ EventHandle create_event_handle(ContextHandle h_ctx, unsigned int flags);
 // Use for temporary events that are created and destroyed in the same scope.
 // When the last reference is released, cuEventDestroy is called automatically.
 // Returns empty handle on error (caller must check).
-EventHandle create_event_handle(unsigned int flags);
+EventHandle create_event_handle_noctx(unsigned int flags);
 
 // Create an owning event handle from an IPC handle.
 // The originating process owns the event and its context.
@@ -116,7 +153,7 @@ MemoryPoolHandle create_mempool_handle_ref(CUmemoryPool pool);
 
 // Get non-owning handle to the current memory pool for a device.
 // Returns empty handle on error (caller must check).
-MemoryPoolHandle get_device_mempool(int device_id) noexcept;
+MemoryPoolHandle get_device_mempool(int device_id);
 
 // Create an owning memory pool handle from an IPC import.
 // The file descriptor is NOT owned by this handle (caller manages FD separately).
@@ -176,10 +213,10 @@ DevicePtrHandle deviceptr_import_ipc(
 
 // Access the deallocation stream for a device pointer handle (read-only).
 // For non-owning handles, the stream is not used but can still be accessed.
-StreamHandle deallocation_stream(const DevicePtrHandle& h);
+StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept;
 
 // Set the deallocation stream for a device pointer handle.
-void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream);
+void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) noexcept;
 
 // ============================================================================
 // Overloaded helper functions to extract raw resources from handles
@@ -231,7 +268,7 @@ inline std::intptr_t as_intptr(const DevicePtrHandle& h) noexcept {
 // as_py() - convert handle to Python driver wrapper object (returns new reference)
 namespace detail {
 // n.b. class lookup is not cached to avoid deadlock hazard, see DESIGN.md
-inline PyObject* make_py(const char* class_name, std::intptr_t value) {
+inline PyObject* make_py(const char* class_name, std::intptr_t value) noexcept {
     PyObject* mod = PyImport_ImportModule("cuda.bindings.driver");
     if (!mod) return nullptr;
     PyObject* cls = PyObject_GetAttrString(mod, class_name);
@@ -243,23 +280,23 @@ inline PyObject* make_py(const char* class_name, std::intptr_t value) {
 }
 }  // namespace detail
 
-inline PyObject* as_py(const ContextHandle& h) {
+inline PyObject* as_py(const ContextHandle& h) noexcept {
     return detail::make_py("CUcontext", as_intptr(h));
 }
 
-inline PyObject* as_py(const StreamHandle& h) {
+inline PyObject* as_py(const StreamHandle& h) noexcept {
     return detail::make_py("CUstream", as_intptr(h));
 }
 
-inline PyObject* as_py(const EventHandle& h) {
+inline PyObject* as_py(const EventHandle& h) noexcept {
     return detail::make_py("CUevent", as_intptr(h));
 }
 
-inline PyObject* as_py(const MemoryPoolHandle& h) {
+inline PyObject* as_py(const MemoryPoolHandle& h) noexcept {
     return detail::make_py("CUmemoryPool", as_intptr(h));
 }
 
-inline PyObject* as_py(const DevicePtrHandle& h) {
+inline PyObject* as_py(const DevicePtrHandle& h) noexcept {
     return detail::make_py("CUdeviceptr", as_intptr(h));
 }
 

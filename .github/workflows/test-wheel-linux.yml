@@ -269,17 +269,15 @@ jobs:
       - name: Ensure cuda-python installable
         run: |
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            pip install cuda_python*.whl
+            pip install --only-binary=:all: cuda_python*.whl
           else
-            pip install $(ls cuda_python*.whl)[all]
+            pip install --only-binary=:all: $(ls cuda_python*.whl)[all]
           fi
 
       - name: Install cuda.pathfinder extra wheels for testing
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
-          # Install pathfinder from the pre-built wheel, since building from
-          # source won't work in this context (we don't have a git checkout).
           pip install --only-binary=:all: -v ./*.whl --group "test-cu${TEST_CUDA_MAJOR}"
           pip list
           popd
