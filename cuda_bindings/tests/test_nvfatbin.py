@@ -133,6 +133,7 @@ def OBJECT(arch, tmpdir):
     with open(tmpdir / "object.cu", "w") as f:
         f.write(empty_cplusplus_kernel)
 
+    # TODO: Use cuda-pathfinder to locate nvcc on system.
     nvcc = shutil.which("nvcc")
     if nvcc is None:
         pytest.skip("nvcc not found on PATH")
