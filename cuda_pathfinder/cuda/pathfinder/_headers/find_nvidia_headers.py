@@ -9,6 +9,7 @@ from cuda.pathfinder._headers import supported_nvidia_headers
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
+from cuda.pathfinder._utils.search_order import SEARCH_ORDER_DESCRIPTION
 
 
 def _abs_norm(path: str | None) -> str | None:
@@ -125,6 +126,10 @@ def find_nvidia_header_directory(libname: str) -> str | None:
         3. **CUDA Toolkit environment variables**
 
            - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
+
+    Note:
+        The search order is centralized and shared across all pathfinder functions.
+        See :py:mod:`cuda.pathfinder._utils.search_order` for the canonical definition.
     """
 
     if libname in supported_nvidia_headers.SUPPORTED_HEADERS_CTK:

@@ -29,6 +29,9 @@ from cuda.pathfinder._headers.supported_nvidia_headers import (
     SUPPORTED_SITE_PACKAGE_HEADER_DIRS_CTK,
 )
 
+STRICTNESS = os.environ.get("CUDA_PATHFINDER_TEST_FIND_NVIDIA_HEADERS_STRICTNESS", "see_what_works")
+assert STRICTNESS in ("see_what_works", "all_must_work")
+
 NON_CTK_IMPORTLIB_METADATA_DISTRIBUTIONS_NAMES = {
     "cusparseLt": r"^nvidia-cusparselt-.*$",
     "cutensor": r"^cutensor-.*$",
@@ -65,6 +68,19 @@ def test_find_non_ctk_headers(info_summary_append, libname):
         assert hdr_dir is not None
         hdr_dir_parts = hdr_dir.split(os.path.sep)
         assert "site-packages" in hdr_dir_parts
+    elif STRICTNESS == "all_must_work":
+        assert hdr_dir is not None
+        if conda_prefix := os.environ.get("CONDA_PREFIX"):
+            assert hdr_dir.startswith(conda_prefix)
+        else:
+            inst_dirs = SUPPORTED_INSTALL_DIRS_NON_CTK.get(libname)
+            if inst_dirs is not None:
+                for inst_dir in inst_dirs:
+                    globbed = glob.glob(inst_dir)
+                    if hdr_dir in globbed:
+                        break
+                else:
+                    raise RuntimeError(f"{hdr_dir=} does not match any {inst_dirs=}")
 
 
 def test_supported_headers_site_packages_ctk_consistency():
@@ -79,3 +95,5 @@ def test_find_ctk_headers(info_summary_append, libname):
         assert os.path.isdir(hdr_dir)
         h_filename = SUPPORTED_HEADERS_CTK[libname]
         assert os.path.isfile(os.path.join(hdr_dir, h_filename))
+    if STRICTNESS == "all_must_work":
+        assert hdr_dir is not None
