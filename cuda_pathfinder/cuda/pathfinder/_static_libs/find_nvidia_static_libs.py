@@ -15,7 +15,6 @@ from cuda.pathfinder._static_libs.supported_nvidia_static_libs import (
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
-from cuda.pathfinder._utils.search_order import SEARCH_ORDER_DESCRIPTION
 
 
 def _get_lib_filename_variants(artifact_name: str) -> tuple[str, ...]:
@@ -67,22 +66,21 @@ def find_nvidia_static_lib(artifact_name: str) -> Optional[str]:
         ValueError: If ``artifact_name`` is not supported.
 
     Search order:
-        1. **NVIDIA Python wheels**
+        1. **NVIDIA Python wheels (site-packages)**
 
-           - Scan installed distributions (``site-packages``) for libraries
+           - Scan installed distributions for libraries
              shipped in NVIDIA wheels (e.g., ``cuda-cudart``).
 
         2. **Conda environments**
 
-           - Check Conda-style installation prefixes:
+           - Check ``$CONDA_PREFIX`` installation:
 
-             - ``$CONDA_PREFIX/lib`` (Linux/Mac)
-             - ``$CONDA_PREFIX/Library/lib`` (Windows)
-             - ``$CONDA_PREFIX/nvvm/libdevice`` (for bitcode files)
+             - ``lib`` (Linux/Mac) or ``Library/lib`` (Windows)
+             - ``nvvm/libdevice`` (for bitcode files)
 
         3. **CUDA Toolkit environment variables**
 
-           - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order) and look in:
+           - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order):
 
              - ``lib64``, ``lib`` subdirectories
              - ``nvvm/libdevice`` (for bitcode files)
@@ -102,8 +100,6 @@ def find_nvidia_static_lib(artifact_name: str) -> Optional[str]:
 
     Note:
         Results are cached via ``functools.cache`` for performance.
-        The search order is centralized and shared across all pathfinder functions.
-        See :py:mod:`cuda.pathfinder._utils.search_order` for the canonical definition.
     """
     if artifact_name not in SUPPORTED_STATIC_LIBS:
         raise ValueError(f"Unknown artifact: {artifact_name!r}")

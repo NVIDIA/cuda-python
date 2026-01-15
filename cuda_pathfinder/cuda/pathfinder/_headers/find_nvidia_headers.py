@@ -9,7 +9,6 @@ from cuda.pathfinder._headers import supported_nvidia_headers
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
-from cuda.pathfinder._utils.search_order import SEARCH_ORDER_DESCRIPTION
 
 
 def _abs_norm(path: str | None) -> str | None:
@@ -113,23 +112,19 @@ def find_nvidia_header_directory(libname: str) -> str | None:
         RuntimeError: If ``libname`` is not in the supported set.
 
     Search order:
-        1. **NVIDIA Python wheels**
+        1. **NVIDIA Python wheels (site-packages)**
 
-           - Scan installed distributions (``site-packages``) for header layouts
+           - Scan installed distributions for header layouts
              shipped in NVIDIA wheels (e.g., ``cuda-toolkit[nvrtc]``).
 
         2. **Conda environments**
 
-           - Check Conda-style installation prefixes, which use platform-specific
+           - Check ``$CONDA_PREFIX`` with platform-specific
              include directory layouts.
 
         3. **CUDA Toolkit environment variables**
 
            - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order).
-
-    Note:
-        The search order is centralized and shared across all pathfinder functions.
-        See :py:mod:`cuda.pathfinder._utils.search_order` for the canonical definition.
     """
 
     if libname in supported_nvidia_headers.SUPPORTED_HEADERS_CTK:

@@ -11,7 +11,6 @@ from cuda.pathfinder._binaries.supported_nvidia_binaries import SITE_PACKAGES_BI
 from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from cuda.pathfinder._utils.find_sub_dirs import find_sub_dirs_all_sitepackages
 from cuda.pathfinder._utils.platform_aware import IS_WINDOWS
-from cuda.pathfinder._utils.search_order import SEARCH_ORDER_DESCRIPTION
 
 
 @functools.cache
@@ -33,20 +32,20 @@ def find_nvidia_binary(binary_name: str) -> Optional[str]:
         ValueError: If ``binary_name`` is not in the supported set.
 
     Search order:
-        1. **NVIDIA Python wheels**
+        1. **NVIDIA Python wheels (site-packages)**
 
-           - Scan installed distributions (``site-packages``) for binaries
+           - Scan installed distributions for binaries
              shipped in NVIDIA wheels (e.g., ``cuda-nvcc``).
 
         2. **Conda environments**
 
-           - Check Conda-style installation prefixes (``$CONDA_PREFIX/bin`` on
-             Linux/Mac or ``$CONDA_PREFIX/Library/bin`` on Windows).
+           - Check ``$CONDA_PREFIX/bin`` (Linux/Mac) or
+             ``$CONDA_PREFIX/Library/bin`` (Windows).
 
         3. **CUDA Toolkit environment variables**
 
-           - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order) and look in the
-             ``bin`` subdirectory.
+           - Use ``CUDA_HOME`` or ``CUDA_PATH`` (in that order),
+             look in the ``bin`` subdirectory.
 
     Examples:
         Basic usage:
@@ -58,8 +57,6 @@ def find_nvidia_binary(binary_name: str) -> Optional[str]:
 
     Note:
         Results are cached via ``functools.cache`` for performance.
-        The search order is centralized and shared across all pathfinder functions.
-        See :py:mod:`cuda.pathfinder._utils.search_order` for the canonical definition.
     """
     if binary_name not in SUPPORTED_BINARIES:
         raise ValueError(f"Unknown binary: {binary_name!r}")
