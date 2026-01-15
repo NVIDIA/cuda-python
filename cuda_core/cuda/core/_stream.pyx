@@ -455,8 +455,8 @@ cdef class Stream:
 
 
 # c-only python objects, not public
-cdef Stream C_LEGACY_DEFAULT_STREAM = Stream.legacy_default()
-cdef Stream C_PER_THREAD_DEFAULT_STREAM = Stream.per_thread_default()
+cdef Stream C_LEGACY_DEFAULT_STREAM = Stream._from_handle(Stream, get_legacy_stream())
+cdef Stream C_PER_THREAD_DEFAULT_STREAM = Stream._from_handle(Stream, get_per_thread_stream())
 
 # standard python objects, public
 LEGACY_DEFAULT_STREAM = C_LEGACY_DEFAULT_STREAM
