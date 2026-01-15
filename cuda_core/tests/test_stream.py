@@ -130,19 +130,35 @@ def test_stream_per_thread_default_subclassing():
 
 
 def test_stream_legacy_default_public_api(init_cuda):
-    """Test public legacy_default() method."""
-    stream = Stream.legacy_default()
-    assert isinstance(stream, Stream)
-    # Verify it's the same as LEGACY_DEFAULT_STREAM
-    assert stream == LEGACY_DEFAULT_STREAM
+    """Test public legacy_default() method returns singleton."""
+    stream1 = Stream.legacy_default()
+    stream2 = Stream.legacy_default()
+
+    assert isinstance(stream1, Stream)
+    assert isinstance(stream2, Stream)
+
+    # Verify singleton behavior - same Python object
+    assert stream1 is stream2, "Should return same singleton instance"
+
+    # Verify it's the same as the module constant
+    assert stream1 is LEGACY_DEFAULT_STREAM, "Should be the same object as LEGACY_DEFAULT_STREAM"
+    assert stream2 is LEGACY_DEFAULT_STREAM, "Should be the same object as LEGACY_DEFAULT_STREAM"
 
 
 def test_stream_per_thread_default_public_api(init_cuda):
-    """Test public per_thread_default() method."""
-    stream = Stream.per_thread_default()
-    assert isinstance(stream, Stream)
-    # Verify it's the same as PER_THREAD_DEFAULT_STREAM
-    assert stream == PER_THREAD_DEFAULT_STREAM
+    """Test public per_thread_default() method returns singleton."""
+    stream1 = Stream.per_thread_default()
+    stream2 = Stream.per_thread_default()
+
+    assert isinstance(stream1, Stream)
+    assert isinstance(stream2, Stream)
+
+    # Verify singleton behavior - same Python object
+    assert stream1 is stream2, "Should return same singleton instance"
+
+    # Verify it's the same as the module constant
+    assert stream1 is PER_THREAD_DEFAULT_STREAM, "Should be the same object as PER_THREAD_DEFAULT_STREAM"
+    assert stream2 is PER_THREAD_DEFAULT_STREAM, "Should be the same object as PER_THREAD_DEFAULT_STREAM"
 
 
 # ============================================================================

@@ -117,17 +117,38 @@ cdef class Stream:
         complete, and all subsequent operations in blocking streams wait for
         the legacy default stream operation to complete.
 
+        This stream is useful for ensuring strict ordering of operations but
+        may limit concurrency. For better performance in concurrent scenarios,
+        consider using per_thread_default() or creating explicit streams.
+
+        This method returns the same singleton instance on every call for the
+        base Stream class. Subclasses will receive new instances of the subclass
+        type that wrap the same underlying CUDA stream.
+
         Returns
         -------
         Stream
-            The legacy default stream instance for the current context.
+            The legacy default stream singleton instance for the current context.
 
         See Also
         --------
         per_thread_default : Per-thread default stream alternative.
+        from_handle : Create stream from existing handle.
 
+        Examples
+        --------
+        >>> from cuda.core import Stream
+        >>> stream1 = Stream.legacy_default()
+        >>> stream2 = Stream.legacy_default()
+        >>> stream1 is stream2  # True - returns same singleton
+        True
         """
-        return Stream._from_handle(cls, get_legacy_stream())
+        # Return the singleton for the base Stream class
+        if cls is Stream:
+            return C_LEGACY_DEFAULT_STREAM
+        # For subclasses, create a new instance of the subclass type
+        else:
+            return Stream._from_handle(cls, get_legacy_stream())
 
     @classmethod
     def per_thread_default(cls):
@@ -139,18 +160,38 @@ cdef class Stream:
         non-blocking stream. This allows for better concurrency in multi-threaded
         applications.
 
+        Each thread has its own per-thread default stream, enabling true
+        concurrent execution without implicit synchronization barriers.
+
+        This method returns the same singleton instance on every call for the
+        base Stream class. Subclasses will receive new instances of the subclass
+        type that wrap the same underlying CUDA stream.
+
         Returns
         -------
         Stream
-            The per-thread default stream instance for the current thread
-            and context.
+            The per-thread default stream singleton instance for the current
+            thread and context.
 
         See Also
         --------
         legacy_default : Legacy default stream alternative.
+        from_handle : Create stream from existing handle.
 
+        Examples
+        --------
+        >>> from cuda.core import Stream
+        >>> stream1 = Stream.per_thread_default()
+        >>> stream2 = Stream.per_thread_default()
+        >>> stream1 is stream2  # True - returns same singleton
+        True
         """
-        return Stream._from_handle(cls, get_per_thread_stream())
+        # Return the singleton for the base Stream class
+        if cls is Stream:
+            return C_PER_THREAD_DEFAULT_STREAM
+        # For subclasses, create a new instance of the subclass type
+        else:
+            return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
     def _init(cls, obj: IsStreamT | None = None, options=None, device_id: int = None,
