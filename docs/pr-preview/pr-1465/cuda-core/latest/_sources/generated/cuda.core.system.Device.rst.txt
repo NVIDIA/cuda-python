@@ -19,7 +19,9 @@ cuda.core.system.Device
    .. automethod:: get_all_devices_with_cpu_affinity
    .. automethod:: get_device_count
    .. automethod:: get_field_values
+   .. automethod:: get_supported_event_types
    .. automethod:: get_topology_nearest_gpus
+   .. automethod:: register_events
 
    
    

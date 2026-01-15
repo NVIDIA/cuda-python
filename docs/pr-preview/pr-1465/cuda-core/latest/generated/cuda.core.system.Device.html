@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=20d8d27f"></script>
+    <script src="../_static/documentation_options.js?v=c8c271bd"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev56';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev59';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -64,7 +64,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="cuda.core.system.AddressingMode" href="cuda.core.system.AddressingMode.html" />
-    <link rel="prev" title="cuda.core.system.get_p2p_status" href="cuda.core.system.get_p2p_status.html" />
+    <link rel="prev" title="cuda.core.system.SystemEventType" href="cuda.core.system.SystemEventType.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -500,12 +500,20 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_process_name.html">cuda.core.system.get_process_name</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_topology_common_ancestor.html">cuda.core.system.get_topology_common_ancestor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.get_p2p_status.html">cuda.core.system.get_p2p_status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.register_events.html">cuda.core.system.register_events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.RegisteredSystemEvents.html">cuda.core.system.RegisteredSystemEvents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEvent.html">cuda.core.system.SystemEvent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEvents.html">cuda.core.system.SystemEvents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.SystemEventType.html">cuda.core.system.SystemEventType</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">cuda.core.system.Device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.AddressingMode.html">cuda.core.system.AddressingMode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BAR1MemoryInfo.html">cuda.core.system.BAR1MemoryInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.BrandType.html">cuda.core.system.BrandType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceAttributes.html">cuda.core.system.DeviceAttributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceEvents.html">cuda.core.system.DeviceEvents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.EventData.html">cuda.core.system.EventData</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.EventType.html">cuda.core.system.EventType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldId.html">cuda.core.system.FieldId</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldValue.html">cuda.core.system.FieldValue</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.FieldValues.html">cuda.core.system.FieldValues</a></li>
@@ -733,6 +741,22 @@ enum, or a pair of (<a class="reference internal" href="cuda.core.system.FieldId
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.Device.get_supported_event_types">
+<span class="sig-name descname"><span class="pre">get_supported_event_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cuda.core.system.EventType.html#cuda.core.system.EventType" title="cuda.core.system.EventType"><span class="pre">EventType</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cuda.core.system.Device.get_supported_event_types" title="Link to this definition">#</a></dt>
+<dd><p>Get the list of event types supported by this device.</p>
+<p>For Fermi™ or newer fully supported devices.  For Linux only (returns an
+empty list on Windows).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The list of supported event types.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="cuda.core.system.EventType.html#cuda.core.system.EventType" title="cuda.core.system.EventType">EventType</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="cuda.core.system.Device.get_topology_nearest_gpus">
 <span class="sig-name descname"><span class="pre">get_topology_nearest_gpus</span></span><span class="sig-paren">(</span>
 
@@ -753,6 +777,51 @@ enum, or a pair of (<a class="reference internal" href="cuda.core.system.FieldId
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Iterable of <a class="reference internal" href="#cuda.core.system.Device" title="cuda.core.system.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">Device</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.Device.register_events">
+<span class="sig-name descname"><span class="pre">register_events</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cuda.core.system.EventType.html#cuda.core.system.EventType" title="cuda.core.system.EventType"><span class="pre">EventType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cuda.core.system.EventType.html#cuda.core.system.EventType" title="cuda.core.system.EventType"><span class="pre">EventType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cuda.core.system.DeviceEvents.html#cuda.core.system.DeviceEvents" title="cuda.core.system.DeviceEvents"><span class="pre">DeviceEvents</span></a></span></span><a class="headerlink" href="#cuda.core.system.Device.register_events" title="Link to this definition">#</a></dt>
+<dd><p>Starts recording events on this device.</p>
+<p>For Fermi™ or newer fully supported devices.  For Linux only.</p>
+<p>ECC events are available only on ECC-enabled devices (see
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.get_total_ecc_errors()</span></code>).  Power capping events are
+available only on Power Management enabled devices (see
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">Device.get_power_management_mode()</span></code>).</p>
+<p>This call starts recording of events on specific device.  All events
+that occurred before this call are not recorded.  Wait for events using
+the <a class="reference internal" href="cuda.core.system.DeviceEvents.html#cuda.core.system.DeviceEvents.wait" title="cuda.core.system.DeviceEvents.wait"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceEvents.wait()</span></code></a> method on the result.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">device</span> <span class="o">=</span> <span class="n">Device</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">events</span> <span class="o">=</span> <span class="n">device</span><span class="o">.</span><span class="n">register_events</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="n">EventType</span><span class="o">.</span><span class="n">EVENT_TYPE_XID_CRITICAL_ERROR</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">while</span> <span class="n">event</span> <span class="o">:=</span> <span class="n">events</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout_ms</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Event </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">event_type</span><span class="si">}</span><span class="s2"> occurred on device </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>events</strong> (<a class="reference internal" href="cuda.core.system.EventType.html#cuda.core.system.EventType" title="cuda.core.system.EventType"><em>EventType</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference internal" href="cuda.core.system.EventType.html#cuda.core.system.EventType" title="cuda.core.system.EventType"><em>EventType</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The event type or list of event types to register for this device.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An object representing the registered events.  Call
+<a class="reference internal" href="cuda.core.system.DeviceEvents.html#cuda.core.system.DeviceEvents.wait" title="cuda.core.system.DeviceEvents.wait"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DeviceEvents.wait()</span></code></a> on this object to wait for events.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cuda.core.system.DeviceEvents.html#cuda.core.system.DeviceEvents" title="cuda.core.system.DeviceEvents"><code class="xref py py-class docutils literal notranslate"><span class="pre">DeviceEvents</span></code></a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cuda.core.system.NotSupportedError</strong> – None of the requested event types are registered.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1081,12 +1150,12 @@ board serial identifier.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="cuda.core.system.get_p2p_status.html"
+       href="cuda.core.system.SystemEventType.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">cuda.core.system.get_p2p_status</p>
+        <p class="prev-next-title">cuda.core.system.SystemEventType</p>
       </div>
     </a>
     <a class="right-next"
@@ -1126,7 +1195,9 @@ board serial identifier.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_all_devices_with_cpu_affinity"><code class="docutils literal notranslate"><span class="pre">Device.get_all_devices_with_cpu_affinity()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_device_count"><code class="docutils literal notranslate"><span class="pre">Device.get_device_count()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_field_values"><code class="docutils literal notranslate"><span class="pre">Device.get_field_values()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_supported_event_types"><code class="docutils literal notranslate"><span class="pre">Device.get_supported_event_types()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_topology_nearest_gpus"><code class="docutils literal notranslate"><span class="pre">Device.get_topology_nearest_gpus()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.register_events"><code class="docutils literal notranslate"><span class="pre">Device.register_events()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.addressing_mode"><code class="docutils literal notranslate"><span class="pre">Device.addressing_mode</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.architecture"><code class="docutils literal notranslate"><span class="pre">Device.architecture</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.attributes"><code class="docutils literal notranslate"><span class="pre">Device.attributes</span></code></a></li>
