@@ -217,22 +217,12 @@ cdef class Stream:
         return (0, as_intptr(self._h_stream))
 
     def __hash__(self) -> int:
-        # Ensure context is initialized for hash consistency
-        Stream_ensure_ctx(self)
-        return hash((as_intptr(self._h_context), as_intptr(self._h_stream)))
+        return hash(as_intptr(self._h_stream))
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Stream):
             return NotImplemented
-        cdef Stream _other = <Stream>other
-        # Fast path: compare handles first
-        if as_intptr(self._h_stream) != as_intptr(_other._h_stream):
-            return False
-        # Ensure contexts are initialized for both streams
-        Stream_ensure_ctx(self)
-        Stream_ensure_ctx(_other)
-        # Compare contexts as well
-        return as_intptr(self._h_context) == as_intptr(_other._h_context)
+        return as_intptr(self._h_stream) == as_intptr((<Stream>other)._h_stream)
 
     @property
     def handle(self) -> cuda.bindings.driver.CUstream:
