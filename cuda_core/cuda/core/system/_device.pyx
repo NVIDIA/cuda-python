@@ -635,7 +635,7 @@ cdef class Device:
             device._handle = handle
             yield device
 
-    def get_memory_affinity(self, scope: AffinityScope) -> list[int]:
+    def get_memory_affinity(self, scope: AffinityScope=AffinityScope.NODE) -> list[int]:
         """
         Retrieves a list of indices of NUMA nodes or CPU sockets with the ideal
         memory affinity for the device.
@@ -656,7 +656,7 @@ cdef class Device:
             )
         )
 
-    def get_cpu_affinity(self, scope: AffinityScope) -> list[int]:
+    def get_cpu_affinity(self, scope: AffinityScope=AffinityScope.NODE) -> list[int]:
         """
         Retrieves a list of indices of NUMA nodes or CPU sockets with the ideal
         CPU affinity for the device.
@@ -670,7 +670,7 @@ cdef class Device:
         ancestor of the device.
         """
         return _unpack_bitmask(
-            nvml.device_get_cpu_affinity(
+            nvml.device_get_cpu_affinity_within_scope(
                 self._handle,
                 <unsigned int>ceil(cpu_count() / 64),
                 scope,

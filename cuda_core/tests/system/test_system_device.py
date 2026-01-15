@@ -381,7 +381,7 @@ def test_get_all_devices_with_cpu_affinity():
     try:
         for i in range(multiprocessing.cpu_count()):
             for device in system.Device.get_all_devices_with_cpu_affinity(i):
-                affinity = device.cpu_affinity
+                affinity = device.get_cpu_affinity()
                 assert isinstance(affinity, list)
                 assert i in affinity
     except system.NotSupportedError:
@@ -646,9 +646,13 @@ def test_temperature():
                 assert isinstance(t, int)
                 assert t >= 0
 
-        margin = temperature.margin
-        assert isinstance(margin, int)
-        assert margin >= 0
+        try:
+            margin = temperature.margin
+        except system.NotSupportedError:
+            pass
+        else:
+            assert isinstance(margin, int)
+            assert margin >= 0
 
         thermals = temperature.thermal_settings(system.ThermalTarget.ALL)
         assert isinstance(thermals, system.ThermalSettings)
