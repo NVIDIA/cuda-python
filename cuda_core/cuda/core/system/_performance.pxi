@@ -19,6 +19,8 @@ cdef class GpuDynamicPstatesUtilization:
         object _owner
 
     def __init__(self, ptr: int, owner: object):
+        # ptr points to a part of the numpy buffer held by `_owner`, so we need
+        # to maintain a reference to `_owner` to keep it alive.
         self._ptr = <_GpuDynamicPstatesUtilization *><intptr_t>ptr
         self._owner = owner
 
