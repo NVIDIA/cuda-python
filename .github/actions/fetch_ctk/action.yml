@@ -14,7 +14,7 @@ inputs:
   cuda-components:
     description: "A list of the CTK components to install as a comma-separated list. e.g. 'cuda_nvcc,cuda_nvrtc,cuda_cudart'"
     required: false
-    default: "cuda_nvcc,cuda_cudart,cuda_crt,libnvvm,cuda_nvrtc,cuda_profiler_api,cuda_cccl,libnvjitlink,libcufile"
+    default: "cuda_nvcc,cuda_cudart,cuda_crt,libnvvm,cuda_nvrtc,cuda_profiler_api,cuda_cccl,libnvjitlink,libcufile,libnvfatbin"
   cuda-path:
     description: "where the CTK components will be installed to, relative to $PWD"
     required: false
