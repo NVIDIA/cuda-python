@@ -79,7 +79,6 @@ cdef class RegisteredSystemEvents:
         initialize()
 
         self._event_set = nvml.system_event_set_create()
-        print("event set:", self._event_set)
         # If this raises, the event needs to be freed and this is handled by
         # this class's __dealloc__ method.
         nvml.system_register_events(event_bitmask, self._event_set)
