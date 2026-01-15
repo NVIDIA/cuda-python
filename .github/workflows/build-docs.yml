@@ -7,9 +7,6 @@ name: "CI: Build and update docs"
 on:
   workflow_call:
     inputs:
-      build-ctk-ver:
-        type: string
-        required: true
       component:
         description: "Component(s) to build docs for"
         required: false
@@ -47,12 +44,6 @@ jobs:
       run:
         shell: bash -el {0}
     steps:
-      - name: validate build-ctk
-        run: |
-          if [ ! "${{ inputs.build-ctk-ver }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]; then
-            echo "error: `build-ctk-ver` ${{ inputs.build-ctk-ver }} version does not match MAJOR.MINOR.MICRO" >&2
-            exit 1
-          fi
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
@@ -77,13 +68,6 @@ jobs:
           conda config --show-sources
           conda config --show
 
-      # WAR: Building the doc currently requires CTK installed (NVIDIA/cuda-python#326,327)
-      - name: Set up mini CTK
-        uses: ./.github/actions/fetch_ctk
-        with:
-          host-platform: linux-64
-          cuda-version: ${{ inputs.build-ctk-ver }}
-
       - name: Set environment variables
         run: |
           PYTHON_VERSION_FORMATTED="312"  # see above
@@ -103,7 +87,7 @@ jobs:
           echo "CUDA_CORE_ARTIFACT_BASENAME=${CUDA_CORE_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACT_NAME=${CUDA_CORE_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
           echo "CUDA_CORE_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_core/dist")" >> $GITHUB_ENV
-          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda${{ inputs.build-ctk-ver }}-linux-64"
+          CUDA_BINDINGS_ARTIFACT_BASENAME="cuda-bindings-python${PYTHON_VERSION_FORMATTED}-cuda*-linux-64"
           echo "CUDA_BINDINGS_ARTIFACT_BASENAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACT_NAME=${CUDA_BINDINGS_ARTIFACT_BASENAME}-${FILE_HASH}" >> $GITHUB_ENV
           echo "CUDA_BINDINGS_ARTIFACTS_DIR=$(realpath "$REPO_DIR/cuda_bindings/dist")" >> $GITHUB_ENV
