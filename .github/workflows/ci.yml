@@ -62,7 +62,12 @@ jobs:
           echo "skip=${skip}" >> "$GITHUB_OUTPUT"
           echo "doc_only=${doc_only}" >> "$GITHUB_OUTPUT"
 
-  # WARNING: make sure all of the build jobs are in sync
+  # NOTE: Build jobs are intentionally split by platform rather than using a single
+  # matrix. This allows each test job to depend only on its corresponding build,
+  # so faster platforms can proceed through build & test without waiting for slower
+  # ones. Keep these job definitions textually identical except for:
+  #   - host-platform value
+  #   - if: condition (build-linux-64 omits doc-only check since it's needed for docs)
   build-linux-64:
     needs:
       - ci-vars
@@ -81,7 +86,7 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
-  # WARNING: make sure all of the build jobs are in sync
+  # See build-linux-64 for why build jobs are split by platform.
   build-linux-aarch64:
     needs:
       - ci-vars
@@ -100,7 +105,7 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
-  # WARNING: make sure all of the build jobs are in sync
+  # See build-linux-64 for why build jobs are split by platform.
   build-windows:
     needs:
       - ci-vars
@@ -119,7 +124,11 @@ jobs:
       cuda-version: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
       prev-cuda-version: ${{ needs.ci-vars.outputs.CUDA_PREV_BUILD_VER }}
 
-  # WARNING: make sure both Linux test jobs are in sync
+  # NOTE: Test jobs are split by platform for the same reason as build jobs (see
+  # build-linux-64). Keep these job definitions textually identical except for:
+  #   - host-platform value
+  #   - build job under needs:
+  #   - uses: (test-wheel-linux.yml vs test-wheel-windows.yml)
   test-linux-64:
     strategy:
       fail-fast: false
@@ -141,7 +150,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
 
-  # WARNING: make sure both Linux test jobs are in sync
+  # See test-linux-64 for why test jobs are split by platform.
   test-linux-aarch64:
     strategy:
       fail-fast: false
@@ -149,13 +158,12 @@ jobs:
         host-platform:
           - linux-aarch64
     name: Test ${{ matrix.host-platform }}
-    # Note: No doc-only check needed here - if build-linux-aarch64 is skipped,
-    # this job is automatically skipped due to the dependency.
-    if: ${{ github.repository_owner == 'nvidia' }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
     permissions:
       contents: read  # This is required for actions/checkout
     needs:
       - ci-vars
+      - should-skip
       - build-linux-aarch64
     secrets: inherit
     uses: ./.github/workflows/test-wheel-linux.yml
@@ -164,6 +172,7 @@ jobs:
       host-platform: ${{ matrix.host-platform }}
       build-ctk-ver: ${{ needs.ci-vars.outputs.CUDA_BUILD_VER }}
 
+  # See test-linux-64 for why test jobs are split by platform.
   test-windows:
     strategy:
       fail-fast: false
@@ -171,13 +180,12 @@ jobs:
         host-platform:
           - win-64
     name: Test ${{ matrix.host-platform }}
-    # Note: No doc-only check needed here - if build-windows is skipped,
-    # this job is automatically skipped due to the dependency.
-    if: ${{ github.repository_owner == 'nvidia' }}
+    if: ${{ github.repository_owner == 'nvidia' && !fromJSON(needs.should-skip.outputs.doc-only) }}
     permissions:
       contents: read  # This is required for actions/checkout
     needs:
       - ci-vars
+      - should-skip
       - build-windows
     secrets: inherit
     uses: ./.github/workflows/test-wheel-windows.yml
