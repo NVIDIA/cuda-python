@@ -1288,7 +1288,7 @@ class VgpuPgpuVirtualizationCapMigration(_IntEnum):
 
 class VgpuSchedulerPolicy(_IntEnum):
     UNKNOWN = 0
-    EFFORT = 1
+    BEST_EFFORT = 1
     EQUAL_SHARE = 2
     FIXED_SHARE = 3
 
