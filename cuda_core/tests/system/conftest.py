@@ -44,7 +44,7 @@ def unsupported_before(device: system.Device, expected_device_arch: system.Devic
         # In this case, we /know/ if will fail, and we want to assert that it does.
         with pytest.raises(system.NotSupportedError):
             yield
-        pytest.skip("Unsupported before {expected_device_arch.name}, got {device_arch.name}")
+        pytest.skip(f"Unsupported before {expected_device_arch.name}, got {device_arch.name}")
     else:
         # In this case, we /know/ it should work, and if it fails, the test should fail.
         yield
