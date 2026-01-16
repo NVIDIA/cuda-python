@@ -14,7 +14,7 @@ skip_if_nvml_unsupported = pytest.mark.skipif(
 
 
 @contextmanager
-def unsupported_before(device: system.Device, expected_device_arch: system.DeviceArch | str | None):
+def unsupported_before(device, expected_device_arch):
     device_arch = device.arch
 
     if isinstance(expected_device_arch, system.DeviceArch):
