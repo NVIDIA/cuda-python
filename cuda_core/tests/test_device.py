@@ -26,9 +26,17 @@ def cuda_version():
 
 
 def test_to_system_device(deinit_cuda):
-    from cuda.core.system import Device as SystemDevice
+    from cuda.core.system import _system
 
     device = Device()
+
+    if not _system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+        with pytest.raises(RuntimeError):
+            device.to_system_device()
+        pytest.skip("NVML support requires cuda.bindings version 12.9.6+ or 13.1.2+")
+
+    from cuda.core.system import Device as SystemDevice
+
     system_device = device.to_system_device()
     assert isinstance(system_device, SystemDevice)
     assert system_device.uuid[4:] == device.uuid
