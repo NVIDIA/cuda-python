@@ -746,6 +746,18 @@ class Graph:
         """Destroy the graph."""
         self._mnff.close()
 
+    @property
+    def handle(self) -> driver.CUgraphExec:
+        """Return the underlying ``CUgraphExec`` object.
+
+        .. caution::
+
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int()`` on the returned object.
+
+        """
+        return self._mnff.graph
+
     def update(self, builder: GraphBuilder):
         """Update the graph using new build configuration from the builder.
 
