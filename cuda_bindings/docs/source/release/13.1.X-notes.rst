@@ -9,6 +9,8 @@
 Highlights
 ----------
 
+* Add ``nvFatbin`` bindings. (PR #1467 <https://github.com/NVIDIA/cuda-python/pull/1467>_)
+
 Experimental
 ------------
 
