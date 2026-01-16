@@ -88,8 +88,9 @@ config1 = LaunchConfig(grid=grid, block=block)
 # Allocate memory on GPU 0
 # Note: This runs on CuPy's current stream for GPU 0
 dev0.set_current()
-a = cp.random.random(size, dtype=dtype)
-b = cp.random.random(size, dtype=dtype)
+rng = cp.random.default_rng()
+a = rng.random(size, dtype=dtype)
+b = rng.random(size, dtype=dtype)
 c = cp.empty_like(a)
 cp_stream0 = dev0.create_stream(StreamAdaptor(cp.cuda.get_current_stream()))
 
@@ -103,8 +104,9 @@ launch(stream0, config0, ker_add, a.data.ptr, b.data.ptr, c.data.ptr, cp.uint64(
 # Allocate memory on GPU 1
 # Note: This runs on CuPy's current stream for GPU 1.
 dev1.set_current()
-x = cp.random.random(size, dtype=dtype)
-y = cp.random.random(size, dtype=dtype)
+rng = cp.random.default_rng()
+x = rng.random(size, dtype=dtype)
+y = rng.random(size, dtype=dtype)
 z = cp.empty_like(a)
 cp_stream1 = dev1.create_stream(StreamAdaptor(cp.cuda.get_current_stream()))
 
