@@ -1034,6 +1034,17 @@ class Device:
         total = system.get_num_devices()
         return tuple(cls(device_id) for device_id in range(total))
 
+    def to_system_device(self) -> 'cuda.core.system.Device':
+        """
+        Get the corresponding :class:`cuda.core.system.Device` (which is used
+        for NVIDIA Machine Library (NVML) access) for this
+        :class:`cuda.core.Device` (which is used for CUDA access).
+
+        The devices are mapped to one another by their UUID.
+        """
+        from cuda.core.system import Device as SystemDevice
+        return SystemDevice(uuid=self.uuid)
+
     @property
     def device_id(self) -> int:
         """Return device ordinal."""

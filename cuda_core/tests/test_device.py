@@ -25,6 +25,22 @@ def cuda_version():
     return _py_major_ver, _driver_ver
 
 
+def test_to_system_device(deinit_cuda):
+    from cuda.core.system import Device as SystemDevice
+
+    device = Device()
+    system_device = device.to_system_device()
+    assert isinstance(system_device, SystemDevice)
+    assert system_device.uuid[4:] == device.uuid
+
+    # Technically, this test will only work with PCI devices, but are there
+    # non-PCI devices we need to support?
+
+    # CUDA only returns a 2-byte PCI bus ID domain, whereas NVML returns a
+    # 4-byte domain
+    assert device.pci_bus_id == system_device.pci_info.bus_id[4:]
+
+
 def test_device_set_current(deinit_cuda):
     device = Device()
     device.set_current()

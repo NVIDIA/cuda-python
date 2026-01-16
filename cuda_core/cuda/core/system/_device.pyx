@@ -722,6 +722,36 @@ cdef class Device:
                 pci_bus_id = pci_bus_id.decode("ascii")
             self._handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
 
+    def to_cuda_device(self) -> "cuda.core.Device":
+        """
+        Get the corresponding :class:`cuda.core.Device` (which is used for CUDA
+        access) for this :class:`cuda.core.system.Device` (which is used for
+        NVIDIA machine library (NVML) access).
+
+        The devices are mapped to one another by their UUID.
+
+        Returns
+        -------
+        cuda.core.Device
+            The corresponding CUDA device.
+        """
+        from cuda.core import Device as CudaDevice
+
+        # CUDA does not have an API to get a device by its UUID, so we just
+        # search all the devices for one with a matching UUID.
+
+        # NVML UUIDs have a `GPU-` or `MIG-` prefix.  Possibly we should only do
+        # this matching when it has a `GPU-` prefix, but for now we just strip
+        # it.  If a matching CUDA device can't be found, we will get a helpful
+        # exception, anyway, below.
+        uuid = self.uuid[4:]
+
+        for cuda_device in CudaDevice.get_all_devices():
+            if cuda_device.uuid == uuid:
+                return cuda_device
+
+        raise RuntimeError("No corresponding CUDA device found for this NVML device.")
+
     @classmethod
     def get_device_count(cls) -> int:
         """
