@@ -22,6 +22,6 @@ def test_register_events():
 
     # Also, some hardware doesn't support any event types.
 
-    events = system.register_events([system.SystemEventType.SYSTEM_EVENT_TYPE_GPU_DRIVER_UNBIND])
+    events = system.register_events([system.SystemEventType.GPU_DRIVER_UNBIND])
     with pytest.raises(system.TimeoutError):
         events.wait(timeout_ms=500, buffer_size=1)
