@@ -569,7 +569,6 @@ def test_fan():
         # but when they are not available `device.num_fans` returns 0.
         if device.num_fans == 0:
             pytest.skip("Device has no fans to test")
-            continue
 
         for fan_idx in range(device.num_fans):
             fan_info = device.fan(fan_idx)
