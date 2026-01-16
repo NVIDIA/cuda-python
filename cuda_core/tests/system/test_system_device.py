@@ -276,7 +276,9 @@ def test_device_pci_bus_id():
 @pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_device_attributes():
     for device in system.Device.get_all_devices():
-        with unsupported_before(device, DeviceArch.AMPERE):
+        # Docs say this should work on AMPERE or newer, but experimentally
+        # that's not the case.
+        with unsupported_before(device, None):
             attributes = device.attributes
         assert isinstance(attributes, system.DeviceAttributes)
 
@@ -538,12 +540,18 @@ def test_clock():
             assert isinstance(current_mhz, int)
             assert current_mhz >= 0
 
+            # Docs say this should work on PASCAL or newer, but experimentally,
+            # is also unsupported on other hardware.
             with unsupported_before(device, DeviceArch.MAXWELL):
-                offsets = clock.get_offsets(pstate)
-            assert isinstance(offsets, system.ClockOffsets)
-            assert isinstance(offsets.clock_offset_mhz, int)
-            assert isinstance(offsets.max_offset_mhz, int)
-            assert isinstance(offsets.min_offset_mhz, int)
+                try:
+                    offsets = clock.get_offsets(pstate)
+                except system.InvalidArgumentError:
+                    pass
+                else:
+                    assert isinstance(offsets, system.ClockOffsets)
+                    assert isinstance(offsets.clock_offset_mhz, int)
+                    assert isinstance(offsets.max_offset_mhz, int)
+                    assert isinstance(offsets.min_offset_mhz, int)
 
             # By docs, should be supported on PASCAL or newer, but experimentally,
             # is also unsupported on other hardware.
