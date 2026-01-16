@@ -1041,6 +1041,11 @@ class Device:
         :class:`cuda.core.Device` (which is used for CUDA access).
 
         The devices are mapped to one another by their UUID.
+
+        Returns
+        -------
+        cuda.core.system.Device
+            The corresponding system-level device instance used for NVML access.
         """
         from cuda.core.system import Device as SystemDevice
         return SystemDevice(uuid=self.uuid)
