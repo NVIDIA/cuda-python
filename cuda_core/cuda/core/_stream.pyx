@@ -107,91 +107,14 @@ cdef class Stream:
         return s
 
     @classmethod
-    def legacy_default(cls):
-        """Return the legacy default stream.
-
-        The legacy default stream is an implicit stream which synchronizes
-        with all other streams in the same CUDA context except for non-blocking
-        streams. When any operation is launched on the legacy default stream,
-        it waits for all previously launched operations in blocking streams to
-        complete, and all subsequent operations in blocking streams wait for
-        the legacy default stream operation to complete.
-
-        This stream is useful for ensuring strict ordering of operations but
-        may limit concurrency. For better performance in concurrent scenarios,
-        consider using per_thread_default() or creating explicit streams.
-
-        This method returns the same singleton instance on every call for the
-        base Stream class. Subclasses will receive new instances of the subclass
-        type that wrap the same underlying CUDA stream.
-
-        Returns
-        -------
-        Stream
-            The legacy default stream singleton instance for the current context.
-
-        See Also
-        --------
-        per_thread_default : Per-thread default stream alternative.
-        from_handle : Create stream from existing handle.
-
-        Examples
-        --------
-        >>> from cuda.core import Stream
-        >>> stream1 = Stream.legacy_default()
-        >>> stream2 = Stream.legacy_default()
-        >>> stream1 is stream2  # True - returns same singleton
-        True
-        """
-        # Return the singleton for the base Stream class
-        if cls is Stream:
-            return C_LEGACY_DEFAULT_STREAM
-        # For subclasses, create a new instance of the subclass type
-        else:
-            return Stream._from_handle(cls, get_legacy_stream())
+    def _legacy_default(cls):
+        """Return the legacy default stream (supports subclassing)."""
+        return Stream._from_handle(cls, get_legacy_stream())
 
     @classmethod
-    def per_thread_default(cls):
-        """Return the per-thread default stream.
-
-        The per-thread default stream is local to both the calling thread and
-        the CUDA context. Unlike the legacy default stream, it does not
-        synchronize with other streams and behaves like an explicitly created
-        non-blocking stream. This allows for better concurrency in multi-threaded
-        applications.
-
-        Each thread has its own per-thread default stream, enabling true
-        concurrent execution without implicit synchronization barriers.
-
-        This method returns the same singleton instance on every call for the
-        base Stream class. Subclasses will receive new instances of the subclass
-        type that wrap the same underlying CUDA stream.
-
-        Returns
-        -------
-        Stream
-            The per-thread default stream singleton instance for the current
-            thread and context.
-
-        See Also
-        --------
-        legacy_default : Legacy default stream alternative.
-        from_handle : Create stream from existing handle.
-
-        Examples
-        --------
-        >>> from cuda.core import Stream
-        >>> stream1 = Stream.per_thread_default()
-        >>> stream2 = Stream.per_thread_default()
-        >>> stream1 is stream2  # True - returns same singleton
-        True
-        """
-        # Return the singleton for the base Stream class
-        if cls is Stream:
-            return C_PER_THREAD_DEFAULT_STREAM
-        # For subclasses, create a new instance of the subclass type
-        else:
-            return Stream._from_handle(cls, get_per_thread_stream())
+    def _per_thread_default(cls):
+        """Return the per-thread default stream (supports subclassing)."""
+        return Stream._from_handle(cls, get_per_thread_stream())
 
     @classmethod
     def _init(cls, obj: IsStreamT | None = None, options=None, device_id: int = None,
@@ -455,8 +378,8 @@ cdef class Stream:
 
 
 # c-only python objects, not public
-cdef Stream C_LEGACY_DEFAULT_STREAM = Stream._from_handle(Stream, get_legacy_stream())
-cdef Stream C_PER_THREAD_DEFAULT_STREAM = Stream._from_handle(Stream, get_per_thread_stream())
+cdef Stream C_LEGACY_DEFAULT_STREAM = Stream._legacy_default()
+cdef Stream C_PER_THREAD_DEFAULT_STREAM = Stream._per_thread_default()
 
 # standard python objects, public
 LEGACY_DEFAULT_STREAM = C_LEGACY_DEFAULT_STREAM
