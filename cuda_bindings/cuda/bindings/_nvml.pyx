@@ -1220,7 +1220,7 @@ class BusType(_IntEnum):
 
 class FanControlPolicy(_IntEnum):
     TEMPERATURE_CONTINUOUS_SW = 0  # Temperature-controlled fan policy
-    POLICY_MANUAL = 1  # Manual fan control policy
+    MANUAL = 1  # Manual fan control policy
 
 
 class PowerSource(_IntEnum):
