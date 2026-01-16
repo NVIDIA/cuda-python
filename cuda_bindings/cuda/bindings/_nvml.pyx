@@ -10155,11 +10155,157 @@ cdef class EventData:
         return obj
 
 
+cdef _get_system_event_data_v1_dtype_offsets():
+    cdef nvmlSystemEventData_v1_t pod = nvmlSystemEventData_v1_t()
+    return _numpy.dtype({
+        'names': ['event_type', 'gpu_id'],
+        'formats': [_numpy.uint64, _numpy.uint32],
+        'offsets': [
+            (<intptr_t>&(pod.eventType)) - (<intptr_t>&pod),
+            (<intptr_t>&(pod.gpuId)) - (<intptr_t>&pod),
+        ],
+        'itemsize': sizeof(nvmlSystemEventData_v1_t),
+    })
+
+system_event_data_v1_dtype = _get_system_event_data_v1_dtype_offsets()
+
+cdef class SystemEventData_v1:
+    """Empty-initialize an array of `nvmlSystemEventData_v1_t`.
+
+    The resulting object is of length `size` and of dtype `system_event_data_v1_dtype`.
+    If default-constructed, the instance represents a single struct.
+
+    Args:
+        size (int): number of structs, default=1.
+
+
+    .. seealso:: `nvmlSystemEventData_v1_t`
+    """
+    cdef:
+        readonly object _data
+
+
+
+    def __init__(self, size=1):
+        arr = _numpy.empty(size, dtype=system_event_data_v1_dtype)
+        self._data = arr.view(_numpy.recarray)
+        assert self._data.itemsize == sizeof(nvmlSystemEventData_v1_t), \
+            f"itemsize {self._data.itemsize} mismatches struct size { sizeof(nvmlSystemEventData_v1_t) }"
+
+    def __repr__(self):
+        if self._data.size > 1:
+            return f"<{__name__}.SystemEventData_v1_Array_{self._data.size} object at {hex(id(self))}>"
+        else:
+            return f"<{__name__}.SystemEventData_v1 object at {hex(id(self))}>"
+
+    @property
+    def ptr(self):
+        """Get the pointer address to the data as Python :class:`int`."""
+        return self._data.ctypes.data
+
+    cdef intptr_t _get_ptr(self):
+        return self._data.ctypes.data
+
+    def __int__(self):
+        if self._data.size > 1:
+            raise TypeError("int() argument must be a bytes-like object of size 1. "
+                            "To get the pointer address of an array, use .ptr")
+        return self._data.ctypes.data
+
+    def __len__(self):
+        return self._data.size
+
+    def __eq__(self, other):
+        cdef object self_data = self._data
+        if (not isinstance(other, SystemEventData_v1)) or self_data.size != other._data.size or self_data.dtype != other._data.dtype:
+            return False
+        return bool((self_data == other._data).all())
+
+    @property
+    def event_type(self):
+        """Union[~_numpy.uint64, int]: Information about what specific system event occurred."""
+        if self._data.size == 1:
+            return int(self._data.event_type[0])
+        return self._data.event_type
+
+    @event_type.setter
+    def event_type(self, val):
+        self._data.event_type = val
+
+    @property
+    def gpu_id(self):
+        """Union[~_numpy.uint32, int]: gpuId in PCI format"""
+        if self._data.size == 1:
+            return int(self._data.gpu_id[0])
+        return self._data.gpu_id
+
+    @gpu_id.setter
+    def gpu_id(self, val):
+        self._data.gpu_id = val
+
+    def __getitem__(self, key):
+        cdef ssize_t key_
+        cdef ssize_t size
+        if isinstance(key, int):
+            key_ = key
+            size = self._data.size
+            if key_ >= size or key_ <= -(size+1):
+                raise IndexError("index is out of bounds")
+            if key_ < 0:
+                key_ += size
+            return SystemEventData_v1.from_data(self._data[key_:key_+1])
+        out = self._data[key]
+        if isinstance(out, _numpy.recarray) and out.dtype == system_event_data_v1_dtype:
+            return SystemEventData_v1.from_data(out)
+        return out
+
+    def __setitem__(self, key, val):
+        self._data[key] = val
+
+    @staticmethod
+    def from_data(data):
+        """Create an SystemEventData_v1 instance wrapping the given NumPy array.
+
+        Args:
+            data (_numpy.ndarray): a 1D array of dtype `system_event_data_v1_dtype` holding the data.
+        """
+        cdef SystemEventData_v1 obj = SystemEventData_v1.__new__(SystemEventData_v1)
+        if not isinstance(data, _numpy.ndarray):
+            raise TypeError("data argument must be a NumPy ndarray")
+        if data.ndim != 1:
+            raise ValueError("data array must be 1D")
+        if data.dtype != system_event_data_v1_dtype:
+            raise ValueError("data array must be of dtype system_event_data_v1_dtype")
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+    @staticmethod
+    def from_ptr(intptr_t ptr, size_t size=1, bint readonly=False):
+        """Create an SystemEventData_v1 instance wrapping the given pointer.
+
+        Args:
+            ptr (intptr_t): pointer address as Python :class:`int` to the data.
+            size (int): number of structs, default=1.
+            readonly (bool): whether the data is read-only (to the user). default is `False`.
+        """
+        if ptr == 0:
+            raise ValueError("ptr must not be null (0)")
+        cdef SystemEventData_v1 obj = SystemEventData_v1.__new__(SystemEventData_v1)
+        cdef flag = cpython.buffer.PyBUF_READ if readonly else cpython.buffer.PyBUF_WRITE
+        cdef object buf = cpython.memoryview.PyMemoryView_FromMemory(
+            <char*>ptr, sizeof(nvmlSystemEventData_v1_t) * size, flag)
+        data = _numpy.ndarray(size, buffer=buf, dtype=system_event_data_v1_dtype)
+        obj._data = data.view(_numpy.recarray)
+
+        return obj
+
+
 cdef _get_accounting_stats_dtype_offsets():
     cdef nvmlAccountingStats_t pod = nvmlAccountingStats_t()
     return _numpy.dtype({
         'names': ['gpu_utilization', 'memory_utilization', 'max_memory_usage', 'time', 'start_time', 'is_running', 'reserved'],
-        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, _numpy.uint32],
+        'formats': [_numpy.uint32, _numpy.uint32, _numpy.uint64, _numpy.uint64, _numpy.uint64, _numpy.uint32, (_numpy.uint32, 5)],
         'offsets': [
             (<intptr_t>&(pod.gpuUtilization)) - (<intptr_t>&pod),
             (<intptr_t>&(pod.memoryUtilization)) - (<intptr_t>&pod),
@@ -22082,23 +22228,26 @@ cpdef device_validate_inforom(intptr_t device):
     check_status(__status__)
 
 
-cpdef unsigned long device_get_last_bbx_flush_time(intptr_t device, intptr_t timestamp) except? 0:
+cpdef tuple device_get_last_bbx_flush_time(intptr_t device):
     """Retrieves the timestamp and the duration of the last flush of the BBX (blackbox) infoROM object during the current run.
 
     Args:
         device (intptr_t): The identifier of the target device.
-        timestamp (intptr_t): The start timestamp of the last BBX Flush.
 
     Returns:
-        unsigned long: The duration (us) of the last BBX Flush.
+        A 2-tuple containing:
+
+        - unsigned long long: The start timestamp of the last BBX Flush.
+        - unsigned long: The duration (us) of the last BBX Flush.
 
     .. seealso:: `nvmlDeviceGetLastBBXFlushTime`
     """
+    cdef unsigned long long timestamp
     cdef unsigned long duration_us
     with nogil:
-        __status__ = nvmlDeviceGetLastBBXFlushTime(<Device>device, <unsigned long long*>timestamp, &duration_us)
+        __status__ = nvmlDeviceGetLastBBXFlushTime(<Device>device, &timestamp, &duration_us)
     check_status(__status__)
-    return duration_us
+    return (timestamp, duration_us)
 
 
 cpdef int device_get_display_mode(intptr_t device) except? -1:
@@ -24913,58 +25062,6 @@ cpdef event_set_free(intptr_t set):
     check_status(__status__)
 
 
-cpdef system_event_set_create(intptr_t request):
-    """Create an empty set of system events. Event set should be freed by ``nvmlSystemEventSetFree``.
-
-    Args:
-        request (intptr_t): Reference to nvmlSystemEventSetCreateRequest_t.
-
-    .. seealso:: `nvmlSystemEventSetCreate`
-    """
-    with nogil:
-        __status__ = nvmlSystemEventSetCreate(<nvmlSystemEventSetCreateRequest_t*>request)
-    check_status(__status__)
-
-
-cpdef system_event_set_free(intptr_t request):
-    """Releases system event set.
-
-    Args:
-        request (intptr_t): Reference to nvmlSystemEventSetFreeRequest_t.
-
-    .. seealso:: `nvmlSystemEventSetFree`
-    """
-    with nogil:
-        __status__ = nvmlSystemEventSetFree(<nvmlSystemEventSetFreeRequest_t*>request)
-    check_status(__status__)
-
-
-cpdef system_register_events(intptr_t request):
-    """Starts recording of events on system and add the events to specified ``nvmlSystemEventSet_t``.
-
-    Args:
-        request (intptr_t): Reference to the struct nvmlSystemRegisterEventRequest_t.
-
-    .. seealso:: `nvmlSystemRegisterEvents`
-    """
-    with nogil:
-        __status__ = nvmlSystemRegisterEvents(<nvmlSystemRegisterEventRequest_t*>request)
-    check_status(__status__)
-
-
-cpdef system_event_set_wait(intptr_t request):
-    """Waits on system events and delivers events.
-
-    Args:
-        request (intptr_t): Reference in which to nvmlSystemEventSetWaitRequest_t.
-
-    .. seealso:: `nvmlSystemEventSetWait`
-    """
-    with nogil:
-        __status__ = nvmlSystemEventSetWait(<nvmlSystemEventSetWaitRequest_t*>request)
-    check_status(__status__)
-
-
 cpdef device_modify_drain_state(intptr_t pci_info, int new_state):
     """Modify the drain state of a GPU. This method forces a GPU to no longer accept new incoming requests. Any new NVML process will no longer see this GPU. Persistence mode for this GPU must be turned off before this call is made. Must be called as administrator. For Linux only.
 
@@ -27007,8 +27104,8 @@ cpdef object system_get_topology_gpu_set(unsigned int cpuNumber):
         __status__ = nvmlSystemGetTopologyGpuSet(cpuNumber, <unsigned int*>count, NULL)
     check_status_size(__status__)
     if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="i", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="i", mode="c")
+        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
+    cdef view.array deviceArray = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
     with nogil:
         __status__ = nvmlSystemGetTopologyGpuSet(cpuNumber, <unsigned int*>count, <nvmlDevice_t *>deviceArray.data)
     check_status(__status__)
@@ -27047,8 +27144,8 @@ cpdef object unit_get_devices(intptr_t unit):
         __status__ = nvmlUnitGetDevices(<nvmlUnit_t *>unit, <unsigned int*>deviceCount, NULL)
     check_status_size(__status__)
     if deviceCount[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="i", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="i", mode="c")
+        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
+    cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
     with nogil:
         __status__ = nvmlUnitGetDevices(<nvmlUnit_t *>unit, <unsigned int*>deviceCount, <nvmlDevice_t *>deviceArray.data)
     check_status(__status__)
@@ -27075,8 +27172,8 @@ cpdef object device_get_topology_nearest_gpus(intptr_t device, unsigned int leve
         )
     check_status_size(__status__)
     if count[0] == 0:
-        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="i", mode="c")[:0]
-    cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="i", mode="c")
+        return view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
+    cdef view.array deviceArray = view.array(shape=(deviceCount[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
     with nogil:
         __status__ = nvmlDeviceGetTopologyNearestGpus(
             <Device>device,
@@ -27740,9 +27837,9 @@ cpdef object device_get_gpu_instances(intptr_t device, unsigned int profile_id):
     check_status_size(__status__)
 
     if count[0] == 0:
-        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="i", mode="c")[:0]
+        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
 
-    cdef view.array gpuInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="i", mode="c")
+    cdef view.array gpuInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
     with nogil:
         __status__ = nvmlDeviceGetGpuInstances(<Device>device, profile_id, <nvmlGpuInstance_t *>gpuInstances.data, count)
     check_status(__status__)
@@ -27766,9 +27863,9 @@ cpdef object gpu_instance_get_compute_instances(intptr_t gpu_instance, unsigned 
     check_status_size(__status__)
 
     if count[0] == 0:
-        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="i", mode="c")[:0]
+        view.array(shape=(1,), itemsize=sizeof(intptr_t), format="P", mode="c")[:0]
 
-    cdef view.array computeInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="i", mode="c")
+    cdef view.array computeInstances = view.array(shape=(count[0],), itemsize=sizeof(intptr_t), format="P", mode="c")
     with nogil:
         __status__ = nvmlGpuInstanceGetComputeInstances(<GpuInstance>gpu_instance, profile_id, <nvmlComputeInstance_t *>computeInstances.data, count)
     check_status(__status__)
@@ -27908,3 +28005,64 @@ cpdef object device_get_nvlink_info(intptr_t device):
             __status__ = nvmlDeviceGetNvLinkInfo(<Device>device, info)
         check_status(__status__)
         return info_v1_py
+
+
+cpdef intptr_t system_event_set_create():
+    """Create an empty set of system events. Event set should be freed by ``nvmlSystemEventSetFree``."""
+    cdef nvmlSystemEventSetCreateRequest_v1_t[1] request
+    with nogil:
+        request[0].version = sizeof(nvmlSystemEventSetCreateRequest_v1_t) | (1 << 24)
+        __status__ = nvmlSystemEventSetCreate(<nvmlSystemEventSetCreateRequest_t*>request)
+    check_status(__status__)
+    return <intptr_t>(request[0].set)
+
+
+cpdef system_event_set_free(intptr_t event_set):
+    """Frees an event set."""
+    cdef nvmlSystemEventSetFreeRequest_v1_t[1] request
+    request[0].set = <SystemEventSet>event_set
+    with nogil:
+        request[0].version = sizeof(nvmlSystemEventSetFreeRequest_v1_t) | (1 << 24)
+        __status__ = nvmlSystemEventSetFree(<nvmlSystemEventSetFreeRequest_t*>request)
+    check_status(__status__)
+
+
+cpdef system_register_events(unsigned long long event_types, intptr_t event_set):
+    """Starts recording of events on system and add the events to specified ``nvmlSystemEventSet_t``.
+
+    Args:
+        event_types (unsigned long long): Bitmask of nvmlSystemEventType_t values representing the events to register.
+        event_set (intptr_t): The system event set handle.
+    """
+    cdef nvmlSystemRegisterEventRequest_v1_t[1] request
+    request[0].set = <SystemEventSet>event_set
+    request[0].eventTypes = event_types
+    with nogil:
+        request[0].version = sizeof(nvmlSystemRegisterEventRequest_v1_t) | (1 << 24)
+        __status__ = nvmlSystemRegisterEvents(<nvmlSystemRegisterEventRequest_t*>request)
+    check_status(__status__)
+
+
+cpdef object system_event_set_wait(intptr_t event_set, unsigned int timeout_ms, unsigned int buffer_size):
+    """Waits for events to occur on the system event set.
+
+    Args:
+        event_set (intptr_t): The system event set handle.
+        timeout_ms (unsigned int): The maximum amount of time in milliseconds to wait for an event.
+        buffer_size (unsigned int): The size of the event buffer.
+
+    Returns:
+        SystemEvent: The system event that occurred.
+    """
+    cdef nvmlSystemEventSetWaitRequest_v1_t[1] request
+    cdef SystemEventData_v1 event_data = SystemEventData_v1(buffer_size)
+    request[0].timeoutms = timeout_ms
+    request[0].set = <SystemEventSet>event_set
+    request[0].data = <nvmlSystemEventData_v1_t *><intptr_t>(event_data._get_ptr())
+    request[0].dataSize = buffer_size
+    with nogil:
+        request[0].version = sizeof(nvmlSystemEventSetWaitRequest_v1_t) | (1 << 24)
+        __status__ = nvmlSystemEventSetWait(<nvmlSystemEventSetWaitRequest_t*>request)
+    check_status(__status__)
+    event_data._data.resize((request[0].numEvent,))
+    return event_data

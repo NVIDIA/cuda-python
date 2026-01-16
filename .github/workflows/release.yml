@@ -135,6 +135,7 @@ jobs:
     needs:
       - check-tag
       - determine-run-id
+      - doc
     secrets: inherit
     uses: ./.github/workflows/release-upload.yml
     with:
@@ -148,6 +149,7 @@ jobs:
     needs:
       - check-tag
       - determine-run-id
+      - doc
     environment:
       name: ${{ inputs.wheel-dst }}
       url: https://${{ (inputs.wheel-dst == 'testpypi' && 'test.') || '' }}pypi.org/p/${{ inputs.component }}/

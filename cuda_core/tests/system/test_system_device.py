@@ -9,6 +9,7 @@ from .conftest import skip_if_nvml_unsupported
 pytestmark = skip_if_nvml_unsupported
 
 import array
+import multiprocessing
 import os
 import re
 import sys
@@ -26,6 +27,10 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 def check_gpu_available():
     if not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE or system.get_num_devices() == 0:
         pytest.skip("No GPUs available to run device tests", allow_module_level=True)
+
+
+def test_device_count():
+    assert system.Device.get_device_count() == system.get_num_devices()
 
 
 def test_device_architecture():
@@ -138,6 +143,34 @@ def test_device_pci_info():
         assert isinstance(pci_info.device_id, int)
         assert 0x0000 <= pci_info.device_id <= 0xFFFF
 
+        assert isinstance(pci_info.subsystem_id, int)
+        assert 0x00000000 <= pci_info.subsystem_id <= 0xFFFFFFFF
+
+        assert isinstance(pci_info.base_class, int)
+        assert 0x00 <= pci_info.base_class <= 0xFF
+
+        assert isinstance(pci_info.sub_class, int)
+        assert 0x00 <= pci_info.sub_class <= 0xFF
+
+        assert isinstance(pci_info.get_max_pcie_link_generation(), int)
+        assert 0 <= pci_info.get_max_pcie_link_generation() <= 0xFF
+
+        assert isinstance(pci_info.get_gpu_max_pcie_link_generation(), int)
+        assert 0 <= pci_info.get_gpu_max_pcie_link_generation() <= 0xFF
+
+        assert isinstance(pci_info.get_max_pcie_link_width(), int)
+        assert 0 <= pci_info.get_max_pcie_link_width() <= 0xFF
+
+        assert isinstance(pci_info.get_current_pcie_link_generation(), int)
+        assert 0 <= pci_info.get_current_pcie_link_generation() <= 0xFF
+
+        assert isinstance(pci_info.get_current_pcie_link_width(), int)
+        assert 0 <= pci_info.get_current_pcie_link_width() <= 0xFF
+
+        assert isinstance(pci_info.get_pcie_throughput(system.PcieUtilCounter.PCIE_UTIL_TX_BYTES), int)
+
+        assert isinstance(pci_info.get_pcie_replay_counter(), int)
+
 
 def test_device_serial():
     skip_reasons = set()
@@ -185,6 +218,39 @@ def test_unpack_bitmask(params):
 def test_unpack_bitmask_single_value():
     with pytest.raises(TypeError):
         _device._unpack_bitmask(1)
+
+
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Events not supported on WSL or Windows")
+def test_register_events():
+    # This is not the world's greatest test.  All of the events are pretty
+    # infrequent and hard to simulate.  So all we do here is register an event,
+    # wait with a timeout, and ensure that we get no event (since we didn't do
+    # anything to trigger one).
+
+    # Also, some hardware doesn't support any event types.
+
+    for device in system.Device.get_all_devices():
+        supported_events = device.get_supported_event_types()
+        assert isinstance(supported_events, list)
+        assert all(isinstance(ev, system.EventType) for ev in supported_events)
+
+    for device in system.Device.get_all_devices():
+        events = device.register_events([])
+        with pytest.raises(system.TimeoutError):
+            events.wait(timeout_ms=500)
+
+    for device in system.Device.get_all_devices():
+        events = device.register_events(0)
+        with pytest.raises(system.TimeoutError):
+            events.wait(timeout_ms=500)
+
+
+def test_event_type_parsing():
+    events = [system.EventType(1 << ev) for ev in _device._unpack_bitmask(array.array("Q", [3]))]
+    assert events == [
+        system.EventType.EVENT_TYPE_SINGLE_BIT_ECC_ERROR,
+        system.EventType.EVENT_TYPE_DOUBLE_BIT_ECC_ERROR,
+    ]
 
 
 def test_device_brand():
@@ -262,6 +328,8 @@ def test_persistence_mode_enabled():
 
 
 def test_field_values():
+    skip_reasons = set()
+
     for device in system.Device.get_all_devices():
         # TODO: Are there any fields that return double's?  It would be good to
         # test those.
@@ -271,7 +339,12 @@ def test_field_values():
             system.FieldId.DEV_PCIE_COUNT_TX_BYTES,
         ]
         field_values = device.get_field_values(field_ids)
-        field_values.validate()
+
+        try:
+            field_values.validate()
+        except system.NotSupportedError:
+            skip_reasons.add(f"Field values {field_ids} not supported on '{device.name}'")
+            continue
 
         with pytest.raises(TypeError):
             field_values["invalid_index"]
@@ -307,3 +380,145 @@ def test_field_values():
         field_values.validate()
         assert len(field_values) == 1
         assert field_values[0].value <= old_value
+
+    if skip_reasons:
+        pytest.skip(" ; ".join(skip_reasons))
+
+
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
+def test_get_all_devices_with_cpu_affinity():
+    try:
+        for i in range(multiprocessing.cpu_count()):
+            for device in system.Device.get_all_devices_with_cpu_affinity(i):
+                affinity = device.cpu_affinity
+                assert isinstance(affinity, list)
+                assert i in affinity
+    except system.NotSupportedError:
+        pytest.skip("Getting devices with CPU affinity not supported")
+
+
+def test_index():
+    for i, device in enumerate(system.Device.get_all_devices()):
+        index = device.index
+        assert isinstance(index, int)
+        assert index == i
+
+
+def test_module_id():
+    for device in system.Device.get_all_devices():
+        module_id = device.module_id
+        assert isinstance(module_id, int)
+        assert module_id >= 0
+
+
+def test_addressing_mode():
+    for device in system.Device.get_all_devices():
+        try:
+            addressing_mode = device.addressing_mode
+        except system.NotSupportedError:
+            pytest.skip(f"Device addressing mode not supported by device '{device.name}'")
+            continue
+        assert isinstance(addressing_mode, system.AddressingMode)
+
+
+def test_display_mode():
+    for device in system.Device.get_all_devices():
+        display_mode = device.display_mode
+        assert isinstance(display_mode, bool)
+
+        display_active = device.display_active
+        assert isinstance(display_active, bool)
+
+
+def test_repair_status():
+    for device in system.Device.get_all_devices():
+        repair_status = device.repair_status
+        assert isinstance(repair_status, system.RepairStatus)
+
+        assert isinstance(repair_status.channel_repair_pending, bool)
+        assert isinstance(repair_status.tpc_repair_pending, bool)
+
+
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
+def test_get_topology_common_ancestor():
+    # TODO: This is not a great test, and probably doesn't test much of anything
+    # in practice on our CI.
+
+    if system.Device.get_device_count() < 2:
+        pytest.skip("Test requires at least 2 GPUs")
+        return
+
+    devices = list(system.Device.get_all_devices())
+
+    ancestor = system.get_topology_common_ancestor(devices[0], devices[1])
+    assert isinstance(ancestor, system.GpuTopologyLevel)
+
+
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
+def test_get_p2p_status():
+    # TODO: This is not a great test, and probably doesn't test much of anything
+    # in practice on our CI.
+
+    if system.Device.get_device_count() < 2:
+        pytest.skip("Test requires at least 2 GPUs")
+        return
+
+    devices = list(system.Device.get_all_devices())
+
+    status = system.get_p2p_status(devices[0], devices[1], system.GpuP2PCapsIndex.P2P_CAPS_INDEX_READ)
+    assert isinstance(status, system.GpuP2PStatus)
+
+
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
+def test_get_nearest_gpus():
+    # TODO: This is not a great test, and probably doesn't test much of anything
+    # in practice on our CI.
+
+    for device in system.Device.get_all_devices():
+        for near_device in device.get_topology_nearest_gpus(system.GpuTopologyLevel.TOPOLOGY_SINGLE):
+            assert isinstance(near_device, system.Device)
+
+
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
+def test_get_minor_number():
+    for device in system.Device.get_all_devices():
+        minor_number = device.minor_number
+        assert isinstance(minor_number, int)
+        assert minor_number >= 0
+
+
+def test_get_inforom_version():
+    for device in system.Device.get_all_devices():
+        inforom = device.inforom
+
+        inforom_image_version = inforom.image_version
+        assert isinstance(inforom_image_version, str)
+        assert len(inforom_image_version) > 0
+
+        inforom_version = inforom.get_version(system.InforomObject.INFOROM_OEM)
+        assert isinstance(inforom_version, str)
+        assert len(inforom_version) > 0
+
+        checksum = inforom.configuration_checksum
+        assert isinstance(checksum, int)
+
+        # TODO: This is untested locally.
+        try:
+            timestamp, duration_us = inforom.bbx_flush_time
+        except (system.NotSupportedError, system.NotReadyError):
+            pass
+        else:
+            assert isinstance(timestamp, int)
+            assert timestamp > 0
+            assert isinstance(duration_us, int)
+            assert duration_us > 0
+
+        try:
+            board_part_number = inforom.board_part_number
+        except system.NotSupportedError:
+            pass
+        else:
+            assert isinstance(board_part_number, str)
+            assert len(board_part_number) > 0
+
+        inforom.validate()

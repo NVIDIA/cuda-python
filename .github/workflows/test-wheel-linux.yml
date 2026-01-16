@@ -57,12 +57,6 @@ jobs:
           # Read base matrix from YAML file for the specific architecture
           TEST_MATRIX=$(yq -o json ".linux[\"${MATRIX_TYPE}\"] | map(select(.ARCH == \"${ARCH}\"))" ci/test-matrix.yml)
 
-          # Add special runner for amd64 if applicable
-          if [[ "${ARCH}" == "amd64" ]]; then
-            SPECIAL_RUNNERS=$(yq -o json '.linux.special_runners.amd64' ci/test-matrix.yml)
-            TEST_MATRIX=$(echo "$TEST_MATRIX" | yq -o json ". + $SPECIAL_RUNNERS")
-          fi
-
           # Apply matrix filter and wrap in include structure
           MATRIX=$(echo "$TEST_MATRIX" | jq -c '${{ inputs.matrix_filter }} | if (. | length) > 0 then {include: .} else "Error: Empty matrix\n" | halt_error(1) end')
 
@@ -73,12 +67,12 @@ jobs:
           echo "OLD_BRANCH=${OLD_BRANCH}" >> "$GITHUB_OUTPUT"
 
   test:
-    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, ${{ matrix.GPU }}
+    name: py${{ matrix.PY_VER }}, ${{ matrix.CUDA_VER }}, ${{ (matrix.LOCAL_CTK == '1' && 'local') || 'wheels' }}, ${{ matrix.GPU }}${{ matrix.GPU_COUNT != '1' && format('(x{0})', matrix.GPU_COUNT) || '' }}
     needs: compute-matrix
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.MATRIX) }}
-    runs-on: "linux-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-1"
+    runs-on: "linux-${{ matrix.ARCH }}-gpu-${{ matrix.GPU }}-${{ matrix.DRIVER }}-${{ matrix.GPU_COUNT }}"
     # The build stage could fail but we want the CI to keep moving.
     if: ${{ github.repository_owner == 'nvidia' && !cancelled() }}
     # Our self-hosted runners require a container
@@ -269,17 +263,15 @@ jobs:
       - name: Ensure cuda-python installable
         run: |
           if [[ "${{ matrix.LOCAL_CTK }}" == 1 ]]; then
-            pip install cuda_python*.whl
+            pip install --only-binary=:all: cuda_python*.whl
           else
-            pip install $(ls cuda_python*.whl)[all]
+            pip install --only-binary=:all: $(ls cuda_python*.whl)[all]
           fi
 
       - name: Install cuda.pathfinder extra wheels for testing
         run: |
           set -euo pipefail
           pushd cuda_pathfinder
-          # Install pathfinder from the pre-built wheel, since building from
-          # source won't work in this context (we don't have a git checkout).
           pip install --only-binary=:all: -v ./*.whl --group "test-cu${TEST_CUDA_MAJOR}"
           pip list
           popd
