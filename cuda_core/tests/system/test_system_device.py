@@ -16,11 +16,10 @@ import re
 import helpers
 import pytest
 from cuda.core import system
-from cuda.core.system import DeviceArch
 
 if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
     from cuda.bindings import _nvml as nvml
-    from cuda.core.system import _device
+    from cuda.core.system import DeviceArch, _device
 
 
 @pytest.fixture(autouse=True, scope="module")
