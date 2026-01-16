@@ -544,6 +544,7 @@
 <li class="toctree-l2"><a class="reference internal" href="module/nvrtc.html">nvrtc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvjitlink.html">nvjitlink</a></li>
 <li class="toctree-l2"><a class="reference internal" href="module/nvvm.html">nvvm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module/nvfatbin.html">nvfatbin</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="module/cufile.html">cufile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.handle_register.html">cuda.bindings.cufile.handle_register</a></li>
 <li class="toctree-l3"><a class="reference internal" href="module/generated/cuda.bindings.cufile.handle_deregister.html">cuda.bindings.cufile.handle_deregister</a></li>
@@ -753,11 +754,21 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaLaunchAttributeValue.accessPolicyWindow">(cuda.bindings.runtime.cudaLaunchAttributeValue attribute)</a>, <a href="module/runtime.html#id28">[1]</a>
 </li>
       </ul></li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.add_cubin">add_cubin() (in module cuda.bindings.nvfatbin)</a>
+</li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.add_data">add_data() (in module cuda.bindings.nvjitlink)</a>
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.add_file">add_file() (in module cuda.bindings.nvjitlink)</a>
 </li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.add_ltoir">add_ltoir() (in module cuda.bindings.nvfatbin)</a>
+</li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.add_module_to_program">add_module_to_program() (in module cuda.bindings.nvvm)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.add_ptx">add_ptx() (in module cuda.bindings.nvfatbin)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.add_reloc">add_reloc() (in module cuda.bindings.nvfatbin)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.add_tile_ir">add_tile_ir() (in module cuda.bindings.nvfatbin)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_TEXTURE_DESC.addressMode">addressMode (cuda.bindings.driver.CUDA_TEXTURE_DESC attribute)</a>
 
@@ -1167,8 +1178,12 @@
         <li><a href="module/driver.html#cuda.bindings.driver.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st.count">(cuda.bindings.driver.CUDA_BATCH_MEM_OP_NODE_PARAMS_v2_st attribute)</a>
 </li>
       </ul></li>
-      <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.create">create() (in module cuda.bindings.nvjitlink)</a>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.create">create() (in module cuda.bindings.nvfatbin)</a>
+
+      <ul>
+        <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.create">(in module cuda.bindings.nvjitlink)</a>
 </li>
+      </ul></li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.create_program">create_program() (in module cuda.bindings.nvvm)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_BATCH_MEM_OP_NODE_PARAMS.ctx">ctx (cuda.bindings.driver.CUDA_BATCH_MEM_OP_NODE_PARAMS attribute)</a>
@@ -4420,10 +4435,10 @@
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroup_flags">cudaDevSmResourceGroup_flags (class in cuda.bindings.runtime)</a>
 </li>
-      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill">cudaDevSmResourceGroupBackfill (cuda.bindings.runtime.cudaDevSmResourceGroup_flags attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupBackfill">cudaDevSmResourceGroupBackfill (cuda.bindings.runtime.cudaDevSmResourceGroup_flags attribute)</a>
+</li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroup_flags.cudaDevSmResourceGroupDefault">cudaDevSmResourceGroupDefault (cuda.bindings.runtime.cudaDevSmResourceGroup_flags attribute)</a>
 </li>
       <li><a href="module/runtime.html#cuda.bindings.runtime.cudaDevSmResourceGroupParams">cudaDevSmResourceGroupParams (class in cuda.bindings.runtime)</a>
@@ -7894,8 +7909,12 @@
       </ul></li>
       <li><a href="module/generated/cuda.bindings.cufile.Descr.html#cuda.bindings.cufile.Descr">Descr (class in cuda.bindings.cufile)</a>
 </li>
-      <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.destroy">destroy() (in module cuda.bindings.nvjitlink)</a>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.destroy">destroy() (in module cuda.bindings.nvfatbin)</a>
+
+      <ul>
+        <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.destroy">(in module cuda.bindings.nvjitlink)</a>
 </li>
+      </ul></li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevWorkqueueConfigResource.device">device (cuda.bindings.driver.CUdevWorkqueueConfigResource attribute)</a>, <a href="module/driver.html#id102">[1]</a>
 
       <ul>
@@ -8306,9 +8325,31 @@
 </li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_COMPILATION">ERROR_COMPILATION (cuda.bindings.nvvm.Result attribute)</a>
 </li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_COMPRESSED_SIZE_EXCEEDED">ERROR_COMPRESSED_SIZE_EXCEEDED (cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_COMPRESSION_FAILED">ERROR_COMPRESSION_FAILED (cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_ELF_ARCH_MISMATCH">ERROR_ELF_ARCH_MISMATCH (cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_ELF_SIZE_MISMATCH">ERROR_ELF_SIZE_MISMATCH (cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_EMPTY_INPUT">ERROR_EMPTY_INPUT (cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_FINALIZE">ERROR_FINALIZE (cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
-      <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_INTERNAL">ERROR_INTERNAL (cuda.bindings.nvjitlink.Result attribute)</a>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_IDENTIFIER_REUSE">ERROR_IDENTIFIER_REUSE (cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_INTERNAL">ERROR_INTERNAL (cuda.bindings.nvfatbin.Result attribute)</a>
+
+      <ul>
+        <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_INTERNAL">(cuda.bindings.nvjitlink.Result attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_INTERNAL_PTX_OPTION">ERROR_INTERNAL_PTX_OPTION (cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_INVALID_ARCH">ERROR_INVALID_ARCH (cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_INVALID_INDEX">ERROR_INVALID_INDEX (cuda.bindings.nvfatbin.Result attribute)</a>
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_INVALID_INPUT">ERROR_INVALID_INPUT (cuda.bindings.nvjitlink.Result attribute)</a>
 
@@ -8318,6 +8359,8 @@
       </ul></li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_INVALID_IR">ERROR_INVALID_IR (cuda.bindings.nvvm.Result attribute)</a>
 </li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_INVALID_NVVM">ERROR_INVALID_NVVM (cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_INVALID_OPTION">ERROR_INVALID_OPTION (cuda.bindings.nvvm.Result attribute)</a>
 </li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_INVALID_PROGRAM">ERROR_INVALID_PROGRAM (cuda.bindings.nvvm.Result attribute)</a>
@@ -8326,7 +8369,15 @@
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_MISSING_ARCH">ERROR_MISSING_ARCH (cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_MISSING_FATBIN">ERROR_MISSING_FATBIN (cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_MISSING_PTX_ARCH">ERROR_MISSING_PTX_ARCH (cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_MISSING_PTX_VERSION">ERROR_MISSING_PTX_VERSION (cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_NO_MODULE_IN_PROGRAM">ERROR_NO_MODULE_IN_PROGRAM (cuda.bindings.nvvm.Result attribute)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_NULL_POINTER">ERROR_NULL_POINTER (cuda.bindings.nvfatbin.Result attribute)</a>
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_NVVM_COMPILE">ERROR_NVVM_COMPILE (cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
@@ -8334,14 +8385,20 @@
 </li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.ERROR_PROGRAM_CREATION_FAILURE">ERROR_PROGRAM_CREATION_FAILURE (cuda.bindings.nvvm.Result attribute)</a>
 </li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_PTX_ARCH_MISMATCH">ERROR_PTX_ARCH_MISMATCH (cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_PTX_COMPILE">ERROR_PTX_COMPILE (cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_THREADPOOL">ERROR_THREADPOOL (cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_UNRECOGNIZED_INPUT">ERROR_UNRECOGNIZED_INPUT (cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
-      <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_UNRECOGNIZED_OPTION">ERROR_UNRECOGNIZED_OPTION (cuda.bindings.nvjitlink.Result attribute)</a>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.ERROR_UNRECOGNIZED_OPTION">ERROR_UNRECOGNIZED_OPTION (cuda.bindings.nvfatbin.Result attribute)</a>
+
+      <ul>
+        <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.ERROR_UNRECOGNIZED_OPTION">(cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
+      </ul></li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphExecUpdateResultInfo.errorFromNode">errorFromNode (cuda.bindings.driver.CUgraphExecUpdateResultInfo attribute)</a>
 
       <ul>
@@ -8366,6 +8423,8 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaGraphExecUpdateResultInfo_st.errorNode">(cuda.bindings.runtime.cudaGraphExecUpdateResultInfo_st attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/driver.html#cuda.bindings.driver.CUDA_EVENT_RECORD_NODE_PARAMS.event">event (cuda.bindings.driver.CUDA_EVENT_RECORD_NODE_PARAMS attribute)</a>
 
       <ul>
@@ -8380,8 +8439,6 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaEventWaitNodeParams.event">(cuda.bindings.runtime.cudaEventWaitNodeParams attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="module/driver.html#cuda.bindings.driver.CUgraphNodeParams.eventRecord">eventRecord (cuda.bindings.driver.CUgraphNodeParams attribute)</a>
 
       <ul>
@@ -8840,6 +8897,8 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.get">get() (in module cuda.bindings.nvfatbin)</a>
+</li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.get_compiled_result">get_compiled_result() (in module cuda.bindings.nvvm)</a>
 </li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.get_compiled_result_size">get_compiled_result_size() (in module cuda.bindings.nvvm)</a>
@@ -8849,6 +8908,8 @@
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_error_log">get_error_log() (in module cuda.bindings.nvjitlink)</a>
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_error_log_size">get_error_log_size() (in module cuda.bindings.nvjitlink)</a>
+</li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.get_error_string">get_error_string() (in module cuda.bindings.nvfatbin)</a>
 </li>
       <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.get_info_log">get_info_log() (in module cuda.bindings.nvjitlink)</a>
 </li>
@@ -11487,9 +11548,11 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaResourceDesc.resType">(cuda.bindings.runtime.cudaResourceDesc attribute)</a>
 </li>
       </ul></li>
-      <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result">Result (class in cuda.bindings.nvjitlink)</a>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result">Result (class in cuda.bindings.nvfatbin)</a>
 
       <ul>
+        <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result">(class in cuda.bindings.nvjitlink)</a>
+</li>
         <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result">(class in cuda.bindings.nvvm)</a>
 </li>
       </ul></li>
@@ -11661,6 +11724,8 @@
         <li><a href="module/runtime.html#cuda.bindings.runtime.cudaExternalMemoryHandleDesc.size">(cuda.bindings.runtime.cudaExternalMemoryHandleDesc attribute)</a>
 </li>
       </ul></li>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.size">size() (in module cuda.bindings.nvfatbin)</a>
+</li>
       <li><a href="module/generated/cuda.bindings.cufile.BoolConfigParameter.html#cuda.bindings.cufile.BoolConfigParameter.SKIP_TOPOLOGY_DETECTION">SKIP_TOPOLOGY_DETECTION (cuda.bindings.cufile.BoolConfigParameter attribute)</a>
 </li>
       <li><a href="module/driver.html#cuda.bindings.driver.CUdevResource.sm">sm (cuda.bindings.driver.CUdevResource attribute)</a>
@@ -11988,6 +12053,8 @@
       <li><a href="module/generated/cuda.bindings.cufile.OpError.html#cuda.bindings.cufile.OpError.SUCCESS">SUCCESS (cuda.bindings.cufile.OpError attribute)</a>
 
       <ul>
+        <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.Result.SUCCESS">(cuda.bindings.nvfatbin.Result attribute)</a>
+</li>
         <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.Result.SUCCESS">(cuda.bindings.nvjitlink.Result attribute)</a>
 </li>
         <li><a href="module/nvvm.html#cuda.bindings.nvvm.Result.SUCCESS">(cuda.bindings.nvvm.Result attribute)</a>
@@ -12261,9 +12328,11 @@
       </ul></li>
       <li><a href="module/nvvm.html#cuda.bindings.nvvm.verify_program">verify_program() (in module cuda.bindings.nvvm)</a>
 </li>
-      <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.version">version() (in module cuda.bindings.nvjitlink)</a>
+      <li><a href="module/nvfatbin.html#cuda.bindings.nvfatbin.version">version() (in module cuda.bindings.nvfatbin)</a>
 
       <ul>
+        <li><a href="module/nvjitlink.html#cuda.bindings.nvjitlink.version">(in module cuda.bindings.nvjitlink)</a>
+</li>
         <li><a href="module/nvvm.html#cuda.bindings.nvvm.version">(in module cuda.bindings.nvvm)</a>
 </li>
       </ul></li>
