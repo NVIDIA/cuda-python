@@ -14,6 +14,8 @@ from .cy_nvml cimport *
 ###############################################################################
 
 ctypedef nvmlDramEncryptionInfo_v1_t DramEncryptionInfo_v1
+ctypedef nvmlMarginTemperature_v1_t MarginTemperature_v1
+ctypedef nvmlFanSpeedInfo_v1_t FanSpeedInfo_v1
 ctypedef nvmlConfComputeSetKeyRotationThresholdInfo_v1_t ConfComputeSetKeyRotationThresholdInfo_v1
 ctypedef nvmlSystemDriverBranchInfo_v1_t SystemDriverBranchInfo_v1
 ctypedef nvmlTemperature_v1_t Temperature_v1
@@ -196,14 +198,12 @@ cpdef object device_get_supported_graphics_clocks(intptr_t device, unsigned int 
 cpdef tuple device_get_auto_boosted_clocks_enabled(intptr_t device)
 cpdef unsigned int device_get_fan_speed(intptr_t device) except? 0
 cpdef unsigned int device_get_fan_speed_v2(intptr_t device, unsigned int fan) except? 0
-cpdef object device_get_fan_speed_rpm(intptr_t device)
 cpdef unsigned int device_get_target_fan_speed(intptr_t device, unsigned int fan) except? 0
 cpdef tuple device_get_min_max_fan_speed(intptr_t device)
 cpdef unsigned int device_get_fan_control_policy_v2(intptr_t device, unsigned int fan) except *
 cpdef unsigned int device_get_num_fans(intptr_t device) except? 0
 cpdef object device_get_cooler_info(intptr_t device)
 cpdef unsigned int device_get_temperature_threshold(intptr_t device, int threshold_type) except? 0
-cpdef object device_get_margin_temperature(intptr_t device)
 cpdef object device_get_thermal_settings(intptr_t device, unsigned int sensor_ind_ex)
 cpdef int device_get_performance_state(intptr_t device) except? -1
 cpdef unsigned long long device_get_current_clocks_event_reasons(intptr_t device) except? 0
@@ -214,7 +214,6 @@ cpdef int device_get_mem_clk_vf_offset(intptr_t device) except? 0
 cpdef tuple device_get_min_max_clock_of_p_state(intptr_t device, int type, int pstate)
 cpdef tuple device_get_gpc_clk_min_max_vf_offset(intptr_t device)
 cpdef tuple device_get_mem_clk_min_max_vf_offset(intptr_t device)
-cpdef object device_get_clock_offsets(intptr_t device)
 cpdef device_set_clock_offsets(intptr_t device, intptr_t info)
 cpdef object device_get_performance_modes(intptr_t device)
 cpdef object device_get_current_clock_freqs(intptr_t device)

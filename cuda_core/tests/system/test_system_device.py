@@ -64,17 +64,54 @@ def test_device_bar1_memory():
         assert free + used == total
 
 
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
 def test_device_cpu_affinity():
     skip_reasons = set()
     for device in system.Device.get_all_devices():
         try:
-            affinity = device.cpu_affinity
+            affinity = device.get_cpu_affinity(system.AffinityScope.NODE)
         except system.NotSupportedError:
             skip_reasons.add(f"CPU affinity not supported on '{device.name}'")
         else:
             assert isinstance(affinity, list)
             os.sched_setaffinity(0, affinity)
             assert os.sched_getaffinity(0) == set(affinity)
+    if skip_reasons:
+        pytest.skip(" ; ".join(skip_reasons))
+
+
+@pytest.mark.skipif(helpers.IS_WSL or helpers.IS_WINDOWS, reason="Device attributes not supported on WSL or Windows")
+def test_affinity():
+    skip_reasons = set()
+    for device in system.Device.get_all_devices():
+        for scope in (system.AffinityScope.NODE, system.AffinityScope.SOCKET):
+            try:
+                affinity = device.get_cpu_affinity(scope)
+            except system.NotSupportedError:
+                skip_reasons.add(f"CPU affinity not supported on '{device.name}'")
+            else:
+                assert isinstance(affinity, list)
+
+            try:
+                affinity = device.get_memory_affinity(scope)
+            except system.NotSupportedError:
+                skip_reasons.add(f"Memory affinity not supported on '{device.name}'")
+            else:
+                assert isinstance(affinity, list)
+    if skip_reasons:
+        pytest.skip(" ; ".join(skip_reasons))
+
+
+def test_numa_node_id():
+    skip_reasons = set()
+    for device in system.Device.get_all_devices():
+        try:
+            numa_node_id = device.numa_node_id
+        except system.NotSupportedError:
+            skip_reasons.add(f"NUMA node ID not supported by device '{device.name}'")
+        else:
+            assert isinstance(numa_node_id, int)
+            assert numa_node_id >= -1
     if skip_reasons:
         pytest.skip(" ; ".join(skip_reasons))
 
@@ -390,7 +427,7 @@ def test_get_all_devices_with_cpu_affinity():
     try:
         for i in range(multiprocessing.cpu_count()):
             for device in system.Device.get_all_devices_with_cpu_affinity(i):
-                affinity = device.cpu_affinity
+                affinity = device.get_cpu_affinity()
                 assert isinstance(affinity, list)
                 assert i in affinity
     except system.NotSupportedError:
@@ -522,3 +559,179 @@ def test_get_inforom_version():
             assert len(board_part_number) > 0
 
         inforom.validate()
+
+
+def test_clock():
+    for device in system.Device.get_all_devices():
+        try:
+            current, default = device.get_auto_boosted_clocks_enabled()
+        except system.NotSupportedError:
+            pass
+        else:
+            assert isinstance(current, bool)
+            assert isinstance(default, bool)
+
+        for clock_type in system.ClockType:
+            clock = device.clock(clock_type)
+            assert isinstance(clock, system.ClockInfo)
+
+            try:
+                current_mhz = clock.get_current_mhz()
+            except system.NotSupportedError:
+                continue
+            assert isinstance(current_mhz, int)
+            assert current_mhz >= 0
+
+            current_mhz = clock.get_current_mhz(system.ClockId.CURRENT)
+            assert isinstance(current_mhz, int)
+            assert current_mhz >= 0
+
+            max_mhz = clock.get_max_mhz()
+            assert isinstance(max_mhz, int)
+            assert max_mhz >= 0
+
+            try:
+                max_customer_boost = clock.get_max_customer_boost_mhz()
+            except system.NotSupportedError:
+                pass
+            else:
+                assert isinstance(max_customer_boost, int)
+                assert max_customer_boost >= 0
+
+            pstate = device.performance_state
+
+            min_, max_ = clock.get_min_max_clock_of_pstate_mhz(pstate)
+            assert isinstance(min_, int)
+            assert min_ >= 0
+            assert isinstance(max_, int)
+            assert max_ >= 0
+
+            try:
+                offsets = clock.get_offsets(pstate)
+            except system.InvalidArgumentError:
+                offsets = system.ClockOffsets(nvml.ClockOffset_v1())
+            assert isinstance(offsets, system.ClockOffsets)
+            assert isinstance(offsets.clock_offset_mhz, int)
+            assert isinstance(offsets.max_offset_mhz, int)
+            assert isinstance(offsets.min_offset_mhz, int)
+
+
+def test_clock_event_reasons():
+    for device in system.Device.get_all_devices():
+        reasons = device.get_current_clock_event_reasons()
+        assert all(isinstance(reason, system.ClocksEventReasons) for reason in reasons)
+
+        reasons = device.get_supported_clock_event_reasons()
+        assert all(isinstance(reason, system.ClocksEventReasons) for reason in reasons)
+
+
+def test_fan():
+    for device in system.Device.get_all_devices():
+        for fan_idx in range(device.num_fans):
+            fan_info = device.fan(fan_idx)
+            assert isinstance(fan_info, system.FanInfo)
+
+            try:
+                speed = fan_info.speed
+                assert isinstance(speed, int)
+                assert 0 <= speed <= 200
+
+                fan_info.speed = 50
+                fan_info.speed = speed
+
+                speed_rpm = fan_info.speed_rpm
+                assert isinstance(speed_rpm, int)
+                assert speed_rpm >= 0
+
+                target_speed = fan_info.target_speed
+                assert isinstance(target_speed, int)
+                assert speed <= target_speed * 2
+
+                min_, max_ = fan_info.min_max_speed
+                assert isinstance(min_, int)
+                assert isinstance(max_, int)
+                assert min_ <= max_
+                if speed > 0:
+                    assert min_ <= speed <= max_
+
+                control_policy = fan_info.control_policy
+                assert isinstance(control_policy, system.FanControlPolicy)
+            finally:
+                fan_info.set_default_fan_speed()
+
+
+def test_cooler():
+    for device in system.Device.get_all_devices():
+        try:
+            cooler_info = device.cooler
+        except system.NotSupportedError:
+            pytest.skip("CoolerInfo not supported on this device")
+
+        assert isinstance(cooler_info, system.CoolerInfo)
+
+        signal_type = cooler_info.signal_type
+        assert isinstance(signal_type, system.CoolerControl)
+
+        target = cooler_info.target
+        assert all(isinstance(t, system.CoolerTarget) for t in target)
+
+
+def test_temperature():
+    for device in system.Device.get_all_devices():
+        temperature = device.temperature
+        assert isinstance(temperature, system.Temperature)
+
+        sensor = temperature.sensor()
+        assert isinstance(sensor, int)
+        assert sensor >= 0
+
+        for threshold in list(system.TemperatureThresholds)[:-1]:
+            try:
+                t = temperature.threshold(threshold)
+            except system.NotSupportedError:
+                continue
+            else:
+                assert isinstance(t, int)
+                assert t >= 0
+
+        try:
+            margin = temperature.margin
+        except system.NotSupportedError:
+            pass
+        else:
+            assert isinstance(margin, int)
+            assert margin >= 0
+
+        thermals = temperature.thermal_settings(system.ThermalTarget.ALL)
+        assert isinstance(thermals, system.ThermalSettings)
+
+        for i, sensor in enumerate(thermals):
+            assert isinstance(sensor, system.ThermalSensor)
+            assert isinstance(sensor.target, system.ThermalTarget)
+            assert isinstance(sensor.controller, system.ThermalController)
+            assert isinstance(sensor.default_min_temp, int)
+            assert sensor.default_min_temp >= 0
+            assert isinstance(sensor.default_max_temp, int)
+            assert sensor.default_max_temp >= sensor.default_min_temp
+            assert isinstance(sensor.current_temp, int)
+            assert sensor.default_min_temp <= sensor.current_temp <= sensor.default_max_temp
+
+
+def test_pstates():
+    for device in system.Device.get_all_devices():
+        pstate = device.performance_state
+        assert isinstance(pstate, system.Pstates)
+
+        pstates = device.get_supported_pstates()
+        assert all(isinstance(p, system.Pstates) for p in pstates)
+
+        dynamic_pstates_info = device.dynamic_pstates_info
+        assert isinstance(dynamic_pstates_info, system.GpuDynamicPstatesInfo)
+
+        assert len(dynamic_pstates_info) == nvml.MAX_GPU_UTILIZATIONS
+
+        for utilization in dynamic_pstates_info:
+            assert isinstance(utilization.is_present, bool)
+            assert isinstance(utilization.percentage, int)
+            assert isinstance(utilization.inc_threshold, int)
+            assert isinstance(utilization.dec_threshold, int)

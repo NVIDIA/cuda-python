@@ -12,19 +12,37 @@ from cuda.bindings import _nvml as nvml
 
 from ._nvml_context cimport initialize
 
-include "_device_utils.pxi"
-include "_inforom.pxi"
-
 
 AddressingMode = nvml.DeviceAddressingModeType
+AffinityScope = nvml.AffinityScope
 BrandType = nvml.BrandType
+ClockId = nvml.ClockId
+ClocksEventReasons = nvml.ClocksEventReasons
+ClockType = nvml.ClockType
+CoolerControl = nvml.CoolerControl
+CoolerTarget = nvml.CoolerTarget
 EventType = nvml.EventType
+FanControlPolicy = nvml.FanControlPolicy
 FieldId = nvml.FieldId
 GpuP2PCapsIndex = nvml.GpuP2PCapsIndex
 GpuP2PStatus = nvml.GpuP2PStatus
 GpuTopologyLevel = nvml.GpuTopologyLevel
 InforomObject = nvml.InforomObject
 PcieUtilCounter = nvml.PcieUtilCounter
+Pstates = nvml.Pstates
+TemperatureSensors = nvml.TemperatureSensors
+TemperatureThresholds = nvml.TemperatureThresholds
+ThermalController = nvml.ThermalController
+ThermalTarget = nvml.ThermalTarget
+
+
+include "_clock.pxi"
+include "_cooler.pxi"
+include "_device_utils.pxi"
+include "_fan.pxi"
+include "_inforom.pxi"
+include "_performance.pxi"
+include "_temperature.pxi"
 
 
 class DeviceArchitecture:
@@ -752,6 +770,187 @@ cdef class Device:
             device._handle = handle
             yield device
 
+    def get_memory_affinity(self, scope: AffinityScope=AffinityScope.NODE) -> list[int]:
+        """
+        Retrieves a list of indices of NUMA nodes or CPU sockets with the ideal
+        memory affinity for the device.
+
+        For Kepler™ or newer fully supported devices.
+
+        Supported on Linux only.
+
+        If requested scope is not applicable to the target topology, the API
+        will fall back to reporting the memory affinity for the immediate non-I/O
+        ancestor of the device.
+        """
+        return _unpack_bitmask(
+            nvml.device_get_memory_affinity(
+                self._handle,
+                <unsigned int>ceil(cpu_count() / 64),
+                scope
+            )
+        )
+
+    def get_cpu_affinity(self, scope: AffinityScope=AffinityScope.NODE) -> list[int]:
+        """
+        Retrieves a list of indices of NUMA nodes or CPU sockets with the ideal
+        CPU affinity for the device.
+
+        For Kepler™ or newer fully supported devices.
+
+        Supported on Linux only.
+
+        If requested scope is not applicable to the target topology, the API
+        will fall back to reporting the memory affinity for the immediate non-I/O
+        ancestor of the device.
+        """
+        return _unpack_bitmask(
+            nvml.device_get_cpu_affinity_within_scope(
+                self._handle,
+                <unsigned int>ceil(cpu_count() / 64),
+                scope,
+            )
+        )
+
+    def set_cpu_affinity(self):
+        """
+        Sets the ideal affinity for the calling thread and device.
+
+        For Kepler™ or newer fully supported devices.
+
+        Supported on Linux only.
+        """
+        nvml.device_set_cpu_affinity(self._handle)
+
+    def clear_cpu_affinity(self):
+        """
+        Clear all affinity bindings for the calling thread.
+
+        For Kepler™ or newer fully supported devices.
+
+        Supported on Linux only.
+        """
+        nvml.device_clear_cpu_affinity(self._handle)
+
+    @property
+    def numa_node_id(self) -> int:
+        """
+        The NUMA node of the given GPU device.
+
+        This only applies to platforms where the GPUs are NUMA nodes.
+        """
+        return nvml.device_get_numa_node_id(self._handle)
+
+    def clock(self, clock_type: ClockType) -> ClockInfo:
+        """
+        Get information about and manage a specific clock on a device.
+        """
+        return ClockInfo(self._handle, clock_type)
+
+    def get_auto_boosted_clocks_enabled(self) -> tuple[bool, bool]:
+        """
+        Retrieve the current state of auto boosted clocks on a device.
+
+        For Kepler™ or newer fully supported devices.
+
+        Auto Boosted clocks are enabled by default on some hardware, allowing
+        the GPU to run at higher clock rates to maximize performance as thermal
+        limits allow.
+
+        On Pascal™ and newer hardware, Auto Boosted clocks are controlled
+        through application clocks. Use :meth:`set_application_clocks` and
+        :meth:`reset_application_clocks` to control Auto Boost behavior.
+
+        Returns
+        -------
+        bool
+            The current state of Auto Boosted clocks
+        bool
+            The default Auto Boosted clocks behavior
+
+        """
+        current, default = nvml.device_get_auto_boosted_clocks_enabled(self._handle)
+        return current == nvml.EnableState.FEATURE_ENABLED, default == nvml.EnableState.FEATURE_ENABLED
+
+    def get_current_clock_event_reasons(self) -> list[ClocksEventReasons]:
+        """
+        Retrieves the current clocks event reasons.
+
+        For all fully supported products.
+        """
+        cdef uint64_t[1] reasons
+        reasons[0] = nvml.device_get_current_clocks_event_reasons(self._handle)
+        return [ClocksEventReasons(1 << reason) for reason in _unpack_bitmask(reasons)]
+
+    def get_supported_clock_event_reasons(self) -> list[ClocksEventReasons]:
+        """
+        Retrieves supported clocks event reasons that can be returned by
+        :meth:`get_current_clock_event_reasons`.
+
+        For all fully supported products.
+
+        This method is not supported in virtual machines running virtual GPU (vGPU).
+        """
+        cdef uint64_t[1] reasons
+        reasons[0] = nvml.device_get_supported_clocks_event_reasons(self._handle)
+        return [ClocksEventReasons(1 << reason) for reason in _unpack_bitmask(reasons)]
+
+    def fan(self, fan: int = 0) -> FanInfo:
+        """
+        Get information and manage a specific fan on a device.
+        """
+        if fan < 0 or fan >= self.num_fans:
+            raise ValueError(f"Fan index {fan} is out of range [0, {self.num_fans})")
+        return FanInfo(self._handle, fan)
+
+    @property
+    def num_fans(self) -> int:
+        """
+        The number of fans on the device.
+        """
+        return nvml.device_get_num_fans(self._handle)
+
+    @property
+    def cooler(self) -> CoolerInfo:
+        """
+        Get information about cooler on a device.
+        """
+        return CoolerInfo(nvml.device_get_cooler_info(self._handle))
+
+    @property
+    def temperature(self) -> Temperature:
+        """
+        Get information about temperatures on a device.
+        """
+        return Temperature(self._handle)
+
+    @property
+    def performance_state(self) -> Pstates:
+        """
+        The current performance state of the device.
+
+        For Fermi™ or newer fully supported devices.
+
+        See :class:`Pstates` for possible performance states.
+        """
+        return Pstates(nvml.device_get_performance_state(self._handle))
+
+    @property
+    def dynamic_pstates_info(self) -> GpuDynamicPstatesInfo:
+        """
+        Retrieve performance monitor samples from the associated subdevice.
+        """
+        return GpuDynamicPstatesInfo(nvml.device_get_dynamic_pstates_info(self._handle))
+
+    def get_supported_pstates(self) -> list[Pstates]:
+        """
+        Get all supported Performance States (P-States) for the device.
+
+        The returned list contains a contiguous list of valid P-States supported by
+        the device.
+        """
+        return [Pstates(x) for x in nvml.device_get_supported_performance_states(self._handle)]
+
     @property
     def architecture(self) -> DeviceArchitecture:
         """
@@ -774,22 +973,6 @@ cdef class Device:
         bus).
         """
         return BAR1MemoryInfo(nvml.device_get_bar1_memory_info(self._handle))
-
-    @property
-    def cpu_affinity(self) -> list[int]:
-        """
-        Get a list containing the CPU indices to which the GPU is directly connected.
-
-        Examples
-        --------
-        >>> Device(index=0).cpu_affinity
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-         40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
-        """
-        return _unpack_bitmask(nvml.device_get_cpu_affinity(
-            self._handle,
-            <unsigned int>ceil(cpu_count() / 64),
-        ))
 
     @property
     def cuda_compute_capability(self) -> tuple[int, int]:
@@ -913,6 +1096,130 @@ cdef class Device:
         cdef uint64_t[1] bitmask
         bitmask[0] = nvml.device_get_supported_event_types(self._handle)
         return [EventType(1 << ev) for ev in _unpack_bitmask(bitmask)]
+
+    @property
+    def index(self) -> int:
+        """
+        The NVML index of this device.
+
+        Valid indices are derived from the count returned by
+        :meth:`Device.get_device_count`.  For example, if ``get_device_count()``
+        returns 2, the valid indices are 0 and 1, corresponding to GPU 0 and GPU
+        1.
+
+        The order in which NVML enumerates devices has no guarantees of
+        consistency between reboots. For that reason, it is recommended that
+        devices be looked up by their PCI ids or GPU UUID.
+
+        Note: The NVML index may not correlate with other APIs, such as the CUDA
+        device index.
+        """
+        return nvml.device_get_index(self._handle)
+
+    @property
+    def module_id(self) -> int:
+        """
+        Get a unique identifier for the device module on the baseboard.
+
+        This API retrieves a unique identifier for each GPU module that exists
+        on a given baseboard.  For non-baseboard products, this ID would always
+        be 0.
+        """
+        return nvml.device_get_module_id(self._handle)
+
+    @property
+    def minor_number(self) -> int:
+        """
+        The minor number of this device.
+
+        For Linux only.
+
+        The minor number is used by the Linux device driver to identify the
+        device node in ``/dev/nvidiaX``.
+        """
+        return nvml.device_get_minor_number(self._handle)
+
+    @property
+    def addressing_mode(self) -> AddressingMode:
+        """
+        Get the addressing mode of the device.
+
+        Addressing modes can be one of:
+
+        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_HMM`: System allocated
+          memory (``malloc``, ``mmap``) is addressable from the device (GPU), via
+          software-based mirroring of the CPU's page tables, on the GPU.
+        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_ATS`: System allocated
+          memory (``malloc``, ``mmap``) is addressable from the device (GPU), via
+          Address Translation Services. This means that there is (effectively) a
+          single set of page tables, and the CPU and GPU both use them.
+        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_NONE`: Neither HMM nor ATS
+          is active.
+        """
+        return AddressingMode(nvml.device_get_addressing_mode(self._handle).value)
+
+    @property
+    def display_mode(self) -> bool:
+        """
+        The display mode for this device.
+
+        Indicates whether a physical display (e.g. monitor) is currently connected to
+        any of the device's connectors.
+        """
+        return True if nvml.device_get_display_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
+
+    @property
+    def display_active(self) -> bool:
+        """
+        The display active status for this device.
+
+        Indicates whether a display is initialized on the device.  For example,
+        whether X Server is attached to this device and has allocated memory for
+        the screen.
+
+        Display can be active even when no monitor is physically attached.
+        """
+        return True if nvml.device_get_display_active(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
+
+    @property
+    def repair_status(self) -> RepairStatus:
+        """
+        Get the repair status for TPC/Channel repair.
+
+        For Ampere™ or newer fully supported devices.
+        """
+        return RepairStatus(self._handle)
+
+    @property
+    def inforom(self) -> InforomInfo:
+        """
+        Accessor for InfoROM information.
+
+        For all products with an InfoROM.
+        """
+        return InforomInfo(self)
+
+    def get_topology_nearest_gpus(self, level: GpuTopologyLevel) -> Iterable[Device]:
+        """
+        Retrieve the GPUs that are nearest to this device at a specific interconnectivity level.
+
+        Supported on Linux only.
+
+        Parameters
+        ----------
+        level: :class:`GpuTopologyLevel`
+            The topology level.
+
+        Returns
+        -------
+        Iterable of :class:`Device`
+            The nearest devices at the given topology level.
+        """
+        cdef Device device
+        for handle in nvml.device_get_topology_nearest_gpus(self._handle, level):
+            device = Device.__new__(Device)
+            device._handle = handle
+            yield device
 
     @property
     def index(self) -> int:
@@ -1167,17 +1474,32 @@ def get_p2p_status(device1: Device, device2: Device, index: GpuP2PCapsIndex) -> 
 
 __all__ = [
     "AddressingMode",
+    "AffinityScope",
     "BAR1MemoryInfo",
     "BrandType",
+    "ClockId",
+    "ClockInfo",
+    "ClockOffsets",
+    "ClocksEventReasons",
+    "ClockType",
+    "CoolerControl",
+    "CoolerInfo",
+    "CoolerTarget",
     "Device",
     "DeviceArchitecture",
     "DeviceAttributes",
     "DeviceEvents",
     "EventData",
     "EventType",
+    "FanControlPolicy",
+    "FanInfo",
     "FieldId",
     "FieldValue",
     "FieldValues",
+    "get_p2p_status",
+    "get_topology_common_ancestor",
+    "GpuDynamicPstatesInfo",
+    "GpuDynamicPstatesUtilization",
     "GpuP2PCapsIndex",
     "GpuP2PStatus",
     "GpuTopologyLevel",
@@ -1186,7 +1508,13 @@ __all__ = [
     "MemoryInfo",
     "PcieUtilCounter",
     "PciInfo",
+    "Pstates",
     "RepairStatus",
-    "get_p2p_status",
-    "get_topology_common_ancestor",
+    "Temperature",
+    "TemperatureSensors",
+    "TemperatureThresholds",
+    "ThermalController",
+    "ThermalSensor",
+    "ThermalSettings",
+    "ThermalTarget",
 ]
