@@ -1192,7 +1192,7 @@ class RUSD(_IntEnum):
 
 class PowerMizerMode(_IntEnum):
     ADAPTIVE = 0  # Adjust GPU clocks based on GPU utilization
-    RREFER_MAXIMUM_PERFORMANCE = 1  # Raise GPU clocks to favor maximum performance, to the extent that thermal and other constraints allow
+    PREFER_MAXIMUM_PERFORMANCE = 1  # Raise GPU clocks to favor maximum performance, to the extent that thermal and other constraints allow
     AUTO = 2  # PowerMizer mode is driver controlled
     PREFER_CONSISTENT_PERFORMANCE = 3  # lock to GPU base clocks
 
