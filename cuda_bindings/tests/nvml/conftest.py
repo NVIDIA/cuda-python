@@ -161,7 +161,7 @@ def unsupported_before(device: int, expected_device_arch: nvml.DeviceArch | str 
         # In this case, we /know/ if will fail, and we want to assert that it does.
         with pytest.raises(nvml.NotSupportedError):
             yield
-        pytest.skip("Unsupported before {expected_device_arch.name}, got {nvml.device_get_name(device)}")
+        pytest.skip(f"Unsupported before {expected_device_arch.name}, got {nvml.device_get_name(device)}")
     else:
         # In this case, we /know/ it should work, and if it fails, the test should fail.
         yield
