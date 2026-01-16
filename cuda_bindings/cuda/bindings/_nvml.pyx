@@ -1198,16 +1198,16 @@ class PowerMizerMode(_IntEnum):
 
 
 class DeviceArch(_IntEnum):
-    DEVICE_ARCH_KEPLER = 2
-    DEVICE_ARCH_MAXWELL = 3
-    DEVICE_ARCH_PASCAL = 4
-    DEVICE_ARCH_VOLTA = 5
-    DEVICE_ARCH_TURING = 6
-    DEVICE_ARCH_AMPERE = 7
-    DEVICE_ARCH_ADA = 8
-    DEVICE_ARCH_HOPPER = 9
-    DEVICE_ARCH_BLACKWELL = 10
-    DEVICE_ARCH_UNKNOWN = 0xFFFFFFFF
+    KEPLER = 2
+    MAXWELL = 3
+    PASCAL = 4
+    VOLTA = 5
+    TURING = 6
+    AMPERE = 7
+    ADA = 8
+    HOPPER = 9
+    BLACKWELL = 10
+    UNKNOWN = 0xFFFFFFFF
 
 
 class BusType(_IntEnum):

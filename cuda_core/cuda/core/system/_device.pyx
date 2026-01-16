@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from libc.stdint cimport intptr_t
+from libc.stdint cimport intptr_t, uint64_t
 from libc.math cimport ceil
 
 from multiprocessing import cpu_count
@@ -21,6 +21,7 @@ ClocksEventReasons = nvml.ClocksEventReasons
 ClockType = nvml.ClockType
 CoolerControl = nvml.CoolerControl
 CoolerTarget = nvml.CoolerTarget
+EventType = nvml.EventType
 FanControlPolicy = nvml.FanControlPolicy
 FieldId = nvml.FieldId
 GpuP2PCapsIndex = nvml.GpuP2PCapsIndex
@@ -29,10 +30,10 @@ GpuTopologyLevel = nvml.GpuTopologyLevel
 InforomObject = nvml.InforomObject
 PcieUtilCounter = nvml.PcieUtilCounter
 Pstates = nvml.Pstates
-ThermalController = nvml.ThermalController
-ThermalTarget = nvml.ThermalTarget
 TemperatureSensors = nvml.TemperatureSensors
 TemperatureThresholds = nvml.TemperatureThresholds
+ThermalController = nvml.ThermalController
+ThermalTarget = nvml.ThermalTarget
 
 
 include "_clock.pxi"
@@ -292,6 +293,140 @@ cdef class PciInfo:
         For Kepler™ or newer fully supported devices.
         """
         return nvml.device_get_pcie_replay_counter(self._handle)
+
+
+cdef class EventData:
+    """
+    Data about a single event.
+    """
+    def __init__(self, event_data: nvml.EventData):
+        self._event_data = event_data
+
+    @property
+    def device(self) -> Device:
+        """
+        The device on which the event occurred.
+        """
+        device = Device.__new__()
+        device._handle = self._event_data.device
+        return device
+
+    @property
+    def event_type(self) -> EventType:
+        """
+        The type of event that was triggered.
+        """
+        return EventType(self._event_data.event_type)
+
+    @property
+    def event_data(self) -> int:
+        """
+        Returns Xid error for the device in the event of
+        :member:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
+
+        Raises :class:`ValueError` for other event types.
+        """
+        if self.event_type != EventType.EVENT_TYPE_XID_CRITICAL_ERROR:
+            raise ValueError("event_data is only available for Xid critical error events.")
+        return self._event_data.event_data
+
+    @property
+    def gpu_instance_id(self) -> int:
+        """
+        The GPU instance ID for MIG devices.
+
+        Only valid for events of type :attr:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
+
+        Raises :class:`ValueError` for other event types.
+        """
+        if self.event_type != EventType.EVENT_TYPE_XID_CRITICAL_ERROR:
+            raise ValueError("gpu_instance_id is only available for Xid critical error events.")
+        return self._event_data.gpu_instance_id
+
+    @property
+    def compute_instance_id(self) -> int:
+        """
+        The Compute instance ID for MIG devices.
+
+        Only valid for events of type :attr:`EventType.EVENT_TYPE_XID_CRITICAL_ERROR`.
+
+        Raises :class:`ValueError` for other event types.
+        """
+        if self.event_type != EventType.EVENT_TYPE_XID_CRITICAL_ERROR:
+            raise ValueError("compute_instance_id is only available for Xid critical error events.")
+        return self._event_data.compute_instance_id
+
+
+cdef class DeviceEvents:
+    """
+    Represents a set of events that can be waited on for a specific device.
+    """
+    cdef intptr_t _event_set
+    cdef intptr_t _device_handle
+
+    def __init__(self, device_handle: intptr_t, events: EventType | int | list[EventType | int]):
+        cdef unsigned long long event_bitmask
+        if isinstance(events, (int, EventType)):
+            event_bitmask = <unsigned long long>int(events)
+        elif isinstance(events, list):
+            event_bitmask = 0
+            for ev in events:
+                event_bitmask |= <unsigned long long>int(ev)
+        else:
+            raise TypeError("events must be an EventType, int, or list of EventType or int")
+
+        self._device_handle = device_handle
+        self._event_set = nvml.event_set_create()
+        # If this raises, the event needs to be freed and this is handled by
+        # this class's __dealloc__ method.
+        nvml.device_register_events(self._device_handle, event_bitmask, self._event_set)
+
+    def __dealloc__(self):
+        nvml.event_set_free(self._event_set)
+
+    def wait(self, timeout_ms: int = 0) -> EventData:
+        """
+        Wait for events in the event set.
+
+        For Fermi™ or newer fully supported devices.
+
+        If some events are ready to be delivered at the time of the call,
+        function returns immediately.  If there are no events ready to be
+        delivered, function sleeps until event arrives but not longer than
+        specified timeout. If timeout passes, a
+        :class:`cuda.core.system.TimeoutError` is raised. This function in
+        certain conditions can return before specified timeout passes (e.g. when
+        interrupt arrives).
+
+        On Windows, in case of Xid error, the function returns the most recent
+        Xid error type seen by the system.  If there are multiple Xid errors
+        generated before ``wait`` is invoked, then the last seen Xid
+        error type is returned for all Xid error events.
+
+        On Linux, every Xid error event would return the associated event data
+        and other information if applicable.
+
+        In MIG mode, if device handle is provided, the API reports all the
+        events for the available instances, only if the caller has appropriate
+        privileges. In absence of required privileges, only the events which
+        affect all the instances (i.e. whole device) are reported.
+
+        This API does not currently support per-instance event reporting using
+        MIG device handles.
+
+        Parameters
+        ----------
+        timeout_ms: int
+            The timeout in milliseconds. A value of 0 means to wait indefinitely.
+
+        Raises
+        ------
+        :class:`cuda.core.system.TimeoutError`
+            If the timeout expires before an event is received.
+        :class:`cuda.core.system.GpuIsLostError`
+            If the GPU has fallen off the bus or is otherwise inaccessible.
+        """
+        return EventData(nvml.event_set_wait_v2(self._event_set, timeout_ms))
 
 
 cdef class DeviceAttributes:
@@ -904,6 +1039,188 @@ cdef class Device:
         """
         return nvml.device_get_uuid(self._handle)
 
+    def register_events(self, events: EventType | int | list[EventType | int]) -> DeviceEvents:
+        """
+        Starts recording events on this device.
+
+        For Fermi™ or newer fully supported devices.  For Linux only.
+
+        ECC events are available only on ECC-enabled devices (see
+        :meth:`Device.get_total_ecc_errors`).  Power capping events are
+        available only on Power Management enabled devices (see
+        :meth:`Device.get_power_management_mode`).
+
+        This call starts recording of events on specific device.  All events
+        that occurred before this call are not recorded.  Wait for events using
+        the :meth:`DeviceEvents.wait` method on the result.
+
+        Examples
+        --------
+        >>> device = Device(index=0)
+        >>> events = device.register_events([
+        ...     EventType.EVENT_TYPE_XID_CRITICAL_ERROR,
+        ... ])
+        >>> while event := events.wait(timeout_ms=10000):
+        ...     print(f"Event {event.event_type} occurred on device {event.device.uuid}")
+
+        Parameters
+        ----------
+        events: EventType, int, or list of EventType or int
+            The event type or list of event types to register for this device.
+
+        Returns
+        -------
+        :class:`DeviceEvents`
+            An object representing the registered events.  Call
+            :meth:`DeviceEvents.wait` on this object to wait for events.
+
+        Raises
+        ------
+        :class:`cuda.core.system.NotSupportedError`
+            None of the requested event types are registered.
+        """
+        return DeviceEvents(self._handle, events)
+
+    def get_supported_event_types(self) -> list[EventType]:
+        """
+        Get the list of event types supported by this device.
+
+        For Fermi™ or newer fully supported devices.  For Linux only (returns an
+        empty list on Windows).
+
+        Returns
+        -------
+        list[EventType]
+            The list of supported event types.
+        """
+        cdef uint64_t[1] bitmask
+        bitmask[0] = nvml.device_get_supported_event_types(self._handle)
+        return [EventType(1 << ev) for ev in _unpack_bitmask(bitmask)]
+
+    @property
+    def index(self) -> int:
+        """
+        The NVML index of this device.
+
+        Valid indices are derived from the count returned by
+        :meth:`Device.get_device_count`.  For example, if ``get_device_count()``
+        returns 2, the valid indices are 0 and 1, corresponding to GPU 0 and GPU
+        1.
+
+        The order in which NVML enumerates devices has no guarantees of
+        consistency between reboots. For that reason, it is recommended that
+        devices be looked up by their PCI ids or GPU UUID.
+
+        Note: The NVML index may not correlate with other APIs, such as the CUDA
+        device index.
+        """
+        return nvml.device_get_index(self._handle)
+
+    @property
+    def module_id(self) -> int:
+        """
+        Get a unique identifier for the device module on the baseboard.
+
+        This API retrieves a unique identifier for each GPU module that exists
+        on a given baseboard.  For non-baseboard products, this ID would always
+        be 0.
+        """
+        return nvml.device_get_module_id(self._handle)
+
+    @property
+    def minor_number(self) -> int:
+        """
+        The minor number of this device.
+
+        For Linux only.
+
+        The minor number is used by the Linux device driver to identify the
+        device node in ``/dev/nvidiaX``.
+        """
+        return nvml.device_get_minor_number(self._handle)
+
+    @property
+    def addressing_mode(self) -> AddressingMode:
+        """
+        Get the addressing mode of the device.
+
+        Addressing modes can be one of:
+
+        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_HMM`: System allocated
+          memory (``malloc``, ``mmap``) is addressable from the device (GPU), via
+          software-based mirroring of the CPU's page tables, on the GPU.
+        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_ATS`: System allocated
+          memory (``malloc``, ``mmap``) is addressable from the device (GPU), via
+          Address Translation Services. This means that there is (effectively) a
+          single set of page tables, and the CPU and GPU both use them.
+        - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_NONE`: Neither HMM nor ATS
+          is active.
+        """
+        return AddressingMode(nvml.device_get_addressing_mode(self._handle).value)
+
+    @property
+    def display_mode(self) -> bool:
+        """
+        The display mode for this device.
+
+        Indicates whether a physical display (e.g. monitor) is currently connected to
+        any of the device's connectors.
+        """
+        return True if nvml.device_get_display_mode(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
+
+    @property
+    def display_active(self) -> bool:
+        """
+        The display active status for this device.
+
+        Indicates whether a display is initialized on the device.  For example,
+        whether X Server is attached to this device and has allocated memory for
+        the screen.
+
+        Display can be active even when no monitor is physically attached.
+        """
+        return True if nvml.device_get_display_active(self._handle) == nvml.EnableState.FEATURE_ENABLED else False
+
+    @property
+    def repair_status(self) -> RepairStatus:
+        """
+        Get the repair status for TPC/Channel repair.
+
+        For Ampere™ or newer fully supported devices.
+        """
+        return RepairStatus(self._handle)
+
+    @property
+    def inforom(self) -> InforomInfo:
+        """
+        Accessor for InfoROM information.
+
+        For all products with an InfoROM.
+        """
+        return InforomInfo(self)
+
+    def get_topology_nearest_gpus(self, level: GpuTopologyLevel) -> Iterable[Device]:
+        """
+        Retrieve the GPUs that are nearest to this device at a specific interconnectivity level.
+
+        Supported on Linux only.
+
+        Parameters
+        ----------
+        level: :class:`GpuTopologyLevel`
+            The topology level.
+
+        Returns
+        -------
+        Iterable of :class:`Device`
+            The nearest devices at the given topology level.
+        """
+        cdef Device device
+        for handle in nvml.device_get_topology_nearest_gpus(self._handle, level):
+            device = Device.__new__(Device)
+            device._handle = handle
+            yield device
+
     @property
     def index(self) -> int:
         """
@@ -1171,6 +1488,9 @@ __all__ = [
     "Device",
     "DeviceArchitecture",
     "DeviceAttributes",
+    "DeviceEvents",
+    "EventData",
+    "EventType",
     "FanControlPolicy",
     "FanInfo",
     "FieldId",
