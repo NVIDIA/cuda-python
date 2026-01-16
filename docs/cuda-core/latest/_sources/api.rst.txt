@@ -92,16 +92,29 @@ CUDA system information and NVIDIA Management Library (NVML)
 
    system.Device
    system.AddressingMode
+   system.AffinityScope
    system.BAR1MemoryInfo
    system.BrandType
+   system.ClockId
+   system.ClockInfo
+   system.ClockOffsets
+   system.ClocksEventReasons
+   system.ClockType
+   system.CoolerControl
+   system.CoolerInfo
+   system.CoolerTarget
    system.DeviceArchitecture
    system.DeviceAttributes
    system.DeviceEvents
    system.EventData
    system.EventType
+   system.FanControlPolicy
+   system.FanInfo
    system.FieldId
    system.FieldValue
    system.FieldValues
+   system.GpuDynamicPstatesInfo
+   system.GpuDynamicPstatesUtilization
    system.GpuP2PCapsIndex
    system.GpuP2PStatus
    system.GpuTopologyLevel
@@ -110,7 +123,15 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.MemoryInfo
    system.PcieUtilCounter
    system.PciInfo
+   system.Pstates
    system.RepairStatus
+   system.Temperature
+   system.TemperatureSensors
+   system.TemperatureThresholds
+   system.ThermalController
+   system.ThermalSensor
+   system.ThermalSettings
+   system.ThermalTarget
 
 .. module:: cuda.core.utils
 
