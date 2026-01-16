@@ -1,0 +1,28 @@
+.. SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+.. SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
+
+.. module:: cuda.bindings
+
+``cuda-bindings`` 13.1.X Release notes
+======================================
+
+Highlights
+----------
+
+* Add ``nvFatbin`` bindings. (PR #1467 <https://github.com/NVIDIA/cuda-python/pull/1467>_)
+
+Experimental
+------------
+
+Bugfixes
+--------
+
+* Fixed an issue where the ``CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL`` attribute was
+  retrieved as an unsigned int, rather than a signed int.
+  (`PR #1336 <https://github.com/NVIDIA/cuda-python/pull/1336>`_)
+
+Known issues
+------------
+
+* Updating from older versions (v12.6.2.post1 and below) via ``pip install -U cuda-python`` might not work. Please do a clean re-installation by uninstalling ``pip uninstall -y cuda-python`` followed by installing ``pip install cuda-python``.
+* The graphics APIs in ``cuda.bindings.runtime`` are inadvertently disabled in 13.0.2.  Users needing these APIs should update to 13.0.3.
