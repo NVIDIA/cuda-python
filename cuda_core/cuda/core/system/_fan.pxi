@@ -92,7 +92,7 @@ cdef class FanInfo:
 
         For all CUDA-capable discrete products with fans.
         """
-        return nvml.device_get_fan_control_policy_v2(self._handle, self._fan)
+        return FanControlPolicy(nvml.device_get_fan_control_policy_v2(self._handle, self._fan))
 
     def set_default_fan_speed(self):
         """
