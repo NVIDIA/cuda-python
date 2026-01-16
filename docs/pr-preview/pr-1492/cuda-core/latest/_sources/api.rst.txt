@@ -82,6 +82,12 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.get_topology_common_ancestor
    system.get_p2p_status
 
+   system.register_events
+   system.RegisteredSystemEvents
+   system.SystemEvent
+   system.SystemEvents
+   system.SystemEventType
+
    :template: autosummary/cyclass.rst
 
    system.Device
@@ -99,6 +105,9 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.CoolerTarget
    system.DeviceArchitecture
    system.DeviceAttributes
+   system.DeviceEvents
+   system.EventData
+   system.EventType
    system.FanControlPolicy
    system.FanInfo
    system.FieldId

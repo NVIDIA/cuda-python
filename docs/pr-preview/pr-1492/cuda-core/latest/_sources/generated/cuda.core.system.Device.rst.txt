@@ -27,8 +27,10 @@ cuda.core.system.Device
    .. automethod:: get_field_values
    .. automethod:: get_memory_affinity
    .. automethod:: get_supported_clock_event_reasons
+   .. automethod:: get_supported_event_types
    .. automethod:: get_supported_pstates
    .. automethod:: get_topology_nearest_gpus
+   .. automethod:: register_events
    .. automethod:: set_cpu_affinity
 
    
