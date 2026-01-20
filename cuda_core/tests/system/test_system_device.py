@@ -411,7 +411,9 @@ def test_display_mode():
 
 def test_repair_status():
     for device in system.Device.get_all_devices():
-        with unsupported_before(device, DeviceArch.AMPERE):
+        # By docs, should be supported on AMPERE or newer, but experimentally,
+        # this seems to also work on some TURING systems.
+        with unsupported_before(device, None):
             repair_status = device.repair_status
         assert isinstance(repair_status, system.RepairStatus)
 
