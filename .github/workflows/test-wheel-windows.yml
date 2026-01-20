@@ -234,7 +234,7 @@ jobs:
         shell: bash --noprofile --norc -xeuo pipefail {0}
         run: |
           pushd cuda_bindings
-          ${SANITIZER_CMD} python -m pytest -ra -s -vv examples/
+          ${SANITIZER_CMD} pytest -ra -s -vv examples/
           popd
 
       - name: Run cuda.core tests

@@ -261,7 +261,7 @@ jobs:
           LOCAL_CTK: ${{ matrix.LOCAL_CTK }}
         run: |
           pushd cuda_bindings
-          ${SANITIZER_CMD} python -m pytest -ra -s -vv examples/
+          ${SANITIZER_CMD} pytest -ra -s -vv examples/
           popd
 
       - name: Run cuda.core tests
