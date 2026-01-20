@@ -1060,6 +1060,9 @@ cdef class Device:
         Retrieves the globally unique immutable UUID associated with this
         device, as a 5 part hexadecimal string, that augments the immutable,
         board serial identifier.
+
+        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
+        prefix.  That is not included in ``cuda.core.system``.
         """
         # NVML UUIDs have a `GPU-` or `MIG-` prefix.  We remove that here.
 
