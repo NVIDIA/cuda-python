@@ -1236,7 +1236,7 @@ cdef class Device:
         """
         Get the addressing mode of the device.
 
-        For Turing &tm; or newer fully supported devices.
+        For Turing™ or newer fully supported devices.
 
         Addressing modes can be one of:
 
