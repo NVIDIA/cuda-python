@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=17205815"></script>
+    <script src="../_static/documentation_options.js?v=c8c271bd"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev55';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev59';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1347,6 +1347,8 @@ device’s board.</p>
 <p>Retrieves the globally unique immutable UUID associated with this
 device, as a 5 part hexadecimal string, that augments the immutable,
 board serial identifier.</p>
+<p>In the upstream NVML C++ API, the UUID includes a <code class="docutils literal notranslate"><span class="pre">gpu-</span></code> or <code class="docutils literal notranslate"><span class="pre">mig-</span></code>
+prefix.  That is not included in <code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Device.uuid</p>
