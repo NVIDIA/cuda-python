@@ -658,7 +658,8 @@ cdef class Device:
         If anything other than a single `index`, `uuid` or `pci_bus_id` are specified.
     """
 
-    cdef intptr_t _handle
+    # This is made public for testing purposes only
+    cdef public intptr_t _handle
 
     def __init__(
         self,
