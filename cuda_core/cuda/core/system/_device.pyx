@@ -740,14 +740,8 @@ cdef class Device:
         # CUDA does not have an API to get a device by its UUID, so we just
         # search all the devices for one with a matching UUID.
 
-        # NVML UUIDs have a `GPU-` or `MIG-` prefix.  Possibly we should only do
-        # this matching when it has a `GPU-` prefix, but for now we just strip
-        # it.  If a matching CUDA device can't be found, we will get a helpful
-        # exception, anyway, below.
-        uuid = self.uuid[4:]
-
         for cuda_device in CudaDevice.get_all_devices():
-            if cuda_device.uuid == uuid:
+            if cuda_device.uuid == self.uuid:
                 return cuda_device
 
         raise RuntimeError("No corresponding CUDA device found for this NVML device.")
@@ -1067,7 +1061,12 @@ cdef class Device:
         device, as a 5 part hexadecimal string, that augments the immutable,
         board serial identifier.
         """
-        return nvml.device_get_uuid(self._handle)
+        # NVML UUIDs have a `GPU-` or `MIG-` prefix.  We remove that here.
+
+        # TODO: If the user cares about the prefix, we will expose that in the
+        # future using the MIG-related APIs in NVML.
+
+        return nvml.device_get_uuid(self._handle)[4:]
 
     def register_events(self, events: EventType | int | list[EventType | int]) -> DeviceEvents:
         """

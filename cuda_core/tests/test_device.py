@@ -39,7 +39,7 @@ def test_to_system_device(deinit_cuda):
 
     system_device = device.to_system_device()
     assert isinstance(system_device, SystemDevice)
-    assert system_device.uuid[4:] == device.uuid
+    assert system_device.uuid == device.uuid
 
     # Technically, this test will only work with PCI devices, but are there
     # non-PCI devices we need to support?

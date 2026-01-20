@@ -40,7 +40,7 @@ def test_to_cuda_device():
         cuda_device = device.to_cuda_device()
 
         assert isinstance(cuda_device, CudaDevice)
-        assert cuda_device.uuid == device.uuid[4:]
+        assert cuda_device.uuid == device.uuid
 
         # Technically, this test will only work with PCI devices, but are there
         # non-PCI devices we need to support?
