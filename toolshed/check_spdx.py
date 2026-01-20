@@ -4,6 +4,7 @@
 import datetime
 import os
 import re
+import subprocess
 import sys
 
 import pathspec
@@ -33,7 +34,27 @@ COPYRIGHT_REGEX = (
     rb"(?P<affiliation>NVIDIA CORPORATION( & AFFILIATES\. All rights reserved\.)?)"
 )
 COPYRIGHT_SUB = r"Copyright (c) {} \g<affiliation>"
-CURRENT_YEAR = str(datetime.datetime.now().year)
+CURRENT_YEAR = str(datetime.date.today().year)
+
+
+def get_last_modified_year(filepath):
+    # If the file is staged, we need to update it to the current year
+    process = subprocess.run(  # noqa: S603
+        ["git", "diff", "--staged", "--", filepath],  # noqa: S607
+        capture_output=True,
+        text=True,
+    )
+    if process.stdout.strip():
+        return CURRENT_YEAR
+
+    # If the file is not staged, get the year of the last commit
+    process = subprocess.run(  # noqa: S603
+        ["git", "log", "-1", "--pretty=format:%cs", "--", filepath],  # noqa: S607
+        capture_output=True,
+        text=True,
+    )
+    year = process.stdout.strip()[:4]
+    return year
 
 
 def find_or_fix_spdx(filepath, fix):
@@ -61,15 +82,18 @@ def find_or_fix_spdx(filepath, fix):
             if int(start_year) > int(end_year):
                 print(f"INVALID copyright years {years!r} in {filepath!r}")
                 good = False
+                continue
         else:
             start_year = end_year = years
 
-        if int(end_year) < int(CURRENT_YEAR):
-            print(f"OUTDATED copyright end year {years!r} in {filepath!r}")
+        modified_year = get_last_modified_year(filepath)
+
+        if int(end_year) < int(modified_year):
+            print(f"OUTDATED copyright {years!r} (expected {modified_year!r}) in {filepath!r}")
             good = False
 
             if fix:
-                new_years = f"{start_year}-{CURRENT_YEAR}"
+                new_years = f"{start_year}-{modified_year}"
                 blob = re.sub(
                     COPYRIGHT_REGEX,
                     COPYRIGHT_SUB.format(new_years).encode("ascii"),
