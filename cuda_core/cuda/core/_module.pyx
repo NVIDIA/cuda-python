@@ -118,89 +118,110 @@ cdef inline object _make_dummy_library_handle():
     return driver.CUlibrary(1) if hasattr(driver, "CUlibrary") else 1
 
 
-class KernelAttributes:
+cdef class KernelAttributes:
     """Provides access to kernel attributes. Uses weakref to avoid preventing Kernel GC."""
 
-    __slots__ = ("_kernel", "_cache")
+    cdef:
+        object _kernel_weakref
+        dict _cache
 
-    def __new__(cls, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
     @classmethod
     def _init(cls, kernel):
-        self = object.__new__(cls)
-        self._kernel = weakref.ref(kernel)
+        cdef KernelAttributes self = KernelAttributes.__new__(cls)
+        self._kernel_weakref = weakref.ref(kernel)
         self._cache = {}
         _lazy_init()
         return self
 
-    def _get_cached_attribute(self, device_id, attribute):
+    cdef int _get_cached_attribute(self, int device_id, object attribute) except? -1:
         """Helper function to get a cached attribute or fetch and cache it if not present."""
-        device_id = Device(device_id).device_id
-        cache_key = (device_id, attribute)
+        cdef tuple cache_key = (device_id, attribute)
         result = self._cache.get(cache_key, cache_key)
         if result is not cache_key:
             return result
-        kernel = self._kernel()
+        cdef Kernel kernel = <Kernel>(self._kernel_weakref())
         if kernel is None:
             raise RuntimeError("Cannot access kernel attributes for expired Kernel object")
-        result = handle_return(driver.cuKernelGetAttribute(attribute, kernel.handle, device_id))
+        result = handle_return(driver.cuKernelGetAttribute(attribute, kernel._handle, device_id))
         self._cache[cache_key] = result
         return result
+
+    cdef inline int _resolve_device_id(self, device_id) except? -1:
+        """Convert Device or int to device_id int."""
+        return Device(device_id).device_id
 
     def max_threads_per_block(self, device_id: Device | int = None) -> int:
         """int : The maximum number of threads per block.
         This attribute is read-only."""
         return self._get_cached_attribute(
-            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK
+            self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK
         )
 
     def shared_size_bytes(self, device_id: Device | int = None) -> int:
         """int : The size in bytes of statically-allocated shared memory required by this function.
         This attribute is read-only."""
-        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES)
+        return self._get_cached_attribute(
+            self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES
+        )
 
     def const_size_bytes(self, device_id: Device | int = None) -> int:
         """int : The size in bytes of user-allocated constant memory required by this function.
         This attribute is read-only."""
-        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES)
+        return self._get_cached_attribute(
+            self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES
+        )
 
     def local_size_bytes(self, device_id: Device | int = None) -> int:
         """int : The size in bytes of local memory used by each thread of this function.
         This attribute is read-only."""
-        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES)
+        return self._get_cached_attribute(
+            self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES
+        )
 
     def num_regs(self, device_id: Device | int = None) -> int:
         """int : The number of registers used by each thread of this function.
         This attribute is read-only."""
-        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NUM_REGS)
+        return self._get_cached_attribute(
+            self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NUM_REGS
+        )
 
     def ptx_version(self, device_id: Device | int = None) -> int:
         """int : The PTX virtual architecture version for which the function was compiled.
         This attribute is read-only."""
-        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PTX_VERSION)
+        return self._get_cached_attribute(
+            self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PTX_VERSION
+        )
 
     def binary_version(self, device_id: Device | int = None) -> int:
         """int : The binary architecture version for which the function was compiled.
         This attribute is read-only."""
-        return self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_BINARY_VERSION)
+        return self._get_cached_attribute(
+            self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_BINARY_VERSION
+        )
 
     def cache_mode_ca(self, device_id: Device | int = None) -> bool:
         """bool : Whether the function has been compiled with user specified option "-Xptxas --dlcm=ca" set.
         This attribute is read-only."""
-        return bool(self._get_cached_attribute(device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CACHE_MODE_CA))
+        return bool(
+            self._get_cached_attribute(
+                self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CACHE_MODE_CA
+            )
+        )
 
     def max_dynamic_shared_size_bytes(self, device_id: Device | int = None) -> int:
         """int : The maximum size in bytes of dynamically-allocated shared memory that can be used
         by this function."""
         return self._get_cached_attribute(
-            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
+            self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES
         )
 
     def preferred_shared_memory_carveout(self, device_id: Device | int = None) -> int:
         """int : The shared memory carveout preference, in percent of the total shared memory."""
         return self._get_cached_attribute(
-            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
+            self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
         )
 
     def cluster_size_must_be_set(self, device_id: Device | int = None) -> bool:
@@ -208,40 +229,42 @@ class KernelAttributes:
         This attribute is read-only."""
         return bool(
             self._get_cached_attribute(
-                device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET
+                self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET
             )
         )
 
     def required_cluster_width(self, device_id: Device | int = None) -> int:
         """int : The required cluster width in blocks."""
         return self._get_cached_attribute(
-            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH
+            self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH
         )
 
     def required_cluster_height(self, device_id: Device | int = None) -> int:
         """int : The required cluster height in blocks."""
         return self._get_cached_attribute(
-            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT
+            self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT
         )
 
     def required_cluster_depth(self, device_id: Device | int = None) -> int:
         """int : The required cluster depth in blocks."""
         return self._get_cached_attribute(
-            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
+            self._resolve_device_id(device_id), driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH
         )
 
     def non_portable_cluster_size_allowed(self, device_id: Device | int = None) -> bool:
         """bool : Whether the function can be launched with non-portable cluster size."""
         return bool(
             self._get_cached_attribute(
-                device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED
+                self._resolve_device_id(device_id),
+                driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED,
             )
         )
 
     def cluster_scheduling_policy_preference(self, device_id: Device | int = None) -> int:
         """int : The block scheduling policy of a function."""
         return self._get_cached_attribute(
-            device_id, driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE
+            self._resolve_device_id(device_id),
+            driver.CUfunction_attribute.CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE,
         )
 
 
