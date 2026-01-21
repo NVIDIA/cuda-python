@@ -11,12 +11,14 @@ cdef class Kernel:
     cdef:
         object _handle      # CUkernel (will become KernelHandle in phase 2c)
         ObjectCode _module  # ObjectCode reference
-        object _attributes  # KernelAttributes (regular Python class)
+        object _attributes  # KernelAttributes (regular Python class, lazy)
         KernelOccupancy _occupancy  # KernelOccupancy (lazy)
         object __weakref__  # Enable weak references
 
     @staticmethod
     cdef Kernel _from_obj(object obj, ObjectCode mod)
+
+    cdef tuple _get_arguments_info(self, bint param_info=*)
 
 
 cdef class ObjectCode:

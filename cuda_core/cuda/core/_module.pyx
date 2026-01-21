@@ -24,16 +24,16 @@ __all__ = ["Kernel", "ObjectCode"]
 # Lazy initialization state and synchronization
 # For Python 3.13t (free-threaded builds), we use a lock to ensure thread-safe initialization.
 # For regular Python builds with GIL, the lock overhead is minimal and the code remains safe.
-_init_lock = threading.Lock()
-_inited = False
-_py_major_ver = None
-_py_minor_ver = None
-_driver_ver = None
-_kernel_ctypes = None
-_paraminfo_supported = False
+cdef object _init_lock = threading.Lock()
+cdef bint _inited = False
+cdef int _py_major_ver = 0
+cdef int _py_minor_ver = 0
+cdef int _driver_ver = 0
+cdef tuple _kernel_ctypes = None
+cdef bint _paraminfo_supported = False
 
 
-def _lazy_init():
+cdef int _lazy_init() except -1:
     """
     Initialize module-level state in a thread-safe manner.
 
@@ -48,13 +48,13 @@ def _lazy_init():
     global _inited
     # Fast path: already initialized (no lock needed for read)
     if _inited:
-        return
+        return 0
 
     # Slow path: acquire lock and initialize
     with _init_lock:
         # Double-check: another thread might have initialized while we waited
         if _inited:
-            return
+            return 0
 
         global _py_major_ver, _py_minor_ver, _driver_ver, _kernel_ctypes, _paraminfo_supported
         # binding availability depends on cuda-python version
@@ -66,33 +66,35 @@ def _lazy_init():
         # Mark as initialized (must be last to ensure all state is set)
         _inited = True
 
+    return 0
 
-# Auto-initializing property accessors
-def _get_py_major_ver():
+
+# Auto-initializing accessors (cdef for internal use)
+cdef inline int _get_py_major_ver() except -1:
     """Get the Python binding major version, initializing if needed."""
     _lazy_init()
     return _py_major_ver
 
 
-def _get_py_minor_ver():
+cdef inline int _get_py_minor_ver() except -1:
     """Get the Python binding minor version, initializing if needed."""
     _lazy_init()
     return _py_minor_ver
 
 
-def _get_driver_ver():
+cdef inline int _get_driver_ver() except -1:
     """Get the CUDA driver version, initializing if needed."""
     _lazy_init()
     return _driver_ver
 
 
-def _get_kernel_ctypes():
+cdef inline tuple _get_kernel_ctypes():
     """Get the kernel ctypes tuple, initializing if needed."""
     _lazy_init()
     return _kernel_ctypes
 
 
-def _is_paraminfo_supported():
+cdef inline bint _is_paraminfo_supported() except -1:
     """Return True if cuKernelGetParamInfo is available (driver >= 12.4)."""
     _lazy_init()
     return _paraminfo_supported
@@ -111,7 +113,7 @@ def _is_cukernel_get_library_supported() -> bool:
     )
 
 
-def _make_dummy_library_handle():
+cdef inline object _make_dummy_library_handle():
     """Create a non-null placeholder CUlibrary handle to disable lazy loading."""
     return driver.CUlibrary(1) if hasattr(driver, "CUlibrary") else 1
 
@@ -132,10 +134,10 @@ class KernelAttributes:
         _lazy_init()
         return self
 
-    def _get_cached_attribute(self, device_id: Device | int, attribute: driver.CUfunction_attribute) -> int:
+    def _get_cached_attribute(self, device_id, attribute):
         """Helper function to get a cached attribute or fetch and cache it if not present."""
         device_id = Device(device_id).device_id
-        cache_key = device_id, attribute
+        cache_key = (device_id, attribute)
         result = self._cache.get(cache_key, cache_key)
         if result is not cache_key:
             return result
@@ -440,15 +442,15 @@ cdef class Kernel:
             self._attributes = KernelAttributes._init(self)
         return self._attributes
 
-    def _get_arguments_info(self, param_info=False) -> tuple[int, list[ParamInfo]]:
+    cdef tuple _get_arguments_info(self, bint param_info=False):
         if not _is_paraminfo_supported():
             driver_ver = _get_driver_ver()
             raise NotImplementedError(
                 "Driver version 12.4 or newer is required for this function. "
                 f"Using driver version {driver_ver // 1000}.{(driver_ver % 1000) // 10}"
             )
-        arg_pos = 0
-        param_info_data = []
+        cdef int arg_pos = 0
+        cdef list param_info_data = []
         while True:
             result = driver.cuKernelGetParamInfo(self._handle, arg_pos)
             if result[0] != driver.CUresult.CUDA_SUCCESS:
@@ -535,7 +537,7 @@ cdef class Kernel:
 
 CodeTypeT = bytes | bytearray | str
 
-_supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "library")
+cdef tuple _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "library")
 
 cdef class ObjectCode:
     """Represent a compiled program to be loaded onto the device.
