@@ -519,7 +519,7 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
 
     if (size == 0) {
         auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, h_stream},
+            new DevicePtrBox{ptr, StreamHandle{}},
             [](DevicePtrBox* b) {
                 GILReleaseGuard gil;
                 delete b;
