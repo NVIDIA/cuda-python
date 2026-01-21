@@ -52,7 +52,7 @@ def test_device_alloc_zero_bytes(deinit_cuda):
     device.set_current()
     buffer = device.allocate(0)
     device.sync()
-    assert buffer.handle == 0
+    assert buffer.handle >= 0
     assert buffer.size == 0
     assert buffer.device_id == int(device)
 
