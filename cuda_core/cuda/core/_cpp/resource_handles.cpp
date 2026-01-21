@@ -455,19 +455,7 @@ void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) no
 
 DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, StreamHandle h_stream) {
     GILReleaseGuard gil;
-    CUdeviceptr ptr = 0;
-
-    if (size == 0) {
-        auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, h_stream},
-            [h_pool](DevicePtrBox* b) {
-                GILReleaseGuard gil;
-                delete b;
-            }
-        );
-        return DevicePtrHandle(box, &box->resource);
-    }
-
+    CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocFromPoolAsync(&ptr, size, *h_pool, as_cu(h_stream)))) {
         return {};
     }
@@ -485,19 +473,7 @@ DevicePtrHandle deviceptr_alloc_from_pool(size_t size, MemoryPoolHandle h_pool, 
 
 DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
     GILReleaseGuard gil;
-    CUdeviceptr ptr = 0;
-
-    if (size == 0) {
-        auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, h_stream},
-            [](DevicePtrBox* b) {
-                GILReleaseGuard gil;
-                delete b;
-            }
-        );
-        return DevicePtrHandle(box, &box->resource);
-    }
-
+    CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocAsync(&ptr, size, as_cu(h_stream)))) {
         return {};
     }
@@ -515,19 +491,7 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
 
 DevicePtrHandle deviceptr_alloc(size_t size) {
     GILReleaseGuard gil;
-    CUdeviceptr ptr = 0;
-
-    if (size == 0) {
-        auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{ptr, StreamHandle{}},
-            [](DevicePtrBox* b) {
-                GILReleaseGuard gil;
-                delete b;
-            }
-        );
-        return DevicePtrHandle(box, &box->resource);
-    }
-
+    CUdeviceptr ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAlloc(&ptr, size))) {
         return {};
     }
@@ -545,19 +509,7 @@ DevicePtrHandle deviceptr_alloc(size_t size) {
 
 DevicePtrHandle deviceptr_alloc_host(size_t size) {
     GILReleaseGuard gil;
-    void* ptr = nullptr;
-
-    if (size == 0) {
-        auto box = std::shared_ptr<DevicePtrBox>(
-            new DevicePtrBox{reinterpret_cast<CUdeviceptr>(ptr), StreamHandle{}},
-            [](DevicePtrBox* b) {
-                GILReleaseGuard gil;
-                delete b;
-            }
-        );
-        return DevicePtrHandle(box, &box->resource);
-    }
-
+    void* ptr;
     if (CUDA_SUCCESS != (err = p_cuMemAllocHost(&ptr, size))) {
         return {};
     }
