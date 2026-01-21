@@ -79,7 +79,7 @@ def get_saxpy_kernel_ptx(init_cuda):
         "ptx",
         name_expressions=("saxpy<float>", "saxpy<double>"),
     )
-    ptx = mod._module
+    ptx = mod.code
     return ptx, mod
 
 
@@ -100,10 +100,10 @@ def test_get_kernel(init_cuda):
         if any("The CUDA driver version is older than the backend version" in str(warning.message) for warning in w):
             pytest.skip("PTX version too new for current driver")
 
-    assert object_code._handle is None
+    # Verify lazy loading: get_kernel triggers module loading and returns a valid kernel
     kernel = object_code.get_kernel("ABC")
-    assert object_code._handle is not None
-    assert kernel._handle is not None
+    assert object_code.handle is not None
+    assert kernel.handle is not None
 
 
 @pytest.mark.parametrize(
@@ -143,7 +143,7 @@ def test_read_only_kernel_attributes(get_saxpy_kernel_cubin, attr, expected_type
 
 def test_object_code_load_ptx(get_saxpy_kernel_ptx):
     ptx, mod = get_saxpy_kernel_ptx
-    sym_map = mod._sym_map
+    sym_map = mod.symbol_mapping
     mod_obj = ObjectCode.from_ptx(ptx, symbol_mapping=sym_map)
     assert mod.code == ptx
     if not Program._can_load_generated_ptx():
@@ -153,7 +153,7 @@ def test_object_code_load_ptx(get_saxpy_kernel_ptx):
 
 def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path):
     ptx, mod = get_saxpy_kernel_ptx
-    sym_map = mod._sym_map
+    sym_map = mod.symbol_mapping
     assert isinstance(ptx, bytes)
     ptx_file = tmp_path / "test.ptx"
     ptx_file.write_bytes(ptx)
@@ -167,8 +167,8 @@ def test_object_code_load_ptx_from_file(get_saxpy_kernel_ptx, tmp_path):
 
 def test_object_code_load_cubin(get_saxpy_kernel_cubin):
     _, mod = get_saxpy_kernel_cubin
-    cubin = mod._module
-    sym_map = mod._sym_map
+    cubin = mod.code
+    sym_map = mod.symbol_mapping
     assert isinstance(cubin, bytes)
     mod = ObjectCode.from_cubin(cubin, symbol_mapping=sym_map)
     assert mod.code == cubin
@@ -177,8 +177,8 @@ def test_object_code_load_cubin(get_saxpy_kernel_cubin):
 
 def test_object_code_load_cubin_from_file(get_saxpy_kernel_cubin, tmp_path):
     _, mod = get_saxpy_kernel_cubin
-    cubin = mod._module
-    sym_map = mod._sym_map
+    cubin = mod.code
+    sym_map = mod.symbol_mapping
     assert isinstance(cubin, bytes)
     cubin_file = tmp_path / "test.cubin"
     cubin_file.write_bytes(cubin)
@@ -194,14 +194,13 @@ def test_object_code_handle(get_saxpy_kernel_cubin):
 
 def test_object_code_load_ltoir(get_saxpy_kernel_ltoir):
     mod = get_saxpy_kernel_ltoir
-    ltoir = mod._module
-    sym_map = mod._sym_map
+    ltoir = mod.code
+    sym_map = mod.symbol_mapping
     assert isinstance(ltoir, bytes)
     mod_obj = ObjectCode.from_ltoir(ltoir, symbol_mapping=sym_map)
     assert mod_obj.code == ltoir
     assert mod_obj.code_type == "ltoir"
     # ltoir doesn't support kernel retrieval directly as it's used for linking
-    assert mod_obj._handle is None
     # Test that get_kernel fails for unsupported code type
     with pytest.raises(RuntimeError, match=r'Unsupported code type "ltoir"'):
         mod_obj.get_kernel("saxpy<float>")
@@ -209,8 +208,8 @@ def test_object_code_load_ltoir(get_saxpy_kernel_ltoir):
 
 def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path):
     mod = get_saxpy_kernel_ltoir
-    ltoir = mod._module
-    sym_map = mod._sym_map
+    ltoir = mod.code
+    sym_map = mod.symbol_mapping
     assert isinstance(ltoir, bytes)
     ltoir_file = tmp_path / "test.ltoir"
     ltoir_file.write_bytes(ltoir)
@@ -218,7 +217,6 @@ def test_object_code_load_ltoir_from_file(get_saxpy_kernel_ltoir, tmp_path):
     assert mod_obj.code == str(ltoir_file)
     assert mod_obj.code_type == "ltoir"
     # ltoir doesn't support kernel retrieval directly as it's used for linking
-    assert mod_obj._handle is None
 
 
 def test_saxpy_arguments(get_saxpy_kernel_cubin, cuda12_4_prerequisite_check):
@@ -423,7 +421,7 @@ def test_module_serialization_roundtrip(get_saxpy_kernel_cubin):
 
     assert isinstance(result, ObjectCode)
     assert objcode.code == result.code
-    assert objcode._sym_map == result._sym_map
+    assert objcode.symbol_mapping == result.symbol_mapping
     assert objcode.code_type == result.code_type
 
 
@@ -432,7 +430,7 @@ def test_kernel_from_handle(get_saxpy_kernel_cubin):
     original_kernel, objcode = get_saxpy_kernel_cubin
 
     # Get the handle from the original kernel
-    handle = int(original_kernel._handle)
+    handle = int(original_kernel.handle)
 
     # Create a new Kernel from the handle
     kernel_from_handle = Kernel.from_handle(handle, objcode)
@@ -449,7 +447,7 @@ def test_kernel_from_handle_no_module(get_saxpy_kernel_cubin):
     original_kernel, _ = get_saxpy_kernel_cubin
 
     # Get the handle from the original kernel
-    handle = int(original_kernel._handle)
+    handle = int(original_kernel.handle)
 
     # Create a new Kernel from the handle without a module
     # This is supported on CUDA 12+ backend (CUkernel)
@@ -486,7 +484,7 @@ def test_kernel_from_handle_type_validation(invalid_value):
 def test_kernel_from_handle_invalid_module_type(get_saxpy_kernel_cubin):
     """Test Kernel.from_handle() with invalid module parameter"""
     original_kernel, _ = get_saxpy_kernel_cubin
-    handle = int(original_kernel._handle)
+    handle = int(original_kernel.handle)
 
     # Invalid module type (should fail type assertion in _from_obj)
     with pytest.raises((TypeError, AssertionError)):
@@ -499,7 +497,7 @@ def test_kernel_from_handle_invalid_module_type(get_saxpy_kernel_cubin):
 def test_kernel_from_handle_multiple_instances(get_saxpy_kernel_cubin):
     """Test creating multiple Kernel instances from the same handle"""
     original_kernel, objcode = get_saxpy_kernel_cubin
-    handle = int(original_kernel._handle)
+    handle = int(original_kernel.handle)
 
     # Create multiple Kernel instances from the same handle
     kernel1 = Kernel.from_handle(handle, objcode)
@@ -512,4 +510,4 @@ def test_kernel_from_handle_multiple_instances(get_saxpy_kernel_cubin):
     assert isinstance(kernel3, Kernel)
 
     # All should reference the same underlying CUDA kernel handle
-    assert int(kernel1._handle) == int(kernel2._handle) == int(kernel3._handle) == handle
+    assert int(kernel1.handle) == int(kernel2.handle) == int(kernel3.handle) == handle

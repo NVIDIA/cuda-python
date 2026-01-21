@@ -142,7 +142,7 @@ class KernelAttributes:
         kernel = self._kernel()
         if kernel is None:
             raise RuntimeError("Cannot access kernel attributes for expired Kernel object")
-        result = handle_return(driver.cuKernelGetAttribute(attribute, kernel._handle, device_id))
+        result = handle_return(driver.cuKernelGetAttribute(attribute, kernel.handle, device_id))
         self._cache[cache_key] = result
         return result
 
@@ -480,6 +480,17 @@ cdef class Kernel:
             self._occupancy = KernelOccupancy._init(self._handle)
         return self._occupancy
 
+    @property
+    def handle(self):
+        """Return the underlying kernel handle object.
+
+        .. caution::
+
+            This handle is a Python object. To get the memory address of the underlying C
+            handle, call ``int(Kernel.handle)``.
+        """
+        return self._handle
+
     @staticmethod
     def from_handle(handle: int, mod: ObjectCode = None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a foreign kernel handle.
@@ -739,6 +750,11 @@ cdef class ObjectCode:
     def code_type(self) -> str:
         """Return the type of the underlying code object."""
         return self._code_type
+
+    @property
+    def symbol_mapping(self) -> dict:
+        """Return a copy of the symbol mapping dictionary."""
+        return dict(self._sym_map)
 
     @property
     def handle(self):

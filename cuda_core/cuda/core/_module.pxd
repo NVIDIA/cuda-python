@@ -8,20 +8,19 @@ cdef class KernelOccupancy
 
 
 cdef class Kernel:
-    cdef public:
+    cdef:
         object _handle      # CUkernel (will become KernelHandle in phase 2c)
-        object _module      # ObjectCode reference
-        object _attributes  # KernelAttributes (lazy)
-        object _occupancy   # KernelOccupancy (lazy)
-
-    cdef object __weakref__  # Enable weak references
+        ObjectCode _module  # ObjectCode reference
+        object _attributes  # KernelAttributes (regular Python class)
+        KernelOccupancy _occupancy  # KernelOccupancy (lazy)
+        object __weakref__  # Enable weak references
 
     @staticmethod
     cdef Kernel _from_obj(object obj, ObjectCode mod)
 
 
 cdef class ObjectCode:
-    cdef public:
+    cdef:
         object _handle      # CUlibrary (will become LibraryHandle in phase 2c)
         str _code_type
         object _module      # bytes/str source
@@ -35,7 +34,7 @@ cdef class ObjectCode:
 
 
 cdef class KernelOccupancy:
-    cdef public:
+    cdef:
         object _handle      # CUkernel reference
 
     @staticmethod
