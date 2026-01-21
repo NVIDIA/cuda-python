@@ -515,7 +515,7 @@ DevicePtrHandle deviceptr_alloc_async(size_t size, StreamHandle h_stream) {
 
 DevicePtrHandle deviceptr_alloc(size_t size) {
     GILReleaseGuard gil;
-    CUdeviceptr ptr;
+    CUdeviceptr ptr = 0;
 
     if (size == 0) {
         auto box = std::shared_ptr<DevicePtrBox>(
