@@ -1255,7 +1255,7 @@ def test_memory_resource_alloc_zero_bytes(init_cuda, memory_resource_factory):
         mr = MR()
     elif MR is ManagedMemoryResource:
         skip_if_managed_memory_unsupported(device)
-        mr = MR(MROps(preferred_location=device.device_id))
+        mr = create_managed_memory_resource_or_skip(MROps(preferred_location=device.device_id))
     else:
         assert MR is DeviceMemoryResource
         mr = MR(device)
