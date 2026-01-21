@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 cimport cpython
 from libc.stdint cimport uintptr_t
 
@@ -9,7 +11,6 @@ from cuda.bindings cimport cydriver
 from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
 
 import threading
-from typing import TYPE_CHECKING
 
 from cuda.core._context cimport Context
 from cuda.core._context import ContextOptions
@@ -33,9 +34,6 @@ from cuda.core._utils.cuda_utils import (
     runtime,
 )
 from cuda.core._stream cimport default_stream
-
-if TYPE_CHECKING:
-    from cuda.core._memory import Buffer, MemoryResource
 
 # TODO: I prefer to type these as "cdef object" and avoid accessing them from within Python,
 # but it seems it is very convenient to expose them for testing purposes...

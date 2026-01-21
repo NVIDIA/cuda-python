@@ -301,7 +301,7 @@ class ProgramOptions:
     debug: bool | None = None
     lineinfo: bool | None = None
     device_code_optimize: bool | None = None
-    ptxas_options: Union[str, list[str], tuple[str]] | None = None
+    ptxas_options: str | list[str] | tuple[str] | None = None
     max_register_count: int | None = None
     ftz: bool | None = None
     prec_sqrt: bool | None = None
@@ -311,12 +311,10 @@ class ProgramOptions:
     extra_device_vectorization: bool | None = None
     link_time_optimization: bool | None = None
     gen_opt_lto: bool | None = None
-    define_macro: (
-        Union[str, tuple[str, str], list[Union[str, tuple[str, str]]], tuple[Union[str, tuple[str, str]]]] | None
-    ) = None
-    undefine_macro: Union[str, list[str], tuple[str]] | None = None
-    include_path: Union[str, list[str], tuple[str]] | None = None
-    pre_include: Union[str, list[str], tuple[str]] | None = None
+    define_macro: str | tuple[str, str] | list[str | tuple[str, str]] | tuple[str | tuple[str, str], ...] | None = None
+    undefine_macro: str | list[str] | tuple[str] | None = None
+    include_path: str | list[str] | tuple[str] | None = None
+    pre_include: str | list[str] | tuple[str] | None = None
     no_source_include: bool | None = None
     std: str | None = None
     builtin_move_forward: bool | None = None
@@ -327,9 +325,9 @@ class ProgramOptions:
     device_int128: bool | None = None
     optimization_info: str | None = None
     no_display_error_number: bool | None = None
-    diag_error: Union[int, list[int], tuple[int]] | None = None
-    diag_suppress: Union[int, list[int], tuple[int]] | None = None
-    diag_warn: Union[int, list[int], tuple[int]] | None = None
+    diag_error: int | list[int] | tuple[int] | None = None
+    diag_suppress: int | list[int] | tuple[int] | None = None
+    diag_warn: int | list[int] | tuple[int] | None = None
     brief_diagnostics: bool | None = None
     time: str | None = None
     split_compile: int | None = None
@@ -492,7 +490,7 @@ class ProgramOptions:
             options.append("--numba-debug")
         return [o.encode() for o in options]
 
-    def _prepare_nvvm_options(self, as_bytes: bool = True) -> Union[list[bytes], list[str]]:
+    def _prepare_nvvm_options(self, as_bytes: bool = True) -> list[bytes] | list[str]:
         options = []
 
         # Options supported by NVVM
