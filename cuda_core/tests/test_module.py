@@ -231,7 +231,12 @@ def test_saxpy_arguments(get_saxpy_kernel_cubin, cuda12_4_prerequisite_check):
             _ = krn.num_arguments
         return
 
-    assert "ParamInfo" in str(type(krn).arguments_info.fget.__annotations__)
+    # Check that arguments_info returns ParamInfo objects (works for both Python and Cython classes)
+    # For Python classes: type(krn).arguments_info.fget.__annotations__ contains ParamInfo
+    # For Cython cdef classes: property descriptors don't have .fget, so we check the actual values
+    prop = type(krn).arguments_info
+    if hasattr(prop, "fget") and hasattr(prop.fget, "__annotations__"):
+        assert "ParamInfo" in str(prop.fget.__annotations__)
     arg_info = krn.arguments_info
     n_args = len(arg_info)
     assert n_args == krn.num_arguments

@@ -17,7 +17,9 @@ from cuda.core._utils.clear_error_support import (
     assert_type_str_or_bytes_like,
     raise_code_path_meant_to_be_unreachable,
 )
-from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return, precondition
+from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
+
+__all__ = ["Kernel", "ObjectCode"]
 
 # Lazy initialization state and synchronization
 # For Python 3.13t (free-threaded builds), we use a lock to ensure thread-safe initialization.
@@ -28,7 +30,7 @@ _py_major_ver = None
 _py_minor_ver = None
 _driver_ver = None
 _kernel_ctypes = None
-_backend = {}
+_paraminfo_supported = False
 
 
 def _lazy_init():
@@ -54,19 +56,12 @@ def _lazy_init():
         if _inited:
             return
 
-        global _py_major_ver, _py_minor_ver, _driver_ver, _kernel_ctypes, _backend
+        global _py_major_ver, _py_minor_ver, _driver_ver, _kernel_ctypes, _paraminfo_supported
         # binding availability depends on cuda-python version
         _py_major_ver, _py_minor_ver = get_binding_version()
-        _backend = {
-            "file": driver.cuLibraryLoadFromFile,
-            "data": driver.cuLibraryLoadData,
-            "kernel": driver.cuLibraryGetKernel,
-            "attribute": driver.cuKernelGetAttribute,
-        }
         _kernel_ctypes = (driver.CUkernel,)
         _driver_ver = handle_return(driver.cuDriverGetVersion())
-        if _driver_ver >= 12040:
-            _backend["paraminfo"] = driver.cuKernelGetParamInfo
+        _paraminfo_supported = _driver_ver >= 12040
 
         # Mark as initialized (must be last to ensure all state is set)
         _inited = True
@@ -97,6 +92,12 @@ def _get_kernel_ctypes():
     return _kernel_ctypes
 
 
+def _is_paraminfo_supported():
+    """Return True if cuKernelGetParamInfo is available (driver >= 12.4)."""
+    _lazy_init()
+    return _paraminfo_supported
+
+
 @functools.cache
 def _is_cukernel_get_library_supported() -> bool:
     """Return True when cuKernelGetLibrary is available for inverse kernel-to-library lookup.
@@ -116,20 +117,19 @@ def _make_dummy_library_handle():
 
 
 class KernelAttributes:
-    def __new__(self, *args, **kwargs):
-        raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
+    """Provides access to kernel attributes. Uses weakref to avoid preventing Kernel GC."""
 
-    slots = ("_kernel", "_cache", "_loader")
+    __slots__ = ("_kernel", "_cache")
+
+    def __new__(cls, *args, **kwargs):
+        raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
 
     @classmethod
     def _init(cls, kernel):
-        self = super().__new__(cls)
+        self = object.__new__(cls)
         self._kernel = weakref.ref(kernel)
         self._cache = {}
-
-        # Ensure backend is initialized before setting loader
         _lazy_init()
-        self._loader = _backend
         return self
 
     def _get_cached_attribute(self, device_id: Device | int, attribute: driver.CUfunction_attribute) -> int:
@@ -142,7 +142,7 @@ class KernelAttributes:
         kernel = self._kernel()
         if kernel is None:
             raise RuntimeError("Cannot access kernel attributes for expired Kernel object")
-        result = handle_return(self._loader["attribute"](attribute, kernel._handle, device_id))
+        result = handle_return(driver.cuKernelGetAttribute(attribute, kernel._handle, device_id))
         self._cache[cache_key] = result
         return result
 
@@ -246,21 +246,18 @@ class KernelAttributes:
 MaxPotentialBlockSizeOccupancyResult = namedtuple("MaxPotential", ("min_grid_size", "max_block_size"))
 
 
-class KernelOccupancy:
+cdef class KernelOccupancy:
     """This class offers methods to query occupancy metrics that help determine optimal
     launch parameters such as block size, grid size, and shared memory usage.
     """
 
-    def __new__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         raise RuntimeError("KernelOccupancy cannot be instantiated directly. Please use Kernel APIs.")
 
-    slots = ("_handle",)
-
-    @classmethod
-    def _init(cls, handle):
-        self = super().__new__(cls)
+    @staticmethod
+    cdef KernelOccupancy _init(object handle):
+        cdef KernelOccupancy self = KernelOccupancy.__new__(KernelOccupancy)
         self._handle = handle
-
         return self
 
     def max_active_blocks_per_multiprocessor(self, block_size: int, dynamic_shared_memory_size: int) -> int:
@@ -412,7 +409,7 @@ class KernelOccupancy:
 ParamInfo = namedtuple("ParamInfo", ["offset", "size"])
 
 
-class Kernel:
+cdef class Kernel:
     """Represent a compiled kernel that had been loaded onto the device.
 
     Kernel instances can execution when passed directly into the
@@ -423,16 +420,13 @@ class Kernel:
 
     """
 
-    __slots__ = ("_handle", "_module", "_attributes", "_occupancy", "__weakref__")
-
-    def __new__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
 
-    @classmethod
-    def _from_obj(cls, obj, mod):
+    @staticmethod
+    cdef Kernel _from_obj(object obj, ObjectCode mod):
         assert_type(obj, _get_kernel_ctypes())
-        assert_type(mod, ObjectCode)
-        ker = super().__new__(cls)
+        cdef Kernel ker = Kernel.__new__(Kernel)
         ker._handle = obj
         ker._module = mod
         ker._attributes = None
@@ -447,8 +441,7 @@ class Kernel:
         return self._attributes
 
     def _get_arguments_info(self, param_info=False) -> tuple[int, list[ParamInfo]]:
-        attr_impl = self.attributes
-        if "paraminfo" not in attr_impl._loader:
+        if not _is_paraminfo_supported():
             driver_ver = _get_driver_ver()
             raise NotImplementedError(
                 "Driver version 12.4 or newer is required for this function. "
@@ -457,7 +450,7 @@ class Kernel:
         arg_pos = 0
         param_info_data = []
         while True:
-            result = attr_impl._loader["paraminfo"](self._handle, arg_pos)
+            result = driver.cuKernelGetParamInfo(self._handle, arg_pos)
             if result[0] != driver.CUresult.CUDA_SUCCESS:
                 break
             if param_info:
@@ -516,7 +509,7 @@ class Kernel:
             # For CUkernel, we can (optionally) inverse-lookup the owning CUlibrary via
             # cuKernelGetLibrary (added in CUDA 12.5). If the API is not available, we fall
             # back to a non-null dummy handle purely to disable lazy loading.
-            mod = ObjectCode._init(b"", "cubin")
+            mod = ObjectCode._init(b"", "cubin", "", None)
             if _is_cukernel_get_library_supported():
                 try:
                     mod._handle = handle_return(driver.cuKernelGetLibrary(kernel_obj))
@@ -531,8 +524,9 @@ class Kernel:
 
 CodeTypeT = bytes | bytearray | str
 
+_supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "library")
 
-class ObjectCode:
+cdef class ObjectCode:
     """Represent a compiled program to be loaded onto the device.
 
     This object provides a unified interface for different types of
@@ -546,26 +540,20 @@ class ObjectCode:
     :class:`~cuda.core.Program`
     """
 
-    __slots__ = ("_handle", "_code_type", "_module", "_loader", "_sym_map", "_name")
-    _supported_code_type = ("cubin", "ptx", "ltoir", "fatbin", "object", "library")
-
-    def __new__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         raise RuntimeError(
             "ObjectCode objects cannot be instantiated directly. "
             "Please use ObjectCode APIs (from_cubin, from_ptx) or Program APIs (compile)."
         )
 
-    @classmethod
-    def _init(cls, module, code_type, *, name: str = "", symbol_mapping: dict | None = None):
-        self = super().__new__(cls)
-        assert code_type in self._supported_code_type, f"{code_type=} is not supported"
+    @staticmethod
+    cdef ObjectCode _init(object module, str code_type, str name = "", dict symbol_mapping = None):
+        assert code_type in _supported_code_type, f"{code_type=} is not supported"
+        cdef ObjectCode self = ObjectCode.__new__(ObjectCode)
 
         # handle is assigned during _lazy_load
         self._handle = None
-
-        # Ensure backend is initialized before setting loader
         _lazy_init()
-        self._loader = _backend
 
         self._code_type = code_type
         self._module = module
@@ -575,9 +563,14 @@ class ObjectCode:
         return self
 
     @classmethod
-    def _reduce_helper(self, module, code_type, name, symbol_mapping):
+    def _init_py(cls, module, code_type, *, name: str = "", symbol_mapping: dict | None = None):
+        """Python-accessible factory method for use by _program.py and _linker.py."""
+        return ObjectCode._init(module, code_type, name if name else "", symbol_mapping)
+
+    @classmethod
+    def _reduce_helper(cls, module, code_type, name, symbol_mapping):
         # just for forwarding kwargs
-        return ObjectCode._init(module, code_type, name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, code_type, name if name else "", symbol_mapping)
 
     def __reduce__(self):
         return ObjectCode._reduce_helper, (self._module, self._code_type, self._name, self._sym_map)
@@ -598,7 +591,7 @@ class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "cubin", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "cubin", name, symbol_mapping)
 
     @staticmethod
     def from_ptx(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -616,7 +609,7 @@ class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "ptx", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "ptx", name, symbol_mapping)
 
     @staticmethod
     def from_ltoir(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -634,7 +627,7 @@ class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "ltoir", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "ltoir", name, symbol_mapping)
 
     @staticmethod
     def from_fatbin(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -652,7 +645,7 @@ class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "fatbin", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "fatbin", name, symbol_mapping)
 
     @staticmethod
     def from_object(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -670,7 +663,7 @@ class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "object", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "object", name, symbol_mapping)
 
     @staticmethod
     def from_library(module: bytes | str, *, name: str = "", symbol_mapping: dict | None = None) -> ObjectCode:
@@ -688,24 +681,24 @@ class ObjectCode:
             should be mapped to the mangled names before trying to retrieve
             them (default to no mappings).
         """
-        return ObjectCode._init(module, "library", name=name, symbol_mapping=symbol_mapping)
+        return ObjectCode._init(module, "library", name, symbol_mapping)
 
     # TODO: do we want to unload in a finalizer? Probably not..
 
-    def _lazy_load_module(self, *args, **kwargs):
+    cdef int _lazy_load_module(self) except -1:
         if self._handle is not None:
-            return
+            return 0
         module = self._module
         assert_type_str_or_bytes_like(module)
         if isinstance(module, str):
-            self._handle = handle_return(self._loader["file"](module.encode(), [], [], 0, [], [], 0))
-            return
+            self._handle = handle_return(driver.cuLibraryLoadFromFile(module.encode(), [], [], 0, [], [], 0))
+            return 0
         if isinstance(module, (bytes, bytearray)):
-            self._handle = handle_return(self._loader["data"](module, [], [], 0, [], [], 0))
-            return
+            self._handle = handle_return(driver.cuLibraryLoadData(module, [], [], 0, [], [], 0))
+            return 0
         raise_code_path_meant_to_be_unreachable()
+        return -1
 
-    @precondition(_lazy_load_module)
     def get_kernel(self, name) -> Kernel:
         """Return the :obj:`~_module.Kernel` of a specified name from this object code.
 
@@ -720,6 +713,7 @@ class ObjectCode:
             Newly created kernel object.
 
         """
+        self._lazy_load_module()
         supported_code_types = ("cubin", "ptx", "fatbin")
         if self._code_type not in supported_code_types:
             raise RuntimeError(f'Unsupported code type "{self._code_type}" ({supported_code_types=})')
@@ -728,7 +722,7 @@ class ObjectCode:
         except KeyError:
             name = name.encode()
 
-        data = handle_return(self._loader["kernel"](self._handle, name))
+        data = handle_return(driver.cuLibraryGetKernel(self._handle, name))
         return Kernel._from_obj(data, self)
 
     @property
@@ -747,7 +741,6 @@ class ObjectCode:
         return self._code_type
 
     @property
-    @precondition(_lazy_load_module)
     def handle(self):
         """Return the underlying handle object.
 
@@ -756,4 +749,5 @@ class ObjectCode:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(ObjectCode.handle)``.
         """
+        self._lazy_load_module()
         return self._handle

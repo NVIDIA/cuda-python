@@ -688,7 +688,7 @@ class Program:
         elif code_type == "ptx":
             assert_type(code, str)
             self._linker = Linker(
-                ObjectCode._init(code.encode(), code_type), options=self._translate_program_options(options)
+                ObjectCode._init_py(code.encode(), code_type), options=self._translate_program_options(options)
             )
             self._backend = self._linker.backend
 
@@ -806,7 +806,7 @@ class Program:
                     handle_return(nvrtc.nvrtcGetProgramLog(self._mnff.handle, log), handle=self._mnff.handle)
                     logs.write(log.decode("utf-8", errors="backslashreplace"))
 
-            return ObjectCode._init(data, target_type, symbol_mapping=symbol_mapping, name=self._options.name)
+            return ObjectCode._init_py(data, target_type, symbol_mapping=symbol_mapping, name=self._options.name)
 
         elif self._backend == "NVVM":
             if target_type not in ("ptx", "ltoir"):
@@ -832,7 +832,7 @@ class Program:
                     nvvm.get_program_log(self._mnff.handle, log)
                     logs.write(log.decode("utf-8", errors="backslashreplace"))
 
-            return ObjectCode._init(data, target_type, name=self._options.name)
+            return ObjectCode._init_py(data, target_type, name=self._options.name)
 
         supported_backends = ("nvJitLink", "driver")
         if self._backend not in supported_backends:
