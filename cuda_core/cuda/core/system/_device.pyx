@@ -722,6 +722,30 @@ cdef class Device:
                 pci_bus_id = pci_bus_id.decode("ascii")
             self._handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
 
+    def to_cuda_device(self) -> "cuda.core.Device":
+        """
+        Get the corresponding :class:`cuda.core.Device` (which is used for CUDA
+        access) for this :class:`cuda.core.system.Device` (which is used for
+        NVIDIA machine library (NVML) access).
+
+        The devices are mapped to one another by their UUID.
+
+        Returns
+        -------
+        cuda.core.Device
+            The corresponding CUDA device.
+        """
+        from cuda.core import Device as CudaDevice
+
+        # CUDA does not have an API to get a device by its UUID, so we just
+        # search all the devices for one with a matching UUID.
+
+        for cuda_device in CudaDevice.get_all_devices():
+            if cuda_device.uuid == self.uuid:
+                return cuda_device
+
+        raise RuntimeError("No corresponding CUDA device found for this NVML device.")
+
     @classmethod
     def get_device_count(cls) -> int:
         """
@@ -1036,8 +1060,16 @@ cdef class Device:
         Retrieves the globally unique immutable UUID associated with this
         device, as a 5 part hexadecimal string, that augments the immutable,
         board serial identifier.
+
+        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
+        prefix.  That is not included in ``cuda.core.system``.
         """
-        return nvml.device_get_uuid(self._handle)
+        # NVML UUIDs have a `GPU-` or `MIG-` prefix.  We remove that here.
+
+        # TODO: If the user cares about the prefix, we will expose that in the
+        # future using the MIG-related APIs in NVML.
+
+        return nvml.device_get_uuid(self._handle)[4:]
 
     def register_events(self, events: EventType | int | list[EventType | int]) -> DeviceEvents:
         """
