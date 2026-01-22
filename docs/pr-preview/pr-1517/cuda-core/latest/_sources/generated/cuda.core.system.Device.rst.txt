@@ -32,6 +32,7 @@ cuda.core.system.Device
    .. automethod:: get_topology_nearest_gpus
    .. automethod:: register_events
    .. automethod:: set_cpu_affinity
+   .. automethod:: to_cuda_device
 
    
    
@@ -42,7 +43,7 @@ cuda.core.system.Device
 
    
    .. autoattribute:: addressing_mode
-   .. autoattribute:: architecture
+   .. autoattribute:: arch
    .. autoattribute:: attributes
    .. autoattribute:: bar1_memory_info
    .. autoattribute:: brand
