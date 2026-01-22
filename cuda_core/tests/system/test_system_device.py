@@ -12,6 +12,7 @@ import array
 import multiprocessing
 import os
 import re
+import warnings
 
 import helpers
 import pytest
@@ -26,6 +27,23 @@ if system.CUDA_BINDINGS_NVML_IS_COMPATIBLE:
 def check_gpu_available():
     if not system.CUDA_BINDINGS_NVML_IS_COMPATIBLE or system.get_num_devices() == 0:
         pytest.skip("No GPUs available to run device tests", allow_module_level=True)
+
+
+def test_devices_are_the_same_architecture():
+    # The tests in this directory that use `unsupported_before` will generally
+    # skip the entire test after the first device that isn't supported is found.
+    # This means that if subsequent devices are of a different architecture,
+    # they won't be tested properly.  This tests for the (hopefully rare) case
+    # where a system has devices of different architectures and produces a warning.
+
+    all_arches = set(device.arch for device in system.Device.get_all_devices())
+
+    if len(all_arches) > 1:
+        warnings.warn(  # noqa: B028
+            f"System has devices of multiple architectures ({', '.join(x.name for x in all_arches)}). "
+            f" Some tests may be skipped unexpectedly",
+            UserWarning,
+        )
 
 
 def test_device_count():
