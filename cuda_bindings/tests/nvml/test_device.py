@@ -153,7 +153,8 @@ def test_set_power_management_limit(all_devices):
 
 def test_set_temperature_threshold(all_devices):
     for device in all_devices:
-        with unsupported_before(device, nvml.DeviceArch.MAXWELL):
+        # Docs say supported on MAXWELL or newer
+        with unsupported_before(device, None):
             temp = nvml.device_get_temperature_threshold(
                 device, nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_CURR
             )
