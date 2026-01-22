@@ -131,7 +131,7 @@ def _build_cuda_core():
 
         return sources
 
-    all_include_dirs = [os.path.join(path, "include") for path in _get_cuda_paths()]
+    all_include_dirs = list(os.path.join(root, "include") for root in _get_cuda_paths())
     extra_compile_args = []
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not
