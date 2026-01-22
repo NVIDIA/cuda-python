@@ -65,7 +65,7 @@ def _check_version_detection(
         cuda_h = include_dir / "cuda.h"
         cuda_h.write_text(f"#define CUDA_VERSION {cuda_version}\n")
 
-        build_hooks._get_cuda_paths.cache_clear()
+        build_hooks._get_cuda_path.cache_clear()
         build_hooks._determine_cuda_major_version.cache_clear()
 
         mock_env = {
@@ -89,7 +89,7 @@ class TestGetCudaMajorVersion:
     @pytest.mark.parametrize("version", ["11", "12", "13", "14"])
     def test_env_var_override(self, version):
         """CUDA_CORE_BUILD_MAJOR env var override works with various versions."""
-        build_hooks._get_cuda_paths.cache_clear()
+        build_hooks._get_cuda_path.cache_clear()
         build_hooks._determine_cuda_major_version.cache_clear()
         with mock.patch.dict(os.environ, {"CUDA_CORE_BUILD_MAJOR": version}, clear=False):
             result = build_hooks._determine_cuda_major_version()
@@ -122,7 +122,7 @@ class TestGetCudaMajorVersion:
 
     def test_missing_cuda_path_raises_error(self):
         """RuntimeError is raised when CUDA_PATH/CUDA_HOME not set and no env var override."""
-        build_hooks._get_cuda_paths.cache_clear()
+        build_hooks._get_cuda_path.cache_clear()
         build_hooks._determine_cuda_major_version.cache_clear()
         with (
             mock.patch.dict(os.environ, {}, clear=True),

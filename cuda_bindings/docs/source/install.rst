@@ -87,11 +87,15 @@ Requirements
 
 [^2]: The CUDA Runtime static library (``libcudart_static.a`` on Linux, ``cudart_static.lib`` on Windows) is part of the CUDA Toolkit. If using conda packages, it is contained in the ``cuda-cudart-static`` package.
 
-Source builds require that the provided CUDA headers are of the same major.minor version as the ``cuda.bindings`` you're trying to build. Despite this requirement, note that the minor version compatibility is still maintained. Use the ``CUDA_HOME`` (or ``CUDA_PATH``) environment variable to specify the location of your headers. For example, if your headers are located in ``/usr/local/cuda/include``, then you should set ``CUDA_HOME`` with:
+Source builds require that the provided CUDA headers are of the same major.minor version as the ``cuda.bindings`` you're trying to build. Despite this requirement, note that the minor version compatibility is still maintained. Use the ``CUDA_PATH`` (or ``CUDA_HOME``) environment variable to specify the location of your headers. If both are set, ``CUDA_PATH`` takes precedence (see :py:data:`cuda.pathfinder._utils.env_vars.CUDA_ENV_VARS_ORDERED`). For example, if your headers are located in ``/usr/local/cuda/include``, then you should set ``CUDA_PATH`` with:
 
 .. code-block:: console
 
-   $ export CUDA_HOME=/usr/local/cuda
+   $ export CUDA_PATH=/usr/local/cuda
+
+.. note::
+
+   The CUDA Toolkit path is determined once at the start of the build process and cached. If you need to change the path during development, restart your build environment.
 
 See `Environment Variables <environment_variables.rst>`_ for a description of other build-time environment variables.
 

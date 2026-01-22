@@ -23,14 +23,22 @@ from setuptools.command.build_py import build_py
 from setuptools.command.editable_wheel import _TopLevelFinder, editable_wheel
 from setuptools.extension import Extension
 
+# Note: cuda_bindings requires cuda.pathfinder to be installed to ensure consistent
+# environment variable handling across all CUDA Python packages.
+try:
+    from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+except ImportError as e:
+    raise RuntimeError(
+        "cuda.pathfinder package is required to build cuda_bindings. "
+        "Please install it first: pip install cuda-pathfinder"
+    ) from e
+
 # ----------------------------------------------------------------------
 # Fetch configuration options
 
-CUDA_HOME = os.environ.get("CUDA_HOME", os.environ.get("CUDA_PATH", None))
+CUDA_HOME = get_cuda_home_or_path()
 if not CUDA_HOME:
-    raise RuntimeError("Environment variable CUDA_HOME or CUDA_PATH is not set")
-
-CUDA_HOME = CUDA_HOME.split(os.pathsep)
+    raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
 
 if os.environ.get("PARALLEL_LEVEL") is not None:
     warn(
@@ -207,7 +215,7 @@ def parse_headers(header_dict):
     return found_types, found_functions, found_values, found_struct, struct_list
 
 
-include_path_list = [os.path.join(path, "include") for path in CUDA_HOME]
+include_path_list = [os.path.join(CUDA_HOME, "include")]
 header_dict = fetch_header_paths(required_headers, include_path_list)
 found_types, found_functions, found_values, found_struct, struct_list = parse_headers(header_dict)
 
@@ -260,7 +268,7 @@ include_dirs = [
 ] + include_path_list
 library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib")]
 cudalib_subdirs = [r"lib\x64"] if sys.platform == "win32" else ["lib64", "lib"]
-library_dirs.extend(os.path.join(prefix, subdir) for prefix in CUDA_HOME for subdir in cudalib_subdirs)
+library_dirs.extend(os.path.join(CUDA_HOME, subdir) for subdir in cudalib_subdirs)
 
 extra_compile_args = []
 extra_cythonize_kwargs = {}

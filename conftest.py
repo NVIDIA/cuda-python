@@ -5,9 +5,18 @@ import os
 
 import pytest
 
+# Import centralized CUDA environment variable handling
+try:
+    from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+except ImportError as e:
+    raise ImportError(
+        "Failed to import cuda.pathfinder. "
+        "Please ensure cuda-pathfinder is installed: pip install cuda-pathfinder"
+    ) from e
+
 
 def pytest_collection_modifyitems(config, items):
-    cuda_home = os.environ.get("CUDA_HOME")
+    cuda_home = get_cuda_home_or_path()
     for item in items:
         nodeid = item.nodeid.replace("\\", "/")
 

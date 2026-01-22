@@ -8,19 +8,13 @@ from common.helper_cuda import checkCudaErrors
 from cuda.bindings import driver as cuda
 from cuda.bindings import nvrtc
 from cuda.bindings import runtime as cudart
-
-
-def get_cuda_home():
-    cuda_home = os.getenv("CUDA_HOME")
-    if cuda_home is None:
-        cuda_home = os.getenv("CUDA_PATH")
-    return cuda_home
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 
 
 def pytest_skipif_cuda_include_not_found():
     import pytest
 
-    cuda_home = get_cuda_home()
+    cuda_home = get_cuda_home_or_path()
     if cuda_home is None:
         pytest.skip("CUDA_HOME/CUDA_PATH not set")
     cuda_include = os.path.join(cuda_home, "include")
@@ -46,7 +40,7 @@ class KernelHelper:
     def __init__(self, code, devID):
         prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(code), b"sourceCode.cu", 0, None, None))
 
-        cuda_home = get_cuda_home()
+        cuda_home = get_cuda_home_or_path()
         assert cuda_home is not None
         cuda_include = os.path.join(cuda_home, "include")
         assert os.path.isdir(cuda_include)

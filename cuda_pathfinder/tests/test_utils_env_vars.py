@@ -8,7 +8,11 @@ import warnings
 
 import pytest
 
-from cuda.pathfinder._utils.env_vars import _paths_differ, get_cuda_home_or_path
+from cuda.pathfinder._utils.env_vars import (
+    CUDA_ENV_VARS_ORDERED,
+    _paths_differ,
+    get_cuda_home_or_path,
+)
 
 skip_symlink_tests = pytest.mark.skipif(
     sys.platform == "win32",
@@ -20,6 +24,8 @@ def unset_env(monkeypatch):
     """Helper to clear both env vars for each test."""
     monkeypatch.delenv("CUDA_HOME", raising=False)
     monkeypatch.delenv("CUDA_PATH", raising=False)
+    # Clear the cache so each test gets fresh behavior
+    get_cuda_home_or_path.cache_clear()
 
 
 def test_returns_none_when_unset(monkeypatch):
@@ -27,14 +33,15 @@ def test_returns_none_when_unset(monkeypatch):
     assert get_cuda_home_or_path() is None
 
 
-def test_empty_cuda_home_preserved(monkeypatch):
+def test_empty_cuda_path_preserved(monkeypatch):
     # empty string is returned as-is if set.
-    monkeypatch.setenv("CUDA_HOME", "")
-    monkeypatch.setenv("CUDA_PATH", "/does/not/matter")
+    unset_env(monkeypatch)
+    monkeypatch.setenv("CUDA_PATH", "")
+    monkeypatch.setenv("CUDA_HOME", "/does/not/matter")
     assert get_cuda_home_or_path() == ""
 
 
-def test_prefers_cuda_home_over_cuda_path(monkeypatch, tmp_path):
+def test_prefers_cuda_path_over_cuda_home(monkeypatch, tmp_path):
     unset_env(monkeypatch)
     home = tmp_path / "home"
     path = tmp_path / "path"
@@ -44,18 +51,18 @@ def test_prefers_cuda_home_over_cuda_path(monkeypatch, tmp_path):
     monkeypatch.setenv("CUDA_HOME", str(home))
     monkeypatch.setenv("CUDA_PATH", str(path))
 
-    # Different directories -> warning + prefer CUDA_HOME
-    with pytest.warns(UserWarning, match="Both CUDA_HOME and CUDA_PATH are set but differ"):
+    # Different directories -> warning + prefer CUDA_PATH
+    with pytest.warns(UserWarning, match="Multiple CUDA environment variables are set but differ"):
         result = get_cuda_home_or_path()
-    assert pathlib.Path(result) == home
+    assert pathlib.Path(result) == path
 
 
-def test_uses_cuda_path_if_home_missing(monkeypatch, tmp_path):
+def test_uses_cuda_home_if_path_missing(monkeypatch, tmp_path):
     unset_env(monkeypatch)
-    only_path = tmp_path / "path"
-    only_path.mkdir()
-    monkeypatch.setenv("CUDA_PATH", str(only_path))
-    assert pathlib.Path(get_cuda_home_or_path()) == only_path
+    only_home = tmp_path / "home"
+    only_home.mkdir()
+    monkeypatch.setenv("CUDA_HOME", str(only_home))
+    assert pathlib.Path(get_cuda_home_or_path()) == only_home
 
 
 def test_no_warning_when_textually_equal_after_normalization(monkeypatch, tmp_path):
@@ -68,8 +75,8 @@ def test_no_warning_when_textually_equal_after_normalization(monkeypatch, tmp_pa
     d.mkdir()
 
     with_slash = str(d) + ("/" if os.sep == "/" else "\\")
-    monkeypatch.setenv("CUDA_HOME", str(d))
-    monkeypatch.setenv("CUDA_PATH", with_slash)
+    monkeypatch.setenv("CUDA_PATH", str(d))
+    monkeypatch.setenv("CUDA_HOME", with_slash)
 
     # No warning; same logical directory
     with warnings.catch_warnings(record=True) as record:
@@ -89,8 +96,8 @@ def test_no_warning_on_windows_case_only_difference(monkeypatch, tmp_path):
 
     upper = str(d).upper()
     lower = str(d).lower()
-    monkeypatch.setenv("CUDA_HOME", upper)
-    monkeypatch.setenv("CUDA_PATH", lower)
+    monkeypatch.setenv("CUDA_PATH", upper)
+    monkeypatch.setenv("CUDA_HOME", lower)
 
     with warnings.catch_warnings(record=True) as record:
         warnings.simplefilter("always")
@@ -106,11 +113,11 @@ def test_warning_when_both_exist_and_are_different(monkeypatch, tmp_path):
     a.mkdir()
     b.mkdir()
 
-    monkeypatch.setenv("CUDA_HOME", str(a))
-    monkeypatch.setenv("CUDA_PATH", str(b))
+    monkeypatch.setenv("CUDA_PATH", str(a))
+    monkeypatch.setenv("CUDA_HOME", str(b))
 
     # Different actual dirs -> warning
-    with pytest.warns(UserWarning, match="Both CUDA_HOME and CUDA_PATH are set but differ"):
+    with pytest.warns(UserWarning, match="Multiple CUDA environment variables are set but differ"):
         result = get_cuda_home_or_path()
     assert pathlib.Path(result) == a
 
@@ -124,10 +131,10 @@ def test_nonexistent_paths_fall_back_to_text_comparison(monkeypatch, tmp_path):
     a = tmp_path / "does_not_exist_a"
     b = tmp_path / "does_not_exist_b"
 
-    monkeypatch.setenv("CUDA_HOME", str(a))
-    monkeypatch.setenv("CUDA_PATH", str(b))
+    monkeypatch.setenv("CUDA_PATH", str(a))
+    monkeypatch.setenv("CUDA_HOME", str(b))
 
-    with pytest.warns(UserWarning, match="Both CUDA_HOME and CUDA_PATH are set but differ"):
+    with pytest.warns(UserWarning, match="Multiple CUDA environment variables are set but differ"):
         result = get_cuda_home_or_path()
     assert pathlib.Path(result) == a
 
@@ -146,8 +153,8 @@ def test_samefile_equivalence_via_symlink_when_possible(monkeypatch, tmp_path):
     os.symlink(str(real_dir), str(link_dir), target_is_directory=True)
 
     # Set env vars to real and alias
-    monkeypatch.setenv("CUDA_HOME", str(real_dir))
-    monkeypatch.setenv("CUDA_PATH", str(link_dir))
+    monkeypatch.setenv("CUDA_PATH", str(real_dir))
+    monkeypatch.setenv("CUDA_HOME", str(link_dir))
 
     # Because they resolve to the same entry, no warning should be raised
     with warnings.catch_warnings(record=True) as record:
@@ -155,6 +162,41 @@ def test_samefile_equivalence_via_symlink_when_possible(monkeypatch, tmp_path):
         result = get_cuda_home_or_path()
     assert pathlib.Path(result) == real_dir
     assert len(record) == 0
+
+
+def test_cuda_env_vars_ordered_constant():
+    """
+    Verify the canonical search order constant is defined correctly.
+    CUDA_PATH must have higher priority than CUDA_HOME.
+    """
+    assert CUDA_ENV_VARS_ORDERED == ("CUDA_PATH", "CUDA_HOME")
+    assert CUDA_ENV_VARS_ORDERED[0] == "CUDA_PATH"  # highest priority
+    assert CUDA_ENV_VARS_ORDERED[1] == "CUDA_HOME"  # lower priority
+
+
+def test_search_order_matches_implementation(monkeypatch, tmp_path):
+    """
+    Verify that get_cuda_home_or_path() follows the documented search order.
+    """
+    unset_env(monkeypatch)
+    path_dir = tmp_path / "path_dir"
+    home_dir = tmp_path / "home_dir"
+    path_dir.mkdir()
+    home_dir.mkdir()
+
+    # Set both env vars to different values
+    monkeypatch.setenv("CUDA_PATH", str(path_dir))
+    monkeypatch.setenv("CUDA_HOME", str(home_dir))
+
+    # The result should match the first (highest priority) variable in CUDA_ENV_VARS_ORDERED
+    with warnings.catch_warnings(record=True):
+        warnings.simplefilter("always")
+        result = get_cuda_home_or_path()
+
+    highest_priority_var = CUDA_ENV_VARS_ORDERED[0]
+    expected = os.environ.get(highest_priority_var)
+    assert result == expected
+    assert pathlib.Path(result) == path_dir  # CUDA_PATH should win
 
 
 # --- unit tests for the helper itself (optional but nice to have) ---
@@ -179,3 +221,36 @@ def test_paths_differ_samefile(tmp_path):
 
     # Should detect equivalence via samefile
     assert _paths_differ(str(real_dir), str(alias)) is False
+
+
+def test_caching_behavior(monkeypatch, tmp_path):
+    """
+    Verify that get_cuda_home_or_path() caches the result and returns the same
+    value even if environment variables change after the first call.
+    """
+    unset_env(monkeypatch)
+    
+    first_dir = tmp_path / "first"
+    second_dir = tmp_path / "second"
+    first_dir.mkdir()
+    second_dir.mkdir()
+    
+    # Set initial value
+    monkeypatch.setenv("CUDA_PATH", str(first_dir))
+    
+    # First call should return first_dir
+    result1 = get_cuda_home_or_path()
+    assert pathlib.Path(result1) == first_dir
+    
+    # Change the environment variable
+    monkeypatch.setenv("CUDA_PATH", str(second_dir))
+    
+    # Second call should still return first_dir (cached value)
+    result2 = get_cuda_home_or_path()
+    assert pathlib.Path(result2) == first_dir
+    assert result1 == result2
+    
+    # After clearing cache, should get new value
+    get_cuda_home_or_path.cache_clear()
+    result3 = get_cuda_home_or_path()
+    assert pathlib.Path(result3) == second_dir
