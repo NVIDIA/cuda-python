@@ -28,6 +28,7 @@ from setuptools.extension import Extension
 
 try:
     from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+
     CUDA_HOME = get_cuda_home_or_path()
 except ImportError:
     # Fallback for build environments where cuda-pathfinder may not be available
