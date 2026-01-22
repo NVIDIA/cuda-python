@@ -1458,7 +1458,7 @@ packages:
     target_platform: linux-64
   depends:
   - python
-  - cuda-pathfinder >=1.1,<2
+  - cuda-pathfinder
   - libnvjitlink
   - cuda-nvrtc
   - cuda-nvrtc >=13.1.115,<14.0a0
@@ -1480,7 +1480,7 @@ packages:
     target_platform: linux-aarch64
   depends:
   - python
-  - cuda-pathfinder >=1.1,<2
+  - cuda-pathfinder
   - libnvjitlink
   - cuda-nvrtc
   - cuda-nvrtc >=13.1.115,<14.0a0
@@ -1504,7 +1504,7 @@ packages:
     target_platform: win-64
   depends:
   - python
-  - cuda-pathfinder >=1.1,<2
+  - cuda-pathfinder
   - libnvjitlink
   - cuda-nvrtc
   - cuda-nvrtc >=13.1.115,<14.0a0

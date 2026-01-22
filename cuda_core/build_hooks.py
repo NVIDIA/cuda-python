@@ -26,19 +26,7 @@ COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 @functools.cache
 def _get_cuda_paths() -> list[str]:
-    """Get list of CUDA Toolkit paths from environment variables.
-
-    Supports multiple paths separated by os.pathsep (: on Unix, ; on Windows).
-    Returns a list of paths for use in include_dirs and library_dirs.
-    """
-    try:
-        from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
-
-        CUDA_PATH = get_cuda_home_or_path()
-    except ImportError:
-        # Fallback for build environments where cuda-pathfinder may not be available
-        CUDA_PATH = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
-
+    CUDA_PATH = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME", None))
     if not CUDA_PATH:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
     CUDA_PATH = CUDA_PATH.split(os.pathsep)

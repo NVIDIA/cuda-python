@@ -27,9 +27,7 @@ if np.lib.NumpyVersion(np.__version__) < "2.2.5":
     sys.exit(0)
 
 # prepare include
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
-
-cuda_path = get_cuda_home_or_path()
+cuda_path = os.environ.get("CUDA_PATH", os.environ.get("CUDA_HOME"))
 if cuda_path is None:
     print("this demo requires a valid CUDA_PATH environment variable set", file=sys.stderr)
     sys.exit(0)

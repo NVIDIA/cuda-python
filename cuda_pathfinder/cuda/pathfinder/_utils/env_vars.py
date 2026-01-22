@@ -17,12 +17,6 @@ Important Note on Caching:
     call determines the CUDA Toolkit path, and all subsequent calls return the cached
     value, even if environment variables change later. This ensures consistent behavior
     throughout the application lifecycle.
-
-.. versionadded:: 1.4.0
-   Added centralized environment variable handling.
-
-.. versionchanged:: 1.4.0
-   **Breaking Change**: Priority changed from CUDA_HOME > CUDA_PATH to CUDA_PATH > CUDA_HOME.
 """
 
 import functools
