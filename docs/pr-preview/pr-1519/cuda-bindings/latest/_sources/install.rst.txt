@@ -93,10 +93,6 @@ Source builds require that the provided CUDA headers are of the same major.minor
 
    $ export CUDA_PATH=/usr/local/cuda
 
-.. note::
-
-   The CUDA Toolkit path is determined once at the start of the build process and cached. If you need to change the path during development, restart your build environment.
-
 See `Environment Variables <environment_variables.rst>`_ for a description of other build-time environment variables.
 
 .. note::
