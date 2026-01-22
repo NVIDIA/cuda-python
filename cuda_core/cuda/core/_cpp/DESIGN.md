@@ -101,25 +101,20 @@ return as_py(h_stream)  # cuda.bindings.driver.CUstream
 ```
 cuda/core/
 ├── _resource_handles.pyx    # Cython module (compiles resource_handles.cpp)
-├── _resource_handles.pxd    # Cython declarations and dispatch wrappers
+├── _resource_handles.pxd    # Cython declarations for consumer modules
 └── _cpp/
     ├── resource_handles.hpp       # C++ API declarations
-    ├── resource_handles.cpp       # C++ implementation
-    └── resource_handles_cxx_api.hpp  # Capsule struct definition
+    └── resource_handles.cpp       # C++ implementation
 ```
 
 ### Build Implications
 
 The `_cpp/` subdirectory contains C++ source files that are compiled into the
 `_resource_handles` extension module. Other Cython modules in cuda.core do **not**
-link against this code directly—they access it through a capsule mechanism
-(explained below).
+link against this code directly—they `cimport` functions from
+`_resource_handles.pxd`, and calls go through `_resource_handles.so` at runtime.
 
-## Capsule Architecture
-
-The implementation uses **two separate capsule mechanisms** for different purposes:
-
-### Capsule 1: C++ API Table (`_CXX_API`)
+## Cross-Module Function Sharing
 
 **Problem**: Cython extension modules compile independently. If multiple modules
 (`_memory.pyx`, `_ipc.pyx`, etc.) each linked `resource_handles.cpp`, they would
@@ -129,69 +124,70 @@ each have their own copies of:
 - Thread-local error state
 - Other static data, including global caches
 
-**Solution**: Only `_resource_handles.so` links the C++ code. It exports a capsule
-containing function pointers:
-
-```cpp
-struct ResourceHandlesCxxApiV1 {
-    uint32_t abi_version;
-    uint32_t struct_size;
-
-    // Thread-local error handling
-    CUresult (*get_last_error)() noexcept;
-    CUresult (*peek_last_error)() noexcept;
-    void (*clear_last_error)() noexcept;
-
-    // Handle creation functions
-    ContextHandle (*get_primary_context)(int device_id) noexcept;
-    StreamHandle (*create_stream_handle)(...) noexcept;
-    // ... etc
-};
-```
-
-Other Cython modules import this capsule at runtime and call through the function
-pointers. The `.pxd` file provides inline wrappers that hide this indirection:
+**Solution**: Only `_resource_handles.so` links the C++ code. The `.pyx` file
+uses `cdef extern from` to declare C++ functions with Cython-accessible names:
 
 ```cython
-cdef inline StreamHandle create_stream_handle(...) except * nogil:
-    return _handles_table.create_stream_handle(...)
+# In _resource_handles.pyx
+cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
+    StreamHandle create_stream_handle "cuda_core::create_stream_handle" (
+        ContextHandle h_ctx, unsigned int flags, int priority) nogil
+    # ... other functions
 ```
 
-Importing modules are expected to call `_init_handles_table()` prior to calling
-any wrapper functions.
+The `.pxd` file declares these same functions so other modules can `cimport` them:
 
-### Capsule 2: CUDA Driver API (`_CUDA_DRIVER_API_V1`)
+```cython
+# In _resource_handles.pxd
+cdef StreamHandle create_stream_handle(
+    ContextHandle h_ctx, unsigned int flags, int priority) noexcept nogil
+```
+
+The `cdef extern from` declaration in the `.pyx` satisfies the `.pxd` declaration
+directly—no wrapper functions are needed. When consumer modules `cimport` these
+functions, Cython generates calls through `_resource_handles.so` at runtime.
+This ensures all static and thread-local state lives in a single shared library,
+avoiding the duplicate state problem.
+
+## CUDA Driver API Capsule (`_CUDA_DRIVER_API_V1`)
 
 **Problem**: cuda.core cannot directly call CUDA driver functions because:
 
 1. We don't want to link against `libcuda.so` at build time.
 2. The driver symbols must be resolved dynamically through cuda-bindings.
 
-**Solution**: `_resource_handles.pyx` creates a capsule containing CUDA driver
-function pointers obtained from cuda-bindings:
+**Solution**: The C++ code declares extern function pointer variables:
 
 ```cpp
-struct CudaDriverApiV1 {
-    uint32_t abi_version;
-    uint32_t struct_size;
-
-    uintptr_t cuDevicePrimaryCtxRetain;
-    uintptr_t cuDevicePrimaryCtxRelease;
-    uintptr_t cuStreamCreateWithPriority;
-    uintptr_t cuStreamDestroy;
-    // ... etc
-};
+// resource_handles.hpp
+extern decltype(&cuStreamCreateWithPriority) p_cuStreamCreateWithPriority;
+extern decltype(&cuMemPoolCreate) p_cuMemPoolCreate;
+// ... etc
 ```
 
-The C++ code retrieves this capsule once (via `load_driver_api()`) and caches the
-function pointers for subsequent use.
+At module import time, `_resource_handles.pyx` populates these pointers by
+extracting them from `cuda.bindings.cydriver.__pyx_capi__`:
 
-### Why Two Capsules?
+```cython
+import cuda.bindings.cydriver as cydriver
 
-| Capsule | Direction | Purpose |
-|---------|-----------|---------|
-| `_CXX_API` | C++ → Cython | Share handle functions across modules |
-| `_CUDA_DRIVER_API_V1` | Cython → C++ | Provide resolved driver symbols |
+cdef void* _get_driver_fn(str name):
+    capsule = cydriver.__pyx_capi__[name]
+    return PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule))
+
+p_cuStreamCreateWithPriority = _get_driver_fn("cuStreamCreateWithPriority")
+```
+
+The `__pyx_capi__` dictionary contains PyCapsules that Cython automatically
+generates for each `cdef` function declared in a `.pxd` file. Each capsule's
+name is the function's C signature; we query it with `PyCapsule_GetName()`
+rather than hardcoding signatures.
+
+This approach:
+- Avoids linking against `libcuda.so` at build time
+- Works on CPU-only machines (capsule extraction succeeds; actual driver calls
+  will return errors like `CUDA_ERROR_NO_DEVICE`)
+- Requires no custom capsule infrastructure—uses Cython's built-in mechanism
 
 ## Key Implementation Details
 
@@ -276,13 +272,11 @@ Related functions:
 from cuda.core._resource_handles cimport (
     StreamHandle,
     create_stream_handle,
-    cu,
-    intptr,
+    as_cu,
+    as_intptr,
+    as_py,
     get_last_error,
-    _init_handles_table,
 )
-
-_init_handles_table()  # prerequisite before calling handle API functions
 
 # Create a stream
 cdef StreamHandle h_stream = create_stream_handle(h_ctx, flags, priority)
@@ -302,10 +296,10 @@ The resource handle design:
 
 1. **Separates resource management** into its own layer, independent of Python objects.
 2. **Encodes lifetimes structurally** via embedded handle dependencies.
-3. **Uses capsules** to solve two distinct problems:
-   - Sharing C++ code across Cython modules without duplicate statics.
-   - Resolving CUDA driver symbols dynamically through cuda-bindings.
-4. **Provides overloaded accessors** (`cu`, `intptr`, `py`) since handles cannot
+3. **Uses Cython's `cimport` mechanism** to share C++ code across modules without
+   duplicate static/thread-local state.
+4. **Uses a capsule** to resolve CUDA driver symbols dynamically through cuda-bindings.
+5. **Provides overloaded accessors** (`as_cu`, `as_intptr`, `as_py`) since handles cannot
    have attributes without unnecessary Python object wrappers.
 
 This architecture ensures CUDA resources are managed correctly regardless of Python

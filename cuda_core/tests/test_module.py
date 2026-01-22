@@ -7,7 +7,7 @@ import warnings
 
 import cuda.core
 import pytest
-from cuda.core import Device, ObjectCode, Program, ProgramOptions
+from cuda.core import Device, Kernel, ObjectCode, Program, ProgramOptions
 from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
 
 try:
@@ -420,3 +420,91 @@ def test_module_serialization_roundtrip(get_saxpy_kernel_cubin):
     assert objcode.code == result.code
     assert objcode._sym_map == result._sym_map
     assert objcode.code_type == result.code_type
+
+
+def test_kernel_from_handle(get_saxpy_kernel_cubin):
+    """Test Kernel.from_handle() with a valid handle"""
+    original_kernel, objcode = get_saxpy_kernel_cubin
+
+    # Get the handle from the original kernel
+    handle = int(original_kernel._handle)
+
+    # Create a new Kernel from the handle
+    kernel_from_handle = Kernel.from_handle(handle, objcode)
+    assert isinstance(kernel_from_handle, Kernel)
+
+    # Verify we can access kernel attributes
+    max_threads = kernel_from_handle.attributes.max_threads_per_block()
+    assert isinstance(max_threads, int)
+    assert max_threads > 0
+
+
+def test_kernel_from_handle_no_module(get_saxpy_kernel_cubin):
+    """Test Kernel.from_handle() without providing a module"""
+    original_kernel, _ = get_saxpy_kernel_cubin
+
+    # Get the handle from the original kernel
+    handle = int(original_kernel._handle)
+
+    # Create a new Kernel from the handle without a module
+    # This is supported on CUDA 12+ backend (CUkernel)
+    kernel_from_handle = Kernel.from_handle(handle)
+    assert isinstance(kernel_from_handle, Kernel)
+
+    # Verify we can still access kernel attributes
+    max_threads = kernel_from_handle.attributes.max_threads_per_block()
+    assert isinstance(max_threads, int)
+    assert max_threads > 0
+
+
+@pytest.mark.parametrize(
+    "invalid_value",
+    [
+        pytest.param("not_an_int", id="str"),
+        pytest.param(2.71828, id="float"),
+        pytest.param(None, id="None"),
+        pytest.param({"handle": 123}, id="dict"),
+        pytest.param([456], id="list"),
+        pytest.param((789,), id="tuple"),
+        pytest.param(3 + 4j, id="complex"),
+        pytest.param(b"\xde\xad\xbe\xef", id="bytes"),
+        pytest.param({999}, id="set"),
+        pytest.param(object(), id="object"),
+    ],
+)
+def test_kernel_from_handle_type_validation(invalid_value):
+    """Test Kernel.from_handle() with wrong handle types"""
+    with pytest.raises(TypeError):
+        Kernel.from_handle(invalid_value)
+
+
+def test_kernel_from_handle_invalid_module_type(get_saxpy_kernel_cubin):
+    """Test Kernel.from_handle() with invalid module parameter"""
+    original_kernel, _ = get_saxpy_kernel_cubin
+    handle = int(original_kernel._handle)
+
+    # Invalid module type (should fail type assertion in _from_obj)
+    with pytest.raises((TypeError, AssertionError)):
+        Kernel.from_handle(handle, mod="not_an_objectcode")
+
+    with pytest.raises((TypeError, AssertionError)):
+        Kernel.from_handle(handle, mod=12345)
+
+
+def test_kernel_from_handle_multiple_instances(get_saxpy_kernel_cubin):
+    """Test creating multiple Kernel instances from the same handle"""
+    original_kernel, objcode = get_saxpy_kernel_cubin
+    handle = int(original_kernel._handle)
+
+    # Create multiple Kernel instances from the same handle
+    kernel1 = Kernel.from_handle(handle, objcode)
+    kernel2 = Kernel.from_handle(handle, objcode)
+    kernel3 = Kernel.from_handle(handle, objcode)
+
+    # All should be valid Kernel objects
+    assert isinstance(kernel1, Kernel)
+    assert isinstance(kernel2, Kernel)
+    assert isinstance(kernel3, Kernel)
+
+    # All should reference the same underlying CUDA kernel handle
+    assert int(kernel1._handle) == int(kernel2._handle) == int(kernel3._handle) == handle

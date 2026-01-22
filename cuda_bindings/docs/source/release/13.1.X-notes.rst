@@ -9,6 +9,7 @@
 Highlights
 ----------
 
+* Add ``nvFatbin`` bindings. (PR #1467 <https://github.com/NVIDIA/cuda-python/pull/1467>_)
 * Updated the ``cuda.bindings.runtime`` module to statically link against the CUDA Runtime library from CUDA Toolkit 13.1.1.
 
 Experimental

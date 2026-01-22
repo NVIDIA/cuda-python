@@ -79,19 +79,59 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.get_num_devices
    system.get_nvml_version
    system.get_process_name
+   system.get_topology_common_ancestor
+   system.get_p2p_status
+
+   system.register_events
+   system.RegisteredSystemEvents
+   system.SystemEvent
+   system.SystemEvents
+   system.SystemEventType
 
    :template: autosummary/cyclass.rst
 
    system.Device
+   system.AddressingMode
+   system.AffinityScope
    system.BAR1MemoryInfo
    system.BrandType
-   system.DeviceArchitecture
+   system.ClockId
+   system.ClockInfo
+   system.ClockOffsets
+   system.ClocksEventReasons
+   system.ClockType
+   system.CoolerControl
+   system.CoolerInfo
+   system.CoolerTarget
+   system.DeviceArch
    system.DeviceAttributes
+   system.DeviceEvents
+   system.EventData
+   system.EventType
+   system.FanControlPolicy
+   system.FanInfo
    system.FieldId
    system.FieldValue
    system.FieldValues
+   system.GpuDynamicPstatesInfo
+   system.GpuDynamicPstatesUtilization
+   system.GpuP2PCapsIndex
+   system.GpuP2PStatus
+   system.GpuTopologyLevel
+   system.InforomInfo
+   system.InforomObject
    system.MemoryInfo
+   system.PcieUtilCounter
    system.PciInfo
+   system.Pstates
+   system.RepairStatus
+   system.Temperature
+   system.TemperatureSensors
+   system.TemperatureThresholds
+   system.ThermalController
+   system.ThermalSensor
+   system.ThermalSettings
+   system.ThermalTarget
 
 .. module:: cuda.core.utils
 
