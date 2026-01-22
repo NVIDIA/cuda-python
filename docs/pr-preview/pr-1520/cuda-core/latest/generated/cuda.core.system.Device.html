@@ -44,7 +44,7 @@
 
 
 
-    <script src="../_static/documentation_options.js?v=e279b667"></script>
+    <script src="../_static/documentation_options.js?v=8d88a2b3"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,7 +53,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://nvidia.github.io/cuda-python/cuda-core/nv-versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev60';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5.1.dev66';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -518,7 +518,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.CoolerControl.html">cuda.core.system.CoolerControl</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.CoolerInfo.html">cuda.core.system.CoolerInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.CoolerTarget.html">cuda.core.system.CoolerTarget</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArchitecture.html">cuda.core.system.DeviceArchitecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceArch.html">cuda.core.system.DeviceArch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceAttributes.html">cuda.core.system.DeviceAttributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.DeviceEvents.html">cuda.core.system.DeviceEvents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cuda.core.system.EventData.html">cuda.core.system.EventData</a></li>
@@ -971,12 +971,30 @@ the <a class="reference internal" href="cuda.core.system.DeviceEvents.html#cuda.
 <p>Supported on Linux only.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="cuda.core.system.Device.to_cuda_device">
+<span class="sig-name descname"><span class="pre">to_cuda_device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="s"><span class="pre">'cuda.core.Device'</span></span></span></span><a class="headerlink" href="#cuda.core.system.Device.to_cuda_device" title="Link to this definition">#</a></dt>
+<dd><p>Get the corresponding <a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.Device</span></code></a> (which is used for CUDA
+access) for this <a class="reference internal" href="#cuda.core.system.Device" title="cuda.core.system.Device"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuda.core.system.Device</span></code></a> (which is used for
+NVIDIA machine library (NVML) access).</p>
+<p>The devices are mapped to one another by their UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The corresponding CUDA device.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="cuda.core.Device.html#cuda.core.Device" title="cuda.core.Device">cuda.core.Device</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cuda.core.system.Device.addressing_mode">
 <span class="sig-name descname"><span class="pre">addressing_mode</span></span><a class="headerlink" href="#cuda.core.system.Device.addressing_mode" title="Link to this definition">#</a></dt>
 <dd><p>AddressingMode</p>
 <p>Get the addressing mode of the device.</p>
+<p>For Turing™ or newer fully supported devices.</p>
 <p>Addressing modes can be one of:</p>
 <ul class="simple">
 <li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">AddressingMode.DEVICE_ADDRESSING_MODE_HMM</span></code>: System allocated
@@ -997,18 +1015,16 @@ is active.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cuda.core.system.Device.architecture">
-<span class="sig-name descname"><span class="pre">architecture</span></span><a class="headerlink" href="#cuda.core.system.Device.architecture" title="Link to this definition">#</a></dt>
-<dd><p>DeviceArchitecture</p>
-<p>Device architecture. For example, a Tesla V100 will report
-<code class="docutils literal notranslate"><span class="pre">DeviceArchitecture.name</span> <span class="pre">==</span> <span class="pre">&quot;Volta&quot;</span></code>, and RTX A6000 will report
-<code class="docutils literal notranslate"><span class="pre">DeviceArchitecture.name</span> <span class="pre">==</span> <span class="pre">&quot;Ampere&quot;</span></code>. If the device returns an
-architecture that is unknown to NVML then <code class="docutils literal notranslate"><span class="pre">DeviceArchitecture.name</span> <span class="pre">==</span>
-<span class="pre">&quot;Unknown&quot;</span></code> is reported, whereas an architecture that is unknown to
-cuda.core.system is reported as <code class="docutils literal notranslate"><span class="pre">DeviceArchitecture.name</span> <span class="pre">==</span> <span class="pre">&quot;Unlisted&quot;</span></code>.</p>
+<dt class="sig sig-object py" id="cuda.core.system.Device.arch">
+<span class="sig-name descname"><span class="pre">arch</span></span><a class="headerlink" href="#cuda.core.system.Device.arch" title="Link to this definition">#</a></dt>
+<dd><p>DeviceArch</p>
+<p>Device architecture.</p>
+<p>For example, a Tesla V100 will report <code class="docutils literal notranslate"><span class="pre">DeviceArchitecture.name</span> <span class="pre">==</span>
+<span class="pre">&quot;VOLTA&quot;</span></code>, and RTX A6000 will report <code class="docutils literal notranslate"><span class="pre">DeviceArchitecture.name</span> <span class="pre">==</span>
+<span class="pre">&quot;AMPERE&quot;</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Device.architecture</p>
+<dd class="field-odd"><p>Device.arch</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1304,6 +1320,7 @@ be 0.</p>
 <dd><p>str</p>
 <p>Retrieves the globally unique board serial number associated with this
 device’s board.</p>
+<p>For all products with an InfoROM.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Device.serial</p>
@@ -1330,6 +1347,8 @@ device’s board.</p>
 <p>Retrieves the globally unique immutable UUID associated with this
 device, as a 5 part hexadecimal string, that augments the immutable,
 board serial identifier.</p>
+<p>In the upstream NVML C++ API, the UUID includes a <code class="docutils literal notranslate"><span class="pre">gpu-</span></code> or <code class="docutils literal notranslate"><span class="pre">mig-</span></code>
+prefix.  That is not included in <code class="docutils literal notranslate"><span class="pre">cuda.core.system</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Device.uuid</p>
@@ -1410,8 +1429,9 @@ board serial identifier.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.get_topology_nearest_gpus"><code class="docutils literal notranslate"><span class="pre">Device.get_topology_nearest_gpus()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.register_events"><code class="docutils literal notranslate"><span class="pre">Device.register_events()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.set_cpu_affinity"><code class="docutils literal notranslate"><span class="pre">Device.set_cpu_affinity()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.to_cuda_device"><code class="docutils literal notranslate"><span class="pre">Device.to_cuda_device()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.addressing_mode"><code class="docutils literal notranslate"><span class="pre">Device.addressing_mode</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.architecture"><code class="docutils literal notranslate"><span class="pre">Device.architecture</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.arch"><code class="docutils literal notranslate"><span class="pre">Device.arch</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.attributes"><code class="docutils literal notranslate"><span class="pre">Device.attributes</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.bar1_memory_info"><code class="docutils literal notranslate"><span class="pre">Device.bar1_memory_info</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda.core.system.Device.brand"><code class="docutils literal notranslate"><span class="pre">Device.brand</span></code></a></li>
