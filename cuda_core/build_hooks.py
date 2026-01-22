@@ -16,20 +16,6 @@ from Cython.Build import cythonize
 from setuptools import Extension
 from setuptools import build_meta as _build_meta
 
-# Import centralized CUDA environment variable handling
-# Note: This import may fail at build-dependency-resolution time if cuda-pathfinder
-# is not yet installed, but it's guaranteed to be available when _get_cuda_path()
-# is actually called (during wheel build time).
-try:
-    from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
-except ImportError as e:
-    raise ImportError(
-        "Failed to import cuda.pathfinder. "
-        "Please ensure cuda-pathfinder is installed as a build dependency. "
-        "If building cuda-core, cuda-pathfinder should be automatically installed. "
-        "If this error persists, try: pip install cuda-pathfinder"
-    ) from e
-
 prepare_metadata_for_build_editable = _build_meta.prepare_metadata_for_build_editable
 prepare_metadata_for_build_wheel = _build_meta.prepare_metadata_for_build_wheel
 build_sdist = _build_meta.build_sdist
@@ -45,6 +31,8 @@ def _get_cuda_paths() -> list[str]:
     Supports multiple paths separated by os.pathsep (: on Unix, ; on Windows).
     Returns a list of paths for use in include_dirs and library_dirs.
     """
+    from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+    
     CUDA_PATH = get_cuda_home_or_path()
     if not CUDA_PATH:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")

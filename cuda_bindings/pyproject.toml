@@ -6,6 +6,7 @@ requires = [
     "setuptools_scm[simple]>=8",
     "cython>=3.2,<3.3",
     "pyclibrary>=0.1.7",
+    "cuda-pathfinder",
 ]
 build-backend = "setuptools.build_meta"
 

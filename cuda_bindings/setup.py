@@ -23,15 +23,7 @@ from setuptools.command.build_py import build_py
 from setuptools.command.editable_wheel import _TopLevelFinder, editable_wheel
 from setuptools.extension import Extension
 
-# Note: cuda_bindings requires cuda.pathfinder to be installed to ensure consistent
-# environment variable handling across all CUDA Python packages.
-try:
-    from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
-except ImportError as e:
-    raise RuntimeError(
-        "cuda.pathfinder package is required to build cuda_bindings. "
-        "Please install it first: pip install cuda-pathfinder"
-    ) from e
+from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 
 # ----------------------------------------------------------------------
 # Fetch configuration options
