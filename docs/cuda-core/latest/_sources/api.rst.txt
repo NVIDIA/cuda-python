@@ -103,7 +103,7 @@ CUDA system information and NVIDIA Management Library (NVML)
    system.CoolerControl
    system.CoolerInfo
    system.CoolerTarget
-   system.DeviceArchitecture
+   system.DeviceArch
    system.DeviceAttributes
    system.DeviceEvents
    system.EventData

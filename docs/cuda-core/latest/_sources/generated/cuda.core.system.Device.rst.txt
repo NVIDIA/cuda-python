@@ -43,7 +43,7 @@ cuda.core.system.Device
 
    
    .. autoattribute:: addressing_mode
-   .. autoattribute:: architecture
+   .. autoattribute:: arch
    .. autoattribute:: attributes
    .. autoattribute:: bar1_memory_info
    .. autoattribute:: brand
