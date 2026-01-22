@@ -21,6 +21,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     ctypedef shared_ptr[const cydriver.CUevent] EventHandle
     ctypedef shared_ptr[const cydriver.CUmemoryPool] MemoryPoolHandle
     ctypedef shared_ptr[const cydriver.CUdeviceptr] DevicePtrHandle
+    ctypedef shared_ptr[const cydriver.CUlibrary] LibraryHandle
+    ctypedef shared_ptr[const cydriver.CUkernel] KernelHandle
 
     # as_cu() - extract the raw CUDA handle (inline C++)
     cydriver.CUcontext as_cu(ContextHandle h) noexcept nogil
@@ -28,6 +30,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     cydriver.CUevent as_cu(EventHandle h) noexcept nogil
     cydriver.CUmemoryPool as_cu(MemoryPoolHandle h) noexcept nogil
     cydriver.CUdeviceptr as_cu(DevicePtrHandle h) noexcept nogil
+    cydriver.CUlibrary as_cu(LibraryHandle h) noexcept nogil
+    cydriver.CUkernel as_cu(KernelHandle h) noexcept nogil
 
     # as_intptr() - extract handle as intptr_t for Python interop (inline C++)
     intptr_t as_intptr(ContextHandle h) noexcept nogil
@@ -35,6 +39,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     intptr_t as_intptr(EventHandle h) noexcept nogil
     intptr_t as_intptr(MemoryPoolHandle h) noexcept nogil
     intptr_t as_intptr(DevicePtrHandle h) noexcept nogil
+    intptr_t as_intptr(LibraryHandle h) noexcept nogil
+    intptr_t as_intptr(KernelHandle h) noexcept nogil
 
     # as_py() - convert handle to Python driver wrapper object (inline C++; requires GIL)
     object as_py(ContextHandle h)
@@ -42,6 +48,8 @@ cdef extern from "_cpp/resource_handles.hpp" namespace "cuda_core":
     object as_py(EventHandle h)
     object as_py(MemoryPoolHandle h)
     object as_py(DevicePtrHandle h)
+    object as_py(LibraryHandle h)
+    object as_py(KernelHandle h)
 
 
 # =============================================================================
@@ -94,3 +102,13 @@ cdef DevicePtrHandle deviceptr_import_ipc(
     MemoryPoolHandle h_pool, const void* export_data, StreamHandle h_stream) nogil except+
 cdef StreamHandle deallocation_stream(const DevicePtrHandle& h) noexcept nogil
 cdef void set_deallocation_stream(const DevicePtrHandle& h, StreamHandle h_stream) noexcept nogil
+
+# Library handles
+cdef LibraryHandle create_library_handle_from_file(const char* path) nogil except+
+cdef LibraryHandle create_library_handle_from_data(const void* data) nogil except+
+cdef LibraryHandle create_library_handle_ref(cydriver.CUlibrary library) nogil except+
+
+# Kernel handles
+cdef KernelHandle get_kernel_from_library(LibraryHandle h_library, const char* name) nogil except+
+cdef KernelHandle create_kernel_handle_ref(
+    cydriver.CUkernel kernel, LibraryHandle h_library) nogil except+

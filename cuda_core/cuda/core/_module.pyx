@@ -11,13 +11,25 @@ from collections import namedtuple
 
 from cuda.core._device import Device
 from cuda.core._launch_config import LaunchConfig, _to_native_launch_config
+from cuda.core._resource_handles cimport (
+    LibraryHandle,
+    KernelHandle,
+    create_library_handle_from_file,
+    create_library_handle_from_data,
+    create_library_handle_ref,
+    get_kernel_from_library,
+    create_kernel_handle_ref,
+    get_last_error,
+    as_py,
+)
 from cuda.core._stream import Stream
 from cuda.core._utils.clear_error_support import (
-    assert_type,
     assert_type_str_or_bytes_like,
     raise_code_path_meant_to_be_unreachable,
 )
-from cuda.core._utils.cuda_utils import CUDAError, driver, get_binding_version, handle_return
+from cuda.core._utils.cuda_utils cimport HANDLE_RETURN
+from cuda.core._utils.cuda_utils import driver, get_binding_version, handle_return
+from cuda.bindings cimport cydriver
 
 __all__ = ["Kernel", "ObjectCode"]
 
@@ -113,17 +125,13 @@ def _is_cukernel_get_library_supported() -> bool:
     )
 
 
-cdef inline object _make_dummy_library_handle():
-    """Create a non-null placeholder CUlibrary handle to disable lazy loading."""
-    return driver.CUlibrary(1) if hasattr(driver, "CUlibrary") else 1
+cdef inline LibraryHandle _make_empty_library_handle():
+    """Create an empty LibraryHandle to indicate no library loaded."""
+    return LibraryHandle()  # Empty shared_ptr
 
 
 cdef class KernelAttributes:
     """Provides access to kernel attributes. Uses weakref to avoid preventing Kernel GC."""
-
-    cdef:
-        object _kernel_weakref
-        dict _cache
 
     def __init__(self, *args, **kwargs):
         raise RuntimeError("KernelAttributes cannot be instantiated directly. Please use Kernel APIs.")
@@ -145,7 +153,7 @@ cdef class KernelAttributes:
         cdef Kernel kernel = <Kernel>(self._kernel_weakref())
         if kernel is None:
             raise RuntimeError("Cannot access kernel attributes for expired Kernel object")
-        result = handle_return(driver.cuKernelGetAttribute(attribute, kernel._handle, device_id))
+        result = handle_return(driver.cuKernelGetAttribute(attribute, as_py(kernel._h_kernel), device_id))
         self._cache[cache_key] = result
         return result
 
@@ -280,9 +288,9 @@ cdef class KernelOccupancy:
         raise RuntimeError("KernelOccupancy cannot be instantiated directly. Please use Kernel APIs.")
 
     @staticmethod
-    cdef KernelOccupancy _init(object handle):
+    cdef KernelOccupancy _init(KernelHandle h_kernel):
         cdef KernelOccupancy self = KernelOccupancy.__new__(KernelOccupancy)
-        self._handle = handle
+        self._h_kernel = h_kernel
         return self
 
     def max_active_blocks_per_multiprocessor(self, block_size: int, dynamic_shared_memory_size: int) -> int:
@@ -311,7 +319,9 @@ cdef class KernelOccupancy:
 
         """
         return handle_return(
-            driver.cuOccupancyMaxActiveBlocksPerMultiprocessor(self._handle, block_size, dynamic_shared_memory_size)
+            driver.cuOccupancyMaxActiveBlocksPerMultiprocessor(
+                as_py(self._h_kernel), block_size, dynamic_shared_memory_size
+            )
         )
 
     def max_potential_block_size(
@@ -346,16 +356,17 @@ cdef class KernelOccupancy:
             Interpreter Lock may lead to deadlocks.
 
         """
+        cdef object kernel_py = as_py(self._h_kernel)
         if isinstance(dynamic_shared_memory_needed, int):
             min_grid_size, max_block_size = handle_return(
                 driver.cuOccupancyMaxPotentialBlockSize(
-                    self._handle, None, dynamic_shared_memory_needed, block_size_limit
+                    kernel_py, None, dynamic_shared_memory_needed, block_size_limit
                 )
             )
         elif isinstance(dynamic_shared_memory_needed, driver.CUoccupancyB2DSize):
             min_grid_size, max_block_size = handle_return(
                 driver.cuOccupancyMaxPotentialBlockSize(
-                    self._handle, dynamic_shared_memory_needed.getPtr(), 0, block_size_limit
+                    kernel_py, dynamic_shared_memory_needed.getPtr(), 0, block_size_limit
                 )
             )
         else:
@@ -383,7 +394,9 @@ cdef class KernelOccupancy:
             Dynamic shared memory available per block for given launch configuration.
         """
         return handle_return(
-            driver.cuOccupancyAvailableDynamicSMemPerBlock(self._handle, num_blocks_per_multiprocessor, block_size)
+            driver.cuOccupancyAvailableDynamicSMemPerBlock(
+                as_py(self._h_kernel), num_blocks_per_multiprocessor, block_size
+            )
         )
 
     def max_potential_cluster_size(self, config: LaunchConfig, stream: Stream | None = None) -> int:
@@ -406,7 +419,7 @@ cdef class KernelOccupancy:
         drv_cfg = _to_native_launch_config(config)
         if stream is not None:
             drv_cfg.hStream = stream.handle
-        return handle_return(driver.cuOccupancyMaxPotentialClusterSize(self._handle, drv_cfg))
+        return handle_return(driver.cuOccupancyMaxPotentialClusterSize(as_py(self._h_kernel), drv_cfg))
 
     def max_active_clusters(self, config: LaunchConfig, stream: Stream | None = None) -> int:
         """Maximum number of active clusters on the target device.
@@ -428,7 +441,7 @@ cdef class KernelOccupancy:
         drv_cfg = _to_native_launch_config(config)
         if stream is not None:
             drv_cfg.hStream = stream.handle
-        return handle_return(driver.cuOccupancyMaxActiveClusters(self._handle, drv_cfg))
+        return handle_return(driver.cuOccupancyMaxActiveClusters(as_py(self._h_kernel), drv_cfg))
 
 
 ParamInfo = namedtuple("ParamInfo", ["offset", "size"])
@@ -449,10 +462,9 @@ cdef class Kernel:
         raise RuntimeError("Kernel objects cannot be instantiated directly. Please use ObjectCode APIs.")
 
     @staticmethod
-    cdef Kernel _from_obj(object obj, ObjectCode mod):
-        assert_type(obj, _get_kernel_ctypes())
+    cdef Kernel _from_obj(KernelHandle h_kernel, ObjectCode mod):
         cdef Kernel ker = Kernel.__new__(Kernel)
-        ker._handle = obj
+        ker._h_kernel = h_kernel
         ker._module = mod
         ker._attributes = None
         ker._occupancy = None
@@ -474,8 +486,9 @@ cdef class Kernel:
             )
         cdef int arg_pos = 0
         cdef list param_info_data = []
+        cdef object kernel_py = as_py(self._h_kernel)
         while True:
-            result = driver.cuKernelGetParamInfo(self._handle, arg_pos)
+            result = driver.cuKernelGetParamInfo(kernel_py, arg_pos)
             if result[0] != driver.CUresult.CUDA_SUCCESS:
                 break
             if param_info:
@@ -502,7 +515,7 @@ cdef class Kernel:
     def occupancy(self) -> KernelOccupancy:
         """Get the occupancy information for launching this kernel."""
         if self._occupancy is None:
-            self._occupancy = KernelOccupancy._init(self._handle)
+            self._occupancy = KernelOccupancy._init(self._h_kernel)
         return self._occupancy
 
     @property
@@ -514,7 +527,7 @@ cdef class Kernel:
             This handle is a Python object. To get the memory address of the underlying C
             handle, call ``int(Kernel.handle)``.
         """
-        return self._handle
+        return as_py(self._h_kernel)
 
     @staticmethod
     def from_handle(handle: int, mod: ObjectCode = None) -> Kernel:
@@ -537,25 +550,28 @@ cdef class Kernel:
         if not isinstance(handle, int):
             raise TypeError(f"handle must be an integer, got {type(handle).__name__}")
 
-        # Convert the integer handle to CUkernel driver type
-        kernel_obj = driver.CUkernel(handle)
+        # Convert the integer handle to CUkernel
+        cdef cydriver.CUkernel cu_kernel = <cydriver.CUkernel><void*><size_t>handle
+        cdef KernelHandle h_kernel
 
-        # If no module provided, create a placeholder
+        # If no module provided, create a placeholder and try to get the library
         if mod is None:
-            # For CUkernel, we can (optionally) inverse-lookup the owning CUlibrary via
-            # cuKernelGetLibrary (added in CUDA 12.5). If the API is not available, we fall
-            # back to a non-null dummy handle purely to disable lazy loading.
             mod = ObjectCode._init(b"", "cubin", "", None)
             if _is_cukernel_get_library_supported():
+                # Try to get the owning library via cuKernelGetLibrary
                 try:
-                    mod._handle = handle_return(driver.cuKernelGetLibrary(kernel_obj))
-                except (CUDAError, RuntimeError):
-                    # Best-effort: don't fail construction if inverse lookup fails.
-                    mod._handle = _make_dummy_library_handle()
-            else:
-                mod._handle = _make_dummy_library_handle()
+                    cu_library = handle_return(driver.cuKernelGetLibrary(driver.CUkernel(handle)))
+                    mod._h_library = create_library_handle_ref(<cydriver.CUlibrary><void*><size_t>int(cu_library))
+                except Exception:
+                    # Best-effort: don't fail construction if inverse lookup fails
+                    pass
 
-        return Kernel._from_obj(kernel_obj, mod)
+        # Create kernel handle with library dependency
+        h_kernel = create_kernel_handle_ref(cu_kernel, mod._h_library)
+        if not h_kernel:
+            HANDLE_RETURN(get_last_error())
+
+        return Kernel._from_obj(h_kernel, mod)
 
 
 CodeTypeT = bytes | bytearray | str
@@ -587,8 +603,8 @@ cdef class ObjectCode:
         assert code_type in _supported_code_type, f"{code_type=} is not supported"
         cdef ObjectCode self = ObjectCode.__new__(ObjectCode)
 
-        # handle is assigned during _lazy_load
-        self._handle = None
+        # _h_library is assigned during _lazy_load_module
+        self._h_library = LibraryHandle()  # Empty handle
         _lazy_init()
 
         self._code_type = code_type
@@ -722,15 +738,21 @@ cdef class ObjectCode:
     # TODO: do we want to unload in a finalizer? Probably not..
 
     cdef int _lazy_load_module(self) except -1:
-        if self._handle is not None:
+        if self._h_library:
             return 0
         module = self._module
         assert_type_str_or_bytes_like(module)
+        cdef bytes path_bytes
         if isinstance(module, str):
-            self._handle = handle_return(driver.cuLibraryLoadFromFile(module.encode(), [], [], 0, [], [], 0))
+            path_bytes = module.encode()
+            self._h_library = create_library_handle_from_file(<const char*>path_bytes)
+            if not self._h_library:
+                HANDLE_RETURN(get_last_error())
             return 0
         if isinstance(module, (bytes, bytearray)):
-            self._handle = handle_return(driver.cuLibraryLoadData(module, [], [], 0, [], [], 0))
+            self._h_library = create_library_handle_from_data(<const void*><char*>module)
+            if not self._h_library:
+                HANDLE_RETURN(get_last_error())
             return 0
         raise_code_path_meant_to_be_unreachable()
         return -1
@@ -758,8 +780,10 @@ cdef class ObjectCode:
         except KeyError:
             name = name.encode()
 
-        data = handle_return(driver.cuLibraryGetKernel(self._handle, name))
-        return Kernel._from_obj(data, self)
+        cdef KernelHandle h_kernel = get_kernel_from_library(self._h_library, <const char*>name)
+        if not h_kernel:
+            HANDLE_RETURN(get_last_error())
+        return Kernel._from_obj(h_kernel, self)
 
     @property
     def code(self) -> CodeTypeT:
@@ -791,4 +815,4 @@ cdef class ObjectCode:
             handle, call ``int(ObjectCode.handle)``.
         """
         self._lazy_load_module()
-        return self._handle
+        return as_py(self._h_library)

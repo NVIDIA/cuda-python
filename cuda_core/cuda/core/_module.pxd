@@ -2,28 +2,31 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from cuda.core._resource_handles cimport LibraryHandle, KernelHandle
+
 cdef class ObjectCode
 cdef class Kernel
 cdef class KernelOccupancy
+cdef class KernelAttributes
 
 
 cdef class Kernel:
     cdef:
-        object _handle      # CUkernel (will become KernelHandle in phase 2c)
+        KernelHandle _h_kernel
         ObjectCode _module  # ObjectCode reference
-        object _attributes  # KernelAttributes (regular Python class, lazy)
-        KernelOccupancy _occupancy  # KernelOccupancy (lazy)
+        KernelAttributes _attributes  # lazy
+        KernelOccupancy _occupancy  # lazy
         object __weakref__  # Enable weak references
 
     @staticmethod
-    cdef Kernel _from_obj(object obj, ObjectCode mod)
+    cdef Kernel _from_obj(KernelHandle h_kernel, ObjectCode mod)
 
     cdef tuple _get_arguments_info(self, bint param_info=*)
 
 
 cdef class ObjectCode:
     cdef:
-        object _handle      # CUlibrary (will become LibraryHandle in phase 2c)
+        LibraryHandle _h_library
         str _code_type
         object _module      # bytes/str source
         dict _sym_map
@@ -37,7 +40,16 @@ cdef class ObjectCode:
 
 cdef class KernelOccupancy:
     cdef:
-        object _handle      # CUkernel reference
+        KernelHandle _h_kernel
 
     @staticmethod
-    cdef KernelOccupancy _init(object handle)
+    cdef KernelOccupancy _init(KernelHandle h_kernel)
+
+
+cdef class KernelAttributes:
+    cdef:
+        object _kernel_weakref
+        dict _cache
+
+    cdef int _get_cached_attribute(self, int device_id, object attribute) except? -1
+    cdef int _resolve_device_id(self, device_id) except? -1
