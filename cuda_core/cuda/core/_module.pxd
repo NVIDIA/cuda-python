@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from cuda.bindings cimport cydriver
 from cuda.core._resource_handles cimport LibraryHandle, KernelHandle
 
 cdef class ObjectCode
@@ -51,5 +52,5 @@ cdef class KernelAttributes:
         object _kernel_weakref
         dict _cache
 
-    cdef int _get_cached_attribute(self, int device_id, object attribute) except? -1
+    cdef int _get_cached_attribute(self, int device_id, cydriver.CUfunction_attribute attribute) except? -1
     cdef int _resolve_device_id(self, device_id) except? -1
