@@ -47,6 +47,16 @@ def test_device_alloc(deinit_cuda):
     assert buffer.device_id == int(device)
 
 
+def test_device_alloc_zero_bytes(deinit_cuda):
+    device = Device()
+    device.set_current()
+    buffer = device.allocate(0)
+    device.sync()
+    assert buffer.handle >= 0
+    assert buffer.size == 0
+    assert buffer.device_id == int(device)
+
+
 def test_device_id(deinit_cuda):
     for device in Device.get_all_devices():
         device.set_current()

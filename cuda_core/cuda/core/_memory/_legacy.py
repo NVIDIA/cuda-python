@@ -46,8 +46,11 @@ class LegacyPinnedMemoryResource(MemoryResource):
             from cuda.core._stream import default_stream
 
             stream = default_stream()
-        err, ptr = driver.cuMemAllocHost(size)
-        raise_if_driver_error(err)
+        if size:
+            err, ptr = driver.cuMemAllocHost(size)
+            raise_if_driver_error(err)
+        else:
+            ptr = 0
         return Buffer._init(ptr, size, self, stream)
 
     def deallocate(self, ptr: DevicePointerT, size, stream):
@@ -64,8 +67,10 @@ class LegacyPinnedMemoryResource(MemoryResource):
         """
         if stream is not None:
             stream.sync()
-        (err,) = driver.cuMemFreeHost(ptr)
-        raise_if_driver_error(err)
+
+        if size:
+            (err,) = driver.cuMemFreeHost(ptr)
+            raise_if_driver_error(err)
 
     @property
     def is_device_accessible(self) -> bool:
@@ -96,15 +101,19 @@ class _SynchronousMemoryResource(MemoryResource):
             from cuda.core._stream import default_stream
 
             stream = default_stream()
-        err, ptr = driver.cuMemAlloc(size)
-        raise_if_driver_error(err)
+        if size:
+            err, ptr = driver.cuMemAlloc(size)
+            raise_if_driver_error(err)
+        else:
+            ptr = 0
         return Buffer._init(ptr, size, self, stream)
 
     def deallocate(self, ptr, size, stream):
         if stream is not None:
             stream.sync()
-        (err,) = driver.cuMemFree(ptr)
-        raise_if_driver_error(err)
+        if size:
+            (err,) = driver.cuMemFree(ptr)
+            raise_if_driver_error(err)
 
     @property
     def is_device_accessible(self) -> bool:
