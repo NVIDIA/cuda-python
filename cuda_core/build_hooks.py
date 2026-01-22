@@ -75,21 +75,21 @@ def _determine_cuda_major_version() -> str:
         return cuda_major
 
     # Derive from the CUDA headers (the authoritative source for what we compile against).
-    # Use the first path if multiple are specified
-    cuda_paths = _get_cuda_paths()
-    cuda_h = os.path.join(cuda_paths[0], "include", "cuda.h")
-    try:
-        with open(cuda_h, encoding="utf-8") as f:
-            for line in f:
-                m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
-                if m:
-                    v = int(m.group(1))
-                    # CUDA_VERSION is e.g. 12020 for 12.2.
-                    cuda_major = str(v // 1000)
-                    print("CUDA MAJOR VERSION:", cuda_major)
-                    return cuda_major
-    except OSError:
-        pass
+    cuda_path = _get_cuda_paths()
+    for root in cuda_path:
+        cuda_h = os.path.join(root, "include", "cuda.h")
+        try:
+            with open(cuda_h, encoding="utf-8") as f:
+                for line in f:
+                    m = re.match(r"^#\s*define\s+CUDA_VERSION\s+(\d+)\s*$", line)
+                    if m:
+                        v = int(m.group(1))
+                        # CUDA_VERSION is e.g. 12020 for 12.2.
+                        cuda_major = str(v // 1000)
+                        print("CUDA MAJOR VERSION:", cuda_major)
+                        return cuda_major
+        except OSError:
+            continue
 
     # CUDA_PATH or CUDA_HOME is required for the build, so we should not reach here
     # in normal circumstances. Raise an error to make the issue clear.
