@@ -13,7 +13,6 @@ import sysconfig
 import tempfile
 from warnings import warn
 
-from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
 from Cython import Tempita
 from Cython.Build import cythonize
 from pyclibrary import CParser
@@ -27,7 +26,13 @@ from setuptools.extension import Extension
 # ----------------------------------------------------------------------
 # Fetch configuration options
 
-CUDA_HOME = get_cuda_home_or_path()
+try:
+    from cuda.pathfinder._utils.env_vars import get_cuda_home_or_path
+    CUDA_HOME = get_cuda_home_or_path()
+except ImportError:
+    # Fallback for build environments where cuda-pathfinder may not be available
+    CUDA_HOME = os.environ.get("CUDA_HOME", os.environ.get("CUDA_PATH", None))
+
 if not CUDA_HOME:
     raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
 
