@@ -5,6 +5,7 @@ import os
 
 import numpy as np
 from common.helper_cuda import checkCudaErrors
+from cuda import pathfinder
 from cuda.bindings import driver as cuda
 from cuda.bindings import nvrtc
 from cuda.bindings import runtime as cudart
@@ -44,16 +45,16 @@ def pytest_skipif_compute_capability_too_low(devID, required_cc_major_minor):
 
 class KernelHelper:
     def __init__(self, code, devID):
-        prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(code), b"sourceCode.cu", 0, None, None))
+        include_dirs = []
+        for libname in ("cudart", "cccl"):
+            hdr_dir = pathfinder.find_nvidia_header_directory(libname)
+            if hdr_dir is None:
+                import pytest
 
-        cuda_home = get_cuda_home()
-        assert cuda_home is not None
-        cuda_include = os.path.join(cuda_home, "include")
-        assert os.path.isdir(cuda_include)
-        include_dirs = [cuda_include]
-        cccl_include = os.path.join(cuda_include, "cccl")
-        if os.path.isdir(cccl_include):
-            include_dirs.insert(0, cccl_include)
+                pytest.skip(f'pathfinder.find_nvidia_header_directory("{libname}") returned None')
+            include_dirs.append(hdr_dir)
+
+        prog = checkCudaErrors(nvrtc.nvrtcCreateProgram(str.encode(code), b"sourceCode.cu", 0, None, None))
 
         # Initialize CUDA
         checkCudaErrors(cudart.cudaFree(0))
