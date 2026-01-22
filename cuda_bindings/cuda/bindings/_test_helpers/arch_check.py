@@ -30,14 +30,18 @@ def unsupported_before(device: int, expected_device_arch: nvml.DeviceArch | str 
         try:
             yield
         except nvml.NotSupportedError:
+            # The API call raised NotSupportedError, so we skip the test, but
+            # don't fail it
             pytest.skip(
                 f"Unsupported call for device architecture {nvml.DeviceArch(device_arch).name} "
                 f"on device '{nvml.device_get_name(device)}'"
             )
+        # If the API call worked, just continue
     elif int(device_arch) < expected_device_arch_int:
         # In this case, we /know/ if will fail, and we want to assert that it does.
         with pytest.raises(nvml.NotSupportedError):
             yield
+        # The above call was unsupported, so the rest of the test is skipped
         pytest.skip(f"Unsupported before {expected_device_arch.name}, got {nvml.device_get_name(device)}")
     else:
         # In this case, we /know/ it should work, and if it fails, the test should fail.
