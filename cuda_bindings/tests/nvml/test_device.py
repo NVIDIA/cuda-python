@@ -72,7 +72,7 @@ def test_get_nv_link_supported_bw_modes(all_devices):
             modes = nvml.device_get_nvlink_supported_bw_modes(device)
         assert isinstance(modes, nvml.NvLinkSupportedBWModes)
         # #define NVML_NVLINK_TOTAL_SUPPORTED_BW_MODES 23
-        assert len(modes.supported_bw_modes) <= 23
+        assert len(modes.bw_modes) <= 23
         assert not hasattr(modes, "total_bw_modes")
 
         for mode in modes.bw_modes:
@@ -133,7 +133,7 @@ def test_get_power_management_limit(all_devices):
     for device in all_devices:
         # Docs say supported on KEPLER or later
         with unsupported_before(device, None):
-            limit = nvml.device_get_power_management_limit(device)
+            nvml.device_get_power_management_limit(device)
 
 
 def test_set_power_management_limit(all_devices):

@@ -62,7 +62,7 @@ def test_gpu_conf_compute_attestation_report(all_devices):
         with unsupported_before(device, None):
             report = nvml.device_get_conf_compute_gpu_attestation_report(device, nonce=b"12345678")
 
-        assert isinstance(report, nvml.ComputeGpuAttestationReport)
+        assert isinstance(report, nvml.ConfComputeGpuAttestationReport)
 
 
 def test_conf_compute_gpu_certificate_t():
@@ -79,4 +79,4 @@ def test_conf_compute_gpu_certificate(all_devices):
         with unsupported_before(device, None):
             cert = nvml.device_get_conf_compute_gpu_certificate(device)
 
-        assert isinstance(cert, nvml.ComputeGpuCertificate)
+        assert isinstance(cert, nvml.ConfComputeGpuCertificate)
