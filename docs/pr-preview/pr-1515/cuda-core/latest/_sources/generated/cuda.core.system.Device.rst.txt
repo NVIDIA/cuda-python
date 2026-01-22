@@ -32,6 +32,7 @@ cuda.core.system.Device
    .. automethod:: get_topology_nearest_gpus
    .. automethod:: register_events
    .. automethod:: set_cpu_affinity
+   .. automethod:: to_cuda_device
 
    
    
