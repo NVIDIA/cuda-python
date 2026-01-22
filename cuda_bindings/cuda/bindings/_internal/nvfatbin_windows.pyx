@@ -313,9 +313,3 @@ cdef nvFatbinResult _nvFatbinAddTileIR(nvFatbinHandle handle, const void* code, 
             raise FunctionNotFoundError("function nvFatbinAddTileIR is not found")
     return (<nvFatbinResult (*)(nvFatbinHandle, const void*, size_t, const char*, const char*) noexcept nogil>__nvFatbinAddTileIR)(
         handle, code, size, identifier, optionsCmdLine)
-
-
-
-
-
-
