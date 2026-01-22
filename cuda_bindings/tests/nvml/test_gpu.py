@@ -61,9 +61,7 @@ def test_gpu_conf_compute_attestation_report(all_devices):
         # Documentation says AMPERE or newer
         with unsupported_before(device, None), pytest.raises(nvml.UnknownError):
             # The nonce string is nonsensical, so if this "works", we expect an UnknownError
-            report = nvml.device_get_conf_compute_gpu_attestation_report(device, nonce=b"12345678")
-
-        assert isinstance(report, nvml.ConfComputeGpuAttestationReport)
+            nvml.device_get_conf_compute_gpu_attestation_report(device, nonce=b"12345678")
 
 
 def test_conf_compute_gpu_certificate_t():
@@ -79,6 +77,4 @@ def test_conf_compute_gpu_certificate(all_devices):
         # Documentation says AMPERE or newer
         with unsupported_before(device, None), pytest.raises(nvml.UnknownError):
             # This is expected to fail if the device doesn't have a proper certificate
-            cert = nvml.device_get_conf_compute_gpu_certificate(device)
-
-        assert isinstance(cert, nvml.ConfComputeGpuCertificate)
+            nvml.device_get_conf_compute_gpu_certificate(device)
