@@ -16,8 +16,8 @@ Breaking Changes
 
 * **CUDA environment variable priority changed**: ``CUDA_PATH`` now takes precedence over ``CUDA_HOME`` when both are set. Previously, ``CUDA_HOME`` had higher priority. If both variables are set and point to different locations, a warning will be issued and ``CUDA_PATH`` will be used. This change aligns with industry standards and NVIDIA's recommended practices.
 
-  **Migration Guide**: 
-  
+  **Migration Guide**:
+
   - If you rely on ``CUDA_HOME``, consider switching to ``CUDA_PATH``
   - If you set both variables, ensure they point to the same CUDA Toolkit installation
   - If they differ intentionally, be aware that ``CUDA_PATH`` will now be used
@@ -27,7 +27,7 @@ New Features
 ~~~~~~~~~~~~
 
 * Added centralized CUDA environment variable handling with :py:func:`cuda.pathfinder._utils.env_vars.get_cuda_home_or_path()`. This function provides:
-  
+
   - Consistent behavior across all cuda-python packages (cuda.pathfinder, cuda.core, cuda.bindings)
   - Intelligent path comparison that handles symlinks, case sensitivity, and trailing slashes
   - Result caching for performance (first call determines the path for the process lifetime)

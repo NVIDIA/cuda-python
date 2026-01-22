@@ -102,15 +102,15 @@ def get_cuda_home_or_path() -> str | None:
         val = os.environ.get(var)
         if val is not None:
             set_vars[var] = val
-    
+
     if not set_vars:
         return None
-    
+
     # If multiple variables are set, check if they differ and warn
     if len(set_vars) > 1:
         # Check if any non-empty values actually differ
         non_empty_values = [(var, val) for var, val in set_vars.items() if val]
-        
+
         if len(non_empty_values) > 1:
             # Check if any pair of non-empty values differs
             values_differ = False
@@ -118,7 +118,7 @@ def get_cuda_home_or_path() -> str | None:
                 if _paths_differ(non_empty_values[i][1], non_empty_values[i + 1][1]):
                     values_differ = True
                     break
-            
+
             if values_differ:
                 # Build a generic warning message that works for any number of variables
                 var_list = "\n".join(f"  {var}={val}" for var, val in set_vars.items())
@@ -130,10 +130,10 @@ def get_cuda_home_or_path() -> str | None:
                     UserWarning,
                     stacklevel=2,
                 )
-    
+
     # Return the first (highest priority) set variable
     for var in CUDA_ENV_VARS_ORDERED:
         if var in set_vars:
             return set_vars[var]
-    
+
     return None

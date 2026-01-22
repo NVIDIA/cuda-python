@@ -229,27 +229,27 @@ def test_caching_behavior(monkeypatch, tmp_path):
     value even if environment variables change after the first call.
     """
     unset_env(monkeypatch)
-    
+
     first_dir = tmp_path / "first"
     second_dir = tmp_path / "second"
     first_dir.mkdir()
     second_dir.mkdir()
-    
+
     # Set initial value
     monkeypatch.setenv("CUDA_PATH", str(first_dir))
-    
+
     # First call should return first_dir
     result1 = get_cuda_home_or_path()
     assert pathlib.Path(result1) == first_dir
-    
+
     # Change the environment variable
     monkeypatch.setenv("CUDA_PATH", str(second_dir))
-    
+
     # Second call should still return first_dir (cached value)
     result2 = get_cuda_home_or_path()
     assert pathlib.Path(result2) == first_dir
     assert result1 == result2
-    
+
     # After clearing cache, should get new value
     get_cuda_home_or_path.cache_clear()
     result3 = get_cuda_home_or_path()
