@@ -48,9 +48,9 @@ def _get_cuda_paths() -> list[str]:
     CUDA_PATH = get_cuda_home_or_path()
     if not CUDA_PATH:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
-    CUDA_PATHS = CUDA_PATH.split(os.pathsep)
-    print("CUDA paths:", CUDA_PATHS)
-    return CUDA_PATHS
+    CUDA_PATH = CUDA_PATH.split(os.pathsep)
+    print("CUDA paths:", CUDA_PATH)
+    return CUDA_PATH
 
 
 @functools.cache
