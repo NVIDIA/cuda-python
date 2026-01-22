@@ -566,7 +566,7 @@ cdef class Kernel:
         return as_py(self._h_kernel)
 
     @staticmethod
-    def from_handle(handle: int, mod: ObjectCode = None) -> Kernel:
+    def from_handle(handle, mod: ObjectCode = None) -> Kernel:
         """Creates a new :obj:`Kernel` object from a foreign kernel handle.
 
         Uses a CUkernel pointer address to create a new :obj:`Kernel` object.
