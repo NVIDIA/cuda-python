@@ -23,6 +23,7 @@ cuda.core.Device
    .. automethod:: get_all_devices
    .. automethod:: set_current
    .. automethod:: sync
+   .. automethod:: to_system_device
 
    
    
