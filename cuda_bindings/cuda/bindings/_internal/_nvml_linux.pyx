@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 #
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 #
@@ -247,7 +247,6 @@ cdef void* __nvmlDeviceSetDefaultAutoBoostedClocksEnabled = NULL
 cdef void* __nvmlDeviceSetDefaultFanSpeed_v2 = NULL
 cdef void* __nvmlDeviceSetFanControlPolicy = NULL
 cdef void* __nvmlDeviceSetTemperatureThreshold = NULL
-cdef void* __nvmlDeviceSetPowerManagementLimit = NULL
 cdef void* __nvmlDeviceSetGpuOperationMode = NULL
 cdef void* __nvmlDeviceSetAPIRestriction = NULL
 cdef void* __nvmlDeviceSetFanSpeed_v2 = NULL
@@ -386,13 +385,7 @@ cdef void* __nvmlDeviceGetComputeInstanceId = NULL
 cdef void* __nvmlDeviceGetMaxMigDeviceCount = NULL
 cdef void* __nvmlDeviceGetMigDeviceHandleByIndex = NULL
 cdef void* __nvmlDeviceGetDeviceHandleFromMigDeviceHandle = NULL
-cdef void* __nvmlGpmSampleGet = NULL
-cdef void* __nvmlGpmMigSampleGet = NULL
-cdef void* __nvmlGpmQueryDeviceSupport = NULL
-cdef void* __nvmlGpmQueryIfStreamingEnabled = NULL
-cdef void* __nvmlGpmSetStreamingEnabled = NULL
 cdef void* __nvmlDeviceGetCapabilities = NULL
-cdef void* __nvmlDeviceWorkloadPowerProfileClearRequestedProfiles = NULL
 cdef void* __nvmlDevicePowerSmoothingActivatePresetProfile = NULL
 cdef void* __nvmlDevicePowerSmoothingUpdatePresetProfileParam = NULL
 cdef void* __nvmlDevicePowerSmoothingSetState = NULL
@@ -1735,13 +1728,6 @@ cdef int _init_nvml() except -1 nogil:
                 handle = load_library()
             __nvmlDeviceSetTemperatureThreshold = dlsym(handle, 'nvmlDeviceSetTemperatureThreshold')
 
-        global __nvmlDeviceSetPowerManagementLimit
-        __nvmlDeviceSetPowerManagementLimit = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetPowerManagementLimit')
-        if __nvmlDeviceSetPowerManagementLimit == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvmlDeviceSetPowerManagementLimit = dlsym(handle, 'nvmlDeviceSetPowerManagementLimit')
-
         global __nvmlDeviceSetGpuOperationMode
         __nvmlDeviceSetGpuOperationMode = dlsym(RTLD_DEFAULT, 'nvmlDeviceSetGpuOperationMode')
         if __nvmlDeviceSetGpuOperationMode == NULL:
@@ -2708,54 +2694,12 @@ cdef int _init_nvml() except -1 nogil:
                 handle = load_library()
             __nvmlDeviceGetDeviceHandleFromMigDeviceHandle = dlsym(handle, 'nvmlDeviceGetDeviceHandleFromMigDeviceHandle')
 
-        global __nvmlGpmSampleGet
-        __nvmlGpmSampleGet = dlsym(RTLD_DEFAULT, 'nvmlGpmSampleGet')
-        if __nvmlGpmSampleGet == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvmlGpmSampleGet = dlsym(handle, 'nvmlGpmSampleGet')
-
-        global __nvmlGpmMigSampleGet
-        __nvmlGpmMigSampleGet = dlsym(RTLD_DEFAULT, 'nvmlGpmMigSampleGet')
-        if __nvmlGpmMigSampleGet == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvmlGpmMigSampleGet = dlsym(handle, 'nvmlGpmMigSampleGet')
-
-        global __nvmlGpmQueryDeviceSupport
-        __nvmlGpmQueryDeviceSupport = dlsym(RTLD_DEFAULT, 'nvmlGpmQueryDeviceSupport')
-        if __nvmlGpmQueryDeviceSupport == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvmlGpmQueryDeviceSupport = dlsym(handle, 'nvmlGpmQueryDeviceSupport')
-
-        global __nvmlGpmQueryIfStreamingEnabled
-        __nvmlGpmQueryIfStreamingEnabled = dlsym(RTLD_DEFAULT, 'nvmlGpmQueryIfStreamingEnabled')
-        if __nvmlGpmQueryIfStreamingEnabled == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvmlGpmQueryIfStreamingEnabled = dlsym(handle, 'nvmlGpmQueryIfStreamingEnabled')
-
-        global __nvmlGpmSetStreamingEnabled
-        __nvmlGpmSetStreamingEnabled = dlsym(RTLD_DEFAULT, 'nvmlGpmSetStreamingEnabled')
-        if __nvmlGpmSetStreamingEnabled == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvmlGpmSetStreamingEnabled = dlsym(handle, 'nvmlGpmSetStreamingEnabled')
-
         global __nvmlDeviceGetCapabilities
         __nvmlDeviceGetCapabilities = dlsym(RTLD_DEFAULT, 'nvmlDeviceGetCapabilities')
         if __nvmlDeviceGetCapabilities == NULL:
             if handle == NULL:
                 handle = load_library()
             __nvmlDeviceGetCapabilities = dlsym(handle, 'nvmlDeviceGetCapabilities')
-
-        global __nvmlDeviceWorkloadPowerProfileClearRequestedProfiles
-        __nvmlDeviceWorkloadPowerProfileClearRequestedProfiles = dlsym(RTLD_DEFAULT, 'nvmlDeviceWorkloadPowerProfileClearRequestedProfiles')
-        if __nvmlDeviceWorkloadPowerProfileClearRequestedProfiles == NULL:
-            if handle == NULL:
-                handle = load_library()
-            __nvmlDeviceWorkloadPowerProfileClearRequestedProfiles = dlsym(handle, 'nvmlDeviceWorkloadPowerProfileClearRequestedProfiles')
 
         global __nvmlDevicePowerSmoothingActivatePresetProfile
         __nvmlDevicePowerSmoothingActivatePresetProfile = dlsym(RTLD_DEFAULT, 'nvmlDevicePowerSmoothingActivatePresetProfile')
@@ -3459,9 +3403,6 @@ cpdef dict _inspect_function_pointers():
     global __nvmlDeviceSetTemperatureThreshold
     data["__nvmlDeviceSetTemperatureThreshold"] = <intptr_t>__nvmlDeviceSetTemperatureThreshold
 
-    global __nvmlDeviceSetPowerManagementLimit
-    data["__nvmlDeviceSetPowerManagementLimit"] = <intptr_t>__nvmlDeviceSetPowerManagementLimit
-
     global __nvmlDeviceSetGpuOperationMode
     data["__nvmlDeviceSetGpuOperationMode"] = <intptr_t>__nvmlDeviceSetGpuOperationMode
 
@@ -3876,26 +3817,8 @@ cpdef dict _inspect_function_pointers():
     global __nvmlDeviceGetDeviceHandleFromMigDeviceHandle
     data["__nvmlDeviceGetDeviceHandleFromMigDeviceHandle"] = <intptr_t>__nvmlDeviceGetDeviceHandleFromMigDeviceHandle
 
-    global __nvmlGpmSampleGet
-    data["__nvmlGpmSampleGet"] = <intptr_t>__nvmlGpmSampleGet
-
-    global __nvmlGpmMigSampleGet
-    data["__nvmlGpmMigSampleGet"] = <intptr_t>__nvmlGpmMigSampleGet
-
-    global __nvmlGpmQueryDeviceSupport
-    data["__nvmlGpmQueryDeviceSupport"] = <intptr_t>__nvmlGpmQueryDeviceSupport
-
-    global __nvmlGpmQueryIfStreamingEnabled
-    data["__nvmlGpmQueryIfStreamingEnabled"] = <intptr_t>__nvmlGpmQueryIfStreamingEnabled
-
-    global __nvmlGpmSetStreamingEnabled
-    data["__nvmlGpmSetStreamingEnabled"] = <intptr_t>__nvmlGpmSetStreamingEnabled
-
     global __nvmlDeviceGetCapabilities
     data["__nvmlDeviceGetCapabilities"] = <intptr_t>__nvmlDeviceGetCapabilities
-
-    global __nvmlDeviceWorkloadPowerProfileClearRequestedProfiles
-    data["__nvmlDeviceWorkloadPowerProfileClearRequestedProfiles"] = <intptr_t>__nvmlDeviceWorkloadPowerProfileClearRequestedProfiles
 
     global __nvmlDevicePowerSmoothingActivatePresetProfile
     data["__nvmlDevicePowerSmoothingActivatePresetProfile"] = <intptr_t>__nvmlDevicePowerSmoothingActivatePresetProfile
@@ -5833,16 +5756,6 @@ cdef nvmlReturn_t _nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, nvmlTe
         device, thresholdType, temp)
 
 
-cdef nvmlReturn_t _nvmlDeviceSetPowerManagementLimit(nvmlDevice_t device, unsigned int limit) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    global __nvmlDeviceSetPowerManagementLimit
-    _check_or_init_nvml()
-    if __nvmlDeviceSetPowerManagementLimit == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvmlDeviceSetPowerManagementLimit is not found")
-    return (<nvmlReturn_t (*)(nvmlDevice_t, unsigned int) noexcept nogil>__nvmlDeviceSetPowerManagementLimit)(
-        device, limit)
-
-
 cdef nvmlReturn_t _nvmlDeviceSetGpuOperationMode(nvmlDevice_t device, nvmlGpuOperationMode_t mode) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceSetGpuOperationMode
     _check_or_init_nvml()
@@ -7223,56 +7136,6 @@ cdef nvmlReturn_t _nvmlDeviceGetDeviceHandleFromMigDeviceHandle(nvmlDevice_t mig
         migDevice, device)
 
 
-cdef nvmlReturn_t _nvmlGpmSampleGet(nvmlDevice_t device, nvmlGpmSample_t gpmSample) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    global __nvmlGpmSampleGet
-    _check_or_init_nvml()
-    if __nvmlGpmSampleGet == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvmlGpmSampleGet is not found")
-    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlGpmSample_t) noexcept nogil>__nvmlGpmSampleGet)(
-        device, gpmSample)
-
-
-cdef nvmlReturn_t _nvmlGpmMigSampleGet(nvmlDevice_t device, unsigned int gpuInstanceId, nvmlGpmSample_t gpmSample) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    global __nvmlGpmMigSampleGet
-    _check_or_init_nvml()
-    if __nvmlGpmMigSampleGet == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvmlGpmMigSampleGet is not found")
-    return (<nvmlReturn_t (*)(nvmlDevice_t, unsigned int, nvmlGpmSample_t) noexcept nogil>__nvmlGpmMigSampleGet)(
-        device, gpuInstanceId, gpmSample)
-
-
-cdef nvmlReturn_t _nvmlGpmQueryDeviceSupport(nvmlDevice_t device, nvmlGpmSupport_t* gpmSupport) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    global __nvmlGpmQueryDeviceSupport
-    _check_or_init_nvml()
-    if __nvmlGpmQueryDeviceSupport == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvmlGpmQueryDeviceSupport is not found")
-    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlGpmSupport_t*) noexcept nogil>__nvmlGpmQueryDeviceSupport)(
-        device, gpmSupport)
-
-
-cdef nvmlReturn_t _nvmlGpmQueryIfStreamingEnabled(nvmlDevice_t device, unsigned int* state) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    global __nvmlGpmQueryIfStreamingEnabled
-    _check_or_init_nvml()
-    if __nvmlGpmQueryIfStreamingEnabled == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvmlGpmQueryIfStreamingEnabled is not found")
-    return (<nvmlReturn_t (*)(nvmlDevice_t, unsigned int*) noexcept nogil>__nvmlGpmQueryIfStreamingEnabled)(
-        device, state)
-
-
-cdef nvmlReturn_t _nvmlGpmSetStreamingEnabled(nvmlDevice_t device, unsigned int state) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    global __nvmlGpmSetStreamingEnabled
-    _check_or_init_nvml()
-    if __nvmlGpmSetStreamingEnabled == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvmlGpmSetStreamingEnabled is not found")
-    return (<nvmlReturn_t (*)(nvmlDevice_t, unsigned int) noexcept nogil>__nvmlGpmSetStreamingEnabled)(
-        device, state)
-
-
 cdef nvmlReturn_t _nvmlDeviceGetCapabilities(nvmlDevice_t device, nvmlDeviceCapabilities_t* caps) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
     global __nvmlDeviceGetCapabilities
     _check_or_init_nvml()
@@ -7281,16 +7144,6 @@ cdef nvmlReturn_t _nvmlDeviceGetCapabilities(nvmlDevice_t device, nvmlDeviceCapa
             raise FunctionNotFoundError("function nvmlDeviceGetCapabilities is not found")
     return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlDeviceCapabilities_t*) noexcept nogil>__nvmlDeviceGetCapabilities)(
         device, caps)
-
-
-cdef nvmlReturn_t _nvmlDeviceWorkloadPowerProfileClearRequestedProfiles(nvmlDevice_t device, nvmlWorkloadPowerProfileRequestedProfiles_t* requestedProfiles) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
-    global __nvmlDeviceWorkloadPowerProfileClearRequestedProfiles
-    _check_or_init_nvml()
-    if __nvmlDeviceWorkloadPowerProfileClearRequestedProfiles == NULL:
-        with gil:
-            raise FunctionNotFoundError("function nvmlDeviceWorkloadPowerProfileClearRequestedProfiles is not found")
-    return (<nvmlReturn_t (*)(nvmlDevice_t, nvmlWorkloadPowerProfileRequestedProfiles_t*) noexcept nogil>__nvmlDeviceWorkloadPowerProfileClearRequestedProfiles)(
-        device, requestedProfiles)
 
 
 cdef nvmlReturn_t _nvmlDevicePowerSmoothingActivatePresetProfile(nvmlDevice_t device, nvmlPowerSmoothingProfile_t* profile) except?_NVMLRETURN_T_INTERNAL_LOADING_ERROR nogil:
