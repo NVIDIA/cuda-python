@@ -39,12 +39,18 @@ COMPILE_FOR_COVERAGE = bool(int(os.environ.get("CUDA_PYTHON_COVERAGE", "0")))
 
 
 @functools.cache
-def _get_cuda_path() -> str:
+def _get_cuda_paths() -> list[str]:
+    """Get list of CUDA Toolkit paths from environment variables.
+    
+    Supports multiple paths separated by os.pathsep (: on Unix, ; on Windows).
+    Returns a list of paths for use in include_dirs and library_dirs.
+    """
     CUDA_PATH = get_cuda_home_or_path()
     if not CUDA_PATH:
         raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
-    print("CUDA path:", CUDA_PATH)
-    return CUDA_PATH
+    CUDA_PATHS = CUDA_PATH.split(os.pathsep)
+    print("CUDA paths:", CUDA_PATHS)
+    return CUDA_PATHS
 
 
 @functools.cache
@@ -69,8 +75,9 @@ def _determine_cuda_major_version() -> str:
         return cuda_major
 
     # Derive from the CUDA headers (the authoritative source for what we compile against).
-    cuda_path = _get_cuda_path()
-    cuda_h = os.path.join(cuda_path, "include", "cuda.h")
+    # Use the first path if multiple are specified
+    cuda_paths = _get_cuda_paths()
+    cuda_h = os.path.join(cuda_paths[0], "include", "cuda.h")
     try:
         with open(cuda_h, encoding="utf-8") as f:
             for line in f:
@@ -124,7 +131,7 @@ def _build_cuda_core():
 
         return sources
 
-    all_include_dirs = [os.path.join(_get_cuda_path(), "include")]
+    all_include_dirs = [os.path.join(path, "include") for path in _get_cuda_paths()]
     extra_compile_args = []
     if COMPILE_FOR_COVERAGE:
         # CYTHON_TRACE_NOGIL indicates to trace nogil functions.  It is not

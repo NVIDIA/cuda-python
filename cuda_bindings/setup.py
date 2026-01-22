@@ -40,6 +40,8 @@ CUDA_HOME = get_cuda_home_or_path()
 if not CUDA_HOME:
     raise RuntimeError("Environment variable CUDA_PATH or CUDA_HOME is not set")
 
+CUDA_HOME = CUDA_HOME.split(os.pathsep)
+
 if os.environ.get("PARALLEL_LEVEL") is not None:
     warn(
         "Environment variable PARALLEL_LEVEL is deprecated. Use CUDA_PYTHON_PARALLEL_LEVEL instead",
@@ -215,7 +217,7 @@ def parse_headers(header_dict):
     return found_types, found_functions, found_values, found_struct, struct_list
 
 
-include_path_list = [os.path.join(CUDA_HOME, "include")]
+include_path_list = [os.path.join(path, "include") for path in CUDA_HOME]
 header_dict = fetch_header_paths(required_headers, include_path_list)
 found_types, found_functions, found_values, found_struct, struct_list = parse_headers(header_dict)
 
@@ -268,7 +270,8 @@ include_dirs = [
 ] + include_path_list
 library_dirs = [sysconfig.get_path("platlib"), os.path.join(os.sys.prefix, "lib")]
 cudalib_subdirs = [r"lib\x64"] if sys.platform == "win32" else ["lib64", "lib"]
-library_dirs.extend(os.path.join(CUDA_HOME, subdir) for subdir in cudalib_subdirs)
+for cuda_home in CUDA_HOME:
+    library_dirs.extend(os.path.join(cuda_home, subdir) for subdir in cudalib_subdirs)
 
 extra_compile_args = []
 extra_cythonize_kwargs = {}
