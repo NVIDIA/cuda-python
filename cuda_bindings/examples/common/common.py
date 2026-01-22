@@ -1,7 +1,6 @@
 # Copyright 2021-2025 NVIDIA Corporation.  All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
-import os
 
 import numpy as np
 from common.helper_cuda import checkCudaErrors
@@ -9,24 +8,6 @@ from cuda import pathfinder
 from cuda.bindings import driver as cuda
 from cuda.bindings import nvrtc
 from cuda.bindings import runtime as cudart
-
-
-def get_cuda_home():
-    cuda_home = os.getenv("CUDA_HOME")
-    if cuda_home is None:
-        cuda_home = os.getenv("CUDA_PATH")
-    return cuda_home
-
-
-def pytest_skipif_cuda_include_not_found():
-    import pytest
-
-    cuda_home = get_cuda_home()
-    if cuda_home is None:
-        pytest.skip("CUDA_HOME/CUDA_PATH not set")
-    cuda_include = os.path.join(cuda_home, "include")
-    if not os.path.exists(cuda_include):
-        pytest.skip(f"$CUDA_HOME/include does not exist: '{cuda_include}'")
 
 
 def pytest_skipif_compute_capability_too_low(devID, required_cc_major_minor):

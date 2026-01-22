@@ -1114,7 +1114,6 @@ def MatrixMultiply(dimsA, dimsB, kernel_number):
 
 
 def main():
-    common.pytest_skipif_cuda_include_not_found()
     common.pytest_skipif_compute_capability_too_low(findCudaDevice(), (7, 0))
 
     print("[globalToShmemAsyncCopy] - Starting...")
