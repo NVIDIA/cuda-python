@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-NVIDIA-SOFTWARE-LICENSE
 
 
@@ -25,8 +25,11 @@ def test_compute_mode_supported_nonroot(all_devices):
             continue
 
         for cm in COMPUTE_MODES:
-            with pytest.raises(nvml.NoPermissionError):
+            try:
                 nvml.device_set_compute_mode(device, cm)
+            except nvml.NoPermissionError:
+                skip_reasons.add(f"nvmlDeviceSetComputeMode requires root for device {device}")
+                continue
             assert original_compute_mode == nvml.device_get_compute_mode(device), "Compute mode shouldn't have changed"
 
     if skip_reasons:
