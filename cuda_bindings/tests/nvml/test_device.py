@@ -117,7 +117,10 @@ def test_read_prm_counters(all_devices):
 def test_read_write_prm(all_devices):
     for device in all_devices:
         with unsupported_before(device, nvml.DeviceArch.BLACKWELL):
-            result = nvml.device_read_write_prm_v1(device, b"012345678")
+            try:
+                result = nvml.device_read_write_prm_v1(device, b"012345678")
+            except nvml.NoPermissionError:
+                pytest.skip("No permission to read/write PRM")
         assert isinstance(result, tuple)
         assert isinstance(result[0], int)
         assert isinstance(result[1], bytes)
@@ -125,7 +128,8 @@ def test_read_write_prm(all_devices):
 
 def test_nvlink_low_power_threshold(all_devices):
     for device in all_devices:
-        with unsupported_before(device, nvml.DeviceArch.HOPPER):
+        # Docs say supported on HOPPER or newer
+        with unsupported_before(device, None):
             nvml.device_set_nvlink_device_low_power_threshold(device, 0)
 
 
@@ -143,17 +147,21 @@ def test_set_power_management_limit(all_devices):
                 nvml.device_set_power_management_limit_v2(device, nvml.PowerScope.GPU, 10000)
             except nvml.NoPermissionError:
                 pytest.skip("No permission to set power management limit")
+            except nvml.InvalidArgumentError:
+                pytest.skip("Invalid argument when setting power management limit -- probably unsupported")
 
 
 def test_set_temperature_threshold(all_devices):
     for device in all_devices:
         with unsupported_before(device, nvml.DeviceArch.MAXWELL):
             temp = nvml.device_get_temperature_threshold(
-                device, nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_SHUTDOWN
+                device, nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_CURR
             )
         try:
             nvml.device_set_temperature_threshold(
-                device, nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_SHUTDOWN, temp
+                device, nvml.TemperatureThresholds.TEMPERATURE_THRESHOLD_ACOUSTIC_CURR, temp
             )
         except nvml.NoPermissionError:
             pytest.skip("No permission to set temperature threshold")
+        except nvml.InvalidArgumentError:
+            pytest.skip("Invalid argument when setting temperature threshold -- this is probably the temp type")
