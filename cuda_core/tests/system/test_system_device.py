@@ -50,6 +50,23 @@ def test_device_count():
     assert system.Device.get_device_count() == system.get_num_devices()
 
 
+def test_to_cuda_device():
+    from cuda.core import Device as CudaDevice
+
+    for device in system.Device.get_all_devices():
+        cuda_device = device.to_cuda_device()
+
+        assert isinstance(cuda_device, CudaDevice)
+        assert cuda_device.uuid == device.uuid
+
+        # Technically, this test will only work with PCI devices, but are there
+        # non-PCI devices we need to support?
+
+        # CUDA only returns a 2-byte PCI bus ID domain, whereas NVML returns a
+        # 4-byte domain
+        assert cuda_device.pci_bus_id == device.pci_info.bus_id[4:]
+
+
 def test_device_architecture():
     for device in system.Device.get_all_devices():
         device_arch = device.arch
@@ -269,8 +286,8 @@ def test_register_events():
 def test_event_type_parsing():
     events = [system.EventType(1 << ev) for ev in _device._unpack_bitmask(array.array("Q", [3]))]
     assert events == [
-        system.EventType.EVENT_TYPE_SINGLE_BIT_ECC_ERROR,
-        system.EventType.EVENT_TYPE_DOUBLE_BIT_ECC_ERROR,
+        system.EventType.SINGLE_BIT_ECC_ERROR,
+        system.EventType.DOUBLE_BIT_ECC_ERROR,
     ]
 
 
