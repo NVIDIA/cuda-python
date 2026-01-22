@@ -1034,6 +1034,29 @@ class Device:
         total = system.get_num_devices()
         return tuple(cls(device_id) for device_id in range(total))
 
+    def to_system_device(self) -> 'cuda.core.system.Device':
+        """
+        Get the corresponding :class:`cuda.core.system.Device` (which is used
+        for NVIDIA Machine Library (NVML) access) for this
+        :class:`cuda.core.Device` (which is used for CUDA access).
+
+        The devices are mapped to one another by their UUID.
+
+        Returns
+        -------
+        cuda.core.system.Device
+            The corresponding system-level device instance used for NVML access.
+        """
+        from cuda.core.system._system import CUDA_BINDINGS_NVML_IS_COMPATIBLE
+
+        if not CUDA_BINDINGS_NVML_IS_COMPATIBLE:
+            raise RuntimeError(
+                "cuda.core.system.Device requires cuda_bindings 13.1.2+ or 12.9.6+"
+            )
+
+        from cuda.core.system import Device as SystemDevice
+        return SystemDevice(uuid=self.uuid)
+
     @property
     def device_id(self) -> int:
         """Return device ordinal."""

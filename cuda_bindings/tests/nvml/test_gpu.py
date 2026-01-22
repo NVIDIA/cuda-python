@@ -5,6 +5,7 @@ import pytest
 from cuda.bindings import _nvml as nvml
 
 from . import util
+from .conftest import unsupported_before
 
 
 def test_gpu_get_module_id(nvml_init):
@@ -23,23 +24,14 @@ def test_gpu_get_module_id(nvml_init):
 
 
 def test_gpu_get_platform_info(all_devices):
-    skip_reasons = set()
     for device in all_devices:
         if util.is_vgpu(device):
-            skip_reasons.add(f"Not supported on vGPU device {device}")
-            continue
+            pytest.skip(f"Not supported on vGPU device {device}")
 
-        # TODO
-        # if device.feature_dict.board.chip < board_class.Architecture.Blackwell:
-        #     test_utils.skip_test("Not supported on chip before Blackwell")
+        # Documentation says Blackwell or newer only, but this does seem to pass
+        # on some newer GPUs.
 
-        try:
+        with unsupported_before(device, None):
             platform_info = nvml.device_get_platform_info(device)
-        except nvml.NotSupportedError:
-            skip_reasons.add(f"Not supported returned, linkely NVLink is disable for {device}")
-            continue
 
         assert isinstance(platform_info, nvml.PlatformInfo_v2)
-
-    if skip_reasons:
-        pytest.skip(" ; ".join(skip_reasons))

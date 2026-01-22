@@ -21,6 +21,7 @@ ClocksEventReasons = nvml.ClocksEventReasons
 ClockType = nvml.ClockType
 CoolerControl = nvml.CoolerControl
 CoolerTarget = nvml.CoolerTarget
+DeviceArch = nvml.DeviceArch
 EventType = nvml.EventType
 FanControlPolicy = nvml.FanControlPolicy
 FieldId = nvml.FieldId
@@ -43,41 +44,6 @@ include "_fan.pxi"
 include "_inforom.pxi"
 include "_performance.pxi"
 include "_temperature.pxi"
-
-
-class DeviceArchitecture:
-    """
-    Device architecture enumeration.
-    """
-
-    def __init__(self, architecture: int):
-        try:
-            self._architecture = nvml.DeviceArch(architecture)
-        except ValueError:
-            self._architecture = None
-
-    @property
-    def id(self) -> int:
-        """
-        The numeric id of the device architecture.
-
-        Returns -1 if the device is unknown.
-        """
-        if self._architecture is None:
-            return -1
-        return int(self._architecture)
-
-    @property
-    def name(self) -> str:
-        """
-        The name of the device architecture.
-
-        Returns "Unlisted" if the device is unknown.
-        """
-        if self._architecture is None:
-            return "Unlisted"
-        name = self._architecture.name
-        return name[name.rfind("_") + 1 :].title()
 
 
 cdef class MemoryInfo:
@@ -692,7 +658,8 @@ cdef class Device:
         If anything other than a single `index`, `uuid` or `pci_bus_id` are specified.
     """
 
-    cdef intptr_t _handle
+    # This is made public for testing purposes only
+    cdef public intptr_t _handle
 
     def __init__(
         self,
@@ -721,6 +688,30 @@ cdef class Device:
             if isinstance(pci_bus_id, bytes):
                 pci_bus_id = pci_bus_id.decode("ascii")
             self._handle = nvml.device_get_handle_by_pci_bus_id_v2(pci_bus_id)
+
+    def to_cuda_device(self) -> "cuda.core.Device":
+        """
+        Get the corresponding :class:`cuda.core.Device` (which is used for CUDA
+        access) for this :class:`cuda.core.system.Device` (which is used for
+        NVIDIA machine library (NVML) access).
+
+        The devices are mapped to one another by their UUID.
+
+        Returns
+        -------
+        cuda.core.Device
+            The corresponding CUDA device.
+        """
+        from cuda.core import Device as CudaDevice
+
+        # CUDA does not have an API to get a device by its UUID, so we just
+        # search all the devices for one with a matching UUID.
+
+        for cuda_device in CudaDevice.get_all_devices():
+            if cuda_device.uuid == self.uuid:
+                return cuda_device
+
+        raise RuntimeError("No corresponding CUDA device found for this NVML device.")
 
     @classmethod
     def get_device_count(cls) -> int:
@@ -952,16 +943,15 @@ cdef class Device:
         return [Pstates(x) for x in nvml.device_get_supported_performance_states(self._handle)]
 
     @property
-    def architecture(self) -> DeviceArchitecture:
+    def arch(self) -> DeviceArch:
         """
-        Device architecture. For example, a Tesla V100 will report
-        ``DeviceArchitecture.name == "Volta"``, and RTX A6000 will report
-        ``DeviceArchitecture.name == "Ampere"``. If the device returns an
-        architecture that is unknown to NVML then ``DeviceArchitecture.name ==
-        "Unknown"`` is reported, whereas an architecture that is unknown to
-        cuda.core.system is reported as ``DeviceArchitecture.name == "Unlisted"``.
+        Device architecture.
+
+        For example, a Tesla V100 will report ``DeviceArchitecture.name ==
+        "VOLTA"``, and RTX A6000 will report ``DeviceArchitecture.name ==
+        "AMPERE"``.
         """
-        return DeviceArchitecture(nvml.device_get_architecture(self._handle))
+        return DeviceArch(nvml.device_get_architecture(self._handle))
 
     @property
     def bar1_memory_info(self) -> BAR1MemoryInfo:
@@ -1027,6 +1017,8 @@ cdef class Device:
         """
         Retrieves the globally unique board serial number associated with this
         device's board.
+
+        For all products with an InfoROM.
         """
         return nvml.device_get_serial(self._handle)
 
@@ -1036,8 +1028,16 @@ cdef class Device:
         Retrieves the globally unique immutable UUID associated with this
         device, as a 5 part hexadecimal string, that augments the immutable,
         board serial identifier.
+
+        In the upstream NVML C++ API, the UUID includes a ``gpu-`` or ``mig-``
+        prefix.  That is not included in ``cuda.core.system``.
         """
-        return nvml.device_get_uuid(self._handle)
+        # NVML UUIDs have a `GPU-` or `MIG-` prefix.  We remove that here.
+
+        # TODO: If the user cares about the prefix, we will expose that in the
+        # future using the MIG-related APIs in NVML.
+
+        return nvml.device_get_uuid(self._handle)[4:]
 
     def register_events(self, events: EventType | int | list[EventType | int]) -> DeviceEvents:
         """
@@ -1268,6 +1268,8 @@ cdef class Device:
         """
         Get the addressing mode of the device.
 
+        For Turing™ or newer fully supported devices.
+
         Addressing modes can be one of:
 
         - :attr:`AddressingMode.DEVICE_ADDRESSING_MODE_HMM`: System allocated
@@ -1486,7 +1488,7 @@ __all__ = [
     "CoolerInfo",
     "CoolerTarget",
     "Device",
-    "DeviceArchitecture",
+    "DeviceArch",
     "DeviceAttributes",
     "DeviceEvents",
     "EventData",
